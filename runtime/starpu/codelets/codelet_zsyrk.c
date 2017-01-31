@@ -144,6 +144,7 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
+        STARPU_POSSIBLY_PARALLEL, options->parallel,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif

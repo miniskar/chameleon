@@ -219,7 +219,7 @@ typedef enum chameleon_gemm_e {
 #define CHAMELEON_PROFILING_MODE      CHAMELEON_GENERATE_TRACE  /* _deprecated_ */
 #define CHAMELEON_GENERATE_STATS      6
 #define CHAMELEON_KERNELPROFILE_MODE  CHAMELEON_GENERATE_STATS  /* _deprecated_ */
-#define CHAMELEON_PARALLEL_MODE       7
+#define CHAMELEON_PARALLEL_KERNEL     7
 #define CHAMELEON_BOUND               8
 #define CHAMELEON_PROGRESS            9
 #define CHAMELEON_GEMM3M             10

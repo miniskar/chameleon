@@ -31,10 +31,71 @@
 
 static int starpu_initialized = 0;
 
+#if defined(STARPU_HAVE_HWLOC) && defined(HAVE_STARPU_PARALLEL_WORKER)
+void chameleon_starpu_parallel_worker_init( starpu_sched_opt_t *sched_opt )
+{
+    char *env_pw_level = chameleon_getenv( "CHAMELEON_PARALLEL_WORKER_LEVEL" );
+
+    if (env_pw_level != NULL) {
+        struct starpu_parallel_worker_config *pw_config = NULL;
+
+        hwloc_obj_type_t pw_level;
+        int  pw_level_number = 1;
+        char level[256];
+
+        int argc  = strchr( env_pw_level, ':') == NULL ? 1 : 2;
+        int match = sscanf( env_pw_level, "%[^:]:%d", level, &pw_level_number );
+
+        if ( (match != argc) ||
+             ((match == 2) && (pw_level_number < 0) ) )
+        {
+            fprintf( stderr, "error CHAMELEON_PARALLEL_WORKER_LEVEL \"%s\"  does not match the format level[:number] where number > 0.\n", env_pw_level );
+            exit(1);
+        }
+
+        if ( hwloc_type_sscanf( level, &pw_level, NULL, 0 ) == -1 )
+        {
+            fprintf( stderr, "error CHAMELEON_PARALLEL_WORKER_LEVEL \"%s\"  does not match an hwloc level.\n", level );
+            exit(1);
+        }
+
+        pw_config = starpu_parallel_worker_init( pw_level,
+                                                 STARPU_PARALLEL_WORKER_NB, pw_level_number,
+                                                 STARPU_PARALLEL_WORKER_TYPE, STARPU_PARALLEL_WORKER_GNU_OPENMP_MKL,
+                                                 0 );
+
+        if ( pw_config == NULL )
+        {
+            fprintf( stderr, "error CHAMELEON_PARALLEL_WORKER_LEVEL : cannot create a parallel worker at %s level.\n", level );p
+            exit(1);
+        }
+
+        if ( chameleon_env_on_off( "CHAMELEON_PARALLEL_WORKER_SHOW", CHAMELEON_FALSE ) == CHAMELEON_TRUE ) {
+            starpu_parallel_worker_print( pw_config );
+        }
+
+        sched_opt->pw_config = pw_config;
+    }
+
+    chameleon_cleanenv( env_pw_level );
+}
+
+void chameleon_starpu_parallel_worker_fini( starpu_sched_opt_t *sched_opt )
+{
+    if ( sched_opt->pw_config != NULL ) {
+        starpu_parallel_worker_shutdown( sched_opt->pw_config );
+        sched_opt->pw_config = NULL;
+    }
+}
+#else
+#define chameleon_starpu_parallel_worker_init(sched_opt) do { (void) sched_opt; } while(0)
+#define chameleon_starpu_parallel_worker_fini(sched_opt) do { (void) sched_opt; } while(0)
+#endif
+
 /**
  *
  */
-static int chameleon_starpu_init( starpu_conf_t *conf )
+static int chameleon_starpu_init( struct starpu_conf *conf )
 {
     int hres = CHAMELEON_SUCCESS;
     int rc;
@@ -83,7 +144,8 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncudas,
                   int nthreads_per_worker )
 {
-    starpu_conf_t *conf = (starpu_conf_t*)(chamctxt->schedopt);
+    starpu_sched_opt_t *sched_opt = (starpu_sched_opt_t*)(chamctxt->schedopt);
+    struct starpu_conf *conf = &sched_opt->starpu_conf;
     int hres = CHAMELEON_ERR_NOT_INITIALIZED;
 
     /* StarPU was already initialized by an external library */
@@ -119,8 +181,6 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 
     if ((ncpus == -1)||(nthreads_per_worker == -1))
     {
-        chamctxt->parallel_enabled = CHAMELEON_FALSE;
-
         hres = chameleon_starpu_init( conf );
 
         chamctxt->nworkers = ncpus;
@@ -128,8 +188,6 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     }
     else {
         int worker;
-
-        chamctxt->parallel_enabled = CHAMELEON_TRUE;
 
         for (worker = 0; worker < ncpus; worker++)
             conf->workers_bindid[worker] = (worker+1)*nthreads_per_worker - 1;
@@ -152,11 +210,12 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     starpu_initialized = 1;
 
 #ifdef HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS
-    starpu_malloc_on_node_set_default_flags(STARPU_MAIN_RAM, STARPU_MALLOC_PINNED | STARPU_MALLOC_COUNT
+    starpu_malloc_on_node_set_default_flags( STARPU_MAIN_RAM,
+                                             STARPU_MALLOC_PINNED | STARPU_MALLOC_COUNT
 #ifdef STARPU_MALLOC_SIMULATION_FOLDED
-            | STARPU_MALLOC_SIMULATION_FOLDED
+                                             | STARPU_MALLOC_SIMULATION_FOLDED
 #endif
-            );
+                                             );
 #endif
 
 #if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
@@ -165,6 +224,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 
     starpu_cham_tile_interface_init();
 
+    chameleon_starpu_parallel_worker_init( sched_opt );
     return hres;
 }
 
@@ -177,6 +237,9 @@ void RUNTIME_finalize( CHAM_context_t *chamctxt )
     if ( (chamctxt->schedopt == NULL) || !starpu_initialized ) {
         return;
     }
+
+    starpu_sched_opt_t *sched_opt = (starpu_sched_opt_t*)(chamctxt->schedopt);
+    chameleon_starpu_parallel_worker_fini( sched_opt );
 
     starpu_cham_tile_interface_fini();
 
