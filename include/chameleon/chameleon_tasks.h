@@ -1,0 +1,98 @@
+/**
+ *
+ * @file chameleon_tasks.h
+ *
+ * @copyright 2009-2014 The University of Tennessee and The University of
+ *                      Tennessee Research Foundation. All rights reserved.
+ * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon elementary tasks main header
+ *
+ * @version 1.0.0
+ * @author Mathieu Faverge
+ * @author Cedric Augonnet
+ * @date 2011-06-01
+ *
+ */
+#ifndef _chameleon_tasks_h_
+#define _chameleon_tasks_h_
+
+#include "chameleon/chameleon_config.h"
+
+BEGIN_C_DECLS
+
+/**
+ * @brief Kernel enum
+ *
+ * Those enums are Used to apply operations on specific kernels, and or for
+ * tracing/profiling.
+ */
+typedef enum chameleon_tasktype_e {
+
+  TASK_GEMM,
+  TASK_HEMM,
+  TASK_HER2K,
+  TASK_HERK,
+  TASK_SYTRF_NOPIV,
+  TASK_SYMM,
+  TASK_SYR2K,
+  TASK_SYRK,
+  TASK_TRSM,
+  TASK_TRMM,
+
+  TASK_GELQT,
+  TASK_GEQRT,
+  TASK_GESSM,
+  TASK_GETRF,
+  TASK_GETRF_INCPIV,
+  TASK_GETRF_NOPIV,
+  TASK_LAUUM,
+  TASK_ORMLQ,
+  TASK_ORMQR,
+  TASK_POTRF,
+  TASK_SSSSM,
+  TASK_TRTRI,
+  TASK_TSLQT,
+  TASK_TSMLQ,
+  TASK_TSMQR,
+  TASK_TSQRT,
+  TASK_TSTRF,
+  TASK_TTLQT,
+  TASK_TTMLQ,
+  TASK_TTMQR,
+  TASK_TTQRT,
+  TASK_UNMLQ,
+  TASK_UNMQR,
+
+  TASK_GEADD,
+  TASK_LASCAL,
+  TASK_LACPY,
+  TASK_LAG2C,
+  TASK_LAG2Z,
+  TASK_LANGE,
+  TASK_LANHE,
+  TASK_LANSY,
+  TASK_LASET,
+  TASK_LASET2,
+  TASK_PEMV,
+  TASK_PLGHE,
+  TASK_PLGSY,
+  TASK_PLRNT,
+  TASK_TILE_ZERO,
+
+  TASK_NBKERNELS
+} chameleon_tasktype_t;
+
+#include "chameleon/chameleon_tasks_z.h"
+#include "chameleon/chameleon_tasks_d.h"
+#include "chameleon/chameleon_tasks_c.h"
+#include "chameleon/chameleon_tasks_s.h"
+#include "chameleon/chameleon_tasks_zc.h"
+#include "chameleon/chameleon_tasks_ds.h"
+
+END_C_DECLS
+
+#endif /* _chameleon_tasks_h_ */

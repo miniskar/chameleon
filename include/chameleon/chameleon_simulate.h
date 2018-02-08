@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_simulate.h
+ * @file chameleon_simulate.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -16,8 +16,8 @@
  * @date 2014-10-02
  *
  */
-#ifndef _MORSE_SIMULATE_H_
-#define _MORSE_SIMULATE_H_
+#ifndef _chameleon_simulate_h_
+#define _chameleon_simulate_h_
 
 #include "chameleon/chameleon_config.h"
 

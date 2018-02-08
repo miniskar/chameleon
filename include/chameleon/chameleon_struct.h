@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_struct.h
+ * @file chameleon_struct.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -18,27 +18,13 @@
  * @date 2011-06-01
  *
  */
-#ifndef _MORSE_STRUCT_H_
-#define _MORSE_STRUCT_H_
+#ifndef _CHAMELEON_STRUCT_H_
+#define _CHAMELEON_STRUCT_H_
 
 #include "chameleon/chameleon_config.h"
-#include "chameleon/morse_types.h"
-#include "chameleon/morse_kernels.h"
+#include "chameleon/chameleon_types.h"
 
 BEGIN_C_DECLS
-
-/**
- * RUNTIME headers to include types of :
- *         - QUARK
- *         - PaRSEC
- *         - StarPU
- */
-typedef enum morse_sched_e {
-  RUNTIME_SCHED_QUARK,
-  RUNTIME_SCHED_PARSEC,
-  RUNTIME_SCHED_STARPU,
-} MORSE_sched_t;
-
 
 /**
  *  Tile matrix descriptor
@@ -58,22 +44,22 @@ typedef enum morse_sched_e {
  *      +----------+---+
  *
  */
-struct morse_desc_s;
-typedef struct morse_desc_s MORSE_desc_t;
+struct matrix_desc_s;
+typedef struct matrix_desc_s MATRIX_desc_t;
 
-struct morse_desc_s {
+struct matrix_desc_s {
     // function to get matrix tiles address
-    void *(*get_blkaddr)( const MORSE_desc_t*, int, int );
+    void *(*get_blkaddr)( const MATRIX_desc_t*, int, int );
     // function to get matrix tiles leading dimension
-    int   (*get_blkldd )( const MORSE_desc_t*, int );
+    int   (*get_blkldd )( const MATRIX_desc_t*, int );
     // function to get matrix tiles MPI rank
-    int   (*get_rankof) ( const MORSE_desc_t*, int, int );
+    int   (*get_rankof) ( const MATRIX_desc_t*, int, int );
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21
     size_t A12;       // pointer to the beginning of the matrix A12
     size_t A22;       // pointer to the beginning of the matrix A22
-    MORSE_enum styp;  // storage layout of the matrix
-    MORSE_enum dtyp;  // precision of the matrix
+    CHAMELEON_enum styp;  // storage layout of the matrix
+    CHAMELEON_enum dtyp;  // precision of the matrix
     int mb;           // number of rows in a tile
     int nb;           // number of columns in a tile
     int bsiz;         // size in elements including padding
@@ -110,10 +96,10 @@ struct morse_desc_s {
 
 
 /**
- *  MORSE request uniquely identifies each asynchronous function call.
+ *  CHAMELEON request uniquely identifies each asynchronous function call.
  */
-typedef struct morse_context_s {
-    MORSE_sched_t      scheduler;
+typedef struct chameleon_context_s {
+    RUNTIME_id_t       scheduler;
     int                nworkers;
     int                ncudas;
     int                nthreads_per_worker;
@@ -125,14 +111,14 @@ typedef struct morse_context_s {
     int                group_size;
 
     /* Boolean flags */
-    MORSE_bool         warnings_enabled;
-    MORSE_bool         autotuning_enabled;
-    MORSE_bool         parallel_enabled;
-    MORSE_bool         profiling_enabled;
-    MORSE_bool         progress_enabled;
+    CHAMELEON_bool         warnings_enabled;
+    CHAMELEON_bool         autotuning_enabled;
+    CHAMELEON_bool         parallel_enabled;
+    CHAMELEON_bool         profiling_enabled;
+    CHAMELEON_bool         progress_enabled;
 
-    MORSE_enum         householder;        // "domino" (flat) or tree-based (reduction) Householder
-    MORSE_enum         translation;        // In place or Out of place layout conversion
+    CHAMELEON_enum         householder;        // "domino" (flat) or tree-based (reduction) Householder
+    CHAMELEON_enum         translation;        // In place or Out of place layout conversion
 
     int                nb;
     int                ib;
@@ -141,45 +127,8 @@ typedef struct morse_context_s {
     int                rhblock;            // block size for tree-based (reduction) Householder
     void              *schedopt;           // structure for runtimes
     int                mpi_outer_init;     // MPI has been initialized outside our functions
-} MORSE_context_t;
-
-
-/**
- *  MORSE request uniquely identifies each asynchronous function call.
- */
-typedef struct morse_request_s {
-    MORSE_enum status; // MORSE_SUCCESS or appropriate error code
-} MORSE_request_t;
-
-
-/**
- *  MORSE sequence uniquely identifies a set of asynchronous function calls
- *  sharing common exception handling.
- */
-typedef struct morse_sequence_s {
-    MORSE_bool       status;    /* MORSE_SUCCESS or appropriate error code */
-    MORSE_request_t *request;   /* failed request                          */
-    void            *schedopt;
-} MORSE_sequence_t;
-
-
-/**
- *  MORSE options
- */
-typedef struct morse_option_s {
-    MORSE_sequence_t *sequence;
-    MORSE_request_t  *request;
-    int               profiling;
-    int               parallel;
-    int               priority;
-    int               nb;
-    size_t            ws_wsize;
-    size_t            ws_hsize;
-    void             *ws_worker;  /*> Workspace located on the worker        */
-    void             *ws_host;    /*> Workspace *always* located on the host */
-    void             *schedopt;
-} MORSE_option_t;
+} CHAMELEON_context_t;
 
 END_C_DECLS
 
-#endif /* __CHAMELEON_H__ */
+#endif /* _chameleon_struct_h_ */

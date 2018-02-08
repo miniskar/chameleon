@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_runtime.h
+ * @file runtime.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon runtimes API
+ * @brief The common runtimes API
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
@@ -17,13 +17,23 @@
  * @date 2011-06-01
  *
  */
-#ifndef _MORSE_RUNTIME_H_
-#define _MORSE_RUNTIME_H_
+#ifndef _runtime_h_
+#define _runtime_h_
 
 #include "chameleon/chameleon_config.h"
-#include "chameleon/morse_struct.h"
+#include "chameleon/chameleon_constants.h"
+#include "chameleon/runtime_struct.h"
 
 BEGIN_C_DECLS
+
+/**
+ * @brief Ids of the runtime supported by the RUNTIME API
+ */
+typedef enum runtime_id_e {
+    RUNTIME_SCHED_QUARK,  /**< Quark runtime  */
+    RUNTIME_SCHED_PARSEC, /**< PaRSEC runtime */
+    RUNTIME_SCHED_STARPU, /**< StarPU runtime */
+} RUNTIME_id_t;
 
 /**
  * @name RUNTIME Context functions
@@ -36,21 +46,21 @@ BEGIN_C_DECLS
  * @brief Create the runtime specific options in the context before starting it
  *
  * @param[in,out] ctxt
- *            The Chameleon context to initialize for the runtime.
+ *            The runtime context to initialize for the runtime.
  */
 void
-RUNTIME_context_create( MORSE_context_t *ctxt );
+RUNTIME_context_create( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Destroy the specific options in the context after this last one has
  * been stop.
  *
  * @param[in,out] ctxt
- *            The Chameleon context in which the runtime specific options must
+ *            The runtime context in which the runtime specific options must
  *            be destroyed
  */
 void
-RUNTIME_context_destroy( MORSE_context_t *ctxt );
+RUNTIME_context_destroy( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Enable a global option of the runtime.
@@ -84,7 +94,7 @@ RUNTIME_disable( MORSE_enum option );
  * @brief Initialize the scheduler with the given parameters
  *
  * @param[in,out] ctxt
- *            The Chameleon context in which to initialize the runtime support.
+ *            The runtime context in which to initialize the runtime support.
  *
  * @param[in] ncpus
  *            Defines the total number of cores given to the runtime per
@@ -108,7 +118,7 @@ RUNTIME_disable( MORSE_enum option );
  *
  */
 int
-RUNTIME_init( MORSE_context_t *ctxt,
+RUNTIME_init( RUNTIME_context_t *ctxt,
               int ncpus,
               int ncudas,
               int nthreads_per_worker );
@@ -117,90 +127,90 @@ RUNTIME_init( MORSE_context_t *ctxt,
  * @brief Finalize the scheduler used for the computations.
  *
  * @param[in,out] ctxt
- *            The Chameleon context for which the runtime system must be shut down.
+ *            The runtime context for which the runtime system must be shut down.
  */
 void
-RUNTIME_finalize( MORSE_context_t *ctxt );
+RUNTIME_finalize( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Suspend the processing of new tasks submitted to the runtime system.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the suspension must be made.
+ *            The runtime context for which the suspension must be made.
  */
 void
-RUNTIME_pause( MORSE_context_t *ctxt );
+RUNTIME_pause( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Resume the processing of new tasks submitted to the runtime system.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the execution must be resumed.
+ *            The runtime context for which the execution must be resumed.
  */
 void
-RUNTIME_resume( MORSE_context_t *ctxt );
+RUNTIME_resume( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Wait for completion of all tasks submitted to the runtime.
  *
  * @param[in] ctxt
- *            The Chameleon context in which the task completion is performed.
+ *            The runtime context in which the task completion is performed.
  */
 void
-RUNTIME_barrier( MORSE_context_t *ctxt );
+RUNTIME_barrier( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Show the progress of the computations when enabled.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the context needs to be printed.
+ *            The runtime context for which the context needs to be printed.
  */
 void
-RUNTIME_progress( MORSE_context_t *ctxt );
+RUNTIME_progress( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Get the rank of the current worker for the runtime.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the thread rank is asked.
+ *            The runtime context for which the thread rank is asked.
  *
  * @retval The rank of the current thread in the runtime.
  */
 int
-RUNTIME_thread_rank( MORSE_context_t *ctxt );
+RUNTIME_thread_rank( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Get the number of CPU workers of the runtime.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the number of workers is requested
+ *            The runtime context for which the number of workers is requested
  *
  * @retval The number of threads currently used by the runtime.
  */
 int
-RUNTIME_thread_size( MORSE_context_t *ctxt );
+RUNTIME_thread_size( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Get the MPI comm rank of the current process related to the runtime.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the rank is asked.
+ *            The runtime context for which the rank is asked.
  *
  * @retval The rank of the process in the communicator known by the runtime.
  */
 int
-RUNTIME_comm_rank( MORSE_context_t *ctxt );
+RUNTIME_comm_rank( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Get the MPI comm size related to the runtime.
  *
  * @param[in] ctxt
- *            The Chameleon context for which the communicator size is asked.
+ *            The runtime context for which the communicator size is asked.
  *
  * @retval The size of the communicator known by the runtime.
  */
 int
-RUNTIME_comm_size( MORSE_context_t *ctxt );
+RUNTIME_comm_size( RUNTIME_context_t *ctxt );
 
 /**
  * @brief Set the data tags bounds based on runtime tags limit.
@@ -231,24 +241,24 @@ RUNTIME_comm_set_tag_sizes( int user_tag_width,
  * @brief Create a sequence structure associated to a given context.
  *
  * @param[in] ctxt
- *            The Chameleon context in which the sequence is created.
+ *            The runtime context in which the sequence is created.
  *
  * @param[in,out] sequence
- *            On entry the allocated Chameleon sequence structure, and on exit
+ *            On entry the allocated runtime sequence structure, and on exit
  *            the scheduler specifics for the sequence have been initialized.
  *
  * @retval MORSE_SUCCESS on success.
  * @retval MORSE_ERR_OUT_OF_RESOURCES, if the sequence could not be created.
  */
 int
-RUNTIME_sequence_create( MORSE_context_t  *ctxt,
-                         MORSE_sequence_t *sequence );
+RUNTIME_sequence_create( RUNTIME_context_t  *ctxt,
+                         RUNTIME_sequence_t *sequence );
 
 /**
  * @brief Destroy the sequence structure.
  *
  * @param[in] ctxt
- *            The Chameleon context to which the sequence belongs.
+ *            The runtime context to which the sequence belongs.
  *
  * @param[in,out] sequence
  *            On entry the sequence structure.
@@ -258,14 +268,14 @@ RUNTIME_sequence_create( MORSE_context_t  *ctxt,
  * @retval MORSE_SUCCESS on success.
  */
 int
-RUNTIME_sequence_destroy( MORSE_context_t  *ctxt,
-                          MORSE_sequence_t *sequence);
+RUNTIME_sequence_destroy( RUNTIME_context_t  *ctxt,
+                          RUNTIME_sequence_t *sequence);
 
 /**
  * @brief Wait for completion of all tasks in the given sequence.
  *
  * @param[in] ctxt
- *            The Chameleon context to which the sequence belongs.
+ *            The runtime context to which the sequence belongs.
  *
  * @param[in] sequence
  *            The sequence that gathers a set of tasks to complete.
@@ -274,14 +284,14 @@ RUNTIME_sequence_destroy( MORSE_context_t  *ctxt,
  * @retval The algorithm return code on failure.
  */
 int
-RUNTIME_sequence_wait( MORSE_context_t  *ctxt,
-                       MORSE_sequence_t *sequence );
+RUNTIME_sequence_wait( RUNTIME_context_t  *ctxt,
+                       RUNTIME_sequence_t *sequence );
 
 /**
  * @brief Cancel all remaining tasks in the given sequence.
  *
  * @param[in] ctxt
- *            The Chameleon context to which the sequence belongs.
+ *            The runtime context to which the sequence belongs.
  *
  * @param[in,out] sequence
  *            The sequence that gathers the set of tasks to cancel.
@@ -297,9 +307,9 @@ RUNTIME_sequence_wait( MORSE_context_t  *ctxt,
  *            above.
  */
 void
-RUNTIME_sequence_flush( MORSE_context_t  *ctxt,
-                        MORSE_sequence_t *sequence,
-                        MORSE_request_t  *request,
+RUNTIME_sequence_flush( RUNTIME_context_t  *ctxt,
+                        RUNTIME_sequence_t *sequence,
+                        RUNTIME_request_t  *request,
                         int               status );
 
 /**
@@ -403,7 +413,7 @@ RUNTIME_desc_release( const MORSE_desc_t *desc );
  */
 void
 RUNTIME_desc_flush( const MORSE_desc_t     *desc,
-                    const MORSE_sequence_t *sequence );
+                    const RUNTIME_sequence_t *sequence );
 
 /**
  * @brief Flush all data submitted to the runtime systems from the distributed
@@ -435,7 +445,7 @@ RUNTIME_flush( );
  *            The column coordinate of the piece of data in the matrix
  */
 void
-RUNTIME_data_flush( const MORSE_sequence_t *sequence,
+RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
                     const MORSE_desc_t *A, int Am, int An );
 
 /**
@@ -461,11 +471,11 @@ RUNTIME_data_flush( const MORSE_sequence_t *sequence,
  */
 #if defined(CHAMELEON_USE_MIGRATE)
 void
-RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
+RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
                       const MORSE_desc_t *A, int Am, int An, int new_rank );
 #else
 static inline void
-RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
+RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
                       const MORSE_desc_t *A, int Am, int An, int new_rank ) {
     (void)sequence; (void)A; (void)Am; (void)An; (void)new_rank;
 }
@@ -495,12 +505,74 @@ RUNTIME_data_getaddr( const MORSE_desc_t *A, int Am, int An );
  * @name RUNTIME Insert task options management
  * @{
  */
-void  RUNTIME_options_init     (MORSE_option_t*, MORSE_context_t*, MORSE_sequence_t*, MORSE_request_t*);
-void  RUNTIME_options_finalize (MORSE_option_t*, MORSE_context_t *);
-int   RUNTIME_options_ws_alloc (MORSE_option_t*, size_t, size_t);
-int   RUNTIME_options_ws_free  (MORSE_option_t*);
-/* int   RUNTIME_options_ws_gethost   (MORSE_option_t*); */
-/* int   RUNTIME_options_ws_getdevice (MORSE_option_t*); */
+
+/**
+ * @brief Initialize the runtime option structure
+ *
+ * @param[in,out] options
+ *            The options structure that needs to be initialized
+ *
+ * @param[in] context
+ *            The runtime context in which to initialize the runtime support.
+ *
+ * @param[in] sequence
+ *            The sequence structure to associate in the options.
+ *
+ * @param[in] request
+ *            The request structure to associate in the options.
+ *
+ */
+void
+RUNTIME_options_init( RUNTIME_option_t   *options,
+                      RUNTIME_context_t  *context,
+                      RUNTIME_sequence_t *sequence,
+                      RUNTIME_request_t  *request );
+
+/**
+ * @brief Finalize the runtime options structure
+ *
+ * @param[in,out] options
+ *            The options structure to finalize
+ *
+ * @param[in] context
+ *            The runtime context in which to options structure has been
+ *            initialized.
+ *
+ */
+void
+RUNTIME_options_finalize( RUNTIME_option_t  *options,
+                          RUNTIME_context_t *context );
+
+/**
+ * @brief Declare and initialize the workspaces for the given options structure
+ *
+ * @param[in,out] options
+ *            The options structure in which to initialize the workspaces
+ *
+ * @param[in] wsize
+ *            The worker workspace size required. This workspace will be
+ *            allocated on the device that runs the kernel.
+ *
+ * @param[in] hsize
+ *            The host workspace size required. This workspace will always be
+ *            allocated on the host and will be used by hybrid CPU/GPU kernels.
+ *
+ */
+int
+RUNTIME_options_ws_alloc( RUNTIME_option_t *options,
+                          size_t wsize, size_t hsize );
+
+/**
+ * @brief Submit the release of the workspaces associated to the options structure.
+ *
+ * @warning With some runtime, this call might have to call a synchronization.
+ *
+ * @param[in,out] options
+ *            The options structure for which to workspcaes will be released
+ *
+ */
+int
+RUNTIME_options_ws_free( RUNTIME_option_t *options );
 
 /**
  * @}
@@ -539,8 +611,8 @@ void   RUNTIME_schedprofile_display ();
 void   RUNTIME_kernelprofile_display();
 double RUNTIME_get_time();
 
-void  RUNTIME_iteration_push     (MORSE_context_t*, unsigned long iteration);
-void  RUNTIME_iteration_pop      (MORSE_context_t*);
+void  RUNTIME_iteration_push     (RUNTIME_context_t*, unsigned long iteration);
+void  RUNTIME_iteration_pop      (RUNTIME_context_t*);
 
 void RUNTIME_start_profiling();
 void RUNTIME_stop_profiling();
@@ -563,4 +635,4 @@ void RUNTIME_sdisplay_oneprofile (MORSE_kernel_t);
 
 END_C_DECLS
 
-#endif /* _MORSE_RUNTIME_H_ */
+#endif /* _runtime_h_ */
