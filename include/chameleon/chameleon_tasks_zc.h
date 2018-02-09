@@ -29,11 +29,11 @@
 /**
  *  Declarations of QUARK wrappers (called by CHAMELEON) - alphabetical order
  */
-void InsertTask_clag2z( const RUNTIME_option_t *options,
+void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
                         int m, int n, int nb,
                         MORSE_desc_t *A, int Am, int An, int lda,
                         MORSE_desc_t *B, int Bm, int Bn, int ldb );
-void InsertTask_zlag2c( const RUNTIME_option_t *options,
+void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
                         int m, int n, int nb,
                         MORSE_desc_t *A, int Am, int An, int lda,
                         MORSE_desc_t *B, int Bm, int Bn, int ldb );
