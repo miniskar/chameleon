@@ -44,28 +44,55 @@
 #define ChameleonRCRB            105
 #define ChameleonRRRB            106
 
-#define ChameleonNoTrans         111
-#define ChameleonTrans           112
-#define ChameleonConjTrans       113
+/**
+ * @brief Transpostion
+ */
+typedef enum cham_trans_e {
+    ChamNoTrans   = 111, /**< Use A         */
+    ChamTrans     = 112, /**< Use A^t       */
+    ChamConjTrans = 113  /**< Use conj(A^t) */
+} cham_trans_t;
 
-#define ChameleonUpper           121
-#define ChameleonLower           122
-#define ChameleonUpperLower      123
+/**
+ * @brief Upper/Lower part
+ */
+typedef enum cham_uplo_e {
+    ChamUpper      = 121, /**< Use lower triangle of A */
+    ChamLower      = 122, /**< Use upper triangle of A */
+    ChamUpperLower = 123  /**< Use the full A          */
+} cham_uplo_t;
 
-#define ChameleonNonUnit         131
-#define ChameleonUnit            132
 
-#define ChameleonLeft            141
-#define ChameleonRight           142
+/**
+ * @brief Diagonal
+ */
+typedef enum cham_diag_e {
+    ChamNonUnit = 131, /**< Diagonal is non unitary */
+    ChamUnit    = 132  /**< Diagonal is unitary     */
+} cham_diag_t;
 
-#define ChameleonOneNorm         171
-#define ChameleonRealOneNorm     172
-#define ChameleonTwoNorm         173
-#define ChameleonFrobeniusNorm   174
-#define ChameleonInfNorm         175
-#define ChameleonRealInfNorm     176
-#define ChameleonMaxNorm         177
-#define ChameleonRealMaxNorm     178
+/**
+ * @brief Side of the operation
+ */
+typedef enum cham_side_e {
+    ChamLeft  = 141, /**< Apply operator on the left  */
+    ChamRight = 142  /**< Apply operator on the right */
+} cham_side_t;
+
+/**
+ * @brief Norms
+ */
+typedef enum cham_normtype_e {
+    ChamOneNorm       = 171, /**< One norm:       max_j( sum_i( |a_{ij}| ) )   */
+    ChamRealOneNorm   = 172,
+    ChamTwoNorm       = 173,
+    ChamFrobeniusNorm = 174, /**< Frobenius norm: sqrt( sum_{i,j} (a_{ij}^2) ) */
+    ChamInfNorm       = 175, /**< Inifinite norm: max_i( sum_j( |a_{ij}| ) )   */
+    ChamRealInfNorm   = 176,
+    ChamMaxNorm       = 177, /**< Inifinite norm: max_{i,j}( | a_{ij} | )      */
+    ChamRealMaxNorm   = 178
+} cham_normtype_t;
+
 
 #define ChameleonDistUniform     201
 #define ChameleonDistSymmetric   202
