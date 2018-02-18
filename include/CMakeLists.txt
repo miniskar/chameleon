@@ -32,29 +32,29 @@ set(CHAMELEON_HDRS_GENERATED "")
 set(ZHDR
     chameleon/chameleon_z.h
     chameleon/chameleon_zc.h
-    chameleon/chameleon_tasks_z.h
-    chameleon/chameleon_tasks_zc.h
+    chameleon/tasks_z.h
+    chameleon/tasks_zc.h
 )
 
 precisions_rules_py(CHAMELEON_HDRS_GENERATED "${ZHDR}"
   TARGETDIR  "chameleon"
   PRECISIONS "z;c;d;s;zc;ds" )
 
-configure_file("chameleon/chameleon_config.h.in"
-               "chameleon/chameleon_config.h"
+configure_file("chameleon/config.h.in"
+               "chameleon/config.h"
                @ONLY)
 
 # Define the list of headers
 # --------------------------
 set(CHAMELEON_HDRS
-  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/chameleon_config.h
-  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/chameleon_mangling.h
-  chameleon/chameleon_constants.h
-  chameleon/chameleon_kernels.h
-  chameleon/chameleon_simulate.h
-  chameleon/chameleon_struct.h
-  chameleon/chameleon_tasks.h
-  chameleon/chameleon_types.h
+  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/mangling.h
+  chameleon/constants.h
+  chameleon/kernels.h
+  chameleon/simulate.h
+  chameleon/struct.h
+  chameleon/tasks.h
+  chameleon/types.h
   chameleon/runtime.h
   chameleon/runtime_struct.h
   )
