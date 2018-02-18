@@ -31,11 +31,11 @@
  */
 void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
                         int m, int n, int nb,
-                        MORSE_desc_t *A, int Am, int An, int lda,
-                        MORSE_desc_t *B, int Bm, int Bn, int ldb );
+                        CHAM_desc_t *A, int Am, int An, int lda,
+                        CHAM_desc_t *B, int Bm, int Bn, int ldb );
 void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
                         int m, int n, int nb,
-                        MORSE_desc_t *A, int Am, int An, int lda,
-                        MORSE_desc_t *B, int Bm, int Bn, int ldb );
+                        CHAM_desc_t *A, int Am, int An, int lda,
+                        CHAM_desc_t *B, int Bm, int Bn, int ldb );
 
 #endif

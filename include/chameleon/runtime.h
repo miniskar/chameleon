@@ -17,11 +17,11 @@
  * @date 2011-06-01
  *
  */
-#ifndef _runtime_h_
-#define _runtime_h_
+#ifndef _chameleon_runtime_h_
+#define _chameleon_runtime_h_
 
-#include "chameleon/chameleon_config.h"
-#include "chameleon/chameleon_constants.h"
+#include "chameleon/config.h"
+#include "chameleon/constants.h"
 #include "chameleon/runtime_struct.h"
 
 BEGIN_C_DECLS
@@ -49,7 +49,7 @@ typedef enum runtime_id_e {
  *            The runtime context to initialize for the runtime.
  */
 void
-RUNTIME_context_create( RUNTIME_context_t *ctxt );
+RUNTIME_context_create( CHAM_context_t *ctxt );
 
 /**
  * @brief Destroy the specific options in the context after this last one has
@@ -60,27 +60,27 @@ RUNTIME_context_create( RUNTIME_context_t *ctxt );
  *            be destroyed
  */
 void
-RUNTIME_context_destroy( RUNTIME_context_t *ctxt );
+RUNTIME_context_destroy( CHAM_context_t *ctxt );
 
 /**
  * @brief Enable a global option of the runtime.
- * @warning Should be called only by MORSE_Enable()
+ * @warning Should be called only by RUNTIME_Enable()
  *
  * @param[in] option
- *            @arg MORSE_PROFILING_MODE: start the profiling mode of the runtime.
+ *            @arg CHAMELEON_PROFILING_MODE: start the profiling mode of the runtime.
  */
 void
-RUNTIME_enable( MORSE_enum option );
+RUNTIME_enable( cham_option_t option );
 
 /**
  * @brief Disable a global option of the runtime.
- * @warning Should be called only by MORSE_Disable()
+ * @warning Should be called only by RUNTIME_Disable()
  *
  * @param[in] option
- *            @arg MORSE_PROFILING_MODE: stop the profiling mode of the runtime.
+ *            @arg CHAMELEON_PROFILING_MODE: stop the profiling mode of the runtime.
  */
 void
-RUNTIME_disable( MORSE_enum option );
+RUNTIME_disable( cham_option_t option );
 
 /**
  * @}
@@ -118,7 +118,7 @@ RUNTIME_disable( MORSE_enum option );
  *
  */
 int
-RUNTIME_init( RUNTIME_context_t *ctxt,
+RUNTIME_init( CHAM_context_t *ctxt,
               int ncpus,
               int ncudas,
               int nthreads_per_worker );
@@ -130,7 +130,7 @@ RUNTIME_init( RUNTIME_context_t *ctxt,
  *            The runtime context for which the runtime system must be shut down.
  */
 void
-RUNTIME_finalize( RUNTIME_context_t *ctxt );
+RUNTIME_finalize( CHAM_context_t *ctxt );
 
 /**
  * @brief Suspend the processing of new tasks submitted to the runtime system.
@@ -139,7 +139,7 @@ RUNTIME_finalize( RUNTIME_context_t *ctxt );
  *            The runtime context for which the suspension must be made.
  */
 void
-RUNTIME_pause( RUNTIME_context_t *ctxt );
+RUNTIME_pause( CHAM_context_t *ctxt );
 
 /**
  * @brief Resume the processing of new tasks submitted to the runtime system.
@@ -148,7 +148,7 @@ RUNTIME_pause( RUNTIME_context_t *ctxt );
  *            The runtime context for which the execution must be resumed.
  */
 void
-RUNTIME_resume( RUNTIME_context_t *ctxt );
+RUNTIME_resume( CHAM_context_t *ctxt );
 
 /**
  * @brief Wait for completion of all tasks submitted to the runtime.
@@ -157,7 +157,7 @@ RUNTIME_resume( RUNTIME_context_t *ctxt );
  *            The runtime context in which the task completion is performed.
  */
 void
-RUNTIME_barrier( RUNTIME_context_t *ctxt );
+RUNTIME_barrier( CHAM_context_t *ctxt );
 
 /**
  * @brief Show the progress of the computations when enabled.
@@ -166,7 +166,7 @@ RUNTIME_barrier( RUNTIME_context_t *ctxt );
  *            The runtime context for which the context needs to be printed.
  */
 void
-RUNTIME_progress( RUNTIME_context_t *ctxt );
+RUNTIME_progress( CHAM_context_t *ctxt );
 
 /**
  * @brief Get the rank of the current worker for the runtime.
@@ -177,7 +177,7 @@ RUNTIME_progress( RUNTIME_context_t *ctxt );
  * @retval The rank of the current thread in the runtime.
  */
 int
-RUNTIME_thread_rank( RUNTIME_context_t *ctxt );
+RUNTIME_thread_rank( CHAM_context_t *ctxt );
 
 /**
  * @brief Get the number of CPU workers of the runtime.
@@ -188,7 +188,7 @@ RUNTIME_thread_rank( RUNTIME_context_t *ctxt );
  * @retval The number of threads currently used by the runtime.
  */
 int
-RUNTIME_thread_size( RUNTIME_context_t *ctxt );
+RUNTIME_thread_size( CHAM_context_t *ctxt );
 
 /**
  * @brief Get the MPI comm rank of the current process related to the runtime.
@@ -199,7 +199,7 @@ RUNTIME_thread_size( RUNTIME_context_t *ctxt );
  * @retval The rank of the process in the communicator known by the runtime.
  */
 int
-RUNTIME_comm_rank( RUNTIME_context_t *ctxt );
+RUNTIME_comm_rank( CHAM_context_t *ctxt );
 
 /**
  * @brief Get the MPI comm size related to the runtime.
@@ -210,7 +210,7 @@ RUNTIME_comm_rank( RUNTIME_context_t *ctxt );
  * @retval The size of the communicator known by the runtime.
  */
 int
-RUNTIME_comm_size( RUNTIME_context_t *ctxt );
+RUNTIME_comm_size( CHAM_context_t *ctxt );
 
 /**
  * @brief Set the data tags bounds based on runtime tags limit.
@@ -247,11 +247,11 @@ RUNTIME_comm_set_tag_sizes( int user_tag_width,
  *            On entry the allocated runtime sequence structure, and on exit
  *            the scheduler specifics for the sequence have been initialized.
  *
- * @retval MORSE_SUCCESS on success.
- * @retval MORSE_ERR_OUT_OF_RESOURCES, if the sequence could not be created.
+ * @retval CHAMELEON_SUCCESS on success.
+ * @retval CHAMELEON_ERR_OUT_OF_RESOURCES, if the sequence could not be created.
  */
 int
-RUNTIME_sequence_create( RUNTIME_context_t  *ctxt,
+RUNTIME_sequence_create( CHAM_context_t     *ctxt,
                          RUNTIME_sequence_t *sequence );
 
 /**
@@ -265,10 +265,10 @@ RUNTIME_sequence_create( RUNTIME_context_t  *ctxt,
  *            On exit, the scheduler specifics of the sequence have been
  *            destroyed.
  *
- * @retval MORSE_SUCCESS on success.
+ * @retval CHAMELEON_SUCCESS on success.
  */
 int
-RUNTIME_sequence_destroy( RUNTIME_context_t  *ctxt,
+RUNTIME_sequence_destroy( CHAM_context_t     *ctxt,
                           RUNTIME_sequence_t *sequence);
 
 /**
@@ -280,11 +280,11 @@ RUNTIME_sequence_destroy( RUNTIME_context_t  *ctxt,
  * @param[in] sequence
  *            The sequence that gathers a set of tasks to complete.
  *
- * @retval MORSE_SUCCESS on success.
+ * @retval CHAMELEON_SUCCESS on success.
  * @retval The algorithm return code on failure.
  */
 int
-RUNTIME_sequence_wait( RUNTIME_context_t  *ctxt,
+RUNTIME_sequence_wait( CHAM_context_t     *ctxt,
                        RUNTIME_sequence_t *sequence );
 
 /**
@@ -307,10 +307,10 @@ RUNTIME_sequence_wait( RUNTIME_context_t  *ctxt,
  *            above.
  */
 void
-RUNTIME_sequence_flush( RUNTIME_context_t  *ctxt,
+RUNTIME_sequence_flush( CHAM_context_t     *ctxt,
                         RUNTIME_sequence_t *sequence,
                         RUNTIME_request_t  *request,
-                        int               status );
+                        int                 status );
 
 /**
  * @}
@@ -355,7 +355,7 @@ RUNTIME_free( void *ptr, size_t size );
  *            The descriptor to initialize.
  */
 void
-RUNTIME_desc_create( MORSE_desc_t *desc );
+RUNTIME_desc_create( CHAM_desc_t *desc );
 
 /**
  * @brief Finalize runtime specific data structure of a given descriptor.
@@ -364,7 +364,7 @@ RUNTIME_desc_create( MORSE_desc_t *desc );
  *            The descriptor to finalize.
  */
 void
-RUNTIME_desc_destroy( MORSE_desc_t *desc );
+RUNTIME_desc_destroy( CHAM_desc_t *desc );
 
 /**
  * @brief Acquire in main memory an up-to-date copy of the data described by the
@@ -377,10 +377,10 @@ RUNTIME_desc_destroy( MORSE_desc_t *desc );
  * @param[in] desc
  *            The descriptor to acquire.
  *
- * @retval MORSE_SUCCESS on success
+ * @retval CHAMELEON_SUCCESS on success
  */
 int
-RUNTIME_desc_acquire( const MORSE_desc_t *desc );
+RUNTIME_desc_acquire( const CHAM_desc_t *desc );
 
 /**
  * @brief Release the data described by the descriptor to be used by the runtime
@@ -392,10 +392,10 @@ RUNTIME_desc_acquire( const MORSE_desc_t *desc );
  * @param[in] desc
  *            The descriptor to release.
  *
- * @retval MORSE_SUCCESS on success
+ * @retval CHAMELEON_SUCCESS on success
  */
 int
-RUNTIME_desc_release( const MORSE_desc_t *desc );
+RUNTIME_desc_release( const CHAM_desc_t *desc );
 
 /**
  * @brief Flush all pieces of data from a descriptor.
@@ -412,7 +412,7 @@ RUNTIME_desc_release( const MORSE_desc_t *desc );
  *            The sequence in which the data is used.
  */
 void
-RUNTIME_desc_flush( const MORSE_desc_t     *desc,
+RUNTIME_desc_flush( const CHAM_desc_t     *desc,
                     const RUNTIME_sequence_t *sequence );
 
 /**
@@ -446,7 +446,7 @@ RUNTIME_flush( );
  */
 void
 RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
-                    const MORSE_desc_t *A, int Am, int An );
+                    const CHAM_desc_t *A, int Am, int An );
 
 /**
  * @brief Migrate a single piece of data.
@@ -472,11 +472,11 @@ RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
 #if defined(CHAMELEON_USE_MIGRATE)
 void
 RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
-                      const MORSE_desc_t *A, int Am, int An, int new_rank );
+                      const CHAM_desc_t *A, int Am, int An, int new_rank );
 #else
 static inline void
 RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
-                      const MORSE_desc_t *A, int Am, int An, int new_rank ) {
+                      const CHAM_desc_t *A, int Am, int An, int new_rank ) {
     (void)sequence; (void)A; (void)Am; (void)An; (void)new_rank;
 }
 #endif
@@ -497,7 +497,7 @@ RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
  * @retval The runtime handler address of the piece of data.
  */
 void *
-RUNTIME_data_getaddr( const MORSE_desc_t *A, int Am, int An );
+RUNTIME_data_getaddr( const CHAM_desc_t *A, int Am, int An );
 
 /**
  * @}
@@ -524,7 +524,7 @@ RUNTIME_data_getaddr( const MORSE_desc_t *A, int Am, int An );
  */
 void
 RUNTIME_options_init( RUNTIME_option_t   *options,
-                      RUNTIME_context_t  *context,
+                      CHAM_context_t  *context,
                       RUNTIME_sequence_t *sequence,
                       RUNTIME_request_t  *request );
 
@@ -541,7 +541,7 @@ RUNTIME_options_init( RUNTIME_option_t   *options,
  */
 void
 RUNTIME_options_finalize( RUNTIME_option_t  *options,
-                          RUNTIME_context_t *context );
+                          CHAM_context_t *context );
 
 /**
  * @brief Declare and initialize the workspaces for the given options structure
@@ -586,20 +586,20 @@ void RUNTIME_dlocality_allrestore ();
 void RUNTIME_slocality_allrestore ();
 
 void RUNTIME_zlocality_allrestrict(uint32_t);
-void RUNTIME_zlocality_onerestrict(MORSE_kernel_t, uint32_t);
-void RUNTIME_zlocality_onerestore (MORSE_kernel_t);
+void RUNTIME_zlocality_onerestrict(cham_tasktype_t, uint32_t);
+void RUNTIME_zlocality_onerestore (cham_tasktype_t);
 
 void RUNTIME_clocality_allrestrict(uint32_t);
-void RUNTIME_clocality_onerestrict(MORSE_kernel_t, uint32_t);
-void RUNTIME_clocality_onerestore (MORSE_kernel_t);
+void RUNTIME_clocality_onerestrict(cham_tasktype_t, uint32_t);
+void RUNTIME_clocality_onerestore (cham_tasktype_t);
 
 void RUNTIME_dlocality_allrestrict(uint32_t);
-void RUNTIME_dlocality_onerestrict(MORSE_kernel_t, uint32_t);
-void RUNTIME_dlocality_onerestore (MORSE_kernel_t);
+void RUNTIME_dlocality_onerestrict(cham_tasktype_t, uint32_t);
+void RUNTIME_dlocality_onerestore (cham_tasktype_t);
 
 void RUNTIME_slocality_allrestrict(uint32_t);
-void RUNTIME_slocality_onerestrict(MORSE_kernel_t, uint32_t);
-void RUNTIME_slocality_onerestore (MORSE_kernel_t);
+void RUNTIME_slocality_onerestrict(cham_tasktype_t, uint32_t);
+void RUNTIME_slocality_onerestore (cham_tasktype_t);
 
 /**
  * @}
@@ -611,8 +611,8 @@ void   RUNTIME_schedprofile_display ();
 void   RUNTIME_kernelprofile_display();
 double RUNTIME_get_time();
 
-void  RUNTIME_iteration_push     (RUNTIME_context_t*, unsigned long iteration);
-void  RUNTIME_iteration_pop      (RUNTIME_context_t*);
+void  RUNTIME_iteration_push     (CHAM_context_t*, unsigned long iteration);
+void  RUNTIME_iteration_pop      (CHAM_context_t*);
 
 void RUNTIME_start_profiling();
 void RUNTIME_stop_profiling();
@@ -621,13 +621,13 @@ void RUNTIME_start_stats();
 void RUNTIME_stop_stats();
 
 void RUNTIME_zdisplay_allprofile ();
-void RUNTIME_zdisplay_oneprofile (MORSE_kernel_t);
+void RUNTIME_zdisplay_oneprofile (cham_tasktype_t);
 void RUNTIME_cdisplay_allprofile ();
-void RUNTIME_cdisplay_oneprofile (MORSE_kernel_t);
+void RUNTIME_cdisplay_oneprofile (cham_tasktype_t);
 void RUNTIME_ddisplay_allprofile ();
-void RUNTIME_ddisplay_oneprofile (MORSE_kernel_t);
+void RUNTIME_ddisplay_oneprofile (cham_tasktype_t);
 void RUNTIME_sdisplay_allprofile ();
-void RUNTIME_sdisplay_oneprofile (MORSE_kernel_t);
+void RUNTIME_sdisplay_oneprofile (cham_tasktype_t);
 
 /**
  * @}
@@ -635,4 +635,4 @@ void RUNTIME_sdisplay_oneprofile (MORSE_kernel_t);
 
 END_C_DECLS
 
-#endif /* _runtime_h_ */
+#endif /* _chameleon_runtime_h_ */

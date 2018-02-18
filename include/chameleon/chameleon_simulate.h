@@ -19,7 +19,7 @@
 #ifndef _chameleon_simulate_h_
 #define _chameleon_simulate_h_
 
-#include "chameleon/chameleon_config.h"
+#include "chameleon/config.h"
 
 /* we need this when starpu is compiled with simgrid enabled */
 #if defined(CHAMELEON_SCHED_STARPU) && defined(CHAMELEON_SIMULATION)

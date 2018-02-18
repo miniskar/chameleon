@@ -81,8 +81,6 @@
 #define MORSE_GRPSIZE     morse->group_size
 #define MORSE_NB          morse->nb
 #define MORSE_IB          morse->ib
-#define MORSE_NBNBSIZE    morse->nbnbsize
-#define MORSE_IBNBSIZE    morse->ibnbsize
 #define MORSE_SCHEDULING  morse->scheduling
 #define MORSE_RHBLK       morse->rhblock
 #define MORSE_TRANSLATION morse->translation

@@ -40,10 +40,7 @@
 /**
  *  CHAMELEON types
  */
-typedef int  CHAMELEON_enum;
-typedef int  CHAMELEON_bool;
-typedef long CHAMELEON_index;
-typedef long CHAMELEON_size;
+typedef int8_t cham_bool_t;
 
 
 /**

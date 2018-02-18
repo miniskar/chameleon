@@ -21,8 +21,8 @@
  * @precisions mixed zc -> ds
  *
  */
-#ifndef _CHAMELEON_ZC_H_
-#define _CHAMELEON_ZC_H_
+#ifndef _chameleon_zc_h_
+#define _chameleon_zc_h_
 
 BEGIN_C_DECLS
 

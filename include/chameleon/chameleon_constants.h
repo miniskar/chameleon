@@ -47,7 +47,7 @@
 /**
  * @brief Transpostion
  */
-typedef enum cham_trans_e {
+typedef enum chameleon_trans_e {
     ChamNoTrans   = 111, /**< Use A         */
     ChamTrans     = 112, /**< Use A^t       */
     ChamConjTrans = 113  /**< Use conj(A^t) */
@@ -56,7 +56,7 @@ typedef enum cham_trans_e {
 /**
  * @brief Upper/Lower part
  */
-typedef enum cham_uplo_e {
+typedef enum chameleon_uplo_e {
     ChamUpper      = 121, /**< Use lower triangle of A */
     ChamLower      = 122, /**< Use upper triangle of A */
     ChamUpperLower = 123  /**< Use the full A          */
@@ -66,7 +66,7 @@ typedef enum cham_uplo_e {
 /**
  * @brief Diagonal
  */
-typedef enum cham_diag_e {
+typedef enum chameleon_diag_e {
     ChamNonUnit = 131, /**< Diagonal is non unitary */
     ChamUnit    = 132  /**< Diagonal is unitary     */
 } cham_diag_t;
@@ -74,7 +74,7 @@ typedef enum cham_diag_e {
 /**
  * @brief Side of the operation
  */
-typedef enum cham_side_e {
+typedef enum chameleon_side_e {
     ChamLeft  = 141, /**< Apply operator on the left  */
     ChamRight = 142  /**< Apply operator on the right */
 } cham_side_t;
@@ -82,7 +82,7 @@ typedef enum cham_side_e {
 /**
  * @brief Norms
  */
-typedef enum cham_normtype_e {
+typedef enum chameleon_normtype_e {
     ChamOneNorm       = 171, /**< One norm:       max_j( sum_i( |a_{ij}| ) )   */
     ChamRealOneNorm   = 172,
     ChamTwoNorm       = 173,
@@ -92,7 +92,6 @@ typedef enum cham_normtype_e {
     ChamMaxNorm       = 177, /**< Inifinite norm: max_{i,j}( | a_{ij} | )      */
     ChamRealMaxNorm   = 178
 } cham_normtype_t;
-
 
 #define ChameleonDistUniform     201
 #define ChameleonDistSymmetric   202
@@ -112,15 +111,32 @@ typedef enum cham_normtype_e {
 #define ChameleonPackUpeprBand   297
 #define ChameleonPackAll         298
 
-#define ChameleonNoVec           301
-#define ChameleonVec             302
-#define ChameleonIvec            303
+/**
+ * @brief Singular/Eigen vector job description
+ */
+typedef enum chameleon_job_e {
+    ChamNoVec = 301,
+    ChamVec   = 302,
+    ChamIvec  = 303,
+} cham_job_t;
 
-#define ChameleonForward         391
-#define ChameleonBackward        392
+/**
+ * @brief Algorithm Direction
+ */
+typedef enum chameleon_dir_e {
+    ChamDirForward  = 391, /**< Forward direction   */
+    ChamDirBackward = 392, /**< Backward direction  */
+} cham_dir_t;
 
-#define ChameleonColumnwise      401
-#define ChameleonRowwise         402
+/**
+ * @brief Direction of the main vectors as for the householder reflectors in QR/LQ factorizations.
+ */
+typedef enum chameleon_store_e {
+    ChamColumnwise  = 401, /**< Column wise storage  */
+    ChamRowwise     = 402, /**< Row wise storage     */
+} cham_store_t;
+
+
 #define ChameleonTrd            1001
 #define ChameleonBrd            1002
 

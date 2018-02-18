@@ -20,7 +20,7 @@
 #ifndef _chameleon_tasks_h_
 #define _chameleon_tasks_h_
 
-#include "chameleon/chameleon_config.h"
+#include "chameleon/config.h"
 
 BEGIN_C_DECLS
 
@@ -84,14 +84,14 @@ typedef enum chameleon_tasktype_e {
   TASK_TILE_ZERO,
 
   TASK_NBKERNELS
-} chameleon_tasktype_t;
+} cham_tasktype_t;
 
-#include "chameleon/chameleon_tasks_z.h"
-#include "chameleon/chameleon_tasks_d.h"
-#include "chameleon/chameleon_tasks_c.h"
-#include "chameleon/chameleon_tasks_s.h"
-#include "chameleon/chameleon_tasks_zc.h"
-#include "chameleon/chameleon_tasks_ds.h"
+#include "chameleon/tasks_z.h"
+#include "chameleon/tasks_d.h"
+#include "chameleon/tasks_c.h"
+#include "chameleon/tasks_s.h"
+#include "chameleon/tasks_zc.h"
+#include "chameleon/tasks_ds.h"
 
 END_C_DECLS
 

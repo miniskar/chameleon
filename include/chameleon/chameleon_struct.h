@@ -18,11 +18,11 @@
  * @date 2011-06-01
  *
  */
-#ifndef _CHAMELEON_STRUCT_H_
-#define _CHAMELEON_STRUCT_H_
+#ifndef _chameleon_struct_h_
+#define _chameleon_struct_h_
 
-#include "chameleon/chameleon_config.h"
-#include "chameleon/chameleon_types.h"
+#include "chameleon/config.h"
+#include "chameleon/types.h"
 
 BEGIN_C_DECLS
 
@@ -44,22 +44,22 @@ BEGIN_C_DECLS
  *      +----------+---+
  *
  */
-struct matrix_desc_s;
-typedef struct matrix_desc_s MATRIX_desc_t;
+struct chameleon_desc_s;
+typedef struct chameleon_desc_s CHAM_desc_t;
 
-struct matrix_desc_s {
-    // function to get matrix tiles address
-    void *(*get_blkaddr)( const MATRIX_desc_t*, int, int );
-    // function to get matrix tiles leading dimension
-    int   (*get_blkldd )( const MATRIX_desc_t*, int );
-    // function to get matrix tiles MPI rank
-    int   (*get_rankof) ( const MATRIX_desc_t*, int, int );
+struct chameleon_desc_s {
+    // function to get chameleon tiles address
+    void *(*get_blkaddr)( const CHAM_desc_t*, int, int );
+    // function to get chameleon tiles leading dimension
+    int   (*get_blkldd )( const CHAM_desc_t*, int );
+    // function to get chameleon tiles MPI rank
+    int   (*get_rankof) ( const CHAM_desc_t*, int, int );
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21
     size_t A12;       // pointer to the beginning of the matrix A12
     size_t A22;       // pointer to the beginning of the matrix A22
-    CHAMELEON_enum styp;  // storage layout of the matrix
-    CHAMELEON_enum dtyp;  // precision of the matrix
+    cham_storage_t styp;  // storage layout of the matrix
+    cham_flttype_t dtyp;  // precision of the matrix
     int mb;           // number of rows in a tile
     int nb;           // number of columns in a tile
     int bsiz;         // size in elements including padding
@@ -111,19 +111,17 @@ typedef struct chameleon_context_s {
     int                group_size;
 
     /* Boolean flags */
-    CHAMELEON_bool         warnings_enabled;
-    CHAMELEON_bool         autotuning_enabled;
-    CHAMELEON_bool         parallel_enabled;
-    CHAMELEON_bool         profiling_enabled;
-    CHAMELEON_bool         progress_enabled;
+    cham_bool_t        warnings_enabled;
+    cham_bool_t        autotuning_enabled;
+    cham_bool_t        parallel_enabled;
+    cham_bool_t        profiling_enabled;
+    cham_bool_t        progress_enabled;
 
-    CHAMELEON_enum         householder;        // "domino" (flat) or tree-based (reduction) Householder
-    CHAMELEON_enum         translation;        // In place or Out of place layout conversion
+    cham_householder_t householder;        // "domino" (flat) or tree-based (reduction) Householder
+    cham_translation_t translation;        // In place or Out of place layout conversion
 
     int                nb;
     int                ib;
-    int                nbnbsize;           // tile size in elements (possibly padded)
-    int                ibnbsize;           // T or L tile size in elements (---''---)
     int                rhblock;            // block size for tree-based (reduction) Householder
     void              *schedopt;           // structure for runtimes
     int                mpi_outer_init;     // MPI has been initialized outside our functions
