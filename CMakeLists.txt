@@ -954,9 +954,9 @@ endif()
 # Save extra dependencies (all required links)
 list(APPEND CHAMELEON_DEP ${EXTRA_LIBRARIES})
 # We remove duplicate dependencies ensuring that redundant libraries are placed last
-list(REVERSE CHAMELEON_DEP)
+#list(REVERSE CHAMELEON_DEP)
 list(REMOVE_DUPLICATES CHAMELEON_DEP)
-list(REVERSE CHAMELEON_DEP)
+#list(REVERSE CHAMELEON_DEP)
 
 # Check for the subdirectories
 # ----------------------------
