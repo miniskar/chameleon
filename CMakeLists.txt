@@ -248,6 +248,11 @@ endif()
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
 #------------------------------------------------------------------------------
 
+###############################################################################
+# Build dependency HQR library #
+################################
+add_subdirectory(hqr)
+include_directories(hqr/include)
 
 ###############################################################################
 # Look for dependencies #
@@ -963,12 +968,6 @@ if (NOT CHAMELEON_SIMULATION)
   endif()
 
 endif()
-
-###############################################################################
-# Add HQR library #
-###################
-add_subdirectory(hqr)
-include_directories(hqr/include)
 
 ###############################################################################
 # Main library #
