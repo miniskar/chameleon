@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -22,6 +22,37 @@
 #  @date 2014-11-10
 #
 ###
+
+# some variables has been set to 1 instead of ON to make the chameleon_config.h file
+# restore ON when necessary
+if (CHAMELEON_USE_CUDA)
+  set(CHAMELEON_USE_CUDA "ON")
+endif()
+if (CHAMELEON_USE_CUBLAS)
+  set(CHAMELEON_USE_CUBLAS "ON")
+endif()
+if (CHAMELEON_USE_CUBLAS_V2)
+  set(CHAMELEON_USE_CUBLAS_V2 "ON")
+endif()
+if (CHAMELEON_USE_MPI)
+  set(CHAMELEON_USE_MPI "ON")
+endif()
+if (CHAMELEON_SCHED_QUARK)
+  set(CHAMELEON_SCHED_QUARK "ON")
+endif()
+if (CHAMELEON_SCHED_PARSEC)
+  set(CHAMELEON_SCHED_PARSEC "ON")
+endif()
+if (CHAMELEON_SCHED_STARPU)
+  set(CHAMELEON_SCHED_STARPU "ON")
+endif()
+if (CHAMELEON_ENABLE_TRACING)
+  set(CHAMELEON_ENABLE_TRACING "ON")
+endif()
+if (CHAMELEON_SIMULATION)
+  set(CHAMELEON_SIMULATION "ON")
+endif()
+
 set(dep_message "\nConfiguration of Chameleon:\n"
         "       BUILDNAME ...........: ${BUILDNAME}\n"
         "       SITE ................: ${SITE}\n"
@@ -40,6 +71,7 @@ set(dep_message "${dep_message}"
 "       Build shared ........: ${BUILD_SHARED_LIBS}\n"
 "       CFlags ..............: ${CMAKE_C_FLAGS}\n"
 "       LDFlags .............: ${CMAKE_C_LINK_FLAGS}\n"
+"       EXE LDFlags .........: ${CMAKE_EXE_LINKER_FLAGS}\n"
 "\n"
 "       Implementation paradigm\n"
 "       CUDA ................: ${CHAMELEON_USE_CUDA}\n"
@@ -47,7 +79,8 @@ set(dep_message "${dep_message}"
 "\n"
 "       Runtime specific\n"
 "       QUARK ...............: ${CHAMELEON_SCHED_QUARK}\n"
-"       StarPU ..............: ${CHAMELEON_SCHED_STARPU}\n"
+"       PARSEC ..............: ${CHAMELEON_SCHED_PARSEC}\n"
+"       STARPU ..............: ${CHAMELEON_SCHED_STARPU}\n"
 "\n"
 "       Kernels specific\n"
 "       BLAS ................: ${BLAS_VENDOR_FOUND}\n"
