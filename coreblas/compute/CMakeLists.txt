@@ -114,16 +114,14 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};coreblas_sources" CA
 # Compile step
 # ------------
 add_library(coreblas ${COREBLAS_SRCS})
-list(INSERT CHAMELEON_DEP 0 -lcoreblas)
 add_dependencies(coreblas coreblas_include coreblas_sources)
 set_property(TARGET coreblas PROPERTY LINKER_LANGUAGE Fortran)
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
 target_link_libraries(coreblas
-  ${LAPACKE_LIBRARIES}
-  ${LAPACK_SEQ_LIBRARIES}
-  ${CBLAS_LIBRARIES}
-  ${BLAS_SEQ_LIBRARIES}
+  ${TMG_LIBRARIES_DEP}
+  ${LAPACKE_LIBRARIES_DEP}
+  ${CBLAS_LIBRARIES_DEP}
   )
 
 # Installation

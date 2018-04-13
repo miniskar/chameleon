@@ -96,7 +96,7 @@ set(dep_message "${dep_message}"
 "       timing ...............: ${CHAMELEON_ENABLE_TIMING}\n"
 "\n"
 "       CHAMELEON dependencies :\n")
-foreach (_dep ${CHAMELEON_DEP})
+foreach (_dep ${CHAMELEON_LIBRARIES_DEP})
     set(dep_message "${dep_message}"
     "                                 ${_dep}\n")
 endforeach ()

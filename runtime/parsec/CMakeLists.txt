@@ -117,11 +117,9 @@ set_property(TARGET chameleon_parsec PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_
 target_link_libraries(chameleon_parsec
   ${PARSEC_LIBRARIES_DEP})
 if (NOT CHAMELEON_SIMULATION)
-  target_link_libraries(chameleon_parsec
-    coreblas)
+  target_link_libraries(chameleon_parsec coreblas)
   if(CHAMELEON_USE_CUDA)
-    target_link_libraries(chameleon_parsec
-      cudablas)
+    target_link_libraries(chameleon_parsec cudablas)
   endif(CHAMELEON_USE_CUDA)
 endif(NOT CHAMELEON_SIMULATION)
 

@@ -78,13 +78,8 @@ list(APPEND libs_for_ltm
   ${BLAS_SEQ_LIBRARIES}
   ${EXTRA_LIBRARIES}
   )
+# message(STATUS "libs_for_ltm: ${libs_for_ltm}")
 
-link_directories(${LAPACKE_LIBRARY_DIRS})
-link_directories(${LAPACK_LIBRARY_DIRS})
-link_directories(${CBLAS_LIBRARY_DIRS})
-link_directories(${BLAS_LIBRARY_DIRS})
-
-# message(STATUS "libs examples: ${libs_for_ltm}")
 foreach(_ltm ${LTM_SOURCES})
     get_filename_component(_name_exe ${_ltm} NAME_WE)
     add_executable(${_name_exe} ${_ltm})

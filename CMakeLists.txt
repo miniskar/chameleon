@@ -938,6 +938,26 @@ list(APPEND CHAMELEON_DEP ${EXTRA_LIBRARIES})
 list(REMOVE_DUPLICATES CHAMELEON_DEP)
 #list(REVERSE CHAMELEON_DEP)
 
+# we add chameleon's own library
+set(CHAMELEON_LIBRARIES "chameleon")
+if (NOT CHAMELEON_SIMULATION)
+  list(APPEND CHAMELEON_LIBRARIES coreblas)
+  if (CHAMELEON_USE_CUDA)
+    list(APPEND CHAMELEON_LIBRARIES cudablas)
+  endif()
+endif()
+if (CHAMELEON_SCHED_QUARK)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_quark)
+endif()
+if (CHAMELEON_SCHED_PARSEC)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_parsec)
+endif()
+if (CHAMELEON_SCHED_STARPU)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_starpu)
+endif()
+list(APPEND CHAMELEON_LIBRARIES hqr)
+set(CHAMELEON_LIBRARIES_DEP ${CHAMELEON_LIBRARIES} ${CHAMELEON_DEP})
+
 # Check for the subdirectories
 # ----------------------------
 

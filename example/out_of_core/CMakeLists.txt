@@ -37,24 +37,9 @@ set(OOC_SOURCES
 # Define what libraries we have to link with
 # ------------------------------------------
 unset(libs_for_ooc)
-list(APPEND libs_for_ooc
-     chameleon
-     ${STARPU_LIBRARIES_DEP}
-)
-link_directories(${STARPU_LIBRARY_DIRS})
+list(APPEND libs_for_ooc ${CHAMELEON_LIBRARIES_DEP})
+# message(STATUS "libs_for_ooc: ${libs_for_ooc}")
 
-list(APPEND libs_for_ooc
-  ${LAPACKE_LIBRARIES}
-  ${LAPACK_SEQ_LIBRARIES}
-  ${BLAS_SEQ_LIBRARIES}
-  ${EXTRA_LIBRARIES}
-  )
-
-link_directories(${LAPACKE_LIBRARY_DIRS})
-link_directories(${LAPACK_LIBRARY_DIRS})
-link_directories(${BLAS_LIBRARY_DIRS})
-
-# message(STATUS "libs examples: ${libs_for_ooc}")
 foreach(_ooc ${OOC_SOURCES})
     get_filename_component(_name_exe ${_ooc} NAME_WE)
     add_executable(${_name_exe} ${_ooc})

@@ -104,46 +104,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Define what libraries we have to link with
 # ------------------------------------------
 unset(libs_for_tests)
-list(APPEND libs_for_tests
-  chameleon
-  )
-
-if(CHAMELEON_USE_CUDA)
-  list(APPEND libs_for_tests
-    cudablas)
-endif()
-if(CHAMELEON_USE_CUDA)
-  link_directories(${CUDA_LIBRARY_DIRS})
-endif()
-
-list(APPEND libs_for_tests
-  coreblas
-  ${LAPACKE_LIBRARIES}
-  ${TMG_LIBRARIES}
-  ${LAPACK_LIBRARIES}
-  ${CBLAS_LIBRARIES}
-  ${BLAS_LIBRARIES}
-  )
-
-link_directories(${LAPACKE_LIBRARY_DIRS})
-link_directories(${TMG_LIBRARY_DIRS})
-link_directories(${LAPACK_LIBRARY_DIRS})
-link_directories(${CBLAS_LIBRARY_DIRS})
-link_directories(${BLAS_LIBRARY_DIRS})
-
-list(APPEND libs_for_tests
-  hqr
-  ${EXTRA_LIBRARIES}
-  )
-
-# message("LAPACKE_LIBRARY_DIRS: ${LAPACKE_LIBRARY_DIRS}")
-# message("LAPACK_LIBRARY_DIRS: ${LAPACK_LIBRARY_DIRS}")
-# message("CBLAS_LIBRARY_DIRS: ${CBLAS_LIBRARY_DIRS}")
-# message("BLAS_LIBRARY_DIRS: ${BLAS_LIBRARY_DIRS}")
-
-# list(APPEND libs_for_tests ${CMAKE_Fortran_FLAGS}  )
-# list(APPEND libs_for_tests ${CMAKE_Fortran_LDFLAGS})
-
+list(APPEND libs_for_tests ${CHAMELEON_LIBRARIES_DEP})
 # message(STATUS "libs testings: ${libs_for_tests}")
 
 # Create one testing per precision with all files
