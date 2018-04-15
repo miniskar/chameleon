@@ -88,8 +88,8 @@ if (NOT CHAMELEON_SIMULATION)
 
 else (NOT CHAMELEON_SIMULATION)
 
-  set(TEST_CMD_simushm --n_range=9600:9600:1    --nb=960 )
-  set(TEST_CMD_simugpu --n_range=9600:9600:1    --nb=960 --gpus=1)
+  set(TEST_CMD_simushm -N 9600:9600:1 -b 960)
+  set(TEST_CMD_simugpu -N 9600:9600:1 -b 960 -g 1)
   set(RP_CHAMELEON_PRECISIONS_SIMU "s;d")
   foreach(cat ${TEST_CATEGORIES})
     foreach(prec ${RP_CHAMELEON_PRECISIONS_SIMU})
