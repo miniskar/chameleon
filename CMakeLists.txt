@@ -248,6 +248,11 @@ endif()
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
 #------------------------------------------------------------------------------
 
+# If Intel compiler force using Intel MKL Sequential if BLA_VENDOR not set
+if (CMAKE_C_COMPILER_ID MATCHES "Intel" AND (NOT BLA_VENDOR OR BLA_VENDOR STREQUAL "All"))
+  set (BLA_VENDOR "Intel10_64lp_seq")
+endif()
+
 ###############################################################################
 # Build dependency HQR library #
 ################################
