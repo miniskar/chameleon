@@ -247,20 +247,15 @@ endif()
 # ---------------------------
 option(CHAMELEON_KERNELS_PAR "Enable parallel kernels (requires Intel MKL)" OFF)
 
+# If parallel kernels ON: we need the parallel MKL version
+if (CHAMELEON_KERNELS_PAR)
+  set (BLA_VENDOR "Intel10_64lp")
+endif()
+
 # Initially we need to generate files for different precisions
 # TODO: use this option to avoid generate multiple precisions each time we launch cmake
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
 #------------------------------------------------------------------------------
-
-# If Intel compiler force using Intel MKL Sequential if BLA_VENDOR not set
-if (CMAKE_C_COMPILER_ID MATCHES "Intel" AND (NOT BLA_VENDOR OR BLA_VENDOR STREQUAL "All"))
-  set (BLA_VENDOR "Intel10_64lp_seq")
-endif()
-
-# If parallel kernels ON we need the parallel MKL version
-if (CHAMELEON_KERNELS_PAR)
-  set (BLA_VENDOR "Intel10_64lp")
-endif()
 
 ###############################################################################
 # Build dependency HQR library #
