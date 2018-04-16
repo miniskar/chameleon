@@ -23,36 +23,6 @@
 #
 ###
 
-# some variables have been set to 1 instead of ON to make the chameleon_config.h file
-# restore ON when necessary
-if (CHAMELEON_USE_CUDA)
-  set(CHAMELEON_USE_CUDA "ON")
-endif()
-if (CHAMELEON_USE_CUBLAS)
-  set(CHAMELEON_USE_CUBLAS "ON")
-endif()
-if (CHAMELEON_USE_CUBLAS_V2)
-  set(CHAMELEON_USE_CUBLAS_V2 "ON")
-endif()
-if (CHAMELEON_USE_MPI)
-  set(CHAMELEON_USE_MPI "ON")
-endif()
-if (CHAMELEON_SCHED_QUARK)
-  set(CHAMELEON_SCHED_QUARK "ON")
-endif()
-if (CHAMELEON_SCHED_PARSEC)
-  set(CHAMELEON_SCHED_PARSEC "ON")
-endif()
-if (CHAMELEON_SCHED_STARPU)
-  set(CHAMELEON_SCHED_STARPU "ON")
-endif()
-if (CHAMELEON_ENABLE_TRACING)
-  set(CHAMELEON_ENABLE_TRACING "ON")
-endif()
-if (CHAMELEON_SIMULATION)
-  set(CHAMELEON_SIMULATION "ON")
-endif()
-
 set(dep_message "\nConfiguration of Chameleon:\n"
         "       BUILDNAME ...........: ${BUILDNAME}\n"
         "       SITE ................: ${SITE}\n"

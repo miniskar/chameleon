@@ -415,7 +415,6 @@ if(NOT CHAMELEON_SIMULATION)
             " - Activate CUDA in Chameleon${ColourReset}")
             libraries_absolute_path(CUDA_LIBRARIES "$ENV{CUDA_ROOT}/lib64")
             set(EXTRA_LIBRARIES_CUDA)
-            set(CHAMELEON_USE_CUDA 1)
             if(CUDA_VERSION VERSION_LESS "3.0")
                 set(CUDA_HOST_COMPILATION_CPP OFF)
             endif(CUDA_VERSION VERSION_LESS "3.0")
@@ -444,7 +443,6 @@ if(NOT CHAMELEON_SIMULATION)
                 if (CUDA_CUBLAS_LIBRARIES)
                     message("-- ${Blue}Add definition CHAMELEON_USE_CUBLAS"
                     " - Use GPU kernels from cuBLAS${ColourReset}")
-                    set( CHAMELEON_USE_CUBLAS 1)
                     list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_CUBLAS_LIBRARIES})
                     list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_LIBRARIES}) # need CUDA libs to link.
                 else()
@@ -459,7 +457,7 @@ if(NOT CHAMELEON_SIMULATION)
             endif()
             #FindHeader(CUDA cublas_v2.h)
             #if(CUDA_cublas_v2.h_DIRS)
-                #set(CHAMELEON_USE_CUBLAS_V2 1)
+                #set(CHAMELEON_USE_CUBLAS_V2 ON)
             #endif()
         endif (CUDA_FOUND)
 
@@ -482,7 +480,6 @@ if(NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            set(CHAMELEON_USE_MPI 1)
             list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
             include_directories( ${MPI_C_INCLUDE_PATH} )
             # tests for intel mpi
@@ -509,7 +506,6 @@ else (NOT CHAMELEON_SIMULATION)
 
     message("-- ${Blue}Add definition CHAMELEON_SIMULATION"
     " - Activate simulation mode in Chameleon (to use with StarPU+SimGrid)${ColourReset}")
-    set(CHAMELEON_SIMULATION 1)
 
     add_subdirectory(simucore)
 
@@ -522,11 +518,6 @@ else (NOT CHAMELEON_SIMULATION)
         "   perfmodels are available in STARPU_HOME then use CHAMELEON_USE_CUDA=ON"
         "   else set CHAMELEON_USE_CUDA=OFF."
         "${ColourReset}")
-    endif()
-
-    # Add CUDA definition if required
-    if (CHAMELEON_USE_CUDA)
-        set(CHAMELEON_USE_CUDA 1)
     endif()
 
     if (NOT CHAMELEON_SCHED_STARPU)
@@ -591,7 +582,6 @@ else (NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            set(CHAMELEON_USE_MPI 1)
             list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
             include_directories( ${MPI_C_INCLUDE_PATH} )
             if(MPI_C_LINK_FLAGS)
@@ -633,7 +623,6 @@ if( CHAMELEON_SCHED_STARPU )
     if ( STARPU_FOUND )
         message("-- ${Blue}Add definition CHAMELEON_SCHED_STARPU"
         " - Activate StarPU in Chameleon${ColourReset}")
-        set(CHAMELEON_SCHED_STARPU 1)
         if (STARPU_INCLUDE_DIRS_DEP)
             include_directories(${STARPU_INCLUDE_DIRS_DEP})
             set(CMAKE_REQUIRED_INCLUDES "${STARPU_INCLUDE_DIRS_DEP}")
@@ -675,7 +664,6 @@ if( CHAMELEON_SCHED_STARPU )
         endif()
         check_function_exists(starpu_malloc_on_node_set_default_flags HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS)
         if ( HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS )
-            set(HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS 1)
             message("-- ${Blue}Add definition HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS${ColourReset}")
         endif()
         check_function_exists(starpu_mpi_data_migrate HAVE_STARPU_MPI_DATA_MIGRATE)
@@ -800,7 +788,6 @@ if( CHAMELEON_SCHED_PARSEC )
     if(PARSEC_FOUND)
         message("-- ${Blue}Add definition CHAMELEON_SCHED_PARSEC"
         " - Activate PaRSEC in Chameleon${ColourReset}")
-      set(CHAMELEON_SCHED_PARSEC 1)
       if (PARSEC_INCLUDE_DIRS_DEP)
           include_directories(${PARSEC_INCLUDE_DIRS_DEP})
           include_directories(${PARSEC_INCLUDE_DIRS}/daguepp)
@@ -871,7 +858,6 @@ if( CHAMELEON_SCHED_QUARK )
     if(QUARK_FOUND)
         message("-- ${Blue}Add definition CHAMELEON_SCHED_QUARK"
         " - Activate QUARK in Chameleon${ColourReset}")
-        set(CHAMELEON_SCHED_QUARK 1)
         if (QUARK_INCLUDE_DIRS_DEP)
             include_directories(${QUARK_INCLUDE_DIRS_DEP})
         endif()
