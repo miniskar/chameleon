@@ -49,23 +49,23 @@ list(APPEND libs_for_step0
   ${CBLAS_LIBRARIES}
   )
 
-if(LAPACK_PAR_LIBRARIES)
+if(LAPACK_LIBRARIES_PAR)
   list(APPEND libs_for_step0
-    ${LAPACK_PAR_LIBRARIES}
+    ${LAPACK_LIBRARIES_PAR}
     )
 else()
   list(APPEND libs_for_step0
-    ${LAPACK_SEQ_LIBRARIES}
+    ${LAPACK_LIBRARIES_SEQ}
     )
 endif()
 
-if(BLAS_PAR_LIBRARIES)
+if(BLAS_LIBRARIES_PAR)
   list(APPEND libs_for_step0
-    ${BLAS_PAR_LIBRARIES}
+    ${BLAS_LIBRARIES_PAR}
     )
 else()
   list(APPEND libs_for_step0
-    ${BLAS_SEQ_LIBRARIES}
+    ${BLAS_LIBRARIES_SEQ}
     )
 endif()
 
@@ -74,8 +74,8 @@ list(APPEND libs_for_step0
   )
 
 list(APPEND libs_for_ltm
-  ${LAPACK_SEQ_LIBRARIES}
-  ${BLAS_SEQ_LIBRARIES}
+  ${LAPACK_LIBRARIES_SEQ}
+  ${BLAS_LIBRARIES_SEQ}
   ${EXTRA_LIBRARIES}
   )
 # message(STATUS "libs_for_ltm: ${libs_for_ltm}")
