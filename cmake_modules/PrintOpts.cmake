@@ -23,7 +23,7 @@
 #
 ###
 
-# some variables has been set to 1 instead of ON to make the chameleon_config.h file
+# some variables have been set to 1 instead of ON to make the chameleon_config.h file
 # restore ON when necessary
 if (CHAMELEON_USE_CUDA)
   set(CHAMELEON_USE_CUDA "ON")
