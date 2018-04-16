@@ -102,7 +102,7 @@ set_property(TARGET cudablas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/
 
 target_link_libraries(cudablas
   coreblas
-  ${EXTRA_LIBRARIES_CUDA})
+  ${CUDA_CUBLAS_LIBRARIES})
 
 # installation
 # ------------
