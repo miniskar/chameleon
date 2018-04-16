@@ -37,7 +37,8 @@ set(OOC_SOURCES
 # Define what libraries we have to link with
 # ------------------------------------------
 unset(libs_for_ooc)
-list(APPEND libs_for_ooc ${CHAMELEON_LIBRARIES_DEP})
+# ooc executable depends on chameleon and lapacke (already a chameleon's dependency)
+list(APPEND libs_for_ooc chameleon)
 # message(STATUS "libs_for_ooc: ${libs_for_ooc}")
 
 foreach(_ooc ${OOC_SOURCES})

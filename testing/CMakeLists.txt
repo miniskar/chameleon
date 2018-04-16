@@ -104,7 +104,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Define what libraries we have to link with
 # ------------------------------------------
 unset(libs_for_tests)
-list(APPEND libs_for_tests ${CHAMELEON_LIBRARIES_DEP})
+# testing executables depend on chameleon and cblas, lapacke, mpi (already chameleon's dependencies)
+list(APPEND libs_for_tests chameleon)
 # message(STATUS "libs testings: ${libs_for_tests}")
 
 # Create one testing per precision with all files

@@ -170,7 +170,8 @@ if(NOT CHAMELEON_SIMULATION)
     list(APPEND libs_for_timings chameleon_timing)
 endif()
 
-list(APPEND libs_for_timings ${CHAMELEON_LIBRARIES_DEP})
+# timing executables depend on chameleon and cblas, lapacke, starpu (optional), mpi (already chameleon's dependencies)
+list(APPEND libs_for_timings chameleon)
 # message(STATUS "libs timings: ${libs_for_timings}")
 
 foreach(_timing ${TIMINGS})
