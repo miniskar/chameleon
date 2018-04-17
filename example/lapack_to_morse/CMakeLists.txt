@@ -45,7 +45,7 @@ list(APPEND libs_for_ltm
 # multithreaded BLAS and LAPACK libraries for this step
 unset(libs_for_step0)
 list(APPEND libs_for_step0
-  ${libs_for_ltm}
+  ${LAPACKE_LIBRARIES}
   ${CBLAS_LIBRARIES}
   )
 
