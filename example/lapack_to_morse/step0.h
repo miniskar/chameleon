@@ -120,6 +120,9 @@ static void print_header(char *prog_name, int * iparam) {
     return;
 }
 
+/* The following is a copy paste from coreblas/core_zplgsy and core_zplrnt.
+ * We need these routines to generate the matrices but we don't want to link with chameleon here.
+ */
 #define Rnd64_A 6364136223846793005ULL
 #define Rnd64_C 1ULL
 #define RndF_Mul 5.4210108624275222e-20f
