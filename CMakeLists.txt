@@ -243,15 +243,6 @@ if(CHAMELEON_SCHED_STARPU)
     endif(CHAMELEON_ENABLE_PRUNING_STATS)
 endif()
 
-# Option for parallel kernels
-# ---------------------------
-option(CHAMELEON_KERNELS_PAR "Enable parallel kernels (requires Intel MKL)" OFF)
-
-# If parallel kernels ON: we need the parallel MKL version
-if (CHAMELEON_KERNELS_PAR)
-  set (BLA_VENDOR "Intel10_64lp")
-endif()
-
 # Initially we need to generate files for different precisions
 # TODO: use this option to avoid generate multiple precisions each time we launch cmake
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
@@ -354,7 +345,7 @@ if(NOT CHAMELEON_SIMULATION)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
-    find_package(LAPACKE)
+    find_package(LAPACKE REQUIRED)
     if(LAPACKE_FOUND)
         if (LAPACKE_INCLUDE_DIRS_DEP)
             include_directories(${LAPACKE_INCLUDE_DIRS_DEP})
@@ -391,7 +382,7 @@ if(NOT CHAMELEON_SIMULATION)
     # CHAMELEON depends on TMG
     #-------------------------
     if (CHAMELEON_ENABLE_TESTING OR CHAMELEON_ENABLE_TIMING)
-        find_package(TMG)
+        find_package(TMG REQUIRED)
         if (TMG_INCLUDE_DIRS_DEP)
             include_directories(${TMG_INCLUDE_DIRS_DEP})
         endif()
@@ -459,10 +450,6 @@ if(NOT CHAMELEON_SIMULATION)
                 "\n   CUDA_LIBRARIES to be found. Be sure you have"
                 "\n   libcuda with your distribution of CUDA.")
             endif()
-            #FindHeader(CUDA cublas_v2.h)
-            #if(CUDA_cublas_v2.h_DIRS)
-                #set(CHAMELEON_USE_CUBLAS_V2 ON)
-            #endif()
         endif (CUDA_FOUND)
 
         list(APPEND EXTRA_LIBRARIES ${EXTRA_LIBRARIES_CUDA})
@@ -794,7 +781,6 @@ if( CHAMELEON_SCHED_PARSEC )
         " - Activate PaRSEC in Chameleon${ColourReset}")
       if (PARSEC_INCLUDE_DIRS_DEP)
           include_directories(${PARSEC_INCLUDE_DIRS_DEP})
-          include_directories(${PARSEC_INCLUDE_DIRS}/daguepp)
       endif()
       if(PARSEC_CFLAGS_OTHER_DEP)
           list(APPEND CMAKE_C_FLAGS "${PARSEC_CFLAGS_OTHER_DEP}")
