@@ -119,9 +119,11 @@ set_property(TARGET coreblas PROPERTY LINKER_LANGUAGE Fortran)
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
 target_link_libraries(coreblas
-  ${TMG_LIBRARIES_DEP}
   ${LAPACKE_LIBRARIES_DEP}
   ${CBLAS_LIBRARIES_DEP}
+  ${TMG_LIBRARIES_DEP}
+  ${LAPACK_LIBRARIES_DEP}
+  ${BLAS_LIBRARIES}
   )
 
 # Installation
