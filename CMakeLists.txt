@@ -270,16 +270,14 @@ endif ()
 
 # Add math library to the list of extra
 # it normally exists on all common systems provided with a C compiler
-set(M_LIBRARIES "")
 if(UNIX OR WIN32)
     find_library(
-      M_m_LIBRARY
+      M_LIBRARY
       NAMES m
       )
-    mark_as_advanced(M_m_LIBRARY)
-    if (M_m_LIBRARY)
-      list(APPEND M_LIBRARIES "${M_m_LIBRARY}")
-      list(APPEND EXTRA_LIBRARIES "${M_m_LIBRARY}")
+    mark_as_advanced(M_LIBRARY)
+    if (M_LIBRARY)
+      list(APPEND EXTRA_LIBRARIES "${M_LIBRARY}")
     else()
       message(FATAL_ERROR "Could NOT find libm on your system."
         " Are you sure to a have a C compiler installed?")
@@ -288,16 +286,14 @@ endif()
 
 # Try to find librt (libposix4 - POSIX.1b Realtime Extensions library)
 # on Unix systems except Apple ones because it does not exist on it
-set(RT_LIBRARIES "")
 if(UNIX AND NOT APPLE)
     find_library(
-        RT_rt_LIBRARY
+        RT_LIBRARY
         NAMES rt
         )
-    mark_as_advanced(RT_rt_LIBRARY)
-    if (RT_rt_LIBRARY)
-        list(APPEND RT_LIBRARIES "${RT_rt_LIBRARY}")
-        list(APPEND EXTRA_LIBRARIES "${RT_rt_LIBRARY}")
+    mark_as_advanced(RT_LIBRARY)
+    if (RT_LIBRARY)
+        list(APPEND EXTRA_LIBRARIES "${RT_LIBRARY}")
     else()
         message(FATAL_ERROR "Could NOT find librt on your system")
     endif()
