@@ -338,30 +338,9 @@ if(NOT CHAMELEON_SIMULATION)
         message(FATAL_ERROR "A CBLAS library is required but has not been found")
     endif()
 
-    # CHAMELEON depends on TMG
-    #-------------------------
-    if (CHAMELEON_ENABLE_TESTING OR CHAMELEON_ENABLE_TIMING)
-        find_package(TMG REQUIRED)
-        if (TMG_INCLUDE_DIRS_DEP)
-            include_directories(${TMG_INCLUDE_DIRS_DEP})
-        endif()
-        if(TMG_CFLAGS_OTHER_DEP)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TMG_CFLAGS_OTHER_DEP}")
-        endif()
-        if(TMG_LDFLAGS_OTHER_DEP)
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${TMG_LDFLAGS_OTHER_DEP}")
-        endif()
-        if(TMG_LIBRARY_DIRS_DEP)
-            list(APPEND CMAKE_INSTALL_RPATH "${TMG_LIBRARY_DIRS_DEP}")
-        endif()
-        if (TMG_LIBRARIES_DEP)
-            list(INSERT CHAMELEON_DEP 0 ${TMG_LIBRARIES_DEP})
-        endif()
-    endif()
-
     # CHAMELEON depends on LAPACKE
     #-----------------------------
-    find_package(LAPACKE REQUIRED)
+    find_package(LAPACKE REQUIRED COMPONENTS TMG)
     if(LAPACKE_FOUND)
         if (LAPACKE_INCLUDE_DIRS_DEP)
             include_directories(${LAPACKE_INCLUDE_DIRS_DEP})
