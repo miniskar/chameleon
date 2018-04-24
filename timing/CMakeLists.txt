@@ -170,52 +170,10 @@ if(NOT CHAMELEON_SIMULATION)
     list(APPEND libs_for_timings chameleon_timing)
 endif()
 
-list(APPEND libs_for_timings
-  chameleon
-  )
-
-# Add dependency toward StarPU for StarPU specific calls
-if(CHAMELEON_SCHED_STARPU)
-  list(APPEND libs_for_timings
-    ${STARPU_LIBRARIES_DEP}
-    )
-  link_directories(${STARPU_LIBRARY_DIRS})
-endif()
-
-if(NOT CHAMELEON_SIMULATION)
-
-    list(APPEND libs_for_timings
-      ${LAPACKE_LIBRARIES}
-      ${TMG_LIBRARIES}
-      ${CBLAS_LIBRARIES}
-      ${LAPACK_SEQ_LIBRARIES}
-      ${BLAS_SEQ_LIBRARIES}
-    )
-
-    link_directories(${LAPACKE_LIBRARY_DIRS})
-    link_directories(${TMG_LIBRARY_DIRS})
-    link_directories(${LAPACK_LIBRARY_DIRS})
-    link_directories(${CBLAS_LIBRARY_DIRS})
-    link_directories(${BLAS_LIBRARY_DIRS})
-
-endif()
-
-list(APPEND libs_for_timings
-  hqr
-  ${EXTRA_LIBRARIES}
-  )
-
-# message("BLAS_SEQ_LIBRARIES: ${BLAS_SEQ_LIBRARIES}")
-# message("CBLAS_LIBRARIES: ${CBLAS_LIBRARIES}")
-# message("LAPACK_SEQ_LIBRARIES: ${LAPACK_SEQ_LIBRARIES}")
-# message("LAPACKE_LIBRARIES: ${LAPACKE_LIBRARIES}")
-
-# message("LAPACKE_LIBRARY_DIRS: ${LAPACKE_LIBRARY_DIRS}")
-# message("LAPACK_LIBRARY_DIRS: ${LAPACK_LIBRARY_DIRS}")
-# message("CBLAS_LIBRARY_DIRS: ${CBLAS_LIBRARY_DIRS}")
-# message("BLAS_LIBRARY_DIRS: ${BLAS_LIBRARY_DIRS}")
-
+# timing executables depend on chameleon and cblas, lapacke, starpu (optional), mpi (already chameleon's dependencies)
+list(APPEND libs_for_timings chameleon)
 # message(STATUS "libs timings: ${libs_for_timings}")
+
 foreach(_timing ${TIMINGS})
     get_filename_component(_name_exe ${_timing} NAME_WE)
     add_executable(${_name_exe} ${_timing})

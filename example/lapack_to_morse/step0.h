@@ -120,4 +120,126 @@ static void print_header(char *prog_name, int * iparam) {
     return;
 }
 
+/* The following is a copy paste from coreblas/core_zplgsy and core_zplrnt.
+ * We need these routines to generate the matrices but we don't want to link with chameleon here.
+ */
+#define Rnd64_A 6364136223846793005ULL
+#define Rnd64_C 1ULL
+#define RndF_Mul 5.4210108624275222e-20f
+#define RndD_Mul 5.4210108624275222e-20
+#define NBELEM   1
+
+static unsigned long long int
+Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
+  unsigned long long int a_k, c_k, ran;
+  int i;
+
+  a_k = Rnd64_A;
+  c_k = Rnd64_C;
+
+  ran = seed;
+  for (i = 0; n; n >>= 1, i++) {
+    if (n & 1)
+      ran = a_k * ran + c_k;
+    c_k *= (a_k + 1);
+    a_k *= a_k;
+  }
+
+  return ran;
+}
+
+/**
+ * CORE_dplgsy - Generate a tile for random symmetric (positive definite if 'bump' is large enough) matrix.
+ */
+static void CORE_dplgsy( double bump, int m, int n, double *A, int lda,
+                         int bigM, int m0, int n0, unsigned long long int seed )
+{
+    double *tmp = A;
+    int64_t i, j;
+    unsigned long long int ran, jump;
+
+    jump = (unsigned long long int)m0 + (unsigned long long int)n0 * (unsigned long long int)bigM;
+
+    /*
+     * Tile diagonal
+     */
+    if ( m0 == n0 ) {
+        for (j = 0; j < n; j++) {
+            ran = Rnd64_jump( NBELEM * jump, seed );
+
+            for (i = j; i < m; i++) {
+                *tmp = 0.5f - ran * RndF_Mul;
+                ran  = Rnd64_A * ran + Rnd64_C;
+                tmp++;
+            }
+            tmp  += (lda - i + j + 1);
+            jump += bigM + 1;
+        }
+
+        for (j = 0; j < n; j++) {
+            A[j+j*lda] += bump;
+
+            for (i=0; i<j; i++) {
+                A[lda*j+i] = A[lda*i+j];
+            }
+        }
+    }
+    /*
+     * Lower part
+     */
+    else if ( m0 > n0 ) {
+        for (j = 0; j < n; j++) {
+            ran = Rnd64_jump( NBELEM * jump, seed );
+
+            for (i = 0; i < m; i++) {
+                *tmp = 0.5f - ran * RndF_Mul;
+                ran  = Rnd64_A * ran + Rnd64_C;
+                tmp++;
+            }
+            tmp  += (lda - i);
+            jump += bigM;
+        }
+    }
+    /*
+     * Upper part
+     */
+    else if ( m0 < n0 ) {
+        /* Overwrite jump */
+        jump = (unsigned long long int)n0 + (unsigned long long int)m0 * (unsigned long long int)bigM;
+
+        for (i = 0; i < m; i++) {
+            ran = Rnd64_jump( NBELEM * jump, seed );
+
+            for (j = 0; j < n; j++) {
+                A[j*lda+i] = 0.5f - ran * RndF_Mul;
+            }
+            jump += bigM;
+        }
+    }
+}
+
+/**
+ * CORE_dplrnt - Generate a tile for random matrix.
+ */
+static void CORE_dplrnt( int m, int n, double *A, int lda,
+                         int bigM, int m0, int n0, unsigned long long int seed )
+{
+	double *tmp = A;
+    int64_t i, j;
+    unsigned long long int ran, jump;
+
+    jump = (unsigned long long int)m0 + (unsigned long long int)n0 * (unsigned long long int)bigM;
+
+    for (j=0; j<n; ++j ) {
+        ran = Rnd64_jump( NBELEM*jump, seed );
+        for (i = 0; i < m; ++i) {
+            *tmp = 0.5f - ran * RndF_Mul;
+            ran  = Rnd64_A * ran + Rnd64_C;
+            tmp++;
+        }
+        tmp  += lda-i;
+        jump += bigM;
+    }
+}
+
 #endif /* STEP0_H */

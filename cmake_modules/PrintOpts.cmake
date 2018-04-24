@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -22,6 +22,7 @@
 #  @date 2014-11-10
 #
 ###
+
 set(dep_message "\nConfiguration of Chameleon:\n"
         "       BUILDNAME ...........: ${BUILDNAME}\n"
         "       SITE ................: ${SITE}\n"
@@ -40,14 +41,16 @@ set(dep_message "${dep_message}"
 "       Build shared ........: ${BUILD_SHARED_LIBS}\n"
 "       CFlags ..............: ${CMAKE_C_FLAGS}\n"
 "       LDFlags .............: ${CMAKE_C_LINK_FLAGS}\n"
+"       EXE LDFlags .........: ${CMAKE_EXE_LINKER_FLAGS}\n"
 "\n"
 "       Implementation paradigm\n"
 "       CUDA ................: ${CHAMELEON_USE_CUDA}\n"
 "       MPI .................: ${CHAMELEON_USE_MPI}\n"
 "\n"
 "       Runtime specific\n"
+"       PARSEC ..............: ${CHAMELEON_SCHED_PARSEC}\n"
 "       QUARK ...............: ${CHAMELEON_SCHED_QUARK}\n"
-"       StarPU ..............: ${CHAMELEON_SCHED_STARPU}\n"
+"       STARPU ..............: ${CHAMELEON_SCHED_STARPU}\n"
 "\n"
 "       Kernels specific\n"
 "       BLAS ................: ${BLAS_VENDOR_FOUND}\n"
@@ -63,7 +66,7 @@ set(dep_message "${dep_message}"
 "       timing ...............: ${CHAMELEON_ENABLE_TIMING}\n"
 "\n"
 "       CHAMELEON dependencies :\n")
-foreach (_dep ${CHAMELEON_DEP})
+foreach (_dep ${CHAMELEON_LIBRARIES_DEP})
     set(dep_message "${dep_message}"
     "                                 ${_dep}\n")
 endforeach ()

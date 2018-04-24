@@ -24,8 +24,6 @@ if (CHAMELEON_SIMULATION)
   message(ERROR "example directory should not be included when simulation is enabled")
 endif()
 
-add_subdirectory(basic_zposv)
-
 if (CHAMELEON_PREC_D)
     add_subdirectory(lapack_to_morse)
     if (CHAMELEON_SCHED_STARPU)

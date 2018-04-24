@@ -294,21 +294,17 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};chameleon_sources" C
 add_library(chameleon ${CHAMELEON_SRCS} ${CHAMELEON_SRCSF})
 if(CHAMELEON_SCHED_STARPU)
   target_link_libraries(chameleon chameleon_starpu)
-  list(INSERT CHAMELEON_DEP 0 -lchameleon_starpu)
 elseif(CHAMELEON_SCHED_PARSEC)
   target_link_libraries(chameleon chameleon_parsec)
-  list(INSERT CHAMELEON_DEP 0 -lchameleon_parsec)
 elseif(CHAMELEON_SCHED_QUARK)
   target_link_libraries(chameleon chameleon_quark)
-  list(INSERT CHAMELEON_DEP 0 -lchameleon_quark)
 endif()
 if (NOT CHAMELEON_SIMULATION)
-  add_dependencies(chameleon
-    coreblas_include)
+  # Depends on coreblas only for set_coreblas_gemm3m_enabled() (Maybe we should change that)
+  add_dependencies(chameleon coreblas_include)
   target_link_libraries(chameleon coreblas)
 endif()
 target_link_libraries(chameleon hqr)
-list(INSERT CHAMELEON_DEP 0 -lchameleon)
 
 add_dependencies(chameleon
   chameleon_include

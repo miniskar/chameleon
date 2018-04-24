@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2017 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -248,6 +248,11 @@ endif()
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
 #------------------------------------------------------------------------------
 
+###############################################################################
+# Build dependency HQR library #
+################################
+add_subdirectory(hqr)
+include_directories(hqr/include)
 
 ###############################################################################
 # Look for dependencies #
@@ -258,22 +263,21 @@ set(CHAMELEON_DEP "")
 # ------------------------
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
-if( THREADS_FOUND )
+if( THREADS_FOUND AND CMAKE_THREAD_LIBS_INIT )
+  libraries_absolute_path(CMAKE_THREAD_LIBS_INIT "")
   list(APPEND EXTRA_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
 # Add math library to the list of extra
 # it normally exists on all common systems provided with a C compiler
-set(M_LIBRARIES "")
 if(UNIX OR WIN32)
     find_library(
-      M_m_LIBRARY
+      M_LIBRARY
       NAMES m
       )
-    mark_as_advanced(M_m_LIBRARY)
-    if (M_m_LIBRARY)
-      list(APPEND M_LIBRARIES "${M_m_LIBRARY}")
-      list(APPEND EXTRA_LIBRARIES "${M_m_LIBRARY}")
+    mark_as_advanced(M_LIBRARY)
+    if (M_LIBRARY)
+      list(APPEND EXTRA_LIBRARIES "${M_LIBRARY}")
     else()
       message(FATAL_ERROR "Could NOT find libm on your system."
         " Are you sure to a have a C compiler installed?")
@@ -282,16 +286,14 @@ endif()
 
 # Try to find librt (libposix4 - POSIX.1b Realtime Extensions library)
 # on Unix systems except Apple ones because it does not exist on it
-set(RT_LIBRARIES "")
 if(UNIX AND NOT APPLE)
     find_library(
-        RT_rt_LIBRARY
+        RT_LIBRARY
         NAMES rt
         )
-    mark_as_advanced(RT_rt_LIBRARY)
-    if (RT_rt_LIBRARY)
-        list(APPEND RT_LIBRARIES "${RT_rt_LIBRARY}")
-        list(APPEND EXTRA_LIBRARIES "${RT_rt_LIBRARY}")
+    mark_as_advanced(RT_LIBRARY)
+    if (RT_LIBRARY)
+        list(APPEND EXTRA_LIBRARIES "${RT_LIBRARY}")
     else()
         message(FATAL_ERROR "Could NOT find librt on your system")
     endif()
@@ -300,33 +302,24 @@ endif()
 # If simulation we don't enter in kernel functions so that we don't need to
 # link with concerned libraries
 if(NOT CHAMELEON_SIMULATION)
-
     # CHAMELEON depends on CBLAS
     #---------------------------
-    find_package(CBLAS COMPONENTS BLASEXT)
-    if(BLAS_FOUND)
-        if (BLAS_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
-        endif()
-        if(BLAS_LINKER_FLAGS)
-            list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
-        endif()
-    else()
-        message(FATAL_ERROR "BLAS library has not been found")
-    endif()
+    find_package(CBLAS REQUIRED)
     if(CBLAS_FOUND)
-        include_directories(${CBLAS_INCLUDE_DIRS})
-        if(CBLAS_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
+        if (CBLAS_INCLUDE_DIRS_DEP)
+            include_directories(${CBLAS_INCLUDE_DIRS_DEP})
         endif()
-        if (CBLAS_LIBRARIES)
-            if (CBLAS_LIBRARIES_DEP)
-                list(INSERT CHAMELEON_DEP 0 ${CBLAS_LIBRARIES_DEP})
-            else()
-                list(INSERT CHAMELEON_DEP 0 ${CBLAS_LIBRARIES})
-            endif()
+        if(CBLAS_CFLAGS_OTHER_DEP)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CBLAS_CFLAGS_OTHER_DEP}")
+        endif()
+        if(CBLAS_LDFLAGS_OTHER_DEP)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CBLAS_LDFLAGS_OTHER_DEP}")
+        endif()
+        if(CBLAS_LIBRARY_DIRS_DEP)
+            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS_DEP}")
+        endif()
+        if (CBLAS_LIBRARIES_DEP)
+            list(INSERT CHAMELEON_DEP 0 ${CBLAS_LIBRARIES_DEP})
         endif()
     else()
         if(MORSE_VERBOSE_FIND_PACKAGE)
@@ -347,32 +340,22 @@ if(NOT CHAMELEON_SIMULATION)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
-    # standalone version of lapacke seems useless for now
-    # let the comment in case we meet some problems of non existing lapacke
-    # functions in lapack library such as mkl, acml, ...
-    #set(LAPACKE_STANDALONE TRUE)
-    find_package(LAPACKE COMPONENTS LAPACKEXT)
-    if(LAPACK_FOUND AND LAPACK_LIBRARY_DIRS)
-        # the RPATH to be used when installing
-        list(APPEND CMAKE_INSTALL_RPATH "${LAPACK_LIBRARY_DIRS}")
-    else()
-        message(FATAL_ERROR "A LAPACK library is required but has not been found")
-    endif()
+    find_package(LAPACKE REQUIRED COMPONENTS TMG)
     if(LAPACKE_FOUND)
-        include_directories(${LAPACKE_INCLUDE_DIRS})
-        if(LAPACKE_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS}")
+        if (LAPACKE_INCLUDE_DIRS_DEP)
+            include_directories(${LAPACKE_INCLUDE_DIRS_DEP})
         endif()
-        if(LAPACKE_LINKER_FLAGS)
-            list(APPEND CMAKE_EXE_LINKER_FLAGS "${LAPACKE_LINKER_FLAGS}")
+        if(LAPACKE_CFLAGS_OTHER_DEP)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LAPACKE_CFLAGS_OTHER_DEP}")
         endif()
-        if (LAPACKE_LIBRARIES)
-            if (LAPACKE_LIBRARIES_DEP)
-                list(INSERT CHAMELEON_DEP 0 ${LAPACKE_LIBRARIES_DEP})
-            else()
-                list(INSERT CHAMELEON_DEP 0 ${LAPACKE_LIBRARIES})
-            endif()
+        if(LAPACKE_LDFLAGS_OTHER_DEP)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LDFLAGS_OTHER_DEP}")
+        endif()
+        if(LAPACKE_LIBRARY_DIRS_DEP)
+            list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS_DEP}")
+        endif()
+        if (LAPACKE_LIBRARIES_DEP)
+            list(INSERT CHAMELEON_DEP 0 ${LAPACKE_LIBRARIES_DEP})
         endif()
     else()
         if(MORSE_VERBOSE_FIND_PACKAGE)
@@ -391,39 +374,16 @@ if(NOT CHAMELEON_SIMULATION)
         message(FATAL_ERROR "A LAPACKE library is required but has not been found")
     endif()
 
-    # CHAMELEON depends on TMG
-    #-------------------------
-    if (CHAMELEON_ENABLE_TESTING OR CHAMELEON_ENABLE_TIMING)
-        find_package(TMG)
-        if(TMG_FOUND AND TMG_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${TMG_LIBRARY_DIRS}")
-        else()
-            message(FATAL_ERROR "A TMG library is required but has not been found")
-        endif()
-        if(TMG_LINKER_FLAGS)
-            list(APPEND CMAKE_EXE_LINKER_FLAGS "${TMG_LINKER_FLAGS}")
-        endif()
-        if (TMG_LIBRARIES)
-            if (TMG_LIBRARIES_DEP)
-                list(INSERT CHAMELEON_DEP 0 ${TMG_LIBRARIES_DEP})
-            else()
-                list(INSERT CHAMELEON_DEP 0 ${TMG_LIBRARIES})
-            endif()
-        endif()
-    endif()
-
     # CHAMELEON depends on CUDA/CUBLAS
     #----------------------------------
     if (CHAMELEON_USE_CUDA)
 
         find_package(CUDA REQUIRED)
-
         if (CUDA_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_CUDA"
             " - Activate CUDA in Chameleon${ColourReset}")
+            libraries_absolute_path(CUDA_LIBRARIES "$ENV{CUDA_ROOT}/lib64")
             set(EXTRA_LIBRARIES_CUDA)
-            set(CHAMELEON_USE_CUDA 1)
             if(CUDA_VERSION VERSION_LESS "3.0")
                 set(CUDA_HOST_COMPILATION_CPP OFF)
             endif(CUDA_VERSION VERSION_LESS "3.0")
@@ -436,7 +396,6 @@ if(NOT CHAMELEON_SIMULATION)
                 "\n   cuda headers with your distribution of CUDA.")
             endif()
             if (CUDA_LIBRARIES)
-                list(APPEND EXTRA_SOURCES src/gpu_data.c)
                 set(saved_include "${CMAKE_REQUIRED_INCLUDES}")
                 set(saved_libs "${CMAKE_REQUIRED_LIBRARIES}")
                 set(CMAKE_REQUIRED_INCLUDES  "${CMAKE_REQUIRED_INCLUDES};${CUDA_INCLUDE_DIRS}")
@@ -452,7 +411,6 @@ if(NOT CHAMELEON_SIMULATION)
                 if (CUDA_CUBLAS_LIBRARIES)
                     message("-- ${Blue}Add definition CHAMELEON_USE_CUBLAS"
                     " - Use GPU kernels from cuBLAS${ColourReset}")
-                    set( CHAMELEON_USE_CUBLAS 1)
                     list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_CUBLAS_LIBRARIES})
                     list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_LIBRARIES}) # need CUDA libs to link.
                 else()
@@ -465,10 +423,6 @@ if(NOT CHAMELEON_SIMULATION)
                 "\n   CUDA_LIBRARIES to be found. Be sure you have"
                 "\n   libcuda with your distribution of CUDA.")
             endif()
-            #FindHeader(CUDA cublas_v2.h)
-            #if(CUDA_cublas_v2.h_DIRS)
-                #set(CHAMELEON_USE_CUBLAS_V2 1)
-            #endif()
         endif (CUDA_FOUND)
 
         list(APPEND EXTRA_LIBRARIES ${EXTRA_LIBRARIES_CUDA})
@@ -490,14 +444,16 @@ if(NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            set(CHAMELEON_USE_MPI 1)
             list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
             include_directories( ${MPI_C_INCLUDE_PATH} )
             # tests for intel mpi
             #list(APPEND MPI_C_COMPILE_FLAGS "-mt_mpi")
             #list(APPEND MPI_COMPILE_FLAGS "-mt_mpi")
+            if(MPI_C_COMPILE_FLAGS)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+            endif()
             if(MPI_C_LINK_FLAGS)
-                list(APPEND CMAKE_EXE_LINKER_FLAGS "${MPI_C_LINK_FLAGS}")
+                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
             endif()
         endif (MPI_C_FOUND)
 
@@ -517,7 +473,6 @@ else (NOT CHAMELEON_SIMULATION)
 
     message("-- ${Blue}Add definition CHAMELEON_SIMULATION"
     " - Activate simulation mode in Chameleon (to use with StarPU+SimGrid)${ColourReset}")
-    set(CHAMELEON_SIMULATION 1)
 
     add_subdirectory(simucore)
 
@@ -530,11 +485,6 @@ else (NOT CHAMELEON_SIMULATION)
         "   perfmodels are available in STARPU_HOME then use CHAMELEON_USE_CUDA=ON"
         "   else set CHAMELEON_USE_CUDA=OFF."
         "${ColourReset}")
-    endif()
-
-    # Add CUDA definition if required
-    if (CHAMELEON_USE_CUDA)
-        set(CHAMELEON_USE_CUDA 1)
     endif()
 
     if (NOT CHAMELEON_SCHED_STARPU)
@@ -599,11 +549,13 @@ else (NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            set(CHAMELEON_USE_MPI 1)
             list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
             include_directories( ${MPI_C_INCLUDE_PATH} )
+            if(MPI_C_COMPILE_FLAGS)
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+            endif()
             if(MPI_C_LINK_FLAGS)
-                list(APPEND CMAKE_EXE_LINKER_FLAGS "${MPI_C_LINK_FLAGS}")
+                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
             endif()
         endif (MPI_C_FOUND)
 
@@ -641,20 +593,24 @@ if( CHAMELEON_SCHED_STARPU )
     if ( STARPU_FOUND )
         message("-- ${Blue}Add definition CHAMELEON_SCHED_STARPU"
         " - Activate StarPU in Chameleon${ColourReset}")
-        set(CHAMELEON_SCHED_STARPU 1)
-        include_directories(${STARPU_INCLUDE_DIRS_DEP})
-        if(STARPU_LINKER_FLAGS)
-            list(APPEND CMAKE_EXE_LINKER_FLAGS "${STARPU_LINKER_FLAGS}")
+        if (STARPU_INCLUDE_DIRS_DEP)
+            include_directories(${STARPU_INCLUDE_DIRS_DEP})
+            set(CMAKE_REQUIRED_INCLUDES "${STARPU_INCLUDE_DIRS_DEP}")
         endif()
-        set(CMAKE_REQUIRED_INCLUDES "${STARPU_INCLUDE_DIRS_DEP}")
-        foreach(libdir ${STARPU_LIBRARY_DIRS_DEP})
-            list(APPEND CMAKE_REQUIRED_FLAGS "-L${libdir}")
-        endforeach()
-        set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")
-        if (CHAMELEON_USE_MPI)
-            list(APPEND CMAKE_REQUIRED_INCLUDES "${MPI_C_INCLUDE_PATH}")
-            list(APPEND CMAKE_REQUIRED_FLAGS "${MPI_C_LINK_FLAGS}")
-            list(APPEND CMAKE_REQUIRED_LIBRARIES "${MPI_C_LIBRARIES}")
+        if(STARPU_CFLAGS_OTHER_DEP)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${STARPU_CFLAGS_OTHER_DEP}")
+            set(CMAKE_REQUIRED_FLAGS "${STARPU_CFLAGS_OTHER_DEP}")
+        endif()
+        if(STARPU_LDFLAGS_OTHER_DEP)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${STARPU_LDFLAGS_OTHER_DEP}")
+            set(CMAKE_REQUIRED_LDFLAGS "${STARPU_LDFLAGS_OTHER_DEP}")
+        endif()
+        if(STARPU_LIBRARY_DIRS_DEP)
+            list(APPEND CMAKE_INSTALL_RPATH "${STARPU_LIBRARY_DIRS_DEP}")
+        endif()
+        if (STARPU_LIBRARIES_DEP)
+            list(INSERT CHAMELEON_DEP 0 ${STARPU_LIBRARIES_DEP})
+            set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")
         endif()
         if (CHAMELEON_SIMULATION)
             list(APPEND CMAKE_REQUIRED_FLAGS "-include" "starpu_simgrid_wrap.h")
@@ -678,7 +634,6 @@ if( CHAMELEON_SCHED_STARPU )
         endif()
         check_function_exists(starpu_malloc_on_node_set_default_flags HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS)
         if ( HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS )
-            set(HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS 1)
             message("-- ${Blue}Add definition HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS${ColourReset}")
         endif()
         check_function_exists(starpu_mpi_data_migrate HAVE_STARPU_MPI_DATA_MIGRATE)
@@ -721,32 +676,6 @@ if( CHAMELEON_SCHED_STARPU )
                 message("-- ${Blue}Add definition HAVE_STARPU_MPI_COMM_GET_ATTR${ColourReset}")
             endif()
         endif()
-        if(HWLOC_FOUND AND HWLOC_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${HWLOC_LIBRARY_DIRS}")
-        endif()
-        if(FXT_FOUND AND FXT_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${FXT_LIBRARY_DIRS}")
-        endif()
-        if(SIMGRID_FOUND AND SIMGRID_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${SIMGRID_LIBRARY_DIRS}")
-        endif()
-        if(STARPU_FOUND AND STARPU_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${STARPU_LIBRARY_DIRS}")
-        endif()
-        if (STARPU_LIBRARIES)
-            if (STARPU_LIBRARIES_DEP)
-                list(INSERT CHAMELEON_DEP 0 ${STARPU_LIBRARIES_DEP})
-            else()
-                list(INSERT CHAMELEON_DEP 0 ${STARPU_LIBRARIES})
-            endif()
-        endif()
-        unset(CMAKE_REQUIRED_FLAGS)
-        unset(CMAKE_REQUIRED_INCLUDES)
-        unset(CMAKE_REQUIRED_LIBRARIES)
     else ( STARPU_FOUND )
         if(MORSE_VERBOSE_FIND_PACKAGE)
             if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
@@ -825,46 +754,32 @@ if( CHAMELEON_SCHED_PARSEC )
     #if(CHAMELEON_WITH_PROFILING)
     #    list(APPEND PARSEC_COMPONENT_LIST "PAPI")
     #endif()
-
     find_package(PARSEC COMPONENTS ${PARSEC_COMPONENT_LIST})
-
-    # Add definition and include_dir if found
     if(PARSEC_FOUND)
         message("-- ${Blue}Add definition CHAMELEON_SCHED_PARSEC"
         " - Activate PaRSEC in Chameleon${ColourReset}")
-
-      set(CHAMELEON_SCHED_PARSEC 1)
-      include_directories(${PARSEC_INCLUDE_DIRS_DEP})
-      include_directories(${PARSEC_INCLUDE_DIRS}/daguepp)
-      set(CMAKE_REQUIRED_INCLUDES "${PARSEC_INCLUDE_DIRS_DEP}")
-
-      if(PARSEC_LINKER_FLAGS)
-           list(APPEND CMAKE_EXE_LINKER_FLAGS "${PARSEC_LINKER_FLAGS}")
+      if (PARSEC_INCLUDE_DIRS_DEP)
+          include_directories(${PARSEC_INCLUDE_DIRS_DEP})
       endif()
-      foreach(libdir ${PARSEC_LIBRARY_DIRS_DEP})
-          list(APPEND CMAKE_REQUIRED_FLAGS "-L${libdir}")
-      endforeach()
-      string(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
-      set(CMAKE_REQUIRED_LIBRARIES "${PARSEC_LIBRARIES_DEP}")
-
-      if(HWLOC_FOUND AND HWLOC_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-          list(APPEND CMAKE_INSTALL_RPATH "${HWLOC_LIBRARY_DIRS}")
+      if(PARSEC_CFLAGS_OTHER_DEP)
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PARSEC_CFLAGS_OTHER_DEP}")
       endif()
-      if(PARSEC_FOUND AND PARSEC_LIBRARY_DIRS_DEP)
-          # the RPATH to be used when installing
+      if(PARSEC_LDFLAGS_OTHER_DEP)
+          set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PARSEC_LDFLAGS_OTHER_DEP}")
+      endif()
+      if(PARSEC_LIBRARY_DIRS_DEP)
           list(APPEND CMAKE_INSTALL_RPATH "${PARSEC_LIBRARY_DIRS_DEP}")
       endif()
-      if (PARSEC_LIBRARIES)
-          if (PARSEC_LIBRARIES_DEP)
-              list(INSERT CHAMELEON_DEP 0 ${PARSEC_LIBRARIES_DEP})
-          else()
-              list(INSERT CHAMELEON_DEP 0 ${PARSEC_LIBRARIES})
-          endif()
+      if (PARSEC_LIBRARIES_DEP)
+          list(INSERT CHAMELEON_DEP 0 ${PARSEC_LIBRARIES_DEP})
       endif()
-      unset(CMAKE_REQUIRED_FLAGS)
-      unset(CMAKE_REQUIRED_INCLUDES)
-      unset(CMAKE_REQUIRED_LIBRARIES)
+      string(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+      # to test if symbols exist, e.g.
+      # set(CMAKE_REQUIRED_INCLUDES "${PARSEC_INCLUDE_DIRS_DEP}")
+      # set(CMAKE_REQUIRED_FLAGS "${PARSEC_CFLAGS_OTHER_DEP}")
+      # set(CMAKE_REQUIRED_LDFLAGS "${PARSEC_LDFLAGS_OTHER_DEP}")
+      # set(CMAKE_REQUIRED_LIBRARIES "${PARSEC_LIBRARIES_DEP}")
+      # check_function_exists(parsec_init HAVE_PARSEC_INIT)
     else ( PARSEC_FOUND )
         if(MORSE_VERBOSE_FIND_PACKAGE)
             if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
@@ -912,18 +827,20 @@ if( CHAMELEON_SCHED_QUARK )
     if(QUARK_FOUND)
         message("-- ${Blue}Add definition CHAMELEON_SCHED_QUARK"
         " - Activate QUARK in Chameleon${ColourReset}")
-        set(CHAMELEON_SCHED_QUARK 1)
-        include_directories(${QUARK_INCLUDE_DIRS})
-        if(QUARK_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${QUARK_LIBRARY_DIRS}")
+        if (QUARK_INCLUDE_DIRS_DEP)
+            include_directories(${QUARK_INCLUDE_DIRS_DEP})
         endif()
-        if (QUARK_LIBRARIES)
-            if (QUARK_LIBRARIES_DEP)
-                list(INSERT CHAMELEON_DEP 0 ${QUARK_LIBRARIES_DEP})
-            else()
-                list(INSERT CHAMELEON_DEP 0 ${QUARK_LIBRARIES})
-            endif()
+        if(QUARK_CFLAGS_OTHER_DEP)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${QUARK_CFLAGS_OTHER_DEP}")
+        endif()
+        if(QUARK_LDFLAGS_OTHER_DEP)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${QUARK_LDFLAGS_OTHER_DEP}")
+        endif()
+        if(QUARK_LIBRARY_DIRS_DEP)
+            list(APPEND CMAKE_INSTALL_RPATH "${QUARK_LIBRARY_DIRS_DEP}")
+        endif()
+        if (QUARK_LIBRARIES_DEP)
+            list(INSERT CHAMELEON_DEP 0 ${QUARK_LIBRARIES_DEP})
         endif()
     else(QUARK_FOUND)
         if(MORSE_VERBOSE_FIND_PACKAGE)
@@ -965,6 +882,8 @@ cmake_dependent_option(CHAMELEON_USE_CUBLAS_V2
   "Enable cublas API v2" ON
   "CHAMELEON_USE_CUDA;CHAMELEON_SCHED_STARPU" OFF)
 
+list(REMOVE_DUPLICATES CMAKE_C_FLAGS)
+string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 list(REMOVE_DUPLICATES CMAKE_EXE_LINKER_FLAGS)
 string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 # Fix a problem on Mac OS X when building shared libraries
@@ -972,23 +891,32 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")
 endif()
 
-#------------------------------------------------------------------------------
-if(CHAMELEON_SCHED_STARPU)
-    link_directories(${STARPU_LIBRARY_DIRS_DEP})
-elseif(CHAMELEON_SCHED_PARSEC)
-    link_directories(${PARSEC_LIBRARY_DIRS_DEP})
-elseif(CHAMELEON_SCHED_QUARK)
-    link_directories(${QUARK_LIBRARY_DIRS})
-endif()
-if(NOT CHAMELEON_SIMULATION)
-    if(CHAMELEON_USE_CUDA)
-        link_directories(${CUDA_LIBRARY_DIRS})
-    endif()
-endif()
-
 # Save extra dependencies (all required links)
 list(APPEND CHAMELEON_DEP ${EXTRA_LIBRARIES})
-list(REMOVE_DUPLICATES CHAMELEON_DEP) # WARNING: is it safe, respect order?
+# We remove duplicate dependencies ensuring that redundant libraries are placed last
+list(REVERSE CHAMELEON_DEP)
+list(REMOVE_DUPLICATES CHAMELEON_DEP)
+list(REVERSE CHAMELEON_DEP)
+
+# we add chameleon's own library
+set(CHAMELEON_LIBRARIES "chameleon")
+if (NOT CHAMELEON_SIMULATION)
+  list(APPEND CHAMELEON_LIBRARIES coreblas)
+  if (CHAMELEON_USE_CUDA)
+    list(APPEND CHAMELEON_LIBRARIES cudablas)
+  endif()
+endif()
+if (CHAMELEON_SCHED_QUARK)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_quark)
+endif()
+if (CHAMELEON_SCHED_PARSEC)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_parsec)
+endif()
+if (CHAMELEON_SCHED_STARPU)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_starpu)
+endif()
+list(APPEND CHAMELEON_LIBRARIES hqr)
+set(CHAMELEON_LIBRARIES_DEP ${CHAMELEON_LIBRARIES} ${CHAMELEON_DEP})
 
 # Check for the subdirectories
 # ----------------------------
@@ -1020,12 +948,6 @@ if (NOT CHAMELEON_SIMULATION)
   endif()
 
 endif()
-
-###############################################################################
-# Add HQR library #
-###################
-add_subdirectory(hqr)
-include_directories(hqr/include)
 
 ###############################################################################
 # Main library #

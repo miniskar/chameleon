@@ -35,56 +35,26 @@ set(LTM_SOURCES
 # Define what libraries we have to link with
 # ------------------------------------------
 unset(libs_for_ltm)
-list(APPEND libs_for_ltm
-  chameleon
-  coreblas
-  ${LAPACKE_LIBRARIES}
-)
+list(APPEND libs_for_ltm chameleon)
+# message(STATUS "libs_for_ltm: ${libs_for_ltm}")
 
 # specific compilation for step0 because we potentially want to use
 # multithreaded BLAS and LAPACK libraries for this step
 unset(libs_for_step0)
-list(APPEND libs_for_step0
-  ${libs_for_ltm}
-  ${CBLAS_LIBRARIES}
-  )
-
-if(LAPACK_PAR_LIBRARIES)
+if (BLAS_LIBRARIES_PAR)
+  # Intel MKL multithreaded
   list(APPEND libs_for_step0
-    ${LAPACK_PAR_LIBRARIES}
+    ${BLAS_LIBRARIES_PAR}
     )
 else()
+  # Any other blas/lapack suite
   list(APPEND libs_for_step0
-    ${LAPACK_SEQ_LIBRARIES}
+    ${LAPACKE_LIBRARIES_DEP}
+    ${CBLAS_LIBRARIES_DEP}
     )
 endif()
+# message(STATUS "libs_for_step0: ${libs_for_step0}")
 
-if(BLAS_PAR_LIBRARIES)
-  list(APPEND libs_for_step0
-    ${BLAS_PAR_LIBRARIES}
-    )
-else()
-  list(APPEND libs_for_step0
-    ${BLAS_SEQ_LIBRARIES}
-    )
-endif()
-
-list(APPEND libs_for_step0
-  ${EXTRA_LIBRARIES}
-  )
-
-list(APPEND libs_for_ltm
-  ${LAPACK_SEQ_LIBRARIES}
-  ${BLAS_SEQ_LIBRARIES}
-  ${EXTRA_LIBRARIES}
-  )
-
-link_directories(${LAPACKE_LIBRARY_DIRS})
-link_directories(${LAPACK_LIBRARY_DIRS})
-link_directories(${CBLAS_LIBRARY_DIRS})
-link_directories(${BLAS_LIBRARY_DIRS})
-
-# message(STATUS "libs examples: ${libs_for_ltm}")
 foreach(_ltm ${LTM_SOURCES})
     get_filename_component(_name_exe ${_ltm} NAME_WE)
     add_executable(${_name_exe} ${_ltm})

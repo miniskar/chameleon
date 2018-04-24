@@ -33,6 +33,7 @@ if (EZTRACE_FOUND AND EZTRACE_DIR_FOUND)
     find_path(EZTRACE_eztrace_create_plugin_DIR
       NAMES eztrace_create_plugin
       HINTS ${EZTRACE_DIR_FOUND}/bin)
+    mark_as_advanced(EZTRACE_eztrace_create_plugin_DIR)
 
     if (EZTRACE_eztrace_create_plugin_DIR)
 
