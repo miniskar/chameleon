@@ -120,9 +120,7 @@ set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/
 
 target_link_libraries(coreblas
   ${LAPACKE_LIBRARIES_DEP}
-  ${TMG_LIBRARIES_DEP}
   ${CBLAS_LIBRARIES_DEP}
-  ${LAPACK_LIBRARIES_DEP}
   )
 
 # Installation
