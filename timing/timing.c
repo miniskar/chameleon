@@ -58,6 +58,10 @@
 #include <starpu.h>
 #endif /* defined(CHAMELEON_SCHED_STARPU) */
 
+#if defined(CHAMELEON_SCHED_OPENMP)
+#include <omp.h>
+#endif /* defined(CHAMELEON_SCHED_OPENMP) */
+
 
 #if defined(CHAMELEON_HAVE_GETOPT_H)
 #include <getopt.h>
@@ -146,6 +150,8 @@ Test(int64_t n, int *iparam) {
         printf( "%7d %7d %7d ", iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_K] );
     fflush( stdout );
 
+    // FIXME: use posix_memalign, or hwloc allocation with first touch, to avoid
+    // re-using existing allocated bloc, which prevent first-touch
     t = (double*)malloc(niter*sizeof(double));
     memset(t, 0, niter*sizeof(double));
 
@@ -645,8 +651,14 @@ main(int argc, char *argv[]) {
     CHAMELEON_Init( iparam[IPARAM_THRDNBR],
                 iparam[IPARAM_NCUDAS] );
 
+#if defined (CHAMELEON_SCHED_OPENMP)
+#pragma omp parallel
+#pragma omp master
+#endif
+    {
     /* Get the number of threads set by the runtime */
     iparam[IPARAM_THRDNBR] = CHAMELEON_GetThreadNbr();
+    }
 
     /* Stops profiling here to avoid profiling uninteresting routines.
        It will be reactivated in the time_*.c routines with the macro START_TIMING() */

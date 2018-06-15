@@ -27,6 +27,7 @@
 #cmakedefine CHAMELEON_SCHED_QUARK
 #cmakedefine CHAMELEON_SCHED_PARSEC
 #cmakedefine CHAMELEON_SCHED_STARPU
+#cmakedefine CHAMELEON_SCHED_OPENMP
 
 /* Communication engine */
 #cmakedefine CHAMELEON_USE_MPI

@@ -109,6 +109,8 @@ elseif( CHAMELEON_SCHED_PARSEC )
     add_subdirectory(parsec)
 elseif( CHAMELEON_SCHED_STARPU )
     add_subdirectory(starpu)
+elseif( CHAMELEON_SCHED_OPENMP )
+    add_subdirectory(openmp)
 endif()
 
 ###
