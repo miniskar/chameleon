@@ -19,10 +19,10 @@
  * @date 2012-09-15
  *
  */
-#ifndef _MORSE_CONTEXT_H_
-#define _MORSE_CONTEXT_H_
+#ifndef _CHAMELEON_CONTEXT_H_
+#define _CHAMELEON_CONTEXT_H_
 
-#include "chameleon/morse_struct.h"
+#include "chameleon/struct.h"
 
 /**
  *  Routines to handle threads context
@@ -31,8 +31,8 @@
 extern "C" {
 #endif
 
-MORSE_context_t* morse_context_create  ();
-MORSE_context_t* morse_context_self    ();
+CHAM_context_t* morse_context_create  ();
+CHAM_context_t* morse_context_self    ();
 int              morse_context_destroy ();
 
 #ifdef __cplusplus

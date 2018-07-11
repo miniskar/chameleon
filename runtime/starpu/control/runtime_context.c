@@ -35,7 +35,7 @@ int _starpu_is_initialized(void);
 /**
  *  Create new context
  */
-void RUNTIME_context_create( MORSE_context_t *morse )
+void RUNTIME_context_create( CHAM_context_t *morse )
 {
     starpu_conf_t *conf;
 
@@ -57,7 +57,7 @@ void RUNTIME_context_create( MORSE_context_t *morse )
 /**
  *  Clean the context
  */
-void RUNTIME_context_destroy( MORSE_context_t *morse )
+void RUNTIME_context_destroy( CHAM_context_t *morse )
 {
     /* StarPU was already initialized by an external library */
     if (morse->schedopt) {
@@ -69,14 +69,14 @@ void RUNTIME_context_destroy( MORSE_context_t *morse )
 /**
  *
  */
-void RUNTIME_enable( MORSE_enum lever )
+void RUNTIME_enable( int lever )
 {
     switch (lever)
     {
-        case MORSE_PROFILING_MODE:
+        case CHAMELEON_PROFILING_MODE:
             starpu_profiling_status_set(STARPU_PROFILING_ENABLE);
             break;
-        case MORSE_BOUND:
+        case CHAMELEON_BOUND:
             starpu_bound_start(0, 0);
             break;
         default:
@@ -88,14 +88,14 @@ void RUNTIME_enable( MORSE_enum lever )
 /**
  *
  */
-void RUNTIME_disable( MORSE_enum lever )
+void RUNTIME_disable( int lever )
 {
     switch (lever)
     {
-        case MORSE_PROFILING_MODE:
+        case CHAMELEON_PROFILING_MODE:
             starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
             break;
-        case MORSE_BOUND:
+        case CHAMELEON_BOUND:
             starpu_bound_stop();
             break;
         default:

@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgetrf_Tile"
+#define _NAME  "CHAMELEON_zgetrf_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_GETRF(M, N)
 #define _FADDS FADDS_GETRF(M, N)
@@ -35,16 +35,16 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, MORSE_Complex64_t, MorseComplexDouble, LDA, M, N );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, MORSE_Complex64_t, MorseComplexDouble, LDB, M, NRHS );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, MORSE_Complex64_t, MorseComplexDouble, LDA, M, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, MORSE_Complex64_t, MorseComplexDouble, LDB, M, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, M, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, M, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, M, N    );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, M, NRHS );
 
-    MORSE_zplrnt_Tile(descA, 3456);
+    CHAMELEON_zplrnt_Tile(descA, 3456);
 
     /* Save A for check */
     if (check == 1){
-        MORSE_zlacpy_Tile(MorseUpperLower, descA, descAC);
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
     }
 
     /**
@@ -53,25 +53,25 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
      * while performances are similar on CPU. On this algorithm it is therefore
      * recommended to execute all TRSMs (~low amount) on CPU to increase GPU efficiency.
      */
-    //RUNTIME_zlocality_onerestrict( MORSE_TRSM, STARPU_CPU );
+    //RUNTIME_zlocality_onerestrict( CHAMELEON_TRSM, STARPU_CPU );
 
     START_TIMING();
-    MORSE_zgetrf_nopiv_Tile( descA );
+    CHAMELEON_zgetrf_nopiv_Tile( descA );
     STOP_TIMING();
 
     /* Check the solution */
     if ( check )
     {
-        MORSE_zplrnt_Tile( descX, 7732 );
-        MORSE_zlacpy_Tile(MorseUpperLower, descX, descB);
+        CHAMELEON_zplrnt_Tile( descX, 7732 );
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descX, descB);
 
-        MORSE_zgetrs_nopiv_Tile( descA, descX );
+        CHAMELEON_zgetrs_nopiv_Tile( descA, descX );
 
-        dparam[IPARAM_ANORM] = MORSE_zlange_Tile(MorseInfNorm, descAC);
-        dparam[IPARAM_BNORM] = MORSE_zlange_Tile(MorseInfNorm, descB);
-        dparam[IPARAM_XNORM] = MORSE_zlange_Tile(MorseInfNorm, descX);
-        MORSE_zgemm_Tile( MorseNoTrans, MorseNoTrans, 1.0, descAC, descX, -1.0, descB );
-        dparam[IPARAM_RES] = MORSE_zlange_Tile(MorseInfNorm, descB);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
         PASTE_CODE_FREE_MATRIX( descX  );
         PASTE_CODE_FREE_MATRIX( descAC );
         PASTE_CODE_FREE_MATRIX( descB  );

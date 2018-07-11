@@ -17,8 +17,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef MORSEWINTHREAD_H
-#define MORSEWINTHREAD_H
+#ifndef CHAMELEONWINTHREAD_H
+#define CHAMELEONWINTHREAD_H
 
 #include <windows.h>
 
@@ -52,28 +52,28 @@ typedef int pthread_attr_t;
 
 #define PTHREAD_SCOPE_SYSTEM 1
 
-#define MORSE_DLLPORT
-#define MORSE_CDECL __cdecl
+#define CHAMELEON_DLLPORT
+#define CHAMELEON_CDECL __cdecl
 
-MORSE_DLLPORT pthread_t MORSE_CDECL pthread_self(void);
-MORSE_DLLPORT int MORSE_CDECL pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t * attr);
-MORSE_DLLPORT int MORSE_CDECL pthread_mutex_destroy(pthread_mutex_t *mutex);
-MORSE_DLLPORT int MORSE_CDECL pthread_mutex_lock(pthread_mutex_t *mutex);
-MORSE_DLLPORT int MORSE_CDECL pthread_mutex_trylock(pthread_mutex_t *mutex);
-MORSE_DLLPORT int MORSE_CDECL pthread_mutex_unlock(pthread_mutex_t *mutex);
-MORSE_DLLPORT int MORSE_CDECL pthread_attr_init(pthread_attr_t *attr);
-MORSE_DLLPORT int MORSE_CDECL pthread_attr_destroy(pthread_attr_t *attr);
-MORSE_DLLPORT int MORSE_CDECL pthread_attr_setscope(pthread_attr_t *attr, int scope);
-MORSE_DLLPORT int MORSE_CDECL pthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*start) (void *), void *arg);
-MORSE_DLLPORT int MORSE_CDECL pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
-MORSE_DLLPORT int MORSE_CDECL pthread_cond_destroy(pthread_cond_t *cond);
-MORSE_DLLPORT int MORSE_CDECL pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
-MORSE_DLLPORT int MORSE_CDECL pthread_cond_broadcast(pthread_cond_t *cond);
-MORSE_DLLPORT int MORSE_CDECL pthread_join(pthread_t thread, void **value_ptr);
-MORSE_DLLPORT int MORSE_CDECL pthread_equal(pthread_t thread1, pthread_t thread2);
+CHAMELEON_DLLPORT pthread_t CHAMELEON_CDECL pthread_self(void);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t * attr);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_destroy(pthread_mutex_t *mutex);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_lock(pthread_mutex_t *mutex);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_trylock(pthread_mutex_t *mutex);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_unlock(pthread_mutex_t *mutex);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_attr_init(pthread_attr_t *attr);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_attr_destroy(pthread_attr_t *attr);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_attr_setscope(pthread_attr_t *attr, int scope);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*start) (void *), void *arg);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_cond_destroy(pthread_cond_t *cond);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_cond_broadcast(pthread_cond_t *cond);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_join(pthread_t thread, void **value_ptr);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_equal(pthread_t thread1, pthread_t thread2);
 
-MORSE_DLLPORT int MORSE_CDECL pthread_setconcurrency (int);
+CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_setconcurrency (int);
 
-MORSE_DLLPORT unsigned int MORSE_CDECL pthread_self_id(void);
+CHAMELEON_DLLPORT unsigned int CHAMELEON_CDECL pthread_self_id(void);
 
 #endif

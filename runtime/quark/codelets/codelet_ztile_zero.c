@@ -20,7 +20,7 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_ztile_zero_quark(Quark *quark)
@@ -29,7 +29,7 @@ void CORE_ztile_zero_quark(Quark *quark)
     int X2;
     int Y1;
     int Y2;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
 
     int x, y;
@@ -42,9 +42,9 @@ void CORE_ztile_zero_quark(Quark *quark)
 
 }
 
-void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
+void INSERT_TASK_ztile_zero( const RUNTIME_option_t *options,
                             int X1, int X2, int Y1, int Y2,
-                            const MORSE_desc_t *A, int Am, int An, int lda )
+                            const CHAM_desc_t *A, int Am, int An, int lda )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_ztile_zero_quark, (Quark_Task_Flags*)opt,
@@ -52,7 +52,7 @@ void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
         sizeof(int),                       &X2,                                       VALUE,
         sizeof(int),                       &Y1,                                       VALUE,
         sizeof(int),                       &Y2,                                       VALUE,
-        sizeof(MORSE_Complex64_t)*A->bsiz,  RTBLKADDR(A, MORSE_Complex64_t, Am, An),  OUTPUT | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*A->bsiz,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),  OUTPUT | LOCALITY,
         sizeof(int),                       &lda,                                      VALUE,
         0);
 }

@@ -20,7 +20,7 @@
  ***
  *
  * @defgroup Control
- * @brief Group routines exposed to users to control MORSE state
+ * @brief Group routines exposed to users to control CHAMELEON state
  *
  */
 
@@ -28,13 +28,13 @@
 #include <stdlib.h>
 #include "control/auxiliary.h"
 #include "control/common.h"
-#include "chameleon/morse_runtime.h"
+#include "chameleon/runtime.h"
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Init - Initialize MORSE.
+ *  CHAMELEON_Init - Initialize CHAMELEON.
  *
  ******************************************************************************
  *
@@ -47,19 +47,19 @@
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Init(int cores, int gpus)
+int CHAMELEON_Init(int cores, int gpus)
 {
-    return MORSE_InitPar(cores, gpus, -1);
+    return CHAMELEON_InitPar(cores, gpus, -1);
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_InitPar - Initialize MORSE.
+ *  CHAMELEON_InitPar - Initialize CHAMELEON.
  *
  ******************************************************************************
  *
@@ -75,18 +75,18 @@ int MORSE_Init(int cores, int gpus)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
+int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
 
     /* Create context and insert in the context map */
     morse = morse_context_create();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_Init", "morse_context_create() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        morse_fatal_error("CHAMELEON_Init", "morse_context_create() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
 #if defined(CHAMELEON_USE_MPI)
@@ -112,27 +112,27 @@ int MORSE_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
     morse->mpi_comm_size = RUNTIME_comm_size( morse );
 #endif
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Finalize - Finalize MORSE.
+ *  CHAMELEON_Finalize - Finalize CHAMELEON.
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Finalize(void)
+int CHAMELEON_Finalize(void)
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Finalize()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_flush();
 #  if !defined(CHAMELEON_SIMULATION)
@@ -146,107 +146,107 @@ int MORSE_Finalize(void)
 #endif
 
     morse_context_destroy();
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Pause - Suspend MORSE runtime to poll for new tasks.
+ *  CHAMELEON_Pause - Suspend CHAMELEON runtime to poll for new tasks.
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Pause(void)
+int CHAMELEON_Pause(void)
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Pause()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Pause()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_pause(morse);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Resume - Symmetrical call to MORSE_Pause,
+ *  CHAMELEON_Resume - Symmetrical call to CHAMELEON_Pause,
  *  used to resume the workers polling for new tasks.
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Resume(void)
+int CHAMELEON_Resume(void)
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Resume()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Resume()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_resume(morse);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Distributed_start - Prepare the distributed processes for computation
+ *  CHAMELEON_Distributed_start - Prepare the distributed processes for computation
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Distributed_start(void)
+int CHAMELEON_Distributed_start(void)
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Finalize()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_barrier (morse);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Distributed_stop - Clean the distributed processes after computation
+ *  CHAMELEON_Distributed_stop - Clean the distributed processes after computation
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Distributed_stop(void)
+int CHAMELEON_Distributed_stop(void)
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Finalize()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_barrier (morse);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Control
  *
- *  MORSE_Comm_size - Return the size of the distributed computation
+ *  CHAMELEON_Comm_size - Return the size of the distributed computation
  *
  ******************************************************************************
  *
@@ -254,11 +254,11 @@ int MORSE_Distributed_stop(void)
  * @retval -1 if context not initialized
  *
  */
-int MORSE_Comm_size()
+int CHAMELEON_Comm_size()
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Comm_size()", "MORSE not initialized");
+        morse_error("CHAMELEON_Comm_size()", "CHAMELEON not initialized");
         return -1;
     }
 
@@ -269,7 +269,7 @@ int MORSE_Comm_size()
  *
  * @ingroup Control
  *
- *  MORSE_Comm_rank - Return the rank of the distributed computation
+ *  CHAMELEON_Comm_rank - Return the rank of the distributed computation
  *
  ******************************************************************************
  *
@@ -277,11 +277,11 @@ int MORSE_Comm_size()
  * @retval -1 if context not initialized
  *
  */
-int MORSE_Comm_rank()
+int CHAMELEON_Comm_rank()
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Comm_rank()", "MORSE not initialized");
+        morse_error("CHAMELEON_Comm_rank()", "CHAMELEON not initialized");
         return -1;
     }
 
@@ -292,7 +292,7 @@ int MORSE_Comm_rank()
  *
  * @ingroup Control
  *
- *  MORSE_GetThreadNbr - Return the number of CPU workers initialized by the
+ *  CHAMELEON_GetThreadNbr - Return the number of CPU workers initialized by the
  *  runtime
  *
  ******************************************************************************
@@ -301,11 +301,11 @@ int MORSE_Comm_rank()
  *          \retval The number of CPU workers started
  *
  */
-int MORSE_GetThreadNbr( )
+int CHAMELEON_GetThreadNbr( )
 {
-    MORSE_context_t *morse = morse_context_self();
+    CHAM_context_t *morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_GetThreadNbr()", "MORSE not initialized");
+        morse_error("CHAMELEON_GetThreadNbr()", "CHAMELEON not initialized");
         return -1;
     }
 

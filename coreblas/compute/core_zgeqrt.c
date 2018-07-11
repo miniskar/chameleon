@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgeqrt computes a QR factorization of a complex M-by-N tile A:
  *  A = Q * R.
@@ -84,16 +84,16 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
 int CORE_zgeqrt(int M, int N, int IB,
-                MORSE_Complex64_t *A, int LDA,
-                MORSE_Complex64_t *T, int LDT,
-                MORSE_Complex64_t *TAU,
-                MORSE_Complex64_t *WORK)
+                CHAMELEON_Complex64_t *A, int LDA,
+                CHAMELEON_Complex64_t *T, int LDT,
+                CHAMELEON_Complex64_t *TAU,
+                CHAMELEON_Complex64_t *WORK)
 {
     int i, k, sb;
 
@@ -121,7 +121,7 @@ int CORE_zgeqrt(int M, int N, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     k = chameleon_min(M, N);
 
@@ -132,8 +132,8 @@ int CORE_zgeqrt(int M, int N, int IB,
                             &A[LDA*i+i], LDA, &TAU[i], WORK);
 
         LAPACKE_zlarft_work(LAPACK_COL_MAJOR,
-            morse_lapack_const(MorseForward),
-            morse_lapack_const(MorseColumnwise),
+            morse_lapack_const(ChamDirForward),
+            morse_lapack_const(ChamColumnwise),
             M-i, sb,
             &A[LDA*i+i], LDA, &TAU[i],
             &T[LDT*i], LDT);
@@ -141,10 +141,10 @@ int CORE_zgeqrt(int M, int N, int IB,
         if (N > i+sb) {
             LAPACKE_zlarfb_work(
                 LAPACK_COL_MAJOR,
-                morse_lapack_const(MorseLeft),
-                morse_lapack_const(MorseConjTrans),
-                morse_lapack_const(MorseForward),
-                morse_lapack_const(MorseColumnwise),
+                morse_lapack_const(ChamLeft),
+                morse_lapack_const(ChamConjTrans),
+                morse_lapack_const(ChamDirForward),
+                morse_lapack_const(ChamColumnwise),
                 M-i, N-i-sb, sb,
                 &A[LDA*i+i],      LDA,
                 &T[LDT*i],        LDT,
@@ -152,7 +152,7 @@ int CORE_zgeqrt(int M, int N, int IB,
                 WORK, N-i-sb);
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

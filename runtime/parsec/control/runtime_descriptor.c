@@ -26,17 +26,17 @@
 #if defined(CHAMELEON_USE_MPI)
 
 /* Variable parsec_dtd_no_of_arenas is private and cannot be changed */
-#define MORSE_PARSEC_DTD_NO_OF_ARENA 16 /**< Number of arenas available per DTD */
+#define CHAMELEON_PARSEC_DTD_NO_OF_ARENA 16 /**< Number of arenas available per DTD */
 
 typedef struct morse_parsec_arena_s {
     /* int mb; */
     /* int nb; */
-    /* MORSE_enum dtype; */
+    /* cham_flttype_t dtype; */
     size_t size;
 } morse_parsec_arena_t;
 
 static int morse_parsec_nb_arenas = 0;
-static morse_parsec_arena_t morse_parsec_registered_arenas[MORSE_PARSEC_DTD_NO_OF_ARENA] = { { 0 } };
+static morse_parsec_arena_t morse_parsec_registered_arenas[CHAMELEON_PARSEC_DTD_NO_OF_ARENA] = { { 0 } };
 
 #endif
 
@@ -64,7 +64,7 @@ morse_parsec_key_to_coordinates(parsec_data_collection_t *data_collection, parse
                                 int *m, int *n)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     int _m, _n;
 
     _m = key % mdesc->lmt;
@@ -77,7 +77,7 @@ static inline parsec_data_key_t
 morse_parsec_data_key(parsec_data_collection_t *data_collection, ...)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
 
@@ -98,7 +98,7 @@ static inline uint32_t
 morse_parsec_rank_of(parsec_data_collection_t *data_collection, ...)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
 
@@ -142,7 +142,7 @@ static inline parsec_data_t*
 morse_parsec_data_of(parsec_data_collection_t *data_collection, ...)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
 
@@ -163,14 +163,14 @@ morse_parsec_data_of(parsec_data_collection_t *data_collection, ...)
     return parsec_data_create( pdesc->data_map + n * mdesc->lmt + m, data_collection,
                                morse_parsec_data_key( data_collection, m, n ),
                                mdesc->get_blkaddr( mdesc, m, n ),
-                               mdesc->bsiz * MORSE_Element_Size(mdesc->dtyp) );
+                               mdesc->bsiz * CHAMELEON_Element_Size(mdesc->dtyp) );
 }
 
 static inline parsec_data_t*
 morse_parsec_data_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     int m, n;
     morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
 
@@ -180,7 +180,7 @@ morse_parsec_data_of_key(parsec_data_collection_t *data_collection, parsec_data_
 #endif
     return parsec_data_create( pdesc->data_map + key, data_collection, key,
                                mdesc->get_blkaddr( mdesc, m, n ),
-                               mdesc->bsiz * MORSE_Element_Size(mdesc->dtyp) );
+                               mdesc->bsiz * CHAMELEON_Element_Size(mdesc->dtyp) );
 }
 
 #ifdef parsec_PROF_TRACE
@@ -188,7 +188,7 @@ static inline int
 morse_parsec_key_to_string(parsec_data_collection_t *data_collection, parsec_data_key_t key, char * buffer, uint32_t buffer_size)
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
-    MORSE_desc_t *mdesc = pdesc->desc;
+    CHAM_desc_t *mdesc = pdesc->desc;
     int m, n, res;
     morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
     res = snprintf(buffer, buffer_size, "(%d, %d)", m, n);
@@ -204,7 +204,7 @@ morse_parsec_key_to_string(parsec_data_collection_t *data_collection, parsec_dat
 /**
  *  Create data descriptor
  */
-void RUNTIME_desc_create( MORSE_desc_t *mdesc )
+void RUNTIME_desc_create( CHAM_desc_t *mdesc )
 {
     parsec_data_collection_t *data_collection;
     morse_parsec_desc_t *pdesc;
@@ -252,7 +252,7 @@ void RUNTIME_desc_create( MORSE_desc_t *mdesc )
     /* Look if an arena already exists for this descriptor */
     {
         morse_parsec_arena_t *arena = morse_parsec_registered_arenas;
-        size_t size = mdesc->mb * mdesc->nb * MORSE_Element_Size(mdesc->dtyp);
+        size_t size = mdesc->mb * mdesc->nb * CHAMELEON_Element_Size(mdesc->dtyp);
         int i;
 
         for(i=0; i<morse_parsec_nb_arenas; i++, arena++) {
@@ -272,15 +272,15 @@ void RUNTIME_desc_create( MORSE_desc_t *mdesc )
             }
 
             /* Internal limitation of PaRSEC */
-            assert(morse_parsec_nb_arenas < MORSE_PARSEC_DTD_NO_OF_ARENA);
+            assert(morse_parsec_nb_arenas < CHAMELEON_PARSEC_DTD_NO_OF_ARENA);
 
             switch(mdesc->dtyp) {
-            case MorseInteger:       datatype = parsec_datatype_int32_t; break;
-            case MorseRealFloat:     datatype = parsec_datatype_float_t; break;
-            case MorseRealDouble:    datatype = parsec_datatype_double_t; break;
-            case MorseComplexFloat:  datatype = parsec_datatype_complex_t; break;
-            case MorseComplexDouble: datatype = parsec_datatype_double_complex_t; break;
-            default: morse_fatal_error("MORSE_Element_Size", "undefined type"); break;
+            case ChamInteger:       datatype = parsec_datatype_int32_t; break;
+            case ChamRealFloat:     datatype = parsec_datatype_float_t; break;
+            case ChamRealDouble:    datatype = parsec_datatype_double_t; break;
+            case ChamComplexFloat:  datatype = parsec_datatype_complex_t; break;
+            case ChamComplexDouble: datatype = parsec_datatype_double_complex_t; break;
+            default: morse_fatal_error("CHAMELEON_Element_Size", "undefined type"); break;
             }
 
             /* Register the new arena */
@@ -301,7 +301,7 @@ void RUNTIME_desc_create( MORSE_desc_t *mdesc )
 /**
  *  Destroy data descriptor
  */
-void RUNTIME_desc_destroy( MORSE_desc_t *mdesc )
+void RUNTIME_desc_destroy( CHAM_desc_t *mdesc )
 {
     morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)(mdesc->schedopt);
     if ( pdesc == NULL ) {
@@ -334,19 +334,19 @@ void RUNTIME_desc_destroy( MORSE_desc_t *mdesc )
 /**
  *  Acquire data
  */
-int RUNTIME_desc_acquire( const MORSE_desc_t *desc )
+int RUNTIME_desc_acquire( const CHAM_desc_t *desc )
 {
     (void)desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Release data
  */
-int RUNTIME_desc_release( const MORSE_desc_t *desc )
+int RUNTIME_desc_release( const CHAM_desc_t *desc )
 {
     (void)desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -356,16 +356,16 @@ void RUNTIME_flush()
 {
 }
 
-void RUNTIME_desc_flush( const MORSE_desc_t     *desc,
-                         const MORSE_sequence_t *sequence )
+void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+                         const RUNTIME_sequence_t *sequence )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(sequence->schedopt);
 
     parsec_dtd_data_flush_all( PARSEC_dtd_taskpool, (parsec_data_collection_t*)(desc->schedopt) );
 }
 
-void RUNTIME_data_flush( const MORSE_sequence_t *sequence,
-                         const MORSE_desc_t *A, int Am, int An )
+void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
+                         const CHAM_desc_t *A, int Am, int An )
 {
     /*
      * For now, we do nothing in this function as in PaRSEC, once the data is
@@ -373,15 +373,15 @@ void RUNTIME_data_flush( const MORSE_sequence_t *sequence,
      * fixed, we will uncomment this function
      */
     /* parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(sequence->schedopt); */
-    /* parsec_dtd_data_flush( PARSEC_dtd_taskpool, RTBLKADDR( A, MORSE_Complex64_t, Am, An ) ); */
+    /* parsec_dtd_data_flush( PARSEC_dtd_taskpool, RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ) ); */
 
     (void)sequence; (void)A; (void)Am; (void)An;
     return;
 }
 
 #if defined(CHAMELEON_USE_MIGRATE)
-void RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
-                           const MORSE_desc_t *A, int Am, int An, int new_rank )
+void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
+                           const CHAM_desc_t *A, int Am, int An, int new_rank )
 {
     (void)sequence; (void)A; (void)Am; (void)An; (void)new_rank;
 }
@@ -390,7 +390,7 @@ void RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
 /**
  *  Get data addr
  */
-void *RUNTIME_desc_getaddr( const MORSE_desc_t *desc, int m, int n )
+void *RUNTIME_desc_getaddr( const CHAM_desc_t *desc, int m, int n )
 {
     assert(0); /* This should not be called because we also need the handle to match the address we need. */
     return desc->get_blkaddr( desc, m, n );

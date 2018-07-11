@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -173,7 +173,7 @@
      $                   ISCALE, ITRAN, ITYPE, J, K, LDA, LDB, LDWORK,
      $                   LWLSY, LWORK, M, MNMIN, N, NB, NCOLS, NERRS,
      $                   NFAIL, NRHS, NROWS, NRUN, RANK, IB,
-     $                   MORSE_TRANS
+     $                   CHAMELEON_TRANS
       INTEGER            HT( 2 )
       DOUBLE PRECISION   EPS, NORMA, NORMB, RCOND
 *     ..
@@ -272,25 +272,25 @@
                            IF ( (MAX(M, N) / 25) .GT. NB ) THEN
                               GOTO 40
                            END IF
-                           CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-                           CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB,
+                           CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+                           CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB,
      $                                      INFO )
 *
 *                          Allocate T
 *
-                           CALL MORSE_ALLOC_WORKSPACE_ZGELS( M, N , HT,
+                           CALL CHAMELEON_ALLOC_WORKSPACE_ZGELS( M, N , HT,
      $                                                        INFO )
 *
 *                           DO 30 ITRAN = 1, 2
                            DO 30 ITRAN = 1, 1
                               IF( ITRAN.EQ.1 ) THEN
                                  TRANS = 'N'
-                                 MORSE_TRANS = MORSENOTRANS 
+                                 CHAMELEON_TRANS = CHAMELEONNOTRANS 
                                  NROWS = M
                                  NCOLS = N
                               ELSE
                                  TRANS = 'C'
-                                 MORSE_TRANS = MORSECONJTRANS 
+                                 CHAMELEON_TRANS = CHAMELEONCONJTRANS 
                                  NROWS = N
                                  NCOLS = M
                               END IF
@@ -320,7 +320,7 @@
      $                                        COPYB, LDB, B, LDB )
                               END IF
                               SRNAMT = 'ZGELS '
-                              CALL MORSE_ZGELS( MORSE_TRANS, 
+                              CALL CHAMELEON_ZGELS( CHAMELEON_TRANS, 
      $                                           M, N, NRHS, 
      $                                           A, LDA, HT, B, LDB,
      $                                           INFO )
@@ -377,7 +377,7 @@
 *
 *                          Deallocate T
 *
-                           CALL MORSE_DEALLOC_HANDLE( HT, INFO )
+                           CALL CHAMELEON_DEALLOC_HANDLE( HT, INFO )
    40                   CONTINUE
                      END IF
 *

@@ -27,7 +27,7 @@
 #include <string.h>
 #include "control/common.h"
 #include "control/descriptor.h"
-#include "chameleon/morse_runtime.h"
+#include "chameleon/runtime.h"
 
 static int nbdesc = 0;
 
@@ -43,10 +43,10 @@ static int nbdesc = 0;
  *
  * @param[in] dtyp
  *          Data type of the matrix:
- *          @arg MorseRealFloat:     single precision real (S),
- *          @arg MorseRealDouble:    double precision real (D),
- *          @arg MorseComplexFloat:  single precision complex (C),
- *          @arg MorseComplexDouble: double precision complex (Z).
+ *          @arg ChamRealFloat:     single precision real (S),
+ *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexFloat:  single precision complex (C),
+ *          @arg ChamComplexDouble: double precision complex (Z).
  *
  * @param[in] mb
  *          Number of rows in a tile.
@@ -81,14 +81,14 @@ static int nbdesc = 0;
  * @param[in] q
  *          2D-block cyclic distribution in columns.
  *
- * @param[in] (*get_blkaddr)( const MORSE_desc_t *A, int m, int n)
+ * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
  *          A function which return the address of the data corresponding to
  *          the tile A(m,n).
  *
- * @param[in] (*get_blkldd)( const MORSE_desc_t *A, int m )
+ * @param[in] (*get_blkldd)( const CHAM_desc_t *A, int m )
  *          A function that return the leading dimension of the tile A(m,*).
  *
- * @param[in] (*get_rankof)( const MORSE_desc_t *A, int m, int n)
+ * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
@@ -96,21 +96,21 @@ static int nbdesc = 0;
  * @return  The descriptor with the matrix description parameters set.
  *
  */
-MORSE_desc_t morse_desc_init_user(MORSE_enum dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t morse_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j,
                                   int m,  int n,  int p, int q,
-                                  void* (*get_blkaddr)( const MORSE_desc_t*, int, int ),
-                                  int   (*get_blkldd) ( const MORSE_desc_t*, int      ),
-                                  int   (*get_rankof) ( const MORSE_desc_t*, int, int ))
+                                  void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                                  int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                                  int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
-    MORSE_context_t *morse;
-    MORSE_desc_t desc;
+    CHAM_context_t *morse;
+    CHAM_desc_t desc;
 
-    memset( &desc, 0, sizeof(MORSE_desc_t) );
+    memset( &desc, 0, sizeof(CHAM_desc_t) );
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Desc_Create", "MORSE not initialized");
+        morse_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
         return desc;
     }
 
@@ -121,7 +121,7 @@ MORSE_desc_t morse_desc_init_user(MORSE_enum dtyp, int mb, int nb, int bsiz,
     // Matrix properties
     desc.dtyp = dtyp;
     // Should be given as parameter to follow get_blkaddr (unused)
-    desc.styp = MorseCCRB;
+    desc.styp = ChamCCRB;
     desc.mb   = mb;
     desc.nb   = nb;
     desc.bsiz = bsiz;
@@ -194,7 +194,7 @@ MORSE_desc_t morse_desc_init_user(MORSE_enum dtyp, int mb, int nb, int bsiz,
 /**
  *  Internal static descriptor initializer
  */
-MORSE_desc_t morse_desc_init(MORSE_enum dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t morse_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                              int lm, int ln, int i, int j,
                              int m,  int n,  int p, int q)
 {
@@ -205,7 +205,7 @@ MORSE_desc_t morse_desc_init(MORSE_enum dtyp, int mb, int nb, int bsiz,
 /**
  *  Internal static descriptor initializer for a block diagonal matrix
  */
-MORSE_desc_t morse_desc_init_diag(MORSE_enum dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t morse_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j,
                                   int m,  int n,  int p, int q)
 {
@@ -216,9 +216,9 @@ MORSE_desc_t morse_desc_init_diag(MORSE_enum dtyp, int mb, int nb, int bsiz,
 /**
  *  Internal static descriptor initializer for submatrices
  */
-MORSE_desc_t* morse_desc_submatrix(MORSE_desc_t *descA, int i, int j, int m, int n)
+CHAM_desc_t* morse_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n)
 {
-    MORSE_desc_t *descB = malloc(sizeof(MORSE_desc_t));
+    CHAM_desc_t *descB = malloc(sizeof(CHAM_desc_t));
     int mb, nb;
 
     if ( (descA->i + i + m) > descA->lm ) {
@@ -230,7 +230,7 @@ MORSE_desc_t* morse_desc_submatrix(MORSE_desc_t *descA, int i, int j, int m, int
         assert((descA->j + j + n) > descA->ln);
     }
 
-    memcpy( descB, descA, sizeof(MORSE_desc_t) );
+    memcpy( descB, descA, sizeof(CHAM_desc_t) );
     mb = descA->mb;
     nb = descA->nb;
     // Submatrix parameters
@@ -251,84 +251,84 @@ MORSE_desc_t* morse_desc_submatrix(MORSE_desc_t *descA, int i, int j, int m, int
 /**
  *  Check for descriptor correctness
  */
-int morse_desc_check(const MORSE_desc_t *desc)
+int morse_desc_check(const CHAM_desc_t *desc)
 {
     if (desc == NULL) {
         morse_error("morse_desc_check", "NULL descriptor");
-        return MORSE_ERR_NOT_INITIALIZED;
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (desc->mat == NULL && desc->use_mat == 1) {
         morse_error("morse_desc_check", "NULL matrix pointer");
-        return MORSE_ERR_UNALLOCATED;
+        return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (desc->dtyp != MorseRealFloat &&
-        desc->dtyp != MorseRealDouble &&
-        desc->dtyp != MorseComplexFloat &&
-        desc->dtyp != MorseComplexDouble  ) {
+    if (desc->dtyp != ChamRealFloat &&
+        desc->dtyp != ChamRealDouble &&
+        desc->dtyp != ChamComplexFloat &&
+        desc->dtyp != ChamComplexDouble  ) {
         morse_error("morse_desc_check", "invalid matrix type");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->mb <= 0 || desc->nb <= 0) {
         morse_error("morse_desc_check", "negative tile dimension");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->bsiz < desc->mb*desc->nb) {
         morse_error("morse_desc_check", "tile memory size smaller than the product of dimensions");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->lm <= 0 || desc->ln <= 0) {
         morse_error("morse_desc_check", "negative matrix dimension");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if ((desc->lm < desc->m) || (desc->ln < desc->n)) {
         morse_error("morse_desc_check", "matrix dimensions larger than leading dimensions");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if ((desc->i > 0 && desc->i >= desc->lm) || (desc->j > 0 && desc->j >= desc->ln)) {
         morse_error("morse_desc_check", "beginning of the matrix out of scope");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->i+desc->m > desc->lm || desc->j+desc->n > desc->ln) {
         morse_error("morse_desc_check", "submatrix out of scope");
-        return MORSE_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  */
-int morse_desc_mat_alloc( MORSE_desc_t *desc )
+int morse_desc_mat_alloc( CHAM_desc_t *desc )
 {
     size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-        * (size_t)MORSE_Element_Size(desc->dtyp);
+        * (size_t)CHAMELEON_Element_Size(desc->dtyp);
     if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
         morse_error("morse_desc_mat_alloc", "malloc() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
     /* The matrix has already been registered by the Runtime alloc */
     desc->register_mat = 0;
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  */
-int morse_desc_mat_free( MORSE_desc_t *desc )
+int morse_desc_mat_free( CHAM_desc_t *desc )
 {
     if ( (desc->mat       != NULL) &&
          (desc->use_mat   == 1   ) &&
          (desc->alloc_mat == 1   ) )
     {
         size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-            * (size_t)MORSE_Element_Size(desc->dtyp);
+            * (size_t)CHAMELEON_Element_Size(desc->dtyp);
 
         RUNTIME_free(desc->mat, size);
         desc->mat = NULL;
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -336,7 +336,7 @@ int morse_desc_mat_free( MORSE_desc_t *desc )
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Create - Create tiled matrix descriptor.
+ *  CHAMELEON_Desc_Create - Create tiled matrix descriptor.
  *
  ******************************************************************************
  *
@@ -349,10 +349,10 @@ int morse_desc_mat_free( MORSE_desc_t *desc )
  *
  * @param[in] dtyp
  *          Data type of the matrix:
- *          @arg MorseRealFloat:     single precision real (S),
- *          @arg MorseRealDouble:    double precision real (D),
- *          @arg MorseComplexFloat:  single precision complex (C),
- *          @arg MorseComplexDouble: double precision complex (Z).
+ *          @arg ChamRealFloat:     single precision real (S),
+ *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexFloat:  single precision complex (C),
+ *          @arg ChamComplexDouble: double precision complex (Z).
  *
  * @param[in] mb
  *          Number of rows in a tile.
@@ -390,41 +390,41 @@ int morse_desc_mat_free( MORSE_desc_t *desc )
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Create(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb, int nb, int bsiz,
+int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                       int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
-    MORSE_context_t *morse;
-    MORSE_desc_t *desc;
+    CHAM_context_t *morse;
+    CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Desc_Create", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Allocate memory and initialize the descriptor */
-    desc = (MORSE_desc_t*)malloc(sizeof(MORSE_desc_t));
+    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("MORSE_Desc_Create", "malloc() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        morse_error("CHAMELEON_Desc_Create", "malloc() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
     *desc = morse_desc_init(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q);
 
     if (mat == NULL) {
 
         size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-            * (size_t)MORSE_Element_Size(desc->dtyp);
+            * (size_t)CHAMELEON_Element_Size(desc->dtyp);
 
         if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
-            morse_error("MORSE_Desc_Create", "malloc() failed");
+            morse_error("CHAMELEON_Desc_Create", "malloc() failed");
             free(desc);
-            return MORSE_ERR_OUT_OF_RESOURCES;
+            return CHAMELEON_ERR_OUT_OF_RESOURCES;
         }
         desc->use_mat      = 1;
         desc->alloc_mat    = 1;
@@ -442,14 +442,14 @@ int MORSE_Desc_Create(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb
     RUNTIME_desc_create( desc );
 
     status = morse_desc_check( desc );
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_Desc_Create", "invalid descriptor");
-        MORSE_Desc_Destroy( &desc );
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_Desc_Create", "invalid descriptor");
+        CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
 
     *descptr = desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -457,7 +457,7 @@ int MORSE_Desc_Create(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Create_User - Create generic tiled matrix descriptor for general
+ *  CHAMELEON_Desc_Create_User - Create generic tiled matrix descriptor for general
  *  applications.
  *
  ******************************************************************************
@@ -471,10 +471,10 @@ int MORSE_Desc_Create(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb
  *
  * @param[in] dtyp
  *          Data type of the matrix:
- *          @arg MorseRealFloat:     single precision real (S),
- *          @arg MorseRealDouble:    double precision real (D),
- *          @arg MorseComplexFloat:  single precision complex (C),
- *          @arg MorseComplexDouble: double precision complex (Z).
+ *          @arg ChamRealFloat:     single precision real (S),
+ *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexFloat:  single precision complex (C),
+ *          @arg ChamComplexDouble: double precision complex (Z).
  *
  * @param[in] nb
  *          Number of rows and columns in a tile.
@@ -491,45 +491,45 @@ int MORSE_Desc_Create(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb
  * @param[in] q
  *          2d-block cyclic partitioning, number of tiles in columns.
  *
- * @param[in] (*get_blkaddr)( const MORSE_desc_t *A, int m, int n)
+ * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
  *          A function which return the address of the data corresponding to
  *          the tile A(m,n).
  *
- * @param[in] (*get_blkldd)( const MORSE_desc_t *A, int m)
+ * @param[in] (*get_blkldd)( const CHAM_desc_t *A, int m)
  *          A function that return the leading dimension of the tile A(m,*).
  *
- * @param[in] (*get_rankof)( const MORSE_desc_t *A, int m, int n)
+ * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Create_User(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, int mb, int nb, int bsiz,
+int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                            int lm, int ln, int i, int j, int m, int n, int p, int q,
-                           void* (*get_blkaddr)( const MORSE_desc_t*, int, int ),
-                           int   (*get_blkldd) ( const MORSE_desc_t*, int      ),
-                           int   (*get_rankof) ( const MORSE_desc_t*, int, int ))
+                           void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                           int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                           int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
-    MORSE_context_t *morse;
-    MORSE_desc_t *desc;
+    CHAM_context_t *morse;
+    CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Desc_Create_User", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Desc_Create_User", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Allocate memory and initialize the descriptor */
-    desc = (MORSE_desc_t*)malloc(sizeof(MORSE_desc_t));
+    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("MORSE_Desc_Create_User", "malloc() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        morse_error("CHAMELEON_Desc_Create_User", "malloc() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
     *desc = morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
@@ -550,14 +550,14 @@ int MORSE_Desc_Create_User(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, i
     RUNTIME_desc_create( desc );
 
     status = morse_desc_check( desc );
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_Desc_Create_User", "invalid descriptor");
-        MORSE_Desc_Destroy( &desc );
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_Desc_Create_User", "invalid descriptor");
+        CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
 
     *descptr = desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -565,7 +565,7 @@ int MORSE_Desc_Create_User(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, i
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Create_OOC_User - Create matrix descriptor for tiled matrix which
+ *  CHAMELEON_Desc_Create_OOC_User - Create matrix descriptor for tiled matrix which
  *  may not fit memory.
  *
  ******************************************************************************
@@ -575,10 +575,10 @@ int MORSE_Desc_Create_User(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, i
  *
  * @param[in] dtyp
  *          Data type of the matrix:
- *          @arg MorseRealFloat:     single precision real (S),
- *          @arg MorseRealDouble:    double precision real (D),
- *          @arg MorseComplexFloat:  single precision complex (C),
- *          @arg MorseComplexDouble: double precision complex (Z).
+ *          @arg ChamRealFloat:     single precision real (S),
+ *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexFloat:  single precision complex (C),
+ *          @arg ChamComplexDouble: double precision complex (Z).
  *
  * @param[in] nb
  *          Number of rows and columns in a tile.
@@ -595,43 +595,43 @@ int MORSE_Desc_Create_User(MORSE_desc_t **descptr, void *mat, MORSE_enum dtyp, i
  * @param[in] q
  *          2d-block cyclic partitioning, number of tiles in columns.
  *
- * @param[in] (*get_rankof)( const MORSE_desc_t *A, int m, int n)
+ * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int nb, int bsiz,
+int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                int lm, int ln, int i, int j, int m, int n, int p, int q,
-                               int (*get_rankof)( const MORSE_desc_t*, int, int ))
+                               int (*get_rankof)( const CHAM_desc_t*, int, int ))
 {
 #if !defined (CHAMELEON_SCHED_STARPU)
     (void)descptr; (void)dtyp; (void)mb; (void)nb; (void)bsiz;
     (void)lm; (void)ln; (void)i; (void)j; (void)m; (void)n; (void)p; (void)q;
     (void)get_rankof;
 
-    morse_error("MORSE_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
-    return MORSE_ERR_NOT_INITIALIZED;
+    morse_error("CHAMELEON_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
+    return CHAMELEON_ERR_NOT_INITIALIZED;
 #else
-    MORSE_context_t *morse;
-    MORSE_desc_t *desc;
+    CHAM_context_t *morse;
+    CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Desc_Create_OOC_User", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Desc_Create_OOC_User", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Allocate memory and initialize the descriptor */
-    desc = (MORSE_desc_t*)malloc(sizeof(MORSE_desc_t));
+    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("MORSE_Desc_Create_OOC_User", "malloc() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        morse_error("CHAMELEON_Desc_Create_OOC_User", "malloc() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
     *desc = morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
                                  morse_getaddr_null, NULL, get_rankof);
@@ -648,14 +648,14 @@ int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, 
     RUNTIME_desc_create( desc );
 
     status = morse_desc_check( desc );
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_Desc_Create_OOC_User", "invalid descriptor");
-        MORSE_Desc_Destroy( &desc );
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_Desc_Create_OOC_User", "invalid descriptor");
+        CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
 
     *descptr = desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 #endif
 }
 
@@ -664,7 +664,7 @@ int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, 
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Create_OOC - Create matrix descriptor for tiled matrix which may
+ *  CHAMELEON_Desc_Create_OOC - Create matrix descriptor for tiled matrix which may
  *  not fit memory.
  *
  ******************************************************************************
@@ -674,10 +674,10 @@ int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, 
  *
  * @param[in] dtyp
  *          Data type of the matrix:
- *          @arg MorseRealFloat:     single precision real (S),
- *          @arg MorseRealDouble:    double precision real (D),
- *          @arg MorseComplexFloat:  single precision complex (C),
- *          @arg MorseComplexDouble: double precision complex (Z).
+ *          @arg ChamRealFloat:     single precision real (S),
+ *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexFloat:  single precision complex (C),
+ *          @arg ChamComplexDouble: double precision complex (Z).
  *
  * @param[in] nb
  *          Number of rows and columns in a tile.
@@ -697,13 +697,13 @@ int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, 
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Create_OOC(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int nb, int bsiz,
+int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                           int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
-    return MORSE_Desc_Create_OOC_User( descptr, dtyp, mb, nb, bsiz,
+    return CHAMELEON_Desc_Create_OOC_User( descptr, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
                                        morse_getrankof_2d );
 }
@@ -713,7 +713,7 @@ int MORSE_Desc_Create_OOC(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int n
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Destroy - Destroys matrix descriptor.
+ *  CHAMELEON_Desc_Destroy - Destroys matrix descriptor.
  *
  ******************************************************************************
  *
@@ -723,29 +723,29 @@ int MORSE_Desc_Create_OOC(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int n
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Destroy(MORSE_desc_t **desc)
+int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_error("MORSE_Desc_Destroy", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_error("CHAMELEON_Desc_Destroy", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     if (*desc == NULL) {
-        morse_error("MORSE_Desc_Destroy", "attempting to destroy a NULL descriptor");
-        return MORSE_ERR_UNALLOCATED;
+        morse_error("CHAMELEON_Desc_Destroy", "attempting to destroy a NULL descriptor");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
 
     RUNTIME_desc_destroy( *desc );
     morse_desc_mat_free( *desc );
     free(*desc);
     *desc = NULL;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -753,7 +753,7 @@ int MORSE_Desc_Destroy(MORSE_desc_t **desc)
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Acquire - Ensures that all data of the descriptor are
+ *  CHAMELEON_Desc_Acquire - Ensures that all data of the descriptor are
  *  up-to-date.
  *
  ******************************************************************************
@@ -764,10 +764,10 @@ int MORSE_Desc_Destroy(MORSE_desc_t **desc)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Acquire (MORSE_desc_t  *desc) {
+int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc) {
     return RUNTIME_desc_acquire( desc );
 }
 
@@ -776,8 +776,8 @@ int MORSE_Desc_Acquire (MORSE_desc_t  *desc) {
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Release - Release the data of the descriptor acquired by the
- *  application. Should be called if MORSE_Desc_Acquire has been called on the
+ *  CHAMELEON_Desc_Release - Release the data of the descriptor acquired by the
+ *  application. Should be called if CHAMELEON_Desc_Acquire has been called on the
  *  descriptor and if you do not need to access to its data anymore.
  *
  ******************************************************************************
@@ -788,10 +788,10 @@ int MORSE_Desc_Acquire (MORSE_desc_t  *desc) {
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Release (MORSE_desc_t  *desc) {
+int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
     return RUNTIME_desc_release( desc );
 }
 
@@ -800,7 +800,7 @@ int MORSE_Desc_Release (MORSE_desc_t  *desc) {
  *
  * @ingroup Descriptor
  *
- *  MORSE_Desc_Flush - Flushes the data in the sequence when they won't be reused. This calls cleans up the distributed communication caches, and transfer the data back to the CPU.
+ *  CHAMELEON_Desc_Flush - Flushes the data in the sequence when they won't be reused. This calls cleans up the distributed communication caches, and transfer the data back to the CPU.
  *
  ******************************************************************************
  *
@@ -810,14 +810,14 @@ int MORSE_Desc_Release (MORSE_desc_t  *desc) {
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Desc_Flush( MORSE_desc_t     *desc,
-                      MORSE_sequence_t *sequence )
+int CHAMELEON_Desc_Flush( CHAM_desc_t     *desc,
+                      RUNTIME_sequence_t *sequence )
 {
     RUNTIME_desc_flush( desc, sequence );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -825,7 +825,7 @@ int MORSE_Desc_Flush( MORSE_desc_t     *desc,
  *
  * @ingroup Descriptor
  *
- *  MORSE_user_tag_size - Set the sizes for the MPI tags
+ *  CHAMELEON_user_tag_size - Set the sizes for the MPI tags
  *  Default value: tag_width=31, tag_sep=24, meaning that the MPI tag is stored
  *  in 31 bits, with 24 bits for the tile tag and 7 for the descriptor.  This
  *  function must be called before any descriptor creation.
@@ -844,7 +844,7 @@ int MORSE_Desc_Flush( MORSE_desc_t     *desc,
  *          \retval none
  *
  */
-void MORSE_user_tag_size(int user_tag_width, int user_tag_sep) {
+void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
     RUNTIME_comm_set_tag_sizes( user_tag_width, user_tag_sep );
     return;
 }

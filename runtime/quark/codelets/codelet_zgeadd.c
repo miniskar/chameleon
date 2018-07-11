@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -22,19 +22,19 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zgeadd_quark(Quark *quark)
 {
-    MORSE_enum trans;
+    cham_trans_t trans;
     int M;
     int N;
-    MORSE_Complex64_t alpha;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
     int LDA;
-    MORSE_Complex64_t beta;
-    MORSE_Complex64_t *B;
+    CHAMELEON_Complex64_t beta;
+    CHAMELEON_Complex64_t *B;
     int LDB;
 
     quark_unpack_args_9(quark, trans, M, N, alpha, A, LDA, beta, B, LDB);
@@ -45,9 +45,9 @@ void CORE_zgeadd_quark(Quark *quark)
 /**
  ******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
- *  MORSE_TASK_zgeadd adds two general matrices together as in PBLAS pzgeadd.
+ *  INSERT_TASK_zgeadd adds two general matrices together as in PBLAS pzgeadd.
  *
  *       B <- alpha * op(A)  + beta * B,
  *
@@ -58,9 +58,9 @@ void CORE_zgeadd_quark(Quark *quark)
  * @param[in] trans
  *          Specifies whether the matrix A is non-transposed, transposed, or
  *          conjugate transposed
- *          = MorseNoTrans:   op(A) = A
- *          = MorseTrans:     op(A) = A'
- *          = MorseConjTrans: op(A) = conj(A')
+ *          = ChamNoTrans:   op(A) = A
+ *          = ChamTrans:     op(A) = A'
+ *          = ChamConjTrans: op(A) = conj(A')
  *
  * @param[in] M
  *          Number of rows of the matrices op(A) and B.
@@ -72,12 +72,12 @@ void CORE_zgeadd_quark(Quark *quark)
  *          Scalar factor of A.
  *
  * @param[in] A
- *          Matrix of size LDA-by-N, if trans = MorseNoTrans, LDA-by-M
+ *          Matrix of size LDA-by-N, if trans = ChamNoTrans, LDA-by-M
  *          otherwise.
  *
  * @param[in] LDA
  *          Leading dimension of the array A. LDA >= max(1,k), with k=M, if
- *          trans = MorseNoTrans, and k=N otherwise.
+ *          trans = ChamNoTrans, and k=N otherwise.
  *
  * @param[in] beta
  *          Scalar factor of B.
@@ -92,26 +92,26 @@ void CORE_zgeadd_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void MORSE_TASK_zgeadd(const MORSE_option_t *options,
-                       MORSE_enum trans, int m, int n, int nb,
-                       MORSE_Complex64_t alpha, const MORSE_desc_t *A, int Am, int An, int lda,
-                       MORSE_Complex64_t beta,  const MORSE_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zgeadd(const RUNTIME_option_t *options,
+                       cham_trans_t trans, int m, int n, int nb,
+                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GEADD;
     QUARK_Insert_Task(opt->quark, CORE_zgeadd_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),                 &trans, VALUE,
+        sizeof(int),                 &trans, VALUE,
         sizeof(int),                        &m,     VALUE,
         sizeof(int),                        &n,     VALUE,
-        sizeof(MORSE_Complex64_t),         &alpha, VALUE,
-        sizeof(MORSE_Complex64_t)*lda*n,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),             INPUT,
+        sizeof(CHAMELEON_Complex64_t),         &alpha, VALUE,
+        sizeof(CHAMELEON_Complex64_t)*lda*n,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INPUT,
         sizeof(int),                        &lda,   VALUE,
-        sizeof(MORSE_Complex64_t),         &beta,   VALUE,
-        sizeof(MORSE_Complex64_t)*ldb*n,    RTBLKADDR(B, MORSE_Complex64_t, Bm, Bn),             INOUT,
+        sizeof(CHAMELEON_Complex64_t),         &beta,   VALUE,
+        sizeof(CHAMELEON_Complex64_t)*ldb*n,    RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             INOUT,
         sizeof(int),                        &ldb,   VALUE,
         0);
 

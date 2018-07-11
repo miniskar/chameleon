@@ -30,14 +30,14 @@
  *  Parallel application of Q using tile V - QR factorization - dynamic scheduling
  */
 void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
-                         MORSE_enum side, MORSE_enum trans,
-                         MORSE_desc_t *A, MORSE_desc_t *B,
-                         MORSE_desc_t *TS, MORSE_desc_t *TT, MORSE_desc_t *D,
-                         MORSE_sequence_t *sequence, MORSE_request_t *request)
+                         cham_side_t side, cham_trans_t trans,
+                         CHAM_desc_t *A, CHAM_desc_t *B,
+                         CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
-    MORSE_desc_t *T;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
+    CHAM_desc_t *T;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -48,11 +48,11 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
     int *tiles;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     K = chameleon_min(A->mt, A->nt);
 
@@ -79,15 +79,15 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
     /* Initialisation of tiles */
     tiles = (int*)calloc( qrtree->mt, sizeof(int) );
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
-    if (side == MorseLeft ) {
-        if (trans == MorseConjTrans) {
+    if (side == ChamLeft ) {
+        if (trans == ChamConjTrans) {
             /*
-             *  MorseLeft / MorseConjTrans
+             *  ChamLeft / ChamConjTrans
              */
             for (k = 0; k < K; k++) {
                 RUNTIME_iteration_push(morse, k);
@@ -104,22 +104,22 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                     ldbm = BLKLDD(B, m);
 
 #if defined(CHAMELEON_COPY_DIAG)
-                    MORSE_TASK_zlacpy(
+                    INSERT_TASK_zlacpy(
                         &options,
-                        MorseLower, tempmm, tempkmin, A->nb,
+                        ChamLower, tempmm, tempkmin, A->nb,
                         A(m, k), ldam,
                         D(m, k), ldam );
 #if defined(CHAMELEON_USE_CUDA)
-                    MORSE_TASK_zlaset(
+                    INSERT_TASK_zlaset(
                         &options,
-                        MorseUpper, tempmm, tempkmin,
+                        ChamUpper, tempmm, tempkmin,
                         0., 1.,
                         D(m, k), ldam );
 #endif
 #endif
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                        MORSE_TASK_zunmqr(
+                        INSERT_TASK_zunmqr(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, ib, T->nb,
@@ -161,7 +161,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_ztpmqrt(
+                        INSERT_TASK_ztpmqrt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkn, L, ib, T->nb,
@@ -184,7 +184,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
             }
         }
         /*
-         *  MorseLeft / MorseNoTrans
+         *  ChamLeft / ChamNoTrans
          */
         else {
             for (k = K-1; k >= 0; k--) {
@@ -222,7 +222,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_ztpmqrt(
+                        INSERT_TASK_ztpmqrt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkn, L, ib, T->nb,
@@ -245,15 +245,15 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                     ldbm = BLKLDD(B, m);
 
 #if defined(CHAMELEON_COPY_DIAG)
-                    MORSE_TASK_zlacpy(
+                    INSERT_TASK_zlacpy(
                         &options,
-                        MorseLower, tempmm, tempkmin, A->nb,
+                        ChamLower, tempmm, tempkmin, A->nb,
                         A(m, k), ldam,
                         D(m, k), ldam );
 #if defined(CHAMELEON_USE_CUDA)
-                    MORSE_TASK_zlaset(
+                    INSERT_TASK_zlaset(
                         &options,
-                        MorseUpper, tempmm, tempkmin,
+                        ChamUpper, tempmm, tempkmin,
                         0., 1.,
                         D(m, k), ldam );
 #endif
@@ -264,7 +264,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_zunmqr(
+                        INSERT_TASK_zunmqr(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, ib, T->nb,
@@ -282,10 +282,10 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
         }
     }
     /*
-     *  MorseRight / MorseConjTrans
+     *  ChamRight / ChamConjTrans
      */
     else {
-        if (trans == MorseConjTrans) {
+        if (trans == ChamConjTrans) {
             for (k = K-1; k >= 0; k--) {
                 RUNTIME_iteration_push(morse, k);
 
@@ -321,7 +321,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_ztpmqrt(
+                        INSERT_TASK_ztpmqrt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkn, chameleon_min( L, tempmm ), ib, T->nb,
@@ -343,15 +343,15 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                     ldan = BLKLDD(A, n);
 
 #if defined(CHAMELEON_COPY_DIAG)
-                    MORSE_TASK_zlacpy(
+                    INSERT_TASK_zlacpy(
                         &options,
-                        MorseLower, tempnn, tempkmin, A->nb,
+                        ChamLower, tempnn, tempkmin, A->nb,
                         A(n, k), ldan,
                         D(n, k), ldan );
 #if defined(CHAMELEON_USE_CUDA)
-                    MORSE_TASK_zlaset(
+                    INSERT_TASK_zlaset(
                         &options,
-                        MorseUpper, tempnn, tempkmin,
+                        ChamUpper, tempnn, tempkmin,
                         0., 1.,
                         D(n, k), ldan );
 #endif
@@ -363,7 +363,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_zunmqr(
+                        INSERT_TASK_zunmqr(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, ib, T->nb,
@@ -378,7 +378,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
             }
         }
         /*
-         *  MorseRight / MorseNoTrans
+         *  ChamRight / ChamNoTrans
          */
         else {
             for (k = 0; k < K; k++) {
@@ -395,15 +395,15 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                     ldan = BLKLDD(A, n);
 
 #if defined(CHAMELEON_COPY_DIAG)
-                    MORSE_TASK_zlacpy(
+                    INSERT_TASK_zlacpy(
                         &options,
-                        MorseLower, tempnn, tempkmin, A->nb,
+                        ChamLower, tempnn, tempkmin, A->nb,
                         A(n, k), ldan,
                         D(n, k), ldan );
 #if defined(CHAMELEON_USE_CUDA)
-                    MORSE_TASK_zlaset(
+                    INSERT_TASK_zlaset(
                         &options,
-                        MorseUpper, tempnn, tempkmin,
+                        ChamUpper, tempnn, tempkmin,
                         0., 1.,
                         D(n, k), ldan );
 #endif
@@ -411,7 +411,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                     for (m = 0; m < B->mt; m++) {
                         ldbm = BLKLDD(B, m);
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        MORSE_TASK_zunmqr(
+                        INSERT_TASK_zunmqr(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, ib, T->nb,
@@ -453,7 +453,7 @@ void morse_pzunmqr_param(const libhqr_tree_t *qrtree,
                         RUNTIME_data_migrate( sequence, B(m, n),
                                               B->get_rankof( B, m, n ) );
 
-                        MORSE_TASK_ztpmqrt(
+                        INSERT_TASK_ztpmqrt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkn, chameleon_min( L, tempmm ), ib, T->nb,

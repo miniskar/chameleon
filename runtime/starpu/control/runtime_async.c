@@ -23,30 +23,30 @@
 /**
  *  Create a sequence
  */
-int RUNTIME_sequence_create( MORSE_context_t  *morse,
-                             MORSE_sequence_t *sequence )
+int RUNTIME_sequence_create( CHAM_context_t  *morse,
+                             RUNTIME_sequence_t *sequence )
 {
     (void)morse;
     (void)sequence;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( MORSE_context_t  *morse,
-                              MORSE_sequence_t *sequence )
+int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
+                              RUNTIME_sequence_t *sequence )
 {
     (void)morse;
     (void)sequence;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Wait for the completion of a sequence
  */
-int RUNTIME_sequence_wait( MORSE_context_t  *morse,
-                           MORSE_sequence_t *sequence )
+int RUNTIME_sequence_wait( CHAM_context_t  *morse,
+                           RUNTIME_sequence_t *sequence )
 {
     (void)morse;
     (void)sequence;
@@ -59,15 +59,15 @@ int RUNTIME_sequence_wait( MORSE_context_t  *morse,
 #if defined(CHAMELEON_USE_MPI)
     starpu_mpi_barrier(MPI_COMM_WORLD);
 #endif
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Terminate a sequence
  */
-void RUNTIME_sequence_flush( MORSE_context_t  *morse,
-                             MORSE_sequence_t *sequence,
-                             MORSE_request_t  *request,
+void RUNTIME_sequence_flush( CHAM_context_t  *morse,
+                             RUNTIME_sequence_t *sequence,
+                             RUNTIME_request_t  *request,
                              int status )
 {
     (void)morse;

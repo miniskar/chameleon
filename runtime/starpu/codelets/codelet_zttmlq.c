@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Dulceneia Becker
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zttmlq overwrites the general complex M1-by-N1 tile A1 and
  *  M2-by-N2 tile A2 (N1 == N2) with
@@ -50,12 +50,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
  *
  * @param[in] M1
  *         The number of rows of the tile A1. M1 >= 0.
@@ -115,48 +115,48 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zttmlq(const MORSE_option_t *options,
-                       MORSE_enum side, MORSE_enum trans,
+void INSERT_TASK_zttmlq(const RUNTIME_option_t *options,
+                       cham_side_t side, cham_trans_t trans,
                        int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                       const MORSE_desc_t *A1, int A1m, int A1n, int lda1,
-                       const MORSE_desc_t *A2, int A2m, int A2n, int lda2,
-                       const MORSE_desc_t *V, int Vm, int Vn, int ldv,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
+                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
+                       const CHAM_desc_t *V, int Vm, int Vn, int ldv,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zttmlq;
     void (*callback)(void*) = options->profiling ? cl_zttmlq_callback : NULL;
-    int ldwork = side == MorseLeft ? ib : nb;
+    int ldwork = side == ChamLeft ? ib : nb;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A1, A1m, A1n);
-    MORSE_ACCESS_RW(A2, A2m, A2n);
-    MORSE_ACCESS_R(V, Vm, Vn);
-    MORSE_ACCESS_R(T, Tm, Tn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A1, A1m, A1n);
+    CHAMELEON_ACCESS_RW(A2, A2m, A2n);
+    CHAMELEON_ACCESS_R(V, Vm, Vn);
+    CHAMELEON_ACCESS_R(T, Tm, Tn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &side,              sizeof(MORSE_enum),
-        STARPU_VALUE,    &trans,             sizeof(MORSE_enum),
+        STARPU_VALUE,    &side,              sizeof(int),
+        STARPU_VALUE,    &trans,             sizeof(int),
         STARPU_VALUE,    &m1,                sizeof(int),
         STARPU_VALUE,    &n1,                sizeof(int),
         STARPU_VALUE,    &m2,                sizeof(int),
         STARPU_VALUE,    &n2,                sizeof(int),
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_RW,        RTBLKADDR(A1, MORSE_Complex64_t, A1m, A1n),
+        STARPU_RW,        RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
         STARPU_VALUE,    &lda1,              sizeof(int),
-        STARPU_RW,        RTBLKADDR(A2, MORSE_Complex64_t, A2m, A2n),
+        STARPU_RW,        RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
         STARPU_VALUE,    &lda2,              sizeof(int),
-        STARPU_R,         RTBLKADDR(V, MORSE_Complex64_t, Vm, Vn),
+        STARPU_R,         RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),
         STARPU_VALUE,    &ldv,               sizeof(int),
-        STARPU_R,         RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE,    &ldt,               sizeof(int),
          /* nb * ib */
         STARPU_SCRATCH,   options->ws_worker,
@@ -173,30 +173,30 @@ void MORSE_TASK_zttmlq(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zttmlq_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum side;
-    MORSE_enum trans;
+    cham_side_t side;
+    cham_trans_t trans;
     int m1;
     int n1;
     int m2;
     int n2;
     int k;
     int ib;
-    MORSE_Complex64_t *A1;
+    CHAMELEON_Complex64_t *A1;
     int lda1;
-    MORSE_Complex64_t *A2;
+    CHAMELEON_Complex64_t *A2;
     int lda2;
-    MORSE_Complex64_t *V;
+    CHAMELEON_Complex64_t *V;
     int ldv;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
 
-    A1   = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    A2   = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    V    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    T    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-    WORK = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* nb * ib */
+    A1   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A2   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    V    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    T    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* nb * ib */
 
     starpu_codelet_unpack_args(cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib,
                                &lda1, &lda2, &ldv, &ldt, &ldwork);

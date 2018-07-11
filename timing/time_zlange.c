@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zlange"
+#define _NAME  "CHAMELEON_zlange"
 #define _FMULS FMULS_LANGE(M, N)
 #define _FADDS FADDS_LANGE(M, N)
 
@@ -28,18 +28,18 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 {
     int    hres = 0;
     double normmorse, normlapack, result;
-    int    norm = MorseInfNorm;
+    int    norm = ChamInfNorm;
 
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, M, N );
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, M, N );
 
-    MORSE_zplrnt( M, N, A, LDA, 3436 );
+    CHAMELEON_zplrnt( M, N, A, LDA, 3436 );
 
-    /* MORSE ZLANGE */
+    /* CHAMELEON ZLANGE */
     START_TIMING();
-    normmorse = MORSE_zlange(norm, M, N, A, LDA);
+    normmorse = CHAMELEON_zlange(norm, M, N, A, LDA);
     STOP_TIMING();
 
     /* Check the solution */
@@ -49,23 +49,23 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
         normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm), M, N, A, LDA, work);
         result = fabs(normmorse - normlapack);
         switch(norm) {
-        case MorseMaxNorm:
+        case ChamMaxNorm:
             /* result should be perfectly equal */
             break;
-        case MorseInfNorm:
+        case ChamInfNorm:
             /* Sum order on the line can differ */
             result = result / (double)N;
             break;
-        case MorseOneNorm:
+        case ChamOneNorm:
             /* Sum order on the column can differ */
             result = result / (double)M;
             break;
-        case MorseFrobeniusNorm:
+        case ChamFrobeniusNorm:
             /* Sum oreder on every element can differ */
             result = result / ((double)M * (double)N);
             break;
         }
-        if ( MORSE_My_Mpi_Rank() == 0 ) {
+        if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
             dparam[IPARAM_ANORM] = normlapack;
             dparam[IPARAM_BNORM] = 0.;
             dparam[IPARAM_XNORM] = 1.;

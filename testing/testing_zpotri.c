@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -27,14 +27,18 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include "testing_zauxiliary.h"
 
-static int check_factorization(int, MORSE_Complex64_t*, MORSE_Complex64_t*, int, int, double);
-static int check_inverse(int, MORSE_Complex64_t *, MORSE_Complex64_t *, int, int, double);
+static int
+check_factorization( int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA,
+                     cham_uplo_t uplo, double eps );
+static int
+check_inverse( int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA,
+               cham_uplo_t uplo, double eps );
 
 int testing_zpotri(int argc, char **argv)
 {
@@ -51,12 +55,12 @@ int testing_zpotri(int argc, char **argv)
     int N     = atoi(argv[0]);
     int LDA   = atoi(argv[1]);
     double eps;
-    int uplo;
+    cham_uplo_t uplo;
     int info_inverse, info_factorization;
 
-    MORSE_Complex64_t *A1   = (MORSE_Complex64_t *)malloc(LDA*N*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *A2   = (MORSE_Complex64_t *)malloc(LDA*N*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *WORK = (MORSE_Complex64_t *)malloc(2*LDA*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A1   = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *A2   = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *WORK = (CHAMELEON_Complex64_t *)malloc(2*LDA*sizeof(CHAMELEON_Complex64_t));
 
     /* Check if unable to allocate memory */
     if ( (!A1) || (!A2) || (!WORK) )
@@ -69,15 +73,15 @@ int testing_zpotri(int argc, char **argv)
 
     eps = LAPACKE_dlamch_work( 'e' );
 
-    uplo = MorseUpper;
+    uplo = ChamUpper;
 
     /*-------------------------------------------------------------
      *  TESTING ZPOTRI
      */
 
     /* Initialize A1 and A2 for Symmetric Positif Matrix */
-    MORSE_zplghe( (double)N, MorseUpperLower, N, A1, LDA, 51 );
-    MORSE_zlacpy( MorseUpperLower, N, N, A1, LDA, A2, LDA );
+    CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A1, LDA, 51 );
+    CHAMELEON_zlacpy( ChamUpperLower, N, N, A1, LDA, A2, LDA );
 
     printf("\n");
     printf("------ TESTS FOR CHAMELEON ZPOTRI ROUTINE -------  \n");
@@ -88,14 +92,14 @@ int testing_zpotri(int argc, char **argv)
     printf(" The relative machine precision (eps) is to be %e \n", eps);
     printf(" Computational tests pass if scaled residuals are less than 60.\n");
 
-    /* MORSE ZPOTRF */
-    MORSE_zpotrf(uplo, N, A2, LDA);
+    /* CHAMELEON ZPOTRF */
+    CHAMELEON_zpotrf(uplo, N, A2, LDA);
 
     /* Check the factorization */
     info_factorization = check_factorization( N, A1, A2, LDA, uplo, eps);
 
-    /* MORSE ZPOTRI */
-    MORSE_zpotri(uplo, N, A2, LDA);
+    /* CHAMELEON ZPOTRI */
+    CHAMELEON_zpotri(uplo, N, A2, LDA);
 
     /* Check the inverse */
     info_inverse = check_inverse(N, A1, A2, LDA, uplo, eps);
@@ -120,27 +124,27 @@ int testing_zpotri(int argc, char **argv)
 /*------------------------------------------------------------------------
  *  Check the factorization of the matrix A2
  */
-static int check_factorization(int N, MORSE_Complex64_t *A1, MORSE_Complex64_t *A2, int LDA, int uplo, double eps)
+static int check_factorization(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA, cham_uplo_t uplo, double eps)
 {
     double Anorm, Rnorm;
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t alpha;
     int info_factorization;
     int i,j;
 
-    MORSE_Complex64_t *Residual = (MORSE_Complex64_t *)malloc(N*N*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *L1       = (MORSE_Complex64_t *)malloc(N*N*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *L2       = (MORSE_Complex64_t *)malloc(N*N*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *L1       = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *L2       = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
     double *work              = (double *)malloc(N*sizeof(double));
 
-    memset((void*)L1, 0, N*N*sizeof(MORSE_Complex64_t));
-    memset((void*)L2, 0, N*N*sizeof(MORSE_Complex64_t));
+    memset((void*)L1, 0, N*N*sizeof(CHAMELEON_Complex64_t));
+    memset((void*)L2, 0, N*N*sizeof(CHAMELEON_Complex64_t));
 
     alpha= 1.0;
 
     LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,' ', N, N, A1, LDA, Residual, N);
 
     /* Dealing with L'L or U'U  */
-    if (uplo == MorseUpper){
+    if (uplo == ChamUpper){
         LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,'u', N, N, A2, LDA, L1, N);
         LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,'u', N, N, A2, LDA, L2, N);
         cblas_ztrmm(CblasColMajor, CblasLeft, CblasUpper, CblasConjTrans, CblasNonUnit, N, N, CBLAS_SADDR(alpha), L1, N, L2, N);
@@ -182,20 +186,20 @@ static int check_factorization(int N, MORSE_Complex64_t *A1, MORSE_Complex64_t *
  *  Check the accuracy of the computed inverse
  */
 
-static int check_inverse(int N, MORSE_Complex64_t *A1, MORSE_Complex64_t *A2, int LDA, int uplo, double eps )
+static int check_inverse(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA, cham_uplo_t uplo, double eps )
 {
     int info_inverse;
     int i, j;
     double Rnorm, Anorm, Ainvnorm, result;
-    MORSE_Complex64_t alpha, beta, zone;
-    MORSE_Complex64_t *work = (MORSE_Complex64_t *)malloc(N*N*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t alpha, beta, zone;
+    CHAMELEON_Complex64_t *work = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
 
     alpha = -1.0;
     beta  = 0.0;
     zone = 1.0;
 
     /* Rebuild the other part of the inverse matrix */
-    if(uplo == MorseUpper){
+    if(uplo == ChamUpper){
         for(j=0; j<N; j++) {
             for(i=0; i<j; i++) {
                 *(A2+j+i*LDA) = *(A2+i+j*LDA);
@@ -221,7 +225,7 @@ static int check_inverse(int N, MORSE_Complex64_t *A1, MORSE_Complex64_t *A2, in
     Anorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'o', N, N, A1, LDA );
     Ainvnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'o', N, N, A2, LDA );
 
-    if (getenv("MORSE_TESTING_VERBOSE")) {
+    if (getenv("CHAMELEON_TESTING_VERBOSE")) {
         printf( "||A||_1=%f\n||Ainv||_1=%f\n||Id - A*Ainv||_1=%e\n", Anorm, Ainvnorm, Rnorm );
     }
 

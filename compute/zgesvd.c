@@ -29,9 +29,9 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zgesvd - computes the singular value decomposition (SVD) of a complex
+ *  CHAMELEON_zgesvd - computes the singular value decomposition (SVD) of a complex
  *  M-by-N matrix A, optionally computing the left and/or right singular
  *  vectors. The SVD is written
  *
@@ -50,32 +50,32 @@
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
  *          Intended usage:
- *          = MorseVec   = 'A'(lapack):  all M columns of U are returned
+ *          = ChamVec   = 'A'(lapack):  all M columns of U are returned
  *                        in array U;
- *          = MorseNoVec = 'N':  no columns of U (no left singular vectors)
+ *          = ChamNoVec = 'N':  no columns of U (no left singular vectors)
  *                        are computed.
- *          = MorseSVec  = 'S': the first min(m,n) columns of U (the left
+ *          = ChamSVec  = 'S': the first min(m,n) columns of U (the left
  *                        singular vectors) are returned in the array U;
  *                        NOT SUPPORTTED YET
- *          = MorseOVec  = 'O': the first min(m,n) columns of U (the left
+ *          = ChamOVec  = 'O': the first min(m,n) columns of U (the left
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V**H.
  *          Intended usage:
- *          = MorseVec   = 'A'(lapack): all N rows of V**H are returned
+ *          = ChamVec   = 'A'(lapack): all N rows of V**H are returned
  *                        in the array VT;
- *          = MorseNoVec = 'N': no rows of V**H (no right singular vectors)
+ *          = ChamNoVec = 'N': no rows of V**H (no right singular vectors)
  *                        are computed.
- *          = MorseSVec  = 'S': the first min(m,n) rows of V**H (the right
+ *          = ChamSVec  = 'S': the first min(m,n) rows of V**H (the right
  *                        singular vectors) are returned in the array VT;
  *                        NOT SUPPORTTED YET
- *          = MorseOVec  = 'O': the first min(m,n) rows of V**H (the right
+ *          = ChamOVec  = 'O': the first min(m,n) rows of V**H (the right
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
- *          Note: jobu and jobvt cannot both be MorseOVec.
+ *          Note: jobu and jobvt cannot both be ChamOVec.
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0.
@@ -102,7 +102,7 @@
  *          The double precision singular values of A, sorted so that S(i) >= S(i+1).
  *
  * @param[in, out] descT
- *          On entry, descriptor as return by MORSE_Alloc_Workspace_zgesvd
+ *          On entry, descriptor as return by CHAMELEON_Alloc_Workspace_zgesvd
  *          On exit, contains auxiliary factorization data.
  *
  * @param[out] U
@@ -130,95 +130,95 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
- * @sa MORSE_zgesvd_Tile
- * @sa MORSE_zgesvd_Tile_Async
- * @sa MORSE_cgesvd
- * @sa MORSE_dgesvd
- * @sa MORSE_sgesvd
+ * @sa CHAMELEON_zgesvd_Tile
+ * @sa CHAMELEON_zgesvd_Tile_Async
+ * @sa CHAMELEON_cgesvd
+ * @sa CHAMELEON_dgesvd
+ * @sa CHAMELEON_sgesvd
  *
  */
-int MORSE_zgesvd( MORSE_enum jobu, MORSE_enum jobvt,
+int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
                   int M, int N,
-                  MORSE_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *A, int LDA,
                   double *S,
-                  MORSE_desc_t *descT,
-                  MORSE_Complex64_t *U, int LDU,
-                  MORSE_Complex64_t *VT, int LDVT )
+                  CHAM_desc_t *descT,
+                  CHAMELEON_Complex64_t *U, int LDU,
+                  CHAMELEON_Complex64_t *VT, int LDVT )
 {
     int NB;
     int status;
-    MORSE_context_t  *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t   request = MORSE_REQUEST_INITIALIZER;
-    MORSE_desc_t descAl, descAt;
+    CHAM_context_t  *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t   request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgesvd", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgesvd", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Check input arguments */
-    if (jobu != MorseNoVec  && jobu != MorseVec) {
-        morse_error("MORSE_zgesvd", "illegal value of jobu");
+    if (jobu != ChamNoVec  && jobu != ChamVec) {
+        morse_error("CHAMELEON_zgesvd", "illegal value of jobu");
         return -1;
     }
-    if (jobvt != MorseNoVec && jobvt != MorseVec) {
-        morse_error("MORSE_zgesvd", "illegal value of jobvt");
+    if (jobvt != ChamNoVec && jobvt != ChamVec) {
+        morse_error("CHAMELEON_zgesvd", "illegal value of jobvt");
         return -2;
     }
     if (M < 0) {
-        morse_error("MORSE_zgesvd", "illegal value of M");
+        morse_error("CHAMELEON_zgesvd", "illegal value of M");
         return -3;
     }
     if (N < 0) {
-        morse_error("MORSE_zgesvd", "illegal value of N");
+        morse_error("CHAMELEON_zgesvd", "illegal value of N");
         return -4;
     }
     if (LDA < chameleon_max(1, M)) {
-        morse_error("MORSE_zgesvd", "illegal value of LDA");
+        morse_error("CHAMELEON_zgesvd", "illegal value of LDA");
         return -6;
     }
     if (LDU < 1) {
-        morse_error("MORSE_zgesvd", "illegal value of LDU");
+        morse_error("CHAMELEON_zgesvd", "illegal value of LDU");
         return -9;
     }
     if (LDVT < 1) {
-        morse_error("MORSE_zgesvd", "illegal value of LDVT");
+        morse_error("CHAMELEON_zgesvd", "illegal value of LDVT");
         return -11;
     }
     /* Quick return */
     if (chameleon_min(M, N) == 0) {
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
 
     /* Tune NB & IB depending on M & N; Set NBNB */
-    status = morse_tune(MORSE_FUNC_ZGESVD, M, N, 0);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zgesvd", "morse_tune() failed");
+    status = morse_tune(CHAMELEON_FUNC_ZGESVD, M, N, 0);
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgesvd", "morse_tune() failed");
         return status;
     }
 
     /* Set MT, NT */
-    NB = MORSE_NB;
+    NB = CHAMELEON_NB;
 
     morse_sequence_create( morse, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInout, MorseUpperLower,
+    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInout, ChamUpperLower,
                      A, NB, NB,  LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zgesvd_Tile_Async( jobu, jobvt, &descAt, S, descT, U, LDU, VT, LDVT, sequence, &request );
+    CHAMELEON_zgesvd_Tile_Async( jobu, jobvt, &descAt, S, descT, U, LDU, VT, LDVT, sequence, &request );
 
     /* Submit the matrix conversion back */
     morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInout, MorseUpperLower, sequence, &request );
+                     ChamDescInout, ChamUpperLower, sequence, &request );
 
     morse_sequence_wait( morse, sequence );
 
@@ -233,12 +233,12 @@ int MORSE_zgesvd( MORSE_enum jobu, MORSE_enum jobvt,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zgesvd_Tile - computes the singular value decomposition (SVD) of a complex
+ *  CHAMELEON_zgesvd_Tile - computes the singular value decomposition (SVD) of a complex
  *  M-by-N matrix A, optionally computing the left and/or right singular
  *  vectors.
- *  Tile equivalent of MORSE_zgesvd().
+ *  Tile equivalent of CHAMELEON_zgesvd().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -248,32 +248,32 @@ int MORSE_zgesvd( MORSE_enum jobu, MORSE_enum jobvt,
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
  *          Intended usage:
- *          = MorseVec   = 'A'(lapack):  all M columns of U are returned
+ *          = ChamVec   = 'A'(lapack):  all M columns of U are returned
  *                        in array U;
- *          = MorseNoVec = 'N':  no columns of U (no left singular vectors)
+ *          = ChamNoVec = 'N':  no columns of U (no left singular vectors)
  *                        are computed.
- *          = MorseSVec  = 'S': the first min(m,n) columns of U (the left
+ *          = ChamSVec  = 'S': the first min(m,n) columns of U (the left
  *                        singular vectors) are returned in the array U;
  *                        NOT SUPPORTTED YET
- *          = MorseOVec  = 'O': the first min(m,n) columns of U (the left
+ *          = ChamOVec  = 'O': the first min(m,n) columns of U (the left
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V**H.
  *          Intended usage:
- *          = MorseVec   = 'A'(lapack): all N rows of V**H are returned
+ *          = ChamVec   = 'A'(lapack): all N rows of V**H are returned
  *                        in the array VT;
- *          = MorseNoVec = 'N': no rows of V**H (no right singular vectors)
+ *          = ChamNoVec = 'N': no rows of V**H (no right singular vectors)
  *                        are computed.
- *          = MorseSVec  = 'S': the first min(m,n) rows of V**H (the right
+ *          = ChamSVec  = 'S': the first min(m,n) rows of V**H (the right
  *                        singular vectors) are returned in the array VT;
  *                        NOT SUPPORTTED YET
- *          = MorseOVec  = 'O': the first min(m,n) rows of V**H (the right
+ *          = ChamOVec  = 'O': the first min(m,n) rows of V**H (the right
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
- *          Note: jobu and jobvt cannot both be MorseOVec.
+ *          Note: jobu and jobvt cannot both be ChamOVec.
  *
  * @param[in,out] A
  *          On entry, the M-by-N matrix A.
@@ -291,7 +291,7 @@ int MORSE_zgesvd( MORSE_enum jobu, MORSE_enum jobvt,
  *          The singular values of A, sorted so that S(i) >= S(i+1).
  *
  * @param[in, out] T
- *          On entry, descriptor as return by MORSE_Alloc_Workspace_zgesvd
+ *          On entry, descriptor as return by CHAMELEON_Alloc_Workspace_zgesvd
  *          On exit, contains auxiliary factorization data.
  *
  * @param[out] U
@@ -319,40 +319,40 @@ int MORSE_zgesvd( MORSE_enum jobu, MORSE_enum jobvt,
  *******************************************************************************
  *
  * @return
- *          \return MORSE_SUCCESS successful exit
+ *          \return CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zgesvd
- * @sa MORSE_zgesvd_Tile_Async
- * @sa MORSE_cgesvd_Tile
- * @sa MORSE_dgesvd_Tile
- * @sa MORSE_sgesvd_Tile
+ * @sa CHAMELEON_zgesvd
+ * @sa CHAMELEON_zgesvd_Tile_Async
+ * @sa CHAMELEON_cgesvd_Tile
+ * @sa CHAMELEON_dgesvd_Tile
+ * @sa CHAMELEON_sgesvd_Tile
  *
  */
-int MORSE_zgesvd_Tile( MORSE_enum jobu, MORSE_enum jobvt,
-                       MORSE_desc_t *A,
+int CHAMELEON_zgesvd_Tile( cham_job_t jobu, cham_job_t jobvt,
+                       CHAM_desc_t *A,
                        double *S,
-                       MORSE_desc_t *T,
-                       MORSE_Complex64_t *U, int LDU,
-                       MORSE_Complex64_t *VT, int LDVT )
+                       CHAM_desc_t *T,
+                       CHAMELEON_Complex64_t *U, int LDU,
+                       CHAMELEON_Complex64_t *VT, int LDVT )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgesvd_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgesvd_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     morse_sequence_create( morse, &sequence );
 
-    MORSE_zgesvd_Tile_Async( jobu, jobvt, A, S, T, U, LDU, VT, LDVT, sequence, &request );
+    CHAMELEON_zgesvd_Tile_Async( jobu, jobvt, A, S, T, U, LDU, VT, LDVT, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
-    MORSE_Desc_Flush( T, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( T, sequence );
 
     morse_sequence_wait( morse, sequence );
     status = sequence->status;
@@ -363,12 +363,12 @@ int MORSE_zgesvd_Tile( MORSE_enum jobu, MORSE_enum jobvt,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zgesvd_Tile_Async - computes the singular value decomposition (SVD) of a complex
+ *  CHAMELEON_zgesvd_Tile_Async - computes the singular value decomposition (SVD) of a complex
  *  M-by-N matrix A, optionally computing the left and/or right singular
  *  vectors.
- *  Non-blocking equivalent of MORSE_zgesvd_Tile().
+ *  Non-blocking equivalent of CHAMELEON_zgesvd_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -383,82 +383,82 @@ int MORSE_zgesvd_Tile( MORSE_enum jobu, MORSE_enum jobvt,
  *
  *******************************************************************************
  *
- * @sa MORSE_zgesvd
- * @sa MORSE_zgesvd_Tile
- * @sa MORSE_cgesvd_Tile_Async
- * @sa MORSE_dgesvd_Tile_Async
- * @sa MORSE_sgesvd_Tile_Async
+ * @sa CHAMELEON_zgesvd
+ * @sa CHAMELEON_zgesvd_Tile
+ * @sa CHAMELEON_cgesvd_Tile_Async
+ * @sa CHAMELEON_dgesvd_Tile_Async
+ * @sa CHAMELEON_sgesvd_Tile_Async
  *
  */
-int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
-                             MORSE_desc_t *A,
+int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
+                             CHAM_desc_t *A,
                              double *S,
-                             MORSE_desc_t *T,
-                             MORSE_Complex64_t *U, int LDU,
-                             MORSE_Complex64_t *VT, int LDVT,
-                             MORSE_sequence_t *sequence, MORSE_request_t *request )
+                             CHAM_desc_t *T,
+                             CHAMELEON_Complex64_t *U, int LDU,
+                             CHAMELEON_Complex64_t *VT, int LDVT,
+                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_desc_t descA;
-    MORSE_desc_t descT;
-    MORSE_desc_t descUl, descUt;
-    MORSE_desc_t descVTl, descVTt;
-    MORSE_desc_t descAB;
-    MORSE_desc_t D, *Dptr = NULL;
-    MORSE_desc_t *subA, *subT, *subUVT;
+    CHAM_desc_t descA;
+    CHAM_desc_t descT;
+    CHAM_desc_t descUl, descUt;
+    CHAM_desc_t descVTl, descVTt;
+    CHAM_desc_t descAB;
+    CHAM_desc_t D, *Dptr = NULL;
+    CHAM_desc_t *subA, *subT, *subUVT;
     double *E;
     int M, N, MINMN, NB, LDAB;
     int KL, KU, uplo, nru, ncvt;
     int info = 0;
     char gbbrd_vect;
 
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
     morse = morse_context_self();
 
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgesvd_Tile_Async", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgesvd_Tile_Async", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zgesvd_Tile_Async", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zgesvd_Tile_Async", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zgesvd_Tile_Async", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zgesvd_Tile_Async", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgesvd_Tile_Async", "invalid first descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgesvd_Tile_Async", "invalid first descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     } else {
         descA = *A;
     }
-    if (morse_desc_check(T) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgesvd_Tile_Async", "invalid fourth descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(T) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgesvd_Tile_Async", "invalid fourth descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     } else {
         descT = *T;
     }
     /* Check input arguments */
-    if (jobu != MorseNoVec  && jobu != MorseVec) {
-        morse_error("MORSE_zgesvd_Tile_Async", "illegal value of jobu");
-        return MORSE_ERR_NOT_SUPPORTED;
+    if (jobu != ChamNoVec  && jobu != ChamVec) {
+        morse_error("CHAMELEON_zgesvd_Tile_Async", "illegal value of jobu");
+        return CHAMELEON_ERR_NOT_SUPPORTED;
     }
-    if (jobvt != MorseNoVec && jobvt != MorseVec) {
-        morse_error("MORSE_zgesvd_Tile_Async", "illegal value of jobvt");
-        return MORSE_ERR_NOT_SUPPORTED;
+    if (jobvt != ChamNoVec && jobvt != ChamVec) {
+        morse_error("CHAMELEON_zgesvd_Tile_Async", "illegal value of jobvt");
+        return CHAMELEON_ERR_NOT_SUPPORTED;
     }
     if (descA.nb != descA.mb) {
-        morse_error("MORSE_zgesvd_Tile_Async", "only square tiles supported");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zgesvd_Tile_Async", "only square tiles supported");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     M     = descA.m;
@@ -466,7 +466,7 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
     MINMN = chameleon_min(M, N);
     NB    = descA.mb;
     LDAB  = NB + 1;
-    uplo  = M >= N ? MorseUpper : MorseLower;
+    uplo  = M >= N ? ChamUpper : ChamLower;
 
 #if defined(CHAMELEON_COPY_DIAG)
     {
@@ -493,16 +493,16 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
 
     E = malloc( MINMN * sizeof(double) );
     if (E == NULL) {
-        morse_error("MORSE_zheevd_Tile_Async", "malloc(E) failed");
+        morse_error("CHAMELEON_zheevd_Tile_Async", "malloc(E) failed");
         free(E);
-        return MORSE_ERR_OUT_OF_RESOURCES;
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
     memset(E, 0, MINMN * sizeof(double) );
 
 #if !defined(CHAMELEON_SIMULATION)
     /* NCC = 0, C = NULL, we do not update any matrix with new singular vectors */
     /* On exit, AB = U (S +~ E) VT */
-    if (uplo == MorseUpper){
+    if (uplo == ChamUpper){
         KL = 0;
         KU = NB;
     }
@@ -512,9 +512,9 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
     }
 
     /* Manage the case where only singular values are required */
-    if (jobu == MorseNoVec) {
+    if (jobu == ChamNoVec) {
         nru = 0;
-        if (jobvt == MorseNoVec) {
+        if (jobvt == ChamNoVec) {
             gbbrd_vect = 'N';
             ncvt = 0;
         }
@@ -525,7 +525,7 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
     }
     else {
         nru = M;
-        if (jobvt == MorseNoVec) {
+        if (jobvt == ChamNoVec) {
             gbbrd_vect = 'Q';
             ncvt = 0;
         }
@@ -541,13 +541,13 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
                            gbbrd_vect,
                            M, N,
                            0, KL, KU,
-                           (MORSE_Complex64_t *) descAB.mat, LDAB,
+                           (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
                            S, E,
                            U, LDU,
                            VT, LDVT,
                            NULL, 1 );
     if (info != 0) {
-        fprintf(stderr, "MORSE_zgesvd_Tile_Async: LAPACKE_zgbbrd = %d\n", info );
+        fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zgbbrd = %d\n", info );
     }
 #else
     morse_sequence_wait( morse, sequence );
@@ -559,8 +559,8 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
     subT = NULL;
     subUVT = NULL;
 
-    if ( jobu != MorseNoVec ) {
-        morse_zlap2tile( morse, &descUl, &descUt, MorseDescInout, MorseUpperLower,
+    if ( jobu != ChamNoVec ) {
+        morse_zlap2tile( morse, &descUl, &descUt, ChamDescInout, ChamUpperLower,
                          U, NB, NB, LDU, M, M, M, sequence, request );
 
         if ( M < N ){
@@ -568,28 +568,28 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
             subUVT = morse_desc_submatrix(&descUt, descUt.mb, 0, descUt.m-descUt.mb, descUt.n);
             subT   = morse_desc_submatrix(&descT,  descT.mb,  0, descT.m -descT.mb,  descT.n-descT.nb);
 
-            morse_pzunmqr( MorseLeft, MorseNoTrans,
+            morse_pzunmqr( ChamLeft, ChamNoTrans,
                            subA, subUVT, subT, Dptr,
                            sequence, request );
 
             free(subA); free(subUVT); free(subT);
         }
         else {
-            morse_pzunmqr( MorseLeft, MorseNoTrans,
+            morse_pzunmqr( ChamLeft, ChamNoTrans,
                            &descA, &descUt, &descT, Dptr,
                            sequence, request );
         }
 
         morse_ztile2lap( morse, &descUl, &descUt,
-                         MorseDescInout, MorseUpperLower, sequence, request );
+                         ChamDescInout, ChamUpperLower, sequence, request );
     }
 
-    if ( jobvt != MorseNoVec ) {
-        morse_zlap2tile( morse, &descVTl, &descVTt, MorseDescInout, MorseUpperLower,
+    if ( jobvt != ChamNoVec ) {
+        morse_zlap2tile( morse, &descVTl, &descVTt, ChamDescInout, ChamUpperLower,
                          VT, NB, NB, LDVT, N, N, N, sequence, request );
 
         if ( M < N ){
-            morse_pzunmlq( MorseRight, MorseNoTrans,
+            morse_pzunmlq( ChamRight, ChamNoTrans,
                            &descA, &descVTt, &descT, Dptr,
                            sequence, request );
         }
@@ -598,7 +598,7 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
             subUVT = morse_desc_submatrix(&descVTt, 0, descVTt.nb, descVTt.m,        descVTt.n-descVTt.nb);
             subT   = morse_desc_submatrix(&descT,   0, descT.nb,   descT.m-descT.mb, descT.n  -descT.nb  );
 
-            morse_pzunmlq( MorseRight, MorseNoTrans,
+            morse_pzunmlq( ChamRight, ChamNoTrans,
                            subA, subUVT, subT, Dptr,
                            sequence, request );
 
@@ -606,15 +606,15 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
         }
 
         morse_ztile2lap( morse, &descVTl, &descVTt,
-                         MorseDescInout, MorseUpperLower, sequence, request );
+                         ChamDescInout, ChamUpperLower, sequence, request );
     }
     morse_sequence_wait( morse, sequence );
 
     /* Cleanup the temporary data */
-    if ( jobu != MorseNoVec ) {
+    if ( jobu != ChamNoVec ) {
         morse_ztile2lap_cleanup( morse, &descUl,  &descUt  );
     }
-    if ( jobvt != MorseNoVec ) {
+    if ( jobvt != ChamNoVec ) {
         morse_ztile2lap_cleanup( morse, &descVTl, &descVTt );
     }
 
@@ -626,7 +626,7 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
                            S, E,
                            VT, LDVT, U, LDU, NULL, 1 );
     if (info != 0) {
-        fprintf(stderr, "MORSE_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
+        fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -635,5 +635,5 @@ int MORSE_zgesvd_Tile_Async( MORSE_enum jobu, MORSE_enum jobvt,
         morse_desc_mat_free( Dptr );
     }
     (void)D;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

@@ -20,12 +20,12 @@
  */
 #include "control/common.h"
 
-void morse_pzgebrd_ge2gb(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D,
-                         MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
     int k;
     int tempkm, tempkn;
-    MORSE_desc_t *A1, *A2, *T1, *D1 = NULL;
+    CHAM_desc_t *A1, *A2, *T1, *D1 = NULL;
 
     if (A->m >= A->n){
         for (k = 0; k < A->nt; k++) {
@@ -41,7 +41,7 @@ void morse_pzgebrd_ge2gb(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D,
             morse_pzgeqrf( A1, T1, D1,
                            sequence, request);
 
-            morse_pzunmqr( MorseLeft, MorseConjTrans,
+            morse_pzunmqr( ChamLeft, ChamConjTrans,
                            A1, A2, T1, D1,
                            sequence, request);
 
@@ -58,7 +58,7 @@ void morse_pzgebrd_ge2gb(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D,
                 morse_pzgelqf( A1, T1, D1,
                                sequence, request);
 
-                morse_pzunmlq( MorseRight, MorseConjTrans,
+                morse_pzunmlq( ChamRight, ChamConjTrans,
                                A1, A2, T1, D1,
                                sequence, request);
             }
@@ -77,7 +77,7 @@ void morse_pzgebrd_ge2gb(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D,
             morse_pzgelqf( A1, T1, D1,
                            sequence, request);
 
-            morse_pzunmlq( MorseRight, MorseConjTrans,
+            morse_pzunmlq( ChamRight, ChamConjTrans,
                            A1, A2, T1, D1,
                            sequence, request);
 
@@ -94,7 +94,7 @@ void morse_pzgebrd_ge2gb(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D,
                 morse_pzgeqrf( A1, T1, D1,
                                sequence, request);
 
-                morse_pzunmqr( MorseLeft, MorseConjTrans,
+                morse_pzunmqr( ChamLeft, ChamConjTrans,
                                A1, A2, T1, D1,
                                sequence, request);
             }

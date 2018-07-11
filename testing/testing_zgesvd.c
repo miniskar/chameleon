@@ -23,14 +23,14 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include "testing_zauxiliary.h"
 
-static int check_orthogonality(int, int, int, MORSE_Complex64_t*, int, double);
-static int check_reduction(int, int, double*, MORSE_Complex64_t*, int, MORSE_Complex64_t*, int, MORSE_Complex64_t*, int, double);
+static int check_orthogonality( cham_side_t, int, int, CHAMELEON_Complex64_t*, int, double);
+static int check_reduction(int, int, double*, CHAMELEON_Complex64_t*, int, CHAMELEON_Complex64_t*, int, CHAMELEON_Complex64_t*, int, double);
 static int check_solution(int, double*, double*, double);
 
 int testing_zgesvd(int argc, char **argv)
@@ -62,8 +62,8 @@ int testing_zgesvd(int argc, char **argv)
     int rh;
     if ( tree ) {
         rh = atoi(argv[4]);
-        MORSE_Set(MORSE_HOUSEHOLDER_MODE, MORSE_TREE_HOUSEHOLDER);
-        MORSE_Set(MORSE_HOUSEHOLDER_SIZE, rh);
+        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder);
+        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_SIZE, rh);
     }
 
     if (LDA < M){
@@ -73,8 +73,8 @@ int testing_zgesvd(int argc, char **argv)
 
     double eps  = LAPACKE_dlamch_work('e');
     double dmax = 1.0;
-    MORSE_enum jobu  = MorseVec;
-    MORSE_enum jobvt = MorseVec;
+    cham_job_t jobu  = ChamVec;
+    cham_job_t jobvt = ChamVec;
     int info_orthou    = 0;
     int info_orthovt   = 0;
     int info_solution  = 0;
@@ -84,14 +84,14 @@ int testing_zgesvd(int argc, char **argv)
     double rcond = (double) minMN;
     int INFO=-1;
 
-    MORSE_Complex64_t *A1   = (MORSE_Complex64_t *)malloc(LDA*N*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A1   = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
     double *S1              = (double *)           malloc(minMN*sizeof(double));
     double *S2              = (double *)           malloc(minMN*sizeof(double));
-    MORSE_Complex64_t *work = (MORSE_Complex64_t *)malloc(3*max(M, N)* sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *A2 = NULL;
-    MORSE_Complex64_t *U  = NULL;
-    MORSE_Complex64_t *VT = NULL;
-    MORSE_desc_t *T;
+    CHAMELEON_Complex64_t *work = (CHAMELEON_Complex64_t *)malloc(3*max(M, N)* sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *A2 = NULL;
+    CHAMELEON_Complex64_t *U  = NULL;
+    CHAMELEON_Complex64_t *VT = NULL;
+    CHAM_desc_t *T;
 
     /* Check if unable to allocate memory */
     if ( (!A1) || (!S1) || (!S2) || (!work) ) {
@@ -102,42 +102,42 @@ int testing_zgesvd(int argc, char **argv)
     }
 
     /* TODO: check problem with workspace!!! */
-    MORSE_Alloc_Workspace_zgesvd(M, N, &T, 1, 1);
+    CHAMELEON_Alloc_Workspace_zgesvd(M, N, &T, 1, 1);
 
     /*----------------------------------------------------------
     *  TESTING ZGESVD
     */
     /* Initialize A1 */
     LAPACKE_zlatms_work( LAPACK_COL_MAJOR, M, N,
-                         morse_lapack_const(MorseDistUniform), ISEED,
-                         morse_lapack_const(MorseNonsymPosv), S1, mode, rcond,
+                         morse_lapack_const(ChamDistUniform), ISEED,
+                         morse_lapack_const(ChamNonsymPosv), S1, mode, rcond,
                          dmax, M, N,
-                         morse_lapack_const(MorseNoPacking), A1, LDA, work );
+                         morse_lapack_const(ChamNoPacking), A1, LDA, work );
     free(work);
 
     /* Copy A1 for check */
-    if ( (jobu == MorseVec) && (jobvt == MorseVec) ) {
-        A2 = (MORSE_Complex64_t *)malloc(LDA*N*sizeof(MORSE_Complex64_t));
+    if ( (jobu == ChamVec) && (jobvt == ChamVec) ) {
+        A2 = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
         LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, 'A', M, N, A1, LDA, A2, LDA);
     }
-    if ( jobu == MorseVec ) {
-        U = (MORSE_Complex64_t *)malloc(M*M*sizeof(MORSE_Complex64_t));
+    if ( jobu == ChamVec ) {
+        U = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
         LAPACKE_zlaset_work(LAPACK_COL_MAJOR, 'A', M, M, 0., 1., U, M);
     }
-    if ( jobvt == MorseVec ) {
-        VT = (MORSE_Complex64_t *)malloc(N*N*sizeof(MORSE_Complex64_t));
+    if ( jobvt == ChamVec ) {
+        VT = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
         LAPACKE_zlaset_work(LAPACK_COL_MAJOR, 'A', N, N, 0., 1., VT, N);
     }
 
-    /* MORSE ZGESVD */
-    INFO = MORSE_zgesvd(jobu, jobvt, M, N, A1, LDA, S2, T, U, M, VT, N);
+    /* CHAMELEON ZGESVD */
+    INFO = CHAMELEON_zgesvd(jobu, jobvt, M, N, A1, LDA, S2, T, U, M, VT, N);
     if( INFO != 0 ){
-        printf(" MORSE_zgesvd returned with error code %d\n",INFO);
+        printf(" CHAMELEON_zgesvd returned with error code %d\n",INFO);
         goto fin;
     }
 
     printf("\n");
-    printf("------ TESTS FOR MORSE ZGESVD ROUTINE -------  \n");
+    printf("------ TESTS FOR CHAMELEON ZGESVD ROUTINE -------  \n");
     printf("        Size of the Matrix %d by %d\n", M, N);
     printf("\n");
     printf(" The matrix A is randomly generated for each test.\n");
@@ -147,13 +147,13 @@ int testing_zgesvd(int argc, char **argv)
 
 
     /* Check the orthogonality, reduction and the singular values */
-    if ( jobu == MorseVec )
-        info_orthou = check_orthogonality(MorseLeft, M, M, U, M, eps);
+    if ( jobu == ChamVec )
+        info_orthou = check_orthogonality(ChamLeft, M, M, U, M, eps);
 
-    if ( jobvt == MorseVec )
-        info_orthovt = check_orthogonality(MorseRight, N, N, VT, N, eps);
+    if ( jobvt == ChamVec )
+        info_orthovt = check_orthogonality(ChamRight, N, N, VT, N, eps);
 
-    if ( (jobu == MorseVec) && (jobvt == MorseVec) )
+    if ( (jobu == ChamVec) && (jobvt == ChamVec) )
         info_reduction = check_reduction(M, N, S2, A2, LDA, U, M, VT, N, eps);
 
     info_solution = check_solution(minMN, S1, S2, eps);
@@ -189,7 +189,7 @@ fin:
     if ( U  != NULL ) free(U);
     if ( VT != NULL ) free(VT);
     free(A1); free(S1); free(S2);
-    MORSE_Dealloc_Workspace(&T);
+    CHAMELEON_Dealloc_Workspace(&T);
 
     return 0;
 }
@@ -197,7 +197,7 @@ fin:
 /*-------------------------------------------------------------------
  * Check the orthogonality of U VT
  */
-static int check_orthogonality(int side, int M, int N, MORSE_Complex64_t *Q, int LDQ, double eps)
+static int check_orthogonality(cham_side_t side, int M, int N, CHAMELEON_Complex64_t *Q, int LDQ, double eps)
 {
     double  done =  1.0;
     double  mdone  = -1.0;
@@ -207,7 +207,7 @@ static int check_orthogonality(int side, int M, int N, MORSE_Complex64_t *Q, int
     double *work = (double *)malloc(minMN*sizeof(double));
 
     /* Build the idendity matrix */
-    MORSE_Complex64_t *Id = (MORSE_Complex64_t *) malloc(minMN*minMN*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *Id = (CHAMELEON_Complex64_t *) malloc(minMN*minMN*sizeof(CHAMELEON_Complex64_t));
     LAPACKE_zlaset_work(LAPACK_COL_MAJOR, 'A', minMN, minMN, 0., 1., Id, minMN);
 
     /* Perform Id - Q'Q */
@@ -216,13 +216,13 @@ static int check_orthogonality(int side, int M, int N, MORSE_Complex64_t *Q, int
     else
         cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans,   M, N, done, Q, LDQ, mdone, Id, M);
 
-    normQ = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, morse_lapack_const(MorseInfNorm), 'U', minMN, Id, minMN, work);
+    normQ = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamInfNorm), 'U', minMN, Id, minMN, work);
 
-    if (getenv("MORSE_TESTING_VERBOSE"))
+    if (getenv("CHAMELEON_TESTING_VERBOSE"))
         printf( "||Q||_oo=%e\n", normQ );
 
     result = normQ / (M * eps);
-    if (side == MorseLeft)
+    if (side == ChamLeft)
     {
         printf(" ======================================================\n");
         printf(" ||Id-U'*U||_oo / (M*eps)            : %e \n",  result );
@@ -252,22 +252,22 @@ static int check_orthogonality(int side, int M, int N, MORSE_Complex64_t *Q, int
 /*------------------------------------------------------------
  *  Check the bidiagonal reduction
  */
-static int check_reduction(int M, int N, double *S, MORSE_Complex64_t *A, int LDA,
-                           MORSE_Complex64_t *U, int LDU, MORSE_Complex64_t *VT, int LDVT, double eps )
+static int check_reduction(int M, int N, double *S, CHAMELEON_Complex64_t *A, int LDA,
+                           CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *VT, int LDVT, double eps )
 {
-    MORSE_Complex64_t zone  =  1.0;
-    MORSE_Complex64_t mzone = -1.0;
+    CHAMELEON_Complex64_t zone  =  1.0;
+    CHAMELEON_Complex64_t mzone = -1.0;
     double Anorm, Rnorm, result;
     int info_reduction;
     int i;
     int maxMN = max(M, N);
     int minMN = min(M, N);
 
-    MORSE_Complex64_t *TEMP     = (MORSE_Complex64_t *)malloc(minMN*minMN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Residual = (MORSE_Complex64_t *)malloc(M    *N    *sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *TEMP     = (CHAMELEON_Complex64_t *)malloc(minMN*minMN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(M    *N    *sizeof(CHAMELEON_Complex64_t));
     double *work = (double *)malloc(maxMN*sizeof(double));
 
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, morse_lapack_const(MorseUpperLower), M, N, A, LDA, Residual, M);
+    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamUpperLower), M, N, A, LDA, Residual, M);
 
     if ( M >= N ) {
         /* Compute TEMP =  SIGMA * Vt */
@@ -297,10 +297,10 @@ static int check_reduction(int M, int N, double *S, MORSE_Complex64_t *A, int LD
     }
 
     /* Compute the norms */
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(MorseOneNorm), M, N, Residual, M,   work);
-    Anorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(MorseOneNorm), M, N, A,        LDA, work);
+    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), M, N, Residual, M,   work);
+    Anorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), M, N, A,        LDA, work);
 
-    if (getenv("MORSE_TESTING_VERBOSE"))
+    if (getenv("CHAMELEON_TESTING_VERBOSE"))
         printf( "||A||_oo=%e\n||A - U*SIGMA*VT||_oo=%e\n", Anorm, Rnorm );
 
     result = Rnorm / ( Anorm * maxMN * eps);

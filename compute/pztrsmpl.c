@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -32,11 +32,11 @@
 /**
  *  Parallel forward substitution for tile LU - dynamic scheduling
  */
-void morse_pztrsmpl( MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *L, int *IPIV,
-                     MORSE_sequence_t *sequence, MORSE_request_t *request )
+void morse_pztrsmpl( CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *L, int *IPIV,
+                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int k, m, n;
     int ldak, ldam, ldbk, ldbm;
@@ -44,11 +44,11 @@ void morse_pztrsmpl( MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *L, int *IPI
     int ib;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
     for (k = 0; k < chameleon_min(A->mt, A->nt); k++) {
         tempkm   = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn   = k == A->nt-1 ? A->n-k*A->nb : A->nb;
@@ -57,7 +57,7 @@ void morse_pztrsmpl( MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *L, int *IPI
         ldbk = BLKLDD(B, k);
         for (n = 0; n < B->nt; n++) {
             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-            MORSE_TASK_zgessm(
+            INSERT_TASK_zgessm(
                 &options,
                 tempkm, tempnn, tempkmin, ib, L->nb,
                 IPIV(k, k),
@@ -71,7 +71,7 @@ void morse_pztrsmpl( MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *L, int *IPI
             ldbm = BLKLDD(B, m);
             for (n = 0; n < B->nt; n++) {
                 tempnn  = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                MORSE_TASK_zssssm(
+                INSERT_TASK_zssssm(
                     &options,
                     A->nb, tempnn, tempmm, tempnn, tempkn, ib, L->nb,
                     B(k, n), ldbk,

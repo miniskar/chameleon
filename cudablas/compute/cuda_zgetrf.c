@@ -35,7 +35,7 @@ int CUDA_zgetrf_incpiv(
                              ipiv,
                              dwork, lddwork,
                              info );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif
 int CUDA_zgetrf_nopiv(
@@ -44,6 +44,6 @@ int CUDA_zgetrf_nopiv(
         magma_int_t *info)
 {
     magma_zgetrf_nopiv_gpu( m, n, dA, ldda, info );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif

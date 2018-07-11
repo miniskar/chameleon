@@ -193,7 +193,7 @@ int CUDA_ztsqrt(
 #undef dt_ref
 #undef d_ref
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 
 }
 #endif

@@ -27,11 +27,11 @@
 /**
  *  Parallel tile QR factorization - dynamic scheduling
  */
-void morse_pztpqrt( int L, MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T,
-                    MORSE_sequence_t *sequence, MORSE_request_t *request )
+void morse_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
+                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -45,11 +45,11 @@ void morse_pztpqrt( int L, MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T,
     int maxmt = (maxm % B->mb == 0) ? (maxm / B->mb) : (maxm / B->mb + 1);
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     /*
      * ztsqrt  = A->nb * (ib+1)
@@ -66,8 +66,8 @@ void morse_pztpqrt( int L, MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T,
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
@@ -83,7 +83,7 @@ void morse_pztpqrt( int L, MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T,
             templm = m == maxmt-1 ? tempmm       : 0;
             ldbm = BLKLDD(B, m);
             /* TT kernel */
-            MORSE_TASK_ztpqrt(
+            INSERT_TASK_ztpqrt(
                 &options,
                 tempmm, tempkn, templm, ib, T->nb,
                 A(k, k), ldak,
@@ -92,9 +92,9 @@ void morse_pztpqrt( int L, MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T,
 
             for (n = k+1; n < B->nt; n++) {
                 tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                MORSE_TASK_ztpmqrt(
+                INSERT_TASK_ztpmqrt(
                     &options,
-                    MorseLeft, MorseConjTrans,
+                    ChamLeft, ChamConjTrans,
                     tempmm, tempnn, tempkm, templm, ib, T->nb,
                     B(m, k), ldbm,
                     T(m, k), T->mb,

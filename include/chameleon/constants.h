@@ -30,19 +30,29 @@
  *    2) C Interface to LAPACK from Netlib (http://www.netlib.org/lapack/lapwrapc/).
  *
  */
-#define ChameleonByte              0
-#define ChameleonInteger           1
-#define ChameleonRealFloat         2
-#define ChameleonRealDouble        3
-#define ChameleonComplexFloat      4
-#define ChameleonComplexDouble     5
+/**
+ * @brief Matrix floating point arithmetic
+ */
+typedef enum chameleon_flttype_e {
+    ChamByte          = 0,
+    ChamInteger       = 1,
+    ChamRealFloat     = 2,
+    ChamRealDouble    = 3,
+    ChamComplexFloat  = 4,
+    ChamComplexDouble = 5,
+} cham_flttype_t;
 
-#define ChameleonCM              101
-#define ChameleonRM              102
-#define ChameleonCCRB            103
-#define ChameleonCRRB            104
-#define ChameleonRCRB            105
-#define ChameleonRRRB            106
+/**
+ * @brief Matrix tile storage
+ */
+typedef enum chameleon_storage_e {
+    ChamCM   = 101,
+    ChamRM   = 102,
+    ChamCCRB = 103,
+    ChamCRRB = 104,
+    ChamRCRB = 105,
+    ChamRRRB = 106,
+} cham_storage_t;
 
 /**
  * @brief Transpostion
@@ -61,7 +71,6 @@ typedef enum chameleon_uplo_e {
     ChamLower      = 122, /**< Use upper triangle of A */
     ChamUpperLower = 123  /**< Use the full A          */
 } cham_uplo_t;
-
 
 /**
  * @brief Diagonal
@@ -93,23 +102,31 @@ typedef enum chameleon_normtype_e {
     ChamRealMaxNorm   = 178
 } cham_normtype_t;
 
-#define ChameleonDistUniform     201
-#define ChameleonDistSymmetric   202
-#define ChameleonDistNormal      203
+/**
+ * @brief Random distribution for matrix generator
+ */
+typedef enum chameleon_dist_e {
+    ChamDistUniform   = 201,
+    ChamDistSymmetric = 202,
+    ChamDistNormal    = 203,
+} cham_dist_t;
 
-#define ChameleonHermGeev        241
-#define ChameleonHermPoev        242
-#define ChameleonNonsymPosv      243
-#define ChameleonSymPosv         244
+/**
+ * @brief Eigen and singular values generator format
+ */
+#define ChamHermGeev        241
+#define ChamHermPoev        242
+#define ChamNonsymPosv      243
+#define ChamSymPosv         244
 
-#define ChameleonNoPacking       291
-#define ChameleonPackSubdiag     292
-#define ChameleonPackSupdiag     293
-#define ChameleonPackColumn      294
-#define ChameleonPackRow         295
-#define ChameleonPackLowerBand   296
-#define ChameleonPackUpeprBand   297
-#define ChameleonPackAll         298
+#define ChamNoPacking       291
+#define ChamPackSubdiag     292
+#define ChamPackSupdiag     293
+#define ChamPackColumn      294
+#define ChamPackRow         295
+#define ChamPackLowerBand   296
+#define ChamPackUpeprBand   297
+#define ChamPackAll         298
 
 /**
  * @brief Singular/Eigen vector job description
@@ -132,8 +149,8 @@ typedef enum chameleon_dir_e {
  * @brief Direction of the main vectors as for the householder reflectors in QR/LQ factorizations.
  */
 typedef enum chameleon_store_e {
-    ChamColumnwise  = 401, /**< Column wise storage  */
-    ChamRowwise     = 402, /**< Row wise storage     */
+    ChamColumnwise = 401, /**< Column wise storage  */
+    ChamRowwise    = 402, /**< Row wise storage     */
 } cham_store_t;
 
 
@@ -175,11 +192,21 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_HOUSEHOLDER_SIZE  6
 #define CHAMELEON_TRANSLATION_MODE  7
 
-#define CHAMELEON_FLAT_HOUSEHOLDER  1
-#define CHAMELEON_TREE_HOUSEHOLDER  2
+/**
+ * @brief QR/LQ factorization trees
+ */
+typedef enum chameleon_householder_e {
+    ChamFlatHouseholder = 1,
+    ChamTreeHouseholder = 2,
+} cham_householder_t;
 
-#define CHAMELEON_INPLACE           1
-#define CHAMELEON_OUTOFPLACE        2
+/**
+ * @brief Translation types
+ */
+typedef enum chameleon_translation_e {
+    ChamInPlace    = 1,
+    ChamOutOfPlace = 2,
+} cham_translation_t;
 
 /**
  *  CHAMELEON constants - success & error codes

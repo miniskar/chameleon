@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c
@@ -24,17 +24,17 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zlanhe returns the value
+ *  CHAMELEON_zlanhe returns the value
  *
- *     zlanhe = ( max(abs(A(i,j))), NORM = MorseMaxNorm
+ *     zlanhe = ( max(abs(A(i,j))), NORM = ChamMaxNorm
  *              (
- *              ( norm1(A),         NORM = MorseOneNorm
+ *              ( norm1(A),         NORM = ChamOneNorm
  *              (
- *              ( normI(A),         NORM = MorseInfNorm
+ *              ( normI(A),         NORM = ChamInfNorm
  *              (
- *              ( normF(A),         NORM = MorseFrobeniusNorm
+ *              ( normF(A),         NORM = ChamFrobeniusNorm
  *
  *  where norm1 denotes the one norm of a matrix (maximum column sum),
  *  normI denotes the infinity norm of a matrix (maximum row sum) and
@@ -45,14 +45,14 @@
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] uplo
- *          = MorseUpper: Upper triangle of A is stored;
- *          = MorseLower: Lower triangle of A is stored.
+ *          = ChamUpper: Upper triangle of A is stored;
+ *          = ChamLower: Lower triangle of A is stored.
  *
  * @param[in] N
  *          The number of columns/rows of the matrix A. N >= 0. When N = 0,
@@ -71,45 +71,45 @@
  *
  *******************************************************************************
  *
- * @sa MORSE_zlanhe_Tile
- * @sa MORSE_zlanhe_Tile_Async
- * @sa MORSE_clanhe
- * @sa MORSE_dlanhe
- * @sa MORSE_slanhe
+ * @sa CHAMELEON_zlanhe_Tile
+ * @sa CHAMELEON_zlanhe_Tile_Async
+ * @sa CHAMELEON_clanhe
+ * @sa CHAMELEON_dlanhe
+ * @sa CHAMELEON_slanhe
  *
  */
-double MORSE_zlanhe(MORSE_enum norm, MORSE_enum uplo, int N,
-                    MORSE_Complex64_t *A, int LDA )
+double CHAMELEON_zlanhe(cham_normtype_t norm, cham_uplo_t uplo, int N,
+                    CHAMELEON_Complex64_t *A, int LDA )
 {
     int NB;
     int status;
     double value = -1.;
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
-    MORSE_desc_t descAl, descAt;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlanhe", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlanhe", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
-    if ( (norm != MorseMaxNorm) && (norm != MorseOneNorm)
-         && (norm != MorseInfNorm) && (norm != MorseFrobeniusNorm) ) {
-        morse_error("MORSE_zlanhe", "illegal value of norm");
+    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
+         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+        morse_error("CHAMELEON_zlanhe", "illegal value of norm");
         return -1;
     }
-    if ( (uplo != MorseUpper) && (uplo != MorseLower) ) {
-        morse_error("MORSE_zlanhe", "illegal value of uplo");
+    if ( (uplo != ChamUpper) && (uplo != ChamLower) ) {
+        morse_error("CHAMELEON_zlanhe", "illegal value of uplo");
         return -2;
     }
     if (N < 0) {
-        morse_error("MORSE_zlanhe", "illegal value of N");
+        morse_error("CHAMELEON_zlanhe", "illegal value of N");
         return -3;
     }
     if (LDA < chameleon_max(1, N)) {
-        morse_error("MORSE_zlanhe", "illegal value of LDA");
+        morse_error("CHAMELEON_zlanhe", "illegal value of LDA");
         return -5;
     }
 
@@ -118,27 +118,27 @@ double MORSE_zlanhe(MORSE_enum norm, MORSE_enum uplo, int N,
         return (double)0.0;
 
     /* Tune NB depending on M, N & NRHS; Set NBNB */
-    status = morse_tune(MORSE_FUNC_ZGEMM, N, N, 0);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zlanhe", "morse_tune() failed");
+    status = morse_tune(CHAMELEON_FUNC_ZGEMM, N, N, 0);
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zlanhe", "morse_tune() failed");
         return status;
     }
 
     /* Set NT */
-    NB   = MORSE_NB;
+    NB   = CHAMELEON_NB;
 
     morse_sequence_create( morse, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInput, uplo,
+    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInput, uplo,
                      A, NB, NB, LDA, N, N, N, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zlanhe_Tile_Async( norm, uplo, &descAt, &value, sequence, &request );
+    CHAMELEON_zlanhe_Tile_Async( norm, uplo, &descAt, &value, sequence, &request );
 
     /* Submit the matrix conversion back */
     morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInput, uplo, sequence, &request );
+                     ChamDescInput, uplo, sequence, &request );
 
     morse_sequence_wait( morse, sequence );
 
@@ -152,9 +152,9 @@ double MORSE_zlanhe(MORSE_enum norm, MORSE_enum uplo, int N,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zlanhe_Tile - Tile equivalent of MORSE_zlanhe().
+ *  CHAMELEON_zlanhe_Tile - Tile equivalent of CHAMELEON_zlanhe().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -162,14 +162,14 @@ double MORSE_zlanhe(MORSE_enum norm, MORSE_enum uplo, int N,
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] uplo
- *          = MorseUpper: Upper triangle of A is stored;
- *          = MorseLower: Lower triangle of A is stored.
+ *          = ChamUpper: Upper triangle of A is stored;
+ *          = ChamLower: Lower triangle of A is stored.
  *
  * @param[in] A
  *          On entry, the triangular factor U or L.
@@ -181,48 +181,48 @@ double MORSE_zlanhe(MORSE_enum norm, MORSE_enum uplo, int N,
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zlanhe
- * @sa MORSE_zlanhe_Tile_Async
- * @sa MORSE_clanhe_Tile
- * @sa MORSE_dlanhe_Tile
- * @sa MORSE_slanhe_Tile
+ * @sa CHAMELEON_zlanhe
+ * @sa CHAMELEON_zlanhe_Tile_Async
+ * @sa CHAMELEON_clanhe_Tile
+ * @sa CHAMELEON_dlanhe_Tile
+ * @sa CHAMELEON_slanhe_Tile
  *
  */
-double MORSE_zlanhe_Tile( MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A )
+double CHAMELEON_zlanhe_Tile( cham_normtype_t norm, cham_uplo_t uplo, CHAM_desc_t *A )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
     double value = -1.;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlanhe_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlanhe_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     morse_sequence_create( morse, &sequence );
 
-    MORSE_zlanhe_Tile_Async( norm, uplo, A, &value, sequence, &request );
+    CHAMELEON_zlanhe_Tile_Async( norm, uplo, A, &value, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
 
     morse_sequence_wait( morse, sequence );
     status = sequence->status;
     morse_sequence_destroy( morse, sequence );
-    return ( status == MORSE_SUCCESS ) ? value : (double)status;
+    return ( status == CHAMELEON_SUCCESS ) ? value : (double)status;
 }
 
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zlanhe_Tile_Async - Non-blocking equivalent of MORSE_zlanhe_Tile().
+ *  CHAMELEON_zlanhe_Tile_Async - Non-blocking equivalent of CHAMELEON_zlanhe_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -237,65 +237,65 @@ double MORSE_zlanhe_Tile( MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A )
  *
  *******************************************************************************
  *
- * @sa MORSE_zlanhe
- * @sa MORSE_zlanhe_Tile
- * @sa MORSE_clanhe_Tile_Async
- * @sa MORSE_dlanhe_Tile_Async
- * @sa MORSE_slanhe_Tile_Async
+ * @sa CHAMELEON_zlanhe
+ * @sa CHAMELEON_zlanhe_Tile
+ * @sa CHAMELEON_clanhe_Tile_Async
+ * @sa CHAMELEON_dlanhe_Tile_Async
+ * @sa CHAMELEON_slanhe_Tile_Async
  *
  */
-int MORSE_zlanhe_Tile_Async( MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *value,
-                             MORSE_sequence_t *sequence, MORSE_request_t *request )
+int CHAMELEON_zlanhe_Tile_Async( cham_normtype_t norm, cham_uplo_t uplo, CHAM_desc_t *A, double *value,
+                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlanhe_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlanhe_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zlanhe_Tile", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zlanhe_Tile", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zlanhe_Tile", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zlanhe_Tile", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zlanhe_Tile", "invalid descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zlanhe_Tile", "invalid descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb) {
-        morse_error("MORSE_zlanhe_Tile", "only square tiles supported");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zlanhe_Tile", "only square tiles supported");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if ( (norm != MorseMaxNorm) && (norm != MorseOneNorm)
-         && (norm != MorseInfNorm) && (norm != MorseFrobeniusNorm) ) {
-        morse_error("MORSE_zlanhe_Tile", "illegal value of norm");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
+         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+        morse_error("CHAMELEON_zlanhe_Tile", "illegal value of norm");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if ( (uplo != MorseUpper) && (uplo != MorseLower) ) {
-        morse_error("MORSE_zlanhe_Tile", "illegal value of uplo");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if ( (uplo != ChamUpper) && (uplo != ChamLower) ) {
+        morse_error("CHAMELEON_zlanhe_Tile", "illegal value of uplo");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Quick return */
     if ( A->m == 0) {
         *value = 0.0;
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
 
     morse_pzlanhe( norm, uplo, A, value, sequence, request );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

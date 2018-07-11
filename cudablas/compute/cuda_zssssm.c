@@ -35,7 +35,7 @@ int CUDA_zssssm(
         dA1, ldda1, dA2, ldda2,
         dL1, lddl1, dL2, lddl2,
         IPIV, info);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif
 #endif

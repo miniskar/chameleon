@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zlange_Tile"
+#define _NAME  "CHAMELEON_zlange_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_LANGE(M, N)
 #define _FADDS FADDS_LANGE(M, N)
@@ -28,17 +28,17 @@ static int
 RunTest(int *iparam, double *dparam, morse_time_t *t_)
 {
     double normmorse, normlapack, result;
-    int    norm = MorseInfNorm;
+    int    norm = ChamInfNorm;
 
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1,     MORSE_Complex64_t, MorseComplexDouble, LDA, M, N    );
-    MORSE_zplrnt_Tile( descA, 3436 );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1,     CHAMELEON_Complex64_t, ChamComplexDouble, LDA, M, N    );
+    CHAMELEON_zplrnt_Tile( descA, 3436 );
 
-    /* MORSE ZPOSV */
+    /* CHAMELEON ZPOSV */
     START_TIMING();
-    normmorse = MORSE_zlange_Tile(norm, descA);
+    normmorse = CHAMELEON_zlange_Tile(norm, descA);
     STOP_TIMING();
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -46,28 +46,28 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     if ( check )
     {
         /* Allocate Data */
-        PASTE_TILE_TO_LAPACK( descA, A, check, MORSE_Complex64_t, M, N );
+        PASTE_TILE_TO_LAPACK( descA, A, check, CHAMELEON_Complex64_t, M, N );
         double *work = (double*) malloc(chameleon_max(M,N)*sizeof(double));
         normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm), M, N, A, LDA, work);
         result = fabs(normmorse - normlapack);
         switch(norm) {
-        case MorseMaxNorm:
+        case ChamMaxNorm:
             /* result should be perfectly equal */
             break;
-        case MorseInfNorm:
+        case ChamInfNorm:
             /* Sum order on the line can differ */
             result = result / (double)N;
             break;
-        case MorseOneNorm:
+        case ChamOneNorm:
             /* Sum order on the column can differ */
             result = result / (double)M;
             break;
-        case MorseFrobeniusNorm:
+        case ChamFrobeniusNorm:
             /* Sum oreder on every element can differ */
             result = result / ((double)M * (double)N);
             break;
         }
-        if ( MORSE_My_Mpi_Rank() == 0 ) {
+        if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
             dparam[IPARAM_ANORM] = normlapack;
             dparam[IPARAM_BNORM] = 0.;
             dparam[IPARAM_XNORM] = 1.;

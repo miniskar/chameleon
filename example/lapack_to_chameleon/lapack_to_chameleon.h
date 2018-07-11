@@ -1,6 +1,6 @@
 /**
  *
- * @file lapack_to_morse.h
+ * @file lapack_to_chameleon.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -16,8 +16,8 @@
  * @date 2014-10-29
  *
  */
-#ifndef LAPACK_TO_MORSE_H
-#define LAPACK_TO_MORSE_H
+#ifndef LAPACK_TO_CHAMELEON_H
+#define LAPACK_TO_CHAMELEON_H
 
 #if defined( _WIN32 ) || defined( _WIN64 )
 #define int64_t __int64
@@ -64,6 +64,6 @@ static int startswith(const char *s, const char *prefix) {
 #define FADDS_TRSM(__m, __n) (0.5 * (double)(__n) * (double)(__m) * ((double)(__m)-1.))
 
 /* define some tools to time the program */
-#include <chameleon/chameleon_timer.h>
+#include <chameleon/timer.h>
 
-#endif /* LAPACK_TO_MORSE_H */
+#endif /* LAPACK_TO_CHAMELEON_H */

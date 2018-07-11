@@ -23,7 +23,7 @@
 /**
  *  Create new context
  */
-void RUNTIME_context_create( MORSE_context_t *morse )
+void RUNTIME_context_create( CHAM_context_t *morse )
 {
     morse->scheduler = RUNTIME_SCHED_QUARK;
     /* Will require the static initialization if we want to use it in this code */
@@ -33,7 +33,7 @@ void RUNTIME_context_create( MORSE_context_t *morse )
 /**
  *  Clean the context
  */
-void RUNTIME_context_destroy( MORSE_context_t *morse )
+void RUNTIME_context_destroy( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -42,14 +42,14 @@ void RUNTIME_context_destroy( MORSE_context_t *morse )
 /**
  *
  */
-void RUNTIME_enable( MORSE_enum lever )
+void RUNTIME_enable( int lever )
 {
     switch (lever)
     {
-        case MORSE_PROFILING_MODE:
+        case CHAMELEON_PROFILING_MODE:
             fprintf(stderr, "Profiling is not available with Quark\n");
             break;
-        case MORSE_BOUND:
+        case CHAMELEON_BOUND:
             fprintf(stderr, "Bound computation is not available with Quark\n");
             break;
         default:
@@ -61,14 +61,14 @@ void RUNTIME_enable( MORSE_enum lever )
 /**
  *
  */
-void RUNTIME_disable( MORSE_enum lever )
+void RUNTIME_disable( int lever )
 {
     switch (lever)
     {
-        case MORSE_PROFILING_MODE:
+        case CHAMELEON_PROFILING_MODE:
             fprintf(stderr, "Profiling is not available with Quark\n");
             break;
-        case MORSE_BOUND:
+        case CHAMELEON_BOUND:
             fprintf(stderr, "Bound computation is not available with Quark\n");
             break;
         default:

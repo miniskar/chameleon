@@ -27,26 +27,26 @@
 /**
  *  Parallel tile LU factorization with no pivoting - dynamic scheduling
  */
-void morse_pzgetrf_nopiv(MORSE_desc_t *A,
-                                MORSE_sequence_t *sequence,
-                                MORSE_request_t *request)
+void morse_pzgetrf_nopiv(CHAM_desc_t *A,
+                                RUNTIME_sequence_t *sequence,
+                                RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int k, m, n, ib;
     int ldak, ldam;
     int tempkm, tempkn, tempmm, tempnn;
 
-    MORSE_Complex64_t zone  = (MORSE_Complex64_t) 1.0;
-    MORSE_Complex64_t mzone = (MORSE_Complex64_t)-1.0;
+    CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
+    CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     for (k = 0; k < chameleon_min(A->mt, A->nt); k++) {
         RUNTIME_iteration_push(morse, k);
@@ -56,7 +56,7 @@ void morse_pzgetrf_nopiv(MORSE_desc_t *A,
         ldak = BLKLDD(A, k);
 
         options.priority = 2*A->nt - 2*k;
-        MORSE_TASK_zgetrf_nopiv(
+        INSERT_TASK_zgetrf_nopiv(
             &options,
             tempkm, tempkn, ib, A->mb,
             A(k, k), ldak, A->mb*k);
@@ -65,9 +65,9 @@ void morse_pzgetrf_nopiv(MORSE_desc_t *A,
             options.priority = 2*A->nt - 2*k - m;
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             ldam = BLKLDD(A, m);
-            MORSE_TASK_ztrsm(
+            INSERT_TASK_ztrsm(
                 &options,
-                MorseRight, MorseUpper, MorseNoTrans, MorseNonUnit,
+                ChamRight, ChamUpper, ChamNoTrans, ChamNonUnit,
                 tempmm, tempkn, A->mb,
                 zone, A(k, k), ldak,
                       A(m, k), ldam);
@@ -75,9 +75,9 @@ void morse_pzgetrf_nopiv(MORSE_desc_t *A,
         for (n = k+1; n < A->nt; n++) {
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
             options.priority = 2*A->nt - 2*k - n;
-            MORSE_TASK_ztrsm(
+            INSERT_TASK_ztrsm(
                 &options,
-                MorseLeft, MorseLower, MorseNoTrans, MorseUnit,
+                ChamLeft, ChamLower, ChamNoTrans, ChamUnit,
                 tempkm, tempnn, A->mb,
                 zone, A(k, k), ldak,
                       A(k, n), ldak);
@@ -86,9 +86,9 @@ void morse_pzgetrf_nopiv(MORSE_desc_t *A,
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                 options.priority = 2*A->nt - 2*k  - n - m;
                 ldam = BLKLDD(A, m);
-                MORSE_TASK_zgemm(
+                INSERT_TASK_zgemm(
                     &options,
-                    MorseNoTrans, MorseNoTrans,
+                    ChamNoTrans, ChamNoTrans,
                     tempmm, tempnn, A->mb, A->mb,
                     mzone, A(m, k), ldam,
                            A(k, n), ldak,

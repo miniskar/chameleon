@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -157,11 +157,11 @@
       DOUBLE PRECISION   AINVNM, ANORM, ANORMI, ANORMO, CNDNUM, DUMMY,
      $                   RCOND, RCONDC, RCONDI, RCONDO
       INTEGER            HL( 2 ), HPIV( 2 )
-      INTEGER            MORSE_TRANS
+      INTEGER            CHAMELEON_TRANS
 *     ..
 *     .. Local Arrays ..
       CHARACTER          TRANSS( NTRAN )
-      INTEGER            ISEED( 4 ), ISEEDY( 4 ), MORSE_TRANSS( NTRAN )
+      INTEGER            ISEED( 4 ), ISEEDY( 4 ), CHAMELEON_TRANSS( NTRAN )
       DOUBLE PRECISION   RESULT( NTESTS )
 *     ..
 *     .. External Functions ..
@@ -190,7 +190,7 @@
       DATA               ISEEDY / 1988, 1989, 1990, 1991 / ,
 *     $                   TRANSS / 'N', 'T', 'C' /
      $                   TRANSS / 'N' /,
-     $                   MORSE_TRANSS / MORSENOTRANS /
+     $                   CHAMELEON_TRANSS / CHAMELEONNOTRANS /
 *     ..
 *     .. Executable Statements ..
 *
@@ -295,21 +295,21 @@
                   IF ( (MAX(M, N) / 25) .GT. NB ) THEN
                      GOTO 90
                   END IF
-                  CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-                  CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB, INFO )
 *
 *                 ALLOCATE HL and HPIV
 *
-c$$$                  CALL MORSE_ALLOC_WORKSPACE_DGETRF_INCPIV( 
+c$$$                  CALL CHAMELEON_ALLOC_WORKSPACE_DGETRF_INCPIV( 
 c$$$     $                 M, N, HL, HPIV, INFO )
 *
 *                 Compute the LU factorization of the matrix.
 *
                   CALL DLACPY( 'Full', M, N, A, LDA, AFAC, LDA )
                   SRNAMT = 'DGETRF'
-c$$$                  CALL MORSE_DGETRF_INCPIV( M, N, AFAC, LDA, HL, HPIV,
+c$$$                  CALL CHAMELEON_DGETRF_INCPIV( M, N, AFAC, LDA, HL, HPIV,
 c$$$     $                 INFO )
-                  CALL MORSE_DGETRF( M, N, AFAC, LDA, IWORK,
+                  CALL CHAMELEON_DGETRF( M, N, AFAC, LDA, IWORK,
      $                 INFO )
 *
 *                 Check error code from DGETRF.
@@ -361,7 +361,7 @@ c$$$     $                 INFO )
 *
                      DO 50 ITRAN = 1, NTRAN
                         TRANS = TRANSS( ITRAN )
-                        MORSE_TRANS = MORSE_TRANSS( ITRAN )
+                        CHAMELEON_TRANS = CHAMELEON_TRANSS( ITRAN )
                         IF( ITRAN.EQ.1 ) THEN
                            RCONDC = RCONDO
                         ELSE
@@ -379,10 +379,10 @@ c$$$     $                 INFO )
 *
                         CALL DLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
                         SRNAMT = 'DGETRS'
-c$$$                        CALL MORSE_DGETRS_INCPIV( MORSE_TRANS, N, 
+c$$$                        CALL CHAMELEON_DGETRS_INCPIV( CHAMELEON_TRANS, N, 
 c$$$     $                       NRHS, AFAC, LDA, HL, HPIV,
 c$$$     $                       X, LDA, INFO )
-                        CALL MORSE_DGETRS( MORSE_TRANS, N, 
+                        CALL CHAMELEON_DGETRS( CHAMELEON_TRANS, N, 
      $                       NRHS, AFAC, LDA, IWORK,
      $                       X, LDA, INFO )
 *
@@ -425,8 +425,8 @@ c$$$     $                       X, LDA, INFO )
 *
 *                 DEALLOCATE HL and HPIV
 *
-c$$$                  CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-c$$$                  CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+c$$$                  CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+c$$$                  CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
    90          CONTINUE
   100       CONTINUE
   110    CONTINUE

@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zposv_Tile"
+#define _NAME  "CHAMELEON_zposv_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS (FMULS_POTRF( N ) + FMULS_POTRS( N, NRHS ))
 #define _FADDS (FADDS_POTRF( N ) + FADDS_POTRS( N, NRHS ))
@@ -28,38 +28,38 @@ static int
 RunTest(int *iparam, double *dparam, morse_time_t *t_)
 {
     PASTE_CODE_IPARAM_LOCALS( iparam );
-    MORSE_enum uplo = MorseUpper;
+    cham_uplo_t uplo = ChamUpper;
 
     LDA = chameleon_max(LDA, N);
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1,      MORSE_Complex64_t, MorseComplexDouble, LDA, N, N );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX, 1,      MORSE_Complex64_t, MorseComplexDouble, LDB, N, NRHS );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, MORSE_Complex64_t, MorseComplexDouble, LDA, N, N );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, MORSE_Complex64_t, MorseComplexDouble, LDB, N, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1,      CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX, 1,      CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
 
     /* Initialize AT and bT for Symmetric Positif Matrix */
-    MORSE_zplghe_Tile((double)N, MorseUpperLower, descA, 51 );
-    MORSE_zplrnt_Tile( descX, 7732 );
+    CHAMELEON_zplghe_Tile((double)N, ChamUpperLower, descA, 51 );
+    CHAMELEON_zplrnt_Tile( descX, 7732 );
 
     /* Save AT and bT for check */
     if (check == 1){
-        MORSE_zlacpy_Tile(MorseUpperLower, descA, descAC);
-        MORSE_zlacpy_Tile(MorseUpperLower, descX, descB);
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descX, descB);
     }
-    /* MORSE ZPOSV */
+    /* CHAMELEON ZPOSV */
     START_TIMING();
-    MORSE_zposv_Tile(uplo, descA, descX);
+    CHAMELEON_zposv_Tile(uplo, descA, descX);
     STOP_TIMING();
 
     /* Check the solution */
     if (check)
       {
-        dparam[IPARAM_ANORM] = MORSE_zlange_Tile(MorseInfNorm, descAC);
-        dparam[IPARAM_BNORM] = MORSE_zlange_Tile(MorseInfNorm, descB);
-        dparam[IPARAM_XNORM] = MORSE_zlange_Tile(MorseInfNorm, descX);
-        MORSE_zgemm_Tile( MorseNoTrans, MorseNoTrans, 1.0, descAC, descX, -1.0, descB );
-        dparam[IPARAM_RES] = MORSE_zlange_Tile(MorseInfNorm, descB);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
         PASTE_CODE_FREE_MATRIX( descAC );
         PASTE_CODE_FREE_MATRIX( descB  );
       }

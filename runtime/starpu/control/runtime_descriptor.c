@@ -28,7 +28,7 @@
 #if defined(CHAMELEON_USE_MPI)
 
 /* Take 24 bits for the tile id, and 7 bits for descriptor id.
- These values can be changed through the call MORSE_user_tag_size(int tag_width, int tag_sep) */
+ These values can be changed through the call CHAMELEON_user_tag_size(int tag_width, int tag_sep) */
 #define TAG_WIDTH_MIN 20
 static int tag_width = 31;
 static int tag_sep   = 24;
@@ -68,14 +68,14 @@ chameleon_starpu_tag_init( int user_tag_width,
 
         if ( tag_width < TAG_WIDTH_MIN ) {
             morse_error("RUNTIME_desc_create", "MPI_TAG_UB too small to identify all the data");
-            return MORSE_ERR_OUT_OF_RESOURCES;
+            return CHAMELEON_ERR_OUT_OF_RESOURCES;
         }
 
         _tag_mpi_initialized_ = 1;
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
     else {
-        return MORSE_ERR_REINITIALIZED;
+        return CHAMELEON_ERR_REINITIALIZED;
     }
 }
 
@@ -96,9 +96,9 @@ void RUNTIME_comm_set_tag_sizes( int user_tag_width,
 #if defined(CHAMELEON_USE_MPI)
     int rc;
     rc = chameleon_starpu_tag_init( user_tag_width, user_tag_sep );
-    if ( rc != MORSE_SUCCESS ) {
+    if ( rc != CHAMELEON_SUCCESS ) {
         morse_error("RUNTIME_user_tag_size",
-                    "must be called before creating any Morse descriptor with MORSE_Desc_create(). The tag sizes will not be modified.");
+                    "must be called before creating any Cham descriptor with CHAMELEON_Desc_create(). The tag sizes will not be modified.");
     }
 #endif
     (void)user_tag_width; (void)user_tag_sep;
@@ -141,7 +141,7 @@ void RUNTIME_free( void  *ptr,
 /**
  *  Create data descriptor
  */
-void RUNTIME_desc_create( MORSE_desc_t *desc )
+void RUNTIME_desc_create( CHAM_desc_t *desc )
 {
     int64_t lmt = desc->lmt;
     int64_t lnt = desc->lnt;
@@ -161,7 +161,7 @@ void RUNTIME_desc_create( MORSE_desc_t *desc )
      */
     if ( (desc->use_mat == 1) && (desc->register_mat == 1) )
     {
-        int64_t eltsze = MORSE_Element_Size(desc->dtyp);
+        int64_t eltsze = CHAMELEON_Element_Size(desc->dtyp);
         size_t size = (size_t)(desc->llm) * (size_t)(desc->lln) * eltsze;
         cudaError_t rc;
 
@@ -179,7 +179,7 @@ void RUNTIME_desc_create( MORSE_desc_t *desc )
     if (desc->ooc) {
         int     lastmm   = desc->lm - (desc->lmt-1) * desc->mb;
         int     lastnn   = desc->ln - (desc->lnt-1) * desc->nb;
-        int64_t eltsze   = MORSE_Element_Size(desc->dtyp);
+        int64_t eltsze   = CHAMELEON_Element_Size(desc->dtyp);
         int     pagesize = getpagesize();
 
         if ( ((desc->mb * desc->nb * eltsze) % pagesize != 0) ||
@@ -218,7 +218,7 @@ void RUNTIME_desc_create( MORSE_desc_t *desc )
 /**
  *  Destroy data descriptor
  */
-void RUNTIME_desc_destroy( MORSE_desc_t *desc )
+void RUNTIME_desc_destroy( CHAM_desc_t *desc )
 {
     desc->occurences--;
 
@@ -265,7 +265,7 @@ void RUNTIME_desc_destroy( MORSE_desc_t *desc )
 /**
  *  Acquire data
  */
-int RUNTIME_desc_acquire( const MORSE_desc_t *desc )
+int RUNTIME_desc_acquire( const CHAM_desc_t *desc )
 {
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(desc->schedopt);
     int lmt = desc->lmt;
@@ -285,13 +285,13 @@ int RUNTIME_desc_acquire( const MORSE_desc_t *desc )
             handle++;
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Release data
  */
-int RUNTIME_desc_release( const MORSE_desc_t *desc )
+int RUNTIME_desc_release( const CHAM_desc_t *desc )
 {
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(desc->schedopt);
     int lmt = desc->lmt;
@@ -311,7 +311,7 @@ int RUNTIME_desc_release( const MORSE_desc_t *desc )
             handle++;
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
@@ -359,8 +359,8 @@ chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
 
 #endif
 
-void RUNTIME_desc_flush( const MORSE_desc_t     *desc,
-                         const MORSE_sequence_t *sequence )
+void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+                         const RUNTIME_sequence_t *sequence )
 {
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(desc->schedopt);
     int lmt = desc->lmt;
@@ -387,8 +387,8 @@ void RUNTIME_desc_flush( const MORSE_desc_t     *desc,
     (void)sequence;
 }
 
-void RUNTIME_data_flush( const MORSE_sequence_t *sequence,
-                         const MORSE_desc_t *A, int m, int n )
+void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
+                         const CHAM_desc_t *A, int m, int n )
 {
     int64_t mm = m + (A->i / A->mb);
     int64_t nn = n + (A->j / A->nb);
@@ -412,8 +412,8 @@ void RUNTIME_data_flush( const MORSE_sequence_t *sequence,
 }
 
 #if defined(CHAMELEON_USE_MIGRATE)
-void RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
-                           const MORSE_desc_t *A, int Am, int An, int new_rank )
+void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
+                           const CHAM_desc_t *A, int Am, int An, int new_rank )
 {
 #if defined(HAVE_STARPU_MPI_DATA_MIGRATE)
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(A->schedopt);
@@ -443,7 +443,7 @@ void RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
 #define STARPU_MAIN_RAM 0
 #endif
 
-void *RUNTIME_data_getaddr( const MORSE_desc_t *A, int m, int n )
+void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
 {
     int64_t mm = m + (A->i / A->mb);
     int64_t nn = n + (A->j / A->nb);
@@ -456,7 +456,7 @@ void *RUNTIME_data_getaddr( const MORSE_desc_t *A, int m, int n )
         void *user_ptr = NULL;
         int myrank = A->myrank;
         int owner  = A->get_rankof( A, m, n );
-        int64_t eltsze = MORSE_Element_Size(A->dtyp);
+        int64_t eltsze = CHAMELEON_Element_Size(A->dtyp);
         int tempmm = (mm == A->lmt-1) ? (A->lm - mm * A->mb) : A->mb;
         int tempnn = (nn == A->lnt-1) ? (A->ln - nn * A->nb) : A->nb;
 

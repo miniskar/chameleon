@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -27,18 +27,18 @@
 /**
  *  morse_pzplghe - Generate a random matrix by tiles.
  */
-void morse_pzplrnt( MORSE_desc_t *A, unsigned long long int seed,
-                    MORSE_sequence_t *sequence, MORSE_request_t *request )
+void morse_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
+                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int m, n;
     int ldam;
     int tempmm, tempnn;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
@@ -49,7 +49,7 @@ void morse_pzplrnt( MORSE_desc_t *A, unsigned long long int seed,
         for (n = 0; n < A->nt; n++) {
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-            MORSE_TASK_zplrnt(
+            INSERT_TASK_zplrnt(
                 &options,
                 tempmm, tempnn, A(m, n), ldam,
                 A->m, m*A->mb, n*A->nb, seed );

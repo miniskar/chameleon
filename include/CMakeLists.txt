@@ -50,13 +50,14 @@ set(CHAMELEON_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/chameleon/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/chameleon/mangling.h
   chameleon/constants.h
-  chameleon/kernels.h
+  chameleon/runtime.h
+  chameleon/runtime_struct.h
   chameleon/simulate.h
   chameleon/struct.h
   chameleon/tasks.h
+  chameleon/timer.h
   chameleon/types.h
-  chameleon/runtime.h
-  chameleon/runtime_struct.h
+  chameleon/types.h
   )
 
 # Add generated headers

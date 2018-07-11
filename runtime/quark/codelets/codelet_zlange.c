@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -22,16 +22,16 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zlange_quark(Quark *quark)
 {
     double *normA;
-    MORSE_enum norm;
+    cham_normtype_t norm;
     int M;
     int N;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int LDA;
     double *work;
 
@@ -39,20 +39,20 @@ void CORE_zlange_quark(Quark *quark)
     CORE_zlange( norm, M, N, A, LDA, work, normA);
 }
 
-void MORSE_TASK_zlange(const MORSE_option_t *options,
-                       MORSE_enum norm, int M, int N, int NB,
-                       const MORSE_desc_t *A, int Am, int An, int LDA,
-                       const MORSE_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlange(const RUNTIME_option_t *options,
+                       cham_normtype_t norm, int M, int N, int NB,
+                       const CHAM_desc_t *A, int Am, int An, int LDA,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LANGE;
     int szeW = chameleon_max( M, N );
     QUARK_Insert_Task(
         opt->quark, CORE_zlange_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),              &norm,  VALUE,
+        sizeof(int),              &norm,  VALUE,
         sizeof(int),                     &M,     VALUE,
         sizeof(int),                     &N,     VALUE,
-        sizeof(MORSE_Complex64_t)*NB*NB, RTBLKADDR(A, MORSE_Complex64_t, Am, An), INPUT,
+        sizeof(CHAMELEON_Complex64_t)*NB*NB, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(int),                     &LDA,   VALUE,
         sizeof(double)*szeW,             NULL,   SCRATCH,
         sizeof(double),                  RTBLKADDR(B, double, Bm, Bn), OUTPUT,
@@ -69,9 +69,9 @@ void CORE_zlange_max_quark(Quark *quark)
         *normA = A[0];
 }
 
-void MORSE_TASK_zlange_max(const MORSE_option_t *options,
-                           const MORSE_desc_t *A, int Am, int An,
-                           const MORSE_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
+                           const CHAM_desc_t *A, int Am, int An,
+                           const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LANGE_MAX;

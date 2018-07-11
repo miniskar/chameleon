@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -28,10 +28,10 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void CORE_ztrtri(MORSE_enum uplo, MORSE_enum diag, int N, MORSE_Complex64_t *A, int LDA, int *info)
+void CORE_ztrtri(cham_uplo_t uplo, cham_diag_t diag, int N, CHAMELEON_Complex64_t *A, int LDA, int *info)
 {
     *info = LAPACKE_ztrtri_work(
         LAPACK_COL_MAJOR,

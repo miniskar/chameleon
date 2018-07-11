@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 !
 ! This software is governed by the CeCILL-B license under French law and
@@ -65,8 +65,8 @@
 !
 !
 !
-!  MORSE fortran 90 interface
-!  MORSE is a software package provided by Univ. of Tennessee,
+!  CHAMELEON fortran 90 interface
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
 !  Univ. of California Berkeley and Univ. of Colorado Denver
 !
 ! @version 1.0.0
@@ -89,142 +89,142 @@ module morse
       integer, parameter :: dp = kind(0.0d0)
 
       interface
-         function MORSE_Init_c(cpus, gpus) &
-          & bind(c, name='MORSE_Init')
+         function CHAMELEON_Init_c(cpus, gpus) &
+          & bind(c, name='CHAMELEON_Init')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Init_c
+            integer(kind=c_int) :: CHAMELEON_Init_c
             integer(kind=c_int), value :: cpus, gpus
-         end function MORSE_Init_c
+         end function CHAMELEON_Init_c
       end interface
 
       interface
-         function MORSE_Finalize_c() &
-          & bind(c, name='MORSE_Finalize')
+         function CHAMELEON_Finalize_c() &
+          & bind(c, name='CHAMELEON_Finalize')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Finalize_c
-         end function MORSE_Finalize_c
+            integer(kind=c_int) :: CHAMELEON_Finalize_c
+         end function CHAMELEON_Finalize_c
       end interface
 
       interface
-         function MORSE_Set_c(param, pval) &
-          & bind(c, name='MORSE_Set')
+         function CHAMELEON_Set_c(param, pval) &
+          & bind(c, name='CHAMELEON_Set')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Set_c
+            integer(kind=c_int) :: CHAMELEON_Set_c
             integer(kind=c_int), value :: param
             integer(kind=c_int), value :: pval
-         end function MORSE_Set_c
+         end function CHAMELEON_Set_c
       end interface
 
       interface
-         function MORSE_Get_c(param, pval) &
-          & bind(c, name='MORSE_Get')
+         function CHAMELEON_Get_c(param, pval) &
+          & bind(c, name='CHAMELEON_Get')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Get_c
+            integer(kind=c_int) :: CHAMELEON_Get_c
             integer(kind=c_int), value :: param
             type(c_ptr), value :: pval
-         end function MORSE_Get_c
+         end function CHAMELEON_Get_c
       end interface
 
       interface
-         function MORSE_Enable_c(param) &
-          & bind(c, name='MORSE_Enable')
+         function CHAMELEON_Enable_c(param) &
+          & bind(c, name='CHAMELEON_Enable')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Enable_c
+            integer(kind=c_int) :: CHAMELEON_Enable_c
             integer(kind=c_int), value :: param
-         end function MORSE_Enable_c
+         end function CHAMELEON_Enable_c
       end interface
 
       interface
-         function MORSE_Disable_c(param) &
-          & bind(c, name='MORSE_Disable')
+         function CHAMELEON_Disable_c(param) &
+          & bind(c, name='CHAMELEON_Disable')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_Disable_c
+            integer(kind=c_int) :: CHAMELEON_Disable_c
             integer(kind=c_int), value :: param
-         end function MORSE_Disable_c
+         end function CHAMELEON_Disable_c
       end interface
 
       interface
-         function MORSE_Lapack_to_Tile_c(a_lpk,lda,a_pma) &
-          & bind(c, name='MORSE_Lapack_to_Tile')
+         function CHAMELEON_Lapack_to_Tile_c(a_lpk,lda,a_pma) &
+          & bind(c, name='CHAMELEON_Lapack_to_Tile')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Lapack_to_Tile_c
+            integer(kind=c_int) :: CHAMELEON_Lapack_to_Tile_c
             type(c_ptr), value :: a_lpk, a_pma
             integer(kind=c_int), value :: lda
-         end function MORSE_Lapack_to_Tile_c
+         end function CHAMELEON_Lapack_to_Tile_c
       end interface
 
       interface
-         function MORSE_Tile_to_Lapack_c(a_pma,a_lpk,lda) &
-          & bind(c, name='MORSE_Tile_to_Lapack')
+         function CHAMELEON_Tile_to_Lapack_c(a_pma,a_lpk,lda) &
+          & bind(c, name='CHAMELEON_Tile_to_Lapack')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Tile_to_Lapack_c
+            integer(kind=c_int) :: CHAMELEON_Tile_to_Lapack_c
             type(c_ptr), value :: a_lpk, a_pma
             integer(kind=c_int), value :: lda
-         end function MORSE_Tile_to_Lapack_c
+         end function CHAMELEON_Tile_to_Lapack_c
       end interface
 
       interface
-         function MORSE_Desc_Create_c(desc, mat, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q) &
-          & bind(c, name='MORSE_Desc_Create')
+         function CHAMELEON_Desc_Create_c(desc, mat, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q) &
+          & bind(c, name='CHAMELEON_Desc_Create')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Desc_Create_c
+            integer(kind=c_int) :: CHAMELEON_Desc_Create_c
             type(c_ptr) :: desc
             type(c_ptr), value :: mat
             integer(kind=c_int), value :: dtyp
             integer(kind=c_int), value :: mb, nb, bsiz, lm, ln, i, j, m, n,p, q
-         end function MORSE_Desc_Create_c
+         end function CHAMELEON_Desc_Create_c
       end interface
 
       interface
-         function MORSE_Desc_Create_OOC_c(desc, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q) &
-          & bind(c, name='MORSE_Desc_Create_OOC')
+         function CHAMELEON_Desc_Create_OOC_c(desc, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q) &
+          & bind(c, name='CHAMELEON_Desc_Create_OOC')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Desc_Create_OOC_c
+            integer(kind=c_int) :: CHAMELEON_Desc_Create_OOC_c
             type(c_ptr) :: desc
             integer(kind=c_int), value :: dtyp
             integer(kind=c_int), value :: mb, nb, bsiz, lm, ln, i, j, m, n,p, q
-         end function MORSE_Desc_Create_OOC_c
+         end function CHAMELEON_Desc_Create_OOC_c
       end interface
 
       interface
-         function MORSE_Desc_Create_User_c(desc, mat, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q, get_blkaddr, get_blkldd, get_rankof) &
-          & bind(c, name='MORSE_Desc_Create_User')
+         function CHAMELEON_Desc_Create_User_c(desc, mat, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q, get_blkaddr, get_blkldd, get_rankof) &
+          & bind(c, name='CHAMELEON_Desc_Create_User')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Desc_Create_User_c
+            integer(kind=c_int) :: CHAMELEON_Desc_Create_User_c
             type(c_ptr) :: desc
             type(c_ptr), value :: mat
             integer(kind=c_int), value :: dtyp
             integer(kind=c_int), value :: mb, nb, bsiz, lm, ln, i, j, m, n, p, q
             type(c_ptr) :: get_blkaddr
             type(c_ptr), value :: get_blkldd, get_rankof
-         end function MORSE_Desc_Create_User_c
+         end function CHAMELEON_Desc_Create_User_c
       end interface
 
       interface
-         function MORSE_Desc_Create_OOC_User_c(desc, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q, get_rankof) &
-          & bind(c, name='MORSE_Desc_Create_OOC_User')
+         function CHAMELEON_Desc_Create_OOC_User_c(desc, dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q, get_rankof) &
+          & bind(c, name='CHAMELEON_Desc_Create_OOC_User')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Desc_Create_OOC_User_c
+            integer(kind=c_int) :: CHAMELEON_Desc_Create_OOC_User_c
             type(c_ptr) :: desc
             integer(kind=c_int), value :: dtyp
             integer(kind=c_int), value :: mb, nb, bsiz, lm, ln, i, j, m, n, p, q
             type(c_ptr), value :: get_rankof
-         end function MORSE_Desc_Create_OOC_User_c
+         end function CHAMELEON_Desc_Create_OOC_User_c
       end interface
 
       interface
-         function MORSE_Desc_Destroy_c(desc) &
-          & bind(c, name='MORSE_Desc_Destroy')
+         function CHAMELEON_Desc_Destroy_c(desc) &
+          & bind(c, name='CHAMELEON_Desc_Destroy')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Desc_Destroy_c
+            integer(kind=c_int) :: CHAMELEON_Desc_Destroy_c
             type(c_ptr) :: desc
-         end function MORSE_Desc_Destroy_c
+         end function CHAMELEON_Desc_Destroy_c
       end interface
 
       interface
@@ -236,77 +236,77 @@ module morse
       end interface
 
       interface
-         function MORSE_Version_c(maj,min,mic) &
-          & bind(c, name='MORSE_Version')
+         function CHAMELEON_Version_c(maj,min,mic) &
+          & bind(c, name='CHAMELEON_Version')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Version_c
+            integer(kind=c_int) :: CHAMELEON_Version_c
             type(c_ptr), value ::  maj,min,mic
-         end function MORSE_Version_c
+         end function CHAMELEON_Version_c
       end interface
 
       interface
-         function MORSE_Init_Affinity_c(cores,gpus,bindtab) &
-          & bind(c, name='MORSE_Init_Affinity')
+         function CHAMELEON_Init_Affinity_c(cores,gpus,bindtab) &
+          & bind(c, name='CHAMELEON_Init_Affinity')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Init_Affinity_c
+            integer(kind=c_int) :: CHAMELEON_Init_Affinity_c
             integer(kind=c_int), value ::  cores, gpus
             type(c_ptr), value :: bindtab
-         end function MORSE_Init_Affinity_c
+         end function CHAMELEON_Init_Affinity_c
       end interface
 
       interface
-         function MORSE_Dealloc_Handle_c(handle) &
-          & bind(c, name='MORSE_Dealloc_Handle')
+         function CHAMELEON_Dealloc_Handle_c(handle) &
+          & bind(c, name='CHAMELEON_Dealloc_Handle')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Dealloc_Handle_c
+            integer(kind=c_int) :: CHAMELEON_Dealloc_Handle_c
             type(c_ptr) :: handle
-         end function MORSE_Dealloc_Handle_c
+         end function CHAMELEON_Dealloc_Handle_c
       end interface
 
       interface
-         function MORSE_Dealloc_Handle_Tile_c(desc) &
-          & bind(c, name='MORSE_Dealloc_Handle_Tile')
+         function CHAMELEON_Dealloc_Handle_Tile_c(desc) &
+          & bind(c, name='CHAMELEON_Dealloc_Handle_Tile')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Dealloc_Handle_Tile_c
+            integer(kind=c_int) :: CHAMELEON_Dealloc_Handle_Tile_c
             type(c_ptr) :: desc
-         end function MORSE_Dealloc_Handle_Tile_c
+         end function CHAMELEON_Dealloc_Handle_Tile_c
       end interface
 
       interface
-         function MORSE_Sequence_Create_c(seq) &
-          & bind(c, name='MORSE_Sequence_Create')
+         function CHAMELEON_Sequence_Create_c(seq) &
+          & bind(c, name='CHAMELEON_Sequence_Create')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Sequence_Create_c
+            integer(kind=c_int) :: CHAMELEON_Sequence_Create_c
             type(c_ptr) :: seq
-         end function MORSE_Sequence_Create_c
+         end function CHAMELEON_Sequence_Create_c
       end interface
 
       interface
-         function MORSE_Sequence_Destroy_c(seq) &
-          & bind(c, name='MORSE_Sequence_Destroy')
+         function CHAMELEON_Sequence_Destroy_c(seq) &
+          & bind(c, name='CHAMELEON_Sequence_Destroy')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Sequence_Destroy_c
+            integer(kind=c_int) :: CHAMELEON_Sequence_Destroy_c
             type(c_ptr), value :: seq
-         end function MORSE_Sequence_Destroy_c
+         end function CHAMELEON_Sequence_Destroy_c
       end interface
 
       interface
-         function MORSE_Sequence_Wait_c(seq) &
-          & bind(c, name='MORSE_Sequence_Wait')
+         function CHAMELEON_Sequence_Wait_c(seq) &
+          & bind(c, name='CHAMELEON_Sequence_Wait')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Sequence_Wait_c
+            integer(kind=c_int) :: CHAMELEON_Sequence_Wait_c
             type(c_ptr), value :: seq
-         end function MORSE_Sequence_Wait_c
+         end function CHAMELEON_Sequence_Wait_c
       end interface
 
       interface
-         function MORSE_Sequence_Flush_c(seq,req) &
-          & bind(c, name='MORSE_Sequence_Flush')
+         function CHAMELEON_Sequence_Flush_c(seq,req) &
+          & bind(c, name='CHAMELEON_Sequence_Flush')
             use iso_c_binding
-            integer(kind=c_int) :: MORSE_Sequence_Flush_c
+            integer(kind=c_int) :: CHAMELEON_Sequence_Flush_c
             type(c_ptr), value :: seq
             type(c_ptr), value :: req
-         end function MORSE_Sequence_Flush_c
+         end function CHAMELEON_Sequence_Flush_c
       end interface
 
       interface morse_lapack_to_tile

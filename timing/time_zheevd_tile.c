@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zheevd_Tile"
+#define _NAME  "CHAMELEON_zheevd_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS ((2. / 3.) * ((double)N * (double)N * (double)N))
 #define _FADDS ((2. / 3.) * ((double)N * (double)N * (double)N))
@@ -29,23 +29,23 @@ static int
 RunTest(int *iparam, double *dparam, morse_time_t *t_)
 {
     PASTE_CODE_IPARAM_LOCALS( iparam );
-    MORSE_desc_t *descT;
-    int uplo = MorseLower;
-    int vec  = MorseVec;
+    CHAM_desc_t *descT;
+    cham_uplo_t uplo = ChamLower;
+    int vec  = ChamVec;
     int INFO;
 
     LDA = chameleon_max(LDA, N);
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, LDA, N);
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N);
     PASTE_CODE_ALLOCATE_MATRIX( S, 1, double, N, 1 );
 
     /* Allocate Workspace */
-    MORSE_zplghe( (double)N, MorseUpperLower, N, A, LDA, 51 );
-    MORSE_Alloc_Workspace_zheevd(N, N, &descT, 1, 1);
+    CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A, LDA, 51 );
+    CHAMELEON_Alloc_Workspace_zheevd(N, N, &descT, 1, 1);
 
     START_TIMING();
-    INFO = MORSE_zheevd(vec, uplo, N, A, LDA, S, descT);
+    INFO = CHAMELEON_zheevd(vec, uplo, N, A, LDA, S, descT);
     STOP_TIMING();
 
     if (INFO != 0){
@@ -53,7 +53,7 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* DeAllocate Workspace */
-    MORSE_Dealloc_Workspace(&descT);
+    CHAMELEON_Dealloc_Workspace(&descT);
 
     free( A );
     (void)dparam;

@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -65,8 +65,8 @@
 !
 !
 !
-!  MORSE Fortran 90 interfaces using Fortran 2003 ISO C bindings
-!  MORSE is a software package provided by Univ. of Tennessee,
+!  CHAMELEON Fortran 90 interfaces using Fortran 2003 ISO C bindings
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
 !  Univ. of California Berkeley and Univ. of Colorado Denver
 !
 ! @version 1.0.0
@@ -80,11 +80,11 @@
 module morse_zc
 
       interface
-         function MORSE_zcgesv_c(N,NRHS,A,LDA,IPIV,B,LDB,X,LDX,ITER) &
-          & bind(c, name='MORSE_zcgesv')
+         function CHAMELEON_zcgesv_c(N,NRHS,A,LDA,IPIV,B,LDB,X,LDX,ITER) &
+          & bind(c, name='CHAMELEON_zcgesv')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcgesv_c
+            integer(kind=c_int) :: CHAMELEON_zcgesv_c
             integer(kind=c_int), value :: N
             integer(kind=c_int), value :: NRHS
             type(c_ptr), value :: A
@@ -95,15 +95,15 @@ module morse_zc
             type(c_ptr), value :: X
             integer(kind=c_int), value :: LDX
             type(c_ptr), value :: ITER
-         end function MORSE_zcgesv_c
+         end function CHAMELEON_zcgesv_c
       end interface
 
       interface
-         function MORSE_zcposv_c(uplo,N,NRHS,A,LDA,B,LDB,X,LDX,ITER) &
-          & bind(c, name='MORSE_zcposv')
+         function CHAMELEON_zcposv_c(uplo,N,NRHS,A,LDA,B,LDB,X,LDX,ITER) &
+          & bind(c, name='CHAMELEON_zcposv')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcposv_c
+            integer(kind=c_int) :: CHAMELEON_zcposv_c
             integer(kind=c_int), value :: uplo
             integer(kind=c_int), value :: N
             integer(kind=c_int), value :: NRHS
@@ -114,15 +114,15 @@ module morse_zc
             type(c_ptr), value :: X
             integer(kind=c_int), value :: LDX
             type(c_ptr), value :: ITER
-         end function MORSE_zcposv_c
+         end function CHAMELEON_zcposv_c
       end interface
 
       interface
-         function MORSE_zcungesv_c(trans,N,NRHS,A,LDA,B,LDB,X,LDX,ITER) &
-          & bind(c, name='MORSE_zcungesv')
+         function CHAMELEON_zcungesv_c(trans,N,NRHS,A,LDA,B,LDB,X,LDX,ITER) &
+          & bind(c, name='CHAMELEON_zcungesv')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcungesv_c
+            integer(kind=c_int) :: CHAMELEON_zcungesv_c
             integer(kind=c_int), value :: trans
             integer(kind=c_int), value :: N
             integer(kind=c_int), value :: NRHS
@@ -133,104 +133,104 @@ module morse_zc
             type(c_ptr), value :: X
             integer(kind=c_int), value :: LDX
             type(c_ptr), value :: ITER
-         end function MORSE_zcungesv_c
+         end function CHAMELEON_zcungesv_c
       end interface
 
       interface
-         function MORSE_zcgesv_Tile_c(A,IPIV,B,X,ITER) &
-          & bind(c, name='MORSE_zcgesv_Tile')
+         function CHAMELEON_zcgesv_Tile_c(A,IPIV,B,X,ITER) &
+          & bind(c, name='CHAMELEON_zcgesv_Tile')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcgesv_Tile_c
+            integer(kind=c_int) :: CHAMELEON_zcgesv_Tile_c
             type(c_ptr), value :: A
             type(c_ptr), value :: IPIV
             type(c_ptr), value :: B
             type(c_ptr), value :: X
             type(c_ptr), value :: ITER
-         end function MORSE_zcgesv_Tile_c
+         end function CHAMELEON_zcgesv_Tile_c
       end interface
 
       interface
-         function MORSE_zcposv_Tile_c(uplo,A,B,X,ITER) &
-          & bind(c, name='MORSE_zcposv_Tile')
+         function CHAMELEON_zcposv_Tile_c(uplo,A,B,X,ITER) &
+          & bind(c, name='CHAMELEON_zcposv_Tile')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcposv_Tile_c
+            integer(kind=c_int) :: CHAMELEON_zcposv_Tile_c
             integer(kind=c_int), value :: uplo
             type(c_ptr), value :: A
             type(c_ptr), value :: B
             type(c_ptr), value :: X
             type(c_ptr), value :: ITER
-         end function MORSE_zcposv_Tile_c
+         end function CHAMELEON_zcposv_Tile_c
       end interface
 
       interface
-         function MORSE_zcungesv_Tile_c(trans,A,T,B,X,ITER) &
-          & bind(c, name='MORSE_zcungesv_Tile')
+         function CHAMELEON_zcungesv_Tile_c(trans,A,T,B,X,ITER) &
+          & bind(c, name='CHAMELEON_zcungesv_Tile')
             use iso_c_binding
             implicit none
-            integer(kind=c_int) :: MORSE_zcungesv_Tile_c
-            integer(kind=c_int), value :: trans
-            type(c_ptr), value :: A
-            type(c_ptr), value :: T
-            type(c_ptr), value :: B
-            type(c_ptr), value :: X
-            type(c_ptr), value :: ITER
-         end function MORSE_zcungesv_Tile_c
-      end interface
-
-      interface
-         function MORSE_zcgesv_Tile_Async_c(A,IPIV,B,X,ITER,sequence,request) &
-          & bind(c, name='MORSE_zcgesv_Tile_Async')
-            use iso_c_binding
-            implicit none
-            integer(kind=c_int) :: MORSE_zcgesv_Tile_Async_c
-            type(c_ptr), value :: A
-            type(c_ptr), value :: IPIV
-            type(c_ptr), value :: B
-            type(c_ptr), value :: X
-            type(c_ptr), value :: ITER
-            type(c_ptr), value :: sequence
-            type(c_ptr), value :: request
-         end function MORSE_zcgesv_Tile_Async_c
-      end interface
-
-      interface
-         function MORSE_zcposv_Tile_Async_c(uplo,A,B,X,ITER,sequence,request) &
-          & bind(c, name='MORSE_zcposv_Tile_Async')
-            use iso_c_binding
-            implicit none
-            integer(kind=c_int) :: MORSE_zcposv_Tile_Async_c
-            integer(kind=c_int), value :: uplo
-            type(c_ptr), value :: A
-            type(c_ptr), value :: B
-            type(c_ptr), value :: X
-            type(c_ptr), value :: ITER
-            type(c_ptr), value :: sequence
-            type(c_ptr), value :: request
-         end function MORSE_zcposv_Tile_Async_c
-      end interface
-
-      interface
-         function MORSE_zcungesv_Tile_Async_c(trans,A,T,B,X,ITER,sequence,request) &
-          & bind(c, name='MORSE_zcungesv_Tile_Async')
-            use iso_c_binding
-            implicit none
-            integer(kind=c_int) :: MORSE_zcungesv_Tile_Async_c
+            integer(kind=c_int) :: CHAMELEON_zcungesv_Tile_c
             integer(kind=c_int), value :: trans
             type(c_ptr), value :: A
             type(c_ptr), value :: T
             type(c_ptr), value :: B
             type(c_ptr), value :: X
             type(c_ptr), value :: ITER
+         end function CHAMELEON_zcungesv_Tile_c
+      end interface
+
+      interface
+         function CHAMELEON_zcgesv_Tile_Async_c(A,IPIV,B,X,ITER,sequence,request) &
+          & bind(c, name='CHAMELEON_zcgesv_Tile_Async')
+            use iso_c_binding
+            implicit none
+            integer(kind=c_int) :: CHAMELEON_zcgesv_Tile_Async_c
+            type(c_ptr), value :: A
+            type(c_ptr), value :: IPIV
+            type(c_ptr), value :: B
+            type(c_ptr), value :: X
+            type(c_ptr), value :: ITER
             type(c_ptr), value :: sequence
             type(c_ptr), value :: request
-         end function MORSE_zcungesv_Tile_Async_c
+         end function CHAMELEON_zcgesv_Tile_Async_c
+      end interface
+
+      interface
+         function CHAMELEON_zcposv_Tile_Async_c(uplo,A,B,X,ITER,sequence,request) &
+          & bind(c, name='CHAMELEON_zcposv_Tile_Async')
+            use iso_c_binding
+            implicit none
+            integer(kind=c_int) :: CHAMELEON_zcposv_Tile_Async_c
+            integer(kind=c_int), value :: uplo
+            type(c_ptr), value :: A
+            type(c_ptr), value :: B
+            type(c_ptr), value :: X
+            type(c_ptr), value :: ITER
+            type(c_ptr), value :: sequence
+            type(c_ptr), value :: request
+         end function CHAMELEON_zcposv_Tile_Async_c
+      end interface
+
+      interface
+         function CHAMELEON_zcungesv_Tile_Async_c(trans,A,T,B,X,ITER,sequence,request) &
+          & bind(c, name='CHAMELEON_zcungesv_Tile_Async')
+            use iso_c_binding
+            implicit none
+            integer(kind=c_int) :: CHAMELEON_zcungesv_Tile_Async_c
+            integer(kind=c_int), value :: trans
+            type(c_ptr), value :: A
+            type(c_ptr), value :: T
+            type(c_ptr), value :: B
+            type(c_ptr), value :: X
+            type(c_ptr), value :: ITER
+            type(c_ptr), value :: sequence
+            type(c_ptr), value :: request
+         end function CHAMELEON_zcungesv_Tile_Async_c
       end interface
 
   contains
 
-      subroutine MORSE_zcgesv(N,NRHS,A,LDA,IPIV,B,LDB,X,LDX,ITER,info)
+      subroutine CHAMELEON_zcgesv(N,NRHS,A,LDA,IPIV,B,LDB,X,LDX,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
@@ -244,10 +244,10 @@ module morse_zc
          complex(kind=c_double_complex), intent(in), target :: A(LDA,*)
          complex(kind=c_double_complex), intent(in), target :: B(LDB,*)
          complex(kind=c_double_complex), intent(out), target :: X(LDX,*)
-         info = MORSE_zcgesv_c(N,NRHS,c_loc(A),LDA,c_loc(IPIV),c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
-      end subroutine MORSE_zcgesv
+         info = CHAMELEON_zcgesv_c(N,NRHS,c_loc(A),LDA,c_loc(IPIV),c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
+      end subroutine CHAMELEON_zcgesv
 
-      subroutine MORSE_zcposv(uplo,N,NRHS,A,LDA,B,LDB,X,LDX,ITER,info)
+      subroutine CHAMELEON_zcposv(uplo,N,NRHS,A,LDA,B,LDB,X,LDX,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
@@ -261,10 +261,10 @@ module morse_zc
          complex(kind=c_double_complex), intent(in), target :: A(LDA,*)
          complex(kind=c_double_complex), intent(in), target :: B(LDB,*)
          complex(kind=c_double_complex), intent(out), target :: X(LDX,*)
-         info = MORSE_zcposv_c(uplo,N,NRHS,c_loc(A),LDA,c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
-      end subroutine MORSE_zcposv
+         info = CHAMELEON_zcposv_c(uplo,N,NRHS,c_loc(A),LDA,c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
+      end subroutine CHAMELEON_zcposv
 
-      subroutine MORSE_zcungesv(trans,N,NRHS,A,LDA,B,LDB,X,LDX,ITER,info)
+      subroutine CHAMELEON_zcungesv(trans,N,NRHS,A,LDA,B,LDB,X,LDX,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
@@ -278,87 +278,87 @@ module morse_zc
          complex(kind=c_double_complex), intent(in), target :: A(LDA,*)
          complex(kind=c_double_complex), intent(in), target :: B(LDB,*)
          complex(kind=c_double_complex), intent(out), target :: X(LDX,*)
-         info = MORSE_zcungesv_c(trans,N,NRHS,c_loc(A),LDA,c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
-      end subroutine MORSE_zcungesv
+         info = CHAMELEON_zcungesv_c(trans,N,NRHS,c_loc(A),LDA,c_loc(B),LDB,c_loc(X),LDX,c_loc(ITER))
+      end subroutine CHAMELEON_zcungesv
 
-      subroutine MORSE_zcgesv_Tile(A,IPIV,B,X,ITER,info)
+      subroutine CHAMELEON_zcgesv_Tile(A,IPIV,B,X,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: IPIV(*)
           integer(kind=c_int), intent(out), target :: ITER
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcgesv_Tile_c(A,c_loc(IPIV),B,X,c_loc(ITER))
-      end subroutine MORSE_zcgesv_Tile
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcgesv_Tile_c(A,c_loc(IPIV),B,X,c_loc(ITER))
+      end subroutine CHAMELEON_zcgesv_Tile
 
-      subroutine MORSE_zcposv_Tile(uplo,A,B,X,ITER,info)
+      subroutine CHAMELEON_zcposv_Tile(uplo,A,B,X,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: ITER
          integer(kind=c_int), intent(in) :: uplo
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcposv_Tile_c(uplo,A,B,X,c_loc(ITER))
-      end subroutine MORSE_zcposv_Tile
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcposv_Tile_c(uplo,A,B,X,c_loc(ITER))
+      end subroutine CHAMELEON_zcposv_Tile
 
-      subroutine MORSE_zcungesv_Tile(trans,A,T,B,X,ITER,info)
+      subroutine CHAMELEON_zcungesv_Tile(trans,A,T,B,X,ITER,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: ITER
          integer(kind=c_int), intent(in) :: trans
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: T ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcungesv_Tile_c(trans,A,T,B,X,c_loc(ITER))
-      end subroutine MORSE_zcungesv_Tile
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: T ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcungesv_Tile_c(trans,A,T,B,X,c_loc(ITER))
+      end subroutine CHAMELEON_zcungesv_Tile
 
-      subroutine MORSE_zcgesv_Tile_Async(A,IPIV,B,X,ITER,sequence,request,info)
+      subroutine CHAMELEON_zcgesv_Tile_Async(A,IPIV,B,X,ITER,sequence,request,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: IPIV(*)
          integer(kind=c_int), intent(out), target :: ITER
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: request ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: sequence ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcgesv_Tile_Async_c(A,c_loc(IPIV),B,X,c_loc(ITER),sequence,request)
-      end subroutine MORSE_zcgesv_Tile_Async
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: sequence ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcgesv_Tile_Async_c(A,c_loc(IPIV),B,X,c_loc(ITER),sequence,request)
+      end subroutine CHAMELEON_zcgesv_Tile_Async
 
-      subroutine MORSE_zcposv_Tile_Async(uplo,A,B,X,ITER,sequence,request,info)
+      subroutine CHAMELEON_zcposv_Tile_Async(uplo,A,B,X,ITER,sequence,request,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: ITER
          integer(kind=c_int), intent(in) :: uplo
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: request ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: sequence ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcposv_Tile_Async_c(uplo,A,B,X,c_loc(ITER),sequence,request)
-      end subroutine MORSE_zcposv_Tile_Async
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: sequence ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcposv_Tile_Async_c(uplo,A,B,X,c_loc(ITER),sequence,request)
+      end subroutine CHAMELEON_zcposv_Tile_Async
 
-      subroutine MORSE_zcungesv_Tile_Async(trans,A,T,B,X,ITER,sequence,request,info)
+      subroutine CHAMELEON_zcungesv_Tile_Async(trans,A,T,B,X,ITER,sequence,request,info)
          use iso_c_binding
          implicit none
          integer(kind=c_int), intent(out) :: info
          integer(kind=c_int), intent(out), target :: ITER
          integer(kind=c_int), intent(in) :: trans
-         type(c_ptr), value :: A ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: B ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: T ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: X ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: request ! Arg managed by MORSE: opaque to Fortran
-         type(c_ptr), value :: sequence ! Arg managed by MORSE: opaque to Fortran
-         info = MORSE_zcungesv_Tile_Async_c(trans,A,T,B,X,c_loc(ITER),sequence,request)
-      end subroutine MORSE_zcungesv_Tile_Async
+         type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: T ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: X ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
+         type(c_ptr), value :: sequence ! Arg managed by CHAMELEON: opaque to Fortran
+         info = CHAMELEON_zcungesv_Tile_Async_c(trans,A,T,B,X,c_loc(ITER),sequence,request)
+      end subroutine CHAMELEON_zcungesv_Tile_Async
 
 end module morse_zc

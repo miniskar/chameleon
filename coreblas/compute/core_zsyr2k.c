@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -27,14 +27,14 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void CORE_zsyr2k(MORSE_enum uplo, MORSE_enum trans,
+void CORE_zsyr2k(cham_uplo_t uplo, cham_trans_t trans,
                  int N, int K,
-                 MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                 const MORSE_Complex64_t *B, int LDB,
-                 MORSE_Complex64_t beta, MORSE_Complex64_t *C, int LDC)
+                 CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                 const CHAMELEON_Complex64_t *B, int LDB,
+                 CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *C, int LDC)
 {
     cblas_zsyr2k(
         CblasColMajor,

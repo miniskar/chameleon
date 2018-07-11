@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -33,18 +33,18 @@
 /**
  *
  */
-void morse_pclag2z(MORSE_desc_t *SA, MORSE_desc_t *B,
-                          MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int X, Y;
     int m, n;
     int ldam, ldbm;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
@@ -54,7 +54,7 @@ void morse_pclag2z(MORSE_desc_t *SA, MORSE_desc_t *B,
         ldbm = BLKLDD(B, m);
         for(n = 0; n < SA->nt; n++) {
             Y = n == SA->nt-1 ? SA->n-n*SA->nb : SA->nb;
-            MORSE_TASK_clag2z(
+            INSERT_TASK_clag2z(
                 &options,
                 X, Y, SA->mb,
                 SA(m, n), ldam,

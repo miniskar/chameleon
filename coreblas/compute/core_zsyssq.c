@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -35,7 +35,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zsyssq returns the values scl and ssq such that
  *
@@ -64,9 +64,9 @@
  *  @param[in] uplo
  *          Specifies whether the upper or lower triangular part of
  *          the symmetric matrix A is to be referenced as follows:
- *          = MorseLower:     Only the lower triangular part of the
+ *          = ChamLower:     Only the lower triangular part of the
  *                             symmetric matrix A is to be referenced.
- *          = MorseUpper:     Only the upper triangular part of the
+ *          = ChamUpper:     Only the upper triangular part of the
  *                             symmetric matrix A is to be referenced.
  *
  *  @param[in] N
@@ -89,20 +89,20 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval -k, the k-th argument had an illegal value
  *
  */
 
-int CORE_zsyssq(MORSE_enum uplo, int N,
-                const MORSE_Complex64_t *A, int LDA,
+int CORE_zsyssq(cham_uplo_t uplo, int N,
+                const CHAMELEON_Complex64_t *A, int LDA,
                 double *scale, double *sumsq)
 {
     int i, j;
     double tmp;
     double *ptr;
 
-    if ( uplo == MorseUpper ) {
+    if ( uplo == ChamUpper ) {
         for(j=0; j<N; j++) {
             ptr = (double*) ( A + j * LDA );
 
@@ -157,5 +157,5 @@ int CORE_zsyssq(MORSE_enum uplo, int N,
             }
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

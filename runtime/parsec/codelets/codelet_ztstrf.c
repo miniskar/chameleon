@@ -17,7 +17,7 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 static inline int
@@ -28,16 +28,16 @@ CORE_ztstrf_parsec( parsec_execution_stream_t *context,
     int n;
     int ib;
     int nb;
-    MORSE_Complex64_t *U;
+    CHAMELEON_Complex64_t *U;
     int ldu;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *L;
+    CHAMELEON_Complex64_t *L;
     int ldl;
     int *IPIV;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
-    MORSE_bool *check_info;
+    CHAMELEON_bool *check_info;
     int iinfo;
 
     int info;
@@ -51,13 +51,13 @@ CORE_ztstrf_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_ztstrf(const MORSE_option_t *options,
+void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const MORSE_desc_t *U, int Um, int Un, int ldu,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *L, int Lm, int Ln, int ldl,
+                       const CHAM_desc_t *U, int Um, int Un, int ldu,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                        int *IPIV,
-                       MORSE_bool check_info, int iinfo)
+                       CHAMELEON_bool check_info, int iinfo)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -67,14 +67,14 @@ void MORSE_TASK_ztstrf(const MORSE_option_t *options,
         sizeof(int),           &n,                                VALUE,
         sizeof(int),           &ib,                               VALUE,
         sizeof(int),           &nb,                               VALUE,
-        PASSED_BY_REF,         RTBLKADDR( U, MORSE_Complex64_t, Um, Un ), morse_parsec_get_arena_index( U ) | INOUT,
+        PASSED_BY_REF,         RTBLKADDR( U, CHAMELEON_Complex64_t, Um, Un ), morse_parsec_get_arena_index( U ) | INOUT,
         sizeof(int),           &ldu,                              VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),           &lda,                              VALUE,
-        PASSED_BY_REF,         RTBLKADDR( L, MORSE_Complex64_t, Lm, Ln ), morse_parsec_get_arena_index( L ) | OUTPUT,
+        PASSED_BY_REF,         RTBLKADDR( L, CHAMELEON_Complex64_t, Lm, Ln ), morse_parsec_get_arena_index( L ) | OUTPUT,
         sizeof(int),           &ldl,                              VALUE,
         sizeof(int*),          &IPIV,                             VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb,    NULL,                 SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb,    NULL,                 SCRATCH,
         sizeof(int),           &nb,                               VALUE,
         sizeof(int),           &check_info,                       VALUE,
         sizeof(int),           &iinfo,                            VALUE,

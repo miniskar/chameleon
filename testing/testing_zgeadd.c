@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -26,7 +26,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
@@ -35,12 +35,12 @@
 #include <mpi.h>
 #endif
 
-static int check_tr_solution(MORSE_enum uplo, MORSE_enum trans, int M, int N,
-                             MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                             MORSE_Complex64_t beta, MORSE_Complex64_t *Bref, MORSE_Complex64_t *Bmorse, int LDB);
-static int check_ge_solution(MORSE_enum trans, int M, int N,
-                             MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                             MORSE_Complex64_t beta, MORSE_Complex64_t *Bref, MORSE_Complex64_t *Bmorse, int LDB);
+static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
+                             CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB);
+static int check_ge_solution(cham_trans_t trans, int M, int N,
+                             CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB);
 
 int testing_zgeadd(int argc, char **argv)
 {
@@ -56,8 +56,8 @@ int testing_zgeadd(int argc, char **argv)
         return -1;
     }
 
-    MORSE_Complex64_t alpha = (MORSE_Complex64_t) atol(argv[0]);
-    MORSE_Complex64_t beta  = (MORSE_Complex64_t) atol(argv[1]);
+    CHAMELEON_Complex64_t alpha = (CHAMELEON_Complex64_t) atol(argv[0]);
+    CHAMELEON_Complex64_t beta  = (CHAMELEON_Complex64_t) atol(argv[1]);
     int M   = atoi(argv[2]);
     int N   = atoi(argv[3]);
     int LDA = atoi(argv[4]);
@@ -69,10 +69,10 @@ int testing_zgeadd(int argc, char **argv)
     int LDAxN = LDA*max(M,N);
     int LDBxN = LDB*N;
 
-    MORSE_Complex64_t *A      = (MORSE_Complex64_t *)malloc(LDAxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *B      = (MORSE_Complex64_t *)malloc(LDBxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Binit  = (MORSE_Complex64_t *)malloc(LDBxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Bfinal = (MORSE_Complex64_t *)malloc(LDBxN*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A      = (CHAMELEON_Complex64_t *)malloc(LDAxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *B      = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Binit  = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Bfinal = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
 
     /* Check if unable to allocate memory */
     if ( (!A) || (!B) || (!Binit) || (!Bfinal) )
@@ -86,7 +86,7 @@ int testing_zgeadd(int argc, char **argv)
     eps = LAPACKE_dlamch_work('e');
 
     printf("\n");
-    printf("------ TESTS FOR MORSE ZGEADD ROUTINE -------  \n");
+    printf("------ TESTS FOR CHAMELEON ZGEADD ROUTINE -------  \n");
     printf("            Size of the Matrix %d by %d\n", M, N);
     printf("\n");
     printf(" The matrices A and B are randomly generated for each test.\n");
@@ -107,11 +107,11 @@ int testing_zgeadd(int argc, char **argv)
 #else
     for (t=0; t<2; t++) {
 #endif
-        memcpy( Binit,  B, LDBxN*sizeof(MORSE_Complex64_t));
-        memcpy( Bfinal, B, LDBxN*sizeof(MORSE_Complex64_t));
+        memcpy( Binit,  B, LDBxN*sizeof(CHAMELEON_Complex64_t));
+        memcpy( Bfinal, B, LDBxN*sizeof(CHAMELEON_Complex64_t));
 
-        /* MORSE ZGEADD */
-        MORSE_zgeadd(trans[t], M, N, alpha, A, LDA, beta, Bfinal, LDB);
+        /* CHAMELEON ZGEADD */
+        CHAMELEON_zgeadd(trans[t], M, N, alpha, A, LDA, beta, Bfinal, LDB);
 
         /* Check the solution */
         info_solution = check_ge_solution(trans[t], M, N,
@@ -146,11 +146,11 @@ int testing_zgeadd(int argc, char **argv)
     for (t=0; t<2; t++) {
 #endif
         for (u=0; u<2; u++) {
-            memcpy( Binit,  B, LDBxN*sizeof(MORSE_Complex64_t));
-            memcpy( Bfinal, B, LDBxN*sizeof(MORSE_Complex64_t));
+            memcpy( Binit,  B, LDBxN*sizeof(CHAMELEON_Complex64_t));
+            memcpy( Bfinal, B, LDBxN*sizeof(CHAMELEON_Complex64_t));
 
-            /* MORSE ZGEADD */
-            MORSE_ztradd(uplo[u], trans[t], M, N, alpha, A, LDA, beta, Bfinal, LDB);
+            /* CHAMELEON ZGEADD */
+            CHAMELEON_ztradd(uplo[u], trans[t], M, N, alpha, A, LDA, beta, Bfinal, LDB);
 
             /* Check the solution */
             info_solution = check_tr_solution(uplo[u], trans[t], M, N,
@@ -183,28 +183,28 @@ int testing_zgeadd(int argc, char **argv)
  * Check the solution
  */
 
-static int check_tr_solution(MORSE_enum uplo, MORSE_enum trans, int M, int N,
-                             MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                             MORSE_Complex64_t beta, MORSE_Complex64_t *Bref, MORSE_Complex64_t *Bmorse, int LDB)
+static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
+                             CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB)
 {
     int info_solution;
     double Anorm, Binitnorm, Bmorsenorm, Rnorm, result;
     double eps;
-    MORSE_Complex64_t mzone;
+    CHAMELEON_Complex64_t mzone;
 
     double *work = (double *)malloc(max(M, N)* sizeof(double));
     int Am, An;
 
     mzone = -1.0;
 
-    if (trans == MorseNoTrans) {
+    if (trans == ChamNoTrans) {
         Am = M; An = N;
     } else {
         Am = N; An = M;
     }
 
-    /* if ( ((trans == MorseNoTrans) && (uplo == MorseLower)) || */
-    /*      ((trans != MorseNoTrans) && (uplo == MorseUpper)) ) */
+    /* if ( ((trans == ChamNoTrans) && (uplo == ChamLower)) || */
+    /*      ((trans != ChamNoTrans) && (uplo == ChamUpper)) ) */
     /* { */
     /*     Anorm = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', 'L', 'N', */
     /*                                 Am, An, A, LDA, work); */
@@ -263,21 +263,21 @@ static int check_tr_solution(MORSE_enum uplo, MORSE_enum trans, int M, int N,
  * Check the solution
  */
 
-static int check_ge_solution(MORSE_enum trans, int M, int N,
-                             MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                             MORSE_Complex64_t beta, MORSE_Complex64_t *Bref, MORSE_Complex64_t *Bmorse, int LDB)
+static int check_ge_solution(cham_trans_t trans, int M, int N,
+                             CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB)
 {
     int info_solution;
     double Anorm, Binitnorm, Bmorsenorm, Rnorm, result;
     double eps;
-    MORSE_Complex64_t mzone;
+    CHAMELEON_Complex64_t mzone;
 
     double *work = (double *)malloc(max(M, N)* sizeof(double));
     int Am, An;
 
     mzone = -1.0;
 
-    if (trans == MorseNoTrans) {
+    if (trans == ChamNoTrans) {
         Am = M; An = N;
     } else {
         Am = N; An = M;

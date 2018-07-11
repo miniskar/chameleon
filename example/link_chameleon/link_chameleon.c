@@ -37,7 +37,7 @@ static int startswith(const char *s, const char *prefix) {
 #define FADDS_TRSM(__m, __n) (0.5 * (double)(__n) * (double)(__m) * ((double)(__m)-1.))
 
 #include <coreblas/lapacke.h>
-#include <morse.h>
+#include <chameleon.h>
 
 /* Integer parameters for step1 */
 enum iparam_step1 {
@@ -107,7 +107,7 @@ static void print_header(char *prog_name, int * iparam) {
 #endif
 
     printf( "#\n"
-            "# MORSE %d.%d.%d, %s\n"
+            "# CHAMELEON %d.%d.%d, %s\n"
             "# Nb threads: %d\n"
             "# Nb gpus:    %d\n"
             "# N:          %d\n"
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     size_t NRHS; // number of RHS vectors
     int NCPU; // number of cores to use
     int NGPU; // number of gpus (cuda devices) to use
-    int UPLO = MorseUpper; // where is stored L
+    int UPLO = ChamUpper; // where is stored L
 
     /* declarations to time the program and evaluate performances */
     double fmuls, fadds, flops, gflops, cpu_time;
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
     int hres;
 
     int major, minor, patch;
-    MORSE_Version(&major, &minor, &patch);
+    CHAMELEON_Version(&major, &minor, &patch);
 
     /* initialize some parameters with default values */
     int iparam[IPARAM_SIZEOF];
@@ -183,8 +183,8 @@ int main(int argc, char *argv[]) {
     /* print informations to user */
     print_header( argv[0], iparam);
 
-    /* Initialize MORSE with main parameters */
-    MORSE_Init( NCPU, NGPU );
+    /* Initialize CHAMELEON with main parameters */
+    CHAMELEON_Init( NCPU, NGPU );
 
     /*
      * allocate memory for our data using a C macro (see step1.h)
@@ -198,10 +198,10 @@ int main(int argc, char *argv[]) {
     double *X    = malloc( N * NRHS * sizeof(double) );
 
     /* generate A matrix with random values such that it is spd */
-    MORSE_dplgsy( (double)N, MorseUpperLower, N, A, N, 51 );
+    CHAMELEON_dplgsy( (double)N, ChamUpperLower, N, A, N, 51 );
 
     /* generate RHS */
-    MORSE_dplrnt( N, NRHS, B, N, 5673 );
+    CHAMELEON_dplrnt( N, NRHS, B, N, 5673 );
 
     /* copy A before facto. in order to check the result */
     memcpy(Acpy, A, N*N*sizeof(double));
@@ -217,13 +217,13 @@ int main(int argc, char *argv[]) {
 
     /* Cholesky facorization:
      * A is replaced by its factorization L or L^T depending on uplo */
-    MORSE_dpotrf( UPLO, N, A, N );
+    CHAMELEON_dpotrf( UPLO, N, A, N );
 
     /* Solve:
      * B is stored in X on entry, X contains the result on exit.
      * Forward and back substitutions
      */
-    MORSE_dpotrs(UPLO, N, NRHS, A, N, X, N);
+    CHAMELEON_dpotrs(UPLO, N, NRHS, A, N, X, N);
 
     cpu_time += CHAMELEON_timer();
 
@@ -237,14 +237,14 @@ int main(int argc, char *argv[]) {
     /************************************************************/
 
     /* compute norms to check the result */
-    anorm = MORSE_dlange( MorseInfNorm, N, N, Acpy, N);
-    bnorm = MORSE_dlange( MorseInfNorm, N, NRHS, B, N);
-    xnorm = MORSE_dlange( MorseInfNorm, N, NRHS, X, N);
+    anorm = CHAMELEON_dlange( ChamInfNorm, N, N, Acpy, N);
+    bnorm = CHAMELEON_dlange( ChamInfNorm, N, NRHS, B, N);
+    xnorm = CHAMELEON_dlange( ChamInfNorm, N, NRHS, X, N);
 
     /* compute A*X-B, store the result in B */
-    MORSE_dgemm(MorseNoTrans, MorseNoTrans,
+    CHAMELEON_dgemm(ChamNoTrans, ChamNoTrans,
                 N, NRHS, N, 1.0, Acpy, N, X, N, -1.0, B, N);
-    res = MORSE_dlange( MorseInfNorm, N, NRHS, B, N);
+    res = CHAMELEON_dlange( ChamInfNorm, N, NRHS, B, N);
 
     /* check residual and print a message */
     eps = LAPACKE_dlamch_work( 'e' );
@@ -271,8 +271,8 @@ int main(int argc, char *argv[]) {
     free(B);
     free(X);
 
-    /* Finalize MORSE */
-    MORSE_Finalize();
+    /* Finalize CHAMELEON */
+    CHAMELEON_Finalize();
 
     return EXIT_SUCCESS;
 }

@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -39,23 +39,23 @@
 *
       INCLUDE 'morse_fortran.h'
 *
-*  -- MORSE test routine (From LAPACK version 3.1.1) --
+*  -- CHAMELEON test routine (From LAPACK version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
 *     January 2007
 *
 *  Purpose
 *  =======
 *
-*  SCHKAA is the main test program for the REAL MORSE
+*  SCHKAA is the main test program for the REAL CHAMELEON
 *  linear equation routines
 *
 *  The program must be driven by a short data file. The first 14 records
 *  specify problem dimensions and program options using list-directed
-*  input.  The remaining lines specify the MORSE test paths and the
+*  input.  The remaining lines specify the CHAMELEON test paths and the
 *  number of matrix types to use in testing.  An annotated example of a
 *  data file can be obtained by deleting the first 3 characters from the
 *  following 36 lines:
-*  Data file for testing REAL MORSE linear eqn. routines
+*  Data file for testing REAL CHAMELEON linear eqn. routines
 *  1                      Number of values of NP
 *  16                     Values of NP (number of cores)
 *  1                      Values of SCHED (0: STATIC, 1:DYNAMIC)
@@ -71,7 +71,7 @@
 *  3                      Number of values of RANK
 *  30 50 90               Values of rank (as a % of N)
 *  20.0                   Threshold value of test ratio
-*  T                      Put T to test the MORSE routines
+*  T                      Put T to test the CHAMELEON routines
 *  T                      Put T to test the driver routines
 *  T                      Put T to test the error exits
 *  SGE   11               List types on next line if 0 < NTYPES < 11
@@ -193,7 +193,7 @@
 *
 *     Report values of parameters version.
 *
-      CALL MORSE_VERSION( VERS_MAJOR, VERS_MINOR, VERS_PATCH, INFO)
+      CALL CHAMELEON_VERSION( VERS_MAJOR, VERS_MINOR, VERS_PATCH, INFO)
       WRITE( NOUT, FMT = 9994 ) VERS_MAJOR, VERS_MINOR, VERS_PATCH
 *
 *     Read a dummy line.
@@ -399,7 +399,7 @@
       READ( NIN, FMT = * )THRESH
       WRITE( NOUT, FMT = 9992 )THRESH
 *
-*     Read the flag that indicates whether to test the MORSE routines.
+*     Read the flag that indicates whether to test the CHAMELEON routines.
 *
       READ( NIN, FMT = * )TSTCHK
 *
@@ -426,19 +426,19 @@
       WRITE( NOUT, FMT = 9991 )'precision', EPS
       WRITE( NOUT, FMT = * )
 *
-*     Initialize MORSE
+*     Initialize CHAMELEON
 *
-      CALL MORSE_INIT( NPVAL(NNP), INFO )
+      CALL CHAMELEON_INIT( NPVAL(NNP), INFO )
 *
       IF( SCHED .EQ. 1 ) THEN
-         CALL MORSE_SET(MORSE_SCHEDULING_MODE, 
-     $        MORSE_DYNAMIC_SCHEDULING, INFO )
+         CALL CHAMELEON_SET(CHAMELEON_SCHEDULING_MODE, 
+     $        CHAMELEON_DYNAMIC_SCHEDULING, INFO )
       ELSE
-         CALL MORSE_SET(MORSE_SCHEDULING_MODE, 
-     $        MORSE_STATIC_SCHEDULING, INFO )
+         CALL CHAMELEON_SET(CHAMELEON_SCHEDULING_MODE, 
+     $        CHAMELEON_STATIC_SCHEDULING, INFO )
       ENDIF      
 *
-      CALL MORSE_DISABLE( MORSE_AUTOTUNING, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_AUTOTUNING, INFO )
 *
 *      
    80 CONTINUE
@@ -604,9 +604,9 @@
   140 CONTINUE
       CLOSE ( NIN )
 *
-*     Finalize MORSE
+*     Finalize CHAMELEON
 *
-      CALL MORSE_FINALIZE( INFO )
+      CALL CHAMELEON_FINALIZE( INFO )
 *      S2 = SECOND( )
       WRITE( NOUT, FMT = 9998 )
 *      WRITE( NOUT, FMT = 9997 )S2 - S1
@@ -618,8 +618,8 @@
      $      I6 )
  9995 FORMAT( ' Invalid input value: ', A4, '=', I6, '; must be <=',
      $      I6 )
- 9994 FORMAT( ' Tests of the REAL MORSE routines ',
-     $      / ' MORSE VERSION ', I1, '.', I1, '.', I1,
+ 9994 FORMAT( ' Tests of the REAL CHAMELEON routines ',
+     $      / ' CHAMELEON VERSION ', I1, '.', I1, '.', I1,
      $      / / ' The following parameter values will be used:' )
  9993 FORMAT( 4X, A4, ':  ', 10I6, / 11X, 10I6 )
  9992 FORMAT( / ' Routines pass computational tests if test ratio is ',

@@ -19,7 +19,7 @@
  */
 #include "cudablas.h"
 
-int CUDA_zher2k(MORSE_enum uplo, MORSE_enum trans,
+int CUDA_zher2k(cham_uplo_t uplo, cham_trans_t trans,
                 int n, int k,
                 cuDoubleComplex *alpha,
                 const cuDoubleComplex *A, int lda,
@@ -37,5 +37,5 @@ int CUDA_zher2k(MORSE_enum uplo, MORSE_enum trans,
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

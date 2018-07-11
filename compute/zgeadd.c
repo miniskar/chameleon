@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2011-11-03
  * @precisions normal z -> s d c
@@ -24,9 +24,9 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zgeadd - Performs a matrix addition similarly to the pzgeadd()
+ *  CHAMELEON_zgeadd - Performs a matrix addition similarly to the pzgeadd()
  *  function from the PBLAS library:
  *
  *    \f[ C = \alpha op( A ) + \beta B \f],
@@ -43,9 +43,9 @@
  * @param[in] trans
  *          Specifies whether the matrix A is transposed, not transposed or
  *          conjugate transposed:
- *          = MorseNoTrans:   A is not transposed;
- *          = MorseTrans:     A is transposed;
- *          = MorseConjTrans: A is conjugate transposed.
+ *          = ChamNoTrans:   A is not transposed;
+ *          = ChamTrans:     A is transposed;
+ *          = ChamConjTrans: A is conjugate transposed.
  *
  * @param[in] M
  *          M specifies the number of rows of the matrix op( A ) and of the matrix B. M >= 0.
@@ -57,12 +57,12 @@
  *          alpha specifies the scalar alpha
  *
  * @param[in] A
- *          A is a LDA-by-ka matrix, where ka is N when trans = MorseNoTrans,
+ *          A is a LDA-by-ka matrix, where ka is N when trans = ChamNoTrans,
  *          and is M otherwise.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,K), where K is M
- *          when trans = MorseNoTrans, and is N when otherwise.
+ *          when trans = ChamNoTrans, and is N when otherwise.
  *
  * @param[in] beta
  *          beta specifies the scalar beta
@@ -76,93 +76,93 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeadd_Tile
- * @sa MORSE_cgeadd
- * @sa MORSE_dgeadd
- * @sa MORSE_sgeadd
+ * @sa CHAMELEON_zgeadd_Tile
+ * @sa CHAMELEON_cgeadd
+ * @sa CHAMELEON_dgeadd
+ * @sa CHAMELEON_sgeadd
  *
  */
-int MORSE_zgeadd( MORSE_enum trans, int M, int N,
-                  MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t beta,  MORSE_Complex64_t *B, int LDB )
+int CHAMELEON_zgeadd( cham_trans_t trans, int M, int N,
+                  CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *B, int LDB )
 {
     int NB;
     int Am, An;
     int status;
-    MORSE_desc_t descAl, descAt;
-    MORSE_desc_t descBl, descBt;
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
+    CHAM_desc_t descBl, descBt;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeadd", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgeadd", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Check input arguments */
-    if ((trans < MorseNoTrans) || (trans > MorseConjTrans)) {
-        morse_error("MORSE_zgeadd", "illegal value of trans");
+    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+        morse_error("CHAMELEON_zgeadd", "illegal value of trans");
         return -1;
     }
-    if ( trans == MorseNoTrans ) {
+    if ( trans == ChamNoTrans ) {
         Am = M; An = N;
     } else {
         Am = N; An = M;
     }
     if (M < 0) {
-        morse_error("MORSE_zgeadd", "illegal value of M");
+        morse_error("CHAMELEON_zgeadd", "illegal value of M");
         return -2;
     }
     if (N < 0) {
-        morse_error("MORSE_zgeadd", "illegal value of N");
+        morse_error("CHAMELEON_zgeadd", "illegal value of N");
         return -3;
     }
     if (LDA < chameleon_max(1, Am)) {
-        morse_error("MORSE_zgeadd", "illegal value of LDA");
+        morse_error("CHAMELEON_zgeadd", "illegal value of LDA");
         return -6;
     }
     if (LDB < chameleon_max(1, M)) {
-        morse_error("MORSE_zgeadd", "illegal value of LDB");
+        morse_error("CHAMELEON_zgeadd", "illegal value of LDB");
         return -9;
     }
 
     /* Quick return */
     if (M == 0 || N == 0 ||
-        ((alpha == (MORSE_Complex64_t)0.0) && beta == (MORSE_Complex64_t)1.0))
-        return MORSE_SUCCESS;
+        ((alpha == (CHAMELEON_Complex64_t)0.0) && beta == (CHAMELEON_Complex64_t)1.0))
+        return CHAMELEON_SUCCESS;
 
     /* Tune NB depending on M, N & NRHS; Set NBNBSIZE */
-    status = morse_tune(MORSE_FUNC_ZGEMM, M, N, 0);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeadd", "morse_tune() failed");
+    status = morse_tune(CHAMELEON_FUNC_ZGEMM, M, N, 0);
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgeadd", "morse_tune() failed");
         return status;
     }
 
     /* Set MT & NT & KT */
-    NB = MORSE_NB;
+    NB = CHAMELEON_NB;
 
     morse_sequence_create( morse, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInput, MorseUpperLower,
+    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInput, ChamUpperLower,
                      A, NB, NB, LDA, An, Am, An, sequence, &request );
-    morse_zlap2tile( morse, &descBl, &descBt, MorseDescInout, MorseUpperLower,
+    morse_zlap2tile( morse, &descBl, &descBt, ChamDescInout, ChamUpperLower,
                      B, NB, NB, LDB, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zgeadd_Tile_Async( trans, alpha, &descAt, beta, &descBt, sequence, &request );
+    CHAMELEON_zgeadd_Tile_Async( trans, alpha, &descAt, beta, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
     morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInput, MorseUpperLower, sequence, &request );
+                     ChamDescInput, ChamUpperLower, sequence, &request );
     morse_ztile2lap( morse, &descBl, &descBt,
-                     MorseDescInout, MorseUpperLower, sequence, &request );
+                     ChamDescInout, ChamUpperLower, sequence, &request );
 
     morse_sequence_wait( morse, sequence );
 
@@ -178,11 +178,11 @@ int MORSE_zgeadd( MORSE_enum trans, int M, int N,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zgeadd_Tile - Performs a matrix addition similarly to the pzgeadd()
+ *  CHAMELEON_zgeadd_Tile - Performs a matrix addition similarly to the pzgeadd()
  *  function from the PBLAS library.
- *  Tile equivalent of MORSE_zgeadd().
+ *  Tile equivalent of CHAMELEON_zgeadd().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -192,15 +192,15 @@ int MORSE_zgeadd( MORSE_enum trans, int M, int N,
  * @param[in] trans
  *          Specifies whether the matrix A is transposed, not transposed or
  *          conjugate transposed:
- *          = MorseNoTrans:   A is not transposed;
- *          = MorseTrans:     A is transposed;
- *          = MorseConjTrans: A is conjugate transposed.
+ *          = ChamNoTrans:   A is not transposed;
+ *          = ChamTrans:     A is transposed;
+ *          = ChamConjTrans: A is conjugate transposed.
  *
  * @param[in] alpha
  *          alpha specifies the scalar alpha
  *
  * @param[in] A
- *          A is a LDA-by-ka matrix, where ka is N when trans = MorseNoTrans,
+ *          A is a LDA-by-ka matrix, where ka is N when trans = ChamNoTrans,
  *          and is M otherwise.
  *
  * @param[in] beta
@@ -212,37 +212,37 @@ int MORSE_zgeadd( MORSE_enum trans, int M, int N,
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeadd
- * @sa MORSE_zgeadd_Tile_Async
- * @sa MORSE_cgeadd_Tile
- * @sa MORSE_dgeadd_Tile
- * @sa MORSE_sgeadd_Tile
+ * @sa CHAMELEON_zgeadd
+ * @sa CHAMELEON_zgeadd_Tile_Async
+ * @sa CHAMELEON_cgeadd_Tile
+ * @sa CHAMELEON_dgeadd_Tile
+ * @sa CHAMELEON_sgeadd_Tile
  *
  */
-int MORSE_zgeadd_Tile( MORSE_enum trans,
-                       MORSE_Complex64_t alpha, MORSE_desc_t *A,
-                       MORSE_Complex64_t beta,  MORSE_desc_t *B )
+int CHAMELEON_zgeadd_Tile( cham_trans_t trans,
+                       CHAMELEON_Complex64_t alpha, CHAM_desc_t *A,
+                       CHAMELEON_Complex64_t beta,  CHAM_desc_t *B )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeadd_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgeadd_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     morse_sequence_create( morse, &sequence );
 
-    MORSE_zgeadd_Tile_Async( trans, alpha, A, beta, B, sequence, &request );
+    CHAMELEON_zgeadd_Tile_Async( trans, alpha, A, beta, B, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
-    MORSE_Desc_Flush( B, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( B, sequence );
 
     morse_sequence_wait( morse, sequence );
     status = sequence->status;
@@ -253,11 +253,11 @@ int MORSE_zgeadd_Tile( MORSE_enum trans,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zgeadd_Tile_Async - Performs a matrix addition similarly to the
+ *  CHAMELEON_zgeadd_Tile_Async - Performs a matrix addition similarly to the
  *  pzgeadd() function from the PBLAS library.
- *  Non-blocking equivalent of MORSE_zgeadd_Tile().
+ *  Non-blocking equivalent of CHAMELEON_zgeadd_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -272,59 +272,59 @@ int MORSE_zgeadd_Tile( MORSE_enum trans,
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeadd
- * @sa MORSE_zgeadd_Tile
- * @sa MORSE_cgeadd_Tile_Async
- * @sa MORSE_dgeadd_Tile_Async
- * @sa MORSE_sgeadd_Tile_Async
+ * @sa CHAMELEON_zgeadd
+ * @sa CHAMELEON_zgeadd_Tile
+ * @sa CHAMELEON_cgeadd_Tile_Async
+ * @sa CHAMELEON_dgeadd_Tile_Async
+ * @sa CHAMELEON_sgeadd_Tile_Async
  *
  */
-int MORSE_zgeadd_Tile_Async( MORSE_enum trans,
-                             MORSE_Complex64_t alpha, MORSE_desc_t *A,
-                             MORSE_Complex64_t beta,  MORSE_desc_t *B,
-                             MORSE_sequence_t *sequence, MORSE_request_t *request )
+int CHAMELEON_zgeadd_Tile_Async( cham_trans_t trans,
+                             CHAMELEON_Complex64_t alpha, CHAM_desc_t *A,
+                             CHAMELEON_Complex64_t beta,  CHAM_desc_t *B,
+                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
     int M, N;
     int Am, An, Ai, Aj, Amb, Anb;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeadd_Tile_Async", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zgeadd_Tile_Async", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zgeadd_Tile_Async", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zgeadd_Tile_Async", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zgeadd_Tile_Async", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zgeadd_Tile_Async", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeadd_Tile_Async", "invalid first descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "invalid first descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(B) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeadd_Tile_Async", "invalid second descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(B) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "invalid second descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if ((trans < MorseNoTrans) || (trans > MorseConjTrans)) {
-        morse_error("MORSE_zgeadd_Tile_Async", "illegal value of trans");
+    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "illegal value of trans");
         return morse_request_fail(sequence, request, -1);
     }
 
-    if ( trans == MorseNoTrans ) {
+    if ( trans == ChamNoTrans ) {
         Am  = A->m;
         An  = A->n;
         Amb = A->mb;
@@ -341,16 +341,16 @@ int MORSE_zgeadd_Tile_Async( MORSE_enum trans,
     }
 
     if ( (Amb != B->mb) || (Anb != B->nb) ) {
-        morse_error("MORSE_zgeadd_Tile_Async", "tile sizes have to match");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "tile sizes have to match");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if ( (Am != B->m) || (An != B->n) ) {
-        morse_error("MORSE_zgeadd_Tile_Async", "sizes of matrices have to match");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "sizes of matrices have to match");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if ( (Ai != B->i) || (Aj != B->j) ) {
-        morse_error("MORSE_zgeadd_Tile_Async", "start indexes have to match");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zgeadd_Tile_Async", "start indexes have to match");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     M = B->m;
@@ -358,12 +358,12 @@ int MORSE_zgeadd_Tile_Async( MORSE_enum trans,
 
     /* Quick return */
     if ( (M == 0) || (N == 0) ||
-         ((alpha == (MORSE_Complex64_t)0.0) && (beta == (MORSE_Complex64_t)1.0)) )
+         ((alpha == (CHAMELEON_Complex64_t)0.0) && (beta == (CHAMELEON_Complex64_t)1.0)) )
     {
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
 
-    morse_pztradd( MorseUpperLower, trans, alpha, A, beta, B, sequence, request );
+    morse_pztradd( ChamUpperLower, trans, alpha, A, beta, B, sequence, request );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

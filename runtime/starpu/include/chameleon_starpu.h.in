@@ -18,10 +18,10 @@
  * @date 2011-06-01
  *
  */
-#ifndef _MORSE_STARPU_H_
-#define _MORSE_STARPU_H_
+#ifndef _CHAMELEON_STARPU_H_
+#define _CHAMELEON_STARPU_H_
 
-#include "chameleon/chameleon_config.h"
+#include "chameleon/config.h"
 
 /* StarPU options */
 #cmakedefine HAVE_STARPU_FXT_PROFILING
@@ -116,11 +116,11 @@ typedef struct starpu_conf starpu_conf_t;
  */
 #define RTBLKADDR( desc, type, m, n ) ( (starpu_data_handle_t)RUNTIME_data_getaddr( desc, m, n ) )
 
-void RUNTIME_set_reduction_methods(starpu_data_handle_t handle, MORSE_enum dtyp);
+void RUNTIME_set_reduction_methods(starpu_data_handle_t handle, cham_flttype_t dtyp);
 
 #if defined(CHAMELEON_USE_MPI) && defined(HAVE_STARPU_MPI_CACHED_RECEIVE)
 static inline int
-chameleon_starpu_data_iscached(const MORSE_desc_t *A, int m, int n)
+chameleon_starpu_data_iscached(const CHAM_desc_t *A, int m, int n)
 {
     int64_t mm = m + (A->i / A->mb);
     int64_t nn = n + (A->j / A->nb);
@@ -195,4 +195,4 @@ chameleon_starpu_data_iscached(const MORSE_desc_t *A, int m, int n)
 #define RUNTIME_END_ACCESS_DECLARATION          \
     RUNTIME_PRUNING_STATS_END_ACCESS_DECLARATION;
 
-#endif /* _MORSE_STARPU_H_ */
+#endif /* _CHAMELEON_STARPU_H_ */

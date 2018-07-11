@@ -2,10 +2,10 @@
  *
  ****
  *
- * @defgroup MORSE_Complex64_t Simple Interface - Double Complex
+ * @defgroup CHAMELEON_Complex64_t Simple Interface - Double Complex
  *   This is the group of double complex functions using the
  *   simple user interface.
- * @defgroup MORSE_Complex32_t Simple Interface - Single Complex
+ * @defgroup CHAMELEON_Complex32_t Simple Interface - Single Complex
  *   This is the group of single complex functions using the
  *   simple user interface.
  * @defgroup double Simple Interface - Double Real
@@ -17,10 +17,10 @@
  *
  ****
  *
- * @defgroup MORSE_Complex64_t_Tile Advanced Interface: Synchronous - Double Complex
+ * @defgroup CHAMELEON_Complex64_t_Tile Advanced Interface: Synchronous - Double Complex
  *   This is the group of double complex functions using the
  *   advanced synchronous user interface.
- * @defgroup MORSE_Complex32_t_Tile Advanced Interface: Synchronous - Single Complex
+ * @defgroup CHAMELEON_Complex32_t_Tile Advanced Interface: Synchronous - Single Complex
  *   This is the group of single complex functions using the
  *   advanced synchronous interface.
  * @defgroup double_Tile Advanced Interface: Synchronous - Double Real
@@ -32,10 +32,10 @@
  *
  ****
  *
- * @defgroup MORSE_Complex64_t_Tile_Async Advanced Interface: Asynchronous - Double Complex
+ * @defgroup CHAMELEON_Complex64_t_Tile_Async Advanced Interface: Asynchronous - Double Complex
  *   This is the group of double complex functions using the
  *   advanced asynchronous interface.
- * @defgroup MORSE_Complex32_t_Tile_Async Advanced Interface: Asynchronous - Single Complex
+ * @defgroup CHAMELEON_Complex32_t_Tile_Async Advanced Interface: Asynchronous - Single Complex
  *   This is the group of single complex functions using the
  *   advanced asynchronous interface.
  * @defgroup double_Tile_Async Advanced Interface: Asynchronous - Double Real

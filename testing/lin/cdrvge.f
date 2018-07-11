@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -136,7 +136,7 @@
       CHARACTER          DIST, EQUED, FACT, TRANS, TYPE, XTYPE
       CHARACTER*3        PATH
       INTEGER            HL( 2 ), HPIV( 2 )
-      INTEGER            MORSE_TRANS, IB
+      INTEGER            CHAMELEON_TRANS, IB
       INTEGER            I, IEQUED, IFACT, IMAT, IN, INFO, IOFF, ITRAN,
      $                   IZERO, K, K1, KL, KU, LDA, LWORK, MODE, N, NB,
      $                   NBMIN, NERRS, NFACT, NFAIL, NIMAT, NRUN, NT
@@ -146,7 +146,7 @@
 *     ..
 *     .. Local Arrays ..
       CHARACTER          EQUEDS( 4 ), FACTS( 3 ), TRANSS( NTRAN )
-      INTEGER            ISEED( 4 ), ISEEDY( 4 ), MORSE_TRANSS( NTRAN )
+      INTEGER            ISEED( 4 ), ISEEDY( 4 ), CHAMELEON_TRANSS( NTRAN )
       REAL               RDUM( 1 ), RESULT( NTESTS )
 *     ..
 *     .. External Functions ..
@@ -176,7 +176,7 @@
       DATA               ISEEDY / 1988, 1989, 1990, 1991 /
 *      DATA               TRANSS / 'N', 'T', 'C' /
       DATA               TRANSS / 'N' /
-      DATA               MORSE_TRANSS / MORSENOTRANS /
+      DATA               CHAMELEON_TRANSS / CHAMELEONNOTRANS /
       DATA               FACTS / 'F', 'N', 'E' /
       DATA               EQUEDS / 'N', 'R', 'C', 'B' /
 *     ..
@@ -208,8 +208,8 @@
       NBMIN = 32
       CALL XLAENV( 1, NB )
       CALL XLAENV( 2, NBMIN )
-      CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-      CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB, INFO )
+      CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+      CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB, INFO )
 *
 *     Do for each value of N in NVAL
 *
@@ -223,7 +223,7 @@
 *
 *        ALLOCATE L and IPIV
 *
-c$$$         CALL MORSE_ALLOC_WORKSPACE_CGETRF_INCPIV(
+c$$$         CALL CHAMELEON_ALLOC_WORKSPACE_CGETRF_INCPIV(
 c$$$     $        N, N, HL, HPIV, INFO )
 *
 *
@@ -357,9 +357,9 @@ c$$$     $        N, N, HL, HPIV, INFO )
 *
 *                    Factor the matrix A.
 *
-c$$$                     CALL MORSE_CGETRF_INCPIV( N, N, AFAC, LDA,
+c$$$                     CALL CHAMELEON_CGETRF_INCPIV( N, N, AFAC, LDA,
 c$$$     $                                   HL, HPIV, INFO )         
-                     CALL MORSE_CGETRF( N, N, AFAC, LDA,
+                     CALL CHAMELEON_CGETRF( N, N, AFAC, LDA,
      $                                   IWORK, INFO )         
                   END IF
 *
@@ -368,7 +368,7 @@ c$$$     $                                   HL, HPIV, INFO )
 *                    Do for each value of TRANS.
 *
                      TRANS = TRANSS( ITRAN )
-                     MORSE_TRANS = MORSE_TRANSS( ITRAN )
+                     CHAMELEON_TRANS = CHAMELEON_TRANSS( ITRAN )
                      IF( ITRAN.EQ.1 ) THEN
                         RCONDC = RCONDO
                      ELSE
@@ -399,9 +399,9 @@ c$$$     $                                   HL, HPIV, INFO )
                         CALL CLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
 *
                         SRNAMT = 'CGESV '
-c$$$                        CALL MORSE_CGESV_INCPIV( N, NRHS, AFAC, LDA, 
+c$$$                        CALL CHAMELEON_CGESV_INCPIV( N, NRHS, AFAC, LDA, 
 c$$$     $                       HL, HPIV, X, LDA, INFO )
-                        CALL MORSE_CGESV( N, NRHS, AFAC, LDA, 
+                        CALL CHAMELEON_CGESV( N, NRHS, AFAC, LDA, 
      $                       IWORK, X, LDA, INFO )
 *
 *                       Check error code from CGESV .
@@ -450,8 +450,8 @@ c$$$     $                       HL, HPIV, X, LDA, INFO )
 *
 *        DEALLOCATE HL and HPIV
 *
-c$$$         CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-c$$$         CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+c$$$         CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+c$$$         CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
    90 CONTINUE
 *
 *     Print a summary of the results.

@@ -18,11 +18,11 @@
  *
  */
 /**
- *  MORSE facilities of interest to both MORSE core developer
- *  and also of interest to MORSE community contributor.
+ *  CHAMELEON facilities of interest to both CHAMELEON core developer
+ *  and also of interest to CHAMELEON community contributor.
  */
-#ifndef _MORSE_COMMON_H_
-#define _MORSE_COMMON_H_
+#ifndef _CHAMELEON_COMMON_H_
+#define _CHAMELEON_COMMON_H_
 
 
 #if defined( _WIN32 ) || defined( _WIN64 )
@@ -65,7 +65,7 @@
 /**
  *  Chameleon header files
  */
-#include "morse.h"
+#include "chameleon.h"
 
 #include "control/global.h"
 #include "control/auxiliary.h"
@@ -76,27 +76,27 @@
 /**
  *  Global shortcuts
  */
-#define MORSE_RANK        morse_rank(morse)
-#define MORSE_SIZE        morse->world_size
-#define MORSE_GRPSIZE     morse->group_size
-#define MORSE_NB          morse->nb
-#define MORSE_IB          morse->ib
-#define MORSE_SCHEDULING  morse->scheduling
-#define MORSE_RHBLK       morse->rhblock
-#define MORSE_TRANSLATION morse->translation
-#define MORSE_PARALLEL    morse->parallel_enabled
-#define MORSE_PROFILING   morse->profiling_enabled
+#define CHAMELEON_RANK        morse_rank(morse)
+#define CHAMELEON_SIZE        morse->world_size
+#define CHAMELEON_GRPSIZE     morse->group_size
+#define CHAMELEON_NB          morse->nb
+#define CHAMELEON_IB          morse->ib
+#define CHAMELEON_SCHEDULING  morse->scheduling
+#define CHAMELEON_RHBLK       morse->rhblock
+#define CHAMELEON_TRANSLATION morse->translation
+#define CHAMELEON_PARALLEL    morse->parallel_enabled
+#define CHAMELEON_PROFILING   morse->profiling_enabled
 #if defined(CHAMELEON_USE_MPI)
-#define MORSE_MPI_RANK    morse->my_mpi_rank
-#define MORSE_MPI_SIZE    morse->mpi_comm_size
+#define CHAMELEON_MPI_RANK    morse->my_mpi_rank
+#define CHAMELEON_MPI_SIZE    morse->mpi_comm_size
 #endif
 
 /**
  *  IPT internal define
  */
-#define MorseIPT_NoDep   0
-#define MorseIPT_Panel   1
-#define MorseIPT_All     2
+#define ChamIPT_NoDep   0
+#define ChamIPT_Panel   1
+#define ChamIPT_All     2
 
 /**
  *  Global array of LAPACK constants
@@ -114,10 +114,10 @@ extern "C" {
 #include "control/compute_z.h"
 
 /*
-void morse_pdlag2s(MORSE_context_t *morse);
-void morse_pzlag2c(MORSE_context_t *morse);
-void morse_pslag2d(MORSE_context_t *morse);
-void morse_pclag2z(MORSE_context_t *morse);
+void morse_pdlag2s(CHAM_context_t *morse);
+void morse_pzlag2c(CHAM_context_t *morse);
+void morse_pslag2d(CHAM_context_t *morse);
+void morse_pclag2z(CHAM_context_t *morse);
 */
 
 #ifdef __cplusplus

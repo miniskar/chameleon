@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -28,12 +28,12 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void CORE_zlacpy(MORSE_enum uplo, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB)
+void CORE_zlacpy(cham_uplo_t uplo, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB)
 {
     LAPACKE_zlacpy_work(
         LAPACK_COL_MAJOR,

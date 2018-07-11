@@ -23,6 +23,8 @@
 
 #include "chameleon/config.h"
 #include "chameleon/types.h"
+#include "chameleon/constants.h"
+#include "chameleon/runtime_struct.h"
 
 BEGIN_C_DECLS
 
@@ -125,7 +127,7 @@ typedef struct chameleon_context_s {
     int                rhblock;            // block size for tree-based (reduction) Householder
     void              *schedopt;           // structure for runtimes
     int                mpi_outer_init;     // MPI has been initialized outside our functions
-} CHAMELEON_context_t;
+} CHAM_context_t;
 
 END_C_DECLS
 

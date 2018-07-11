@@ -19,7 +19,7 @@
  */
 #include "cudablas.h"
 
-int CUDA_zsymm(MORSE_enum side, MORSE_enum uplo,
+int CUDA_zsymm(cham_side_t side, cham_uplo_t uplo,
                int m, int n,
                cuDoubleComplex *alpha,
         const cuDoubleComplex *A, int lda,
@@ -37,5 +37,5 @@ int CUDA_zsymm(MORSE_enum side, MORSE_enum uplo,
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

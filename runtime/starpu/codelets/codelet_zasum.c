@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -22,26 +22,26 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void MORSE_TASK_dzasum(const MORSE_option_t *options,
-                       MORSE_enum storev, MORSE_enum uplo, int M, int N,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
+                       cham_store_t storev, cham_uplo_t uplo, int M, int N,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     struct starpu_codelet *codelet = &cl_zasum;
     void (*callback)(void*) = options->profiling ? cl_zasum_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(A, Am, An);
-    MORSE_ACCESS_RW(B, Bm, Bn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &storev,                sizeof(MORSE_enum),
-        STARPU_VALUE,      &uplo,                sizeof(MORSE_enum),
+        STARPU_VALUE,    &storev,                sizeof(int),
+        STARPU_VALUE,      &uplo,                sizeof(int),
         STARPU_VALUE,         &M,                        sizeof(int),
         STARPU_VALUE,         &N,                        sizeof(int),
-        STARPU_R,                 RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,       &lda,                        sizeof(int),
         STARPU_RW,        RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY,    options->priority,
@@ -56,15 +56,15 @@ void MORSE_TASK_dzasum(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum storev;
-    MORSE_enum uplo;
+    cham_store_t storev;
+    cham_uplo_t uplo;
     int M;
     int N;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     double *work;
 
-    A     = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N, &lda);
     CORE_dzasum(storev, uplo, M, N, A, lda, work);

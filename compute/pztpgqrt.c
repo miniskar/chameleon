@@ -36,14 +36,14 @@
  *  Parallel tile QR factorization - dynamic scheduling
  */
 void morse_pztpgqrt( int L,
-                     MORSE_desc_t *V1, MORSE_desc_t *T1,
-                     MORSE_desc_t *V2, MORSE_desc_t *T2,
-                     MORSE_desc_t *Q1, MORSE_desc_t *Q2,
-                     MORSE_desc_t *D,
-                     MORSE_sequence_t *sequence, MORSE_request_t *request )
+                     CHAM_desc_t *V1, CHAM_desc_t *T1,
+                     CHAM_desc_t *V2, CHAM_desc_t *T2,
+                     CHAM_desc_t *Q1, CHAM_desc_t *Q2,
+                     CHAM_desc_t *D,
+                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -59,11 +59,11 @@ void morse_pztpgqrt( int L,
     int maxmtk;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
     /*
      * ztpmqrt = Q1->nb * ib
      */
@@ -78,8 +78,8 @@ void morse_pztpgqrt( int L,
     ws_worker = chameleon_max( ws_worker, ib * Q1->nb * 2 );
 #endif
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
@@ -103,9 +103,9 @@ void morse_pztpgqrt( int L,
             for (n = k; n < Q2->nt; n++) {
                 tempnn = n == Q2->nt-1 ? Q2->n-n*Q2->nb : Q2->nb;
                 /* TT kernel */
-                MORSE_TASK_ztpmqrt(
+                INSERT_TASK_ztpmqrt(
                     &options,
-                    MorseLeft, MorseNoTrans,
+                    ChamLeft, ChamNoTrans,
                     tempmm, tempnn, tempkn, templm, ib, T2->nb,
                     V2(m, k), ldvm,
                     T2(m, k), T2->mb,
@@ -121,9 +121,9 @@ void morse_pztpgqrt( int L,
             for (n = k; n < Q1->nt; n++) {
                 tempnn = n == Q1->nt-1 ? Q1->n-n*Q1->nb : Q1->nb;
                 /* TS kernel */
-                MORSE_TASK_ztpmqrt(
+                INSERT_TASK_ztpmqrt(
                     &options,
-                    MorseLeft, MorseNoTrans,
+                    ChamLeft, ChamNoTrans,
                     tempmm, tempnn, tempkn, 0, ib, T1->nb,
                     V1(m, k), ldvm,
                     T1(m, k), T1->mb,
@@ -133,24 +133,24 @@ void morse_pztpgqrt( int L,
         }
 
 #if defined(CHAMELEON_COPY_DIAG)
-        MORSE_TASK_zlacpy(
+        INSERT_TASK_zlacpy(
             &options,
-            MorseLower, tempkm, tempkk, V1->nb,
+            ChamLower, tempkm, tempkk, V1->nb,
             V1(k, k), ldvk,
             D(k), ldvk );
 #if defined(CHAMELEON_USE_CUDA)
-        MORSE_TASK_zlaset(
+        INSERT_TASK_zlaset(
             &options,
-            MorseUpper, tempkm, tempkk,
+            ChamUpper, tempkm, tempkk,
             0., 1.,
             D(k), ldvk );
 #endif
 #endif
         for (n = k; n < Q1->nt; n++) {
             tempnn = n == Q1->nt-1 ? Q1->n-n*Q1->nb : Q1->nb;
-            MORSE_TASK_zunmqr(
+            INSERT_TASK_zunmqr(
                 &options,
-                MorseLeft, MorseNoTrans,
+                ChamLeft, ChamNoTrans,
                 tempkm, tempnn, tempkk, ib, T1->nb,
                 D(k), ldvk,
                 T1(k, k), T1->mb,

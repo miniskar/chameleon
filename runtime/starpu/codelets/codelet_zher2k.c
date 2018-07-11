@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,39 +28,39 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void MORSE_TASK_zher2k(const MORSE_option_t *options,
-                       MORSE_enum uplo, MORSE_enum trans,
+void INSERT_TASK_zher2k(const RUNTIME_option_t *options,
+                       cham_uplo_t uplo, cham_trans_t trans,
                        int n, int k, int nb,
-                       MORSE_Complex64_t alpha, const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *B, int Bm, int Bn, int ldb,
-                       double beta, const MORSE_desc_t *C, int Cm, int Cn, int ldc)
+                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                       double beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zher2k;
     void (*callback)(void*) = options->profiling ? cl_zher2k_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(A, Am, An);
-    MORSE_ACCESS_R(B, Bm, Bn);
-    MORSE_ACCESS_RW(C, Cm, Cn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_R(B, Bm, Bn);
+    CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,      &uplo,                sizeof(MORSE_enum),
-        STARPU_VALUE,     &trans,                sizeof(MORSE_enum),
+        STARPU_VALUE,      &uplo,                sizeof(int),
+        STARPU_VALUE,     &trans,                sizeof(int),
         STARPU_VALUE,         &n,                        sizeof(int),
         STARPU_VALUE,         &k,                        sizeof(int),
-        STARPU_VALUE,     &alpha,         sizeof(MORSE_Complex64_t),
-        STARPU_R,                 RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,       &lda,                        sizeof(int),
-        STARPU_R,                 RTBLKADDR(B, MORSE_Complex64_t, Bm, Bn),
+        STARPU_R,                 RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE,       &ldb,                        sizeof(int),
         STARPU_VALUE,      &beta,                     sizeof(double),
-        STARPU_RW,                 RTBLKADDR(C, MORSE_Complex64_t, Cm, Cn),
+        STARPU_RW,                 RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_VALUE,       &ldc,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -74,22 +74,22 @@ void MORSE_TASK_zher2k(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zher2k_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
-    MORSE_enum trans;
+    cham_uplo_t uplo;
+    cham_trans_t trans;
     int n;
     int k;
-    MORSE_Complex64_t alpha;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *B;
+    CHAMELEON_Complex64_t *B;
     int ldb;
     double beta;
-    MORSE_Complex64_t *C;
+    CHAMELEON_Complex64_t *C;
     int ldc;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    C = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &n, &k, &alpha, &lda, &ldb, &beta, &ldc);
     CORE_zher2k(uplo, trans,
                 n, k, alpha, A, lda, B, ldb, beta, C, ldc);
@@ -98,8 +98,8 @@ static void cl_zher2k_cpu_func(void *descr[], void *cl_arg)
 #ifdef CHAMELEON_USE_CUDA
 static void cl_zher2k_cuda_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
-    MORSE_enum trans;
+    cham_uplo_t uplo;
+    cham_trans_t trans;
     int n;
     int k;
     cuDoubleComplex alpha;

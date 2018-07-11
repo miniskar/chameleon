@@ -6,7 +6,7 @@
 # -- (C) Copyright 2012
 #
 # This software is a computer program whose purpose is to process
-# Matrices Over Runtime Systems @ Exascale (MORSE). More information
+# Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 # can be found on the following website: http://www.inria.fr/en/teams/morse.
 # 
 # This software is governed by the CeCILL-C license under French law and
@@ -37,8 +37,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology

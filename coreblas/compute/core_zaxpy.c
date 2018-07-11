@@ -19,7 +19,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zaxpy adds to vectors together.
  *
@@ -48,14 +48,14 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-int CORE_zaxpy(int M, MORSE_Complex64_t alpha,
-               const MORSE_Complex64_t *A, int incA,
-                     MORSE_Complex64_t *B, int incB)
+int CORE_zaxpy(int M, CHAMELEON_Complex64_t alpha,
+               const CHAMELEON_Complex64_t *A, int incA,
+                     CHAMELEON_Complex64_t *B, int incB)
 {
     if (M < 0) {
         coreblas_error(1, "Illegal value of M");
@@ -72,7 +72,7 @@ int CORE_zaxpy(int M, MORSE_Complex64_t alpha,
 
     cblas_zaxpy(M, CBLAS_SADDR(alpha), A, incA, B, incB);
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

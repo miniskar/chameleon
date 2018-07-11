@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -26,25 +26,25 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/*   MORSE_TASK_zplrnt - Generate a tile for random matrix. */
+/*   INSERT_TASK_zplrnt - Generate a tile for random matrix. */
 
-void MORSE_TASK_zplrnt( const MORSE_option_t *options,
-                        int m, int n, const MORSE_desc_t *A, int Am, int An, int lda,
+void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
+                        int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
 
     struct starpu_codelet *codelet = &cl_zplrnt;
     void (*callback)(void*) = options->profiling ? cl_zplrnt_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_W(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_W(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &m,                      sizeof(int),
         STARPU_VALUE,    &n,                      sizeof(int),
-        STARPU_W,         RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,  &lda,                      sizeof(int),
         STARPU_VALUE, &bigM,                      sizeof(int),
         STARPU_VALUE,   &m0,                      sizeof(int),
@@ -65,14 +65,14 @@ static void cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
 {
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int bigM;
     int m0;
     int n0;
     unsigned long long int seed;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &bigM, &m0, &n0, &seed );
     CORE_zplrnt( m, n, A, lda, bigM, m0, n0, seed );
 }

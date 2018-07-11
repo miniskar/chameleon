@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -107,10 +107,10 @@
       WRITE( NOUT, FMT = * )
       C2 = PATH( 2: 3 )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -137,32 +137,32 @@
 *
          SRNAMT = 'SPOTRF'
          INFOT = 1
-         CALL MORSE_SPOTRF( '/', 0, A, 1, INFO )
+         CALL CHAMELEON_SPOTRF( '/', 0, A, 1, INFO )
          CALL CHKXER( 'SPOTRF', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SPOTRF( MORSEUPPER, -1, A, 1, INFO )
+         CALL CHAMELEON_SPOTRF( CHAMELEONUPPER, -1, A, 1, INFO )
          CALL CHKXER( 'SPOTRF', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_SPOTRF( MORSEUPPER, 2, A, 1, INFO )
+         CALL CHAMELEON_SPOTRF( CHAMELEONUPPER, 2, A, 1, INFO )
          CALL CHKXER( 'SPOTRF', INFOT, NOUT, INFO, OK )
 *
 *        SPOTRS
 *
          SRNAMT = 'SPOTRS'
          INFOT = 1
-         CALL MORSE_SPOTRS( '/', 0, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_SPOTRS( '/', 0, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'SPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SPOTRS( MORSEUPPER, -1, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_SPOTRS( CHAMELEONUPPER, -1, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'SPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_SPOTRS( MORSEUPPER, 0, -1, A, 1, B, 1, INFO )
+         CALL CHAMELEON_SPOTRS( CHAMELEONUPPER, 0, -1, A, 1, B, 1, INFO )
          CALL CHKXER( 'SPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_SPOTRS( MORSEUPPER, 2, 1, A, 1, B, 2, INFO )
+         CALL CHAMELEON_SPOTRS( CHAMELEONUPPER, 2, 1, A, 1, B, 2, INFO )
          CALL CHKXER( 'SPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_SPOTRS( MORSEUPPER, 2, 1, A, 2, B, 1, INFO )
+         CALL CHAMELEON_SPOTRS( CHAMELEONUPPER, 2, 1, A, 2, B, 1, INFO )
          CALL CHKXER( 'SPOTRS', INFOT, NOUT, INFO, OK )
       END IF
 *
@@ -170,10 +170,10 @@
 *
       CALL ALAESM( PATH, OK, NOUT )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

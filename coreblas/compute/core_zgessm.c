@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -29,7 +29,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgessm applies the factors L computed by CORE_zgetrf_incpiv to
  *  a complex M-by-N tile A.
@@ -68,18 +68,18 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
 int CORE_zgessm(int M, int N, int K, int IB,
                 const int *IPIV,
-                const MORSE_Complex64_t *L, int LDL,
-                MORSE_Complex64_t *A, int LDA)
+                const CHAMELEON_Complex64_t *L, int LDL,
+                CHAMELEON_Complex64_t *A, int LDA)
 {
-    static MORSE_Complex64_t zone  =  1.0;
-    static MORSE_Complex64_t mzone = -1.0;
+    static CHAMELEON_Complex64_t zone  =  1.0;
+    static CHAMELEON_Complex64_t mzone = -1.0;
     static int                ione  =  1;
 
     int i, sb;
@@ -113,7 +113,7 @@ int CORE_zgessm(int M, int N, int K, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (K == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     for(i = 0; i < K; i += IB) {
         sb = chameleon_min(IB, K-i);
@@ -144,7 +144,7 @@ int CORE_zgessm(int M, int N, int K, int IB,
             CBLAS_SADDR(zone), &A[i+sb], LDA );
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

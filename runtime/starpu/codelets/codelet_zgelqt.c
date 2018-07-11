@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgelqt - computes a LQ factorization of a complex M-by-N tile A: A = L * Q.
  *
@@ -83,39 +83,39 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zgelqt(const MORSE_option_t *options,
+void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgelqt;
     void (*callback)(void*) = options->profiling ? cl_zgelqt_callback : NULL;
-    MORSE_starpu_ws_t *h_work = (MORSE_starpu_ws_t*)(options->ws_host);
+    CHAMELEON_starpu_ws_t *h_work = (CHAMELEON_starpu_ws_t*)(options->ws_host);
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_ACCESS_W(T, Tm, Tn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_W(T, Tm, Tn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,               sizeof(int),
-        STARPU_W,         RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_W,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE,    &ldt,               sizeof(int),
         /* max( nb * (ib+1), ib * (ib+nb) ) */
         STARPU_SCRATCH,   options->ws_worker,
         /* /\* ib*n + 3*ib*ib + max(m,n) *\/ */
-        STARPU_VALUE,    &h_work,            sizeof(MORSE_starpu_ws_t *),
+        STARPU_VALUE,    &h_work,            sizeof(CHAMELEON_starpu_ws_t *),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
@@ -128,19 +128,19 @@ void MORSE_TASK_zgelqt(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgelqt_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_starpu_ws_t *h_work;
+    CHAMELEON_starpu_ws_t *h_work;
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *TAU, *WORK;
+    CHAMELEON_Complex64_t *TAU, *WORK;
 
-    A   = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T   = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    TAU = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]); /* max(m,n) + ib*n */
+    A   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    TAU = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]); /* max(m,n) + ib*n */
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldt, &h_work);
 

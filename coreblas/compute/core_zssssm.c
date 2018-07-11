@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zssssm applies the LU factorization update from a complex
  *  matrix formed by a lower triangular IB-by-K tile L1 on top of a
@@ -92,20 +92,20 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
 int CORE_zssssm(int M1, int N1, int M2, int N2, int K, int IB,
-                MORSE_Complex64_t *A1, int LDA1,
-                MORSE_Complex64_t *A2, int LDA2,
-                const MORSE_Complex64_t *L1, int LDL1,
-                const MORSE_Complex64_t *L2, int LDL2,
+                CHAMELEON_Complex64_t *A1, int LDA1,
+                CHAMELEON_Complex64_t *A2, int LDA2,
+                const CHAMELEON_Complex64_t *L1, int LDL1,
+                const CHAMELEON_Complex64_t *L2, int LDL2,
                 const int *IPIV)
 {
-    static MORSE_Complex64_t zone  = 1.0;
-    static MORSE_Complex64_t mzone =-1.0;
+    static CHAMELEON_Complex64_t zone  = 1.0;
+    static CHAMELEON_Complex64_t mzone =-1.0;
 
     int i, ii, sb;
     int im, ip;
@@ -154,7 +154,7 @@ int CORE_zssssm(int M1, int N1, int M2, int N2, int K, int IB,
 
     /* Quick return */
     if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     ip = 0;
 
@@ -185,7 +185,7 @@ int CORE_zssssm(int M1, int N1, int M2, int N2, int K, int IB,
             &A1[ii], LDA1,
             CBLAS_SADDR(zone), A2, LDA2);
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

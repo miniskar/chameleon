@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -24,7 +24,7 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zgelqt_quark(Quark *quark)
@@ -32,12 +32,12 @@ void CORE_zgelqt_quark(Quark *quark)
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *TAU;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *TAU;
+    CHAMELEON_Complex64_t *WORK;
 
     quark_unpack_args_9(quark, m, n, ib, A, lda, T, ldt, TAU, WORK);
     CORE_zgelqt(m, n, ib, A, lda, T, ldt, TAU, WORK);
@@ -45,7 +45,7 @@ void CORE_zgelqt_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgelqt - computes a LQ factorization of a complex M-by-N tile A: A = L * Q.
  *
@@ -100,14 +100,14 @@ void CORE_zgelqt_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void MORSE_TASK_zgelqt(const MORSE_option_t *options,
+void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GELQT;
@@ -115,11 +115,11 @@ void MORSE_TASK_zgelqt(const MORSE_option_t *options,
         sizeof(int),                     &m,     VALUE,
         sizeof(int),                     &n,     VALUE,
         sizeof(int),                     &ib,    VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb, RTBLKADDR(A, MORSE_Complex64_t, Am, An), INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
         sizeof(int),                     &lda,   VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb, RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn), OUTPUT,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb, RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn), OUTPUT,
         sizeof(int),                     &ldt,   VALUE,
-        sizeof(MORSE_Complex64_t)*nb,    NULL,          SCRATCH,
-        sizeof(MORSE_Complex64_t)*ib*nb, NULL,          SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*nb,    NULL,          SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb, NULL,          SCRATCH,
         0);
 }

@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgetrf_Tile"
+#define _NAME  "CHAMELEON_zgetrf_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_GETRF(M, N)
 #define _FADDS FADDS_GETRF(M, N)
@@ -36,26 +36,26 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, LDA, N );
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N );
     
     /* Initialize Data */
-    MORSE_zplrnt(M, N, A, LDA, 3456);
+    CHAMELEON_zplrnt(M, N, A, LDA, 3456);
 
     /* Save AT in lapack layout for check */
-    PASTE_CODE_ALLOCATE_COPY( Acpy, check, MORSE_Complex64_t, A, LDA, N );
+    PASTE_CODE_ALLOCATE_COPY( Acpy, check, CHAMELEON_Complex64_t, A, LDA, N );
     
     START_TIMING();
-    MORSE_zgetrf_nopiv( M, N, A, LDA );
+    CHAMELEON_zgetrf_nopiv( M, N, A, LDA );
     STOP_TIMING();
     
     /* Check the solution */
     if ( check )
     {
-        PASTE_CODE_ALLOCATE_MATRIX( X, 1, MORSE_Complex64_t, LDB, NRHS );
-        MORSE_zplrnt( N, NRHS, X, LDB, 7732 );
-        PASTE_CODE_ALLOCATE_COPY( B, 1, MORSE_Complex64_t, X, LDB, NRHS );
+        PASTE_CODE_ALLOCATE_MATRIX( X, 1, CHAMELEON_Complex64_t, LDB, NRHS );
+        CHAMELEON_zplrnt( N, NRHS, X, LDB, 7732 );
+        PASTE_CODE_ALLOCATE_COPY( B, 1, CHAMELEON_Complex64_t, X, LDB, NRHS );
 
-        MORSE_zgetrs_nopiv( MorseNoTrans, N, NRHS, A, LDA, X, LDB );
+        CHAMELEON_zgetrs_nopiv( ChamNoTrans, N, NRHS, A, LDA, X, LDB );
 
         dparam[IPARAM_RES] = z_check_solution(M, N, NRHS, Acpy, LDA, B, X, LDB,
                                               &(dparam[IPARAM_ANORM]), 

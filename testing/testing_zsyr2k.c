@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -26,16 +26,16 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include "testing_zauxiliary.h"
 
-static int check_solution(MORSE_enum uplo, MORSE_enum trans, int N, int K,
-                          MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                          MORSE_Complex64_t *B, int LDB,
-                          MORSE_Complex64_t beta,  MORSE_Complex64_t *Cref, MORSE_Complex64_t *Cmorse, int LDC);
+static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
+                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          CHAMELEON_Complex64_t *B, int LDB,
+                          CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC);
 
 
 int testing_zsyr2k(int argc, char **argv)
@@ -54,8 +54,8 @@ int testing_zsyr2k(int argc, char **argv)
         return -1;
     }
 
-    MORSE_Complex64_t alpha = (MORSE_Complex64_t) atol(argv[0]);
-    MORSE_Complex64_t beta  = (MORSE_Complex64_t) atol(argv[1]);
+    CHAMELEON_Complex64_t alpha = (CHAMELEON_Complex64_t) atol(argv[0]);
+    CHAMELEON_Complex64_t beta  = (CHAMELEON_Complex64_t) atol(argv[1]);
     int N     = atoi(argv[2]);
     int K     = atoi(argv[3]);
     int LDA   = atoi(argv[4]);
@@ -70,11 +70,11 @@ int testing_zsyr2k(int argc, char **argv)
     size_t LDBxK = LDB*NKmax;
     size_t LDCxN = LDC*N;
 
-    MORSE_Complex64_t *A      = (MORSE_Complex64_t *)malloc(LDAxK*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *B      = (MORSE_Complex64_t *)malloc(LDBxK*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *C      = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Cinit  = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Cfinal = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A      = (CHAMELEON_Complex64_t *)malloc(LDAxK*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *B      = (CHAMELEON_Complex64_t *)malloc(LDBxK*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *C      = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Cinit  = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Cfinal = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
 
     /* Check if unable to allocate memory */
     if ( (!A) || (!B) || (!C) || (!Cinit) || (!Cfinal) )
@@ -105,16 +105,16 @@ int testing_zsyr2k(int argc, char **argv)
     LAPACKE_zlarnv_work(IONE, ISEED, LDBxK, B);
 
     /* Initialize C */
-    MORSE_zplgsy( (double)0., MorseUpperLower, N, C, LDC, 51 );
+    CHAMELEON_zplgsy( (double)0., ChamUpperLower, N, C, LDC, 51 );
 
     for (u=0; u<2; u++) {
         for (t=0; t<2; t++) {
 
-            memcpy(Cinit,  C, LDCxN*sizeof(MORSE_Complex64_t));
-            memcpy(Cfinal, C, LDCxN*sizeof(MORSE_Complex64_t));
+            memcpy(Cinit,  C, LDCxN*sizeof(CHAMELEON_Complex64_t));
+            memcpy(Cfinal, C, LDCxN*sizeof(CHAMELEON_Complex64_t));
 
-            /* MORSE ZSYR2K */
-            MORSE_zsyr2k(uplo[u], trans[t], N, K, alpha, A, LDA, B, LDB, beta, Cfinal, LDC);
+            /* CHAMELEON ZSYR2K */
+            CHAMELEON_zsyr2k(uplo[u], trans[t], N, K, alpha, A, LDA, B, LDB, beta, Cfinal, LDC);
 
             /* Check the solution */
             info_solution = check_solution(uplo[u], trans[t], N, K,
@@ -143,25 +143,25 @@ int testing_zsyr2k(int argc, char **argv)
  * Check the solution
  */
 
-static int check_solution(MORSE_enum uplo, MORSE_enum trans, int N, int K,
-                          MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                          MORSE_Complex64_t *B, int LDB,
-                          MORSE_Complex64_t beta, MORSE_Complex64_t *Cref, MORSE_Complex64_t *Cmorse, int LDC)
+static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
+                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          CHAMELEON_Complex64_t *B, int LDB,
+                          CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC)
 {
     int info_solution;
     double Anorm, Bnorm, Cinitnorm, Cmorsenorm, Clapacknorm, Rnorm, result;
     double eps;
-    MORSE_Complex64_t beta_const;
+    CHAMELEON_Complex64_t beta_const;
 
     double *work = (double *)malloc(max(N, K)* sizeof(double));
 
     beta_const  = -1.0;
     Anorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                      (trans == MorseNoTrans) ? N : K,
-                                      (trans == MorseNoTrans) ? K : N, A, LDA, work);
+                                      (trans == ChamNoTrans) ? N : K,
+                                      (trans == ChamNoTrans) ? K : N, A, LDA, work);
     Bnorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                      (trans == MorseNoTrans) ? N : K,
-                                      (trans == MorseNoTrans) ? K : N, B, LDB, work);
+                                      (trans == ChamNoTrans) ? N : K,
+                                      (trans == ChamNoTrans) ? K : N, B, LDB, work);
     Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref,    LDC, work);
     Cmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cmorse, LDC, work);
 

@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -134,13 +134,13 @@
       INTEGER            I, IEQUED, IFACT, IMAT, IN, INFO, IOFF, IUPLO,
      $                   IZERO, K, K1, KL, KU, LDA, MODE, N, NB, NBMIN,
      $                   NERRS, NFACT, NFAIL, NIMAT, NRUN, NT,
-     $                   MORSE_UPLO
+     $                   CHAMELEON_UPLO
       DOUBLE PRECISION   AINVNM, AMAX, ANORM, CNDNUM, RCOND, RCONDC,
      $                   ROLDC, SCOND
 *     ..
 *     .. Local Arrays ..
       CHARACTER          EQUEDS( 2 ), FACTS( 3 ), UPLOS( 2 )
-      INTEGER            ISEED( 4 ), ISEEDY( 4 ), MORSE_UPLOS( 2 )
+      INTEGER            ISEED( 4 ), ISEEDY( 4 ), CHAMELEON_UPLOS( 2 )
       DOUBLE PRECISION   RESULT( NTESTS )
 *     ..
 *     .. External Functions ..
@@ -169,7 +169,7 @@
 *     .. Data statements ..
       DATA               ISEEDY / 1988, 1989, 1990, 1991 /
       DATA               UPLOS / 'U', 'L' /
-      DATA               MORSE_UPLOS / MORSEUPPER, MORSELOWER /
+      DATA               CHAMELEON_UPLOS / CHAMELEONUPPER, CHAMELEONLOWER /
       DATA               FACTS / 'F', 'N', 'E' /
       DATA               EQUEDS / 'N', 'Y' /
 *     ..
@@ -198,7 +198,7 @@
       NBMIN = 32
       CALL XLAENV( 1, NB )
       CALL XLAENV( 2, NBMIN )
-      CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
+      CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
 *
 *     Do for each value of N in NVAL
 *
@@ -227,7 +227,7 @@
 *
             DO 110 IUPLO = 1, 2
                UPLO = UPLOS( IUPLO )
-               MORSE_UPLO = MORSE_UPLOS( IUPLO )
+               CHAMELEON_UPLO = CHAMELEON_UPLOS( IUPLO )
 *
 *              Set up parameters with ZLATB4 and generate a test matrix
 *              with ZLATMS.
@@ -352,13 +352,13 @@
 *
 *                       Factor the matrix A.
 *
-                        CALL MORSE_ZPOTRF( MORSE_UPLO, N, 
+                        CALL CHAMELEON_ZPOTRF( CHAMELEON_UPLO, N, 
      $                                      AFAC, LDA, INFO )
 *
 *                       Form the inverse of A.
 *
                         CALL ZLACPY( UPLO, N, N, AFAC, LDA, A, LDA )
-                        CALL MORSE_ZPOTRI( MORSE_UPLO, N, A, LDA, 
+                        CALL CHAMELEON_ZPOTRI( CHAMELEON_UPLO, N, A, LDA, 
      $                       INFO )
 *
 *                       Compute the 1-norm condition number of A.
@@ -395,7 +395,7 @@
                         CALL ZLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
 *
                         SRNAMT = 'ZPOSV '
-                        CALL MORSE_ZPOSV( MORSE_UPLO, N, NRHS, 
+                        CALL CHAMELEON_ZPOSV( CHAMELEON_UPLO, N, NRHS, 
      $                                     AFAC, LDA, X, LDA, INFO )
 *
 *                       Check error code from ZPOSV .

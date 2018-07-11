@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -25,7 +25,7 @@
  */
 #include "coreblas/cblas.h"
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zssssm_quark(Quark *quark)
@@ -36,13 +36,13 @@ void CORE_zssssm_quark(Quark *quark)
     int n2;
     int k;
     int ib;
-    MORSE_Complex64_t *A1;
+    CHAMELEON_Complex64_t *A1;
     int lda1;
-    MORSE_Complex64_t *A2;
+    CHAMELEON_Complex64_t *A2;
     int lda2;
-    MORSE_Complex64_t *L1;
+    CHAMELEON_Complex64_t *L1;
     int ldl1;
-    MORSE_Complex64_t *L2;
+    CHAMELEON_Complex64_t *L2;
     int ldl2;
     int *IPIV;
 
@@ -52,7 +52,7 @@ void CORE_zssssm_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zssssm applies the LU factorization update from a complex
  *  matrix formed by a lower triangular IB-by-K tile L1 on top of a
@@ -116,16 +116,16 @@ void CORE_zssssm_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
-void MORSE_TASK_zssssm(const MORSE_option_t *options,
+void INSERT_TASK_zssssm(const RUNTIME_option_t *options,
                        int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                       const MORSE_desc_t *A1, int A1m, int A1n, int lda1,
-                       const MORSE_desc_t *A2, int A2m, int A2n, int lda2,
-                       const MORSE_desc_t *L1, int L1m, int L1n, int ldl1,
-                       const MORSE_desc_t *L2, int L2m, int L2n, int ldl2,
+                       const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
+                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
+                       const CHAM_desc_t *L1, int L1m, int L1n, int ldl1,
+                       const CHAM_desc_t *L2, int L2m, int L2n, int ldl2,
                        const int *IPIV)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -137,13 +137,13 @@ void MORSE_TASK_zssssm(const MORSE_option_t *options,
         sizeof(int),                        &n2,    VALUE,
         sizeof(int),                        &k,     VALUE,
         sizeof(int),                        &ib,    VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A1, MORSE_Complex64_t, A1m, A1n),            INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),            INOUT,
         sizeof(int),                        &lda1,  VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A2, MORSE_Complex64_t, A2m, A2n),            INOUT | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),            INOUT | LOCALITY,
         sizeof(int),                        &lda2,  VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb,    RTBLKADDR(L1, MORSE_Complex64_t, L1m, L1n),            INPUT,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb,    RTBLKADDR(L1, CHAMELEON_Complex64_t, L1m, L1n),            INPUT,
         sizeof(int),                        &ldl1,  VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb,    RTBLKADDR(L2, MORSE_Complex64_t, L2m, L2n),            INPUT,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb,    RTBLKADDR(L2, CHAMELEON_Complex64_t, L2m, L2n),            INPUT,
         sizeof(int),                        &ldl2,  VALUE,
         sizeof(int)*nb,                      IPIV,          INPUT,
         0);

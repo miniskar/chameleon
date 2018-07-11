@@ -24,7 +24,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  * CORE_ztsmlq_hetra1: see CORE_ztsmlq
  *
@@ -38,12 +38,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
  *
  * @param[in] m1
  *         The number of rows of the tile A1. m1 >= 0.
@@ -53,11 +53,11 @@
  *
  * @param[in] m2
  *         The number of rows of the tile A2. m2 >= 0.
- *         m2 = m1 if side == MorseRight.
+ *         m2 = m1 if side == ChamRight.
  *
  * @param[in] n2
  *         The number of columns of the tile A2. n2 >= 0.
- *         n2 = n1 if side == MorseLeft.
+ *         n2 = n1 if side == ChamLeft.
  *
  * @param[in] k
  *         The number of elementary reflectors whose product defines
@@ -98,41 +98,41 @@
  *
  * @param[out] WORK
  *         Workspace array of size
- *             LDWORK-by-m1 if side == MorseLeft
- *             LDWORK-by-IB if side == MorseRight
+ *             LDWORK-by-m1 if side == ChamLeft
+ *             LDWORK-by-IB if side == ChamRight
  *
  * @param[in] ldwork
  *         The leading dimension of the array WORK.
- *             LDWORK >= max(1,IB) if side == MorseLeft
- *             LDWORK >= max(1,n1) if side == MorseRight
+ *             LDWORK >= max(1,IB) if side == ChamLeft
+ *             LDWORK >= max(1,n1) if side == ChamRight
  *
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-#if defined(MORSE_HAVE_WEAK)
+#if defined(CHAMELEON_HAVE_WEAK)
 #pragma weak CORE_ztsmlq_hetra1 = PCORE_ztsmlq_hetra1
 #define CORE_ztsmlq_hetra1 PCORE_ztsmlq_hetra1
 #define CORE_ztsmlq PCORE_ztsmlq
-int  CORE_ztsmlq(MORSE_enum side, MORSE_enum trans,
+int  CORE_ztsmlq(cham_side_t side, cham_trans_t trans,
                  int m1, int n1, int m2, int n2, int K, int IB,
-                 MORSE_Complex64_t *A1, int lda1,
-                 MORSE_Complex64_t *A2, int lda2,
-                 const MORSE_Complex64_t *V, int ldv,
-                 const MORSE_Complex64_t *T, int ldt,
-                 MORSE_Complex64_t *WORK, int LDWORK);
+                 CHAMELEON_Complex64_t *A1, int lda1,
+                 CHAMELEON_Complex64_t *A2, int lda2,
+                 const CHAMELEON_Complex64_t *V, int ldv,
+                 const CHAMELEON_Complex64_t *T, int ldt,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
 #endif
-int CORE_ztsmlq_hetra1( MORSE_enum side, MORSE_enum trans,
+int CORE_ztsmlq_hetra1( cham_side_t side, cham_trans_t trans,
                         int m1, int n1, int m2, int n2,
                         int k, int ib,
-                        MORSE_Complex64_t *A1, int lda1,
-                        MORSE_Complex64_t *A2, int lda2,
-                        const MORSE_Complex64_t *V, int ldv,
-                        const MORSE_Complex64_t *T, int ldt,
-                        MORSE_Complex64_t *WORK, int ldwork)
+                        CHAMELEON_Complex64_t *A1, int lda1,
+                        CHAMELEON_Complex64_t *A2, int lda2,
+                        const CHAMELEON_Complex64_t *V, int ldv,
+                        const CHAMELEON_Complex64_t *T, int ldt,
+                        CHAMELEON_Complex64_t *WORK, int ldwork)
 {
     int i, j;
 
@@ -170,5 +170,5 @@ int CORE_ztsmlq_hetra1( MORSE_enum side, MORSE_enum trans,
         }
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

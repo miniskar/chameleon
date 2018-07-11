@@ -26,9 +26,9 @@
 #endif
 
 /**
- * Initialize MORSE
+ * Initialize CHAMELEON
  */
-int RUNTIME_init( MORSE_context_t *morse,
+int RUNTIME_init( CHAM_context_t *morse,
                   int ncpus,
                   int ncudas,
                   int nthreads_per_worker )
@@ -41,7 +41,7 @@ int RUNTIME_init( MORSE_context_t *morse,
     if( 0 < ncpus ) {
         default_ncores = ncpus;
     }
-    morse->parallel_enabled = MORSE_TRUE;
+    morse->parallel_enabled = CHAMELEON_TRUE;
     morse->schedopt = (void *)parsec_init(default_ncores, argc, NULL);
 
     if(NULL != morse->schedopt) {
@@ -57,9 +57,9 @@ int RUNTIME_init( MORSE_context_t *morse,
 }
 
 /**
- * Finalize MORSE
+ * Finalize CHAMELEON
  */
-void RUNTIME_finalize( MORSE_context_t *morse )
+void RUNTIME_finalize( CHAM_context_t *morse )
 {
     parsec_context_t *parsec = (parsec_context_t*)morse->schedopt;
     parsec_fini(&parsec);
@@ -69,7 +69,7 @@ void RUNTIME_finalize( MORSE_context_t *morse )
 /**
  *  To suspend the processing of new tasks by workers
  */
-void RUNTIME_pause( MORSE_context_t *morse )
+void RUNTIME_pause( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -79,16 +79,16 @@ void RUNTIME_pause( MORSE_context_t *morse )
  *  This is the symmetrical call to RUNTIME_pause,
  *  used to resume the workers polling for new tasks.
  */
-void RUNTIME_resume( MORSE_context_t *morse )
+void RUNTIME_resume( CHAM_context_t *morse )
 {
     (void)morse;
     return;
 }
 
 /**
- * Barrier MORSE.
+ * Barrier CHAMELEON.
  */
-void RUNTIME_barrier( MORSE_context_t *morse )
+void RUNTIME_barrier( CHAM_context_t *morse )
 {
     parsec_context_t *parsec = (parsec_context_t*)(morse->schedopt);
     // This will be a problem with the fake tasks inserted to detect end of DTD algorithms
@@ -99,7 +99,7 @@ void RUNTIME_barrier( MORSE_context_t *morse )
 /**
  *  Display a progress information when executing the tasks
  */
-void RUNTIME_progress( MORSE_context_t *morse )
+void RUNTIME_progress( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -108,7 +108,7 @@ void RUNTIME_progress( MORSE_context_t *morse )
 /**
  * Thread rank.
  */
-int RUNTIME_thread_rank( MORSE_context_t *morse )
+int RUNTIME_thread_rank( CHAM_context_t *morse )
 {
     (void)morse;
     return 0;
@@ -117,7 +117,7 @@ int RUNTIME_thread_rank( MORSE_context_t *morse )
 /**
  * Thread rank.
  */
-int RUNTIME_thread_size( MORSE_context_t *morse )
+int RUNTIME_thread_size( CHAM_context_t *morse )
 {
     // TODO: fixme
     //return vpmap_get_nb_total_threads();
@@ -128,7 +128,7 @@ int RUNTIME_thread_size( MORSE_context_t *morse )
 /**
  *  This returns the rank of this process
  */
-int RUNTIME_comm_rank( MORSE_context_t *morse )
+int RUNTIME_comm_rank( CHAM_context_t *morse )
 {
     int rank = 0;
 #if defined(CHAMELEON_USE_MPI)
@@ -142,7 +142,7 @@ int RUNTIME_comm_rank( MORSE_context_t *morse )
 /**
  *  This returns the size of the distributed computation
  */
-int RUNTIME_comm_size( MORSE_context_t *morse )
+int RUNTIME_comm_size( CHAM_context_t *morse )
 {
     int size = 0;
 #if defined(CHAMELEON_USE_MPI)

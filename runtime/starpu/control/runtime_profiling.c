@@ -38,7 +38,7 @@ double RUNTIME_get_time(){
 /**
  *  Set iteration numbers for traces
  */
-void RUNTIME_iteration_push( MORSE_context_t *morse, unsigned long iteration )
+void RUNTIME_iteration_push( CHAM_context_t *morse, unsigned long iteration )
 {
     (void)morse;
 #if defined(HAVE_STARPU_ITERATION_PUSH)
@@ -46,7 +46,7 @@ void RUNTIME_iteration_push( MORSE_context_t *morse, unsigned long iteration )
 #endif
 }
 
-void RUNTIME_iteration_pop( MORSE_context_t *morse )
+void RUNTIME_iteration_pop( CHAM_context_t *morse )
 {
     (void)morse;
 #if defined(HAVE_STARPU_ITERATION_PUSH)

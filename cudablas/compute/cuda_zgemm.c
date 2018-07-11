@@ -19,7 +19,7 @@
  */
 #include "cudablas.h"
 
-int CUDA_zgemm(MORSE_enum transa, MORSE_enum transb,
+int CUDA_zgemm(cham_trans_t transa, cham_trans_t transb,
                int m, int n, int k,
                cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
@@ -36,5 +36,5 @@ int CUDA_zgemm(MORSE_enum transa, MORSE_enum transb,
                 CUBLAS_VALUE(beta),  C, ldc);
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

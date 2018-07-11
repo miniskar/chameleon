@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -26,17 +26,17 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_PLASMA_zlange returns the value
  *
- *     zlange = ( max(abs(A(i,j))), NORM = MorseMaxNorm
+ *     zlange = ( max(abs(A(i,j))), NORM = ChamMaxNorm
  *              (
- *              ( norm1(A),         NORM = MorseOneNorm
+ *              ( norm1(A),         NORM = ChamOneNorm
  *              (
- *              ( normI(A),         NORM = MorseInfNorm
+ *              ( normI(A),         NORM = ChamInfNorm
  *              (
- *              ( normF(A),         NORM = MorseFrobeniusNorm
+ *              ( normF(A),         NORM = ChamFrobeniusNorm
  *
  *  where norm1 denotes the one norm of a matrix (maximum column sum),
  *  normI denotes the infinity norm of a matrix (maximum row sum) and
@@ -47,10 +47,10 @@
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0.
@@ -66,15 +66,15 @@
  *
  * @param[in,out] work
  *          Array of dimension (MAX(1,LWORK)), where LWORK >= M when NORM =
- *          MorseInfNorm; otherwise, WORK is not referenced.
+ *          ChamInfNorm; otherwise, WORK is not referenced.
  *
  * @param[out] normA
  *          On exit, normA is the norm of matrix A.
  *
  */
 
-void CORE_zlange(int norm, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+void CORE_zlange(cham_normtype_t norm, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA)
 {
     *normA = LAPACKE_zlange_work(

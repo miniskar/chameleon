@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int
-CUDA_zgemerge( MORSE_enum side, MORSE_enum diag,
+CUDA_zgemerge( cham_side_t side, cham_diag_t diag,
                int M, int N,
                cuDoubleComplex *A, int LDA,
                cuDoubleComplex *B, int LDB,
@@ -44,7 +44,7 @@ CUDA_zgemerge( MORSE_enum side, MORSE_enum diag,
 
     CUBLAS_GET_STREAM;
 
-    if (side == MorseLeft){
+    if (side == ChamLeft){
         for(i=0; i<N; i++){
             cola = A + i*LDA;
             colb = B + i*LDB;
@@ -63,5 +63,5 @@ CUDA_zgemerge( MORSE_enum side, MORSE_enum diag,
     }
 
     (void)diag;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

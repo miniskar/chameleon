@@ -17,10 +17,10 @@
  * @date 2010-11-15
  *
  */
-#ifndef _MORSE_ASYNC_H_
-#define _MORSE_ASYNC_H_
+#ifndef _CHAMELEON_ASYNC_H_
+#define _CHAMELEON_ASYNC_H_
 
-#include "chameleon/morse_struct.h"
+#include "chameleon/struct.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,10 +29,10 @@ extern "C" {
 /**
  *  Internal routines
  */
-int morse_request_fail     (MORSE_sequence_t *sequence, MORSE_request_t *request, int error);
-int morse_sequence_create  (MORSE_context_t *MORSE, MORSE_sequence_t **sequence);
-int morse_sequence_destroy (MORSE_context_t *MORSE, MORSE_sequence_t *sequence);
-int morse_sequence_wait    (MORSE_context_t *MORSE, MORSE_sequence_t *sequence);
+int morse_request_fail     (RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int error);
+int morse_sequence_create  (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t **sequence);
+int morse_sequence_destroy (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
+int morse_sequence_wait    (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
 
 #ifdef __cplusplus
 }

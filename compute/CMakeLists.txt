@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -204,7 +204,6 @@ set(ZSRC
     pztile2band.c
     #pzgebrd_gb2bd.c
     pzgebrd_ge2gb.c
-    #pzgetmi2.c
     #pzgetrf_reclap.c
     #pzgetrf_rectil.c
     #pzhegst.c

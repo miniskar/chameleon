@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -142,12 +142,12 @@
       INTEGER            I, IMAT, IN, INB, INFO, IOFF, IRHS, IUPLO,
      $                   IZERO, K, KL, KU, LDA, MODE, N, NB, NERRS,
      $                   NFAIL, NIMAT, NRHS, NRUN
-      INTEGER            MORSE_UPLO
+      INTEGER            CHAMELEON_UPLO
       DOUBLE PRECISION   ANORM, CNDNUM, RCOND, RCONDC
 *     ..
 *     .. Local Arrays ..
       CHARACTER          UPLOS( 2 )
-      INTEGER            MORSE_UPLOS( 2 )
+      INTEGER            CHAMELEON_UPLOS( 2 )
       INTEGER            ISEED( 4 ), ISEEDY( 4 )
       DOUBLE PRECISION   RESULT( NTESTS )
 *     ..
@@ -176,7 +176,7 @@
 *     .. Data statements ..
       DATA               ISEEDY / 1988, 1989, 1990, 1991 /
       DATA               UPLOS / 'U', 'L' /
-      DATA               MORSE_UPLOS / MORSEUPPER, MORSELOWER /
+      DATA               CHAMELEON_UPLOS / CHAMELEONUPPER, CHAMELEONLOWER /
 *     ..
 *     .. Executable Statements ..
 *
@@ -226,7 +226,7 @@
 *
             DO 100 IUPLO = 1, 2
                UPLO = UPLOS( IUPLO )
-               MORSE_UPLO = MORSE_UPLOS( IUPLO )
+               CHAMELEON_UPLO = CHAMELEON_UPLOS( IUPLO )
 *
 *              Set up parameters with DLATB4 and generate a test matrix
 *              with DLATMS.
@@ -294,13 +294,13 @@
                   IF ( (N / 25) .GT. NB ) THEN
                      GOTO 90
                   END IF
-                  CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
 *
 *                 Compute the L*L' or U'*U factorization of the matrix.
 *
                   CALL DLACPY( UPLO, N, N, A, LDA, AFAC, LDA )
                   SRNAMT = 'DPOTRF'
-                  CALL MORSE_DPOTRF( MORSE_UPLO, N, AFAC, LDA, INFO )
+                  CALL CHAMELEON_DPOTRF( CHAMELEON_UPLO, N, AFAC, LDA, INFO )
 *
 *                 Check error code from DPOTRF.
 *
@@ -328,7 +328,7 @@
 *
                   CALL DLACPY( UPLO, N, N, AFAC, LDA, AINV, LDA )
                   SRNAMT = 'DPOTRI'
-                  CALL MORSE_DPOTRI( MORSE_UPLO, N, AINV, LDA, 
+                  CALL CHAMELEON_DPOTRI( CHAMELEON_UPLO, N, AINV, LDA, 
      $                 INFO )
 *
 *                 Check error code from DPOTRI.
@@ -373,7 +373,7 @@
                      CALL DLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
 *
                      SRNAMT = 'DPOTRS'
-                     CALL MORSE_DPOTRS( MORSE_UPLO, N, NRHS, AFAC, 
+                     CALL CHAMELEON_DPOTRS( CHAMELEON_UPLO, N, NRHS, AFAC, 
      $                            LDA, X, LDA, INFO )
 *
 *

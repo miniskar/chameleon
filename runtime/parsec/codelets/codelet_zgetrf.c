@@ -17,7 +17,7 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 static inline int
@@ -26,10 +26,10 @@ CORE_zgetrf_parsec( parsec_execution_stream_t *context,
 {
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    MORSE_bool *check_info;
+    CHAMELEON_bool *check_info;
     int iinfo;
     int info;
 
@@ -42,11 +42,11 @@ CORE_zgetrf_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zgetrf(const MORSE_option_t *options,
+void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
                        int *IPIV,
-                       MORSE_bool check_info, int iinfo)
+                       CHAMELEON_bool check_info, int iinfo)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -54,10 +54,10 @@ void MORSE_TASK_zgetrf(const MORSE_option_t *options,
         PARSEC_dtd_taskpool, CORE_zgetrf_parsec, options->priority, "getrf",
         sizeof(int),        &m,                          VALUE,
         sizeof(int),        &n,                          VALUE,
-        PASSED_BY_REF,       RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,       RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),        &lda,                        VALUE,
         sizeof(int)*nb,      IPIV,                        SCRATCH,
-        sizeof(MORSE_bool), &check_info,                 VALUE,
+        sizeof(CHAMELEON_bool), &check_info,                 VALUE,
         sizeof(int),        &iinfo,                      VALUE,
         PARSEC_DTD_ARG_END );
 }

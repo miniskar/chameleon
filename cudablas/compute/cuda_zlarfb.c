@@ -22,8 +22,8 @@
 #include "cudablas.h"
 
 int
-CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
-            MORSE_enum direct, MORSE_enum storev,
+CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
+            cham_dir_t direct, cham_store_t storev,
             int M, int N, int K,
             const cuDoubleComplex *V, int LDV,
             const cuDoubleComplex *T, int LDT,
@@ -41,19 +41,19 @@ CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
     double mzone = -1.0;
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
-    MORSE_enum transT, uplo, notransV, transV;
+    cham_trans_t transT, uplo, notransV, transV;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         return -1;
     }
-    if ((trans != MorseNoTrans) && (trans != MorseConjTrans)) {
+    if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
         return -2;
     }
-    if ((direct != MorseForward) && (direct != MorseBackward)) {
+    if ((direct != ChamDirForward) && (direct != ChamDirBackward)) {
         return -3;
     }
-    if ((storev != MorseColumnwise) && (storev != MorseRowwise)) {
+    if ((storev != ChamColumnwise) && (storev != ChamRowwise)) {
         return -4;
     }
     if (M < 0) {
@@ -68,43 +68,43 @@ CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (K == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     // opposite of trans
-    if (trans == MorseNoTrans)
-        transT = MorseConjTrans;
+    if (trans == ChamNoTrans)
+        transT = ChamConjTrans;
     else
-        transT = MorseNoTrans;
+        transT = ChamNoTrans;
 
     // whether T is upper or lower triangular
-    if (direct == MorseForward)
-        uplo = MorseUpper;
+    if (direct == ChamDirForward)
+        uplo = ChamUpper;
     else
-        uplo = MorseLower;
+        uplo = ChamLower;
 
-    if (storev == MorseColumnwise) {
-        notransV = MorseNoTrans;
-        transV   = MorseConjTrans;
+    if (storev == ChamColumnwise) {
+        notransV = ChamNoTrans;
+        transV   = ChamConjTrans;
     }
     else {
-        notransV = MorseConjTrans;
-        transV   = MorseNoTrans;
+        notransV = ChamConjTrans;
+        transV   = ChamNoTrans;
     }
 
-    if ( side == MorseLeft ) {
+    if ( side == ChamLeft ) {
         // Form H C or H^H C
         // Comments assume H C. When forming H^H C, T gets transposed via transT.
 
         // W = C^H V
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(MorseConjTrans), morse_cublas_const(notransV),
+                     morse_cublas_const(ChamConjTrans), morse_cublas_const(notransV),
                      N, K, M,
                      CUBLAS_SADDR(zone),  C, LDC,
                                           V, LDV,
                      CUBLAS_SADDR(zzero), WORK, LDWORK );
 
         // W = W T^H = C^H V T^H
-        CUDA_ztrmm( MorseRight, uplo, transT, MorseNonUnit,
+        CUDA_ztrmm( ChamRight, uplo, transT, ChamNonUnit,
                     N, K,
                     CUBLAS_SADDR(zone), T,    LDT,
                                         WORK, LDWORK,
@@ -112,7 +112,7 @@ CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
 
         // C = C - V W^H = C - V T V^H C = (I - V T V^H) C = H C
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(notransV), morse_cublas_const(MorseConjTrans),
+                     morse_cublas_const(notransV), morse_cublas_const(ChamConjTrans),
                      M, N, K,
                      CUBLAS_SADDR(mzone), V,    LDV,
                                           WORK, LDWORK,
@@ -124,14 +124,14 @@ CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
 
         // W = C V
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(MorseNoTrans), morse_cublas_const(notransV),
+                     morse_cublas_const(ChamNoTrans), morse_cublas_const(notransV),
                      M, K, N,
                      CUBLAS_SADDR(zone),  C, LDC,
                                           V, LDV,
                      CUBLAS_SADDR(zzero), WORK, LDWORK );
 
         // W = W T = C V T
-        CUDA_ztrmm( MorseRight, uplo, trans, MorseNonUnit,
+        CUDA_ztrmm( ChamRight, uplo, trans, ChamNonUnit,
                     M, K,
                     CUBLAS_SADDR(zone), T,    LDT,
                                         WORK, LDWORK,
@@ -139,11 +139,11 @@ CUDA_zlarfb(MORSE_enum side, MORSE_enum trans,
 
         // C = C - W V^H = C - C V T V^H = C (I - V T V^H) = C H
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(MorseNoTrans), morse_cublas_const(transV),
+                     morse_cublas_const(ChamNoTrans), morse_cublas_const(transV),
                      M, N, K,
                      CUBLAS_SADDR(mzone), WORK, LDWORK,
                                           V,    LDV,
                      CUBLAS_SADDR(zone),  C,    LDC );
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

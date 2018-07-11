@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -111,10 +111,10 @@
       WRITE( NOUT, FMT = * )
       C2 = PATH( 2: 3 )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -140,7 +140,7 @@
 *
 *        ALLOCATE HL and HPIV
 *
-         CALL MORSE_ALLOC_WORKSPACE_ZGETRF_INCPIV(
+         CALL CHAMELEON_ALLOC_WORKSPACE_ZGETRF_INCPIV(
      $        2, 1, HL, HPIV, INFO )
 *
 *
@@ -148,38 +148,38 @@
 *
          SRNAMT = 'ZGESV '
          INFOT = 1
-         CALL MORSE_ZGESV_INCPIV( -1, 0, A, 1, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_ZGESV_INCPIV( -1, 0, A, 1, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_ZGESV_INCPIV( 0, -1, A, 1, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_ZGESV_INCPIV( 0, -1, A, 1, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_ZGESV_INCPIV( 2, 1, A, 1, HL, HPIV, B, 2, INFO )
+         CALL CHAMELEON_ZGESV_INCPIV( 2, 1, A, 1, HL, HPIV, B, 2, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 8
-         CALL MORSE_ZGESV_INCPIV( 2, 1, A, 2, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_ZGESV_INCPIV( 2, 1, A, 2, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
 *
 *        DEALLOCATE HL and HPIV
 *
-         CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-         CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
 *
 *
 *        ZGESV
 *
          SRNAMT = 'ZGESV '
          INFOT = 1
-         CALL MORSE_ZGESV( -1, 0, A, 1, IWORK, B, 1, INFO )
+         CALL CHAMELEON_ZGESV( -1, 0, A, 1, IWORK, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_ZGESV( 0, -1, A, 1, IWORK, B, 1, INFO )
+         CALL CHAMELEON_ZGESV( 0, -1, A, 1, IWORK, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_ZGESV( 2, 1, A, 1, IWORK, B, 2, INFO )
+         CALL CHAMELEON_ZGESV( 2, 1, A, 1, IWORK, B, 2, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_ZGESV( 2, 1, A, 2, IWORK, B, 1, INFO )
+         CALL CHAMELEON_ZGESV( 2, 1, A, 2, IWORK, B, 1, INFO )
          CALL CHKXER( 'ZGESV ', INFOT, NOUT, INFO, OK )
 *
       ELSE IF( LSAMEN( 2, C2, 'PO' ) ) THEN
@@ -188,19 +188,19 @@
 *
          SRNAMT = 'ZPOSV '
          INFOT = 1
-         CALL MORSE_ZPOSV( '/', 0, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_ZPOSV( '/', 0, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'ZPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_ZPOSV( MORSEUPPER, -1, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_ZPOSV( CHAMELEONUPPER, -1, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'ZPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_ZPOSV( MORSEUPPER, 0, -1, A, 1, B, 1, INFO )
+         CALL CHAMELEON_ZPOSV( CHAMELEONUPPER, 0, -1, A, 1, B, 1, INFO )
          CALL CHKXER( 'ZPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_ZPOSV( MORSEUPPER, 2, 0, A, 1, B, 2, INFO )
+         CALL CHAMELEON_ZPOSV( CHAMELEONUPPER, 2, 0, A, 1, B, 2, INFO )
          CALL CHKXER( 'ZPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_ZPOSV( MORSEUPPER, 2, 0, A, 2, B, 1, INFO )
+         CALL CHAMELEON_ZPOSV( CHAMELEONUPPER, 2, 0, A, 2, B, 1, INFO )
          CALL CHKXER( 'ZPOSV ', INFOT, NOUT, INFO, OK )
 *
 *        ZPOSVX
@@ -259,10 +259,10 @@
  9998 FORMAT( ' *** ', A3, ' drivers failed the tests of the error ',
      $      'exits ***' )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

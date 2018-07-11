@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -40,11 +40,11 @@
 /**
  *  Parallel tile LU factorization - dynamic scheduling
  */
-void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, int *IPIV,
-                           MORSE_sequence_t *sequence, MORSE_request_t *request )
+void morse_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, int *IPIV,
+                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -55,11 +55,11 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
     int minMNT = chameleon_min(A->mt, A->nt);
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     /*
      * zgetrf_incpiv = 0
@@ -69,8 +69,8 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
      */
     ws_worker = A->mb * ib;
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
@@ -80,7 +80,7 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         ldak = BLKLDD(A, k);
-        MORSE_TASK_zgetrf_incpiv(
+        INSERT_TASK_zgetrf_incpiv(
             &options,
             tempkm, tempkn, ib, L->nb,
             A(k, k), ldak,
@@ -90,9 +90,9 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
 
         if ( k < (minMNT-1) ) {
 #if defined(CHAMELEON_COPY_DIAG)
-            MORSE_TASK_zlacpy(
+            INSERT_TASK_zlacpy(
                 &options,
-                MorseUpperLower, tempkm, tempkn, A->nb,
+                ChamUpperLower, tempkm, tempkn, A->nb,
                 A(k, k), ldak,
                 D(k), ldak);
 #endif
@@ -100,7 +100,7 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
 
         for (n = k+1; n < A->nt; n++) {
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-            MORSE_TASK_zgessm(
+            INSERT_TASK_zgessm(
                 &options,
                 tempkm, tempnn, tempkm, ib, L->nb,
                 IPIV(k, k),
@@ -111,7 +111,7 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
         for (m = k+1; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             ldam = BLKLDD(A, m);
-            MORSE_TASK_ztstrf(
+            INSERT_TASK_ztstrf(
                 &options,
                 tempmm, tempkn, ib, L->nb,
                 A(k, k), ldak,
@@ -122,7 +122,7 @@ void morse_pzgetrf_incpiv( MORSE_desc_t *A, MORSE_desc_t *L, MORSE_desc_t *D, in
 
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                MORSE_TASK_zssssm(
+                INSERT_TASK_zssssm(
                     &options,
                     A->nb, tempnn, tempmm, tempnn, A->nb, ib, L->nb,
                     A(k, n), ldak,

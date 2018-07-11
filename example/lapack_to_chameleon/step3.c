@@ -19,11 +19,11 @@
 #include "step3.h"
 
 /*
- * @brief step3 indicates how to give your own tile matrix to MORSE.
+ * @brief step3 indicates how to give your own tile matrix to CHAMELEON.
  * @details This program is a copy of step2 but instead of using a predefined
- * way for accessing tile data (i.e with MORSE_Desc_Create), we will indicate
- * how to create a MORSE descriptor with an arbitrary tile matrix structure
- * by calling MORSE_Desc_Create_User function.
+ * way for accessing tile data (i.e with CHAMELEON_Desc_Create), we will indicate
+ * how to create a CHAMELEON descriptor with an arbitrary tile matrix structure
+ * by calling CHAMELEON_Desc_Create_User function.
  * During this step we do not use classical LAPACK matrices (1D array) anymore.
  */
 int main(int argc, char *argv[]) {
@@ -32,10 +32,10 @@ int main(int argc, char *argv[]) {
     int NRHS; // number of RHS vectors
     int NCPU; // number of cores to use
     int NGPU; // number of gpus (cuda devices) to use
-    int UPLO = MorseUpper; // where is stored L
+    int UPLO = ChamUpper; // where is stored L
 
-    /* descriptors necessary for calling MORSE tile interface  */
-    MORSE_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
+    /* descriptors necessary for calling CHAMELEON tile interface  */
+    CHAM_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
 
     /* Array of pointers to double arrays (representing tiles) */
     double **matA = NULL;
@@ -74,65 +74,65 @@ int main(int argc, char *argv[]) {
     /* print informations to user */
     print_header( argv[0], iparam);
 
-    /* Initialize MORSE with main parameters */
-    if ( MORSE_Init( NCPU, NGPU ) != MORSE_SUCCESS ) {
-        fprintf(stderr, "Error initializing MORSE library\n");
+    /* Initialize CHAMELEON with main parameters */
+    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
+        fprintf(stderr, "Error initializing CHAMELEON library\n");
         return EXIT_FAILURE;
     }
 
     /* Question morse to get the block (tile) size (number of columns) */
-    MORSE_Get( MORSE_TILE_SIZE, &NB );
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &NB );
 
     /* allocate tile data */
     matA = allocate_tile_matrix(N, N, NB);
 
     /*
-     * This function is very similar to MORSE_Desc_Create but the way to
+     * This function is very similar to CHAMELEON_Desc_Create but the way to
      * access matrix tiles can be controled by the user.
      * To do so, three functions with a precise prototype must be given:
-     *     - void* get_blkaddr(const MORSE_desc_t *, int, int)
+     *     - void* get_blkaddr(const CHAM_desc_t *, int, int)
      *     returns a pointer to the tile m, n
-     *     - int   get_blkldd (const MORSE_desc_t *, int)
+     *     - int   get_blkldd (const CHAM_desc_t *, int)
      *     returns the leading dimension of the tile m, n
-     *     - int   get_rankof (const MORSE_desc_t *, int, int)
+     *     - int   get_rankof (const CHAM_desc_t *, int, int)
      *     returns the MPI rank of the tile m, n (0 here because we do not
      *     intend to use this program with MPI)
      */
-    MORSE_Desc_Create_User(&descA, matA, MorseRealDouble,
+    CHAMELEON_Desc_Create_User(&descA, matA, ChamRealDouble,
                            NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1,
                            user_getaddr_arrayofpointers,
                            user_getblkldd_arrayofpointers,
                            user_getrankof_zero);
 
     /*
-     * We use the classical MORSE way for accessing tiles for descripotrs
+     * We use the classical CHAMELEON way for accessing tiles for descripotrs
      * B, X and AC. This to show you can define different way to consider tiles
      * in your matrix. The only thing important is to have well defined
      * functions get_blkaddr, get_blkldd, get_rankof corresponding to your data.
-     * Note that this call of MORSE_Desc_Create_User routine with
+     * Note that this call of CHAMELEON_Desc_Create_User routine with
      * morse_getaddr_ccrb, morse_getblkldd_ccrband morse_getrankof_2d functions
-     * is equivalent to a call to MORSE_Desc_Create (morse_get... are the
-     * functions used inside MORSE_Desc_Create).
+     * is equivalent to a call to CHAMELEON_Desc_Create (morse_get... are the
+     * functions used inside CHAMELEON_Desc_Create).
      */
-    MORSE_Desc_Create(&descB, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descB, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, NRHS, 0, 0, N, NRHS, 1, 1);
-    MORSE_Desc_Create(&descX, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descX, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, NRHS, 0, 0, N, NRHS, 1, 1);
-    MORSE_Desc_Create(&descAC, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descAC, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1);
 
     /* generate A matrix with random values such that it is spd */
-    MORSE_dplgsy_Tile( (double)N, MorseUpperLower, descA, 51 );
+    CHAMELEON_dplgsy_Tile( (double)N, ChamUpperLower, descA, 51 );
 
     /* generate RHS */
-    MORSE_dplrnt_Tile( descB, 5673 );
+    CHAMELEON_dplrnt_Tile( descB, 5673 );
 
     /* copy A before facto. in order to check the result */
-    MORSE_dlacpy_Tile(MorseUpperLower, descA, descAC);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descA, descAC);
 
     /* copy B in X before solving
      * same sense as memcpy(X, B, N*NRHS*sizeof(double)) but for descriptors */
-    MORSE_dlacpy_Tile(MorseUpperLower, descB, descX);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descB, descX);
 
     /************************************************************/
     /* solve the system AX = B using the Cholesky factorization */
@@ -142,13 +142,13 @@ int main(int argc, char *argv[]) {
 
     /* Cholesky factorization:
      * A is replaced by its factorization L or L^T depending on uplo */
-    MORSE_dpotrf_Tile( UPLO, descA );
+    CHAMELEON_dpotrf_Tile( UPLO, descA );
 
     /* Solve:
      * B is stored in X on entry, X contains the result on exit.
      * Forward and back substitutions
      */
-    MORSE_dpotrs_Tile( UPLO, descA, descX );
+    CHAMELEON_dpotrs_Tile( UPLO, descA, descX );
 
     cpu_time += CHAMELEON_timer();
 
@@ -162,14 +162,14 @@ int main(int argc, char *argv[]) {
     /************************************************************/
 
     /* compute norms to check the result */
-    anorm = MORSE_dlange_Tile( MorseInfNorm, descAC);
-    bnorm = MORSE_dlange_Tile( MorseInfNorm, descB);
-    xnorm = MORSE_dlange_Tile( MorseInfNorm, descX);
+    anorm = CHAMELEON_dlange_Tile( ChamInfNorm, descAC);
+    bnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descB);
+    xnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descX);
 
     /* compute A*X-B, store the result in B */
-    MORSE_dgemm_Tile( MorseNoTrans, MorseNoTrans,
+    CHAMELEON_dgemm_Tile( ChamNoTrans, ChamNoTrans,
                       1.0, descAC, descX, -1.0, descB );
-    res = MORSE_dlange_Tile( MorseInfNorm, descB );
+    res = CHAMELEON_dlange_Tile( ChamInfNorm, descB );
 
     /* check residual and print a message */
     eps = LAPACKE_dlamch_work( 'e' );
@@ -196,13 +196,13 @@ int main(int argc, char *argv[]) {
     descA->mat = NULL;
 
     /* free descriptors descA, descB, descX, descAC */
-    MORSE_Desc_Destroy( &descA );
-    MORSE_Desc_Destroy( &descB );
-    MORSE_Desc_Destroy( &descX );
-    MORSE_Desc_Destroy( &descAC );
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
+    CHAMELEON_Desc_Destroy( &descX );
+    CHAMELEON_Desc_Destroy( &descAC );
 
-    /* Finalize MORSE */
-    MORSE_Finalize();
+    /* Finalize CHAMELEON */
+    CHAMELEON_Finalize();
 
     return EXIT_SUCCESS;
 }

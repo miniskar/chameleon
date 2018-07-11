@@ -23,11 +23,11 @@
 /**
  *  Parallel scale of a matrix A
  */
-void morse_pzlascal(MORSE_enum uplo, MORSE_Complex64_t alpha, MORSE_desc_t *A,
-                    MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A,
+                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int tempmm, tempnn, tempmn, tempnm;
     int m, n;
@@ -35,58 +35,58 @@ void morse_pzlascal(MORSE_enum uplo, MORSE_Complex64_t alpha, MORSE_desc_t *A,
     int minmnt = chameleon_min(A->mt, A->nt);
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
 
     RUNTIME_options_init(&options, morse, sequence, request);
 
     switch(uplo) {
-    case MorseLower:
+    case ChamLower:
         for (n = 0; n < minmnt; n++) {
             tempnm = n == A->mt-1 ? A->m-n*A->mb : A->mb;
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
             ldan = BLKLDD(A, n);
 
-            MORSE_TASK_zlascal(
+            INSERT_TASK_zlascal(
                 &options,
-                MorseLower, tempnm, tempnn, A->mb,
+                ChamLower, tempnm, tempnn, A->mb,
                 alpha, A(n, n), ldan);
 
             for (m = n+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
                 ldam = BLKLDD(A, m);
 
-                MORSE_TASK_zlascal(
+                INSERT_TASK_zlascal(
                     &options,
-                    MorseUpperLower, tempmm, tempnn, A->mb,
+                    ChamUpperLower, tempmm, tempnn, A->mb,
                     alpha, A(m, n), ldam);
             }
         }
         break;
 
-    case MorseUpper:
+    case ChamUpper:
         for (m = 0; m < minmnt; m++) {
             tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
             tempmn = m == A->nt-1 ? A->n-m*A->nb : A->nb;
             ldam = BLKLDD(A, m);
 
-            MORSE_TASK_zlascal(
+            INSERT_TASK_zlascal(
                 &options,
-                MorseUpper, tempmm, tempmn, A->mb,
+                ChamUpper, tempmm, tempmn, A->mb,
                 alpha, A(m, m), ldam);
 
             for (n = m+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-                MORSE_TASK_zlascal(
+                INSERT_TASK_zlascal(
                     &options,
-                    MorseUpperLower, tempmm, tempnn, A->mb,
+                    ChamUpperLower, tempmm, tempnn, A->mb,
                     alpha, A(m, n), ldam);
             }
         }
         break;
 
-    case MorseUpperLower:
+    case ChamUpperLower:
     default:
         for (m = 0; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
@@ -95,9 +95,9 @@ void morse_pzlascal(MORSE_enum uplo, MORSE_Complex64_t alpha, MORSE_desc_t *A,
             for (n = 0; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-                MORSE_TASK_zlascal(
+                INSERT_TASK_zlascal(
                     &options,
-                    MorseUpperLower, tempmm, tempnn, A->mb,
+                    ChamUpperLower, tempmm, tempnn, A->mb,
                     alpha, A(m, n), ldam);
             }
         }

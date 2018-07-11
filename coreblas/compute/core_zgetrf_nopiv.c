@@ -24,7 +24,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetrf_nopiv computes an LU factorization of a general diagonal
  *  dominant M-by-N matrix A witout pivoting.
@@ -61,7 +61,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -71,11 +71,11 @@
  */
 
 int CORE_zgetrf_nopiv(int M, int N, int IB,
-                      MORSE_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t *A, int LDA,
                       int *INFO)
 {
-    MORSE_Complex64_t zone  = (MORSE_Complex64_t)1.0;
-    MORSE_Complex64_t mzone = (MORSE_Complex64_t)-1.0;
+    CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t)1.0;
+    CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
     int i, k, sb;
     int iinfo;
 
@@ -100,7 +100,7 @@ int CORE_zgetrf_nopiv(int M, int N, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     k = chameleon_min(M, N);
     for(i =0 ; i < k; i += IB) {
@@ -118,8 +118,8 @@ int CORE_zgetrf_nopiv(int M, int N, int IB,
 
         if (i+sb < N) {
             /*  Compute block row of U */
-            CORE_ztrsm( MorseLeft, MorseLower,
-                        MorseNoTrans, MorseUnit,
+            CORE_ztrsm( ChamLeft, ChamLower,
+                        ChamNoTrans, ChamUnit,
                         sb, N-(i+sb),
                         zone, &A[LDA*i+i],      LDA,
                               &A[LDA*(i+sb)+i], LDA);
@@ -128,7 +128,7 @@ int CORE_zgetrf_nopiv(int M, int N, int IB,
             {
                 /* Update trailing submatrix */
                 CORE_zgemm(
-                    MorseNoTrans, MorseNoTrans,
+                    ChamNoTrans, ChamNoTrans,
                     M-(i+sb), N-(i+sb), sb,
                     mzone, &A[LDA*i     + i+sb], LDA,
                            &A[LDA*(i+sb)+ i   ], LDA,
@@ -136,5 +136,5 @@ int CORE_zgetrf_nopiv(int M, int N, int IB,
             }
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

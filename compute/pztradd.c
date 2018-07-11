@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
  * @date 2011-11-03
@@ -28,33 +28,33 @@
 /**
  *  Parallel tile matrix-matrix multiplication - dynamic scheduling
  */
-void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
-                   MORSE_Complex64_t alpha, MORSE_desc_t *A,
-                   MORSE_Complex64_t beta,  MORSE_desc_t *B,
-                   MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pztradd(cham_uplo_t uplo, cham_trans_t trans,
+                   CHAMELEON_Complex64_t alpha, CHAM_desc_t *A,
+                   CHAMELEON_Complex64_t beta,  CHAM_desc_t *B,
+                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int tempmm, tempnn, tempmn, tempnm;
     int m, n;
     int ldam, ldan, ldbm, ldbn;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
     switch(uplo){
-    case MorseLower:
-        if (trans == MorseNoTrans) {
+    case ChamLower:
+        if (trans == ChamNoTrans) {
             for (n = 0; n < chameleon_min(B->mt,B->nt); n++) {
                 tempnm = n == B->mt-1 ? B->m-n*B->mb : B->mb;
                 tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                 ldan = BLKLDD(A, n);
                 ldbn = BLKLDD(B, n);
 
-                MORSE_TASK_ztradd(
+                INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempnm, tempnn, B->mb,
                     alpha, A(n, n), ldan,
@@ -65,7 +65,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                     ldam = BLKLDD(A, m);
                     ldbm = BLKLDD(B, m);
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(m, n), ldam,
@@ -80,7 +80,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                 ldan = BLKLDD(A, n);
                 ldbn = BLKLDD(B, n);
 
-                MORSE_TASK_ztradd(
+                INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempnm, tempnn, B->mb,
                     alpha, A(n, n), ldan,
@@ -90,7 +90,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                     tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
                     ldbm = BLKLDD(B, m);
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(n, m), ldan,
@@ -99,15 +99,15 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
             }
         }
         break;
-    case MorseUpper:
-        if (trans == MorseNoTrans) {
+    case ChamUpper:
+        if (trans == ChamNoTrans) {
             for (m = 0; m < chameleon_min(B->mt,B->nt); m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
                 tempmn = m == B->nt-1 ? B->n-m*B->nb : B->nb;
                 ldam = BLKLDD(A, m);
                 ldbm = BLKLDD(B, m);
 
-                MORSE_TASK_ztradd(
+                INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempmm, tempmn, B->mb,
                     alpha, A(m, m), ldam,
@@ -116,7 +116,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                 for (n = m+1; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(m, n), ldam,
@@ -131,7 +131,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                 ldam = BLKLDD(A, m);
                 ldbm = BLKLDD(B, m);
 
-                MORSE_TASK_ztradd(
+                INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempmm, tempmn, B->mb,
                     alpha, A(m, m), ldam,
@@ -141,7 +141,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                     ldan = BLKLDD(A, n);
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(n, m), ldan,
@@ -150,9 +150,9 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
             }
         }
         break;
-    case MorseUpperLower:
+    case ChamUpperLower:
     default:
-        if (trans == MorseNoTrans) {
+        if (trans == ChamNoTrans) {
             for (m = 0; m < B->mt; m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
                 ldam = BLKLDD(A, m);
@@ -161,7 +161,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                 for (n = 0; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(m, n), ldam,
@@ -178,7 +178,7 @@ void morse_pztradd(MORSE_enum uplo, MORSE_enum trans,
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                     ldan = BLKLDD(A, n);
 
-                    MORSE_TASK_zgeadd(
+                    INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
                         alpha, A(n, m), ldan,

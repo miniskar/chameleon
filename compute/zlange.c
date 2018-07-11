@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> s d c
@@ -24,17 +24,17 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zlange returns the value
+ *  CHAMELEON_zlange returns the value
  *
- *     zlange = ( max(abs(A(i,j))), NORM = MorseMaxNorm
+ *     zlange = ( max(abs(A(i,j))), NORM = ChamMaxNorm
  *              (
- *              ( norm1(A),         NORM = MorseOneNorm
+ *              ( norm1(A),         NORM = ChamOneNorm
  *              (
- *              ( normI(A),         NORM = MorseInfNorm
+ *              ( normI(A),         NORM = ChamInfNorm
  *              (
- *              ( normF(A),         NORM = MorseFrobeniusNorm
+ *              ( normF(A),         NORM = ChamFrobeniusNorm
  *
  *  where norm1 denotes the one norm of a matrix (maximum column sum),
  *  normI denotes the infinity norm of a matrix (maximum row sum) and
@@ -45,10 +45,10 @@
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0. When M = 0,
@@ -71,45 +71,45 @@
  *
  *******************************************************************************
  *
- * @sa MORSE_zlange_Tile
- * @sa MORSE_zlange_Tile_Async
- * @sa MORSE_clange
- * @sa MORSE_dlange
- * @sa MORSE_slange
+ * @sa CHAMELEON_zlange_Tile
+ * @sa CHAMELEON_zlange_Tile_Async
+ * @sa CHAMELEON_clange
+ * @sa CHAMELEON_dlange
+ * @sa CHAMELEON_slange
  *
  */
-double MORSE_zlange(MORSE_enum norm, int M, int N,
-                    MORSE_Complex64_t *A, int LDA )
+double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
+                    CHAMELEON_Complex64_t *A, int LDA )
 {
     int NB;
     int status;
     double value = -1.;
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
-    MORSE_desc_t descAl, descAt;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlange", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlange", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
-    if ( (norm != MorseMaxNorm) && (norm != MorseOneNorm)
-         && (norm != MorseInfNorm) && (norm != MorseFrobeniusNorm) ) {
-        morse_error("MORSE_zlange", "illegal value of norm");
+    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
+         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+        morse_error("CHAMELEON_zlange", "illegal value of norm");
         return -1;
     }
     if (M < 0) {
-        morse_error("MORSE_zlange", "illegal value of M");
+        morse_error("CHAMELEON_zlange", "illegal value of M");
         return -2;
     }
     if (N < 0) {
-        morse_error("MORSE_zlange", "illegal value of N");
+        morse_error("CHAMELEON_zlange", "illegal value of N");
         return -3;
     }
     if (LDA < chameleon_max(1, M)) {
-        morse_error("MORSE_zlange", "illegal value of LDA");
+        morse_error("CHAMELEON_zlange", "illegal value of LDA");
         return -5;
     }
 
@@ -118,27 +118,27 @@ double MORSE_zlange(MORSE_enum norm, int M, int N,
         return (double)0.0;
 
     /* Tune NB depending on M, N & NRHS; Set NBNB */
-    status = morse_tune(MORSE_FUNC_ZGEMM, M, N, 0);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zlange", "morse_tune() failed");
+    status = morse_tune(CHAMELEON_FUNC_ZGEMM, M, N, 0);
+    if (status != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zlange", "morse_tune() failed");
         return status;
     }
 
     /* Set NT */
-    NB = MORSE_NB;
+    NB = CHAMELEON_NB;
 
     morse_sequence_create( morse, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInput, MorseUpperLower,
+    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInput, ChamUpperLower,
                      A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zlange_Tile_Async( norm, &descAt, &value, sequence, &request );
+    CHAMELEON_zlange_Tile_Async( norm, &descAt, &value, sequence, &request );
 
     /* Submit the matrix conversion back */
     morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInput, MorseUpperLower, sequence, &request );
+                     ChamDescInput, ChamUpperLower, sequence, &request );
 
     morse_sequence_wait( morse, sequence );
 
@@ -152,9 +152,9 @@ double MORSE_zlange(MORSE_enum norm, int M, int N,
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zlange_Tile - Tile equivalent of MORSE_zlange().
+ *  CHAMELEON_zlange_Tile - Tile equivalent of CHAMELEON_zlange().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -162,10 +162,10 @@ double MORSE_zlange(MORSE_enum norm, int M, int N,
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] A
  *          On entry, the triangular factor U or L.
@@ -177,48 +177,48 @@ double MORSE_zlange(MORSE_enum norm, int M, int N,
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zlange
- * @sa MORSE_zlange_Tile_Async
- * @sa MORSE_clange_Tile
- * @sa MORSE_dlange_Tile
- * @sa MORSE_slange_Tile
+ * @sa CHAMELEON_zlange
+ * @sa CHAMELEON_zlange_Tile_Async
+ * @sa CHAMELEON_clange_Tile
+ * @sa CHAMELEON_dlange_Tile
+ * @sa CHAMELEON_slange_Tile
  *
  */
-double MORSE_zlange_Tile(MORSE_enum norm, MORSE_desc_t *A )
+double CHAMELEON_zlange_Tile(cham_normtype_t norm, CHAM_desc_t *A )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
     double value = -1.;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlange_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlange_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     morse_sequence_create( morse, &sequence );
 
-    MORSE_zlange_Tile_Async( norm, A, &value, sequence, &request );
+    CHAMELEON_zlange_Tile_Async( norm, A, &value, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
 
     morse_sequence_wait( morse, sequence );
     status = sequence->status;
     morse_sequence_destroy( morse, sequence );
-    return ( status == MORSE_SUCCESS ) ? value : (double)status;
+    return ( status == CHAMELEON_SUCCESS ) ? value : (double)status;
 }
 
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zlange_Tile_Async - Non-blocking equivalent of MORSE_zlange_Tile().
+ *  CHAMELEON_zlange_Tile_Async - Non-blocking equivalent of CHAMELEON_zlange_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -233,61 +233,61 @@ double MORSE_zlange_Tile(MORSE_enum norm, MORSE_desc_t *A )
  *
  *******************************************************************************
  *
- * @sa MORSE_zlange
- * @sa MORSE_zlange_Tile
- * @sa MORSE_clange_Tile_Async
- * @sa MORSE_dlange_Tile_Async
- * @sa MORSE_slange_Tile_Async
+ * @sa CHAMELEON_zlange
+ * @sa CHAMELEON_zlange_Tile
+ * @sa CHAMELEON_clange_Tile_Async
+ * @sa CHAMELEON_dlange_Tile_Async
+ * @sa CHAMELEON_slange_Tile_Async
  *
  */
-int MORSE_zlange_Tile_Async( MORSE_enum norm, MORSE_desc_t *A, double *value,
-                             MORSE_sequence_t *sequence, MORSE_request_t *request )
+int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *value,
+                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zlange_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zlange_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zlange_Tile", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zlange_Tile", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zlange_Tile", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_zlange_Tile", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zlange_Tile", "invalid descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zlange_Tile", "invalid descriptor");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb) {
-        morse_error("MORSE_zlange_Tile", "only square tiles supported");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        morse_error("CHAMELEON_zlange_Tile", "only square tiles supported");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if ( (norm != MorseMaxNorm) && (norm != MorseOneNorm)
-         && (norm != MorseInfNorm) && (norm != MorseFrobeniusNorm) ) {
-        morse_error("MORSE_zlange", "illegal value of norm");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
+         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+        morse_error("CHAMELEON_zlange", "illegal value of norm");
+        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Quick return */
     if (chameleon_min(A->m, A->n) == 0) {
         *value = 0.0;
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
 
     morse_pzlange( norm, A, value, sequence, request );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

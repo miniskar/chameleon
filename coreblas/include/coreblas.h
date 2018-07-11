@@ -35,12 +35,12 @@
 #include "coreblas/cblas.h"
 
 /**
- * MORSE types and constants
+ * CHAMELEON types and constants
  */
-#include "chameleon/chameleon_config.h"
-#include "chameleon/morse_types.h"
-#include "chameleon/morse_struct.h"
-#include "chameleon/morse_constants.h"
+#include "chameleon/config.h"
+#include "chameleon/types.h"
+#include "chameleon/struct.h"
+#include "chameleon/constants.h"
 
 /**
  * CORE BLAS headers

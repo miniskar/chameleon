@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -29,23 +29,23 @@
 /**
  *  Parallel tile matrix-matrix multiplication - dynamic scheduling
  */
-void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
-                         MORSE_Complex64_t alpha, MORSE_desc_t *A, MORSE_desc_t *B,
-                         MORSE_Complex64_t beta,  MORSE_desc_t *C,
-                         MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pzgemm(cham_trans_t transA, cham_trans_t transB,
+                         CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                         CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
 
     int m, n, k;
     int ldam, ldak, ldbn, ldbk, ldcm;
     int tempmm, tempnn, tempkn, tempkm;
 
-    MORSE_Complex64_t zbeta;
-    MORSE_Complex64_t zone = (MORSE_Complex64_t)1.0;
+    CHAMELEON_Complex64_t zbeta;
+    CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
@@ -55,16 +55,16 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
         for (n = 0; n < C->nt; n++) {
             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
             /*
-             *  A: MorseNoTrans / B: MorseNoTrans
+             *  A: ChamNoTrans / B: ChamNoTrans
              */
-            if (transA == MorseNoTrans) {
+            if (transA == ChamNoTrans) {
                 ldam = BLKLDD(A, m);
-                if (transB == MorseNoTrans) {
+                if (transB == ChamNoTrans) {
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                         ldbk = BLKLDD(B, k);
                         zbeta = k == 0 ? beta : zone;
-                        MORSE_TASK_zgemm(
+                        INSERT_TASK_zgemm(
                             &options,
                             transA, transB,
                             tempmm, tempnn, tempkn, A->mb,
@@ -74,14 +74,14 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
                     }
                 }
                 /*
-                 *  A: MorseNoTrans / B: Morse[Conj]Trans
+                 *  A: ChamNoTrans / B: Cham[Conj]Trans
                  */
                 else {
                     ldbn = BLKLDD(B, n);
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                         zbeta = k == 0 ? beta : zone;
-                        MORSE_TASK_zgemm(
+                        INSERT_TASK_zgemm(
                             &options,
                             transA, transB,
                             tempmm, tempnn, tempkn, A->mb,
@@ -92,16 +92,16 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
                 }
             }
             /*
-             *  A: Morse[Conj]Trans / B: MorseNoTrans
+             *  A: Cham[Conj]Trans / B: ChamNoTrans
              */
             else {
-                if (transB == MorseNoTrans) {
+                if (transB == ChamNoTrans) {
                     for (k = 0; k < A->mt; k++) {
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                         ldak = BLKLDD(A, k);
                         ldbk = BLKLDD(B, k);
                         zbeta = k == 0 ? beta : zone;
-                        MORSE_TASK_zgemm(
+                        INSERT_TASK_zgemm(
                             &options,
                             transA, transB,
                             tempmm, tempnn, tempkm, A->mb,
@@ -111,7 +111,7 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
                     }
                 }
                 /*
-                 *  A: Morse[Conj]Trans / B: Morse[Conj]Trans
+                 *  A: Cham[Conj]Trans / B: Cham[Conj]Trans
                  */
                 else {
                     ldbn = BLKLDD(B, n);
@@ -119,7 +119,7 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                         ldak = BLKLDD(A, k);
                         zbeta = k == 0 ? beta : zone;
-                        MORSE_TASK_zgemm(
+                        INSERT_TASK_zgemm(
                             &options,
                             transA, transB,
                             tempmm, tempnn, tempkm, A->mb,
@@ -131,7 +131,7 @@ void morse_pzgemm(MORSE_enum transA, MORSE_enum transB,
             }
             RUNTIME_data_flush( sequence, C(m, n) );
         }
-        if (transA == MorseNoTrans) {
+        if (transA == ChamNoTrans) {
             for (k = 0; k < A->nt; k++) {
                 RUNTIME_data_flush( sequence, A(m, k) );
             }

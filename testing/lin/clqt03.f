@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -122,7 +122,7 @@
 *     .. Local Scalars ..
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, ISIDE, ITRANS, J, MC, NC
-      INTEGER            MORSE_SIDE, MORSE_TRANS
+      INTEGER            CHAMELEON_SIDE, CHAMELEON_TRANS
       REAL               CNORM, EPS, RESID
 *     ..
 *     .. External Functions ..
@@ -164,17 +164,17 @@
 *     Generate the n-by-n matrix Q
 *
       SRNAMT = 'CUNGLQ'
-      CALL MORSE_CUNGLQ( N, N, K, AF, LDA, T, Q, LDA, INFO )
+      CALL CHAMELEON_CUNGLQ( N, N, K, AF, LDA, T, Q, LDA, INFO )
 *
       DO 30 ISIDE = 1, 2
          IF( ISIDE.EQ.1 ) THEN
             SIDE = 'L'
-            MORSE_SIDE = MORSELEFT
+            CHAMELEON_SIDE = CHAMELEONLEFT
             MC = N
             NC = M
          ELSE
             SIDE = 'R'
-            MORSE_SIDE = MORSERIGHT
+            CHAMELEON_SIDE = CHAMELEONRIGHT
             MC = M
             NC = N
          END IF
@@ -193,10 +193,10 @@
 *           ONLY CONJTRANS SUPPORTED !!!!      
             IF( ITRANS.EQ.1 ) THEN
                TRANS = 'N'
-               MORSE_TRANS = MORSENOTRANS
+               CHAMELEON_TRANS = CHAMELEONNOTRANS
             ELSE
                TRANS = 'C'
-               MORSE_TRANS = MORSECONJTRANS
+               CHAMELEON_TRANS = CHAMELEONCONJTRANS
             END IF
 *
 *           Copy C
@@ -206,7 +206,7 @@
 *           Apply Q or Q' to C
 *
             SRNAMT = 'CUNMLQ'
-            CALL MORSE_CUNMLQ( MORSE_SIDE, MORSE_TRANS, MC, NC, K,
+            CALL CHAMELEON_CUNMLQ( CHAMELEON_SIDE, CHAMELEON_TRANS, MC, NC, K,
      $                   AF, LDA, T, CC, LDA, INFO )
 *
 *           Form explicit product and subtract

@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 !
 ! This software is governed by the CeCILL-B license under French law and
@@ -45,188 +45,188 @@
 !**
 
 !********************************************************************
-!   MORSE constants - precisions
+!   CHAMELEON constants - precisions
 !
-      integer  MorseByte, MorseInteger, MorseRealFloat
-      integer  MorseRealDouble, MorseComplexFloat, MorseComplexDouble
-      parameter ( MorseByte          = 0 )
-      parameter ( MorseInteger       = 1 )
-      parameter ( MorseRealFloat     = 2 )
-      parameter ( MorseRealDouble    = 3 )
-      parameter ( MorseComplexFloat  = 4 )
-      parameter ( MorseComplexDouble = 5 )
+      integer  ChamByte, ChamInteger, ChamRealFloat
+      integer  ChamRealDouble, ChamComplexFloat, ChamComplexDouble
+      parameter ( ChamByte          = 0 )
+      parameter ( ChamInteger       = 1 )
+      parameter ( ChamRealFloat     = 2 )
+      parameter ( ChamRealDouble    = 3 )
+      parameter ( ChamComplexFloat  = 4 )
+      parameter ( ChamComplexDouble = 5 )
 
 !********************************************************************
-!   MORSE constants - CBLAS & LAPACK
+!   CHAMELEON constants - CBLAS & LAPACK
 !
-      integer MorseCM, MorseRM, MorseCCRB
-      integer MorseCRRB, MorseRCRB, MorseRRRB
-      parameter ( MorseCM         = 101 )
-      parameter ( MorseRM         = 102 )
-      parameter ( MorseCCRB       = 103 )
-      parameter ( MorseCRRB       = 104 )
-      parameter ( MorseRCRB       = 105 )
-      parameter ( MorseRRRB       = 106 )
+      integer ChamCM, ChamRM, ChamCCRB
+      integer ChamCRRB, ChamRCRB, ChamRRRB
+      parameter ( ChamCM         = 101 )
+      parameter ( ChamRM         = 102 )
+      parameter ( ChamCCRB       = 103 )
+      parameter ( ChamCRRB       = 104 )
+      parameter ( ChamRCRB       = 105 )
+      parameter ( ChamRRRB       = 106 )
 
-      integer  MorseNoTrans, MorseTrans, MorseConjTrans
-      parameter ( MorseNoTrans    = 111 )
-      parameter ( MorseTrans      = 112 )
-      parameter ( MorseConjTrans  = 113 )
+      integer  ChamNoTrans, ChamTrans, ChamConjTrans
+      parameter ( ChamNoTrans    = 111 )
+      parameter ( ChamTrans      = 112 )
+      parameter ( ChamConjTrans  = 113 )
 
-      integer MorseUpper, MorseLower
-      integer MorseUpperLower
-      parameter ( MorseUpper      = 121 )
-      parameter ( MorseLower      = 122 )
-      parameter ( MorseUpperLower = 123 )
+      integer ChamUpper, ChamLower
+      integer ChamUpperLower
+      parameter ( ChamUpper      = 121 )
+      parameter ( ChamLower      = 122 )
+      parameter ( ChamUpperLower = 123 )
 
-      integer MorseNonUnit,MorseUnit
-      parameter ( MorseNonUnit    = 131 )
-      parameter ( MorseUnit       = 132 )
+      integer ChamNonUnit,ChamUnit
+      parameter ( ChamNonUnit    = 131 )
+      parameter ( ChamUnit       = 132 )
 
-      integer MorseLeft,MorseRight
-      parameter ( MorseLeft       = 141 )
-      parameter ( MorseRight      = 142 )
+      integer ChamLeft,ChamRight
+      parameter ( ChamLeft       = 141 )
+      parameter ( ChamRight      = 142 )
 
-      integer MorseOneNorm, MorseRealOneNorm
-      integer MorseTwoNorm, MorseFrobeniusNorm
-      integer MorseInfNorm, MorseRealInfNorm
-      integer MorseMaxNorm, MorseRealMaxNorm
-      parameter ( MorseOneNorm       = 171 )
-      parameter ( MorseRealOneNorm   = 172 )
-      parameter ( MorseTwoNorm       = 173 )
-      parameter ( MorseFrobeniusNorm = 174 )
-      parameter ( MorseInfNorm       = 175 )
-      parameter ( MorseRealInfNorm   = 176 )
-      parameter ( MorseMaxNorm       = 177 )
-      parameter ( MorseRealMaxNorm   = 178 )
+      integer ChamOneNorm, ChamRealOneNorm
+      integer ChamTwoNorm, ChamFrobeniusNorm
+      integer ChamInfNorm, ChamRealInfNorm
+      integer ChamMaxNorm, ChamRealMaxNorm
+      parameter ( ChamOneNorm       = 171 )
+      parameter ( ChamRealOneNorm   = 172 )
+      parameter ( ChamTwoNorm       = 173 )
+      parameter ( ChamFrobeniusNorm = 174 )
+      parameter ( ChamInfNorm       = 175 )
+      parameter ( ChamRealInfNorm   = 176 )
+      parameter ( ChamMaxNorm       = 177 )
+      parameter ( ChamRealMaxNorm   = 178 )
 
-      integer MorseDistUniform
-      integer MorseDistSymmetric
-      integer MorseDistNormal
-      parameter ( MorseDistUniform   = 201 )
-      parameter ( MorseDistSymmetric = 202 )
-      parameter ( MorseDistNormal    = 203 )
+      integer ChamDistUniform
+      integer ChamDistSymmetric
+      integer ChamDistNormal
+      parameter ( ChamDistUniform   = 201 )
+      parameter ( ChamDistSymmetric = 202 )
+      parameter ( ChamDistNormal    = 203 )
 
-      integer MorseHermGeev
-      integer MorseHermPoev
-      integer MorseNonsymPosv
-      integer MorseSymPosv
-      parameter ( MorseHermGeev    = 241 )
-      parameter ( MorseHermPoev    = 242 )
-      parameter ( MorseNonsymPosv  = 243 )
-      parameter ( MorseSymPosv     = 244 )
+      integer ChamHermGeev
+      integer ChamHermPoev
+      integer ChamNonsymPosv
+      integer ChamSymPosv
+      parameter ( ChamHermGeev    = 241 )
+      parameter ( ChamHermPoev    = 242 )
+      parameter ( ChamNonsymPosv  = 243 )
+      parameter ( ChamSymPosv     = 244 )
 
-      integer MorseNoPacking
-      integer MorsePackSubdiag
-      integer MorsePackSupdiag
-      integer MorsePackColumn
-      integer MorsePackLowerBand
-      integer MorsePackRow
-      integer MorsePackUpeprBand
-      integer MorsePackAll
-      parameter ( MorseNoPacking     = 291 )
-      parameter ( MorsePackSubdiag   = 292 )
-      parameter ( MorsePackSupdiag   = 293 )
-      parameter ( MorsePackColumn    = 294 )
-      parameter ( MorsePackRow       = 295 )
-      parameter ( MorsePackLowerBand = 296 )
-      parameter ( MorsePackUpeprBand = 297 )
-      parameter ( MorsePackAll       = 298 )
+      integer ChamNoPacking
+      integer ChamPackSubdiag
+      integer ChamPackSupdiag
+      integer ChamPackColumn
+      integer ChamPackLowerBand
+      integer ChamPackRow
+      integer ChamPackUpeprBand
+      integer ChamPackAll
+      parameter ( ChamNoPacking     = 291 )
+      parameter ( ChamPackSubdiag   = 292 )
+      parameter ( ChamPackSupdiag   = 293 )
+      parameter ( ChamPackColumn    = 294 )
+      parameter ( ChamPackRow       = 295 )
+      parameter ( ChamPackLowerBand = 296 )
+      parameter ( ChamPackUpeprBand = 297 )
+      parameter ( ChamPackAll       = 298 )
 
-      integer MorseNoVec,MorseVec,MorseIvec
-      parameter ( MorseNoVec = 301 )
-      parameter ( MorseVec   = 302 )
-      parameter ( MorseIvec  = 303 )
+      integer ChamNoVec,ChamVec,ChamIvec
+      parameter ( ChamNoVec = 301 )
+      parameter ( ChamVec   = 302 )
+      parameter ( ChamIvec  = 303 )
 
-      integer MorseForward, MorseBackward
-      parameter ( MorseForward    = 391 )
-      parameter ( MorseBackward   = 392 )
+      integer ChamDirForward, ChamDirBackward
+      parameter ( ChamDirForward    = 391 )
+      parameter ( ChamDirBackward   = 392 )
 
-      integer MorseColumnwise,MorseRowwise
-      parameter ( MorseColumnwise = 401 )
-      parameter ( MorseRowwise    = 402 )
+      integer ChamColumnwise,ChamRowwise
+      parameter ( ChamColumnwise = 401 )
+      parameter ( ChamRowwise    = 402 )
 
 !********************************************************************
-!   MORSE constants - boolean
+!   CHAMELEON constants - boolean
 !
-      integer MORSE_FALSE, MORSE_TRUE
-      parameter ( MORSE_FALSE = 0 )
-      parameter ( MORSE_TRUE  = 1 )
+      integer CHAMELEON_FALSE, CHAMELEON_TRUE
+      parameter ( CHAMELEON_FALSE = 0 )
+      parameter ( CHAMELEON_TRUE  = 1 )
 
 !********************************************************************
 !   State machine switches
 !
-      integer MORSE_WARNINGS, MORSE_ERRORS, MORSE_AUTOTUNING
-      integer MORSE_DAG, MORSE_PROFILING_MODE, MORSE_PARALLEL_MODE
-      integer MORSE_BOUND
-      parameter ( MORSE_WARNINGS       = 1 )
-      parameter ( MORSE_ERRORS         = 2 )
-      parameter ( MORSE_AUTOTUNING     = 3 )
-      parameter ( MORSE_DAG            = 4 )
-      parameter ( MORSE_PROFILING_MODE = 5 )
-      parameter ( MORSE_PARALLEL_MODE  = 6 )
-      parameter ( MORSE_BOUND          = 7 )
+      integer CHAMELEON_WARNINGS, CHAMELEON_ERRORS, CHAMELEON_AUTOTUNING
+      integer CHAMELEON_DAG, CHAMELEON_PROFILING_MODE, CHAMELEON_PARALLEL_MODE
+      integer CHAMELEON_BOUND
+      parameter ( CHAMELEON_WARNINGS       = 1 )
+      parameter ( CHAMELEON_ERRORS         = 2 )
+      parameter ( CHAMELEON_AUTOTUNING     = 3 )
+      parameter ( CHAMELEON_DAG            = 4 )
+      parameter ( CHAMELEON_PROFILING_MODE = 5 )
+      parameter ( CHAMELEON_PARALLEL_MODE  = 6 )
+      parameter ( CHAMELEON_BOUND          = 7 )
 
 !********************************************************************
-!   MORSE constants - configuration  parameters
+!   CHAMELEON constants - configuration  parameters
 !
-      integer MORSE_CONCURRENCY, MORSE_TILE_SIZE
-      integer MORSE_INNER_BLOCK_SIZE, MORSE_SCHEDULING_MODE
-      integer MORSE_HOUSEHOLDER_MODE, MORSE_HOUSEHOLDER_SIZE
-      integer MORSE_TRANSLATION_MODE
-      parameter ( MORSE_CONCURRENCY      = 1 )
-      parameter ( MORSE_TILE_SIZE        = 2 )
-      parameter ( MORSE_INNER_BLOCK_SIZE = 3 )
-      parameter ( MORSE_SCHEDULING_MODE  = 4 )
-      parameter ( MORSE_HOUSEHOLDER_MODE = 5 )
-      parameter ( MORSE_HOUSEHOLDER_SIZE = 6 )
-      parameter ( MORSE_TRANSLATION_MODE = 7 )
+      integer CHAMELEON_CONCURRENCY, CHAMELEON_TILE_SIZE
+      integer CHAMELEON_INNER_BLOCK_SIZE, CHAMELEON_SCHEDULING_MODE
+      integer CHAMELEON_HOUSEHOLDER_MODE, CHAMELEON_HOUSEHOLDER_SIZE
+      integer CHAMELEON_TRANSLATION_MODE
+      parameter ( CHAMELEON_CONCURRENCY      = 1 )
+      parameter ( CHAMELEON_TILE_SIZE        = 2 )
+      parameter ( CHAMELEON_INNER_BLOCK_SIZE = 3 )
+      parameter ( CHAMELEON_SCHEDULING_MODE  = 4 )
+      parameter ( CHAMELEON_HOUSEHOLDER_MODE = 5 )
+      parameter ( CHAMELEON_HOUSEHOLDER_SIZE = 6 )
+      parameter ( CHAMELEON_TRANSLATION_MODE = 7 )
 
 !********************************************************************
-!   MORSE constants - householder mode
+!   CHAMELEON constants - householder mode
 !
-      integer MORSE_FLAT_HOUSEHOLDER, MORSE_TREE_HOUSEHOLDER
-      parameter ( MORSE_FLAT_HOUSEHOLDER  = 1 )
-      parameter ( MORSE_TREE_HOUSEHOLDER  = 2 )
+      integer ChamFlatHouseholder, ChamTreeHouseholder
+      parameter ( ChamFlatHouseholder  = 1 )
+      parameter ( ChamTreeHouseholder  = 2 )
 
 !*********************************************************************
-!   MORSE constants - translation mode
+!   CHAMELEON constants - translation mode
 !
-      integer MORSE_INPLACE, MORSE_OUTOFPLACE
-      parameter ( MORSE_INPLACE     = 1 )
-      parameter ( MORSE_OUTOFPLACE  = 2 )
+      integer ChamInPlace, ChamOutOfPlace
+      parameter ( ChamInPlace     = 1 )
+      parameter ( ChamOutOfPlace  = 2 )
 
 !********************************************************************
-!   MORSE constants - success & error codes
+!   CHAMELEON constants - success & error codes
 !
-      integer MORSE_SUCCESS, MORSE_ERR_NOT_INITIALIZED
-      integer MORSE_ERR_REINITIALIZED, MORSE_ERR_NOT_SUPPORTED
-      integer MORSE_ERR_ILLEGAL_VALUE, MORSE_ERR_NOT_FOUND
-      integer MORSE_ERR_OUT_OF_MEMORY, MORSE_ERR_INTERNAL_LIMIT
-      integer MORSE_ERR_UNALLOCATED, MORSE_ERR_FILESYSTEM
-      integer MORSE_ERR_UNEXPECTED, MORSE_ERR_SEQUENCE_FLUSHED
-      parameter ( MORSE_SUCCESS             =    0 )
-      parameter ( MORSE_ERR_NOT_INITIALIZED = -101 )
-      parameter ( MORSE_ERR_REINITIALIZED   = -102 )
-      parameter ( MORSE_ERR_NOT_SUPPORTED   = -103 )
-      parameter ( MORSE_ERR_ILLEGAL_VALUE   = -104 )
-      parameter ( MORSE_ERR_NOT_FOUND       = -105 )
-      parameter ( MORSE_ERR_OUT_OF_MEMORY   = -106 )
-      parameter ( MORSE_ERR_INTERNAL_LIMIT  = -107 )
-      parameter ( MORSE_ERR_UNALLOCATED     = -108 )
-      parameter ( MORSE_ERR_FILESYSTEM      = -109 )
-      parameter ( MORSE_ERR_UNEXPECTED      = -110 )
-      parameter ( MORSE_ERR_SEQUENCE_FLUSHED= -111 )
+      integer CHAMELEON_SUCCESS, CHAMELEON_ERR_NOT_INITIALIZED
+      integer CHAMELEON_ERR_REINITIALIZED, CHAMELEON_ERR_NOT_SUPPORTED
+      integer CHAMELEON_ERR_ILLEGAL_VALUE, CHAMELEON_ERR_NOT_FOUND
+      integer CHAMELEON_ERR_OUT_OF_MEMORY, CHAMELEON_ERR_INTERNAL_LIMIT
+      integer CHAMELEON_ERR_UNALLOCATED, CHAMELEON_ERR_FILESYSTEM
+      integer CHAMELEON_ERR_UNEXPECTED, CHAMELEON_ERR_SEQUENCE_FLUSHED
+      parameter ( CHAMELEON_SUCCESS             =    0 )
+      parameter ( CHAMELEON_ERR_NOT_INITIALIZED = -101 )
+      parameter ( CHAMELEON_ERR_REINITIALIZED   = -102 )
+      parameter ( CHAMELEON_ERR_NOT_SUPPORTED   = -103 )
+      parameter ( CHAMELEON_ERR_ILLEGAL_VALUE   = -104 )
+      parameter ( CHAMELEON_ERR_NOT_FOUND       = -105 )
+      parameter ( CHAMELEON_ERR_OUT_OF_MEMORY   = -106 )
+      parameter ( CHAMELEON_ERR_INTERNAL_LIMIT  = -107 )
+      parameter ( CHAMELEON_ERR_UNALLOCATED     = -108 )
+      parameter ( CHAMELEON_ERR_FILESYSTEM      = -109 )
+      parameter ( CHAMELEON_ERR_UNEXPECTED      = -110 )
+      parameter ( CHAMELEON_ERR_SEQUENCE_FLUSHED= -111 )
 
 !********************************************************************
-!   MORSE constants - kernels options
+!   CHAMELEON constants - kernels options
 !
-      integer MORSE_PRIORITY_MIN, MORSE_PRIORITY_MAX
-      parameter ( MORSE_PRIORITY_MIN = 0     )
-      parameter ( MORSE_PRIORITY_MAX = 10000 )
+      integer RUNTIME_PRIORITY_MIN, RUNTIME_PRIORITY_MAX
+      parameter ( RUNTIME_PRIORITY_MIN = 0     )
+      parameter ( RUNTIME_PRIORITY_MAX = 10000 )
 
 !********************************************************************
-!   MORSE constants - scheduler properties
+!   CHAMELEON constants - scheduler properties
 !
       integer PRIORITY, CALLBACK, REDUX
       parameter ( PRIORITY = 16 )

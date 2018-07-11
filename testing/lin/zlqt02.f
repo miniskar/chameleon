@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -149,7 +149,7 @@
 *     Generate the first n columns of the matrix Q
 *
       SRNAMT = 'ZUNGLQ'
-      CALL MORSE_ZUNGLQ( M, N, K, AF, LDA, T, Q, LDA, INFO )
+      CALL CHAMELEON_ZUNGLQ( M, N, K, AF, LDA, T, Q, LDA, INFO )
 *
 *     Copy L(1:k,1:m)
 *

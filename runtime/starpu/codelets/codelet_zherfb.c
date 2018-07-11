@@ -22,37 +22,37 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void MORSE_TASK_zherfb(const MORSE_option_t *options,
-                       MORSE_enum uplo,
+void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
+                       cham_uplo_t uplo,
                        int n, int k, int ib, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt,
-                       const MORSE_desc_t *C, int Cm, int Cn, int ldc)
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
+                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
 {
     struct starpu_codelet *codelet = &cl_zherfb;
     void (*callback)(void*) = options->profiling ? cl_zherfb_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(A, Am, An);
-    MORSE_ACCESS_R(T, Tm, Tn);
-    MORSE_ACCESS_RW(C, Cm, Cn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_R(T, Tm, Tn);
+    CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &uplo,              sizeof(MORSE_enum),
+        STARPU_VALUE,    &uplo,              sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_VALUE,    &nb,                sizeof(int),
-        STARPU_R,         RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,               sizeof(int),
-        STARPU_R,         RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE,    &ldt,               sizeof(int),
-        STARPU_RW,        RTBLKADDR(C, MORSE_Complex64_t, Cm, Cn),
+        STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_VALUE,    &ldc,               sizeof(int),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &nb,                sizeof(int),
@@ -68,24 +68,24 @@ void MORSE_TASK_zherfb(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zherfb_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int n;
     int k;
     int ib;
     int nb;
-    const MORSE_Complex64_t *A;
+    const CHAMELEON_Complex64_t *A;
     int lda;
-    const MORSE_Complex64_t *T;
+    const CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *C;
+    CHAMELEON_Complex64_t *C;
     int ldc;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
 
-    A    = (const MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
 
     starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &lda, &ldt, &ldc, &ldwork);
 
@@ -95,7 +95,7 @@ static void cl_zherfb_cpu_func(void *descr[], void *cl_arg)
 #if defined(CHAMELEON_USE_CUDA)
 static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int n;
     int k;
     int ib;

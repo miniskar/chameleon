@@ -1,6 +1,6 @@
 /**
  *
- * @file step6.c
+ * @file step7.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,24 +9,28 @@
  *
  ***
  *
- * @brief Chameleon step6 example
+ * @brief Chameleon step7 example
  *
  * @version 1.0.0
  * @author Florent Pruvost
- * @date 2014-10-29
+ * @author Guillaume Sylvand
+ * @date 2016-09-05
  *
  */
-#include "step6.h"
+#include "step7.h"
 
 /*
- * @brief step6 introduces how to use MORSE with MPI.
- * @details This program is a copy of step5 with some additional parameters to
- * be set for the data distribution. To use this program properly MORSE must
- * use StarPU Runtime system and MPI option must be activated at configure.
- * The data distribution used here is 2D block cyclic, see for example
- * http://www.netlib.org/scalapack/slug/node75.html for explanation.
- * The user can enter the parameters of the distribution grid at execution with
- * --p= and --q=
+ * @brief step7 introduces how to use the build interface.
+ * @details This program is a copy of step6 with some additional calls to
+ * build a matrix from within chameleon using a function provided by the user.
+ * This can be seen as a replacement of the function like CHAMELEON_dplgsy_Tile() that can be used
+ * to fill the matrix with random data, CHAMELEON_dLapack_to_Tile() to fill the matrix
+ * with data stored in a lapack-like buffer, or CHAMELEON_Desc_Create_User() that can be used
+ * to describe an arbitrary tile matrix structure.
+ * In this example, the build callback function are just wrapper towards CORE_xxx() functions, so the output
+ * of the program step7 should be exactly similar to that of step6.
+ * The difference is that the funtion used to fill the tiles is provided by the user,
+ * and therefore this approach is much more flexible.
  */
 int main(int argc, char *argv[]) {
     size_t N; // matrix order
@@ -37,10 +41,10 @@ int main(int argc, char *argv[]) {
     int GRID_P; // parameter of the 2D block cyclic distribution
     int GRID_Q; // parameter of the 2D block cyclic distribution
     int NMPIPROC = 1; // number of MPI processus
-    int UPLO = MorseUpper; // where is stored L
+    int UPLO = ChamUpper; // where is stored L
 
-    /* descriptors necessary for calling MORSE tile interface  */
-    MORSE_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
+    /* descriptors necessary for calling CHAMELEON tile interface  */
+    CHAM_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
 
     /* declarations to time the program and evaluate performances */
     double fmuls, fadds, flops, gflops, cpu_time;
@@ -49,11 +53,11 @@ int main(int argc, char *argv[]) {
     double anorm, bnorm, xnorm, eps, res;
     int hres;
 
-    /* MORSE sequence uniquely identifies a set of asynchronous function calls
+    /* CHAMELEON sequence uniquely identifies a set of asynchronous function calls
      * sharing common exception handling */
-    MORSE_sequence_t *sequence = NULL;
-    /* MORSE request uniquely identifies each asynchronous function call */
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    RUNTIME_sequence_t *sequence = NULL;
+    /* CHAMELEON request uniquely identifies each asynchronous function call */
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
     /* initialize some parameters with default values */
@@ -83,18 +87,18 @@ int main(int argc, char *argv[]) {
     NCPU = iparam[IPARAM_THRDNBR];
     NGPU = iparam[IPARAM_NCUDAS];
 
-     /* Initialize MORSE with main parameters */
-    if ( MORSE_Init( NCPU, NGPU ) != MORSE_SUCCESS ) {
-        fprintf(stderr, "Error initializing MORSE library\n");
+     /* Initialize CHAMELEON with main parameters */
+    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
+        fprintf(stderr, "Error initializing CHAMELEON library\n");
         return EXIT_FAILURE;
     }
 
-    /* set some specific parameters related to MORSE: blocks size and inner-blocking size */
-    MORSE_Set(MORSE_TILE_SIZE,        iparam[IPARAM_NB] );
-    MORSE_Set(MORSE_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
+    /* set some specific parameters related to CHAMELEON: blocks size and inner-blocking size */
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE,        iparam[IPARAM_NB] );
+    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
 
 #if defined(CHAMELEON_USE_MPI)
-    NMPIPROC = MORSE_Comm_size();
+    NMPIPROC = CHAMELEON_Comm_size();
     /* Check P */
     if ( (iparam[IPARAM_P] > 1) &&
          (NMPIPROC % iparam[IPARAM_P] != 0) ) {
@@ -108,37 +112,41 @@ int main(int argc, char *argv[]) {
     GRID_P = iparam[IPARAM_P];
     GRID_Q = iparam[IPARAM_Q];
 
-    if ( MORSE_My_Mpi_Rank() == 0 ){
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ){
         /* print informations to user */
         print_header( argv[0], iparam);
     }
 
-    /* Initialize the structure required for MORSE tile interface */
-    MORSE_Desc_Create(&descA, NULL, MorseRealDouble,
+    /* Initialize the structure required for CHAMELEON tile interface */
+    CHAMELEON_Desc_Create(&descA, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, N, 0, 0, N, N,
                       GRID_P, GRID_Q);
-    MORSE_Desc_Create(&descB, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descB, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, NRHS, 0, 0, N, NRHS,
                       GRID_P, GRID_Q);
-    MORSE_Desc_Create(&descX, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descX, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, NRHS, 0, 0, N, NRHS,
                       GRID_P, GRID_Q);
-    MORSE_Desc_Create(&descAC, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descAC, NULL, ChamRealDouble,
                       NB, NB, NB*NB, N, N, 0, 0, N, N,
                       GRID_P, GRID_Q);
 
-    /* generate A matrix with random values such that it is spd */
-    MORSE_dplgsy_Tile( (double)N, MorseUpperLower, descA, 51 );
+    /* generate A matrix with random values such that it is spd.
+       We use the callback function Cham_build_callback_plgsy() defined in step7.h
+       In this example, it is just a wrapper toward CORE_dplgsy() */
+    struct data_pl data_A={(double)N, 51, N};
+    CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A, Cham_build_callback_plgsy);
 
-    /* generate RHS */
-    MORSE_dplrnt_Tile( descB, 5673 );
+    /* generate RHS with the callback Cham_build_callback_plrnt() */
+    struct data_pl data_B={0., 5673, N};
+    CHAMELEON_dbuild_Tile(ChamUpperLower, descB, (void*)&data_B, Cham_build_callback_plrnt);
 
     /* copy A before facto. in order to check the result */
-    MORSE_dlacpy_Tile(MorseUpperLower, descA, descAC);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descA, descAC);
 
     /* copy B in X before solving
      * same sense as memcpy(X, B, N*NRHS*sizeof(double)) but for descriptors */
-    MORSE_dlacpy_Tile(MorseUpperLower, descB, descX);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descB, descX);
 
     /************************************************************/
     /* solve the system AX = B using the Cholesky factorization */
@@ -146,39 +154,39 @@ int main(int argc, char *argv[]) {
 
     cpu_time = -CHAMELEON_timer();
 
-    MORSE_Sequence_Create(&sequence);
+    CHAMELEON_Sequence_Create(&sequence);
 
     /* Cholesky factorization:
      * A is replaced by its factorization L or L^T depending on uplo */
-    MORSE_dpotrf_Tile_Async( UPLO, descA, sequence, &request );
+    CHAMELEON_dpotrf_Tile_Async( UPLO, descA, sequence, &request );
 
     /* Solve:
      * B is stored in X on entry, X contains the result on exit.
      * Forward and back substitutions
      */
-    MORSE_dpotrs_Tile_Async( UPLO, descA, descX, sequence, &request);
+    CHAMELEON_dpotrs_Tile_Async( UPLO, descA, descX, sequence, &request);
 
     /* Ensure that all data processed on the gpus we are depending on are back
      * in main memory */
-    MORSE_Desc_Flush( descA, sequence );
-    MORSE_Desc_Flush( descX, sequence );
+    CHAMELEON_Desc_Flush( descA, sequence );
+    CHAMELEON_Desc_Flush( descX, sequence );
 
     /* Synchronization barrier (the runtime ensures that all submitted tasks
      * have been terminated */
-    MORSE_Sequence_Wait(sequence);
+    CHAMELEON_Sequence_Wait(sequence);
 
     status = sequence->status;
     if ( status != 0 ) {
         fprintf(stderr, "Error in computation (%d)\n", status);
         return EXIT_FAILURE;
     }
-    MORSE_Sequence_Destroy(sequence);
+    CHAMELEON_Sequence_Destroy(sequence);
 
     cpu_time += CHAMELEON_timer();
 
     /* print informations to user */
     gflops = flops / cpu_time;
-    if ( MORSE_My_Mpi_Rank() == 0 ) {
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
         printf( "%9.3f %9.2f\n", cpu_time, gflops);
     }
     fflush( stdout );
@@ -188,14 +196,14 @@ int main(int argc, char *argv[]) {
     /************************************************************/
 
     /* compute norms to check the result */
-    anorm = MORSE_dlange_Tile( MorseInfNorm, descAC);
-    bnorm = MORSE_dlange_Tile( MorseInfNorm, descB);
-    xnorm = MORSE_dlange_Tile( MorseInfNorm, descX);
+    anorm = CHAMELEON_dlange_Tile( ChamInfNorm, descAC);
+    bnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descB);
+    xnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descX);
 
     /* compute A*X-B, store the result in B */
-    MORSE_dgemm_Tile( MorseNoTrans, MorseNoTrans,
+    CHAMELEON_dgemm_Tile( ChamNoTrans, ChamNoTrans,
                       1.0, descAC, descX, -1.0, descB );
-    res = MORSE_dlange_Tile( MorseInfNorm, descB );
+    res = CHAMELEON_dlange_Tile( ChamInfNorm, descB );
 
     /* check residual and print a message */
     eps = LAPACKE_dlamch_work( 'e' );
@@ -205,7 +213,7 @@ int main(int argc, char *argv[]) {
      * else the test failed
      */
     hres = ( res / N / eps / (anorm * xnorm + bnorm ) > 100.0 );
-    if ( MORSE_My_Mpi_Rank() == 0 ){
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ){
         printf( "   ||Ax-b||       ||A||       ||x||       ||b|| ||Ax-b||/N/eps/(||A||||x||+||b||)  RETURN\n");
         if (hres) {
             printf( "%8.5e %8.5e %8.5e %8.5e                       %8.5e FAILURE \n",
@@ -220,13 +228,13 @@ int main(int argc, char *argv[]) {
     }
 
     /* deallocate A, B, X, Acpy and associated descriptors descA, ... */
-    MORSE_Desc_Destroy( &descA );
-    MORSE_Desc_Destroy( &descB );
-    MORSE_Desc_Destroy( &descX );
-    MORSE_Desc_Destroy( &descAC );
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
+    CHAMELEON_Desc_Destroy( &descX );
+    CHAMELEON_Desc_Destroy( &descAC );
 
-    /* Finalize MORSE */
-    MORSE_Finalize();
+    /* Finalize CHAMELEON */
+    CHAMELEON_Finalize();
 
     return EXIT_SUCCESS;
 }

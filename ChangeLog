@@ -23,7 +23,7 @@ r2253 | fpruvost | 2015-06-19 16:57:27 +0200 (ven. 19 juin 2015)
 - correct restrict zsytrf_nopiv
 - save config of build in config.log
 - improve potrf+potrs on distributed systems
-- add a MORSE_VERBOSE mode to activate or not hints during the detection
+- add a CHAMELEON_VERBOSE mode to activate or not hints during the detection
 - add the codelet name information in starpu_codelet for eztrace starpu module interceptions
 - change the name of the installed chameleon .pc file: no more starpu or quark suffix
 - change installation directories for headers, executables and docs. Make it relative to chameleon to avoid a bloody mess in system dirs
@@ -36,7 +36,7 @@ r2253 | fpruvost | 2015-06-19 16:57:27 +0200 (ven. 19 juin 2015)
   - improve Find BLAS for gnu compilo and threaded mkl
   - if hints are given by user to find libs (CMake option or env. var) --> do not use pkg-config
 - avoid to call MPI_Finalize if MPI has been initialized by user
-- add MORSE_Pause/Resume function to avoid CPU consumption when no tasks have to be executed
+- add CHAMELEON_Pause/Resume function to avoid CPU consumption when no tasks have to be executed
 - update the fortran90 interface
 
 chameleon-0.9.0

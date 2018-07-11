@@ -80,7 +80,7 @@
 # #     Chameleon provides a Fortran interface to user functions. Example:
 # #     #+begin_src
 # #     call morse_version(major, minor, patch) !or
-# #     call MORSE_VERSION(major, minor, patch)
+# #     call CHAMELEON_VERSION(major, minor, patch)
 # #     #+end_src
 # #
 # #     Build and link are very similar to the C case.
@@ -299,24 +299,24 @@
    supported in both single precision and double precision.  Routines
    that compute linear algebra are of the following form:
    #+begin_src
-   MORSE_name[_Tile[_Async]]
+   CHAMELEON_name[_Tile[_Async]]
    #+end_src
-   * all user routines are prefixed with *MORSE*
-   * in the pattern *MORSE_name[_Tile[_Async]]*, /name/ follows the
+   * all user routines are prefixed with *CHAMELEON*
+   * in the pattern *CHAMELEON_name[_Tile[_Async]]*, /name/ follows the
      BLAS/LAPACK naming scheme for algorithms (/e.g./ sgemm for general
      matrix-matrix multiply simple precision)
    * Chameleon provides three interface levels
-     * *MORSE_name*: simplest interface, very close to CBLAS and
+     * *CHAMELEON_name*: simplest interface, very close to CBLAS and
        LAPACKE, matrices are given following the LAPACK data layout
        (1-D array column-major).  It involves copy of data from LAPACK
        layout to tile layout and conversely (to update LAPACK data),
        see [[sec:tuto_step1][Step1]].
-     * *MORSE_name_Tile*: the tile interface avoid copies between LAPACK
+     * *CHAMELEON_name_Tile*: the tile interface avoid copies between LAPACK
        and tile layouts. It is the standard interface of Chameleon and
        it should achieved better performance than the previous
        simplest interface. The data are given through a specific
        structure called a descriptor, see [[sec:tuteo_step2][Step2]].
-     * *MORSE_name_Tile_Async*: similar to the tile interface, it avoids
+     * *CHAMELEON_name_Tile_Async*: similar to the tile interface, it avoids
        synchonization barrier normally called between *Tile* routines.
        At the end of an *Async* function, completion of tasks is not
        guaranteed and data are not necessarily up-to-date.  To ensure
@@ -324,13 +324,13 @@
        has to be called after the sequence of *Async* functions, see
        [[tuto_step4][Step4]].
 
-   MORSE routine calls have to be preceded from
+   CHAMELEON routine calls have to be preceded from
    #+begin_src
-   MORSE_Init( NCPU, NGPU );
+   CHAMELEON_Init( NCPU, NGPU );
    #+end_src
-   to initialize MORSE and the runtime system and followed by
+   to initialize CHAMELEON and the runtime system and followed by
    #+begin_src
-   MORSE_Finalize();
+   CHAMELEON_Finalize();
    #+end_src
    to free some data and finalize the runtime and/or MPI.
 
@@ -423,23 +423,23 @@
      equivalent functions.  The solving code becomes:
      #+begin_example
      /* Factorization: */
-     MORSE_dpotrf( UPLO, N, A, N );
+     CHAMELEON_dpotrf( UPLO, N, A, N );
      /* Solve: */
-     MORSE_dpotrs(UPLO, N, NRHS, A, N, X, N);
+     CHAMELEON_dpotrs(UPLO, N, NRHS, A, N, X, N);
      #+end_example
      The API is almost the same so that it is easy to use for beginners.
-     It is important to keep in mind that before any call to MORSE routines,
-     *MORSE_Init* has to be invoked to initialize MORSE and the runtime system.
+     It is important to keep in mind that before any call to CHAMELEON routines,
+     *CHAMELEON_Init* has to be invoked to initialize CHAMELEON and the runtime system.
      Example:
      #+begin_example
-     MORSE_Init( NCPU, NGPU );
+     CHAMELEON_Init( NCPU, NGPU );
      #+end_example
-     After all MORSE calls have been done, a call to *MORSE_Finalize* is
+     After all CHAMELEON calls have been done, a call to *CHAMELEON_Finalize* is
      required to free some data and finalize the runtime and/or MPI.
      #+begin_example
-     MORSE_Finalize();
+     CHAMELEON_Finalize();
      #+end_example
-     We use MORSE routines with the LAPACK interface which means the
+     We use CHAMELEON routines with the LAPACK interface which means the
      routines accepts the same matrix format as LAPACK (1-D array
      column-major).  Note that we copy the matrix to get it in our own
      tile structures, see details about this format here [[sec:tile][Tile Data
@@ -449,37 +449,37 @@
      <<sec:tuto_step2>>
 
      This program is a copy of step1 but instead of using the LAPACK interface which
-     reads to copy LAPACK matrices inside MORSE routines we use the tile interface.
+     reads to copy LAPACK matrices inside CHAMELEON routines we use the tile interface.
      We will still use standard format of matrix but we will see how to give this
-     matrix to create a MORSE descriptor, a structure wrapping data on which we want
+     matrix to create a CHAMELEON descriptor, a structure wrapping data on which we want
      to apply sequential task-based algorithms.
      The solving code becomes:
      #+begin_example
      /* Factorization: */
-     MORSE_dpotrf_Tile( UPLO, descA );
+     CHAMELEON_dpotrf_Tile( UPLO, descA );
      /* Solve: */
-     MORSE_dpotrs_Tile( UPLO, descA, descX );
+     CHAMELEON_dpotrs_Tile( UPLO, descA, descX );
      #+end_example
-     To use the tile interface, a specific structure *MORSE_desc_t* must be
+     To use the tile interface, a specific structure *CHAM_desc_t* must be
      created.
      This can be achieved from different ways.
-     1. Use the existing function *MORSE_Desc_Create*: means the matrix
+     1. Use the existing function *CHAMELEON_Desc_Create*: means the matrix
         data are considered contiguous in memory as it is considered
         in PLASMA ([[sec:tile][Tile Data Layout]]).
-     2. Use the existing function *MORSE_Desc_Create_OOC*: means the
+     2. Use the existing function *CHAMELEON_Desc_Create_OOC*: means the
         matrix data is allocated on-demand in memory tile by tile, and
         possibly pushed to disk if that does not fit memory.
-     3. Use the existing function *MORSE_Desc_Create_User*: it is more
+     3. Use the existing function *CHAMELEON_Desc_Create_User*: it is more
         flexible than *Desc_Create* because you can give your own way to
         access to tile data so that your tiles can be allocated
         wherever you want in memory, see next paragraph [[sec:tuto_step3][Step3]].
      4. Create you own function to fill the descriptor.  If you
-        understand well the meaning of each item of *MORSE_desc_t*, you
+        understand well the meaning of each item of *CHAM_desc_t*, you
         should be able to fill correctly the structure.
 
      In Step2, we use the first way to create the descriptor:
      #+begin_example
-     MORSE_Desc_Create(&descA, NULL, MorseRealDouble,
+     CHAMELEON_Desc_Create(&descA, NULL, ChamRealDouble,
                        NB, NB, NB*NB, N, N,
                        0, 0, N, N,
                        1, 1);
@@ -487,15 +487,15 @@
      * *descA* is the descriptor to create.
      * The second argument is a pointer to existing data. The existing
        data must follow LAPACK/PLASMA matrix layout [[sec:tile][Tile Data Layout]]
-       (1-D array column-major) if *MORSE_Desc_Create* is used to create
-       the descriptor. The *MORSE_Desc_Create_User* function can be used
+       (1-D array column-major) if *CHAMELEON_Desc_Create* is used to create
+       the descriptor. The *CHAMELEON_Desc_Create_User* function can be used
        if you have data organized differently. This is discussed in
        the next paragraph [[sec_tuto_step3][Step3]].  Giving a *NULL* pointer means you let
        the function allocate memory space.  This requires to copy your
        data in the memory allocated by the *Desc_Create.  This can be
        done with
        #+begin_example
-       MORSE_Lapack_to_Tile(A, N, descA);
+       CHAMELEON_Lapack_to_Tile(A, N, descA);
        #+end_example
      * Third argument of @code{Desc_Create} is the datatype (used for
        memory allocation).
@@ -510,7 +510,7 @@
        not consider submatrices, just use 0, 0, NROWS, NCOLS.
      * Two last arguments are the parameter of the 2-D block-cyclic
        distribution grid, see [[http://www.netlib.org/scalapack/slug/node75.html][ScaLAPACK]].  To be able to use other data
-       distribution over the nodes, *MORSE_Desc_Create_User* function
+       distribution over the nodes, *CHAMELEON_Desc_Create_User* function
        should be used.
 
 **** Step3
@@ -519,30 +519,30 @@
      This program makes use of the same interface than Step2 (tile
      interface) but does not allocate LAPACK matrices anymore so that
      no copy between LAPACK matrix layout and tile matrix layout are
-     necessary to call MORSE routines.  To generate random right
+     necessary to call CHAMELEON routines.  To generate random right
      hand-sides you can use:
      #+begin_example
      /* Allocate memory and initialize descriptor B */
-     MORSE_Desc_Create(&descB,  NULL, MorseRealDouble,
+     CHAMELEON_Desc_Create(&descB,  NULL, ChamRealDouble,
                        NB, NB,  NB*NB, N, NRHS,
                        0, 0, N, NRHS, 1, 1);
      /* generate RHS with random values */
-     MORSE_dplrnt_Tile( descB, 5673 );
+     CHAMELEON_dplrnt_Tile( descB, 5673 );
      #+end_example
      The other important point is that is it possible to create a
-     descriptor, the necessary structure to call MORSE efficiently, by
+     descriptor, the necessary structure to call CHAMELEON efficiently, by
      giving your own pointer to tiles if your matrix is not organized
      as a 1-D array column-major.  This can be achieved with the
-     *MORSE_Desc_Create_User* routine.  Here is an example:
+     *CHAMELEON_Desc_Create_User* routine.  Here is an example:
      #+begin_example
-     MORSE_Desc_Create_User(&descA, matA, MorseRealDouble,
+     CHAMELEON_Desc_Create_User(&descA, matA, ChamRealDouble,
                             NB, NB, NB*NB, N, N,
                             0, 0, N, N, 1, 1,
                             user_getaddr_arrayofpointers,
                             user_getblkldd_arrayofpointers,
                             user_getrankof_zero);
      #+end_example
-     Firsts arguments are the same than *MORSE_Desc_Create* routine.
+     Firsts arguments are the same than *CHAMELEON_Desc_Create* routine.
      Following arguments allows you to give pointer to functions that
      manage the access to tiles from the structure given as second
      argument.  Here for example, *matA* is an array containing
@@ -570,7 +570,7 @@
      This program is a copy of step2 but instead of using the tile
      interface, it uses the tile async interface.  The goal is to
      exhibit the runtime synchronization barriers.  Keep in mind that
-     when the tile interface is called, like *MORSE_dpotrf_Tile*,
+     when the tile interface is called, like *CHAMELEON_dpotrf_Tile*,
      a synchronization function, waiting for the actual execution and
      termination of all tasks, is called to ensure the proper
      completion of the algorithm (i.e. data are up-to-date).  The code
@@ -578,14 +578,14 @@
      algorithms so that less synchronisations are done.  The code
      becomes:
      #+begin_example
-     /* Morse structure containing parameters and a structure to interact with
+     /* Cham structure containing parameters and a structure to interact with
       * the Runtime system */
-     MORSE_context_t *morse;
-     /* MORSE sequence uniquely identifies a set of asynchronous function calls
+     CHAM_context_t *morse;
+     /* CHAMELEON sequence uniquely identifies a set of asynchronous function calls
       * sharing common exception handling */
-     MORSE_sequence_t *sequence = NULL;
-     /* MORSE request uniquely identifies each asynchronous function call */
-     MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+     RUNTIME_sequence_t *sequence = NULL;
+     /* CHAMELEON request uniquely identifies each asynchronous function call */
+     RUNTIME_request_t request = CHAMELEON_REQUEST_INITIALIZER;
      int status;
 
      ...
@@ -593,10 +593,10 @@
      morse_sequence_create(morse, &sequence);
 
      /* Factorization: */
-     MORSE_dpotrf_Tile_Async( UPLO, descA, sequence, &request );
+     CHAMELEON_dpotrf_Tile_Async( UPLO, descA, sequence, &request );
 
      /* Solve: */
-     MORSE_dpotrs_Tile_Async( UPLO, descA, descX, sequence, &request);
+     CHAMELEON_dpotrs_Tile_Async( UPLO, descA, descX, sequence, &request);
 
      /* Synchronization barrier (the runtime ensures that all submitted tasks
       * have been terminated */
@@ -613,8 +613,8 @@
      without synchronization so that some tasks of *dpotrf* and *dpotrs*
      can be concurently executed which could increase performances.
      The async interface is very similar to the tile one.  It is only
-     necessary to give two new objects *MORSE_sequence_t* and
-     *MORSE_request_t* used to handle asynchronous function calls.
+     necessary to give two new objects *RUNTIME_sequence_t* and
+     *RUNTIME_request_t* used to handle asynchronous function calls.
 
      #+CAPTION: POTRI (POTRF, TRTRI, LAUUM) algorithm with and without synchronization barriers, courtesey of the [[http://icl.cs.utk.edu/plasma/][PLASMA]] team.
      #+NAME: fig:potri_async
@@ -635,7 +635,7 @@
        important to notice that we assign one thread per gpu to
        optimize data transfer between main memory and devices memory.
        The number of workers of each type CPU and CUDA
-       must be given at *MORSE_Init*.
+       must be given at *CHAMELEON_Init*.
        #+begin_example
        if ( iparam[IPARAM_THRDNBR] == -1 ) {
            get_thread_count( &(iparam[IPARAM_THRDNBR]) );
@@ -644,8 +644,8 @@
        }
        NCPU = iparam[IPARAM_THRDNBR];
        NGPU = iparam[IPARAM_NCUDAS];
-       /* initialize MORSE with main parameters */
-       MORSE_Init( NCPU, NGPU );
+       /* initialize CHAMELEON with main parameters */
+       CHAMELEON_Init( NCPU, NGPU );
        #+end_example
 
      * matrix size
@@ -674,10 +674,10 @@
         This parameter is used by kernels (optimized algorithms applied on tiles) to
         perform subsequent operations with data block-size that fits the cache of
         workers.
-        Parameters NB and IB can be given with *MORSE_Set* function:
+        Parameters NB and IB can be given with *CHAMELEON_Set* function:
         #+begin_example
-        MORSE_Set(MORSE_TILE_SIZE,        iparam[IPARAM_NB] );
-        MORSE_Set(MORSE_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
+        CHAMELEON_Set(CHAMELEON_TILE_SIZE,        iparam[IPARAM_NB] );
+        CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
         #+end_example
 
 **** Step6
@@ -685,7 +685,7 @@
 
      This program is a copy of Step5 with some additional parameters
      to be set for the data distribution.  To use this program
-     properly MORSE must use StarPU Runtime system and MPI option must
+     properly CHAMELEON must use StarPU Runtime system and MPI option must
      be activated at configure.  The data distribution used here is
      2-D block-cyclic, see for example [[http://www.netlib.org/scalapack/slug/node75.html][ScaLAPACK]] for explanation.  The
      user can enter the parameters of the distribution grid at
@@ -697,7 +697,7 @@
 
      In this program we use the tile data layout from PLASMA so that the call
      #+begin_example
-     MORSE_Desc_Create_User(&descA, NULL, MorseRealDouble,
+     CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
                             NB, NB, NB*NB, N, N,
                             0, 0, N, N,
                             GRID_P, GRID_Q,
@@ -708,7 +708,7 @@
      is equivalent to the following call
 
      #+begin_example
-     MORSE_Desc_Create(&descA, NULL, MorseRealDouble,
+     CHAMELEON_Desc_Create(&descA, NULL, ChamRealDouble,
                        NB, NB, NB*NB, N, N,
                        0, 0, N, N,
                        GRID_P, GRID_Q);
@@ -717,7 +717,7 @@
      *morse_getrankof_2d* being used in *Desc_Create*.  It is interesting
      to notice that the code is almost the same as Step5.  The only
      additional information to give is the way tiles are distributed
-     through the third function given to *MORSE_Desc_Create_User*.
+     through the third function given to *CHAMELEON_Desc_Create_User*.
      Here, because we have made experiments only with a 2-D
      block-cyclic distribution, we have parameters P and Q in the
      interface of *Desc_Create* but they have sense only for 2-D
@@ -733,9 +733,9 @@
      This program is a copy of step6 with some additional calls to
      build a matrix from within chameleon using a function provided by
      the user.  This can be seen as a replacement of the function like
-     *MORSE_dplgsy_Tile()* that can be used to fill the matrix with
-     random data, *MORSE_dLapack_to_Tile()* to fill the matrix with data
-     stored in a lapack-like buffer, or *MORSE_Desc_Create_User()* that
+     *CHAMELEON_dplgsy_Tile()* that can be used to fill the matrix with
+     random data, *CHAMELEON_dLapack_to_Tile()* to fill the matrix with data
+     stored in a lapack-like buffer, or *CHAMELEON_Desc_Create_User()* that
      can be used to describe an arbitrary tile matrix structure.  In
      this example, the build callback function are just wrapper
      towards *CORE_xxx()* functions, so the output of the program step7
@@ -743,19 +743,19 @@
      that the function used to fill the tiles is provided by the user,
      and therefore this approach is much more flexible.
 
-     The new function to understand is *MORSE_dbuild_Tile*, e.g.
+     The new function to understand is *CHAMELEON_dbuild_Tile*, e.g.
      #+begin_example
      struct data_pl data_A={(double)N, 51, N};
-     MORSE_dbuild_Tile(MorseUpperLower, descA, (void*)&data_A, Morse_build_callback_plgsy);
+     CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A, Cham_build_callback_plgsy);
      #+end_example
 
      The idea here is to let Chameleon fill the matrix data in a
      task-based fashion (parallel) by using a function given by the
      user.  First, the user should define if all the blocks must be
      entirelly filled or just the upper/lower part with, /e.g./
-     MorseUpperLower.  We still relies on the same structure
-     *MORSE_desc_t* which must be initialized with the proper
-     parameters, by calling for example *MORSE_Desc_Create*.  Then, an
+     ChamUpperLower.  We still relies on the same structure
+     *CHAM_desc_t* which must be initialized with the proper
+     parameters, by calling for example *CHAMELEON_Desc_Create*.  Then, an
      opaque pointer is used to let the user give some extra data used
      by his function.  The last parameter is the pointer to the user's
      function.
@@ -764,7 +764,7 @@
 **** Linear Algebra routines
 
      We list the linear algebra routines of the form
-     *MORSE_name[_Tile[_Async]]* (/name/ follows LAPACK naming scheme, see
+     *CHAMELEON_name[_Tile[_Async]]* (/name/ follows LAPACK naming scheme, see
      http://www.netlib.org/lapack/lug/node24.html) that can be used
      with the Chameleon library. For details about these functions
      please refer to the doxygen documentation. /name/ can be one of the
@@ -840,11 +840,11 @@
          representation for Q
        * unglq: generates an M-by-N matrix Q with orthonormal rows,
          which is defined as the first M rows of a product of the
-         elementary reflectors returned by MORSE_zgelqf
+         elementary reflectors returned by CHAMELEON_zgelqf
        * unglq_param: unglq with hqr
        * ungqr: generates an M-by-N matrix Q with orthonormal columns,
          which is defined as the first N columns of a product of the
-         elementary reflectors returned by MORSE_zgeqrf
+         elementary reflectors returned by CHAMELEON_zgeqrf
        * ungqr_param: ungqr with hqr
        * unmlq: overwrites C with Q*C or C*Q or equivalent operations
          with transposition on conjugate on C (see doxygen
@@ -874,162 +874,162 @@
          * tradd: trapezoidal matrices addition
 
 **** Options routines
-     Enable MORSE feature.
+     Enable CHAMELEON feature.
      #+begin_src
-     int MORSE_Enable  (MORSE_enum option);
+     int CHAMELEON_Enable  (CHAMELEON_enum option);
      #+end_src
      Feature to be enabled:
-     * *MORSE_WARNINGS*:   printing of warning messages,
-     * *MORSE_AUTOTUNING*: autotuning for tile size and inner block size,
-     * *MORSE_PROFILING_MODE*:  activate kernels profiling,
-     * *MORSE_PROGRESS*:  to print a progress status,
-     * *MORSE_GEMM3M*: to enable the use of the /gemm3m/ blas bunction.
+     * *CHAMELEON_WARNINGS*:   printing of warning messages,
+     * *CHAMELEON_AUTOTUNING*: autotuning for tile size and inner block size,
+     * *CHAMELEON_PROFILING_MODE*:  activate kernels profiling,
+     * *CHAMELEON_PROGRESS*:  to print a progress status,
+     * *CHAMELEON_GEMM3M*: to enable the use of the /gemm3m/ blas bunction.
 
-     Disable MORSE feature.
+     Disable CHAMELEON feature.
      #+begin_src
-     int MORSE_Disable (MORSE_enum option);
+     int CHAMELEON_Disable (CHAMELEON_enum option);
      #+end_src
-     Symmetric to *MORSE_Enable*.
+     Symmetric to *CHAMELEON_Enable*.
 
-     Set MORSE parameter.
+     Set CHAMELEON parameter.
      #+begin_src
-     int MORSE_Set     (MORSE_enum param, int  value);
+     int CHAMELEON_Set     (CHAMELEON_enum param, int  value);
      #+end_src
      Parameters to be set:
-     * *MORSE_TILE_SIZE*:        size matrix tile,
-     * *MORSE_INNER_BLOCK_SIZE*: size of tile inner block,
-     * *MORSE_HOUSEHOLDER_MODE*: type of householder trees (FLAT or TREE),
-     * *MORSE_HOUSEHOLDER_SIZE*: size of the groups in householder trees,
-     * *MORSE_TRANSLATION_MODE*: related to the *MORSE_Lapack_to_Tile*, see ztile.c.
+     * *CHAMELEON_TILE_SIZE*:        size matrix tile,
+     * *CHAMELEON_INNER_BLOCK_SIZE*: size of tile inner block,
+     * *CHAMELEON_HOUSEHOLDER_MODE*: type of householder trees (FLAT or TREE),
+     * *CHAMELEON_HOUSEHOLDER_SIZE*: size of the groups in householder trees,
+     * *CHAMELEON_TRANSLATION_MODE*: related to the *CHAMELEON_Lapack_to_Tile*, see ztile.c.
 
-     Get value of MORSE parameter.
+     Get value of CHAMELEON parameter.
      #+begin_src
-     int MORSE_Get     (MORSE_enum param, int *value);
+     int CHAMELEON_Get     (CHAMELEON_enum param, int *value);
      #+end_src
 
 **** Auxiliary routines
 
-     Reports MORSE version number.
+     Reports CHAMELEON version number.
      #+begin_src
-     int MORSE_Version        (int *ver_major, int *ver_minor, int *ver_micro);
+     int CHAMELEON_Version        (int *ver_major, int *ver_minor, int *ver_micro);
      #+end_src
 
-     Initialize MORSE: initialize some parameters, initialize the runtime and/or MPI.
+     Initialize CHAMELEON: initialize some parameters, initialize the runtime and/or MPI.
      #+begin_src
-     int MORSE_Init           (int nworkers, int ncudas);
+     int CHAMELEON_Init           (int nworkers, int ncudas);
      #+end_src
 
-     Finalyze MORSE: free some data and finalize the runtime and/or MPI.
+     Finalyze CHAMELEON: free some data and finalize the runtime and/or MPI.
      #+begin_src
-     int MORSE_Finalize       (void);
+     int CHAMELEON_Finalize       (void);
      #+end_src
 
-     Suspend MORSE runtime to poll for new tasks, to avoid useless CPU consumption when
-     no tasks have to be executed by MORSE runtime system.
+     Suspend CHAMELEON runtime to poll for new tasks, to avoid useless CPU consumption when
+     no tasks have to be executed by CHAMELEON runtime system.
      #+begin_src
-     int MORSE_Pause          (void);
+     int CHAMELEON_Pause          (void);
      #+end_src
 
-     Symmetrical call to MORSE_Pause, used to resume the workers polling for new tasks.
+     Symmetrical call to CHAMELEON_Pause, used to resume the workers polling for new tasks.
      #+begin_src
-     int MORSE_Resume         (void);
+     int CHAMELEON_Resume         (void);
      #+end_src
 
      Return the MPI rank of the calling process.
      #+begin_src
-     int MORSE_My_Mpi_Rank    (void);
+     int CHAMELEON_My_Mpi_Rank    (void);
      #+end_src
 
      Return the size of the distributed computation
      #+begin_src
-     int MORSE_Comm_size( int *size )
+     int CHAMELEON_Comm_size( int *size )
      #+end_src
 
      Return the rank of the distributed computation
      #+begin_src
-     int MORSE_Comm_rank( int *rank )
+     int CHAMELEON_Comm_rank( int *rank )
      #+end_src
 
      Prepare the distributed processes for computation
      #+begin_src
-     int MORSE_Distributed_start(void)
+     int CHAMELEON_Distributed_start(void)
      #+end_src
 
      Clean the distributed processes after computation
      #+begin_src
-     int MORSE_Distributed_stop(void)
+     int CHAMELEON_Distributed_stop(void)
      #+end_src
 
      Return the number of CPU workers initialized by the runtime
      #+begin_src
-     int MORSE_GetThreadNbr()
+     int CHAMELEON_GetThreadNbr()
      #+end_src
 
      Conversion from LAPACK layout to tile layout.
      #+begin_src
-     int MORSE_Lapack_to_Tile (void *Af77, int LDA, MORSE_desc_t *A);
+     int CHAMELEON_Lapack_to_Tile (void *Af77, int LDA, CHAM_desc_t *A);
      #+end_src
 
      Conversion from tile layout to LAPACK layout.
      #+begin_src
-     int MORSE_Tile_to_Lapack (MORSE_desc_t *A, void *Af77, int LDA);
+     int CHAMELEON_Tile_to_Lapack (CHAM_desc_t *A, void *Af77, int LDA);
      #+end_src
 
 **** Descriptor routines
 
      Create matrix descriptor, internal function.
      #+begin_src
-     int MORSE_Desc_Create(MORSE_desc_t **desc, void *mat, MORSE_enum dtyp,
+     int CHAMELEON_Desc_Create(CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
                            int mb, int nb, int bsiz, int lm, int ln,
                            int i, int j, int m, int n, int p, int q);
      #+end_src
 
      Create matrix descriptor, user function.
      #+begin_src
-     int MORSE_Desc_Create_User(MORSE_desc_t **desc, void *mat, MORSE_enum dtyp,
+     int CHAMELEON_Desc_Create_User(CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
                                 int mb, int nb, int bsiz, int lm, int ln,
                                 int i, int j, int m, int n, int p, int q,
-                                void* (*get_blkaddr)( const MORSE_desc_t*, int, int),
-                                int (*get_blkldd)( const MORSE_desc_t*, int ),
-                                int (*get_rankof)( const MORSE_desc_t*, int, int ));
+                                void* (*get_blkaddr)( const CHAM_desc_t*, int, int),
+                                int (*get_blkldd)( const CHAM_desc_t*, int ),
+                                int (*get_rankof)( const CHAM_desc_t*, int, int ));
      #+end_src
 
      Create matrix descriptor for tiled matrix which may not fit
      memory.
      #+begin_src
-     int MORSE_Desc_Create_OOC(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int nb, int bsiz,
+     int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                int lm, int ln, int i, int j, int m, int n, int p, int q);
      #+end_src
 
-     User's function version of MORSE_Desc_Create_OOC.
+     User's function version of CHAMELEON_Desc_Create_OOC.
      #+begin_src
-     int MORSE_Desc_Create_OOC_User(MORSE_desc_t **descptr, MORSE_enum dtyp, int mb, int nb, int bsiz,
+     int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                     int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                    int (*get_rankof)( const MORSE_desc_t*, int, int ));
+                                    int (*get_rankof)( const CHAM_desc_t*, int, int ));
      #+end_src
 
      Destroys matrix descriptor.
      #+begin_src
-     int MORSE_Desc_Destroy (MORSE_desc_t **desc);
+     int CHAMELEON_Desc_Destroy (CHAM_desc_t **desc);
      #+end_src
 
      Ensures that all data of the descriptor are up-to-date.
      #+begin_src
-     int MORSE_Desc_Acquire (MORSE_desc_t  *desc);
+     int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc);
      #+end_src
 
      Release the data of the descriptor acquired by the
-     application. Should be called if MORSE_Desc_Acquire has been
+     application. Should be called if CHAMELEON_Desc_Acquire has been
      called on the descriptor and if you do not need to access to its
      data anymore.
      #+begin_src
-     int MORSE_Desc_Release (MORSE_desc_t  *desc);
+     int CHAMELEON_Desc_Release (CHAM_desc_t  *desc);
      #+end_src
 
      Ensure that all data are up-to-date in main memory (even if some
      tasks have been processed on GPUs).
      #+begin_src
-     int MORSE_Desc_Flush(MORSE_desc_t  *desc, MORSE_sequence_t *sequence);
+     int CHAMELEON_Desc_Flush(CHAM_desc_t  *desc, RUNTIME_sequence_t *sequence);
      #+end_src
 
      Set the sizes for the MPI tags.  Default value: tag_width=31,
@@ -1037,27 +1037,27 @@
      24 bits for the tile tag and 7 for the descriptor.  This function
      must be called before any descriptor creation.
      #+begin_src
-     void MORSE_user_tag_size(int user_tag_width, int user_tag_sep);
+     void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep);
      #+end_src
 
 **** Sequences routines
 
      Create a sequence.
      #+begin_src
-     int MORSE_Sequence_Create  (MORSE_sequence_t **sequence);
+     int CHAMELEON_Sequence_Create  (RUNTIME_sequence_t **sequence);
      #+end_src
 
      Destroy a sequence.
      #+begin_src
-     int MORSE_Sequence_Destroy (MORSE_sequence_t *sequence);
+     int CHAMELEON_Sequence_Destroy (RUNTIME_sequence_t *sequence);
      #+end_src
 
      Wait for the completion of a sequence.
      #+begin_src
-     int MORSE_Sequence_Wait    (MORSE_sequence_t *sequence);
+     int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
      #+end_src
 
      Terminate a sequence.
      #+begin_src
-     int MORSE_Sequence_Flush(MORSE_sequence_t *sequence, MORSE_request_t *request)
+     int CHAMELEON_Sequence_Flush(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
      #+end_src

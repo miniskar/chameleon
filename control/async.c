@@ -25,12 +25,12 @@
  */
 #include <stdlib.h>
 #include "control/common.h"
-#include "chameleon/morse_runtime.h"
+#include "chameleon/runtime.h"
 
 /**
  *  Register an exception.
  */
-int morse_request_fail(MORSE_sequence_t *sequence, MORSE_request_t *request, int status)
+int morse_request_fail(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int status)
 {
     sequence->request = request;
     sequence->status = status;
@@ -41,43 +41,43 @@ int morse_request_fail(MORSE_sequence_t *sequence, MORSE_request_t *request, int
 /**
  *  Create a sequence
  */
-int morse_sequence_create(MORSE_context_t *morse, MORSE_sequence_t **sequence)
+int morse_sequence_create(CHAM_context_t *morse, RUNTIME_sequence_t **sequence)
 {
-    if ((*sequence = malloc(sizeof(MORSE_sequence_t))) == NULL) {
-        morse_error("MORSE_Sequence_Create", "malloc() failed");
-        return MORSE_ERR_OUT_OF_RESOURCES;
+    if ((*sequence = malloc(sizeof(RUNTIME_sequence_t))) == NULL) {
+        morse_error("CHAMELEON_Sequence_Create", "malloc() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
     RUNTIME_sequence_create( morse, *sequence );
 
-    (*sequence)->status = MORSE_SUCCESS;
-    return MORSE_SUCCESS;
+    (*sequence)->status = CHAMELEON_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Destroy a sequence
  */
-int morse_sequence_destroy(MORSE_context_t *morse, MORSE_sequence_t *sequence)
+int morse_sequence_destroy(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
 {
     RUNTIME_sequence_destroy( morse, sequence );
     free(sequence);
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Wait for the completion of a sequence
  */
-int morse_sequence_wait(MORSE_context_t *morse, MORSE_sequence_t *sequence)
+int morse_sequence_wait(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
 {
     RUNTIME_sequence_wait( morse, sequence );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Sequences
  *
- *  MORSE_Sequence_Create - Create a squence.
+ *  CHAMELEON_Sequence_Create - Create a squence.
  *
  ******************************************************************************
  *
@@ -87,18 +87,18 @@ int morse_sequence_wait(MORSE_context_t *morse, MORSE_sequence_t *sequence)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Sequence_Create(MORSE_sequence_t **sequence)
+int CHAMELEON_Sequence_Create(RUNTIME_sequence_t **sequence)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_Sequence_Create", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_Sequence_Create", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     status = morse_sequence_create(morse, sequence);
     return status;
@@ -108,7 +108,7 @@ int MORSE_Sequence_Create(MORSE_sequence_t **sequence)
  *
  * @ingroup Sequences
  *
- *  MORSE_Sequence_Destroy - Destroy a sequence.
+ *  CHAMELEON_Sequence_Destroy - Destroy a sequence.
  *
  ******************************************************************************
  *
@@ -118,22 +118,22 @@ int MORSE_Sequence_Create(MORSE_sequence_t **sequence)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Sequence_Destroy(MORSE_sequence_t *sequence)
+int CHAMELEON_Sequence_Destroy(RUNTIME_sequence_t *sequence)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_Sequence_Destroy", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_Sequence_Destroy", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_Sequence_Destroy", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_Sequence_Destroy", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     status = morse_sequence_destroy(morse, sequence);
     return status;
@@ -143,7 +143,7 @@ int MORSE_Sequence_Destroy(MORSE_sequence_t *sequence)
  *
  * @ingroup Sequences
  *
- *  MORSE_Sequence_Wait - Wait for the completion of a sequence.
+ *  CHAMELEON_Sequence_Wait - Wait for the completion of a sequence.
  *
  ******************************************************************************
  *
@@ -153,22 +153,22 @@ int MORSE_Sequence_Destroy(MORSE_sequence_t *sequence)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Sequence_Wait(MORSE_sequence_t *sequence)
+int CHAMELEON_Sequence_Wait(RUNTIME_sequence_t *sequence)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_Sequence_Wait", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_Sequence_Wait", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_Sequence_Wait", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_Sequence_Wait", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     status = morse_sequence_wait(morse, sequence);
     return status;
@@ -178,7 +178,7 @@ int MORSE_Sequence_Wait(MORSE_sequence_t *sequence)
  *
  * @ingroup Sequences
  *
- *  MORSE_Sequence_Flush - Terminate a sequence.
+ *  CHAMELEON_Sequence_Flush - Terminate a sequence.
  *
  ******************************************************************************
  *
@@ -191,24 +191,24 @@ int MORSE_Sequence_Wait(MORSE_sequence_t *sequence)
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Sequence_Flush(MORSE_sequence_t *sequence, MORSE_request_t *request)
+int CHAMELEON_Sequence_Flush(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *morse;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_Sequence_Flush", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_Sequence_Flush", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_Sequence_Flush", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        morse_fatal_error("CHAMELEON_Sequence_Flush", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
 
-    RUNTIME_sequence_flush( morse->schedopt, sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+    RUNTIME_sequence_flush( morse->schedopt, sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

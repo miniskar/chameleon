@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgemm_Tile"
+#define _NAME  "CHAMELEON_zgemm_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_GEMM(M, N, K)
 #define _FADDS FADDS_GEMM(M, N, K)
@@ -28,7 +28,7 @@
 static int
 RunTest(int *iparam, double *dparam, morse_time_t *t_)
 {
-    MORSE_Complex64_t alpha, beta;
+    CHAMELEON_Complex64_t alpha, beta;
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
 
@@ -36,14 +36,14 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     LDC = chameleon_max(M, iparam[IPARAM_LDC]);
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, MORSE_Complex64_t, MorseComplexDouble, LDA, M, K );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB, 1, MORSE_Complex64_t, MorseComplexDouble, LDB, K, N );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descC, 1, MORSE_Complex64_t, MorseComplexDouble, LDC, M, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, M, K );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, K, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descC, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDC, M, N );
 
     /* Initialiaze Data */
-    MORSE_zplrnt_Tile( descA, 5373 );
-    MORSE_zplrnt_Tile( descB, 7672 );
-    MORSE_zplrnt_Tile( descC, 6387 );
+    CHAMELEON_zplrnt_Tile( descA, 5373 );
+    CHAMELEON_zplrnt_Tile( descB, 7672 );
+    CHAMELEON_zplrnt_Tile( descC, 6387 );
 
 #if !defined(CHAMELEON_SIMULATION)
     LAPACKE_zlarnv_work(1, ISEED, 1, &alpha);
@@ -54,21 +54,21 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 #endif
 
     /* Save C for check */
-    PASTE_TILE_TO_LAPACK( descC, C2, check, MORSE_Complex64_t, LDC, N );
+    PASTE_TILE_TO_LAPACK( descC, C2, check, CHAMELEON_Complex64_t, LDC, N );
 
     START_TIMING();
-    MORSE_zgemm_Tile( MorseNoTrans, MorseNoTrans, alpha, descA, descB, beta, descC );
+    CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, alpha, descA, descB, beta, descC );
     STOP_TIMING();
 
 #if !defined(CHAMELEON_SIMULATION)
     /* Check the solution */
     if (check)
     {
-        PASTE_TILE_TO_LAPACK( descA, A, check, MORSE_Complex64_t, LDA, K );
-        PASTE_TILE_TO_LAPACK( descB, B, check, MORSE_Complex64_t, LDB, N );
-        PASTE_TILE_TO_LAPACK( descC, C, check, MORSE_Complex64_t, LDC, N );
+        PASTE_TILE_TO_LAPACK( descA, A, check, CHAMELEON_Complex64_t, LDA, K );
+        PASTE_TILE_TO_LAPACK( descB, B, check, CHAMELEON_Complex64_t, LDB, N );
+        PASTE_TILE_TO_LAPACK( descC, C, check, CHAMELEON_Complex64_t, LDC, N );
 
-        dparam[IPARAM_RES] = z_check_gemm( MorseNoTrans, MorseNoTrans, M, N, K,
+        dparam[IPARAM_RES] = z_check_gemm( ChamNoTrans, ChamNoTrans, M, N, K,
                                            alpha, A, LDA, B, LDB, beta, C, C2, LDC,
                                            &(dparam[IPARAM_ANORM]),
                                            &(dparam[IPARAM_BNORM]),

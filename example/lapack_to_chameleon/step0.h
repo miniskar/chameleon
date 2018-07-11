@@ -20,7 +20,7 @@
 #define STEP0_H
 
 /* Common include for all steps of the tutorial */
-#include "lapack_to_morse.h"
+#include "lapack_to_chameleon.h"
 
 /* Specific includes for step 0 */
 #ifndef CBLAS_SADDR

@@ -38,6 +38,6 @@ int CUDA_ztstrf(
                       ipiv,
                       hwork, ldhwork, dwork, lddwork,
                       info );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif

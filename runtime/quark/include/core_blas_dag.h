@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _MORSE_CORE_BLAS_DAG_H_
-#define _MORSE_CORE_BLAS_DAG_H_
+#ifndef _CHAMELEON_CORE_BLAS_DAG_H_
+#define _CHAMELEON_CORE_BLAS_DAG_H_
 
 #if defined(QUARK_DOT_DAG_ENABLE) /* || 1 */
 #define DAG_SET_PROPERTIES( _name, _color )                            \
@@ -83,4 +83,4 @@
 #define DAG_CORE_UNMLQ      DAG_SET_PROPERTIES( "UNMLQ"     , "cyan"    )
 #define DAG_CORE_UNMQR      DAG_SET_PROPERTIES( "UNMQR"     , "cyan"    )
 
-#endif /* _MORSE_CORE_BLAS_DAG_H_ */
+#endif /* _CHAMELEON_CORE_BLAS_DAG_H_ */

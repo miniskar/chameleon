@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -67,7 +67,7 @@
 *               eigenvalue routines
 *          = 5: the minimum column dimension for blocking to be used;
 *               rectangular blocks must have dimension at least k by m,
-*               where k is given by ILAENV(2,...) and m by MORSE_
+*               where k is given by ILAENV(2,...) and m by CHAMELEON_
 *               ILAENV(5,...)
 *          = 6: the crossover point for the SVD (when reducing an m by n
 *               matrix to bidiagonal form, if max(m,n)/min(m,n) exceeds

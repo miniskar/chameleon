@@ -23,7 +23,7 @@
 /**
  *******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zherfb overwrites the symmetric complex N-by-N tile C with
  *
@@ -34,7 +34,7 @@
  *
  *    Q = H(1) H(2) . . . H(k)
  *
- *  as returned by CORE_zgeqrt. Only MorseLower supported!
+ *  as returned by CORE_zgeqrt. Only ChamLower supported!
  *
  *******************************************************************************
  *
@@ -86,37 +86,37 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-#if defined(MORSE_HAVE_WEAK)
+#if defined(CHAMELEON_HAVE_WEAK)
 #pragma weak CORE_zherfb = PCORE_zherfb
 #define CORE_zherfb PCORE_zherfb
 #define CORE_zunmlq PCORE_zunmlq
 #define CORE_zunmqr PCORE_zunmqr
-int  CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
+int  CORE_zunmlq(cham_side_t side, cham_trans_t trans,
                  int M, int N, int IB, int K,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *C, int LDC,
-                 MORSE_Complex64_t *WORK, int LDWORK);
-int  CORE_zunmqr(MORSE_enum side, MORSE_enum trans,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *C, int LDC,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
+int  CORE_zunmqr(cham_side_t side, cham_trans_t trans,
                  int M, int N, int K, int IB,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *C, int LDC,
-                 MORSE_Complex64_t *WORK, int LDWORK);
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *C, int LDC,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
 #endif
-int CORE_zherfb( MORSE_enum uplo, int n,
+int CORE_zherfb( cham_uplo_t uplo, int n,
                  int k, int ib, int nb,
-                 const MORSE_Complex64_t *A, int lda,
-                 const MORSE_Complex64_t *T, int ldt,
-                 MORSE_Complex64_t *C, int ldc,
-                 MORSE_Complex64_t *WORK, int ldwork )
+                 const CHAMELEON_Complex64_t *A, int lda,
+                 const CHAMELEON_Complex64_t *T, int ldt,
+                 CHAMELEON_Complex64_t *C, int ldc,
+                 CHAMELEON_Complex64_t *WORK, int ldwork )
 {
     /* Check input arguments */
-    if ((uplo != MorseUpper) && (uplo != MorseLower)) {
+    if ((uplo != ChamUpper) && (uplo != ChamLower)) {
         coreblas_error(1, "Illegal value of uplo");
         return -1;
     }
@@ -149,20 +149,20 @@ int CORE_zherfb( MORSE_enum uplo, int n,
         return -11;
     }
 
-    if (uplo == MorseLower) {
+    if (uplo == ChamLower) {
         /* Left */
-        CORE_zunmqr(MorseLeft, MorseConjTrans, n, n, k, ib,
+        CORE_zunmqr(ChamLeft, ChamConjTrans, n, n, k, ib,
                     A, lda, T, ldt, C, ldc, WORK, ldwork);
         /* Right */
-        CORE_zunmqr(MorseRight, MorseNoTrans, n, n, k, ib,
+        CORE_zunmqr(ChamRight, ChamNoTrans, n, n, k, ib,
                     A, lda, T, ldt, C, ldc, WORK, ldwork);
     }
     else {
         /* Right */
-        CORE_zunmlq(MorseRight, MorseConjTrans, n, n, k, ib,
+        CORE_zunmlq(ChamRight, ChamConjTrans, n, n, k, ib,
                     A, lda, T, ldt, C, ldc, WORK, ldwork);
         /* Left */
-        CORE_zunmlq(MorseLeft, MorseNoTrans, n, n, k, ib,
+        CORE_zunmlq(ChamLeft, ChamNoTrans, n, n, k, ib,
                     A, lda, T, ldt, C, ldc, WORK, ldwork);
     }
     return 0;

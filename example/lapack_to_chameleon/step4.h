@@ -1,6 +1,6 @@
 /**
  *
- * @file step1.h
+ * @file step4.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,25 +9,25 @@
  *
  ***
  *
- * @brief Chameleon step1 example header
+ * @brief Chameleon step4 example header
  *
  * @version 1.0.0
  * @author Florent Pruvost
  * @date 2014-10-29
  *
  */
-#ifndef STEP1_H
-#define STEP1_H
+#ifndef STEP4_H
+#define STEP4_H
 
 /* Common include for all steps of the tutorial */
-#include "lapack_to_morse.h"
+#include "lapack_to_chameleon.h"
 
-/* Specific includes for step 1 */
+/* Specific includes for step 4 */
 #include <coreblas/lapacke.h>
-#include <morse.h>
+#include <chameleon.h>
 
-/* Integer parameters for step1 */
-enum iparam_step1 {
+/* Integer parameters for step4 */
+enum iparam_step4 {
     IPARAM_THRDNBR,        /* Number of cores                            */
     IPARAM_N,              /* Number of columns of the matrix            */
     IPARAM_NRHS,           /* Number of RHS                              */
@@ -35,7 +35,7 @@ enum iparam_step1 {
     IPARAM_SIZEOF
 };
 
-/* Specific routines used in step1.c main program */
+/* Specific routines used in step3.c main program */
 
 /**
  * Initialize integer parameters
@@ -62,7 +62,7 @@ static void show_help(char *prog_name) {
 }
 
 /**
- * Read arguments following step1 program call
+ * Read arguments following step4 program call
  */
 static void read_args(int argc, char *argv[], int *iparam){
     int i;
@@ -119,4 +119,4 @@ static void print_header(char *prog_name, int * iparam) {
     return;
 }
 
-#endif /* STEP1_H */
+#endif /* STEP4_H */

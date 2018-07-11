@@ -24,9 +24,9 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zLapack_to_Tile - Conversion from LAPACK layout to tile layout.
+ *  CHAMELEON_zLapack_to_Tile - Conversion from LAPACK layout to tile layout.
  *
  *******************************************************************************
  *
@@ -37,61 +37,61 @@
  *          The leading dimension of the matrix Af77.
  *
  * @param[in,out] A
- *          Descriptor of the MORSE matrix in tile layout.
- *          If MORSE_TRANSLATION_MODE is set to MORSE_INPLACE,
+ *          Descriptor of the CHAMELEON matrix in tile layout.
+ *          If CHAMELEON_TRANSLATION_MODE is set to ChamInPlace,
  *          A->mat is not used and set to Af77 when returns, else if
- *          MORSE_TRANSLATION_MODE is set to MORSE_OUTOFPLACE,
+ *          CHAMELEON_TRANSLATION_MODE is set to ChamOutOfPlace,
  *          A->mat has to be allocated before.
  *
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zTile_to_Lapack
- * @sa MORSE_cLapack_to_Tile
- * @sa MORSE_dLapack_to_Tile
- * @sa MORSE_sLapack_to_Tile
+ * @sa CHAMELEON_zTile_to_Lapack
+ * @sa CHAMELEON_cLapack_to_Tile
+ * @sa CHAMELEON_dLapack_to_Tile
+ * @sa CHAMELEON_sLapack_to_Tile
  *
  */
-int MORSE_zLapack_to_Tile( MORSE_Complex64_t *Af77, int LDA, MORSE_desc_t *A )
+int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request;
-    MORSE_desc_t *B;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request;
+    CHAM_desc_t *B;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zLapack_to_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zLapack_to_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check descriptor for correctness */
-    if (morse_desc_check( A ) != MORSE_SUCCESS) {
-        morse_error("MORSE_zLapack_to_Tile", "invalid descriptor");
-        return MORSE_ERR_ILLEGAL_VALUE;
+    if (morse_desc_check( A ) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zLapack_to_Tile", "invalid descriptor");
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
     /* Create the B descriptor to handle the Lapack format matrix */
-    MORSE_Desc_Create_User( &B, Af77, MorseComplexDouble, A->mb, A->nb, A->bsiz,
+    CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                             LDA, A->n, 0, 0, A->m, A->n, 1, 1,
                             morse_getaddr_cm, morse_getblkldd_cm, NULL );
 
     /* Start the computation */
     morse_sequence_create( morse, &sequence );
 
-    morse_pzlacpy( MorseUpperLower, B, A, sequence, &request );
+    morse_pzlacpy( ChamUpperLower, B, A, sequence, &request );
 
-    MORSE_Desc_Flush( B, sequence );
-    MORSE_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( B, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
 
     morse_sequence_wait( morse, sequence );
 
     /* Destroy temporary B descriptor */
-    MORSE_Desc_Destroy( &B );
+    CHAMELEON_Desc_Destroy( &B );
 
     status = sequence->status;
     morse_sequence_destroy( morse, sequence );
@@ -101,20 +101,20 @@ int MORSE_zLapack_to_Tile( MORSE_Complex64_t *Af77, int LDA, MORSE_desc_t *A )
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_Tile_to_Lapack - Conversion from tile layout to LAPACK layout.
+ *  CHAMELEON_Tile_to_Lapack - Conversion from tile layout to LAPACK layout.
  *
  *******************************************************************************
  *
  * @param[in] A
- *          Descriptor of the MORSE matrix in tile layout.
+ *          Descriptor of the CHAMELEON matrix in tile layout.
  *
  * @param[in,out] Af77
  *          LAPACK matrix.
- *          If MORSE_TRANSLATION_MODE is set to MORSE_INPLACE,
+ *          If CHAMELEON_TRANSLATION_MODE is set to ChamInPlace,
  *          Af77 has to be A->mat, else if
- *          MORSE_TRANSLATION_MODE is set to MORSE_OUTOFPLACE,
+ *          CHAMELEON_TRANSLATION_MODE is set to ChamOutOfPlace,
  *          Af77 has to be allocated before.
  *
  * @param[in] LDA
@@ -123,51 +123,51 @@ int MORSE_zLapack_to_Tile( MORSE_Complex64_t *Af77, int LDA, MORSE_desc_t *A )
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zLapack_to_Tile
- * @sa MORSE_cTile_to_Lapack
- * @sa MORSE_dTile_to_Lapack
- * @sa MORSE_sTile_to_Lapack
+ * @sa CHAMELEON_zLapack_to_Tile
+ * @sa CHAMELEON_cTile_to_Lapack
+ * @sa CHAMELEON_dTile_to_Lapack
+ * @sa CHAMELEON_sTile_to_Lapack
  *
  */
-int MORSE_zTile_to_Lapack( MORSE_desc_t *A, MORSE_Complex64_t *Af77, int LDA )
+int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request;
-    MORSE_desc_t *B;
+    CHAM_context_t *morse;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request;
+    CHAM_desc_t *B;
     int status;
 
     morse = morse_context_self();
     if (morse == NULL) {
-        morse_fatal_error("MORSE_zTile_to_Lapack", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+        morse_fatal_error("CHAMELEON_zTile_to_Lapack", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check descriptor for correctness */
-    if (morse_desc_check( A ) != MORSE_SUCCESS) {
-        morse_error("MORSE_zTile_to_Lapack", "invalid descriptor");
-        return MORSE_ERR_ILLEGAL_VALUE;
+    if (morse_desc_check( A ) != CHAMELEON_SUCCESS) {
+        morse_error("CHAMELEON_zTile_to_Lapack", "invalid descriptor");
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
     /* Create the B descriptor to handle the Lapack format matrix */
-    MORSE_Desc_Create_User( &B, Af77, MorseComplexDouble, A->mb, A->nb, A->bsiz,
+    CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                             LDA, A->n, 0, 0, A->m, A->n, 1, 1,
                             morse_getaddr_cm, morse_getblkldd_cm, NULL );
 
     /* Start the computation */
     morse_sequence_create( morse, &sequence );
 
-    morse_pzlacpy( MorseUpperLower, A, B, sequence, &request );
+    morse_pzlacpy( ChamUpperLower, A, B, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
-    MORSE_Desc_Flush( B, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( B, sequence );
 
     morse_sequence_wait( morse, sequence );
 
-    MORSE_Desc_Destroy( &B );
+    CHAMELEON_Desc_Destroy( &B );
 
     status = sequence->status;
     morse_sequence_destroy( morse, sequence );

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Bilel Hadri
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -28,15 +28,15 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include <coreblas/coreblas_z.h>
 #include "testing_zauxiliary.h"
 
-static int check_orthogonality(int, int, const MORSE_Complex64_t*, int, double);
-static int check_factorization(int, int, const MORSE_Complex64_t*, int, const MORSE_Complex64_t*, int, MORSE_Complex64_t*, int, double);
+static int check_orthogonality(int, int, const CHAMELEON_Complex64_t*, int, double);
+static int check_factorization(int, int, const CHAMELEON_Complex64_t*, int, const CHAMELEON_Complex64_t*, int, CHAMELEON_Complex64_t*, int, double);
 
 int testing_zgeqrf_qdwh(int argc, char **argv)
 {
@@ -69,13 +69,13 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
      * and where A1 is the same size as A2
      *
      */
-    MORSE_Complex64_t *A1 = (MORSE_Complex64_t *)malloc(M*M*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *A2 = (MORSE_Complex64_t *)malloc(M*M*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Q1 = (MORSE_Complex64_t *)malloc(M*M*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Q2 = (MORSE_Complex64_t *)malloc(M*M*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *A  = (MORSE_Complex64_t *)malloc(2*M*M*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Q;
-    MORSE_desc_t *T1, *T2;
+    CHAMELEON_Complex64_t *A1 = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *A2 = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Q1 = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Q2 = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *A  = (CHAMELEON_Complex64_t *)malloc(2*M*M*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Q;
+    CHAM_desc_t *T1, *T2;
 
     /* Check if unable to allocate memory */
     if ( (!A) || (!A1) || (!A2) || (!Q1) || (!Q2) ){
@@ -85,12 +85,12 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
         return -2;
     }
 
-    MORSE_Disable(MORSE_AUTOTUNING);
-    MORSE_Set(MORSE_TILE_SIZE, NB);
-    MORSE_Set(MORSE_INNER_BLOCK_SIZE, IB);
+    CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE, NB);
+    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, IB);
 
-    MORSE_Alloc_Workspace_zgels(M, M, &T1, 1, 1);
-    MORSE_Alloc_Workspace_zgels(M, M, &T2, 1, 1);
+    CHAMELEON_Alloc_Workspace_zgels(M, M, &T1, 1, 1);
+    CHAMELEON_Alloc_Workspace_zgels(M, M, &T2, 1, 1);
 
     eps = LAPACKE_dlamch('e');
 
@@ -102,17 +102,17 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
     LAPACKE_zlacpy_work( LAPACK_COL_MAJOR, 'A', M, M, A2, M, A + M, LDA );
 
     /* Factorize A */
-    MORSE_zgeqrf( M, M, A1, M, T1 );
-    MORSE_ztpqrt( M, M, optid ? M : 0,
+    CHAMELEON_zgeqrf( M, M, A1, M, T1 );
+    CHAMELEON_ztpqrt( M, M, optid ? M : 0,
                   A1, M,
                   A2, M, T2 );
 
     /* Generate the Q */
-    MORSE_ztpgqrt( M, M, M, (optid) ? M : 0,
+    CHAMELEON_ztpgqrt( M, M, M, (optid) ? M : 0,
                    A1, M, T1, A2, M, T2, Q1, M, Q2, M );
 
     /* Copy Q in a single matrix */
-    Q = (MORSE_Complex64_t *)malloc(2*M*M*sizeof(MORSE_Complex64_t));
+    Q = (CHAMELEON_Complex64_t *)malloc(2*M*M*sizeof(CHAMELEON_Complex64_t));
     LAPACKE_zlacpy_work( LAPACK_COL_MAJOR, 'A', M, M, Q1, M, Q,     LDA );
     free(Q1);
     LAPACKE_zlacpy_work( LAPACK_COL_MAJOR, 'A', M, M, Q2, M, Q + M, LDA );
@@ -143,8 +143,8 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
     }
 
     free(A); free(A1); free(A2); free(Q);
-    MORSE_Dealloc_Workspace( &T1 );
-    MORSE_Dealloc_Workspace( &T2 );
+    CHAMELEON_Dealloc_Workspace( &T1 );
+    CHAMELEON_Dealloc_Workspace( &T2 );
 
     return hres;
 }
@@ -155,10 +155,10 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
 
 static int
 check_orthogonality( int M, int N,
-                     const MORSE_Complex64_t *Q, int LDQ,
+                     const CHAMELEON_Complex64_t *Q, int LDQ,
                      double eps )
 {
-    MORSE_Complex64_t *Id;
+    CHAMELEON_Complex64_t *Id;
     double alpha, beta;
     double normQ;
     int info_ortho;
@@ -170,7 +170,7 @@ check_orthogonality( int M, int N,
     beta  = -1.0;
 
     /* Build the idendity matrix */
-    Id = (MORSE_Complex64_t *) malloc(minMN*minMN*sizeof(MORSE_Complex64_t));
+    Id = (CHAMELEON_Complex64_t *) malloc(minMN*minMN*sizeof(CHAMELEON_Complex64_t));
     LAPACKE_zlaset_work(LAPACK_COL_MAJOR, 'A', minMN, minMN, 0., 1., Id, minMN );
 
     /* Perform Id - Q'Q */
@@ -205,13 +205,13 @@ check_orthogonality( int M, int N,
 
 static int
 check_factorization(int M, int N,
-                    const MORSE_Complex64_t *A, int LDA,
-                    const MORSE_Complex64_t *R, int LDR,
-                          MORSE_Complex64_t *Q, int LDQ,
+                    const CHAMELEON_Complex64_t *A, int LDA,
+                    const CHAMELEON_Complex64_t *R, int LDR,
+                          CHAMELEON_Complex64_t *Q, int LDQ,
                     double eps )
 {
     double Anorm, Rnorm;
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t alpha;
     int info_factorization;
     double *work = (double *)malloc(max(M,N)*sizeof(double));
 
@@ -227,7 +227,7 @@ check_factorization(int M, int N,
     }
 
     /* Compute the Residual */
-    CORE_zgeadd( MorseNoTrans, M, N, -1., A, LDA, 1., Q, LDQ );
+    CORE_zgeadd( ChamNoTrans, M, N, -1., A, LDA, 1., Q, LDQ );
 
     Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'I', M, N, Q, LDQ, work );
     Anorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'I', M, N, A, LDA, work );

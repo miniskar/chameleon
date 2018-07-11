@@ -20,23 +20,23 @@
 #include <stdlib.h>
 #include "control/common.h"
 
-#define MORSE_ZCGESV           MORSE_FNAME(zcgesv,   ZCGESV)
-#define MORSE_DSGESV           MORSE_FNAME(dsgesv,   DSGESV)
-#define MORSE_ZCPOSV           MORSE_FNAME(zcposv,   ZCPOSV)
-#define MORSE_DSPOSV           MORSE_FNAME(dsposv,   DSPOSV)
-#define MORSE_ZCGELS           MORSE_FNAME(zcgels,   ZCGELS)
-#define MORSE_DSGELS           MORSE_FNAME(dsgels,   DSGELS)
-#define MORSE_ZCUNGESV         MORSE_FNAME(zcungesv, ZCUNGESV)
-#define MORSE_DSUNGESV         MORSE_FNAME(dsungesv, DSUNGESV)
+#define CHAMELEON_ZCGESV           CHAMELEON_FNAME(zcgesv,   ZCGESV)
+#define CHAMELEON_DSGESV           CHAMELEON_FNAME(dsgesv,   DSGESV)
+#define CHAMELEON_ZCPOSV           CHAMELEON_FNAME(zcposv,   ZCPOSV)
+#define CHAMELEON_DSPOSV           CHAMELEON_FNAME(dsposv,   DSPOSV)
+#define CHAMELEON_ZCGELS           CHAMELEON_FNAME(zcgels,   ZCGELS)
+#define CHAMELEON_DSGELS           CHAMELEON_FNAME(dsgels,   DSGELS)
+#define CHAMELEON_ZCUNGESV         CHAMELEON_FNAME(zcungesv, ZCUNGESV)
+#define CHAMELEON_DSUNGESV         CHAMELEON_FNAME(dsungesv, DSUNGESV)
 
-#define MORSE_ZCGESV_TILE       MORSE_TILE_FNAME(zcgesv,   ZCGESV)
-#define MORSE_DSGESV_TILE       MORSE_TILE_FNAME(dsgesv,   DSGESV)
-#define MORSE_ZCPOSV_TILE       MORSE_TILE_FNAME(zcposv,   ZCPOSV)
-#define MORSE_DSPOSV_TILE       MORSE_TILE_FNAME(dsposv,   DSPOSV)
-#define MORSE_ZCGELS_TILE       MORSE_TILE_FNAME(zcgels,   ZCGELS)
-#define MORSE_DSGELS_TILE       MORSE_TILE_FNAME(dsgels,   DSGELS)
-#define MORSE_ZCUNGESV_TILE     MORSE_TILE_FNAME(zcungesv, ZCUNGESV)
-#define MORSE_DSUNGESV_TILE     MORSE_TILE_FNAME(dsungesv, DSUNGESV)
+#define CHAMELEON_ZCGESV_TILE       CHAMELEON_TILE_FNAME(zcgesv,   ZCGESV)
+#define CHAMELEON_DSGESV_TILE       CHAMELEON_TILE_FNAME(dsgesv,   DSGESV)
+#define CHAMELEON_ZCPOSV_TILE       CHAMELEON_TILE_FNAME(zcposv,   ZCPOSV)
+#define CHAMELEON_DSPOSV_TILE       CHAMELEON_TILE_FNAME(dsposv,   DSPOSV)
+#define CHAMELEON_ZCGELS_TILE       CHAMELEON_TILE_FNAME(zcgels,   ZCGELS)
+#define CHAMELEON_DSGELS_TILE       CHAMELEON_TILE_FNAME(dsgels,   DSGELS)
+#define CHAMELEON_ZCUNGESV_TILE     CHAMELEON_TILE_FNAME(zcungesv, ZCUNGESV)
+#define CHAMELEON_DSUNGESV_TILE     CHAMELEON_TILE_FNAME(dsungesv, DSUNGESV)
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,29 +45,29 @@ extern "C" {
 /**
  *  FORTRAN API - math functions (simple interface)
  */
-//void MORSE_ZCGESV(int *N, int *NRHS, MORSE_Complex64_t *A, int *LDA, int *IPIV, MORSE_Complex64_t *B, int *LDB, MORSE_Complex64_t *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcgesv(*N, *NRHS, A, *LDA, IPIV, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_ZCGESV(int *N, int *NRHS, CHAMELEON_Complex64_t *A, int *LDA, int *IPIV, CHAMELEON_Complex64_t *B, int *LDB, CHAMELEON_Complex64_t *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcgesv(*N, *NRHS, A, *LDA, IPIV, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_DSGESV(int *N, int *NRHS, double *A, int *LDA, int *IPIV, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsgesv(*N, *NRHS, A, *LDA, IPIV, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_DSGESV(int *N, int *NRHS, double *A, int *LDA, int *IPIV, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsgesv(*N, *NRHS, A, *LDA, IPIV, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_ZCPOSV(MORSE_enum *uplo, int *N, int *NRHS, MORSE_Complex64_t *A, int *LDA, MORSE_Complex64_t *B, int *LDB, MORSE_Complex64_t *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcposv(*uplo, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_ZCPOSV(CHAMELEON_enum *uplo, int *N, int *NRHS, CHAMELEON_Complex64_t *A, int *LDA, CHAMELEON_Complex64_t *B, int *LDB, CHAMELEON_Complex64_t *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcposv(*uplo, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_DSPOSV(MORSE_enum *uplo, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsposv(*uplo, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_DSPOSV(CHAMELEON_enum *uplo, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsposv(*uplo, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_ZCGELS(MORSE_enum *trans, int *M, int *N, int *NRHS, MORSE_Complex64_t *A, int *LDA, MORSE_Complex64_t **T, MORSE_Complex64_t *B, int *LDB, MORSE_Complex64_t *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcgels(*trans, *M, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_ZCGELS(CHAMELEON_enum *trans, int *M, int *N, int *NRHS, CHAMELEON_Complex64_t *A, int *LDA, CHAMELEON_Complex64_t **T, CHAMELEON_Complex64_t *B, int *LDB, CHAMELEON_Complex64_t *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcgels(*trans, *M, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_DSGELS(MORSE_enum *trans, int *M, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsgels(*trans, *M, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_DSGELS(CHAMELEON_enum *trans, int *M, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsgels(*trans, *M, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_ZCUNGESV(MORSE_enum *trans, int *N, int *NRHS, MORSE_Complex64_t *A, int *LDA, MORSE_Complex64_t *B, int *LDB, MORSE_Complex64_t *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcungesv(*trans, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_ZCUNGESV(CHAMELEON_enum *trans, int *N, int *NRHS, CHAMELEON_Complex64_t *A, int *LDA, CHAMELEON_Complex64_t *B, int *LDB, CHAMELEON_Complex64_t *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcungesv(*trans, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 //
-//void MORSE_DSUNGESV(MORSE_enum *trans, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsungesv(*trans, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
+//void CHAMELEON_DSUNGESV(CHAMELEON_enum *trans, int *N, int *NRHS, double *A, int *LDA, double *B, int *LDB, double *X, int *LDX, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsungesv(*trans, *N, *NRHS, A, *LDA, B, *LDB, X, *LDX, ITER); }
 
 #ifdef __cplusplus
 }
@@ -76,26 +76,26 @@ extern "C" {
 /**
  *  FORTRAN API - math functions (native interface)
  */
-//void MORSE_ZCGESV_TILE(intptr_t *A, int *IPIV, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcgesv_Tile((MORSE_desc_t *)(*A), IPIV, (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_ZCGESV_TILE(intptr_t *A, int *IPIV, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcgesv_Tile((CHAM_desc_t *)(*A), IPIV, (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_DSGESV_TILE(intptr_t *A, int *IPIV, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcgesv_Tile((MORSE_desc_t *)(*A), IPIV, (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_DSGESV_TILE(intptr_t *A, int *IPIV, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcgesv_Tile((CHAM_desc_t *)(*A), IPIV, (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_ZCPOSV_TILE(MORSE_enum *uplo, intptr_t *A, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcposv_Tile(*uplo, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_ZCPOSV_TILE(CHAMELEON_enum *uplo, intptr_t *A, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcposv_Tile(*uplo, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_DSPOSV_TILE(MORSE_enum *uplo, intptr_t *A, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsposv_Tile(*uplo, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_DSPOSV_TILE(CHAMELEON_enum *uplo, intptr_t *A, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsposv_Tile(*uplo, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_ZCGELS_TILE(MORSE_enum *trans, intptr_t *A, intptr_t *B, intptr_t *T, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcgels_Tile(*trans, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*T), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_ZCGELS_TILE(CHAMELEON_enum *trans, intptr_t *A, intptr_t *B, intptr_t *T, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcgels_Tile(*trans, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*T), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_DSGELS_TILE(MORSE_enum *trans, intptr_t *A, intptr_t *B, intptr_t *T, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsgels_Tile(*trans, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*T), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_DSGELS_TILE(CHAMELEON_enum *trans, intptr_t *A, intptr_t *B, intptr_t *T, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsgels_Tile(*trans, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*T), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_ZCUNGESV_TILE(MORSE_enum *trans, intptr_t *A, intptr_t *T, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_zcungesv_Tile(*trans, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*T), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_ZCUNGESV_TILE(CHAMELEON_enum *trans, intptr_t *A, intptr_t *T, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_zcungesv_Tile(*trans, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*T), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }
 //
-//void MORSE_DSUNGESV_TILE(MORSE_enum *trans, intptr_t *A, intptr_t *T, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
-//{   *INFO = MORSE_dsungesv_Tile(*trans, (MORSE_desc_t *)(*A), (MORSE_desc_t *)(*T), (MORSE_desc_t *)(*B), (MORSE_desc_t *)(*X), ITER); }
+//void CHAMELEON_DSUNGESV_TILE(CHAMELEON_enum *trans, intptr_t *A, intptr_t *T, intptr_t *B, intptr_t *X, int *ITER, int *INFO)
+//{   *INFO = CHAMELEON_dsungesv_Tile(*trans, (CHAM_desc_t *)(*A), (CHAM_desc_t *)(*T), (CHAM_desc_t *)(*B), (CHAM_desc_t *)(*X), ITER); }

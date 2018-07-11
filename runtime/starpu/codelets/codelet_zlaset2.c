@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zlaset2 - Sets the elements of the matrix A to alpha.
  *  Not LAPACK compliant! Read below.
@@ -37,9 +37,9 @@
  *
  * @param[in] uplo
  *          Specifies which elements of the matrix are to be set
- *          = MorseUpper: STRICT Upper part of A is set to alpha;
- *          = MorseLower: STRICT Lower part of A is set to alpha;
- *          = MorseUpperLower: ALL elements of A are set to alpha.
+ *          = ChamUpper: STRICT Upper part of A is set to alpha;
+ *          = ChamLower: STRICT Lower part of A is set to alpha;
+ *          = ChamUpperLower: ALL elements of A are set to alpha.
  *          Not LAPACK Compliant.
  *
  * @param[in] M
@@ -59,25 +59,25 @@
  *         The leading dimension of the array A.  LDA >= max(1,M).
  *
  */
-void MORSE_TASK_zlaset2(const MORSE_option_t *options,
-                       MORSE_enum uplo, int M, int N,
-                       MORSE_Complex64_t alpha, const MORSE_desc_t *A, int Am, int An, int LDA)
+void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
+                       cham_uplo_t uplo, int M, int N,
+                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int LDA)
 {
 
     struct starpu_codelet *codelet = &cl_zlaset2;
     void (*callback)(void*) = options->profiling ? cl_zlaset2_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_W(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_W(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,  &uplo,                sizeof(MORSE_enum),
+        STARPU_VALUE,  &uplo,                sizeof(int),
         STARPU_VALUE,     &M,                        sizeof(int),
         STARPU_VALUE,     &N,                        sizeof(int),
-        STARPU_VALUE, &alpha,         sizeof(MORSE_Complex64_t),
-        STARPU_W,      RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_VALUE, &alpha,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,   &LDA,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -91,14 +91,14 @@ void MORSE_TASK_zlaset2(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlaset2_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int M;
     int N;
-    MORSE_Complex64_t alpha;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
     int LDA;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &LDA);
     CORE_zlaset2(uplo, M, N, alpha, A, LDA);
 }

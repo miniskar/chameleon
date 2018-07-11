@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -23,17 +23,17 @@
  * @precisions mixed zc -> ds
  *
  */
-#ifndef _MORSE_CORE_ZCBLAS_H_
-#define _MORSE_CORE_ZCBLAS_H_
+#ifndef _CHAMELEON_CORE_ZCBLAS_H_
+#define _CHAMELEON_CORE_ZCBLAS_H_
 
 /**
  *  Declarations of serial kernels - alphabetical order
  */
 void CORE_clag2z(int m, int n,
-                 const MORSE_Complex32_t *A, int lda,
-                 MORSE_Complex64_t *B, int ldb);
+                 const CHAMELEON_Complex32_t *A, int lda,
+                 CHAMELEON_Complex64_t *B, int ldb);
 void CORE_zlag2c(int m, int n,
-                 const MORSE_Complex64_t *A, int lda,
-                 MORSE_Complex32_t *B, int ldb, int *info);
+                 const CHAMELEON_Complex64_t *A, int lda,
+                 CHAMELEON_Complex32_t *B, int ldb, int *info);
 
 #endif

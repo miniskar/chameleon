@@ -41,14 +41,14 @@ void RUNTIME_profiling_cdisplay_all(void);
 void RUNTIME_profiling_ddisplay_all(void);
 void RUNTIME_profiling_sdisplay_all(void);
 
-void MORSE_zload_FakeModel();
-void MORSE_cload_FakeModel();
-void MORSE_dload_FakeModel();
-void MORSE_sload_FakeModel();
+void CHAMELEON_zload_FakeModel();
+void CHAMELEON_cload_FakeModel();
+void CHAMELEON_dload_FakeModel();
+void CHAMELEON_sload_FakeModel();
 
-void MORSE_zrestore_Model();
-void MORSE_crestore_Model();
-void MORSE_drestore_Model();
-void MORSE_srestore_Model();
+void CHAMELEON_zrestore_Model();
+void CHAMELEON_crestore_Model();
+void CHAMELEON_drestore_Model();
+void CHAMELEON_srestore_Model();
 
 #endif

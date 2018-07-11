@@ -30,13 +30,13 @@
 /*
  *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
  */
-void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
-                          MORSE_desc_t *TS, MORSE_desc_t *TT, MORSE_desc_t *D,
-                          MORSE_sequence_t *sequence, MORSE_request_t *request)
+void morse_pzgelqf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
-    MORSE_desc_t *T;
+    CHAM_context_t *morse;
+    RUNTIME_option_t options;
+    CHAM_desc_t *T;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -48,11 +48,11 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
     int *tiles;
 
     morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init(&options, morse, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     if ( D == NULL ) {
         D = A;
@@ -82,8 +82,8 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
 
     tiles = (int*)calloc(qrtree->mt, sizeof(int));
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
@@ -103,22 +103,22 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
             temppn = p == A->nt-1 ? A->n-p*A->nb : A->nb;
             tempkmin = chameleon_min(tempkm, temppn);
 
-            MORSE_TASK_zgelqt(
+            INSERT_TASK_zgelqt(
                 &options,
                 tempkm, temppn, ib, T->nb,
                 A( k, p), ldak,
                 T(k, p), T->mb);
             if ( k < (A->mt-1) ) {
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkm, temppn, A->nb,
+                    ChamUpper, tempkm, temppn, A->nb,
                     A(k, p), ldak,
                     D(k, p), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkm, temppn,
+                    ChamLower, tempkm, temppn,
                     0., 1.,
                     D(k, p), ldak );
 #endif
@@ -127,9 +127,9 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
             for (m = k+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                 ldam = BLKLDD(A, m);
-                MORSE_TASK_zunmlq(
+                INSERT_TASK_zunmlq(
                     &options,
-                    MorseRight, MorseConjTrans,
+                    ChamRight, ChamConjTrans,
                    tempmm, temppn, tempkmin, ib, T->nb,
                     D(k, p), ldak,
                     T(k, p), T->mb,
@@ -164,7 +164,7 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
             RUNTIME_data_migrate( sequence, A(k, n),
                                   A->get_rankof( A, k, n ) );
 
-            MORSE_TASK_ztplqt(
+            INSERT_TASK_ztplqt(
                 &options,
                 tempkm, tempnn, chameleon_min(L, tempkm), ib, T->nb,
                 A(k, p), ldak,
@@ -180,9 +180,9 @@ void morse_pzgelqf_param( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
                 RUNTIME_data_migrate( sequence, A(m, n),
                                       A->get_rankof( A, m, n ) );
 
-                MORSE_TASK_ztpmlqt(
+                INSERT_TASK_ztpmlqt(
                     &options,
-                    MorseRight, MorseConjTrans,
+                    ChamRight, ChamConjTrans,
                     tempmm, tempnn, tempkm, L, ib, T->nb,
                     A(k, n), ldak,
                     T(k, n), T->mb,

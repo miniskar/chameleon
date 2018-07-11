@@ -9,11 +9,11 @@
  *
  ***
  *
- * @brief Chameleon CPU MORSE_Complex64_t kernels header
+ * @brief Chameleon CPU CHAMELEON_Complex64_t kernels header
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Azzam Haidar
@@ -24,379 +24,379 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _MORSE_CORE_ZBLAS_H_
-#define _MORSE_CORE_ZBLAS_H_
+#ifndef _CHAMELEON_CORE_ZBLAS_H_
+#define _CHAMELEON_CORE_ZBLAS_H_
 
 /**
  *  Declarations of serial kernels - alphabetical order
  */
-void CORE_dzasum(int storev, MORSE_enum uplo, int M, int N,
-                 const MORSE_Complex64_t *A, int lda, double *work);
-void CORE_zbrdalg(MORSE_enum uplo, int N, int NB,
-                  const MORSE_desc_t *pA, MORSE_Complex64_t *C, MORSE_Complex64_t *S,
+void CORE_dzasum(cham_store_t storev, cham_uplo_t uplo, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int lda, double *work);
+void CORE_zbrdalg(cham_uplo_t uplo, int N, int NB,
+                  const CHAM_desc_t *pA, CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *S,
                   int i, int j, int m, int grsiz);
-int CORE_zgbelr(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int CORE_zgbelr(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
-int CORE_zgbrce(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int CORE_zgbrce(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
-int CORE_zgblrx(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int CORE_zgblrx(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
-int CORE_zaxpy(int M, MORSE_Complex64_t alpha,
-               const MORSE_Complex64_t *A, int incA,
-                     MORSE_Complex64_t *B, int incB);
-int CORE_zgeadd(MORSE_enum trans, int M, int N,
-                      MORSE_Complex64_t alpha,
-                const MORSE_Complex64_t *A, int LDA,
-                      MORSE_Complex64_t beta,
-                      MORSE_Complex64_t *B, int LDB);
-int CORE_zlascal( MORSE_enum uplo, int m, int n,
-              MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int lda );
+int CORE_zaxpy(int M, CHAMELEON_Complex64_t alpha,
+               const CHAMELEON_Complex64_t *A, int incA,
+                     CHAMELEON_Complex64_t *B, int incB);
+int CORE_zgeadd(cham_trans_t trans, int M, int N,
+                      CHAMELEON_Complex64_t alpha,
+                const CHAMELEON_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t beta,
+                      CHAMELEON_Complex64_t *B, int LDB);
+int CORE_zlascal( cham_uplo_t uplo, int m, int n,
+              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int lda );
 int  CORE_zgelqt(int M, int N, int IB,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU,
-                 MORSE_Complex64_t *WORK);
-void CORE_zgemm(MORSE_enum transA, MORSE_enum transB,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU,
+                 CHAMELEON_Complex64_t *WORK);
+void CORE_zgemm(cham_trans_t transA, cham_trans_t transB,
                 int M, int N, int K,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                          const MORSE_Complex64_t *B, int LDB,
-                MORSE_Complex64_t beta,        MORSE_Complex64_t *C, int LDC);
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                          const CHAMELEON_Complex64_t *B, int LDB,
+                CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
 int  CORE_zgeqrt(int M, int N, int IB,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU, MORSE_Complex64_t *WORK);
-int CORE_zgesplit(MORSE_enum side, MORSE_enum diag,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK);
+int CORE_zgesplit(cham_side_t side, cham_diag_t diag,
                   int M, int N,
-                  MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t *B, int LDB);
+                  CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *B, int LDB);
 int  CORE_zgessm(int M, int N, int K, int IB,
                  const int *IPIV,
-                 const MORSE_Complex64_t *L, int LDL,
-                 MORSE_Complex64_t *A, int LDA);
+                 const CHAMELEON_Complex64_t *L, int LDL,
+                 CHAMELEON_Complex64_t *A, int LDA);
 int  CORE_zgessq(int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *scale, double *sumsq);
 int CORE_zgetf2_nopiv(int M, int N,
-                  MORSE_Complex64_t *A, int LDA);
+                  CHAMELEON_Complex64_t *A, int LDA);
 int  CORE_zgetrf(int M, int N,
-                 MORSE_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *A, int LDA,
                  int *IPIV, int *INFO);
 int  CORE_zgetrf_incpiv(int M, int N, int IB,
-                        MORSE_Complex64_t *A, int LDA,
+                        CHAMELEON_Complex64_t *A, int LDA,
                         int *IPIV, int *INFO);
 int CORE_zgetrf_nopiv(int M, int N, int IB,
-                      MORSE_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t *A, int LDA,
                       int *INFO);
 int  CORE_zgetrf_reclap(int M, int N,
-                        MORSE_Complex64_t *A, int LDA,
+                        CHAMELEON_Complex64_t *A, int LDA,
                         int *IPIV, int *info);
-int  CORE_zgetrf_rectil(const MORSE_desc_t A, int *IPIV, int *info);
-void CORE_zgetrip(int m, int n, MORSE_Complex64_t *A,
-                  MORSE_Complex64_t *work);
-void CORE_zhe2ge(MORSE_enum uplo, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB);
-int CORE_zhbelr(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int  CORE_zgetrf_rectil(const CHAM_desc_t A, int *IPIV, int *info);
+void CORE_zgetrip(int m, int n, CHAMELEON_Complex64_t *A,
+                  CHAMELEON_Complex64_t *work);
+void CORE_zhe2ge(cham_uplo_t uplo, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB);
+int CORE_zhbelr(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
-int CORE_zhblrx(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int CORE_zhblrx(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
-int CORE_zhbrce(MORSE_enum uplo, int N,
-                MORSE_desc_t *A, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+int CORE_zhbrce(cham_uplo_t uplo, int N,
+                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                 int st, int ed, int eltsize);
 void CORE_zhbtype1cb(int N, int NB,
-                     MORSE_Complex64_t *A, int LDA,
-                     MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+                     CHAMELEON_Complex64_t *A, int LDA,
+                     CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                      int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     MORSE_Complex64_t *WORK);
+                     CHAMELEON_Complex64_t *WORK);
 void CORE_zhbtype2cb(int N, int NB,
-                     MORSE_Complex64_t *A, int LDA,
-                     MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+                     CHAMELEON_Complex64_t *A, int LDA,
+                     CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                      int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     MORSE_Complex64_t *WORK);
+                     CHAMELEON_Complex64_t *WORK);
 void CORE_zhbtype3cb(int N, int NB,
-                     MORSE_Complex64_t *A, int LDA,
-                     const MORSE_Complex64_t *V, const MORSE_Complex64_t *TAU,
+                     CHAMELEON_Complex64_t *A, int LDA,
+                     const CHAMELEON_Complex64_t *V, const CHAMELEON_Complex64_t *TAU,
                      int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     MORSE_Complex64_t *WORK);
-void CORE_zhegst(int itype, MORSE_enum uplo, int N,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB, int *INFO);
-void CORE_zhemm(MORSE_enum side, MORSE_enum uplo,
+                     CHAMELEON_Complex64_t *WORK);
+void CORE_zhegst(int itype, cham_uplo_t uplo, int N,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB, int *INFO);
+void CORE_zhemm(cham_side_t side, cham_uplo_t uplo,
                 int M, int N,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                          const MORSE_Complex64_t *B, int LDB,
-                MORSE_Complex64_t beta,        MORSE_Complex64_t *C, int LDC);
-void CORE_zherk(MORSE_enum uplo, MORSE_enum trans,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                          const CHAMELEON_Complex64_t *B, int LDB,
+                CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
+void CORE_zherk(cham_uplo_t uplo, cham_trans_t trans,
                 int N, int K,
-                double alpha, const MORSE_Complex64_t *A, int LDA,
-                double beta,        MORSE_Complex64_t *C, int LDC);
-void CORE_zher2k(MORSE_enum uplo, MORSE_enum trans,
+                double alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                double beta,        CHAMELEON_Complex64_t *C, int LDC);
+void CORE_zher2k(cham_uplo_t uplo, cham_trans_t trans,
                  int N, int K,
-                 MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                           const MORSE_Complex64_t *B, int LDB,
-                 double beta,                    MORSE_Complex64_t *C, int LDC);
-int  CORE_zhessq(MORSE_enum uplo, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                           const CHAMELEON_Complex64_t *B, int LDB,
+                 double beta,                    CHAMELEON_Complex64_t *C, int LDC);
+int  CORE_zhessq(cham_uplo_t uplo, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *scale, double *sumsq);
-int  CORE_zherfb(MORSE_enum uplo, int N, int K, int IB, int NB,
-                 const MORSE_Complex64_t *A,    int LDA,
-                 const MORSE_Complex64_t *T,    int LDT,
-                       MORSE_Complex64_t *C,    int LDC,
-                       MORSE_Complex64_t *WORK, int LDWORK);
-void CORE_zlacpy(MORSE_enum uplo, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
-                       MORSE_Complex64_t *B, int LDB);
-void CORE_zlange(int norm, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+int  CORE_zherfb(cham_uplo_t uplo, int N, int K, int IB, int NB,
+                 const CHAMELEON_Complex64_t *A,    int LDA,
+                 const CHAMELEON_Complex64_t *T,    int LDT,
+                       CHAMELEON_Complex64_t *C,    int LDC,
+                       CHAMELEON_Complex64_t *WORK, int LDWORK);
+void CORE_zlacpy(cham_uplo_t uplo, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                       CHAMELEON_Complex64_t *B, int LDB);
+void CORE_zlange(cham_normtype_t norm, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA);
-void CORE_zlanhe(int norm, MORSE_enum uplo, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+void CORE_zlanhe(cham_normtype_t norm, cham_uplo_t uplo, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA);
-void CORE_zlansy(int norm, MORSE_enum uplo, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+void CORE_zlansy(cham_normtype_t norm, cham_uplo_t uplo, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA);
-void CORE_zlantr(int norm, MORSE_enum uplo, MORSE_enum diag, int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+void CORE_zlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA);
-int CORE_zlarfb_gemm(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum storev,
+int CORE_zlarfb_gemm(cham_side_t side, cham_trans_t trans, cham_dir_t direct, cham_store_t storev,
                      int M, int N, int K,
-                     const MORSE_Complex64_t *V, int LDV,
-                     const MORSE_Complex64_t *T, int LDT,
-                           MORSE_Complex64_t *C, int LDC,
-                           MORSE_Complex64_t *WORK, int LDWORK);
-int CORE_zlarfx2(MORSE_enum side, int N,
-                 MORSE_Complex64_t V,
-                 MORSE_Complex64_t TAU,
-                 MORSE_Complex64_t *C1, int LDC1,
-                 MORSE_Complex64_t *C2, int LDC2);
-int CORE_zlarfx2c(MORSE_enum uplo,
-                  MORSE_Complex64_t V,
-                  MORSE_Complex64_t TAU,
-                  MORSE_Complex64_t *C1,
-                  MORSE_Complex64_t *C2,
-                  MORSE_Complex64_t *C3);
-int CORE_zlarfx2ce(MORSE_enum uplo,
-                   MORSE_Complex64_t *V,
-                   MORSE_Complex64_t *TAU,
-                   MORSE_Complex64_t *C1,
-                   MORSE_Complex64_t *C2,
-                   MORSE_Complex64_t *C3);
+                     const CHAMELEON_Complex64_t *V, int LDV,
+                     const CHAMELEON_Complex64_t *T, int LDT,
+                           CHAMELEON_Complex64_t *C, int LDC,
+                           CHAMELEON_Complex64_t *WORK, int LDWORK);
+int CORE_zlarfx2(cham_side_t side, int N,
+                 CHAMELEON_Complex64_t V,
+                 CHAMELEON_Complex64_t TAU,
+                 CHAMELEON_Complex64_t *C1, int LDC1,
+                 CHAMELEON_Complex64_t *C2, int LDC2);
+int CORE_zlarfx2c(cham_uplo_t uplo,
+                  CHAMELEON_Complex64_t V,
+                  CHAMELEON_Complex64_t TAU,
+                  CHAMELEON_Complex64_t *C1,
+                  CHAMELEON_Complex64_t *C2,
+                  CHAMELEON_Complex64_t *C3);
+int CORE_zlarfx2ce(cham_uplo_t uplo,
+                   CHAMELEON_Complex64_t *V,
+                   CHAMELEON_Complex64_t *TAU,
+                   CHAMELEON_Complex64_t *C1,
+                   CHAMELEON_Complex64_t *C2,
+                   CHAMELEON_Complex64_t *C3);
 void CORE_zlarfy(int N,
-                 MORSE_Complex64_t *A, int LDA,
-                 const MORSE_Complex64_t *V,
-                 const MORSE_Complex64_t *TAU,
-                 MORSE_Complex64_t *WORK);
-void CORE_zlaset(MORSE_enum uplo, int n1, int n2,
-                 MORSE_Complex64_t alpha, MORSE_Complex64_t beta,
-                 MORSE_Complex64_t *tileA, int ldtilea);
-void CORE_zlaset2(MORSE_enum uplo, int n1, int n2, MORSE_Complex64_t alpha,
-                  MORSE_Complex64_t *tileA, int ldtilea);
-void CORE_zlaswp(int N, MORSE_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 const CHAMELEON_Complex64_t *V,
+                 const CHAMELEON_Complex64_t *TAU,
+                 CHAMELEON_Complex64_t *WORK);
+void CORE_zlaset(cham_uplo_t uplo, int n1, int n2,
+                 CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                 CHAMELEON_Complex64_t *tileA, int ldtilea);
+void CORE_zlaset2(cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha,
+                  CHAMELEON_Complex64_t *tileA, int ldtilea);
+void CORE_zlaswp(int N, CHAMELEON_Complex64_t *A, int LDA,
                  int I1,  int I2, const int *IPIV, int INC);
-int  CORE_zlaswp_ontile( MORSE_desc_t descA, int i1, int i2, const int *ipiv, int inc);
-int  CORE_zlaswpc_ontile(MORSE_desc_t descA, int i1, int i2, const int *ipiv, int inc);
-int  CORE_zlatro(MORSE_enum uplo, MORSE_enum trans,
+int  CORE_zlaswp_ontile( CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc);
+int  CORE_zlaswpc_ontile(CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc);
+int  CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,
                  int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
-                       MORSE_Complex64_t *B, int LDB);
-void CORE_zlauum(MORSE_enum uplo, int N, MORSE_Complex64_t *A, int LDA);
-int CORE_zpamm(int op, MORSE_enum side, MORSE_enum storev,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                       CHAMELEON_Complex64_t *B, int LDB);
+void CORE_zlauum(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA);
+int CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
                int M, int N, int K, int L,
-               const MORSE_Complex64_t *A1, int LDA1,
-                     MORSE_Complex64_t *A2, int LDA2,
-               const MORSE_Complex64_t *V, int LDV,
-                     MORSE_Complex64_t *W, int LDW);
-int  CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum storev,
+               const CHAMELEON_Complex64_t *A1, int LDA1,
+                     CHAMELEON_Complex64_t *A2, int LDA2,
+               const CHAMELEON_Complex64_t *V, int LDV,
+                     CHAMELEON_Complex64_t *W, int LDW);
+int  CORE_zparfb(cham_side_t side, cham_trans_t trans, cham_dir_t direct, cham_store_t storev,
                  int M1, int N1, int M2, int N2, int K, int L,
-                       MORSE_Complex64_t *A1, int LDA1,
-                       MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                       MORSE_Complex64_t *WORK, int LDWORK);
-int CORE_zpemv(MORSE_enum trans, MORSE_enum storev,
+                       CHAMELEON_Complex64_t *A1, int LDA1,
+                       CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                       CHAMELEON_Complex64_t *WORK, int LDWORK);
+int CORE_zpemv(cham_trans_t trans, cham_store_t storev,
                int M, int N, int L,
-               MORSE_Complex64_t ALPHA,
-               const MORSE_Complex64_t *A, int LDA,
-               const MORSE_Complex64_t *X, int INCX,
-               MORSE_Complex64_t BETA,
-               MORSE_Complex64_t *Y, int INCY,
-               MORSE_Complex64_t *WORK);
-void CORE_zplghe(double bump, int m, int n, MORSE_Complex64_t *A, int lda,
+               CHAMELEON_Complex64_t ALPHA,
+               const CHAMELEON_Complex64_t *A, int LDA,
+               const CHAMELEON_Complex64_t *X, int INCX,
+               CHAMELEON_Complex64_t BETA,
+               CHAMELEON_Complex64_t *Y, int INCY,
+               CHAMELEON_Complex64_t *WORK);
+void CORE_zplghe(double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
-void CORE_zplgsy(MORSE_Complex64_t bump, int m, int n, MORSE_Complex64_t *A, int lda,
+void CORE_zplgsy(CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
-void CORE_zplrnt(int m, int n, MORSE_Complex64_t *A, int lda,
+void CORE_zplrnt(int m, int n, CHAMELEON_Complex64_t *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
-void CORE_zpotrf(MORSE_enum uplo, int N, MORSE_Complex64_t *A, int LDA, int *INFO);
+void CORE_zpotrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, int *INFO);
 void CORE_zshift(int s, int m, int n, int L,
-                 MORSE_Complex64_t *A);
+                 CHAMELEON_Complex64_t *A);
 void CORE_zshiftw(int s, int cl, int m, int n, int L,
-                  MORSE_Complex64_t *A, MORSE_Complex64_t *W);
+                  CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *W);
 int  CORE_zssssm(int M1, int N1, int M2, int N2, int K, int IB,
-                       MORSE_Complex64_t *A1, int LDA1,
-                       MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *L1, int LDL1,
-                 const MORSE_Complex64_t *L2, int LDL2,
+                       CHAMELEON_Complex64_t *A1, int LDA1,
+                       CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *L1, int LDL1,
+                 const CHAMELEON_Complex64_t *L2, int LDL2,
                  const int *IPIV);
-void CORE_zsymm(MORSE_enum side, MORSE_enum uplo,
+void CORE_zsymm(cham_side_t side, cham_uplo_t uplo,
                 int M, int N,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                          const MORSE_Complex64_t *B, int LDB,
-                MORSE_Complex64_t beta,        MORSE_Complex64_t *C, int LDC);
-void CORE_zsyrk(MORSE_enum uplo, MORSE_enum trans,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                          const CHAMELEON_Complex64_t *B, int LDB,
+                CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
+void CORE_zsyrk(cham_uplo_t uplo, cham_trans_t trans,
                 int N, int K,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                MORSE_Complex64_t beta,        MORSE_Complex64_t *C, int LDC);
-void CORE_zsyr2k(MORSE_enum uplo, MORSE_enum trans,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
+void CORE_zsyr2k(cham_uplo_t uplo, cham_trans_t trans,
                  int N, int K,
-                 MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                           const MORSE_Complex64_t *B, int LDB,
-                 MORSE_Complex64_t beta,        MORSE_Complex64_t *C, int LDC);
-int  CORE_zsyssq(MORSE_enum uplo, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                           const CHAMELEON_Complex64_t *B, int LDB,
+                 CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
+int  CORE_zsyssq(cham_uplo_t uplo, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *scale, double *sumsq);
-int CORE_zsytf2_nopiv(MORSE_enum uplo, int n, MORSE_Complex64_t *A, int lda);
+int CORE_zsytf2_nopiv(cham_uplo_t uplo, int n, CHAMELEON_Complex64_t *A, int lda);
 void CORE_zswpab(int i, int n1, int n2,
-                 MORSE_Complex64_t *A, MORSE_Complex64_t *work);
-int  CORE_zswptr_ontile(MORSE_desc_t descA, int i1, int i2, const int *ipiv, int inc,
-                        const MORSE_Complex64_t *Akk, int ldak);
-int CORE_ztradd(MORSE_enum uplo, MORSE_enum trans, int M, int N,
-                      MORSE_Complex64_t alpha,
-                const MORSE_Complex64_t *A, int LDA,
-                      MORSE_Complex64_t beta,
-                      MORSE_Complex64_t *B, int LDB);
-void CORE_ztrasm(MORSE_enum storev, MORSE_enum uplo, MORSE_enum diag,
+                 CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *work);
+int  CORE_zswptr_ontile(CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc,
+                        const CHAMELEON_Complex64_t *Akk, int ldak);
+int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
+                      CHAMELEON_Complex64_t alpha,
+                const CHAMELEON_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t beta,
+                      CHAMELEON_Complex64_t *B, int LDB);
+void CORE_ztrasm(cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag,
                  int M, int N,
-                 const MORSE_Complex64_t *A, int lda, double *work);
-void CORE_ztrdalg(MORSE_enum uplo, int N, int NB,
-                  const MORSE_desc_t *pA, MORSE_Complex64_t *V, MORSE_Complex64_t *TAU,
+                 const CHAMELEON_Complex64_t *A, int lda, double *work);
+void CORE_ztrdalg(cham_uplo_t uplo, int N, int NB,
+                  const CHAM_desc_t *pA, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
                   int i, int j, int m, int grsiz);
-void CORE_ztrmm(MORSE_enum side, MORSE_enum uplo,
-                MORSE_enum transA, MORSE_enum diag,
+void CORE_ztrmm(cham_side_t side, cham_uplo_t uplo,
+                cham_trans_t transA, cham_diag_t diag,
                 int M, int N,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                                MORSE_Complex64_t *B, int LDB);
-void CORE_ztrsm(MORSE_enum side, MORSE_enum uplo,
-                MORSE_enum transA, MORSE_enum diag,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                                CHAMELEON_Complex64_t *B, int LDB);
+void CORE_ztrsm(cham_side_t side, cham_uplo_t uplo,
+                cham_trans_t transA, cham_diag_t diag,
                 int M, int N,
-                MORSE_Complex64_t alpha, const MORSE_Complex64_t *A, int LDA,
-                                                MORSE_Complex64_t *B, int LDB);
-int CORE_ztrssq(MORSE_enum uplo, MORSE_enum diag, int M, int N,
-                const MORSE_Complex64_t *A, int LDA,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                                CHAMELEON_Complex64_t *B, int LDB);
+int CORE_ztrssq(cham_uplo_t uplo, cham_diag_t diag, int M, int N,
+                const CHAMELEON_Complex64_t *A, int LDA,
                 double *scale, double *sumsq);
-void CORE_ztrtri(MORSE_enum uplo, MORSE_enum diag, int N,
-                 MORSE_Complex64_t *A, int LDA, int *info);
+void CORE_ztrtri(cham_uplo_t uplo, cham_diag_t diag, int N,
+                 CHAMELEON_Complex64_t *A, int LDA, int *info);
 int  CORE_ztslqt(int M, int N, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU, MORSE_Complex64_t *WORK);
-int  CORE_ztsmlq(MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK);
+int  CORE_ztsmlq(cham_side_t side, cham_trans_t trans,
                  int M1, int N1, int M2, int N2, int K, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK, int LDWORK);
-int CORE_ztsmlq_hetra1( MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
+int CORE_ztsmlq_hetra1( cham_side_t side, cham_trans_t trans,
                         int m1, int n1, int m2, int n2,
                         int k, int ib,
-                        MORSE_Complex64_t *A1, int lda1,
-                        MORSE_Complex64_t *A2, int lda2,
-                        const MORSE_Complex64_t *V, int ldv,
-                        const MORSE_Complex64_t *T, int ldt,
-                        MORSE_Complex64_t *WORK, int ldwork);
-int  CORE_ztsmqr(MORSE_enum side, MORSE_enum trans,
+                        CHAMELEON_Complex64_t *A1, int lda1,
+                        CHAMELEON_Complex64_t *A2, int lda2,
+                        const CHAMELEON_Complex64_t *V, int ldv,
+                        const CHAMELEON_Complex64_t *T, int ldt,
+                        CHAMELEON_Complex64_t *WORK, int ldwork);
+int  CORE_ztsmqr(cham_side_t side, cham_trans_t trans,
                  int M1, int N1, int M2, int N2, int K, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK, int LDWORK);
-int CORE_ztsmqr_hetra1( MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
+int CORE_ztsmqr_hetra1( cham_side_t side, cham_trans_t trans,
                         int m1, int n1, int m2, int n2,
                         int k, int ib,
-                        MORSE_Complex64_t *A1, int lda1,
-                        MORSE_Complex64_t *A2, int lda2,
-                        const MORSE_Complex64_t *V, int ldv,
-                        const MORSE_Complex64_t *T, int ldt,
-                        MORSE_Complex64_t *WORK, int ldwork);
+                        CHAMELEON_Complex64_t *A1, int lda1,
+                        CHAMELEON_Complex64_t *A2, int lda2,
+                        const CHAMELEON_Complex64_t *V, int ldv,
+                        const CHAMELEON_Complex64_t *T, int ldt,
+                        CHAMELEON_Complex64_t *WORK, int ldwork);
 int  CORE_ztsqrt(int M, int N, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU, MORSE_Complex64_t *WORK);
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK);
 int  CORE_ztstrf(int M, int N, int IB, int NB,
-                 MORSE_Complex64_t *U, int LDU,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *L, int LDL,
-                 int *IPIV, MORSE_Complex64_t *WORK,
+                 CHAMELEON_Complex64_t *U, int LDU,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *L, int LDL,
+                 int *IPIV, CHAMELEON_Complex64_t *WORK,
                  int LDWORK, int *INFO);
 int CORE_ztplqt( int M, int N, int L, int IB,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK );
-int CORE_ztpmlqt( MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK );
+int CORE_ztpmlqt( cham_side_t side, cham_trans_t trans,
                   int M, int N, int K, int L, int IB,
-                  const MORSE_Complex64_t *V, int LDV,
-                  const MORSE_Complex64_t *T, int LDT,
-                  MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t *B, int LDB,
-                  MORSE_Complex64_t *WORK );
-int CORE_ztpmqrt( MORSE_enum side, MORSE_enum trans,
+                  const CHAMELEON_Complex64_t *V, int LDV,
+                  const CHAMELEON_Complex64_t *T, int LDT,
+                  CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *B, int LDB,
+                  CHAMELEON_Complex64_t *WORK );
+int CORE_ztpmqrt( cham_side_t side, cham_trans_t trans,
                   int M, int N, int K, int L, int IB,
-                  const MORSE_Complex64_t *V, int LDV,
-                  const MORSE_Complex64_t *T, int LDT,
-                  MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t *B, int LDB,
-                  MORSE_Complex64_t *WORK );
+                  const CHAMELEON_Complex64_t *V, int LDV,
+                  const CHAMELEON_Complex64_t *T, int LDT,
+                  CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *B, int LDB,
+                  CHAMELEON_Complex64_t *WORK );
 int CORE_ztpqrt( int M, int N, int L, int IB,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK );
-int  CORE_zttmqr(MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK );
+int  CORE_zttmqr(cham_side_t side, cham_trans_t trans,
                  int M1, int N1, int M2, int N2, int K, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK, int LDWORK);
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
 int  CORE_zttqrt(int M, int N, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU,
-                 MORSE_Complex64_t *WORK);
-int  CORE_zttmlq(MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU,
+                 CHAMELEON_Complex64_t *WORK);
+int  CORE_zttmlq(cham_side_t side, cham_trans_t trans,
                  int M1, int N1, int M2, int N2, int K, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK, int LDWORK);
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
 int  CORE_zttlqt(int M, int N, int IB,
-                 MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *TAU,
-                 MORSE_Complex64_t *WORK);
-int  CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
+                 CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *TAU,
+                 CHAMELEON_Complex64_t *WORK);
+int  CORE_zunmlq(cham_side_t side, cham_trans_t trans,
                  int M, int N, int IB, int K,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *C, int LDC,
-                 MORSE_Complex64_t *WORK, int LDWORK);
-int  CORE_zunmqr(MORSE_enum side, MORSE_enum trans,
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *C, int LDC,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
+int  CORE_zunmqr(cham_side_t side, cham_trans_t trans,
                  int M, int N, int K, int IB,
-                 const MORSE_Complex64_t *V, int LDV,
-                 const MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *C, int LDC,
-                 MORSE_Complex64_t *WORK, int LDWORK);
+                 const CHAMELEON_Complex64_t *V, int LDV,
+                 const CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *C, int LDC,
+                 CHAMELEON_Complex64_t *WORK, int LDWORK);
 #endif

@@ -20,7 +20,7 @@
 #ifndef _CUDA_BLAS_H_
 #define _CUDA_BLAS_H_
 
-#include "chameleon/chameleon_config.h"
+#include "chameleon/config.h"
 
 #if !defined(CHAMELEON_USE_CUDA)
 #error "This file should not be included"
@@ -61,11 +61,11 @@
 #endif /* defined(CHAMELEON_USE_CUBLAS_V2) */
 
 /**
- * MORSE types and constants
+ * CHAMELEON types and constants
  */
-#include "chameleon/morse_types.h"
-#include "chameleon/morse_struct.h"
-#include "chameleon/morse_constants.h"
+#include "chameleon/types.h"
+#include "chameleon/struct.h"
+#include "chameleon/constants.h"
 
 /**
  * CUDA BLAS headers

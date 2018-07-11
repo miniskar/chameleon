@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -24,7 +24,7 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 #include "coreblas/cblas.h"
 #include <math.h>
@@ -35,32 +35,32 @@ void CORE_ztstrf_quark(Quark *quark)
     int n;
     int ib;
     int nb;
-    MORSE_Complex64_t *U;
+    CHAMELEON_Complex64_t *U;
     int ldu;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *L;
+    CHAMELEON_Complex64_t *L;
     int ldl;
     int *IPIV;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
-    MORSE_sequence_t *sequence;
-    MORSE_request_t *request;
-    MORSE_bool check_info;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
+    CHAMELEON_bool check_info;
     int iinfo;
 
     int info;
 
     quark_unpack_args_17(quark, m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, sequence, request, check_info, iinfo);
     CORE_ztstrf(m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info);
-    if ( (info != MORSE_SUCCESS) && check_info ) {
-        RUNTIME_sequence_flush( (MORSE_context_t*)quark, sequence, request, iinfo+info );
+    if ( (info != CHAMELEON_SUCCESS) && check_info ) {
+        RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info );
     }
 }
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztstrf computes an LU factorization of a complex matrix formed
  *  by an upper triangular NB-by-N tile U on top of a M-by-N tile A
@@ -116,7 +116,7 @@ void CORE_ztstrf_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -124,13 +124,13 @@ void CORE_ztstrf_quark(Quark *quark)
  *              to solve a system of equations.
  *
  */
-void MORSE_TASK_ztstrf(const MORSE_option_t *options,
+void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const MORSE_desc_t *U, int Um, int Un, int ldu,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *L, int Lm, int Ln, int ldl,
+                       const CHAM_desc_t *U, int Um, int Un, int ldu,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                        int *IPIV,
-                       MORSE_bool check_info, int iinfo)
+                       CHAMELEON_bool check_info, int iinfo)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_TSTRF;
@@ -139,18 +139,18 @@ void MORSE_TASK_ztstrf(const MORSE_option_t *options,
         sizeof(int),                        &n,             VALUE,
         sizeof(int),                        &ib,            VALUE,
         sizeof(int),                        &nb,            VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(U, MORSE_Complex64_t, Um, Un),                     INOUT | QUARK_REGION_D | QUARK_REGION_U,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),                     INOUT | QUARK_REGION_D | QUARK_REGION_U,
         sizeof(int),                        &ldu,           VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),                     INOUT | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                     INOUT | LOCALITY,
         sizeof(int),                        &lda,           VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb,    RTBLKADDR(L, MORSE_Complex64_t, Lm, Ln),                     OUTPUT,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb,    RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),                     OUTPUT,
         sizeof(int),                        &ldl,           VALUE,
         sizeof(int)*nb,                      IPIV,                  OUTPUT,
-        sizeof(MORSE_Complex64_t)*ib*nb,    NULL,                  SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb,    NULL,                  SCRATCH,
         sizeof(int),                        &nb,            VALUE,
-        sizeof(MORSE_sequence_t*),           &(options->sequence),      VALUE,
-        sizeof(MORSE_request_t*),            &(options->request),       VALUE,
-        sizeof(MORSE_bool),                &check_info,    VALUE,
+        sizeof(RUNTIME_sequence_t*),           &(options->sequence),      VALUE,
+        sizeof(RUNTIME_request_t*),            &(options->request),       VALUE,
+        sizeof(CHAMELEON_bool),                &check_info,    VALUE,
         sizeof(int),                        &iinfo,         VALUE,
         0);
 }

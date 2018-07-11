@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -26,15 +26,15 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include "testing_zauxiliary.h"
 
-static int check_solution(MORSE_enum uplo, MORSE_enum trans, int N, int K,
-                          double alpha, MORSE_Complex64_t *A, int LDA,
-                          double beta,  MORSE_Complex64_t *Cref, MORSE_Complex64_t *Cmorse, int LDC);
+static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
+                          double alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC);
 
 
 int testing_zherk(int argc, char **argv)
@@ -66,10 +66,10 @@ int testing_zherk(int argc, char **argv)
     size_t LDAxK = LDA*NKmax;
     size_t LDCxN = LDC*N;
 
-    MORSE_Complex64_t *A      = (MORSE_Complex64_t *)malloc(LDAxK*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *C      = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Cinit  = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
-    MORSE_Complex64_t *Cfinal = (MORSE_Complex64_t *)malloc(LDCxN*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A      = (CHAMELEON_Complex64_t *)malloc(LDAxK*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *C      = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Cinit  = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
+    CHAMELEON_Complex64_t *Cfinal = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
 
     /* Check if unable to allocate memory */
     if ( (!A) || (!C) || (!Cinit) || (!Cfinal) ){
@@ -98,17 +98,17 @@ int testing_zherk(int argc, char **argv)
     LAPACKE_zlarnv_work(IONE, ISEED, LDAxK, A);
 
     /* Initialize C */
-    MORSE_zplgsy( (double)0., MorseUpperLower, N, C, LDC, 51 );
+    CHAMELEON_zplgsy( (double)0., ChamUpperLower, N, C, LDC, 51 );
 
     for (u=0; u<2; u++) {
         for (t=0; t<3; t++) {
-            if (trans[t] == MorseTrans) continue;
+            if (trans[t] == ChamTrans) continue;
 
-            memcpy(Cinit,  C, LDCxN*sizeof(MORSE_Complex64_t));
-            memcpy(Cfinal, C, LDCxN*sizeof(MORSE_Complex64_t));
+            memcpy(Cinit,  C, LDCxN*sizeof(CHAMELEON_Complex64_t));
+            memcpy(Cfinal, C, LDCxN*sizeof(CHAMELEON_Complex64_t));
 
-            /* MORSE ZHERK */
-            MORSE_zherk(uplo[u], trans[t], N, K, alpha, A, LDA, beta, Cfinal, LDC);
+            /* CHAMELEON ZHERK */
+            CHAMELEON_zherk(uplo[u], trans[t], N, K, alpha, A, LDA, beta, Cfinal, LDC);
 
             /* Check the solution */
             info_solution = check_solution(uplo[u], trans[t], N, K,
@@ -137,21 +137,21 @@ int testing_zherk(int argc, char **argv)
  * Check the solution
  */
 
-static int check_solution(MORSE_enum uplo, MORSE_enum trans, int N, int K,
-                          double alpha, MORSE_Complex64_t *A, int LDA,
-                          double beta,  MORSE_Complex64_t *Cref, MORSE_Complex64_t *Cmorse, int LDC)
+static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
+                          double alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC)
 {
     int info_solution;
     double Anorm, Cinitnorm, Cmorsenorm, Clapacknorm, Rnorm;
     double eps;
-    MORSE_Complex64_t beta_const;
+    CHAMELEON_Complex64_t beta_const;
     double result;
     double *work = (double *)malloc(max(N, K)* sizeof(double));
 
     beta_const  = -1.0;
     Anorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                (trans == MorseNoTrans) ? N : K,
-                                (trans == MorseNoTrans) ? K : N, A, LDA, work);
+                                (trans == ChamNoTrans) ? N : K,
+                                (trans == ChamNoTrans) ? K : N, A, LDA, work);
     Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref,    LDC, work);
     Cmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cmorse, LDC, work);
 

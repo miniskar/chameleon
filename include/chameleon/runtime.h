@@ -23,17 +23,9 @@
 #include "chameleon/config.h"
 #include "chameleon/constants.h"
 #include "chameleon/runtime_struct.h"
+#include "chameleon/tasks.h"
 
 BEGIN_C_DECLS
-
-/**
- * @brief Ids of the runtime supported by the RUNTIME API
- */
-typedef enum runtime_id_e {
-    RUNTIME_SCHED_QUARK,  /**< Quark runtime  */
-    RUNTIME_SCHED_PARSEC, /**< PaRSEC runtime */
-    RUNTIME_SCHED_STARPU, /**< StarPU runtime */
-} RUNTIME_id_t;
 
 /**
  * @name RUNTIME Context functions
@@ -70,7 +62,7 @@ RUNTIME_context_destroy( CHAM_context_t *ctxt );
  *            @arg CHAMELEON_PROFILING_MODE: start the profiling mode of the runtime.
  */
 void
-RUNTIME_enable( cham_option_t option );
+RUNTIME_enable( int option );
 
 /**
  * @brief Disable a global option of the runtime.
@@ -80,7 +72,7 @@ RUNTIME_enable( cham_option_t option );
  *            @arg CHAMELEON_PROFILING_MODE: stop the profiling mode of the runtime.
  */
 void
-RUNTIME_disable( cham_option_t option );
+RUNTIME_disable( int option );
 
 /**
  * @}
@@ -585,21 +577,21 @@ void RUNTIME_clocality_allrestore ();
 void RUNTIME_dlocality_allrestore ();
 void RUNTIME_slocality_allrestore ();
 
-void RUNTIME_zlocality_allrestrict(uint32_t);
-void RUNTIME_zlocality_onerestrict(cham_tasktype_t, uint32_t);
-void RUNTIME_zlocality_onerestore (cham_tasktype_t);
+void RUNTIME_zlocality_allrestrict(uint32_t device);
+void RUNTIME_zlocality_onerestrict(cham_tasktype_t task, uint32_t device);
+void RUNTIME_zlocality_onerestore (cham_tasktype_t task);
 
-void RUNTIME_clocality_allrestrict(uint32_t);
-void RUNTIME_clocality_onerestrict(cham_tasktype_t, uint32_t);
-void RUNTIME_clocality_onerestore (cham_tasktype_t);
+void RUNTIME_clocality_allrestrict(uint32_t device);
+void RUNTIME_clocality_onerestrict(cham_tasktype_t task, uint32_t device);
+void RUNTIME_clocality_onerestore (cham_tasktype_t task);
 
-void RUNTIME_dlocality_allrestrict(uint32_t);
-void RUNTIME_dlocality_onerestrict(cham_tasktype_t, uint32_t);
-void RUNTIME_dlocality_onerestore (cham_tasktype_t);
+void RUNTIME_dlocality_allrestrict(uint32_t device);
+void RUNTIME_dlocality_onerestrict(cham_tasktype_t task, uint32_t device);
+void RUNTIME_dlocality_onerestore (cham_tasktype_t task);
 
-void RUNTIME_slocality_allrestrict(uint32_t);
-void RUNTIME_slocality_onerestrict(cham_tasktype_t, uint32_t);
-void RUNTIME_slocality_onerestore (cham_tasktype_t);
+void RUNTIME_slocality_allrestrict(uint32_t device);
+void RUNTIME_slocality_onerestrict(cham_tasktype_t task, uint32_t device);
+void RUNTIME_slocality_onerestore (cham_tasktype_t task);
 
 /**
  * @}
@@ -621,13 +613,13 @@ void RUNTIME_start_stats();
 void RUNTIME_stop_stats();
 
 void RUNTIME_zdisplay_allprofile ();
-void RUNTIME_zdisplay_oneprofile (cham_tasktype_t);
+void RUNTIME_zdisplay_oneprofile (cham_tasktype_t task);
 void RUNTIME_cdisplay_allprofile ();
-void RUNTIME_cdisplay_oneprofile (cham_tasktype_t);
+void RUNTIME_cdisplay_oneprofile (cham_tasktype_t task);
 void RUNTIME_ddisplay_allprofile ();
-void RUNTIME_ddisplay_oneprofile (cham_tasktype_t);
+void RUNTIME_ddisplay_oneprofile (cham_tasktype_t task);
 void RUNTIME_sdisplay_allprofile ();
-void RUNTIME_sdisplay_oneprofile (cham_tasktype_t);
+void RUNTIME_sdisplay_oneprofile (cham_tasktype_t task);
 
 /**
  * @}

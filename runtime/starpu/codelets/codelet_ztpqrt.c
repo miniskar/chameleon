@@ -27,18 +27,18 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
     int N;
     int L;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *B;
+    CHAMELEON_Complex64_t *B;
     int ldb;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
 
-    A    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    T    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    T    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
 
     starpu_codelet_unpack_args( cl_arg, &M, &N, &L, &ib,
                                 &lda, &ldb, &ldt );
@@ -54,20 +54,20 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(ztpqrt, 4, cl_ztpqrt_cpu_func)
 
 void
-MORSE_TASK_ztpqrt( const MORSE_option_t *options,
+INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                    int M, int N, int L, int ib, int nb,
-                   const MORSE_desc_t *A, int Am, int An, int lda,
-                   const MORSE_desc_t *B, int Bm, int Bn, int ldb,
-                   const MORSE_desc_t *T, int Tm, int Tn, int ldt )
+                   const CHAM_desc_t *A, int Am, int An, int lda,
+                   const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                   const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
     struct starpu_codelet *codelet = &cl_ztpqrt;
     void (*callback)(void*) = options->profiling ? cl_ztpqrt_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_ACCESS_RW(B, Bm, Bn);
-    MORSE_ACCESS_W(T, Tm, Tn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    CHAMELEON_ACCESS_W(T, Tm, Tn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
@@ -75,11 +75,11 @@ MORSE_TASK_ztpqrt( const MORSE_option_t *options,
         STARPU_VALUE, &N,     sizeof(int),
         STARPU_VALUE, &L,     sizeof(int),
         STARPU_VALUE, &ib,    sizeof(int),
-        STARPU_RW,     RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE, &lda,   sizeof(int),
-        STARPU_RW,     RTBLKADDR(B, MORSE_Complex64_t, Bm, Bn),
+        STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE, &ldb,   sizeof(int),
-        STARPU_W,      RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_W,      RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE, &ldt,   sizeof(int),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,

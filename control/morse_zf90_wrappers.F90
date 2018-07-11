@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -66,8 +66,8 @@
 !
 !
 !
-!  MORSE fortran wrapper for BLAS and LAPACK subroutines.
-!  MORSE is a software package provided by Univ. of Tennessee,
+!  CHAMELEON fortran wrapper for BLAS and LAPACK subroutines.
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
 !  Univ. of California Berkeley and Univ. of Colorado Denver
 !
 ! @version 1.0.0
@@ -79,36 +79,36 @@
 ! @precisions normal z -> c d s
 !
 !
-! Wrappers to MORSE functions are provided for the following BLAS
-! subroutines since the MORSE and BLAS interfaces match exactly:
-! ZGEMM  MORSE_zgemm
-! ZHEMM  MORSE_zhemm
-! ZHER2K MORSE_zher2k
-! ZHERK  MORSE_zherk
-! ZSYMM  MORSE_zsymm
-! ZSYR2K MORSE_zsyr2k
-! ZSYRK  MORSE_zsyrk
-! ZTRMM  MORSE_ztrmm
-! ZTRSM  MORSE_ztrsm
+! Wrappers to CHAMELEON functions are provided for the following BLAS
+! subroutines since the CHAMELEON and BLAS interfaces match exactly:
+! ZGEMM  CHAMELEON_zgemm
+! ZHEMM  CHAMELEON_zhemm
+! ZHER2K CHAMELEON_zher2k
+! ZHERK  CHAMELEON_zherk
+! ZSYMM  CHAMELEON_zsymm
+! ZSYR2K CHAMELEON_zsyr2k
+! ZSYRK  CHAMELEON_zsyrk
+! ZTRMM  CHAMELEON_ztrmm
+! ZTRSM  CHAMELEON_ztrsm
 !
-! Wrappers to MORSE functions are provided for the following LAPACK
-! subroutines since the MORSE and LAPACK interfaces match exactly:
-! ZGESV  MORSE_zgesv
-! ZGETRF MORSE_zgetrf
-! ZGETRS MORSE_zgetrs
-! ZHEGST MORSE_zhegst
-! ZLASWP MORSE_zlaswp
-! ZLAUUM MORSE_zlauum
-! ZPOSV  MORSE_zposv
-! ZSYSV  MORSE_zsysv
-! ZPOTRF MORSE_zpotrf
-! ZSYTRF MORSE_zsytrf
-! ZPOTRI MORSE_zpotri
-! ZPOTRS MORSE_zpotrs
-! ZSYTRS MORSE_zsytrs
-! ZTRTRI MORSE_ztrtri
-! ZLACPY MORSE_zlacpy
-! ZLASET MORSE_zlaset
+! Wrappers to CHAMELEON functions are provided for the following LAPACK
+! subroutines since the CHAMELEON and LAPACK interfaces match exactly:
+! ZGESV  CHAMELEON_zgesv
+! ZGETRF CHAMELEON_zgetrf
+! ZGETRS CHAMELEON_zgetrs
+! ZHEGST CHAMELEON_zhegst
+! ZLASWP CHAMELEON_zlaswp
+! ZLAUUM CHAMELEON_zlauum
+! ZPOSV  CHAMELEON_zposv
+! ZSYSV  CHAMELEON_zsysv
+! ZPOTRF CHAMELEON_zpotrf
+! ZSYTRF CHAMELEON_zsytrf
+! ZPOTRI CHAMELEON_zpotri
+! ZPOTRS CHAMELEON_zpotrs
+! ZSYTRS CHAMELEON_zsytrs
+! ZTRTRI CHAMELEON_ztrtri
+! ZLACPY CHAMELEON_zlacpy
+! ZLASET CHAMELEON_zlaset
 #define PRECISION_z
 
       subroutine morse_wrap_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
@@ -125,8 +125,8 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZGESV"
-            call MORSE_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZGESV"
+            call CHAMELEON_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
       end subroutine morse_wrap_ZGESV
 
       subroutine morse_wrap_ZGETRF(M,N,A,LDA,IPIV,INFO)
@@ -141,8 +141,8 @@
             integer, intent(out), target :: IPIV(*)
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZGETRF"
-            call MORSE_ZGETRF(M,N,A,LDA,IPIV,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZGETRF"
+            call CHAMELEON_ZGETRF(M,N,A,LDA,IPIV,INFO)
       end subroutine morse_wrap_ZGETRF
 
       subroutine morse_wrap_ZGETRS(TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
@@ -161,17 +161,17 @@
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             integer :: local_TRANS
             if(TRANS=='N' .or. TRANS=='n')then
-               local_TRANS = MorseNoTrans
+               local_TRANS = ChamNoTrans
             else if(TRANS=='T' .or. TRANS=='t')then
-               local_TRANS = MorseTrans
+               local_TRANS = ChamTrans
             else if(TRANS=='C' .or. TRANS=='c')then
-               local_TRANS = MorseConjTrans
+               local_TRANS = ChamConjTrans
             else
                local_TRANS = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZGETRS"
-            call MORSE_ZGETRS(local_TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZGETRS"
+            call CHAMELEON_ZGETRS(local_TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
       end subroutine morse_wrap_ZGETRS
 
       subroutine morse_wrap_ZHEGST(ITYPE,UPLO,N,A,LDA,B,LDB,INFO)
@@ -189,15 +189,15 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZHEGST"
-            call MORSE_ZHEGST(ITYPE,local_UPLO,N,A,LDA,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZHEGST"
+            call CHAMELEON_ZHEGST(ITYPE,local_UPLO,N,A,LDA,B,LDB,INFO)
       end subroutine morse_wrap_ZHEGST
 
       subroutine morse_wrap_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX)
@@ -214,8 +214,8 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_ret
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZLASWP"
-            call MORSE_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZLASWP"
+            call CHAMELEON_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX,local_ret)
       end subroutine morse_wrap_ZLASWP
 
       subroutine morse_wrap_ZLAUUM(UPLO,N,A,LDA,INFO)
@@ -230,15 +230,15 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZLAUUM"
-            call MORSE_ZLAUUM(local_UPLO,N,A,LDA,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZLAUUM"
+            call CHAMELEON_ZLAUUM(local_UPLO,N,A,LDA,INFO)
       end subroutine morse_wrap_ZLAUUM
 
       subroutine morse_wrap_ZPOSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
@@ -256,15 +256,15 @@
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZPOSV"
-            call MORSE_ZPOSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZPOSV"
+            call CHAMELEON_ZPOSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
       end subroutine morse_wrap_ZPOSV
 
       subroutine morse_wrap_ZSYSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
@@ -282,15 +282,15 @@
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZSYSV"
-            call MORSE_ZSYSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZSYSV"
+            call CHAMELEON_ZSYSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
       end subroutine morse_wrap_ZSYSV
 
       subroutine morse_wrap_ZPOTRF(UPLO,N,A,LDA,INFO)
@@ -305,15 +305,15 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZPOTRF"
-            call MORSE_ZPOTRF(local_UPLO,N,A,LDA,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZPOTRF"
+            call CHAMELEON_ZPOTRF(local_UPLO,N,A,LDA,INFO)
       end subroutine morse_wrap_ZPOTRF
 
       subroutine morse_wrap_ZSYTRF(UPLO,N,A,LDA,INFO)
@@ -328,15 +328,15 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZSYTRF"
-            call MORSE_ZSYTRF(local_UPLO,N,A,LDA,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZSYTRF"
+            call CHAMELEON_ZSYTRF(local_UPLO,N,A,LDA,INFO)
       end subroutine morse_wrap_ZSYTRF
 
       subroutine morse_wrap_ZPOTRI(UPLO,N,A,LDA,INFO)
@@ -351,15 +351,15 @@
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZPOTRI"
-            call MORSE_ZPOTRI(local_UPLO,N,A,LDA,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZPOTRI"
+            call CHAMELEON_ZPOTRI(local_UPLO,N,A,LDA,INFO)
       end subroutine morse_wrap_ZPOTRI
 
       subroutine morse_wrap_ZPOTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
@@ -377,15 +377,15 @@
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZPOTRS"
-            call MORSE_ZPOTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZPOTRS"
+            call CHAMELEON_ZPOTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
       end subroutine morse_wrap_ZPOTRS
 
       subroutine morse_wrap_ZSYTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
@@ -403,15 +403,15 @@
             complex(kind=wp), intent(inout), target :: B(LDB,*)
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZSYTRS"
-            call MORSE_ZSYTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZSYTRS"
+            call CHAMELEON_ZSYTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
       end subroutine morse_wrap_ZSYTRS
 
       subroutine morse_wrap_ZTRTRI(UPLO,DIAG,N,A,LDA,INFO)
@@ -428,22 +428,22 @@
             integer :: local_DIAG
             integer :: local_UPLO
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(DIAG=='U' .or. DIAG=='u')then
-               local_DIAG = MorseUnit
+               local_DIAG = ChamUnit
             else if(DIAG=='N' .or. DIAG=='n')then
-               local_DIAG = MorseNonUnit
+               local_DIAG = ChamNonUnit
             else
                local_DIAG = -1
             end if
             if (.not. morse_initialized) call morse_init(24,INFO)
-            ! write(*,*) " Calling MORSE_ZTRTRI"
-            call MORSE_ZTRTRI(local_UPLO,local_DIAG,N,A,LDA,INFO)
+            ! write(*,*) " Calling CHAMELEON_ZTRTRI"
+            call CHAMELEON_ZTRTRI(local_UPLO,local_DIAG,N,A,LDA,INFO)
       end subroutine morse_wrap_ZTRTRI
 
       subroutine morse_wrap_ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
@@ -468,26 +468,26 @@
             integer :: local_TRANSB
             integer :: local_ret
             if(TRANSA=='N' .or. TRANSA=='n')then
-               local_TRANSA = MorseNoTrans
+               local_TRANSA = ChamNoTrans
             else if(TRANSA=='T' .or. TRANSA=='t')then
-               local_TRANSA = MorseTrans
+               local_TRANSA = ChamTrans
             else if(TRANSA=='C' .or. TRANSA=='c')then
-               local_TRANSA = MorseConjTrans
+               local_TRANSA = ChamConjTrans
             else
                local_TRANSA = -1
             end if
             if(TRANSB=='N' .or. TRANSB=='n')then
-               local_TRANSB = MorseNoTrans
+               local_TRANSB = ChamNoTrans
             else if(TRANSB=='T' .or. TRANSB=='t')then
-               local_TRANSB = MorseTrans
+               local_TRANSB = ChamTrans
             else if(TRANSB=='C' .or. TRANSB=='c')then
-               local_TRANSB = MorseConjTrans
+               local_TRANSB = ChamConjTrans
             else
                local_TRANSB = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZGEMM"
-            call MORSE_ZGEMM(local_TRANSA,local_TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZGEMM"
+            call CHAMELEON_ZGEMM(local_TRANSA,local_TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZGEMM
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -512,22 +512,22 @@
             integer :: local_UPLO
             integer :: local_ret
             if(SIDE=='L' .or. SIDE=='l')then
-               local_SIDE = MorseLeft
+               local_SIDE = ChamLeft
             else if(SIDE=='R' .or. SIDE=='r')then
-               local_SIDE = MorseRight
+               local_SIDE = ChamRight
             else
                local_SIDE = -1
             end if
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZHEMM"
-            call MORSE_ZHEMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZHEMM"
+            call CHAMELEON_ZHEMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZHEMM
 
       subroutine morse_wrap_ZHER2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
@@ -551,24 +551,24 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANS=='N' .or. TRANS=='n')then
-               local_TRANS = MorseNoTrans
+               local_TRANS = ChamNoTrans
             else if(TRANS=='T' .or. TRANS=='t')then
-               local_TRANS = MorseTrans
+               local_TRANS = ChamTrans
             else if(TRANS=='C' .or. TRANS=='c')then
-               local_TRANS = MorseConjTrans
+               local_TRANS = ChamConjTrans
             else
                local_TRANS = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZHER2K"
-            call MORSE_ZHER2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZHER2K"
+            call CHAMELEON_ZHER2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZHER2K
 
       subroutine morse_wrap_ZHERK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
@@ -590,24 +590,24 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANS=='N' .or. TRANS=='n')then
-               local_TRANS = MorseNoTrans
+               local_TRANS = ChamNoTrans
             else if(TRANS=='T' .or. TRANS=='t')then
-               local_TRANS = MorseTrans
+               local_TRANS = ChamTrans
             else if(TRANS=='C' .or. TRANS=='c')then
-               local_TRANS = MorseConjTrans
+               local_TRANS = ChamConjTrans
             else
                local_TRANS = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZHERK"
-            call MORSE_ZHERK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZHERK"
+            call CHAMELEON_ZHERK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZHERK
 #endif
 
@@ -632,22 +632,22 @@
             integer :: local_UPLO
             integer :: local_ret
             if(SIDE=='L' .or. SIDE=='l')then
-               local_SIDE = MorseLeft
+               local_SIDE = ChamLeft
             else if(SIDE=='R' .or. SIDE=='r')then
-               local_SIDE = MorseRight
+               local_SIDE = ChamRight
             else
                local_SIDE = -1
             end if
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZSYMM"
-            call MORSE_ZSYMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZSYMM"
+            call CHAMELEON_ZSYMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZSYMM
 
       subroutine morse_wrap_ZSYR2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
@@ -671,24 +671,24 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANS=='N' .or. TRANS=='n')then
-               local_TRANS = MorseNoTrans
+               local_TRANS = ChamNoTrans
             else if(TRANS=='T' .or. TRANS=='t')then
-               local_TRANS = MorseTrans
+               local_TRANS = ChamTrans
             else if(TRANS=='C' .or. TRANS=='c')then
-               local_TRANS = MorseConjTrans
+               local_TRANS = ChamConjTrans
             else
                local_TRANS = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZSYR2K"
-            call MORSE_ZSYR2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZSYR2K"
+            call CHAMELEON_ZSYR2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZSYR2K
 
       subroutine morse_wrap_ZSYRK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
@@ -710,24 +710,24 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANS=='N' .or. TRANS=='n')then
-               local_TRANS = MorseNoTrans
+               local_TRANS = ChamNoTrans
             else if(TRANS=='T' .or. TRANS=='t')then
-               local_TRANS = MorseTrans
+               local_TRANS = ChamTrans
             else if(TRANS=='C' .or. TRANS=='c')then
-               local_TRANS = MorseConjTrans
+               local_TRANS = ChamConjTrans
             else
                local_TRANS = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZSYRK"
-            call MORSE_ZSYRK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZSYRK"
+            call CHAMELEON_ZSYRK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
       end subroutine morse_wrap_ZSYRK
 
       subroutine morse_wrap_ZTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
@@ -752,38 +752,38 @@
             integer :: local_UPLO
             integer :: local_ret
             if(SIDE=='L' .or. SIDE=='l')then
-               local_SIDE = MorseLeft
+               local_SIDE = ChamLeft
             else if(SIDE=='R' .or. SIDE=='r')then
-               local_SIDE = MorseRight
+               local_SIDE = ChamRight
             else
                local_SIDE = -1
             end if
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANSA=='N' .or. TRANSA=='n')then
-               local_TRANSA = MorseNoTrans
+               local_TRANSA = ChamNoTrans
             else if(TRANSA=='T' .or. TRANSA=='t')then
-               local_TRANSA = MorseTrans
+               local_TRANSA = ChamTrans
             else if(TRANSA=='C' .or. TRANSA=='c')then
-               local_TRANSA = MorseConjTrans
+               local_TRANSA = ChamConjTrans
             else
                local_TRANSA = -1
             end if
             if(DIAG=='U' .or. DIAG=='u')then
-               local_DIAG = MorseUnit
+               local_DIAG = ChamUnit
             else if(DIAG=='N' .or. DIAG=='n')then
-               local_DIAG = MorseNonUnit
+               local_DIAG = ChamNonUnit
             else
                local_DIAG = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZTRMM"
-            call MORSE_ZTRMM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZTRMM"
+            call CHAMELEON_ZTRMM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
       end subroutine morse_wrap_ZTRMM
 
       subroutine morse_wrap_ZTRSM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
@@ -808,38 +808,38 @@
             integer :: local_UPLO
             integer :: local_ret
             if(SIDE=='L' .or. SIDE=='l')then
-               local_SIDE = MorseLeft
+               local_SIDE = ChamLeft
             else if(SIDE=='R' .or. SIDE=='r')then
-               local_SIDE = MorseRight
+               local_SIDE = ChamRight
             else
                local_SIDE = -1
             end if
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if(TRANSA=='N' .or. TRANSA=='n')then
-               local_TRANSA = MorseNoTrans
+               local_TRANSA = ChamNoTrans
             else if(TRANSA=='T' .or. TRANSA=='t')then
-               local_TRANSA = MorseTrans
+               local_TRANSA = ChamTrans
             else if(TRANSA=='C' .or. TRANSA=='c')then
-               local_TRANSA = MorseConjTrans
+               local_TRANSA = ChamConjTrans
             else
                local_TRANSA = -1
             end if
             if(DIAG=='U' .or. DIAG=='u')then
-               local_DIAG = MorseUnit
+               local_DIAG = ChamUnit
             else if(DIAG=='N' .or. DIAG=='n')then
-               local_DIAG = MorseNonUnit
+               local_DIAG = ChamNonUnit
             else
                local_DIAG = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZTRSM"
-            call MORSE_ZTRSM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZTRSM"
+            call CHAMELEON_ZTRSM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
       end subroutine morse_wrap_ZTRSM
 
       subroutine morse_wrap_ZLACPY(UPLO,M,N,A,LDA,B,LDB)
@@ -857,15 +857,15 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZLACPY"
-            call MORSE_ZLACPY(local_UPLO,M,N,A,LDA,B,LDB,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZLACPY"
+            call CHAMELEON_ZLACPY(local_UPLO,M,N,A,LDA,B,LDB,local_ret)
       end subroutine morse_wrap_ZLACPY
 
       subroutine morse_wrap_ZLASET(UPLO,M,N,ALPHA,BETA,A,LDA)
@@ -883,13 +883,13 @@
             integer :: local_UPLO
             integer :: local_ret
             if(UPLO=='U' .or. UPLO=='u')then
-               local_UPLO = MorseUpper
+               local_UPLO = ChamUpper
             else if(UPLO=='L' .or. UPLO=='l')then
-               local_UPLO = MorseLower
+               local_UPLO = ChamLower
             else
                local_UPLO = -1
             end if
             if (.not. morse_initialized) call morse_init(24,local_ret)
-            ! write(*,*) " Calling MORSE_ZLASET"
-            call MORSE_ZLASET(local_UPLO,M,N,ALPHA,BETA,A,LDA,local_ret)
+            ! write(*,*) " Calling CHAMELEON_ZLASET"
+            call CHAMELEON_ZLASET(local_UPLO,M,N,ALPHA,BETA,A,LDA,local_ret)
       end subroutine morse_wrap_ZLASET

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -22,46 +22,46 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zgetrf_quark(Quark *quark)
 {
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    MORSE_sequence_t *sequence;
-    MORSE_request_t *request;
-    MORSE_bool check_info;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
+    CHAMELEON_bool check_info;
     int iinfo;
     int info;
 
     quark_unpack_args_9(quark, m, n, A, lda, IPIV, sequence, request, check_info, iinfo);
     CORE_zgetrf( m, n, A, lda, IPIV, &info );
-    if ( (info != MORSE_SUCCESS) && check_info ) {
-        RUNTIME_sequence_flush( (MORSE_context_t*)quark, sequence, request, iinfo+info );
+    if ( (info != CHAMELEON_SUCCESS) && check_info ) {
+        RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info );
     }
 }
 
-void MORSE_TASK_zgetrf(const MORSE_option_t *options,
+void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
                        int *IPIV,
-                       MORSE_bool check_info, int iinfo)
+                       CHAMELEON_bool check_info, int iinfo)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GETRF;
     QUARK_Insert_Task(opt->quark, CORE_zgetrf_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                        &m,             VALUE,
         sizeof(int),                        &n,             VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),                     INOUT | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                     INOUT | LOCALITY,
         sizeof(int),                        &lda,           VALUE,
         sizeof(int)*nb,                      IPIV,                  OUTPUT,
-        sizeof(MORSE_sequence_t*),           &(options->sequence),      VALUE,
-        sizeof(MORSE_request_t*),            &(options->request),       VALUE,
-        sizeof(MORSE_bool),                &check_info,    VALUE,
+        sizeof(RUNTIME_sequence_t*),           &(options->sequence),      VALUE,
+        sizeof(RUNTIME_request_t*),            &(options->request),       VALUE,
+        sizeof(CHAMELEON_bool),                &check_info,    VALUE,
         sizeof(int),                        &iinfo,         VALUE,
         0);
 }

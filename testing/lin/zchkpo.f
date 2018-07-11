@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -139,12 +139,12 @@
       CHARACTER*3        PATH
       INTEGER            I, IMAT, IN, INB, INFO, IOFF, IRHS, IUPLO,
      $                   IZERO, K, KL, KU, LDA, MODE, N, NB, NERRS,
-     $                   NFAIL, NIMAT, NRHS, NRUN, MORSE_UPLO
+     $                   NFAIL, NIMAT, NRHS, NRUN, CHAMELEON_UPLO
       DOUBLE PRECISION   ANORM, CNDNUM, RCOND, RCONDC
 *     ..
 *     .. Local Arrays ..
       CHARACTER          UPLOS( 2 )
-      INTEGER            MORSE_UPLOS( 2 )
+      INTEGER            CHAMELEON_UPLOS( 2 )
       INTEGER            ISEED( 4 ), ISEEDY( 4 )
       DOUBLE PRECISION   RESULT( NTESTS )
 *     ..
@@ -173,7 +173,7 @@
 *     .. Data statements ..
       DATA               ISEEDY / 1988, 1989, 1990, 1991 /
       DATA               UPLOS / 'U', 'L' /
-      DATA               MORSE_UPLOS / MORSEUPPER, MORSELOWER /
+      DATA               CHAMELEON_UPLOS / CHAMELEONUPPER, CHAMELEONLOWER /
 *     ..
 *     .. Executable Statements ..
 *
@@ -222,7 +222,7 @@
 *
             DO 100 IUPLO = 1, 2
                UPLO = UPLOS( IUPLO )
-               MORSE_UPLO = MORSE_UPLOS( IUPLO )
+               CHAMELEON_UPLO = CHAMELEON_UPLOS( IUPLO )
 *
 *              Set up parameters with ZLATB4 and generate a test matrix
 *              with ZLATMS.
@@ -294,13 +294,13 @@
                   IF ( (N / 25) .GT. NB ) THEN
                      GOTO 90
                   END IF
-                  CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
 *
 *                 Compute the L*L' or U'*U factorization of the matrix.
 *
                   CALL ZLACPY( UPLO, N, N, A, LDA, AFAC, LDA )
                   SRNAMT = 'ZPOTRF'
-                  CALL MORSE_ZPOTRF( MORSE_UPLO, N, AFAC, LDA, INFO )
+                  CALL CHAMELEON_ZPOTRF( CHAMELEON_UPLO, N, AFAC, LDA, INFO )
 *
 *                 Check error code from ZPOTRF.
 *
@@ -328,7 +328,7 @@
 *
                   CALL ZLACPY( UPLO, N, N, AFAC, LDA, AINV, LDA )
                   SRNAMT = 'ZPOTRI'
-                  CALL MORSE_ZPOTRI( MORSE_UPLO, N, AINV, LDA, 
+                  CALL CHAMELEON_ZPOTRI( CHAMELEON_UPLO, N, AINV, LDA, 
      $                 INFO )
 *
 *                 Check error code from ZPOTRI.
@@ -373,7 +373,7 @@
                      CALL ZLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
 *
                      SRNAMT = 'ZPOTRS'
-                     CALL MORSE_ZPOTRS( MORSE_UPLO, N, NRHS, AFAC, 
+                     CALL CHAMELEON_ZPOTRS( CHAMELEON_UPLO, N, NRHS, AFAC, 
      $                                   LDA, X, LDA, INFO )
 *
 *                 Check error code from ZPOTRS.

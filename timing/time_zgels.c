@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgels"
+#define _NAME  "CHAMELEON_zgels"
 /* See Lawn 41 page 120 */
 #define _FMULS (FMULS_GEQRF( M, N ) + FMULS_GEQRS( M, N, NRHS ))
 #define _FADDS (FADDS_GEQRF( M, N ) + FADDS_GEQRS( M, N, NRHS ))
@@ -28,7 +28,7 @@
 static int
 RunTest(int *iparam, double *dparam, morse_time_t *t_) 
 {
-    MORSE_desc_t *T;
+    CHAM_desc_t *T;
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
     if ( M != N ) {
@@ -37,17 +37,17 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A,    1,     MORSE_Complex64_t, LDA, N   );
-    PASTE_CODE_ALLOCATE_MATRIX( x,    1,     MORSE_Complex64_t, LDB, NRHS);
-    PASTE_CODE_ALLOCATE_MATRIX( Acpy, check, MORSE_Complex64_t, LDA, N   );
-    PASTE_CODE_ALLOCATE_MATRIX( b,    check, MORSE_Complex64_t, LDB, NRHS);
+    PASTE_CODE_ALLOCATE_MATRIX( A,    1,     CHAMELEON_Complex64_t, LDA, N   );
+    PASTE_CODE_ALLOCATE_MATRIX( x,    1,     CHAMELEON_Complex64_t, LDB, NRHS);
+    PASTE_CODE_ALLOCATE_MATRIX( Acpy, check, CHAMELEON_Complex64_t, LDA, N   );
+    PASTE_CODE_ALLOCATE_MATRIX( b,    check, CHAMELEON_Complex64_t, LDB, NRHS);
 
      /* Initialiaze Data */
-    MORSE_zplrnt( M, N,    A, LDA,  453 );
-    MORSE_zplrnt( M, NRHS, x, LDB, 5673 );
+    CHAMELEON_zplrnt( M, N,    A, LDA,  453 );
+    CHAMELEON_zplrnt( M, NRHS, x, LDB, 5673 );
 
-    MORSE_Alloc_Workspace_zgels(M, N, &T, P, Q);
-    memset(T->mat, 0, (T->llm*T->lln)*sizeof(MorseComplexDouble));
+    CHAMELEON_Alloc_Workspace_zgels(M, N, &T, P, Q);
+    memset(T->mat, 0, (T->llm*T->lln)*sizeof(ChamComplexDouble));
 
     /* Save A and b  */
     if (check) {
@@ -56,7 +56,7 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     START_TIMING();
-    MORSE_zgels( MorseNoTrans, M, N, NRHS, A, LDA, T, x, LDB );
+    CHAMELEON_zgels( ChamNoTrans, M, N, NRHS, A, LDA, T, x, LDB );
     STOP_TIMING();
     
     /* Check the solution */
@@ -69,7 +69,7 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
         free(Acpy); free(b);
     }
 
-    MORSE_Dealloc_Workspace( &T );
+    CHAMELEON_Dealloc_Workspace( &T );
     free( A );
     free( x );
 

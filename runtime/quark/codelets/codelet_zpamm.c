@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dulceneia Becker
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -24,26 +24,26 @@
  */
 #include "coreblas/cblas.h"
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void
 CORE_zpamm_quark(Quark *quark)
 {
     int op;
-    MORSE_enum side;
-    int storev;
+    cham_side_t side;
+    cham_store_t storev;
     int M;
     int N;
     int K;
     int L;
-    MORSE_Complex64_t *A1;
+    CHAMELEON_Complex64_t *A1;
     int LDA1;
-    MORSE_Complex64_t *A2;
+    CHAMELEON_Complex64_t *A2;
     int LDA2;
-    MORSE_Complex64_t *V;
+    CHAMELEON_Complex64_t *V;
     int LDV;
-    MORSE_Complex64_t *W;
+    CHAMELEON_Complex64_t *W;
     int LDW;
 
     quark_unpack_args_15(quark, op, side, storev, M, N, K, L,
@@ -54,13 +54,13 @@ CORE_zpamm_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  ZPAMM  performs one of the matrix-matrix operations
  *
  *                    LEFT                      RIGHT
- *     OP MorseW  :  W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
- *     OP MorseA2 :  A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
+ *     OP ChameleonW  :  W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
+ *     OP ChameleonA2 :  A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
  *
  *  where  op( V ) is one of
  *
@@ -116,41 +116,41 @@ CORE_zpamm_quark(Quark *quark)
  *
  *         OP specifies which operation to perform:
  *
- *         @arg MorseW  : W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
- *         @arg MorseA2 : A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
+ *         @arg ChameleonW  : W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
+ *         @arg ChameleonA2 : A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
  *
  * @param[in] side
  *
  *         SIDE specifies whether  op( V ) multiplies A2
  *         or W from the left or right as follows:
  *
- *         @arg MorseLeft  : multiply op( V ) from the left
- *                            OP MorseW  :  W  = A1 + op(V) * A2
- *                            OP MorseA2 :  A2 = A2 - op(V) * W
+ *         @arg ChamLeft  : multiply op( V ) from the left
+ *                            OP ChameleonW  :  W  = A1 + op(V) * A2
+ *                            OP ChameleonA2 :  A2 = A2 - op(V) * W
  *
- *         @arg MorseRight : multiply op( V ) from the right
- *                            OP MorseW  :  W  = A1 + A2 * op(V)
- *                            OP MorseA2 :  A2 = A2 - W * op(V)
+ *         @arg ChamRight : multiply op( V ) from the right
+ *                            OP ChameleonW  :  W  = A1 + A2 * op(V)
+ *                            OP ChameleonA2 :  A2 = A2 - W * op(V)
  *
  * @param[in] storev
  *
  *         Indicates how the vectors which define the elementary
  *         reflectors are stored in V:
  *
- *         @arg MorseColumnwise
- *         @arg MorseRowwise
+ *         @arg ChamColumnwise
+ *         @arg ChamRowwise
  *
  * @param[in] M
  *         The number of rows of the A1, A2 and W
- *         If SIDE is MorseLeft, the number of rows of op( V )
+ *         If SIDE is ChamLeft, the number of rows of op( V )
  *
  * @param[in] N
  *         The number of columns of the A1, A2 and W
- *         If SIDE is MorseRight, the number of columns of op( V )
+ *         If SIDE is ChamRight, the number of columns of op( V )
  *
  * @param[in] K
- *         If SIDE is MorseLeft, the number of columns of op( V )
- *         If SIDE is MorseRight, the number of rows of op( V )
+ *         If SIDE is ChamLeft, the number of columns of op( V )
+ *         If SIDE is ChamRight, the number of rows of op( V )
  *
  * @param[in] L
  *         The size of the triangular part of V
@@ -163,23 +163,23 @@ CORE_zpamm_quark(Quark *quark)
  *
  * @param[in,out] A2
  *         On entry, the M-by-N tile A2.
- *         On exit, if OP is MorseA2 A2 is overwritten
+ *         On exit, if OP is ChameleonA2 A2 is overwritten
  *
  * @param[in] LDA2
  *         The leading dimension of the tile A2. LDA2 >= max(1,M).
  *
  * @param[in] V
  *         The matrix V as described above.
- *         If SIDE is MorseLeft : op( V ) is M-by-K
- *         If SIDE is MorseRight: op( V ) is K-by-N
+ *         If SIDE is ChamLeft : op( V ) is M-by-K
+ *         If SIDE is ChamRight: op( V ) is K-by-N
  *
  * @param[in] LDV
  *         The leading dimension of the array V.
  *
  * @param[in,out] W
  *         On entry, the M-by-N matrix W.
- *         On exit, W is overwritten either if OP is MorseA2 or MorseW.
- *         If OP is MorseA2, W is an input and is used as a workspace.
+ *         On exit, W is overwritten either if OP is ChameleonA2 or ChameleonW.
+ *         If OP is ChameleonA2, W is an input and is used as a workspace.
  *
  * @param[in] LDW
  *         The leading dimension of array WORK.
@@ -187,34 +187,34 @@ CORE_zpamm_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 void
-MORSE_TASK_zpamm(const MORSE_option_t *options,
-                 int op, MORSE_enum side, int storev,
+INSERT_TASK_zpamm(const RUNTIME_option_t *options,
+                 int op, cham_side_t side, cham_store_t storev,
                  int m, int n, int k, int l,
-                 const MORSE_desc_t *A1, int A1m, int A1n, int lda1,
-                       const MORSE_desc_t *A2, int A2m, int A2n, int lda2,
-                 const MORSE_desc_t *V, int Vm, int Vn, int ldv,
-                       const MORSE_desc_t *W, int Wm, int Wn, int ldw)
+                 const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
+                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
+                 const CHAM_desc_t *V, int Vm, int Vn, int ldv,
+                       const CHAM_desc_t *W, int Wm, int Wn, int ldw)
 {
     QUARK_Insert_Task(opt->quark, CORE_zpamm_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                        &op,      VALUE,
-        sizeof(MORSE_enum),                &side,    VALUE,
-        sizeof(MORSE_enum),                &storev,  VALUE,
+        sizeof(int),                &side,    VALUE,
+        sizeof(int),                &storev,  VALUE,
         sizeof(int),                        &m,       VALUE,
         sizeof(int),                        &n,       VALUE,
         sizeof(int),                        &k,       VALUE,
         sizeof(int),                        &l,       VALUE,
-        sizeof(MORSE_Complex64_t)*m*k,     RTBLKADDR(A1, MORSE_Complex64_t, A1m, A1n),           INPUT,
+        sizeof(CHAMELEON_Complex64_t)*m*k,     RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),           INPUT,
         sizeof(int),                        &lda1,    VALUE,
-        sizeof(MORSE_Complex64_t)*k*n,     RTBLKADDR(A2, MORSE_Complex64_t, A2m, A2n),           INOUT,
+        sizeof(CHAMELEON_Complex64_t)*k*n,     RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),           INOUT,
         sizeof(int),                        &lda2,    VALUE,
-        sizeof(MORSE_Complex64_t)*m*n,     RTBLKADDR(V, MORSE_Complex64_t, Vm, Vn),            INPUT,
+        sizeof(CHAMELEON_Complex64_t)*m*n,     RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),            INPUT,
         sizeof(int),                        &ldv,     VALUE,
-        sizeof(MORSE_Complex64_t)*m*n,     RTBLKADDR(W, MORSE_Complex64_t, Wm, Wn),            INOUT,
+        sizeof(CHAMELEON_Complex64_t)*m*n,     RTBLKADDR(W, CHAMELEON_Complex64_t, Wm, Wn),            INOUT,
         sizeof(int),                        &ldw,     VALUE,
         0);
 }

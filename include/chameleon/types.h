@@ -21,7 +21,7 @@
 #ifndef _chameleon_types_h_
 #define _chameleon_types_h_
 
-#include "chameleon/chameleon_config.h"
+#include "chameleon/config.h"
 
 /**
  *  System requirements

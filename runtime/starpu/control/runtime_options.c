@@ -22,15 +22,14 @@
 #include <stdlib.h>
 #include "chameleon_starpu.h"
 
-void RUNTIME_options_init( MORSE_option_t *option, MORSE_context_t *morse,
-                           MORSE_sequence_t *sequence, MORSE_request_t *request )
+void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *morse,
+                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     option->sequence   = sequence;
     option->request    = request;
-    option->profiling  = MORSE_PROFILING == MORSE_TRUE;
-    option->parallel   = MORSE_PARALLEL == MORSE_TRUE;
-    option->priority   = MORSE_PRIORITY_MIN;
-    option->nb         = MORSE_NB;
+    option->profiling  = CHAMELEON_PROFILING == CHAMELEON_TRUE;
+    option->parallel   = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
+    option->priority   = RUNTIME_PRIORITY_MIN;
     option->ws_wsize   = 0;
     option->ws_hsize   = 0;
     option->ws_worker  = NULL;
@@ -38,14 +37,14 @@ void RUNTIME_options_init( MORSE_option_t *option, MORSE_context_t *morse,
     return;
 }
 
-void RUNTIME_options_finalize( MORSE_option_t *option, MORSE_context_t *morse )
+void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *morse )
 {
     (void)option;
     (void)morse;
     return;
 }
 
-int RUNTIME_options_ws_alloc( MORSE_option_t *options, size_t worker_size, size_t host_size )
+int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, size_t host_size )
 {
     int ret = 0;
     if ( worker_size > 0 ) {
@@ -56,13 +55,13 @@ int RUNTIME_options_ws_alloc( MORSE_option_t *options, size_t worker_size, size_
     }
     if ( host_size > 0 ) {
         options->ws_hsize = host_size;
-        ret = RUNTIME_starpu_ws_alloc((MORSE_starpu_ws_t**)&(options->ws_host),
-                                      host_size, MORSE_CUDA, MORSE_HOST_MEM);
+        ret = RUNTIME_starpu_ws_alloc((CHAMELEON_starpu_ws_t**)&(options->ws_host),
+                                      host_size, CHAMELEON_CUDA, CHAMELEON_HOST_MEM);
     }
     return ret;
 }
 
-int RUNTIME_options_ws_free( MORSE_option_t *options )
+int RUNTIME_options_ws_free( RUNTIME_option_t *options )
 {
     int ret = 0;
     if ( options->ws_worker != NULL ) {
@@ -71,7 +70,7 @@ int RUNTIME_options_ws_free( MORSE_option_t *options )
     }
     if ( options->ws_host != NULL ) {
         starpu_task_wait_for_all();
-        ret = RUNTIME_starpu_ws_free( (MORSE_starpu_ws_t*)(options->ws_host) );
+        ret = RUNTIME_starpu_ws_free( (CHAMELEON_starpu_ws_t*)(options->ws_host) );
         options->ws_host = NULL;
     }
     return ret;

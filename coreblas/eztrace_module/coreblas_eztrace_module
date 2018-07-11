@@ -3,6 +3,8 @@ NAME chameleon_core
 DESC "Module for Chameleon CORE functions"
 ID 7770
 
+#include <chameleon.h>
+
 void CORE_scasum(int storev, int uplo, int M, int N,
                  void *A, int lda, float *work);
 void CORE_cbrdalg(int uplo, int N, int NB,

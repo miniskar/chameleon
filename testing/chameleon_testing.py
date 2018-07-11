@@ -103,7 +103,7 @@ except IOError:
      f = sys.stdout
 
 print " "
-print "---------------- Testing MORSE Routines ----------------"
+print "---------------- Testing CHAMELEON Routines ----------------"
 print " "
 print "-- Number of cores available =", ncpus_av
 print "-- Number of cores used for testing =", ncpus

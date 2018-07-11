@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -27,15 +27,15 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void CORE_ztrmm(MORSE_enum side, MORSE_enum uplo,
-                MORSE_enum transA, MORSE_enum diag,
+void CORE_ztrmm(cham_side_t side, cham_uplo_t uplo,
+                cham_trans_t transA, cham_diag_t diag,
                 int M, int N,
-                MORSE_Complex64_t alpha,
-                const MORSE_Complex64_t *A, int LDA,
-                MORSE_Complex64_t *B, int LDB)
+                CHAMELEON_Complex64_t alpha,
+                const CHAMELEON_Complex64_t *A, int LDA,
+                CHAMELEON_Complex64_t *B, int LDB)
 {
     cblas_ztrmm(
         CblasColMajor,

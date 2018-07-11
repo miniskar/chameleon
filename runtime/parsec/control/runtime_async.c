@@ -23,8 +23,8 @@
 /**
  *  Create a sequence
  */
-int RUNTIME_sequence_create( MORSE_context_t  *morse,
-                             MORSE_sequence_t *sequence )
+int RUNTIME_sequence_create( CHAM_context_t  *morse,
+                             RUNTIME_sequence_t *sequence )
 {
     parsec_context_t  *parsec        = (parsec_context_t *)(morse->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = parsec_dtd_taskpool_new();
@@ -34,14 +34,14 @@ int RUNTIME_sequence_create( MORSE_context_t  *morse,
 
     parsec_context_start(parsec);
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( MORSE_context_t  *morse,
-                              MORSE_sequence_t *sequence )
+int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
+                              RUNTIME_sequence_t *sequence )
 {
     parsec_context_t  *parsec = (parsec_context_t *)(morse->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *)(sequence->schedopt);
@@ -51,14 +51,14 @@ int RUNTIME_sequence_destroy( MORSE_context_t  *morse,
     parsec_taskpool_free( parsec_dtd_tp );
 
     sequence->schedopt = NULL;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Wait for the completion of a sequence
  */
-int RUNTIME_sequence_wait( MORSE_context_t  *morse,
-                           MORSE_sequence_t *sequence )
+int RUNTIME_sequence_wait( CHAM_context_t  *morse,
+                           RUNTIME_sequence_t *sequence )
 {
     parsec_context_t  *parsec = (parsec_context_t *)morse->schedopt;
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *) sequence->schedopt;
@@ -66,15 +66,15 @@ int RUNTIME_sequence_wait( MORSE_context_t  *morse,
     assert( parsec_dtd_tp );
     parsec_dtd_taskpool_wait( parsec, parsec_dtd_tp );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *  Terminate a sequence
  */
-void RUNTIME_sequence_flush( MORSE_context_t  *morse,
-                             MORSE_sequence_t *sequence,
-                             MORSE_request_t  *request,
+void RUNTIME_sequence_flush( CHAM_context_t  *morse,
+                             RUNTIME_sequence_t *sequence,
+                             RUNTIME_request_t  *request,
                              int status )
 {
     sequence->request = request;

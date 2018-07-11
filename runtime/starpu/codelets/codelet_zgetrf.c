@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -24,28 +24,28 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void MORSE_TASK_zgetrf(const MORSE_option_t *options,
-                       int m, int n, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       int *IPIV,
-                       MORSE_bool check_info, int iinfo)
+void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         int *IPIV,
+                         cham_bool_t check_info, int iinfo )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgetrf;
     void (*callback)(void*) = options->profiling ? cl_zgetrf_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,             &m,                        sizeof(int),
         STARPU_VALUE,             &n,                        sizeof(int),
-        STARPU_RW,                     RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,                     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,           &lda,                        sizeof(int),
         STARPU_VALUE,                  &IPIV,                      sizeof(int*),
-        STARPU_VALUE,    &check_info,                sizeof(MORSE_bool),
+        STARPU_VALUE,    &check_info,                sizeof(int),
         STARPU_VALUE,         &iinfo,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -61,14 +61,14 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
 {
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    MORSE_bool check_info;
+    cham_bool_t check_info;
     int iinfo;
     int info = 0;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &IPIV, &check_info, &iinfo);
     CORE_zgetrf( m, n, A, lda, IPIV, &info );
 }

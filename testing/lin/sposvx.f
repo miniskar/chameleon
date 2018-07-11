@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -48,7 +48,7 @@
 *     .. Scalar Arguments ..
       CHARACTER          EQUED, FACT, UPLO
       INTEGER            INFO, LDA, LDAF, LDB, LDX, N, NRHS
-      INTEGER            MORSE_UPLO
+      INTEGER            CHAMELEON_UPLO
       REAL               RCOND
 *     ..
 *     .. Array Arguments ..
@@ -334,9 +334,9 @@
       END IF
 *
       IF( LSAME( UPLO, 'U' ) ) THEN
-         MORSE_UPLO = MORSEUPPER     
+         CHAMELEON_UPLO = CHAMELEONUPPER     
       ELSE
-         MORSE_UPLO = MORSELOWER     
+         CHAMELEON_UPLO = CHAMELEONLOWER     
       ENDIF
 *
       IF( EQUIL ) THEN
@@ -368,7 +368,7 @@
 *        Compute the Cholesky factorization A = U'*U or A = L*L'.
 *
          CALL SLACPY( UPLO, N, N, A, LDA, AF, LDAF )
-         CALL MORSE_SPOTRF( MORSE_UPLO, N, AF, LDAF, INFO )
+         CALL CHAMELEON_SPOTRF( CHAMELEON_UPLO, N, AF, LDAF, INFO )
 *
 *        Return if INFO is non-zero.
 *
@@ -389,7 +389,7 @@
 *     Compute the solution matrix X.
 *
       CALL SLACPY( 'Full', N, NRHS, B, LDB, X, LDX )
-      CALL MORSE_SPOTRS( MORSE_UPLO, N, NRHS, AF, LDAF, X, LDX, INFO )
+      CALL CHAMELEON_SPOTRS( CHAMELEON_UPLO, N, NRHS, AF, LDAF, X, LDX, INFO )
 *
 *     Use iterative refinement to improve the computed solution and
 *     compute error bounds and backward error estimates for it.

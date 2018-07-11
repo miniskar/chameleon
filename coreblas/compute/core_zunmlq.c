@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Dulceneia Becker
@@ -29,7 +29,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zunmlq overwrites the general complex M-by-N tile C with
  *
@@ -48,12 +48,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  Transpose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  Transpose, apply Q**H.
  *
  * @param[in] M
  *         The number of rows of the tile C.  M >= 0.
@@ -64,15 +64,15 @@
  * @param[in] K
  *         The number of elementary reflectors whose product defines
  *         the matrix Q.
- *         If SIDE = MorseLeft,  M >= K >= 0;
- *         if SIDE = MorseRight, N >= K >= 0.
+ *         If SIDE = ChamLeft,  M >= K >= 0;
+ *         if SIDE = ChamRight, N >= K >= 0.
  *
  * @param[in] IB
  *         The inner-blocking size.  IB >= 0.
  *
  * @param[in] A
- *         Dimension:  (LDA,M) if SIDE = MorseLeft,
- *                     (LDA,N) if SIDE = MorseRight,
+ *         Dimension:  (LDA,M) if SIDE = ChamLeft,
+ *                     (LDA,N) if SIDE = ChamRight,
  *         The i-th row must contain the vector which defines the
  *         elementary reflector H(i), for i = 1,2,...,k, as returned by
  *         CORE_zgelqt in the first k rows of its array argument A.
@@ -100,23 +100,23 @@
  *
  * @param[in] LDWORK
  *         The dimension of the array WORK.
- *         If SIDE = MorseLeft,  LDWORK >= max(1,N);
- *         if SIDE = MorseRight, LDWORK >= max(1,M).
+ *         If SIDE = ChamLeft,  LDWORK >= max(1,N);
+ *         if SIDE = ChamRight, LDWORK >= max(1,M).
  *
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
+int CORE_zunmlq(cham_side_t side, cham_trans_t trans,
                 int M, int N, int K, int IB,
-                const MORSE_Complex64_t *A, int LDA,
-                const MORSE_Complex64_t *T, int LDT,
-                MORSE_Complex64_t *C, int LDC,
-                MORSE_Complex64_t *WORK, int LDWORK)
+                const CHAMELEON_Complex64_t *A, int LDA,
+                const CHAMELEON_Complex64_t *T, int LDT,
+                CHAMELEON_Complex64_t *C, int LDC,
+                CHAMELEON_Complex64_t *WORK, int LDWORK)
 {
     int i, kb;
     int i1, i3;
@@ -127,14 +127,14 @@ int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
     int mi = M;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         coreblas_error(1, "Illegal value of side");
         return -1;
     }
     /*
      * NQ is the order of Q and NW is the minimum dimension of WORK
      */
-    if (side == MorseLeft) {
+    if (side == ChamLeft) {
         nq = M;
         nw = N;
     }
@@ -143,7 +143,7 @@ int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
         nw = M;
     }
 
-    if ((trans != MorseNoTrans) && (trans != MorseConjTrans)) {
+    if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
         coreblas_error(2, "Illegal value of trans");
         return -2;
     }
@@ -178,10 +178,10 @@ int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (K == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
-    if (((side == MorseLeft) && (trans == MorseNoTrans))
-        || ((side == MorseRight) && (trans != MorseNoTrans))) {
+    if (((side == ChamLeft) && (trans == ChamNoTrans))
+        || ((side == ChamRight) && (trans != ChamNoTrans))) {
         i1 = 0;
         i3 = IB;
     }
@@ -190,17 +190,17 @@ int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
         i3 = -IB;
     }
 
-    if( trans == MorseNoTrans) {
-        trans = MorseConjTrans;
+    if( trans == ChamNoTrans) {
+        trans = ChamConjTrans;
     }
     else {
-        trans = MorseNoTrans;
+        trans = ChamNoTrans;
     }
 
     for(i = i1; (i >- 1) && (i < K); i+=i3 ) {
         kb = chameleon_min(IB, K-i);
 
-        if (side == MorseLeft) {
+        if (side == ChamLeft) {
             /*
              * H or H' is applied to C(i:m,1:n)
              */
@@ -220,15 +220,15 @@ int CORE_zunmlq(MORSE_enum side, MORSE_enum trans,
         LAPACKE_zlarfb_work(LAPACK_COL_MAJOR,
             morse_lapack_const(side),
             morse_lapack_const(trans),
-            morse_lapack_const(MorseForward),
-            morse_lapack_const(MorseRowwise),
+            morse_lapack_const(ChamDirForward),
+            morse_lapack_const(ChamRowwise),
             mi, ni, kb,
             &A[LDA*i+i], LDA,
             &T[LDT*i], LDT,
             &C[LDC*jc+ic], LDC,
             WORK, LDWORK);
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

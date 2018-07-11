@@ -12,7 +12,7 @@ f.close()
 os.environ["PATH"] = os.environ["PATH"]+":."
 
 print ' '
-print '---------------- LAPACK LIN Testing with MORSE ----------------'
+print '---------------- LAPACK LIN Testing with CHAMELEON ----------------'
 print ' '
 print '-- Detailed results are stored in', filename
 

@@ -18,7 +18,7 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/chameleon_timer.h"
+#include "chameleon/timer.h"
 
 double RUNTIME_get_time(){
     return CHAMELEON_timer();
@@ -57,12 +57,12 @@ void RUNTIME_kernelprofile_display(void)
 /**
  *  Set iteration numbers for traces
  */
-void RUNTIME_iteration_push( MORSE_context_t *morse, unsigned long iteration )
+void RUNTIME_iteration_push( CHAM_context_t *morse, unsigned long iteration )
 {
     (void)morse; (void)iteration;
     return;
 }
-void RUNTIME_iteration_pop( MORSE_context_t *morse )
+void RUNTIME_iteration_pop( CHAM_context_t *morse )
 {
     (void)morse;
     return;

@@ -25,7 +25,7 @@
 /**
  *******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zlascal scales a two-dimensional matrix A. As opposite to
  *  CORE_zlascl(), no checks is performed to prevent under/overflow. This should
@@ -35,9 +35,9 @@
  *
  * @param[in] uplo
  *          Specifies the shape of A:
- *          = MorseUpperLower: A is a general matrix.
- *          = MorseUpper: A is an upper trapezoidal matrix.
- *          = MorseLower: A is a lower trapezoidal matrix.
+ *          = ChamUpperLower: A is a general matrix.
+ *          = ChamUpper: A is an upper trapezoidal matrix.
+ *          = ChamLower: A is a lower trapezoidal matrix.
  *
  * @param[in] m is the number of rows of the matrix A. m >= 0
  *
@@ -53,19 +53,19 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 int
-CORE_zlascal( MORSE_enum uplo, int m, int n,
-              MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int lda )
+CORE_zlascal( cham_uplo_t uplo, int m, int n,
+              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int lda )
 {
     int i;
 
-    if ( (uplo != MorseUpperLower) &&
-         (uplo != MorseUpper)      &&
-         (uplo != MorseLower))
+    if ( (uplo != ChamUpperLower) &&
+         (uplo != ChamUpper)      &&
+         (uplo != ChamLower))
     {
         coreblas_error(1, "illegal value of uplo");
         return -1;
@@ -85,13 +85,13 @@ CORE_zlascal( MORSE_enum uplo, int m, int n,
     }
 
     switch ( uplo ) {
-    case MorseUpper:
+    case ChamUpper:
         for(i=0; i<n; i++) {
             cblas_zscal( chameleon_min( i+1, m ), CBLAS_SADDR(alpha), A+i*lda, 1 );
         }
         break;
 
-    case MorseLower:
+    case ChamLower:
         for(i=0; i<n; i++) {
             cblas_zscal( chameleon_max( m, m-i ), CBLAS_SADDR(alpha), A+i*lda, 1 );
         }
@@ -107,5 +107,5 @@ CORE_zlascal( MORSE_enum uplo, int m, int n,
         }
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

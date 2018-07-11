@@ -4,7 +4,7 @@
 ! -- (C) Copyright 2012
 !
 ! This software is a computer program whose purpose is to process
-! Matrices Over Runtime Systems @ Exascale (MORSE). More information
+! Matrices Over Runtime Systems @ Exascale (CHAMELEON). More information
 ! can be found on the following website: http://www.inria.fr/en/teams/morse.
 ! 
 ! This software is governed by the CeCILL-B license under French law and
@@ -274,12 +274,12 @@
 *
                DO 45 IRH = 0, 1
                   IF (IRH .EQ. 0) THEN
-                     CALL MORSE_SET(MORSE_HOUSEHOLDER_MODE,
-     $                    MORSE_FLAT_HOUSEHOLDER, INFO )
+                     CALL CHAMELEON_SET(CHAMELEON_HOUSEHOLDER_MODE,
+     $                    ChamFlatHouseholder, INFO )
                   ELSE
-                     CALL MORSE_SET(MORSE_HOUSEHOLDER_MODE,
-     $                    MORSE_TREE_HOUSEHOLDER, INFO )
-                     CALL MORSE_SET(MORSE_HOUSEHOLDER_SIZE, 
+                     CALL CHAMELEON_SET(CHAMELEON_HOUSEHOLDER_MODE,
+     $                    ChamTreeHouseholder, INFO )
+                     CALL CHAMELEON_SET(CHAMELEON_HOUSEHOLDER_SIZE, 
      $                    RHBLK, INFO)
                      END IF
 *
@@ -299,12 +299,12 @@
                      IF ( (MAX(M, N) / 10) .GT. NB ) THEN
                         GOTO 30
                      END IF
-                     CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-                     CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB, INFO)
+                     CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+                     CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB, INFO)
 *
 *                    Allocate HT
 *
-                     CALL MORSE_ALLOC_WORKSPACE_DGEQRF( M, N, HT, 
+                     CALL CHAMELEON_ALLOC_WORKSPACE_DGEQRF( M, N, HT, 
      $                                                  INFO )
 *
                      DO I = 1, NTESTS
@@ -355,7 +355,7 @@
                            CALL DLACPY( 'Full', M, NRHS, B, LDA, X,
      $                                  LDA )
                            SRNAMT = 'DGEQRS'
-                           CALL MORSE_DGEQRS( M, N, NRHS, AF, LDA, HT,
+                           CALL CHAMELEON_DGEQRS( M, N, NRHS, AF, LDA, HT,
      $                                         X, LDA, INFO )
 
 *                          Check error code from DGEQRS.
@@ -388,7 +388,7 @@
 *
 *                    Deallocate T
 *
-                     CALL MORSE_DEALLOC_HANDLE( HT, INFO )
+                     CALL CHAMELEON_DEALLOC_HANDLE( HT, INFO )
    30             CONTINUE
    40          CONTINUE
    45         CONTINUE

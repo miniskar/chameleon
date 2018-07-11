@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -28,36 +28,36 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void MORSE_TASK_ztrmm(const MORSE_option_t *options,
-                      MORSE_enum side, MORSE_enum uplo, MORSE_enum transA, MORSE_enum diag,
+void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
+                      cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
                       int m, int n, int nb,
-                      MORSE_Complex64_t alpha, const MORSE_desc_t *A, int Am, int An, int lda,
-                      const MORSE_desc_t *B, int Bm, int Bn, int ldb)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                      const CHAM_desc_t *B, int Bm, int Bn, int ldb)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_ztrmm;
     void (*callback)(void*) = options->profiling ? cl_ztrmm_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(A, Am, An);
-    MORSE_ACCESS_RW(B, Bm, Bn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,      &side,                sizeof(MORSE_enum),
-        STARPU_VALUE,      &uplo,                sizeof(MORSE_enum),
-        STARPU_VALUE,    &transA,                sizeof(MORSE_enum),
-        STARPU_VALUE,      &diag,                sizeof(MORSE_enum),
+        STARPU_VALUE,      &side,                sizeof(int),
+        STARPU_VALUE,      &uplo,                sizeof(int),
+        STARPU_VALUE,    &transA,                sizeof(int),
+        STARPU_VALUE,      &diag,                sizeof(int),
         STARPU_VALUE,         &m,                        sizeof(int),
         STARPU_VALUE,         &n,                        sizeof(int),
-        STARPU_VALUE,     &alpha,         sizeof(MORSE_Complex64_t),
-        STARPU_R,                 RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,       &lda,                        sizeof(int),
-        STARPU_RW,                 RTBLKADDR(B, MORSE_Complex64_t, Bm, Bn),
+        STARPU_RW,                 RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE,       &ldb,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -71,20 +71,20 @@ void MORSE_TASK_ztrmm(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_ztrmm_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum side;
-    MORSE_enum uplo;
-    MORSE_enum transA;
-    MORSE_enum diag;
+    cham_side_t side;
+    cham_uplo_t uplo;
+    cham_trans_t transA;
+    cham_diag_t diag;
     int M;
     int N;
-    MORSE_Complex64_t alpha;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
     int LDA;
-    MORSE_Complex64_t *B;
+    CHAMELEON_Complex64_t *B;
     int LDB;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha, &LDA, &LDB);
     CORE_ztrmm(side, uplo,
         transA, diag,
@@ -96,10 +96,10 @@ static void cl_ztrmm_cpu_func(void *descr[], void *cl_arg)
 #ifdef CHAMELEON_USE_CUDA
 static void cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum side;
-    MORSE_enum uplo;
-    MORSE_enum transA;
-    MORSE_enum diag;
+    cham_side_t side;
+    cham_uplo_t uplo;
+    cham_trans_t transA;
+    cham_diag_t diag;
     int M;
     int N;
     cuDoubleComplex alpha;

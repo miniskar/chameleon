@@ -24,7 +24,7 @@
 /**
  *
  */
-int RUNTIME_init( MORSE_context_t *morse,
+int RUNTIME_init( CHAM_context_t *morse,
                   int ncpus,
                   int ncudas,
                   int nthreads_per_worker )
@@ -46,7 +46,7 @@ int RUNTIME_init( MORSE_context_t *morse,
 /**
  *
  */
-void RUNTIME_finalize( MORSE_context_t *morse )
+void RUNTIME_finalize( CHAM_context_t *morse )
 {
     QUARK_Delete((Quark*)(morse->schedopt));
     return;
@@ -55,7 +55,7 @@ void RUNTIME_finalize( MORSE_context_t *morse )
 /**
  *  To suspend the processing of new tasks by workers
  */
-void RUNTIME_pause( MORSE_context_t *morse )
+void RUNTIME_pause( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -65,7 +65,7 @@ void RUNTIME_pause( MORSE_context_t *morse )
  *  This is the symmetrical call to RUNTIME_pause,
  *  used to resume the workers polling for new tasks.
  */
-void RUNTIME_resume( MORSE_context_t *morse )
+void RUNTIME_resume( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -74,7 +74,7 @@ void RUNTIME_resume( MORSE_context_t *morse )
 /**
  *  Busy-waiting barrier
  */
-void RUNTIME_barrier( MORSE_context_t *morse )
+void RUNTIME_barrier( CHAM_context_t *morse )
 {
     QUARK_Barrier((Quark*)(morse->schedopt));
 }
@@ -82,7 +82,7 @@ void RUNTIME_barrier( MORSE_context_t *morse )
 /**
  *  Display a progress information when executing the tasks
  */
-void RUNTIME_progress( MORSE_context_t *morse )
+void RUNTIME_progress( CHAM_context_t *morse )
 {
     (void)morse;
     return;
@@ -91,7 +91,7 @@ void RUNTIME_progress( MORSE_context_t *morse )
 /**
  * Thread rank.
  */
-int RUNTIME_thread_rank( MORSE_context_t *morse )
+int RUNTIME_thread_rank( CHAM_context_t *morse )
 {
     return QUARK_Thread_Rank((Quark*)(morse->schedopt));
 }
@@ -99,7 +99,7 @@ int RUNTIME_thread_rank( MORSE_context_t *morse )
 /**
  * Number of threads.
  */
-int RUNTIME_thread_size( MORSE_context_t *morse )
+int RUNTIME_thread_size( CHAM_context_t *morse )
 {
     (void)morse;
     /*
@@ -112,7 +112,7 @@ int RUNTIME_thread_size( MORSE_context_t *morse )
 /**
  *  The process rank
  */
-int RUNTIME_comm_rank( MORSE_context_t *morse )
+int RUNTIME_comm_rank( CHAM_context_t *morse )
 {
     (void)morse;
     return 0;
@@ -121,7 +121,7 @@ int RUNTIME_comm_rank( MORSE_context_t *morse )
 /**
  *  This returns the size of the distributed computation
  */
-int RUNTIME_comm_size( MORSE_context_t *morse )
+int RUNTIME_comm_size( CHAM_context_t *morse )
 {
     (void)morse;
     return 1;

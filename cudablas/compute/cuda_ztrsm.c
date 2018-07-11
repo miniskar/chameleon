@@ -19,8 +19,8 @@
  */
 #include "cudablas.h"
 
-int CUDA_ztrsm(MORSE_enum side, MORSE_enum uplo,
-               MORSE_enum transa, MORSE_enum diag,
+int CUDA_ztrsm(cham_side_t side, cham_uplo_t uplo,
+               cham_trans_t transa, cham_diag_t diag,
                int m, int n,
                cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
@@ -36,5 +36,5 @@ int CUDA_ztrsm(MORSE_enum side, MORSE_enum uplo,
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

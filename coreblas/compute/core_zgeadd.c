@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @date 2015-11-03
@@ -25,7 +25,7 @@
 /**
  ******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgeadd adds to matrices together as in PBLAS pzgeadd.
  *
@@ -38,9 +38,9 @@
  * @param[in] trans
  *          Specifies whether the matrix A is non-transposed, transposed, or
  *          conjugate transposed
- *          = MorseNoTrans:   op(A) = A
- *          = MorseTrans:     op(A) = A'
- *          = MorseConjTrans: op(A) = conj(A')
+ *          = ChamNoTrans:   op(A) = A
+ *          = ChamTrans:     op(A) = A'
+ *          = ChamConjTrans: op(A) = conj(A')
  *
  * @param[in] M
  *          Number of rows of the matrices op(A) and B.
@@ -52,12 +52,12 @@
  *          Scalar factor of A.
  *
  * @param[in] A
- *          Matrix of size LDA-by-N, if trans = MorseNoTrans, LDA-by-M
+ *          Matrix of size LDA-by-N, if trans = ChamNoTrans, LDA-by-M
  *          otherwise.
  *
  * @param[in] LDA
  *          Leading dimension of the array A. LDA >= max(1,k), with k=M, if
- *          trans = MorseNoTrans, and k=N otherwise.
+ *          trans = ChamNoTrans, and k=N otherwise.
  *
  * @param[in] beta
  *          Scalar factor of B.
@@ -72,23 +72,23 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-#if defined(MORSE_HAVE_WEAK)
+#if defined(CHAMELEON_HAVE_WEAK)
 #pragma weak CORE_zgeadd = PCORE_zgeadd
 #define CORE_zgeadd PCORE_zgeadd
 #endif
-int CORE_zgeadd(MORSE_enum trans, int M, int N,
-                      MORSE_Complex64_t  alpha,
-                const MORSE_Complex64_t *A, int LDA,
-                      MORSE_Complex64_t  beta,
-                      MORSE_Complex64_t *B, int LDB)
+int CORE_zgeadd(cham_trans_t trans, int M, int N,
+                      CHAMELEON_Complex64_t  alpha,
+                const CHAMELEON_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t  beta,
+                      CHAMELEON_Complex64_t *B, int LDB)
 {
     int i, j;
 
-    if ((trans < MorseNoTrans) || (trans > MorseConjTrans))
+    if ((trans < ChamNoTrans) || (trans > ChamConjTrans))
     {
         coreblas_error(1, "illegal value of trans");
         return -1;
@@ -102,8 +102,8 @@ int CORE_zgeadd(MORSE_enum trans, int M, int N,
         coreblas_error(3, "Illegal value of N");
         return -3;
     }
-    if ( ((trans == MorseNoTrans) && (LDA < chameleon_max(1,M)) && (M > 0)) ||
-         ((trans != MorseNoTrans) && (LDA < chameleon_max(1,N)) && (N > 0)) )
+    if ( ((trans == ChamNoTrans) && (LDA < chameleon_max(1,M)) && (M > 0)) ||
+         ((trans != ChamNoTrans) && (LDA < chameleon_max(1,N)) && (N > 0)) )
     {
         coreblas_error(6, "Illegal value of LDA");
         return -6;
@@ -115,7 +115,7 @@ int CORE_zgeadd(MORSE_enum trans, int M, int N,
 
     switch( trans ) {
 #if defined(PRECISION_z) || defined(PRECISION_c)
-    case MorseConjTrans:
+    case ChamConjTrans:
         for (j=0; j<N; j++, A++) {
             for(i=0; i<M; i++, B++) {
                 *B = beta * (*B) + alpha * conj(A[LDA*i]);
@@ -125,7 +125,7 @@ int CORE_zgeadd(MORSE_enum trans, int M, int N,
         break;
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
-    case MorseTrans:
+    case ChamTrans:
         for (j=0; j<N; j++, A++) {
             for(i=0; i<M; i++, B++) {
                 *B = beta * (*B) + alpha * A[LDA*i];
@@ -134,7 +134,7 @@ int CORE_zgeadd(MORSE_enum trans, int M, int N,
         }
         break;
 
-    case MorseNoTrans:
+    case ChamNoTrans:
     default:
         for (j=0; j<N; j++) {
             for(i=0; i<M; i++, B++, A++) {
@@ -144,5 +144,5 @@ int CORE_zgeadd(MORSE_enum trans, int M, int N,
             B += LDB-M;
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

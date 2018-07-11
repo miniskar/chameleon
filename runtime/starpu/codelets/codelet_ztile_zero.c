@@ -25,17 +25,17 @@
 /**
  *
  */
-void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
+void INSERT_TASK_ztile_zero( const RUNTIME_option_t *options,
                             int X1, int X2, int Y1, int Y2,
-                            const MORSE_desc_t *A, int Am, int An, int lda )
+                            const CHAM_desc_t *A, int Am, int An, int lda )
 {
     struct starpu_codelet *codelet;
     codelet = &cl_ztile_zero;
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_W(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_W(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
@@ -43,7 +43,7 @@ void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
         STARPU_VALUE, &X2,  sizeof(int),
         STARPU_VALUE, &Y1,  sizeof(int),
         STARPU_VALUE, &Y2,  sizeof(int),
-        STARPU_W,     RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_W,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE, &lda, sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback, NULL,
@@ -63,12 +63,12 @@ static void cl_ztile_zero_cpu_func(void *descr[], void *cl_arg)
     int X2;
     int Y1;
     int Y2;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
 
     int x, y;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &X1, &X2, &Y1, &Y2, &lda);
 
     for (x = X1; x < X2; x++)

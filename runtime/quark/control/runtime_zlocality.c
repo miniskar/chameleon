@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon Quark MORSE_Complex64_t kernel locality management
+ * @brief Chameleon Quark CHAMELEON_Complex64_t kernel locality management
  *
  * @version 1.0.0
  * @author Vijay Joshi
@@ -25,7 +25,7 @@ void RUNTIME_zlocality_allrestrict( uint32_t where )
     morse_warning("RUNTIME_zlocality_allrestrict(quark)", "Kernel locality cannot be specified with Quark");
 }
 
-void RUNTIME_zlocality_onerestrict( MORSE_kernel_t kernel, uint32_t where )
+void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 {
     (void)kernel;
     (void)where;
@@ -37,7 +37,7 @@ void RUNTIME_zlocality_allrestore( )
     morse_warning("RUNTIME_zlocality_allrestore(quark)", "Kernel locality cannot be specified with Quark");
 }
 
-void RUNTIME_zlocality_onerestore( MORSE_kernel_t kernel )
+void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
 {
     (void)kernel;
     morse_warning("RUNTIME_zlocality_onerestore(quark)", "Kernel locality cannot be specified with Quark");

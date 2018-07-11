@@ -1,6 +1,6 @@
 /**
  *
- * @file step3.h
+ * @file step2.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,25 +9,25 @@
  *
  ***
  *
- * @brief Chameleon step3 example header
+ * @brief Chameleon step2 example header
  *
  * @version 1.0.0
  * @author Florent Pruvost
  * @date 2014-10-29
  *
  */
-#ifndef STEP3_H
-#define STEP3_H
+#ifndef STEP2_H
+#define STEP2_H
 
 /* Common include for all steps of the tutorial */
-#include "lapack_to_morse.h"
+#include "lapack_to_chameleon.h"
 
-/* Specific includes for step 3 */
+/* Specific includes for step 2 */
 #include <coreblas/lapacke.h>
-#include <morse.h>
+#include "chameleon.h"
 
-/* Integer parameters for step3 */
-enum iparam_step3 {
+/* Integer parameters for step2 */
+enum iparam_step2 {
     IPARAM_THRDNBR,        /* Number of cores                            */
     IPARAM_N,              /* Number of columns of the matrix            */
     IPARAM_NRHS,           /* Number of RHS                              */
@@ -35,7 +35,7 @@ enum iparam_step3 {
     IPARAM_SIZEOF
 };
 
-/* Specific routines used in step3.c main program */
+/* Specific routines used in step2.c main program */
 
 /**
  * Initialize integer parameters
@@ -62,7 +62,7 @@ static void show_help(char *prog_name) {
 }
 
 /**
- * Read arguments following step3 program call
+ * Read arguments following step2 program call
  */
 static void read_args(int argc, char *argv[], int *iparam){
     int i;
@@ -119,82 +119,4 @@ static void print_header(char *prog_name, int * iparam) {
     return;
 }
 
-/**
- *  Function that allocate an array of pointers to square tiles (allocated to 0)
- */
-double **allocate_tile_matrix(int m, int n, int nb){
-    int i;
-    int mt, nt;
-    double **mat;
-
-    /* compute number of tiles in rows and columns */
-    mt = (m%nb==0) ? (m/nb) : (m/nb+1);
-    nt = (n%nb==0) ? (n/nb) : (n/nb+1);
-    mat = malloc( mt*nt*sizeof(double*) );
-    if (!mat){
-        printf ("\nIn allocate_tile_matrix, memory Allocation Failure of mat !\n\n");
-        exit (EXIT_FAILURE);
-    }
-    for (i=0; i<mt*nt; i++){
-        *(mat+i) = calloc( nb*nb, sizeof(double) );
-        if (!*(mat+i)){
-            printf ("\nIn allocate_tile_matrix, memory Allocation Failure of *(mat+i) !\n\n");
-            exit (EXIT_FAILURE);
-        }
-    }
-    return mat;
-}
-
-/**
- *  Function that deallocate an array of pointers to square tiles
- */
-static void deallocate_tile_matrix(double **mat, int m, int n, int nb){
-    int i;
-    int mt, nt;
-
-    /* compute number of tiles in rows and columns */
-    mt = (m%nb==0) ? (m/nb) : (m/nb+1);
-    nt = (n%nb==0) ? (n/nb) : (n/nb+1);
-    for (i=0; i<mt*nt; i++) free(*(mat+i));
-    free(mat);
-}
-
-/**
- *  Function to return address of block (m,n)
- */
-inline static void* user_getaddr_arrayofpointers(const MORSE_desc_t *A, int m, int n)
-{
-    double **matA = (double **)A->mat;
-    size_t mm = (size_t)m + (size_t)A->i / A->mb;
-    size_t nn = (size_t)n + (size_t)A->j / A->nb;
-    size_t offset = 0;
-
-#if defined(CHAMELEON_USE_MPI)
-    assert( A->myrank == A->get_rankof( A, mm, nn) );
-    mm = mm / A->p;
-    nn = nn / A->q;
-#endif
-
-    offset = A->mt*nn + mm;
-    return (void*)( *(matA + offset) );
-}
-
-/**
- *  Function to return the leading dimension of element A(m,*)
- */
-inline static int user_getblkldd_arrayofpointers(const MORSE_desc_t *A, int m)
-{
-    (void)m;
-    return A->mb;
-}
-
-/**
- *  Function to return MPI rank of element A(m,n)
- */
-inline static int user_getrankof_zero(const MORSE_desc_t *A, int m, int n)
-{
-    (void)A; (void)m; (void)n;
-    return 0;
-}
-
-#endif /* STEP3_H */
+#endif /* STEP2_H */

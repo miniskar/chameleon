@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -26,11 +26,11 @@
 
 
 int CORE_zgetrf(int m, int n,
-                 MORSE_Complex64_t *A, int lda,
+                 CHAMELEON_Complex64_t *A, int lda,
                  int *IPIV, int *info)
 {
     *info = LAPACKE_zgetrf_work(LAPACK_COL_MAJOR, m, n, A, lda, IPIV );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 
