@@ -430,6 +430,7 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
     if (Dptr != NULL) {
+        RUNTIME_desc_destroy( Dptr );
         chameleon_desc_mat_free( Dptr );
     }
     chameleon_desc_mat_free( &descAB );

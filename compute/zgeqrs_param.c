@@ -335,6 +335,7 @@ int CHAMELEON_zgeqrs_param_Tile_Async( const libhqr_tree_t *qrtree,
         CHAMELEON_Desc_Flush( TT, sequence );
         CHAMELEON_Desc_Flush( Dptr, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
+        RUNTIME_desc_destroy( Dptr );
         chameleon_desc_mat_free( Dptr );
     }
     (void)D;

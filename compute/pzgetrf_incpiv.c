@@ -41,7 +41,7 @@
  *  Parallel tile LU factorization - dynamic scheduling
  */
 void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, int *IPIV,
-                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;

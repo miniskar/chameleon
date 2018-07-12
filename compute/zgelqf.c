@@ -297,6 +297,7 @@ int CHAMELEON_zgelqf_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T,
         CHAMELEON_Desc_Flush( T, sequence );
         CHAMELEON_Desc_Flush( Dptr, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
+        RUNTIME_desc_destroy( Dptr );
         chameleon_desc_mat_free( Dptr );
     }
     (void)D;

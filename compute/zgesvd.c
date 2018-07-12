@@ -632,6 +632,7 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
 
     free(E);
     if ( Dptr ) {
+        RUNTIME_desc_destroy( Dptr );
         chameleon_desc_mat_free( Dptr );
     }
     (void)D;

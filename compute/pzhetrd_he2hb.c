@@ -436,11 +436,8 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     RUNTIME_options_finalize(&options, chamctxt);
 
     CHAMELEON_Sequence_Wait(sequence);
-    chameleon_desc_mat_free(D);
-    free(D);
-
-    chameleon_desc_mat_free(AT);
-    free(AT);
+    CHAMELEON_Desc_Destroy( &D );
+    CHAMELEON_Desc_Destroy( &AT );
 
     (void)E;
 }
