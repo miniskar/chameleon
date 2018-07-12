@@ -29,7 +29,7 @@ CORE_zgetrf_parsec( parsec_execution_stream_t *context,
     CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    CHAMELEON_bool *check_info;
+    cham_bool_t *check_info;
     int iinfo;
     int info;
 
@@ -46,7 +46,7 @@ void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
                        int m, int n, int nb,
                        const CHAM_desc_t *A, int Am, int An, int lda,
                        int *IPIV,
-                       CHAMELEON_bool check_info, int iinfo)
+                       cham_bool_t check_info, int iinfo)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -57,7 +57,7 @@ void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
         PASSED_BY_REF,       RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),        &lda,                        VALUE,
         sizeof(int)*nb,      IPIV,                        SCRATCH,
-        sizeof(CHAMELEON_bool), &check_info,                 VALUE,
+        sizeof(cham_bool_t), &check_info,                 VALUE,
         sizeof(int),        &iinfo,                      VALUE,
         PARSEC_DTD_ARG_END );
 }

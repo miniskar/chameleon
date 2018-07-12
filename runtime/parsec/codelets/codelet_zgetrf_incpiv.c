@@ -84,7 +84,7 @@ CORE_zgetrf_incpiv_parsec( parsec_execution_stream_t *context,
     CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    CHAMELEON_bool *check_info;
+    cham_bool_t *check_info;
     int iinfo;
 
     int info;
@@ -103,7 +103,7 @@ void INSERT_TASK_zgetrf_incpiv( const RUNTIME_option_t *options,
                                const CHAM_desc_t *A, int Am, int An, int lda,
                                const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                                int *IPIV,
-                               CHAMELEON_bool check_info, int iinfo )
+                               cham_bool_t check_info, int iinfo )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 

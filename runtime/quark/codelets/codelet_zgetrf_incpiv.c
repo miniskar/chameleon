@@ -37,7 +37,7 @@ void CORE_zgetrf_incpiv_quark(Quark *quark)
     int *IPIV;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
-    CHAMELEON_bool check_info;
+    cham_bool_t check_info;
     int iinfo;
 
     int info;
@@ -108,7 +108,7 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
                               const CHAM_desc_t *A, int Am, int An, int lda,
                               const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                               int *IPIV,
-                              CHAMELEON_bool check_info, int iinfo)
+                              cham_bool_t check_info, int iinfo)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GETRF;
@@ -121,7 +121,7 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         sizeof(int)*nb,                      IPIV,                  OUTPUT,
         sizeof(RUNTIME_sequence_t*),           &(options->sequence),      VALUE,
         sizeof(RUNTIME_request_t*),            &(options->request),       VALUE,
-        sizeof(CHAMELEON_bool),                &check_info,    VALUE,
+        sizeof(cham_bool_t),                &check_info,    VALUE,
         sizeof(int),                        &iinfo,         VALUE,
         0);
 

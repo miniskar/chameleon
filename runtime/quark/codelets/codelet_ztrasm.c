@@ -44,7 +44,7 @@ void INSERT_TASK_ztrasm(const RUNTIME_option_t *options,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
-    int szeW = uplo == ChamRowwise ? M : N ;
+    int szeW = storev == ChamRowwise ? M : N ;
     QUARK_Insert_Task(opt->quark, CORE_ztrasm_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &storev,    VALUE,
         sizeof(int),              &uplo,      VALUE,

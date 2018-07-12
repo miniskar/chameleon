@@ -40,8 +40,6 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
     options->parallel   = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
     options->priority   = RUNTIME_PRIORITY_MIN;
 
-    options->nb         = CHAMELEON_NB;
-
     options->ws_wsize   = 0;
     options->ws_hsize   = 0;
     options->ws_worker  = NULL;

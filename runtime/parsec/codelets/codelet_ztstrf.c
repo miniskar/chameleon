@@ -37,7 +37,7 @@ CORE_ztstrf_parsec( parsec_execution_stream_t *context,
     int *IPIV;
     CHAMELEON_Complex64_t *WORK;
     int ldwork;
-    CHAMELEON_bool *check_info;
+    cham_bool_t *check_info;
     int iinfo;
 
     int info;
@@ -57,7 +57,7 @@ void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
                        const CHAM_desc_t *A, int Am, int An, int lda,
                        const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                        int *IPIV,
-                       CHAMELEON_bool check_info, int iinfo)
+                       cham_bool_t check_info, int iinfo)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
