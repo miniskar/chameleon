@@ -22,15 +22,15 @@ int    z_check_LLTfactorization(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Comp
 double z_check_gemm(cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
                    CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
                    CHAMELEON_Complex64_t *B, int LDB,
-                   CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cmorse,
+                   CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Ccham,
                    CHAMELEON_Complex64_t *Cref, int LDC,
-                   double *Cinitnorm, double *Cmorsenorm, double *Clapacknorm );
+                   double *Cinitnorm, double *Cchamnorm, double *Clapacknorm );
 
 double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
            int M, int NRHS, CHAMELEON_Complex64_t alpha,
            CHAMELEON_Complex64_t *A, int LDA,
-           CHAMELEON_Complex64_t *Bmorse, CHAMELEON_Complex64_t *Bref, int LDB,
-           double *Binitnorm, double *Bmorsenorm, double *Blapacknorm );
+           CHAMELEON_Complex64_t *Bcham, CHAMELEON_Complex64_t *Bref, int LDB,
+           double *Binitnorm, double *Bchamnorm, double *Blapacknorm );
 
 double z_check_solution(int M, int N, int NRHS,
                       CHAMELEON_Complex64_t *A1, int LDA,
