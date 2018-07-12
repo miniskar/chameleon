@@ -26,24 +26,24 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void MORSE_TASK_zsytrf_nopiv(const MORSE_option_t *options,
-                             MORSE_enum uplo, int n, int nb,
-                             const MORSE_desc_t *A, int Am, int An, int lda,
+void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
+                             cham_uplo_t uplo, int n, int nb,
+                             const CHAM_desc_t *A, int Am, int An, int lda,
                              int iinfo)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsytrf_nopiv;
     void (*callback)(void*) = options->profiling ? cl_zsytrf_nopiv_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &uplo,                      sizeof(MORSE_enum),
+        STARPU_VALUE,    &uplo,                      sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         /* STARPU_SCRATCH,   options->ws_worker, */
@@ -59,13 +59,13 @@ void MORSE_TASK_zsytrf_nopiv(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int iinfo;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
 
     starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo);
     CORE_zsytf2_nopiv(uplo, n, A, lda);

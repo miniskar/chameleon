@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgesv_nopiv"
+#define _NAME  "CHAMELEON_zgesv_nopiv"
 /* See Lawn 41 page 120 */
 #define _FMULS (FMULS_GETRF( N, N ) + FMULS_GETRS( N, NRHS ))
 #define _FADDS (FADDS_GETRF( N, N ) + FADDS_GETRS( N, NRHS ))
@@ -26,7 +26,7 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
@@ -36,19 +36,19 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, LDA, N    );
-    PASTE_CODE_ALLOCATE_MATRIX( X, 1, MORSE_Complex64_t, LDB, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N    );
+    PASTE_CODE_ALLOCATE_MATRIX( X, 1, CHAMELEON_Complex64_t, LDB, NRHS );
 
     /* Initialiaze Data */
-    MORSE_zplrnt( N, N,    A, LDA,   51 );
-    MORSE_zplrnt( N, NRHS, X, LDB, 5673 );
+    CHAMELEON_zplrnt( N, N,    A, LDA,   51 );
+    CHAMELEON_zplrnt( N, NRHS, X, LDB, 5673 );
 
     /* Save A and b  */
-    PASTE_CODE_ALLOCATE_COPY( Acpy, check, MORSE_Complex64_t, A, LDA, N    );
-    PASTE_CODE_ALLOCATE_COPY( B,    check, MORSE_Complex64_t, X, LDB, NRHS );
+    PASTE_CODE_ALLOCATE_COPY( Acpy, check, CHAMELEON_Complex64_t, A, LDA, N    );
+    PASTE_CODE_ALLOCATE_COPY( B,    check, CHAMELEON_Complex64_t, X, LDB, NRHS );
 
     START_TIMING();
-    MORSE_zgesv_nopiv( N, NRHS, A, N, X, LDB );
+    CHAMELEON_zgesv_nopiv( N, NRHS, A, N, X, LDB );
     STOP_TIMING();
 
     /* Check the solution */

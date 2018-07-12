@@ -36,7 +36,7 @@
  *
  *  Indicates a recoverable problem.
  *  User's erroneous action without severe consequences.
- *  Problems occuring while MORSE is being used correctly.
+ *  Problems occuring while CHAMELEON is being used correctly.
  *  Context aware.
  *
  * @param[in] func_name
@@ -46,22 +46,22 @@
  *          Warning message to display.
  *
  */
-void morse_warning(const char *func_name, const char *msg_text)
+void chameleon_warning(const char *func_name, const char *msg_text)
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL)
-        morse_fatal_error("morse_warning", "MORSE not initialized");
-    if (morse->warnings_enabled)
-        fprintf(stderr, "MORSE WARNING: %s(): %s\n", func_name, msg_text);
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL)
+        chameleon_fatal_error("chameleon_warning", "CHAMELEON not initialized");
+    if (chamctxt->warnings_enabled)
+        fprintf(stderr, "CHAMELEON WARNING: %s(): %s\n", func_name, msg_text);
 }
 
 /**
  *
  *  Indicates a recoverable problem.
  *  User's erroneous action with potentially severe consequences.
- *  Problems occuring due to incorrect use of MORSE.
+ *  Problems occuring due to incorrect use of CHAMELEON.
  *  Context aware.
  *
  * @param[in] func_name
@@ -71,9 +71,9 @@ void morse_warning(const char *func_name, const char *msg_text)
  *          Warning message to display.
  *
  */
-void morse_error(const char *func_name, const char *msg_text)
+void chameleon_error(const char *func_name, const char *msg_text)
 {
-    fprintf(stderr, "MORSE ERROR: %s(): %s\n", func_name, msg_text);
+    fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", func_name, msg_text);
 }
 
 /**
@@ -89,64 +89,64 @@ void morse_error(const char *func_name, const char *msg_text)
  *          Warning message to display.
  *
  */
-void morse_fatal_error(const char *func_name, const char *msg_text)
+void chameleon_fatal_error(const char *func_name, const char *msg_text)
 {
-    fprintf(stderr, "MORSE FATAL ERROR: %s(): %s\n", func_name, msg_text);
+    fprintf(stderr, "CHAMELEON FATAL ERROR: %s(): %s\n", func_name, msg_text);
     exit(0);
 }
 
 /**
  *  Returns core id
  */
-int morse_rank(MORSE_context_t *morse)
+int chameleon_rank(CHAM_context_t *chamctxt)
 {
-    return RUNTIME_thread_rank( morse );
+    return RUNTIME_thread_rank( chamctxt );
 }
 
 /**
  *  Tune block size nb and internal block size ib
  */
-int morse_tune(MORSE_enum func, int M, int N, int NRHS)
+int chameleon_tune(cham_tasktype_t func, int M, int N, int NRHS)
 {
-    MORSE_context_t *morse;
-    morse = morse_context_self();
-    if ( morse && morse->autotuning_enabled == MORSE_TRUE ) {
-        morse_warning( "morse_tune", "Autotunning not available for now" );
+    CHAM_context_t *chamctxt;
+    chamctxt = chameleon_context_self();
+    if ( chamctxt && chamctxt->autotuning_enabled == CHAMELEON_TRUE ) {
+        chameleon_warning( "chameleon_tune", "Autotunning not available for now" );
     }
     (void)func;
     (void)M;
     (void)N;
     (void)NRHS;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Auxiliary
  *
- *  MORSE_Version - Reports MORSE version number.
+ *  CHAMELEON_Version - Reports CHAMELEON version number.
  *
  ******************************************************************************
  *
  * @param[out] ver_major
- *          MORSE major version number.
+ *          CHAMELEON major version number.
  *
  * @param[out] ver_minor
- *          MORSE minor version number.
+ *          CHAMELEON minor version number.
  *
  * @param[out] ver_micro
- *          MORSE micro version number.
+ *          CHAMELEON micro version number.
  *
  ******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int MORSE_Version(int *ver_major, int *ver_minor, int *ver_micro)
+int CHAMELEON_Version(int *ver_major, int *ver_minor, int *ver_micro)
 {
     if (! ver_major && ! ver_minor && ! ver_micro)
-        return  MORSE_ERR_ILLEGAL_VALUE;
+        return  CHAMELEON_ERR_ILLEGAL_VALUE;
 
     if (ver_major)
         *ver_major = CHAMELEON_VERSION_MAJOR;
@@ -157,26 +157,26 @@ int MORSE_Version(int *ver_major, int *ver_minor, int *ver_micro)
     if (ver_micro)
         *ver_micro = CHAMELEON_VERSION_MICRO;
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
  *
  * @ingroup Auxiliary
  *
- *  MORSE_Element_Size - Reports the size in bytes of a MORSE precision type
- *  (e.g. MorseInteger, MorseRealFloat, etc).
+ *  CHAMELEON_Element_Size - Reports the size in bytes of a CHAMELEON precision type
+ *  (e.g. ChamInteger, ChamRealFloat, etc).
  *
  ******************************************************************************
  *
  * @param[in] type
- *          MORSE element type, can be one of the following:
- *          - MorseByte
- *          - MorseInteger
- *          - MorseRealFloat
- *          - MorseRealDouble
- *          - MorseComplexFloat
- *          - MorseComplexDouble
+ *          CHAMELEON element type, can be one of the following:
+ *          - ChamByte
+ *          - ChamInteger
+ *          - ChamRealFloat
+ *          - ChamRealDouble
+ *          - ChamComplexFloat
+ *          - ChamComplexDouble
  *
  ******************************************************************************
  *
@@ -184,17 +184,17 @@ int MORSE_Version(int *ver_major, int *ver_minor, int *ver_micro)
  *          \retval Element size in bytes
  *
  */
-int MORSE_Element_Size(int type)
+int CHAMELEON_Element_Size(int type)
 {
     switch(type) {
-        case MorseByte:          return          1;
-        case MorseInteger:       return   sizeof(int);
-        case MorseRealFloat:     return   sizeof(float);
-        case MorseRealDouble:    return   sizeof(double);
-        case MorseComplexFloat:  return 2*sizeof(float);
-        case MorseComplexDouble: return 2*sizeof(double);
-        default: morse_fatal_error("MORSE_Element_Size", "undefined type");
-                 return MORSE_ERR_ILLEGAL_VALUE;
+        case ChamByte:          return          1;
+        case ChamInteger:       return   sizeof(int);
+        case ChamRealFloat:     return   sizeof(float);
+        case ChamRealDouble:    return   sizeof(double);
+        case ChamComplexFloat:  return 2*sizeof(float);
+        case ChamComplexDouble: return 2*sizeof(double);
+        default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type");
+                 return CHAMELEON_ERR_ILLEGAL_VALUE;
 
     }
 }
@@ -203,7 +203,7 @@ int MORSE_Element_Size(int type)
  *
  * @ingroup Auxiliary
  *
- *  MORSE_My_Mpi_Rank - Return the MPI rank of the calling process.
+ *  CHAMELEON_My_Mpi_Rank - Return the MPI rank of the calling process.
  *
  ******************************************************************************
  *
@@ -213,17 +213,17 @@ int MORSE_Element_Size(int type)
  *          \retval MPI rank
  *
  */
-int MORSE_My_Mpi_Rank(void)
+int CHAMELEON_My_Mpi_Rank(void)
 {
 #if defined(CHAMELEON_USE_MPI)
-    MORSE_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("MORSE_Finalize()", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    return MORSE_MPI_RANK;
+    return CHAMELEON_MPI_RANK;
 #else
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 #endif
 }
 
@@ -260,11 +260,11 @@ void update_progress(int currentValue, int maximumValue) {
 
 // A function to display the progress indicator.
 // By default it is update_progress()
-// The user can change it with MORSE_Set_update_progress_callback()
+// The user can change it with CHAMELEON_Set_update_progress_callback()
 void (*update_progress_callback)(int, int) = update_progress;
 
-int MORSE_Set_update_progress_callback(void (*p)(int, int)) {
+int CHAMELEON_Set_update_progress_callback(void (*p)(int, int)) {
   update_progress_callback = p;
-  return MORSE_SUCCESS;
+  return CHAMELEON_SUCCESS;
 }
 

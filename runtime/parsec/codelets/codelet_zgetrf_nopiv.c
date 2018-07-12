@@ -17,12 +17,12 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetrf_nopiv computes an LU factorization of a general diagonal
  *  dominant M-by-N matrix A witout pivoting.
@@ -59,7 +59,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -74,7 +74,7 @@ CORE_zgetrf_nopiv_parsec( parsec_execution_stream_t *context,
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int iinfo;
     int info;
@@ -88,9 +88,9 @@ CORE_zgetrf_nopiv_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zgetrf_nopiv(const MORSE_option_t *options,
+void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
                              int m, int n, int ib, int nb,
-                             const MORSE_desc_t *A, int Am, int An, int lda,
+                             const CHAM_desc_t *A, int Am, int An, int lda,
                              int iinfo)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
@@ -100,7 +100,7 @@ void MORSE_TASK_zgetrf_nopiv(const MORSE_option_t *options,
         sizeof(int),           &m,                          VALUE,
         sizeof(int),           &n,                          VALUE,
         sizeof(int),           &ib,                         VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),           &lda,                        VALUE,
         sizeof(int),           &iinfo,                      VALUE,
         PARSEC_DTD_ARG_END );

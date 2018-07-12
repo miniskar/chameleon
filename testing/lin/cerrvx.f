@@ -37,7 +37,7 @@
 
       SUBROUTINE CERRVX( PATH, NUNIT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -111,10 +111,10 @@
       WRITE( NOUT, FMT = * )
       C2 = PATH( 2: 3 )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -139,7 +139,7 @@
 *
 *        ALLOCATE HL and HPIV
 *
-         CALL MORSE_ALLOC_WORKSPACE_CGETRF_INCPIV( 
+         CALL CHAMELEON_ALLOC_WORKSPACE_CGETRF_INCPIV( 
      $        2, 1, HL, HPIV, INFO )
 *
 *
@@ -147,38 +147,38 @@
 *
          SRNAMT = 'CGESV '
          INFOT = 1
-         CALL MORSE_CGESV_INCPIV( -1, 0, A, 1, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_CGESV_INCPIV( -1, 0, A, 1, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_CGESV_INCPIV( 0, -1, A, 1, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_CGESV_INCPIV( 0, -1, A, 1, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_CGESV_INCPIV( 2, 1, A, 1, HL, HPIV, B, 2, INFO )
+         CALL CHAMELEON_CGESV_INCPIV( 2, 1, A, 1, HL, HPIV, B, 2, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 8
-         CALL MORSE_CGESV_INCPIV( 2, 1, A, 2, HL, HPIV, B, 1, INFO )
+         CALL CHAMELEON_CGESV_INCPIV( 2, 1, A, 2, HL, HPIV, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
 *
 *        DEALLOCATE HL and HPIV
 *
-         CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-         CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
 *
 *
 *        CGESV
 *
          SRNAMT = 'CGESV '
          INFOT = 1
-         CALL MORSE_CGESV( -1, 0, A, 1, IWORK, B, 1, INFO )
+         CALL CHAMELEON_CGESV( -1, 0, A, 1, IWORK, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_CGESV( 0, -1, A, 1, IWORK, B, 1, INFO )
+         CALL CHAMELEON_CGESV( 0, -1, A, 1, IWORK, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_CGESV( 2, 1, A, 1, IWORK, B, 2, INFO )
+         CALL CHAMELEON_CGESV( 2, 1, A, 1, IWORK, B, 2, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_CGESV( 2, 1, A, 2, IWORK, B, 1, INFO )
+         CALL CHAMELEON_CGESV( 2, 1, A, 2, IWORK, B, 1, INFO )
          CALL CHKXER( 'CGESV ', INFOT, NOUT, INFO, OK )
 *
       ELSE IF( LSAMEN( 2, C2, 'PO' ) ) THEN
@@ -187,19 +187,19 @@
 *
          SRNAMT = 'CPOSV '
          INFOT = 1
-         CALL MORSE_CPOSV( '/', 0, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_CPOSV( '/', 0, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'CPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_CPOSV( MORSEUPPER, -1, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_CPOSV( CHAMELEONUPPER, -1, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'CPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_CPOSV( MORSEUPPER, 0, -1, A, 1, B, 1, INFO )
+         CALL CHAMELEON_CPOSV( CHAMELEONUPPER, 0, -1, A, 1, B, 1, INFO )
          CALL CHKXER( 'CPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_CPOSV( MORSEUPPER, 2, 0, A, 1, B, 2, INFO )
+         CALL CHAMELEON_CPOSV( CHAMELEONUPPER, 2, 0, A, 1, B, 2, INFO )
          CALL CHKXER( 'CPOSV ', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_CPOSV( MORSEUPPER, 2, 0, A, 2, B, 1, INFO )
+         CALL CHAMELEON_CPOSV( CHAMELEONUPPER, 2, 0, A, 2, B, 1, INFO )
          CALL CHKXER( 'CPOSV ', INFOT, NOUT, INFO, OK )
 *
 *        CPOSVX
@@ -261,10 +261,10 @@
  9998 FORMAT( ' *** ', A3, ' drivers failed the tests of the error ',
      $      'exits ***' )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

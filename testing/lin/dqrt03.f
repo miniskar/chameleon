@@ -38,7 +38,7 @@
       SUBROUTINE DQRT03( M, N, K, AF, C, CC, Q, LDA, T, WORK, LWORK,
      $                   RWORK, RESULT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -123,7 +123,7 @@
 *     .. Local Scalars ..
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, ISIDE, ITRANS, J, MC, NC
-      INTEGER            MORSE_SIDE, MORSE_TRANS
+      INTEGER            CHAMELEON_SIDE, CHAMELEON_TRANS
       DOUBLE PRECISION   CNORM, EPS, RESID
 *     ..
 *     .. External Functions ..
@@ -165,17 +165,17 @@
 *     Generate the m-by-m matrix Q
 *
       SRNAMT = 'DORGQR'
-      CALL MORSE_DORGQR( M, M, K, AF, LDA, T, Q, LDA, INFO )
+      CALL CHAMELEON_DORGQR( M, M, K, AF, LDA, T, Q, LDA, INFO )
 *
       DO 30 ISIDE = 1, 2
          IF( ISIDE.EQ.1 ) THEN
             SIDE = 'L'
-            MORSE_SIDE = MORSELEFT
+            CHAMELEON_SIDE = CHAMELEONLEFT
             MC = M
             NC = N
          ELSE
             SIDE = 'R'
-            MORSE_SIDE = MORSERIGHT
+            CHAMELEON_SIDE = CHAMELEONRIGHT
             MC = N
             NC = M
          END IF
@@ -192,10 +192,10 @@
          DO 20 ITRANS = 1, 2
             IF( ITRANS.EQ.1 ) THEN
                TRANS = 'N'
-               MORSE_TRANS = MORSENOTRANS
+               CHAMELEON_TRANS = CHAMELEONNOTRANS
             ELSE
                TRANS = 'T'
-               MORSE_TRANS = MORSETRANS
+               CHAMELEON_TRANS = CHAMELEONTRANS
             END IF
 *
 *           Copy C
@@ -205,7 +205,7 @@
 *           Apply Q or Q' to C
 *
             SRNAMT = 'DORMQR'
-            CALL MORSE_DORMQR( MORSE_SIDE, MORSE_TRANS, MC, NC, K,
+            CALL CHAMELEON_DORMQR( CHAMELEON_SIDE, CHAMELEON_TRANS, MC, NC, K,
      $                     AF, LDA, T, CC, LDA, INFO )
 *
 *           Form explicit product and subtract

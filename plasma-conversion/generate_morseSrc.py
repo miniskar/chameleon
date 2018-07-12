@@ -37,8 +37,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -67,7 +67,7 @@ def main(argv):
     group.add_option("-y","--force"     , help=': Force overwrite all files'             , action='store_true', dest='force'    , default=False);
     group.add_option("-o","--prefix"    , help=': install files in PREFIX.'              , action='store'     , dest='prefix'   , type='string', default=False);
     group.add_option("-p","--plasma-dir", help=': Specify the top directory of PLASMA.'  , action='store'     , dest='pdir'     , type='string', default=False);
-    group.add_option("-m","--morse-dir" , help=': Specify the top directory of MORSE.'   , action='store'     , dest='mdir'     , type='string', default=False);
+    group.add_option("-m","--morse-dir" , help=': Specify the top directory of CHAMELEON.'   , action='store'     , dest='mdir'     , type='string', default=False);
     group.add_option("-f","--file"      , help=': Specify a file(s) on which to operate.', action='store'     , dest='flist'    , type='string', default=False);
     parser.add_option_group(group);
     (options, args) = parser.parse_args();
@@ -80,10 +80,10 @@ def main(argv):
         for file in options.flist.split():
             convert_file(file, options.pdir, options.prefix, options.force)
 
-    # Copy file from MORSE
+    # Copy file from CHAMELEON
     if options.prefix and options.mdir:
         print '\n#####################'
-        print '\nCOPY NEEDED SVN MORSE'
+        print '\nCOPY NEEDED SVN CHAMELEON'
         print '\n#####################'
         copy_file(options.mdir, options.prefix, options.force)
 

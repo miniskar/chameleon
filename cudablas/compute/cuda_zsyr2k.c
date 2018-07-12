@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int CUDA_zsyr2k(
-        MORSE_enum uplo, MORSE_enum trans,
+        cham_uplo_t uplo, cham_trans_t trans,
         int n, int k,
         cuDoubleComplex *alpha,
         const cuDoubleComplex *A, int lda,
@@ -30,7 +30,7 @@ int CUDA_zsyr2k(
         CUBLAS_STREAM_PARAM)
 {
     cublasZsyr2k(CUBLAS_HANDLE
-                 morse_cublas_const(uplo), morse_cublas_const(trans),
+                 chameleon_cublas_const(uplo), chameleon_cublas_const(trans),
                  n, k,
                  CUBLAS_VALUE(alpha), A, lda,
                                       B, ldb,
@@ -38,5 +38,5 @@ int CUDA_zsyr2k(
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

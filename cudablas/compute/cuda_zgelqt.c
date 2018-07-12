@@ -96,7 +96,7 @@ int CUDA_zgelqt(
 
             /* put 0s in the lower triangular part of a panel (and 1s on the
              diagonal); copy the lower triangular in d */
-            CORE_zgesplit(MorseRight, MorseUnit, ib, chameleon_min(ib,cols),
+            CORE_zgesplit(ChamRight, ChamUnit, ib, chameleon_min(ib,cols),
                           (double _Complex*) v_ref(0,i), ib,
                           (double _Complex*) d, ib);
 
@@ -166,6 +166,6 @@ int CUDA_zgelqt(
 #undef dt_ref
 #undef t_ref
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif

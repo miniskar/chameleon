@@ -46,7 +46,7 @@ int CUDA_zgessm(
         exit(-1);
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 #endif
 #endif

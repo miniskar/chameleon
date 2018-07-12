@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -35,7 +35,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztrssq returns the values scl and ssq such that
  *
@@ -83,26 +83,26 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval -k, the k-th argument had an illegal value
  *
  */
 
-int CORE_ztrssq(MORSE_enum uplo, MORSE_enum diag, int M, int N,
-                const MORSE_Complex64_t *A, int LDA,
+int CORE_ztrssq(cham_uplo_t uplo, cham_diag_t diag, int M, int N,
+                const CHAMELEON_Complex64_t *A, int LDA,
                 double *scale, double *sumsq)
 {
     int i, j, imax;
-    int idiag = (diag == MorseUnit) ? 1 : 0;
+    int idiag = (diag == ChamUnit) ? 1 : 0;
     double tmp;
     double *ptr;
 
-    if ( diag == MorseUnit ){
+    if ( diag == ChamUnit ){
         tmp = sqrt( chameleon_min(M, N) );
         UPDATE( 1., tmp );
     }
 
-    if  (uplo == MorseUpper ) {
+    if  (uplo == ChamUpper ) {
         M = chameleon_min(M, N);
 
         for(j=0; j<N; j++) {
@@ -139,5 +139,5 @@ int CORE_ztrssq(MORSE_enum uplo, MORSE_enum diag, int M, int N,
             }
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

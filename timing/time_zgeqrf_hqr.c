@@ -16,11 +16,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgeqrf_param"
+#define _NAME  "CHAMELEON_zgeqrf_param"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_GEQRF(M, N)
 #define _FADDS FADDS_GEQRF(M, N)
@@ -29,10 +29,10 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
-    MORSE_desc_t *TS;
-    MORSE_desc_t *TT;
+    CHAM_desc_t *TS;
+    CHAM_desc_t *TT;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
     int hlvl, llvl, qr_a, domino;
@@ -44,19 +44,19 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, LDA, N );
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N );
 
     /* Initialize Data */
-    MORSE_zplrnt(M, N, A, LDA, 3456);
+    CHAMELEON_zplrnt(M, N, A, LDA, 3456);
 
     /* Allocate Workspace */
-    MORSE_Alloc_Workspace_zgels(M, N, &TS, P, Q);
-    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(MorseComplexDouble));
-    MORSE_Alloc_Workspace_zgels(M, N, &TT, P, Q);
-    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(MorseComplexDouble));
+    CHAMELEON_Alloc_Workspace_zgels(M, N, &TS, P, Q);
+    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(ChamComplexDouble));
+    CHAMELEON_Alloc_Workspace_zgels(M, N, &TT, P, Q);
+    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(ChamComplexDouble));
 
     /* Save AT in lapack layout for check */
-    PASTE_CODE_ALLOCATE_COPY( Acpy, check, MORSE_Complex64_t, A, LDA, N );
+    PASTE_CODE_ALLOCATE_COPY( Acpy, check, CHAMELEON_Complex64_t, A, LDA, N );
 
     /* Initialize matrix */
     matrix.mt = TS->mt;
@@ -75,17 +75,17 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
                      &matrix, llvl, hlvl, qr_a, P, domino, 0);
 
     START_TIMING();
-    MORSE_zgeqrf_param(&qrtree, M, N, A, LDA, TS, TT );
+    CHAMELEON_zgeqrf_param(&qrtree, M, N, A, LDA, TS, TT );
     STOP_TIMING();
 
     /* Check the solution */
     if ( check )
     {
-        PASTE_CODE_ALLOCATE_MATRIX( X, 1, MORSE_Complex64_t, LDB, NRHS );
-        MORSE_zplrnt( N, NRHS, X, LDB, 5673 );
-        PASTE_CODE_ALLOCATE_COPY( B, 1, MORSE_Complex64_t, X, LDB, NRHS );
+        PASTE_CODE_ALLOCATE_MATRIX( X, 1, CHAMELEON_Complex64_t, LDB, NRHS );
+        CHAMELEON_zplrnt( N, NRHS, X, LDB, 5673 );
+        PASTE_CODE_ALLOCATE_COPY( B, 1, CHAMELEON_Complex64_t, X, LDB, NRHS );
 
-        MORSE_zgeqrs_param(&qrtree, M, N, NRHS, A, LDA, TS, TT, X, LDB);
+        CHAMELEON_zgeqrs_param(&qrtree, M, N, NRHS, A, LDA, TS, TT, X, LDB);
 
         dparam[IPARAM_RES] = z_check_solution(M, N, NRHS, Acpy, LDA, B, X, LDB,
                                               &(dparam[IPARAM_ANORM]),
@@ -99,8 +99,8 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 
     /* Free Workspace */
     libhqr_finalize( &qrtree );
-    MORSE_Dealloc_Workspace( &TS );
-    MORSE_Dealloc_Workspace( &TT );
+    CHAMELEON_Dealloc_Workspace( &TS );
+    CHAMELEON_Dealloc_Workspace( &TT );
     free( A );
 
     return 0;

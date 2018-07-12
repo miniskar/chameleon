@@ -252,7 +252,7 @@ we encourage users to use the /morse/ branch of [[sec:spack][Spack]].
    dependencies) we encourage users to use the morse branch of *Spack*.
 
    Please read these documentations:
-   * [[http://morse.gforge.inria.fr/spack/spack.html][Spack Morse]]
+   * [[http://morse.gforge.inria.fr/spack/spack.html][Spack Cham]]
    * [[http://morse.gforge.inria.fr/spack/spack.html#orgd5b1afe][Section Chameleon]]
 
 *** Usage example for a simple distribution of Chameleon

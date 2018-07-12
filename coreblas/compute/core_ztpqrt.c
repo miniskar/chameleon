@@ -23,7 +23,7 @@
 /**
  ******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  * CORE_ztpqrt computes a blocked QR factorization of a complex
  * "triangular-pentagonal" matrix C, which is composed of a
@@ -83,15 +83,15 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 int CORE_ztpqrt( int M, int N, int L, int IB,
-                 MORSE_Complex64_t *A, int LDA,
-                 MORSE_Complex64_t *B, int LDB,
-                 MORSE_Complex64_t *T, int LDT,
-                 MORSE_Complex64_t *WORK )
+                 CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *B, int LDB,
+                 CHAMELEON_Complex64_t *T, int LDT,
+                 CHAMELEON_Complex64_t *WORK )
 {
 #if !defined(NDEBUG)
      /* Check input arguments */
@@ -132,7 +132,7 @@ int CORE_ztpqrt( int M, int N, int L, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     if ( L == 0 ) {
         CORE_ztsqrt( M, N, IB, A, LDA, B, LDB, T, LDT, WORK, WORK+N );
@@ -145,5 +145,5 @@ int CORE_ztpqrt( int M, int N, int L, int IB,
     /*     coreblas_error( 3, "Illegal value of L (only 0 or M handled for now)"); */
     /*     return -3; */
     /* } */
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

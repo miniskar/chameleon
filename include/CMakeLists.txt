@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -26,36 +26,38 @@
 #
 ###
 
-# Generate the morse headers for all possible precisions
-# ------------------------------------------------------
+# Generate the chameleon headers for all possible precisions
+# ----------------------------------------------------------
 set(CHAMELEON_HDRS_GENERATED "")
 set(ZHDR
-    chameleon/morse_z.h
-    chameleon/morse_zc.h
-    chameleon/morse_tasks_z.h
-    chameleon/morse_tasks_zc.h
+    chameleon/chameleon_z.h
+    chameleon/chameleon_zc.h
+    chameleon/tasks_z.h
+    chameleon/tasks_zc.h
 )
 
 precisions_rules_py(CHAMELEON_HDRS_GENERATED "${ZHDR}"
   TARGETDIR  "chameleon"
   PRECISIONS "z;c;d;s;zc;ds" )
 
-configure_file("chameleon/chameleon_config.h.in"
-               "chameleon/chameleon_config.h"
+configure_file("chameleon/config.h.in"
+               "chameleon/config.h"
                @ONLY)
 
 # Define the list of headers
 # --------------------------
 set(CHAMELEON_HDRS
-  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/chameleon_config.h
-  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/morse_mangling.h
-  chameleon/morse_constants.h
-  chameleon/morse_kernels.h
-  chameleon/morse_runtime.h
-  chameleon/morse_simulate.h
-  chameleon/morse_struct.h
-  chameleon/morse_tasks.h
-  chameleon/morse_types.h
+  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/chameleon/mangling.h
+  chameleon/constants.h
+  chameleon/runtime.h
+  chameleon/runtime_struct.h
+  chameleon/simulate.h
+  chameleon/struct.h
+  chameleon/tasks.h
+  chameleon/timer.h
+  chameleon/types.h
+  chameleon/types.h
   )
 
 # Add generated headers
@@ -67,12 +69,12 @@ endforeach()
 # Force generation of headers
 # ---------------------------
 add_custom_target(chameleon_include
-  ALL SOURCES morse.h ${CHAMELEON_HDRS} )
+  ALL SOURCES chameleon.h ${CHAMELEON_HDRS} )
 set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};chameleon_include" CACHE INTERNAL "List of targets of sources")
 
 # Installation
 # ------------
-install( FILES morse.h
+install( FILES chameleon.h
          DESTINATION include )
 
 install( FILES ${CHAMELEON_HDRS}

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -25,7 +25,7 @@
  */
 #include "coreblas/cblas.h"
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zgessm_quark(Quark *quark)
@@ -35,11 +35,11 @@ void CORE_zgessm_quark(Quark *quark)
     int k;
     int ib;
     int *IPIV;
-    MORSE_Complex64_t *L;
+    CHAMELEON_Complex64_t *L;
     int ldl;
-    MORSE_Complex64_t *D;
+    CHAMELEON_Complex64_t *D;
     int ldd;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
 
     quark_unpack_args_11(quark, m, n, k, ib, IPIV, L, ldl, D, ldd, A, lda);
@@ -48,7 +48,7 @@ void CORE_zgessm_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgessm applies the factors L computed by CORE_zgetrf_incpiv to
  *  a complex M-by-N tile A.
@@ -87,16 +87,16 @@ void CORE_zgessm_quark(Quark *quark)
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
-void MORSE_TASK_zgessm(const MORSE_option_t *options,
+void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
                        int m, int n, int k, int ib, int nb,
                        int *IPIV,
-                       const MORSE_desc_t *L, int Lm, int Ln, int ldl,
-                       const MORSE_desc_t *D, int Dm, int Dn, int ldd,
-                       const MORSE_desc_t *A, int Am, int An, int lda)
+                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                       const CHAM_desc_t *D, int Dm, int Dn, int ldd,
+                       const CHAM_desc_t *A, int Am, int An, int lda)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GESSM;
@@ -106,11 +106,11 @@ void MORSE_TASK_zgessm(const MORSE_option_t *options,
         sizeof(int),                        &k,     VALUE,
         sizeof(int),                        &ib,    VALUE,
         sizeof(int)*nb,                      IPIV,          INPUT,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(L, MORSE_Complex64_t, Lm, Ln),             INPUT | QUARK_REGION_L,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),             INPUT | QUARK_REGION_L,
         sizeof(int),                        &ldl,   VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(D, MORSE_Complex64_t, Dm, Dn),             INPUT | QUARK_REGION_L,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(D, CHAMELEON_Complex64_t, Dm, Dn),             INPUT | QUARK_REGION_L,
         sizeof(int),                        &ldd,   VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),             INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INOUT,
         sizeof(int),                        &lda,   VALUE,
         0);
 }

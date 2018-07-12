@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include "chameleon_quark.h"
 
-void RUNTIME_options_init( MORSE_option_t *options, MORSE_context_t *morse,
-                           MORSE_sequence_t *sequence, MORSE_request_t *request )
+void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
+                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     /* Create the task flag */
     quark_option_t *qopt = (quark_option_t*) malloc(sizeof(quark_option_t));
@@ -36,11 +36,9 @@ void RUNTIME_options_init( MORSE_option_t *options, MORSE_context_t *morse,
     /* Initialize options */
     options->sequence   = sequence;
     options->request    = request;
-    options->profiling  = MORSE_PROFILING == MORSE_TRUE;
-    options->parallel   = MORSE_PARALLEL == MORSE_TRUE;
-    options->priority   = MORSE_PRIORITY_MIN;
-
-    options->nb         = MORSE_NB;
+    options->profiling  = CHAMELEON_PROFILING == CHAMELEON_TRUE;
+    options->parallel   = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
+    options->priority   = RUNTIME_PRIORITY_MIN;
 
     options->ws_wsize   = 0;
     options->ws_hsize   = 0;
@@ -48,7 +46,7 @@ void RUNTIME_options_init( MORSE_option_t *options, MORSE_context_t *morse,
     options->ws_host    = NULL;
 
     /* quark in options */
-    qopt->quark = (Quark*)(morse->schedopt);
+    qopt->quark = (Quark*)(chamctxt->schedopt);
     options->schedopt = qopt;
 
     QUARK_Task_Flag_Set((Quark_Task_Flags*)qopt, TASK_SEQUENCE, (intptr_t)(sequence->schedopt));
@@ -56,25 +54,25 @@ void RUNTIME_options_init( MORSE_option_t *options, MORSE_context_t *morse,
     return;
 }
 
-void RUNTIME_options_finalize( MORSE_option_t *options, MORSE_context_t *morse )
+void RUNTIME_options_finalize( RUNTIME_option_t *options, CHAM_context_t *chamctxt )
 {
     /* we can free the task_flags without waiting for quark
        because they should have been copied for every task */
-    (void)morse;
+    (void)chamctxt;
     free( options->schedopt );
     return;
 }
 
-int RUNTIME_options_ws_alloc( MORSE_option_t *options, size_t worker_size, size_t host_size )
+int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, size_t host_size )
 {
     options->ws_wsize = worker_size;
     options->ws_hsize = host_size;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
-int RUNTIME_options_ws_free( MORSE_option_t *options )
+int RUNTIME_options_ws_free( RUNTIME_option_t *options )
 {
     options->ws_wsize = 0;
     options->ws_hsize = 0;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

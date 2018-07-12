@@ -13,21 +13,21 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zsyssq_quark(Quark *quark)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     double *SCALESUMSQ;
 
@@ -35,16 +35,16 @@ void CORE_zsyssq_quark(Quark *quark)
     CORE_zsyssq( uplo, n, A, lda, &SCALESUMSQ[0], &SCALESUMSQ[1]);
 }
 
-void MORSE_TASK_zsyssq( const MORSE_option_t *options,
-                        MORSE_enum uplo, int n,
-                        const MORSE_desc_t *A, int Am, int An, int lda,
-                        const MORSE_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
+void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
+                        cham_uplo_t uplo, int n,
+                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zsyssq_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),              &uplo, VALUE,
+        sizeof(int),              &uplo, VALUE,
         sizeof(int),                     &n,    VALUE,
-        sizeof(MORSE_Complex64_t)*lda*n, RTBLKADDR(A, MORSE_Complex64_t, Am, An), INPUT,
+        sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(int),                     &lda,  VALUE,
         sizeof(double)*2,                RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
         0);

@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _MORSE_WORKSPACE_H_
-#define _MORSE_WORKSPACE_H_
+#ifndef _CHAMELEON_WORKSPACE_H_
+#define _CHAMELEON_WORKSPACE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,8 +27,8 @@ extern "C" {
 /**
  *  Internal routines
  */
-int morse_alloc_ibnb_tile(int M, int N, MORSE_enum func, int type, MORSE_desc_t **desc, int p, int q);
-int morse_alloc_ipiv(int M, int N, MORSE_enum func, int type, MORSE_desc_t **desc, void **IPIV, int p, int q);
+int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, int p, int q);
+int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, void **IPIV, int p, int q);
 
 #ifdef __cplusplus
 }

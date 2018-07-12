@@ -38,7 +38,7 @@
       SUBROUTINE ZLQT03( M, N, K, AF, C, CC, Q, LDA, T, WORK, LWORK,
      $                   RWORK, RESULT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -122,7 +122,7 @@
 *     .. Local Scalars ..
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, ISIDE, ITRANS, J, MC, NC
-      INTEGER            MORSE_SIDE, MORSE_TRANS
+      INTEGER            CHAMELEON_SIDE, CHAMELEON_TRANS
       DOUBLE PRECISION   CNORM, EPS, RESID
 *     ..
 *     .. External Functions ..
@@ -164,17 +164,17 @@
 *     Generate the n-by-n matrix Q
 *
       SRNAMT = 'ZUNGLQ'
-      CALL MORSE_ZUNGLQ( N, N, K, AF, LDA, T, Q, LDA, INFO )
+      CALL CHAMELEON_ZUNGLQ( N, N, K, AF, LDA, T, Q, LDA, INFO )
 *
       DO 30 ISIDE = 1, 2
          IF( ISIDE.EQ.1 ) THEN
             SIDE = 'L'
-            MORSE_SIDE = MORSELEFT
+            CHAMELEON_SIDE = CHAMELEONLEFT
             MC = N
             NC = M
          ELSE
             SIDE = 'R'
-            MORSE_SIDE = MORSERIGHT
+            CHAMELEON_SIDE = CHAMELEONRIGHT
             MC = M
             NC = N
          END IF
@@ -190,11 +190,11 @@
 *
          DO 20 ITRANS = 1, 2
             IF( ITRANS.EQ.1 ) THEN
-               MORSE_TRANS = MORSENOTRANS
+               CHAMELEON_TRANS = CHAMELEONNOTRANS
                TRANS = 'N'
             ELSE
                TRANS = 'C'
-               MORSE_TRANS = MORSECONJTRANS
+               CHAMELEON_TRANS = CHAMELEONCONJTRANS
             END IF
 *
 *           Copy C
@@ -204,7 +204,7 @@
 *           Apply Q or Q' to C
 *
             SRNAMT = 'ZUNMLQ'
-            CALL MORSE_ZUNMLQ( MORSE_SIDE, MORSE_TRANS, MC, NC, K,
+            CALL CHAMELEON_ZUNMLQ( CHAMELEON_SIDE, CHAMELEON_TRANS, MC, NC, K,
      $                   AF, LDA, T, CC, LDA, INFO )
 *
 *           Form explicit product and subtract

@@ -13,7 +13,7 @@
 #ifndef TIMING_H
 #define TIMING_H
 
-typedef double morse_time_t;
+typedef double chameleon_time_t;
 
 enum iparam_timing {
     IPARAM_THRDNBR,        /* Number of cores                            */
@@ -114,23 +114,23 @@ enum dparam_timing {
 
 /* Paste code to allocate a matrix in desc if cond_init is true */
 #define PASTE_CODE_ALLOCATE_MATRIX_TILE(_desc_, _cond_, _type_, _type2_, _lda_, _m_, _n_) \
-    MORSE_desc_t *_desc_ = NULL;                                        \
+    CHAM_desc_t *_desc_ = NULL;                                        \
     int status ## _desc_ ;                                              \
     if( _cond_ ) {                                                      \
         if (ooc)                                                        \
-            status ## _desc_ = MORSE_Desc_Create_OOC(&(_desc_), _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
+            status ## _desc_ = CHAMELEON_Desc_Create_OOC(&(_desc_), _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
                                                      P, Q);             \
         else if (!bigmat)                                               \
-            status ## _desc_ = MORSE_Desc_Create_User(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
-                                                      P, Q, morse_getaddr_null, NULL, NULL); \
+            status ## _desc_ = CHAMELEON_Desc_Create_User(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
+                                                      P, Q, chameleon_getaddr_null, NULL, NULL); \
         else                                                            \
-            status ## _desc_ = MORSE_Desc_Create(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
+            status ## _desc_ = CHAMELEON_Desc_Create(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
                                                  P, Q);                 \
-        if (status ## _desc_ != MORSE_SUCCESS) return (status ## _desc_); \
+        if (status ## _desc_ != CHAMELEON_SUCCESS) return (status ## _desc_); \
     }
 
 #define PASTE_CODE_FREE_MATRIX(_desc_)                                  \
-    MORSE_Desc_Destroy( &_desc_ );
+    CHAMELEON_Desc_Destroy( &_desc_ );
 
 #define PASTE_TILE_TO_LAPACK(_desc_, _name_, _cond_, _type_, _lda_, _n_) \
     _type_ *_name_ = NULL;                                               \
@@ -140,7 +140,7 @@ enum dparam_timing {
             fprintf(stderr, "Out of Memory for %s\n", #_name_);          \
             return -1;                                                   \
         }                                                                \
-        MORSE_Tile_to_Lapack(_desc_, (void*)_name_, _lda_);              \
+        CHAMELEON_Tile_to_Lapack(_desc_, (void*)_name_, _lda_);              \
     }
 
 #define PASTE_CODE_ALLOCATE_MATRIX(_name_, _cond_, _type_, _lda_, _n_)  \
@@ -175,7 +175,7 @@ enum dparam_timing {
     	RUNTIME_start_profiling();             \
     }                                          \
     if(iparam[IPARAM_BOUND]) {                 \
-        MORSE_Enable(MORSE_BOUND);             \
+        CHAMELEON_Enable(CHAMELEON_BOUND);             \
     }
 
 #define STOP_TRACING()                         \
@@ -184,7 +184,7 @@ enum dparam_timing {
     	RUNTIME_stop_profiling();              \
     }                                          \
     if(iparam[IPARAM_BOUND]) {                 \
-        MORSE_Disable(MORSE_BOUND);            \
+        CHAMELEON_Disable(CHAMELEON_BOUND);            \
     }
 
 /**
@@ -195,11 +195,11 @@ enum dparam_timing {
 #if 0
 #define START_DAG()                   \
     if ( iparam[IPARAM_DAG] == 2 )    \
-        MORSE_Enable(MORSE_DAG);
+        CHAMELEON_Enable(CHAMELEON_DAG);
 
 #define STOP_DAG()                    \
     if ( iparam[IPARAM_DAG] == 2 )    \
-        MORSE_Disable(MORSE_DAG);
+        CHAMELEON_Disable(CHAMELEON_DAG);
 #else
 #define START_DAG()  do {} while(0);
 #define STOP_DAG()   do {} while(0);
@@ -211,8 +211,8 @@ enum dparam_timing {
  *
  */
 #if defined(CHAMELEON_USE_MPI)
-#define START_DISTRIBUTED()  MORSE_Distributed_start();
-#define STOP_DISTRIBUTED()   MORSE_Distributed_stop();
+#define START_DISTRIBUTED()  CHAMELEON_Distributed_start();
+#define STOP_DISTRIBUTED()   CHAMELEON_Distributed_stop();
 #else
 #define START_DISTRIBUTED()  do {} while(0);
 #define STOP_DISTRIBUTED()   do {} while(0);

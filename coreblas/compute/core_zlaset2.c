@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zlaset2 - Sets the elements of the matrix A to alpha.
  *  Not LAPACK compliant! Read below.
@@ -37,9 +37,9 @@
  *
  * @param[in] uplo
  *          Specifies which elements of the matrix are to be set
- *          = MorseUpper: STRICT Upper part of A is set to alpha;
- *          = MorseLower: STRICT Lower part of A is set to alpha;
- *          = MorseUpperLower: ALL elements of A are set to alpha.
+ *          = ChamUpper: STRICT Upper part of A is set to alpha;
+ *          = ChamLower: STRICT Lower part of A is set to alpha;
+ *          = ChamUpperLower: ALL elements of A are set to alpha.
  *          Not LAPACK Compliant.
  *
  * @param[in] M
@@ -59,25 +59,25 @@
  *         The leading dimension of the array A.  LDA >= max(1,M).
  *
  */
-void CORE_zlaset2(MORSE_enum uplo, int M, int N,
-                  MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA)
+void CORE_zlaset2(cham_uplo_t uplo, int M, int N,
+                  CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA)
 {
-    if (uplo == MorseUpper) {
+    if (uplo == ChamUpper) {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M, N-1, alpha, alpha, A+LDA, LDA);
     }
-    else if (uplo == MorseLower) {
+    else if (uplo == ChamLower) {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M-1, N, alpha, alpha, A+1, LDA);
     }
     else {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M, N, alpha, alpha, A, LDA);
     }
 }

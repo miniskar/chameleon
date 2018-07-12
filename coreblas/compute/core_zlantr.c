@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -25,17 +25,17 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_PLASMA_zlantr returns the value
  *
- *     zlantr = ( max(abs(A(i,j))), NORM = MorseMaxNorm
+ *     zlantr = ( max(abs(A(i,j))), NORM = ChamMaxNorm
  *              (
- *              ( norm1(A),         NORM = MorseOneNorm
+ *              ( norm1(A),         NORM = ChamOneNorm
  *              (
- *              ( normI(A),         NORM = MorseInfNorm
+ *              ( normI(A),         NORM = ChamInfNorm
  *              (
- *              ( normF(A),         NORM = MorseFrobeniusNorm
+ *              ( normF(A),         NORM = ChamFrobeniusNorm
  *
  *  where norm1 denotes the one norm of a matrix (maximum column sum),
  *  normI denotes the infinity norm of a matrix (maximum row sum) and
@@ -46,28 +46,28 @@
  *******************************************************************************
  *
  * @param[in] norm
- *          = MorseMaxNorm: Max norm
- *          = MorseOneNorm: One norm
- *          = MorseInfNorm: Infinity norm
- *          = MorseFrobeniusNorm: Frobenius norm
+ *          = ChamMaxNorm: Max norm
+ *          = ChamOneNorm: One norm
+ *          = ChamInfNorm: Infinity norm
+ *          = ChamFrobeniusNorm: Frobenius norm
  *
  * @param[in] uplo
  *          Specifies whether the matrix A is upper triangular or lower triangular:
- *          = MorseUpper: Upper triangle of A is stored;
- *          = MorseLower: Lower triangle of A is stored.
+ *          = ChamUpper: Upper triangle of A is stored;
+ *          = ChamLower: Lower triangle of A is stored.
  *
  * @param[in] diag
  *          Specifies whether or not A is unit triangular:
- *          = MorseNonUnit: A is non unit;
- *          = MorseUnit:    A us unit.
+ *          = ChamNonUnit: A is non unit;
+ *          = ChamUnit:    A us unit.
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0.
- *          If uplo == MorseUpper, M <= N. When M = 0, CORE_zlantr returns 0.
+ *          If uplo == ChamUpper, M <= N. When M = 0, CORE_zlantr returns 0.
  *
  * @param[in] N
  *          The number of columns of the matrix A. N >= 0.
- *          If uplo == MorseLower, N <= M. When N = 0, CORE_zlantr returns 0.
+ *          If uplo == ChamLower, N <= M. When N = 0, CORE_zlantr returns 0.
  *
  * @param[in] A
  *          The LDA-by-N matrix A.
@@ -77,7 +77,7 @@
  *
  * @param[in,out] work
  *          Array of dimension (MAX(1,LWORK)), where LWORK >= M when norm =
- *          MorseInfNorm, or LWORK >= N when norm = MorseOneNorm; otherwise,
+ *          ChamInfNorm, or LWORK >= N when norm = ChamOneNorm; otherwise,
  *          work is not referenced.
  *
  * @param[out] normA
@@ -85,23 +85,23 @@
  *
  */
 
-void CORE_zlantr(MORSE_enum norm, MORSE_enum uplo, MORSE_enum diag,
+void CORE_zlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
                  int M, int N,
-                 const MORSE_Complex64_t *A, int LDA,
+                 const CHAMELEON_Complex64_t *A, int LDA,
                  double *work, double *normA)
 {
 #if defined(LAPACKE_CORRECT_DLANTR)
     *normA = LAPACKE_zlantr_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(norm),
-        morse_lapack_const(uplo),
-        morse_lapack_const(diag),
+        chameleon_lapack_const(norm),
+        chameleon_lapack_const(uplo),
+        chameleon_lapack_const(diag),
         M, N, A, LDA, work);
 #else
-    const MORSE_Complex64_t *tmpA;
+    const CHAMELEON_Complex64_t *tmpA;
     double value;
     int i, j, imax;
-    int idiag = (diag == MorseUnit) ? 1 : 0;
+    int idiag = (diag == ChamUnit) ? 1 : 0;
 
     if ( chameleon_min(M, N) == 0 ) {
         *normA = 0;
@@ -109,14 +109,14 @@ void CORE_zlantr(MORSE_enum norm, MORSE_enum uplo, MORSE_enum diag,
     }
 
     switch ( norm ) {
-    case MorseMaxNorm:
-        if ( diag == MorseUnit ) {
+    case ChamMaxNorm:
+        if ( diag == ChamUnit ) {
             *normA = 1.;
         } else {
             *normA = 0.;
         }
 
-        if ( uplo == MorseUpper ) {
+        if ( uplo == ChamUpper ) {
             M = chameleon_min(M, N);
             for (j = 0; j < N; j++) {
                 tmpA = A+(j*LDA);
@@ -142,10 +142,10 @@ void CORE_zlantr(MORSE_enum norm, MORSE_enum uplo, MORSE_enum diag,
         }
         break;
 
-    case MorseOneNorm:
-        CORE_ztrasm( MorseColumnwise, uplo, diag, M, N,
+    case ChamOneNorm:
+        CORE_ztrasm( ChamColumnwise, uplo, diag, M, N,
                      A, LDA, work );
-        if ( uplo == MorseLower )
+        if ( uplo == ChamLower )
             N = chameleon_min(M,N);
 
         *normA = 0;
@@ -154,10 +154,10 @@ void CORE_zlantr(MORSE_enum norm, MORSE_enum uplo, MORSE_enum diag,
         }
         break;
 
-    case MorseInfNorm:
-        CORE_ztrasm( MorseRowwise, uplo, diag, M, N,
+    case ChamInfNorm:
+        CORE_ztrasm( ChamRowwise, uplo, diag, M, N,
                      A, LDA, work );
-        if ( uplo == MorseUpper )
+        if ( uplo == ChamUpper )
             M = chameleon_min(M,N);
 
         *normA = 0;
@@ -166,7 +166,7 @@ void CORE_zlantr(MORSE_enum norm, MORSE_enum uplo, MORSE_enum diag,
         }
         break;
 
-    case MorseFrobeniusNorm:
+    case ChamFrobeniusNorm:
     {
         double scale = 0.;
         double sumsq = 1.;

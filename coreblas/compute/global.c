@@ -32,7 +32,7 @@ get_coreblas_gemm3m_enabled(void) {
 /**
  *  LAPACK Constants
  */
-char *morse_lapack_constants[] =
+char *chameleon_lapack_constants[] =
 {
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
@@ -45,22 +45,22 @@ char *morse_lapack_constants[] =
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "",                     // 100
-    "Row",                  // 101: MorseRowMajor
-    "Column",               // 102: MorseColMajor
+    "Row",                  // 101: ChamRowMajor
+    "Column",               // 102: ChamColMajor
     "", "", "", "", "", "", "", "",
-    "No transpose",         // 111: MorseNoTrans
-    "Transpose",            // 112: MorseTrans
-    "Conjugate transpose",  // 113: MorseConjTrans
+    "No transpose",         // 111: ChamNoTrans
+    "Transpose",            // 112: ChamTrans
+    "Conjugate transpose",  // 113: ChamConjTrans
     "", "", "", "", "", "", "",
-    "Upper",                // 121: MorseUpper
-    "Lower",                // 122: MorseLower
-    "All",                  // 123: MorseUpperLower
+    "Upper",                // 121: ChamUpper
+    "Lower",                // 122: ChamLower
+    "All",                  // 123: ChamUpperLower
     "", "", "", "", "", "", "",
-    "Non-unit",             // 131: MorseNonUnit
-    "Unit",                 // 132: MorseUnit
+    "Non-unit",             // 131: ChamNonUnit
+    "Unit",                 // 132: ChamUnit
     "", "", "", "", "", "", "", "",
-    "Left",                 // 141: MorseLeft
-    "Right",                // 142: MorseRight
+    "Left",                 // 141: ChamLeft
+    "Right",                // 142: ChamRight
     "", "", "", "", "", "", "", "",
     "",                     // 151:
     "",                     // 152:
@@ -68,55 +68,55 @@ char *morse_lapack_constants[] =
     "",                     // 154:
     "",                     // 155:
     "",                     // 156:
-    "Epsilon",              // 157: MorseEps
+    "Epsilon",              // 157: ChamEps
     "",                     // 158:
     "",                     // 159:
     "",                     // 160:
     "", "", "", "", "", "", "", "", "", "",
-    "One norm",             // 171: MorseOneNorm
-    "",                     // 172: MorseRealOneNorm
-    "",                     // 173: MorseTwoNorm
-    "Frobenius norm",       // 174: MorseFrobeniusNorm
-    "Infinity norm",        // 175: MorseInfNorm
-    "",                     // 176: MorseRealInfNorm
-    "Maximum norm",         // 177: MorseMaxNorm
-    "",                     // 178: MorseRealMaxNorm
+    "One norm",             // 171: ChamOneNorm
+    "",                     // 172: ChamRealOneNorm
+    "",                     // 173: ChamTwoNorm
+    "Frobenius norm",       // 174: ChamFrobeniusNorm
+    "Infinity norm",        // 175: ChamInfNorm
+    "",                     // 176: ChamRealInfNorm
+    "Maximum norm",         // 177: ChamMaxNorm
+    "",                     // 178: ChamRealMaxNorm
     "",                     // 179
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "",                     // 200
-    "Uniform",              // 201: MorseDistUniform
-    "Symmetric",            // 202: MorseDistSymmetric
-    "Normal",               // 203: MorseDistNormal
+    "Uniform",              // 201: ChamDistUniform
+    "Symmetric",            // 202: ChamDistSymmetric
+    "Normal",               // 203: ChamDistNormal
     "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "",                     // 240
-    "Hermitian",            // 241 MorseHermGeev
-    "Positive ev Hermitian",// 242 MorseHermPoev
-    "NonSymmetric pos sv",  // 243 MorseNonsymPosv
-    "Symmetric pos sv",     // 244 MorseSymPosv
+    "Hermitian",            // 241 ChamHermGeev
+    "Positive ev Hermitian",// 242 ChamHermPoev
+    "NonSymmetric pos sv",  // 243 ChamNonsymPosv
+    "Symmetric pos sv",     // 244 ChamSymPosv
     "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "",                     // 290
-    "No Packing",           // 291 MorseNoPacking
-    "U zero out subdiag",   // 292 MorsePackSubdiag
-    "L zero out superdiag", // 293 MorsePackSupdiag
-    "C",                    // 294 MorsePackColumn
-    "R",                    // 295 MorsePackRow
-    "B",                    // 296 MorsePackLowerBand
-    "Q",                    // 297 MorsePackUpeprBand
-    "Z",                    // 298 MorsePackAll
+    "No Packing",           // 291 ChamNoPacking
+    "U zero out subdiag",   // 292 ChamPackSubdiag
+    "L zero out superdiag", // 293 ChamPackSupdiag
+    "C",                    // 294 ChamPackColumn
+    "R",                    // 295 ChamPackRow
+    "B",                    // 296 ChamPackLowerBand
+    "Q",                    // 297 ChamPackUpeprBand
+    "Z",                    // 298 ChamPackAll
     "",                     // 299
 
     "",                     // 300
-    "No vectors",           // 301 MorseNoVec
-    "Vectors needed",       // 302 MorseVec
-    "I",                    // 303 MorseIvec
+    "No vectors",           // 301 ChamNoVec
+    "Vectors needed",       // 302 ChamVec
+    "I",                    // 303 ChamIvec
     "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",

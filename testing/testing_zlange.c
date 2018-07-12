@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
  * @date 2010-11-15
@@ -25,7 +25,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
@@ -50,9 +50,9 @@ int testing_zlange(int argc, char **argv)
     double eps;
 
     /* Allocate Data */
-    MORSE_Complex64_t *A    = (MORSE_Complex64_t *)malloc(LDAxN*sizeof(MORSE_Complex64_t));
+    CHAMELEON_Complex64_t *A    = (CHAMELEON_Complex64_t *)malloc(LDAxN*sizeof(CHAMELEON_Complex64_t));
     double            *work = (double*) malloc(max(M,N)*sizeof(double));
-    double normmorse, normlapack, result;
+    double normcham, normlapack, result;
 
     eps = LAPACKE_dlamch_work('e');
 
@@ -70,28 +70,28 @@ int testing_zlange(int argc, char **argv)
      */
 
     /* Initialize A, B, C */
-    MORSE_zplrnt( M, N, A, LDA, 3436 );
+    CHAMELEON_zplrnt( M, N, A, LDA, 3436 );
 
-    /* MORSE ZLANGE */
+    /* CHAMELEON ZLANGE */
     for(n=0; n<4; n++) {
-        normmorse  = MORSE_zlange(norm[n], M, N, A, LDA);
-        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), M, N, A, LDA, work);
-        printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
-        result = fabs(normmorse - normlapack) / (normlapack * eps);
+        normcham  = CHAMELEON_zlange(norm[n], M, N, A, LDA);
+        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), M, N, A, LDA, work);
+        printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
+        result = fabs(normcham - normlapack) / (normlapack * eps);
 
         switch(norm[n]) {
-        case MorseMaxNorm:
+        case ChamMaxNorm:
             /* result should be perfectly equal */
             break;
-        case MorseInfNorm:
+        case ChamInfNorm:
             /* Sum order on the line can differ */
             result = result / (double)N;
             break;
-        case MorseOneNorm:
+        case ChamOneNorm:
             /* Sum order on the column can differ */
             result = result / (double)M;
             break;
-        case MorseFrobeniusNorm:
+        case ChamFrobeniusNorm:
             /* Sum order on every element can differ */
             result = result / ((double)M * (double)N);
             break;
@@ -109,30 +109,30 @@ int testing_zlange(int argc, char **argv)
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
-    /* MORSE ZLANTR */
+    /* CHAMELEON ZLANTR */
     for(n=1; n<3; n++) {
         for(u=0; u<2; u++) {
             int d;
             for(d=0; d<2; d++) {
-                normmorse = MORSE_zlantr(norm[n], uplo[u], diag[d], M, N, A, LDA);
-                normlapack = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]),
-                                                 morse_lapack_const(diag[d]), M, N, A, LDA, work);
-                printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+                normcham = CHAMELEON_zlantr(norm[n], uplo[u], diag[d], M, N, A, LDA);
+                normlapack = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]),
+                                                 chameleon_lapack_const(diag[d]), M, N, A, LDA, work);
+                printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-                result = fabs(normmorse - normlapack) / (normlapack * eps);
+                result = fabs(normcham - normlapack) / (normlapack * eps);
                 switch(norm[n]) {
-                case MorseMaxNorm:
+                case ChamMaxNorm:
                     /* result should be perfectly equal */
                     break;
-                case MorseInfNorm:
+                case ChamInfNorm:
                     /* Sum order on the line can differ */
                     result = result / (double)N;
                     break;
-                case MorseOneNorm:
+                case ChamOneNorm:
                     /* Sum order on the column can differ */
                     result = result / (double)M;
                     break;
-                case MorseFrobeniusNorm:
+                case ChamFrobeniusNorm:
                     /* Sum oreder on every element can differ */
                     result = result / ((double)M * (double)N);
                     break;
@@ -153,27 +153,27 @@ int testing_zlange(int argc, char **argv)
     }
 #endif
 
-    /* MORSE ZLANSY */
+    /* CHAMELEON ZLANSY */
     for(n=0; n<4; n++) {
         for(u=0; u<2; u++) {
-            normmorse = MORSE_zlansy(norm[n], uplo[u], min(M,N), A, LDA);
-            normlapack = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]), min(M,N), A, LDA, work);
-            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+            normcham = CHAMELEON_zlansy(norm[n], uplo[u], min(M,N), A, LDA);
+            normlapack = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]), min(M,N), A, LDA, work);
+            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-            result = fabs(normmorse - normlapack) / (normlapack * eps);
+            result = fabs(normcham - normlapack) / (normlapack * eps);
             switch(norm[n]) {
-            case MorseMaxNorm:
+            case ChamMaxNorm:
                 /* result should be perfectly equal */
                 break;
-            case MorseInfNorm:
+            case ChamInfNorm:
                 /* Sum order on the line can differ */
                 result = result / (double)N;
                 break;
-            case MorseOneNorm:
+            case ChamOneNorm:
                 /* Sum order on the column can differ */
                 result = result / (double)M;
                 break;
-            case MorseFrobeniusNorm:
+            case ChamFrobeniusNorm:
                 /* Sum oreder on every element can differ */
                 result = result / ((double)M * (double)N);
                 break;
@@ -191,7 +191,7 @@ int testing_zlange(int argc, char **argv)
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
-    /* MORSE ZLANHE */
+    /* CHAMELEON ZLANHE */
     {
         int j;
         for (j=0; j<min(M,N); j++) {
@@ -201,24 +201,24 @@ int testing_zlange(int argc, char **argv)
 
     for(n=0; n<4; n++) {
         for(u=0; u<2; u++) {
-            normmorse = MORSE_zlanhe(norm[n], uplo[u], min(M,N), A, LDA);
-            normlapack = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]), min(M,N), A, LDA, work);
-            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+            normcham = CHAMELEON_zlanhe(norm[n], uplo[u], min(M,N), A, LDA);
+            normlapack = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]), min(M,N), A, LDA, work);
+            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-            result = fabs(normmorse - normlapack) / (normlapack * eps);
+            result = fabs(normcham - normlapack) / (normlapack * eps);
             switch(norm[n]) {
-            case MorseMaxNorm:
+            case ChamMaxNorm:
                 /* result should be perfectly equal */
                 break;
-            case MorseInfNorm:
+            case ChamInfNorm:
                 /* Sum order on the line can differ */
                 result = result / (double)N;
                 break;
-            case MorseOneNorm:
+            case ChamOneNorm:
                 /* Sum order on the column can differ */
                 result = result / (double)M;
                 break;
-            case MorseFrobeniusNorm:
+            case ChamFrobeniusNorm:
                 /* Sum oreder on every element can differ */
                 result = result / ((double)M * (double)N);
                 break;

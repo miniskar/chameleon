@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zpotrs_Tile"
+#define _NAME  "CHAMELEON_zpotrs_Tile"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_POTRS( N, NRHS )
 #define _FADDS FADDS_POTRS( N, NRHS )
@@ -25,49 +25,49 @@
 #include "./timing.c"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     PASTE_CODE_IPARAM_LOCALS( iparam );
-    int uplo = MorseUpper;
+    cham_uplo_t uplo = ChamUpper;
 
     LDA = chameleon_max(LDA, N);
     check = 1;
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA,  1,     MORSE_Complex64_t, MorseComplexDouble, LDA, N, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, MORSE_Complex64_t, MorseComplexDouble, LDB, N, NRHS );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, MORSE_Complex64_t, MorseComplexDouble, LDA, N, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, MORSE_Complex64_t, MorseComplexDouble, LDB, N, NRHS );
-    MORSE_zplghe_Tile( (double)N, MorseUpperLower, descA, 51 );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA,  1,     CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
+    CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descA, 51 );
 
     /* Save A for check */
     if (check == 1){
-        MORSE_zlacpy_Tile(MorseUpperLower, descA, descAC);
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
     }
 
     //RUNTIME_zlocality_allrestrict( STARPU_CUDA );
 
-    /* MORSE ZPOTRF */
-    MORSE_zpotrf_Tile(uplo, descA);
+    /* CHAMELEON ZPOTRF */
+    CHAMELEON_zpotrf_Tile(uplo, descA);
 
     /* Check the solution */
     if ( check )
     {
         /* Initialize and save B */
-        MORSE_zplrnt_Tile( descB, 7672 );
-        MORSE_zlacpy_Tile(MorseUpperLower, descB, descX);
+        CHAMELEON_zplrnt_Tile( descB, 7672 );
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descB, descX);
 
         /* Compute the solution */
         START_TIMING();
-        MORSE_zpotrs_Tile( uplo, descA, descX );
+        CHAMELEON_zpotrs_Tile( uplo, descA, descX );
         STOP_TIMING();
 
         /* Check solution */
-        dparam[IPARAM_ANORM] = MORSE_zlange_Tile(MorseInfNorm, descAC);
-        dparam[IPARAM_BNORM] = MORSE_zlange_Tile(MorseInfNorm, descB);
-        dparam[IPARAM_XNORM] = MORSE_zlange_Tile(MorseInfNorm, descX);
-        MORSE_zgemm_Tile( MorseNoTrans, MorseNoTrans, 1.0, descAC, descX, -1.0, descB );
-        dparam[IPARAM_RES] = MORSE_zlange_Tile(MorseInfNorm, descB);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
 
         PASTE_CODE_FREE_MATRIX( descB  );
         PASTE_CODE_FREE_MATRIX( descAC );

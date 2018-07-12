@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int
-CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
+CUDA_zunmqrt(cham_side_t side, cham_trans_t trans,
              int M, int N, int K, int IB,
              const cuDoubleComplex *A,    int LDA,
              const cuDoubleComplex *T,    int LDT,
@@ -37,13 +37,13 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
     int mi = M;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         return -1;
     }
     /*
      * NQ is the order of Q and NW is the minimum dimension of WORK
      */
-    if (side == MorseLeft) {
+    if (side == ChamLeft) {
         nq = M;
         nw = N;
     }
@@ -52,7 +52,7 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
         nw = M;
     }
 
-    if ((trans != MorseNoTrans) && (trans != MorseConjTrans)) {
+    if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
         return -2;
     }
     if (M < 0) {
@@ -79,10 +79,10 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (K == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
-    if (((side == MorseLeft) && (trans != MorseNoTrans))
-        || ((side == MorseRight) && (trans == MorseNoTrans))) {
+    if (((side == ChamLeft) && (trans != ChamNoTrans))
+        || ((side == ChamRight) && (trans == ChamNoTrans))) {
         i1 = 0;
         i3 = IB;
     }
@@ -94,7 +94,7 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
     for(i = i1; (i >- 1) && (i < K); i+=i3 ) {
         kb = chameleon_min(IB, K-i);
 
-        if (side == MorseLeft) {
+        if (side == ChamLeft) {
             /*
              * H or H' is applied to C(i:m,1:n)
              */
@@ -109,7 +109,7 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
             jc = i;
         }
 
-        CUDA_zlarfb( side, trans, MorseForward, MorseColumnwise,
+        CUDA_zlarfb( side, trans, ChamDirForward, ChamColumnwise,
                      mi, ni, kb,
                      A + LDA * i  + i,  LDA,
                      T + LDT * i,       LDT,
@@ -118,5 +118,5 @@ CUDA_zunmqrt(MORSE_enum side, MORSE_enum trans,
                      CUBLAS_STREAM_VALUE );
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

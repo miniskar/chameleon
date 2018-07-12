@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -163,7 +163,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
         SET(_output_cudablas_file "${CMAKE_BINARY_DIR}/cudablas.pc")
     endif()
 
-    # TODO: add url of MORSE releases in .pc file
+    # TODO: add url of CHAMELEON releases in .pc file
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon.pc.in" "${_output_chameleon_file}" @ONLY)
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/coreblas.pc.in"  "${_output_coreblas_file}" @ONLY)
     if(CHAMELEON_USE_CUDA)

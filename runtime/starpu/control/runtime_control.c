@@ -25,12 +25,12 @@
 /**
  *
  */
-int RUNTIME_init( MORSE_context_t *morse,
+int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncpus,
                   int ncudas,
                   int nthreads_per_worker )
 {
-    starpu_conf_t *conf = (starpu_conf_t*)(morse->schedopt);
+    starpu_conf_t *conf = (starpu_conf_t*)(chamctxt->schedopt);
     int hres = -1;
 
     /* StarPU was already initialized by an external library */
@@ -64,14 +64,14 @@ int RUNTIME_init( MORSE_context_t *morse,
 
     if ((ncpus == -1)||(nthreads_per_worker == -1))
     {
-        morse->parallel_enabled = MORSE_FALSE;
+        chamctxt->parallel_enabled = CHAMELEON_FALSE;
 
         hres = starpu_init( conf );
     }
     else {
         int worker;
 
-        morse->parallel_enabled = MORSE_TRUE;
+        chamctxt->parallel_enabled = CHAMELEON_TRUE;
 
         for (worker = 0; worker < ncpus; worker++)
             conf->workers_bindid[worker] = (worker+1)*nthreads_per_worker - 1;
@@ -83,8 +83,8 @@ int RUNTIME_init( MORSE_context_t *morse,
 
         hres = starpu_init( conf );
 
-        morse->nworkers = ncpus;
-        morse->nthreads_per_worker = nthreads_per_worker;
+        chamctxt->nworkers = ncpus;
+        chamctxt->nthreads_per_worker = nthreads_per_worker;
     }
 
 #ifdef HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS
@@ -115,12 +115,12 @@ int RUNTIME_init( MORSE_context_t *morse,
 /**
  *
  */
-void RUNTIME_finalize( MORSE_context_t *morse )
+void RUNTIME_finalize( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
 
     /* StarPU was already initialized by an external library */
-    if ( morse->schedopt == NULL ) {
+    if ( chamctxt->schedopt == NULL ) {
         return;
     }
 
@@ -139,9 +139,9 @@ void RUNTIME_finalize( MORSE_context_t *morse )
 /**
  *  To suspend the processing of new tasks by workers
  */
-void RUNTIME_pause( MORSE_context_t *morse )
+void RUNTIME_pause( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     starpu_pause();
     return;
 }
@@ -150,9 +150,9 @@ void RUNTIME_pause( MORSE_context_t *morse )
  *  This is the symmetrical call to RUNTIME_pause,
  *  used to resume the workers polling for new tasks.
  */
-void RUNTIME_resume( MORSE_context_t *morse )
+void RUNTIME_resume( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     starpu_resume();
     return;
 }
@@ -160,9 +160,9 @@ void RUNTIME_resume( MORSE_context_t *morse )
 /**
  *  Busy-waiting barrier
  */
-void RUNTIME_barrier( MORSE_context_t *morse )
+void RUNTIME_barrier( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     starpu_task_wait_for_all();
 #if defined(CHAMELEON_USE_MPI)
     starpu_mpi_barrier(MPI_COMM_WORLD);
@@ -178,13 +178,13 @@ extern void (*update_progress_callback)(int, int);
 /**
  *  Display a progress information when executing the tasks
  */
-void RUNTIME_progress( MORSE_context_t *morse )
+void RUNTIME_progress( CHAM_context_t *chamctxt )
 {
     int tasksLeft, current, timer = 0;
     int max;
 
 #if defined(CHAMELEON_USE_MPI)
-    if ( morse->my_mpi_rank != 0 ) {
+    if ( chamctxt->my_mpi_rank != 0 ) {
         return;
     }
 #endif
@@ -207,32 +207,32 @@ void RUNTIME_progress( MORSE_context_t *morse )
         update_progress_callback(max, max);
     }
 
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 
 /**
  * Thread rank.
  */
-int RUNTIME_thread_rank( MORSE_context_t *morse )
+int RUNTIME_thread_rank( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     return starpu_worker_get_id();
 }
 
 /**
  * Number of threads.
  */
-int RUNTIME_thread_size( MORSE_context_t *morse )
+int RUNTIME_thread_size( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     return starpu_worker_get_count_by_type( STARPU_CPU_WORKER );
 }
 
 /**
  *  The process rank
  */
-int RUNTIME_comm_rank( MORSE_context_t *morse )
+int RUNTIME_comm_rank( CHAM_context_t *chamctxt )
 {
     int rank = 0;
 
@@ -244,14 +244,14 @@ int RUNTIME_comm_rank( MORSE_context_t *morse )
 #  endif
 #endif
 
-    (void)morse;
+    (void)chamctxt;
     return rank;
 }
 
 /**
  *  This returns the size of the distributed computation
  */
-int RUNTIME_comm_size( MORSE_context_t *morse )
+int RUNTIME_comm_size( CHAM_context_t *chamctxt )
 {
     int size;
 #if defined(CHAMELEON_USE_MPI)
@@ -264,6 +264,6 @@ int RUNTIME_comm_size( MORSE_context_t *morse )
     size = 1;
 #endif
 
-    (void)morse;
+    (void)chamctxt;
     return size;
 }

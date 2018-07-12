@@ -39,7 +39,7 @@
      $                   THRESH, TSTERR, NMAX, A, AFAC, AINV, B, X,
      $                   XACT, WORK, RWORK, NOUT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -139,12 +139,12 @@
       CHARACTER*3        PATH
       INTEGER            I, IMAT, IN, INB, INFO, IOFF, IRHS, IUPLO,
      $                   IZERO, K, KL, KU, LDA, MODE, N, NB, NERRS,
-     $                   NFAIL, NIMAT, NRHS, NRUN, MORSE_UPLO
+     $                   NFAIL, NIMAT, NRHS, NRUN, CHAMELEON_UPLO
       REAL               ANORM, CNDNUM, RCOND, RCONDC
 *     ..
 *     .. Local Arrays ..
       CHARACTER          UPLOS( 2 )
-      INTEGER            MORSE_UPLOS( 2 )
+      INTEGER            CHAMELEON_UPLOS( 2 )
       INTEGER            ISEED( 4 ), ISEEDY( 4 )
       REAL               RESULT( NTESTS )
 *     ..
@@ -173,7 +173,7 @@
 *     .. Data statements ..
       DATA               ISEEDY / 1988, 1989, 1990, 1991 /
       DATA               UPLOS / 'U', 'L' /
-      DATA               MORSE_UPLOS / MORSEUPPER, MORSELOWER /
+      DATA               CHAMELEON_UPLOS / CHAMELEONUPPER, CHAMELEONLOWER /
 *     ..
 *     .. Executable Statements ..
 *
@@ -222,7 +222,7 @@
 *
             DO 100 IUPLO = 1, 2
                UPLO = UPLOS( IUPLO )
-               MORSE_UPLO = MORSE_UPLOS( IUPLO )
+               CHAMELEON_UPLO = CHAMELEON_UPLOS( IUPLO )
 *
 *              Set up parameters with CLATB4 and generate a test matrix
 *              with CLATMS.
@@ -294,13 +294,13 @@
                   IF ( (N / 25) .GT. NB ) THEN
                      GOTO 90
                   END IF
-                  CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
 *
 *                 Compute the L*L' or U'*U factorization of the matrix.
 *
                   CALL CLACPY( UPLO, N, N, A, LDA, AFAC, LDA )
                   SRNAMT = 'CPOTRF'
-                  CALL MORSE_CPOTRF( MORSE_UPLO, N, AFAC, LDA, INFO )
+                  CALL CHAMELEON_CPOTRF( CHAMELEON_UPLO, N, AFAC, LDA, INFO )
 *
 *                 Check error code from CPOTRF.
 *
@@ -328,7 +328,7 @@
 *
                   CALL CLACPY( UPLO, N, N, AFAC, LDA, AINV, LDA )
                   SRNAMT = 'CPOTRI'
-                  CALL MORSE_CPOTRI( MORSE_UPLO, N, AINV, LDA, 
+                  CALL CHAMELEON_CPOTRI( CHAMELEON_UPLO, N, AINV, LDA, 
      $                 INFO )
 *
 *                 Check error code from CPOTRI.
@@ -373,7 +373,7 @@
                      CALL CLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
 *
                      SRNAMT = 'CPOTRS'
-                     CALL MORSE_CPOTRS( MORSE_UPLO, N, NRHS, AFAC, 
+                     CALL CHAMELEON_CPOTRS( CHAMELEON_UPLO, N, NRHS, AFAC, 
      $                            LDA, X, LDA, INFO )
 *
 *                 Check error code from CPOTRS.

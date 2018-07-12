@@ -1,16 +1,16 @@
 # This file is part of the Chameleon User's Guide.
 # Copyright (C) 2017 Inria
 # See the file ../users_guide.org for copying conditions.
-** MORSE project
-   #+NAME: fig:morse_header
+** CHAMELEON project
+   #+NAME: fig:chameleon_header
    #+ATTR_HTML: :align center
-   [[file:morse_header.png]]
+   [[file:chameleon_header.png]]
 
    Chameleon is a linear algebra software created jointly by several
-   research teams as part of the MORSE associate team: [[http://www.icl.utk.edu/][ICL]], [[https://www.inria.fr/en/][Inria]],
+   research teams as part of the CHAMELEON associate team: [[http://www.icl.utk.edu/][ICL]], [[https://www.inria.fr/en/][Inria]],
    [[https://www.kaust.edu.sa/en][KAUST]], [[http://www.ucdenver.edu/pages/ucdwelcomepage.aspx][The University of Colorado Denver]].
 
-*** MORSE Objectives
+*** CHAMELEON Objectives
     When processor clock speeds flatlined in 2004, after more than
     fifteen years of exponential increases, the era of near automatic
     performance improvements that the HPC application community had
@@ -30,7 +30,7 @@
     5) new levels of self-adaptivity will be required to enable
        software to modulate process speed in order to satisfy limited
        energy budgets.
-    The MORSE associate team will tackle the first three challenges in
+    The CHAMELEON associate team will tackle the first three challenges in
     a orchestrating work between research groups respectively
     specialized in sparse linear algebra, dense linear algebra and
     runtime systems.  The overall objective is to develop robust linear
@@ -42,7 +42,7 @@
     much more prospective.
 
 *** Research fields
-    The overall goal of the MORSE associate team is to enable advanced
+    The overall goal of the CHAMELEON associate team is to enable advanced
     numerical algorithms to be executed on a scalable unified runtime
     system for exploiting the full potential of future exascale
     machines.  We expect advances in three directions based first on
@@ -111,7 +111,7 @@
      promising approach.
 
 *** Research papers
-    Research papers about MORSE can be found [[http://icl.cs.utk.edu/projectsdev/morse/pubs/index.html][here]].
+    Research papers about CHAMELEON can be found [[http://icl.cs.utk.edu/projectsdev/morse/pubs/index.html][here]].
 
 ** Chameleon
 *** Chameleon software

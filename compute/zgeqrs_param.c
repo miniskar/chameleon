@@ -24,10 +24,10 @@
 /**
  *******************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zgeqrs_param - Compute a minimum-norm solution min || A*X - B || using the RQ factorization
- *  A = R*Q computed by MORSE_zgeqrf.
+ *  CHAMELEON_zgeqrs_param - Compute a minimum-norm solution min || A*X - B || using the RQ factorization
+ *  A = R*Q computed by CHAMELEON_zgeqrf.
  *
  *******************************************************************************
  *
@@ -41,13 +41,13 @@
  *          The number of columns of B. NRHS >= 0.
  *
  * @param[in,out] A
- *          Details of the QR factorization of the original matrix A as returned by MORSE_zgeqrf.
+ *          Details of the QR factorization of the original matrix A as returned by CHAMELEON_zgeqrf.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= M.
  *
  * @param[in] descT
- *          Auxiliary factorization data, computed by MORSE_zgeqrf.
+ *          Auxiliary factorization data, computed by CHAMELEON_zgeqrf.
  *
  * @param[in,out] B
  *          On entry, the m-by-nrhs right hand side matrix B.
@@ -59,111 +59,111 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeqrs_param_Tile
- * @sa MORSE_zgeqrs_param_Tile_Async
- * @sa MORSE_cgeqrs
- * @sa MORSE_dgeqrs
- * @sa MORSE_sgeqrs
- * @sa MORSE_zgeqrf
+ * @sa CHAMELEON_zgeqrs_param_Tile
+ * @sa CHAMELEON_zgeqrs_param_Tile_Async
+ * @sa CHAMELEON_cgeqrs
+ * @sa CHAMELEON_dgeqrs
+ * @sa CHAMELEON_sgeqrs
+ * @sa CHAMELEON_zgeqrf
  *
  */
-int MORSE_zgeqrs_param( const libhqr_tree_t *qrtree, int M, int N, int NRHS,
-                        MORSE_Complex64_t *A, int LDA,
-                        MORSE_desc_t *descTS, MORSE_desc_t *descTT,
-                        MORSE_Complex64_t *B, int LDB )
+int CHAMELEON_zgeqrs_param( const libhqr_tree_t *qrtree, int M, int N, int NRHS,
+                        CHAMELEON_Complex64_t *A, int LDA,
+                        CHAM_desc_t *descTS, CHAM_desc_t *descTT,
+                        CHAMELEON_Complex64_t *B, int LDB )
 {
     int NB;
     int status;
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
-    MORSE_desc_t descAl, descAt;
-    MORSE_desc_t descBl, descBt;
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
+    CHAM_desc_t descBl, descBt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeqrs_param", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgeqrs_param", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Check input arguments */
     if (M < 0) {
-        morse_error("MORSE_zgeqrs_param", "illegal value of M");
+        chameleon_error("CHAMELEON_zgeqrs_param", "illegal value of M");
         return -1;
     }
     if (N < 0 || N > M) {
-        morse_error("MORSE_zgeqrs_param", "illegal value of N");
+        chameleon_error("CHAMELEON_zgeqrs_param", "illegal value of N");
         return -2;
     }
     if (NRHS < 0) {
-        morse_error("MORSE_zgeqrs_param", "illegal value of N");
+        chameleon_error("CHAMELEON_zgeqrs_param", "illegal value of N");
         return -3;
     }
     if (LDA < chameleon_max(1, M)) {
-        morse_error("MORSE_zgeqrs_param", "illegal value of LDA");
+        chameleon_error("CHAMELEON_zgeqrs_param", "illegal value of LDA");
         return -5;
     }
     if (LDB < chameleon_max(1, chameleon_max(1, M))) {
-        morse_error("MORSE_zgeqrs_param", "illegal value of LDB");
+        chameleon_error("CHAMELEON_zgeqrs_param", "illegal value of LDB");
         return -8;
     }
     /* Quick return */
     if (chameleon_min(M, chameleon_min(N, NRHS)) == 0) {
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     }
 
     /* Tune NB & IB depending on M, N & NRHS; Set NBNBSIZE */
-    status = morse_tune(MORSE_FUNC_ZGELS, M, N, NRHS);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeqrs_param", "morse_tune() failed");
+    status = chameleon_tune(CHAMELEON_FUNC_ZGELS, M, N, NRHS);
+    if (status != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgeqrs_param", "chameleon_tune() failed");
         return status;
     }
 
     /* Set NT */
-    NB = MORSE_NB;
+    NB = CHAMELEON_NB;
 
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInput, MorseUpperLower,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
                      A, NB, NB, LDA, N, M, N, sequence, &request );
-    morse_zlap2tile( morse, &descBl, &descBt, MorseDescInout, MorseUpperLower,
+    chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
                      B, NB, NB, LDB, NRHS, M, NRHS, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zgeqrs_param_Tile_Async( qrtree, &descAt, descTS, descTT, &descBt, sequence, &request );
+    CHAMELEON_zgeqrs_param_Tile_Async( qrtree, &descAt, descTS, descTT, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
-    morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInput, MorseUpperLower, sequence, &request );
-    morse_ztile2lap( morse, &descBl, &descBt,
-                     MorseDescInout, MorseUpperLower, sequence, &request );
-    MORSE_Desc_Flush( descTS, sequence );
-    MORSE_Desc_Flush( descTT, sequence );
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
+                     ChamDescInput, ChamUpperLower, sequence, &request );
+    chameleon_ztile2lap( chamctxt, &descBl, &descBt,
+                     ChamDescInout, ChamUpperLower, sequence, &request );
+    CHAMELEON_Desc_Flush( descTS, sequence );
+    CHAMELEON_Desc_Flush( descTT, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descAl, &descAt );
-    morse_ztile2lap_cleanup( morse, &descBl, &descBt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
 /**
  *******************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zgeqrs_param_Tile - Computes a minimum-norm solution using the tile QR factorization.
- *  Tile equivalent of MORSE_zgeqrf().
+ *  CHAMELEON_zgeqrs_param_Tile - Computes a minimum-norm solution using the tile QR factorization.
+ *  Tile equivalent of CHAMELEON_zgeqrf().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -171,10 +171,10 @@ int MORSE_zgeqrs_param( const libhqr_tree_t *qrtree, int M, int N, int NRHS,
  *******************************************************************************
  *
  * @param[in,out] A
- *          Details of the QR factorization of the original matrix A as returned by MORSE_zgeqrf.
+ *          Details of the QR factorization of the original matrix A as returned by CHAMELEON_zgeqrf.
  *
  * @param[in] T
- *          Auxiliary factorization data, computed by MORSE_zgeqrf.
+ *          Auxiliary factorization data, computed by CHAMELEON_zgeqrf.
  *
  * @param[in,out] B
  *          On entry, the m-by-nrhs right hand side matrix B.
@@ -183,54 +183,54 @@ int MORSE_zgeqrs_param( const libhqr_tree_t *qrtree, int M, int N, int NRHS,
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeqrs_param
- * @sa MORSE_zgeqrs_param_Tile_Async
- * @sa MORSE_cgeqrs_Tile
- * @sa MORSE_dgeqrs_Tile
- * @sa MORSE_sgeqrs_Tile
- * @sa MORSE_zgeqrf_Tile
+ * @sa CHAMELEON_zgeqrs_param
+ * @sa CHAMELEON_zgeqrs_param_Tile_Async
+ * @sa CHAMELEON_cgeqrs_Tile
+ * @sa CHAMELEON_dgeqrs_Tile
+ * @sa CHAMELEON_sgeqrs_Tile
+ * @sa CHAMELEON_zgeqrf_Tile
  *
  */
-int MORSE_zgeqrs_param_Tile( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
-                             MORSE_desc_t *TS, MORSE_desc_t *TT, MORSE_desc_t *B )
+int CHAMELEON_zgeqrs_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                             CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeqrs_param_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgeqrs_param_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
-    MORSE_zgeqrs_param_Tile_Async( qrtree, A, TS, TT, B, sequence, &request );
+    CHAMELEON_zgeqrs_param_Tile_Async( qrtree, A, TS, TT, B, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
-    MORSE_Desc_Flush( TS, sequence );
-    MORSE_Desc_Flush( TT, sequence );
-    MORSE_Desc_Flush( B, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( TS, sequence );
+    CHAMELEON_Desc_Flush( TT, sequence );
+    CHAMELEON_Desc_Flush( B, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
 /**
  *******************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zgeqrs_param_Tile_Async - Computes a minimum-norm solution using the tile
+ *  CHAMELEON_zgeqrs_param_Tile_Async - Computes a minimum-norm solution using the tile
  *  QR factorization.
- *  Non-blocking equivalent of MORSE_zgeqrs_param_Tile().
+ *  Non-blocking equivalent of CHAMELEON_zgeqrs_param_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -245,98 +245,99 @@ int MORSE_zgeqrs_param_Tile( const libhqr_tree_t *qrtree, MORSE_desc_t *A,
  *
  *******************************************************************************
  *
- * @sa MORSE_zgeqrs_param
- * @sa MORSE_zgeqrs_param_Tile
- * @sa MORSE_cgeqrs_Tile_Async
- * @sa MORSE_dgeqrs_Tile_Async
- * @sa MORSE_sgeqrs_Tile_Async
- * @sa MORSE_zgeqrf_Tile_Async
+ * @sa CHAMELEON_zgeqrs_param
+ * @sa CHAMELEON_zgeqrs_param_Tile
+ * @sa CHAMELEON_cgeqrs_Tile_Async
+ * @sa CHAMELEON_dgeqrs_Tile_Async
+ * @sa CHAMELEON_sgeqrs_Tile_Async
+ * @sa CHAMELEON_zgeqrf_Tile_Async
  *
  */
-int MORSE_zgeqrs_param_Tile_Async( const libhqr_tree_t *qrtree,
-                                   MORSE_desc_t *A, MORSE_desc_t *TS, MORSE_desc_t *TT, MORSE_desc_t *B,
-                                   MORSE_sequence_t *sequence, MORSE_request_t *request )
+int CHAMELEON_zgeqrs_param_Tile_Async( const libhqr_tree_t *qrtree,
+                                   CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B,
+                                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_desc_t *subA;
-    MORSE_desc_t *subB;
-    MORSE_context_t *morse;
-    MORSE_desc_t D, *Dptr = NULL;
+    CHAM_desc_t *subA;
+    CHAM_desc_t *subB;
+    CHAM_context_t *chamctxt;
+    CHAM_desc_t D, *Dptr = NULL;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgeqrs_param_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgeqrs_param_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zgeqrs_param_Tile", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        chameleon_fatal_error("CHAMELEON_zgeqrs_param_Tile", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zgeqrs_param_Tile", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        chameleon_fatal_error("CHAMELEON_zgeqrs_param_Tile", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeqrs_param_Tile", "invalid first descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgeqrs_param_Tile", "invalid first descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(TS) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeqrs_param_Tile", "invalid second descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(TS) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgeqrs_param_Tile", "invalid second descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(TT) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeqrs_param_Tile", "invalid third descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(TT) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgeqrs_param_Tile", "invalid third descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(B) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgeqrs_param_Tile", "invalid fourth descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(B) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgeqrs_param_Tile", "invalid fourth descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb || B->nb != B->mb) {
-        morse_error("MORSE_zgeqrs_param_Tile", "only square tiles supported");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zgeqrs_param_Tile", "only square tiles supported");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Quick return */
     /*
      if (chameleon_min(M, chameleon_min(N, NRHS)) == 0) {
-     return MORSE_SUCCESS;
+     return CHAMELEON_SUCCESS;
      }
      */
 #if defined(CHAMELEON_COPY_DIAG)
     {
         int n = chameleon_min(A->mt, A->nt) * A->nb;
-        morse_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
+        chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
         Dptr = &D;
     }
 #endif
 
-    subB = morse_desc_submatrix(B, 0, 0, A->n, B->n);
-    subA = morse_desc_submatrix(A, 0, 0, A->n, A->n);
+    subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
+    subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
 
-    morse_pzunmqr_param( qrtree, MorseLeft, MorseConjTrans, A, B, TS, TT, Dptr, sequence, request );
-    morse_pztrsm( MorseLeft, MorseUpper, MorseNoTrans, MorseNonUnit, 1.0, subA, subB, sequence, request );
+    chameleon_pzunmqr_param( qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+    chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
 
     free(subA);
     free(subB);
 
     if (Dptr != NULL) {
-        MORSE_Desc_Flush( A, sequence );
-        MORSE_Desc_Flush( B, sequence );
-        MORSE_Desc_Flush( TS, sequence );
-        MORSE_Desc_Flush( TT, sequence );
-        MORSE_Desc_Flush( Dptr, sequence );
-        morse_sequence_wait( morse, sequence );
-        morse_desc_mat_free( Dptr );
+        CHAMELEON_Desc_Flush( A, sequence );
+        CHAMELEON_Desc_Flush( B, sequence );
+        CHAMELEON_Desc_Flush( TS, sequence );
+        CHAMELEON_Desc_Flush( TT, sequence );
+        CHAMELEON_Desc_Flush( Dptr, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        RUNTIME_desc_destroy( Dptr );
+        chameleon_desc_mat_free( Dptr );
     }
     (void)D;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

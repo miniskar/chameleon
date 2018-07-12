@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Bilel Hadri, Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -27,13 +27,13 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include "testing_zauxiliary.h"
 
-static int check_solution(int, int , MORSE_Complex64_t *, int, MORSE_Complex64_t *, MORSE_Complex64_t *, int, double);
+static int check_solution(int, int , CHAMELEON_Complex64_t *, int, CHAMELEON_Complex64_t *, CHAMELEON_Complex64_t *, int, double);
 
 int testing_zgesv_incpiv(int argc, char **argv)
 {
@@ -58,11 +58,11 @@ int testing_zgesv_incpiv(int argc, char **argv)
     int LDAxN = LDA*N;
     int LDBxNRHS = LDB*NRHS;
 
-    MORSE_Complex64_t *A1 = (MORSE_Complex64_t *)malloc(LDA*N*(sizeof*A1));
-    MORSE_Complex64_t *A2 = (MORSE_Complex64_t *)malloc(LDA*N*(sizeof*A2));
-    MORSE_Complex64_t *B1 = (MORSE_Complex64_t *)malloc(LDB*NRHS*(sizeof*B1));
-    MORSE_Complex64_t *B2 = (MORSE_Complex64_t *)malloc(LDB*NRHS*(sizeof*B2));
-    MORSE_desc_t *L;
+    CHAMELEON_Complex64_t *A1 = (CHAMELEON_Complex64_t *)malloc(LDA*N*(sizeof*A1));
+    CHAMELEON_Complex64_t *A2 = (CHAMELEON_Complex64_t *)malloc(LDA*N*(sizeof*A2));
+    CHAMELEON_Complex64_t *B1 = (CHAMELEON_Complex64_t *)malloc(LDB*NRHS*(sizeof*B1));
+    CHAMELEON_Complex64_t *B2 = (CHAMELEON_Complex64_t *)malloc(LDB*NRHS*(sizeof*B2));
+    CHAM_desc_t *L;
     int *IPIV;
 
     /* Check if unable to allocate memory */
@@ -92,9 +92,9 @@ int testing_zgesv_incpiv(int argc, char **argv)
         for ( j = 0; j < NRHS; j++)
             B2[LDB*j+i] = B1[LDB*j+i];
 
-    /* MORSE ZGESV */
-    MORSE_Alloc_Workspace_zgesv_incpiv(N, &L, &IPIV, 1, 1);
-    MORSE_zgesv_incpiv(N, NRHS, A2, LDA, L, IPIV, B2, LDB);
+    /* CHAMELEON ZGESV */
+    CHAMELEON_Alloc_Workspace_zgesv_incpiv(N, &L, &IPIV, 1, 1);
+    CHAMELEON_zgesv_incpiv(N, NRHS, A2, LDA, L, IPIV, B2, LDB);
 
     printf("\n");
     printf("------ TESTS FOR CHAMELEON INCPIV ZGESV ROUTINE -------  \n");
@@ -135,9 +135,9 @@ int testing_zgesv_incpiv(int argc, char **argv)
         for ( j = 0; j < NRHS; j++)
             B2[LDB*j+i] = B1[LDB*j+i];
 
-    /* Morse routines */
-    MORSE_zgetrf_incpiv(N, N, A2, LDA, L, IPIV);
-    MORSE_zgetrs_incpiv(MorseNoTrans, N, NRHS, A2, LDA, L, IPIV, B2, LDB);
+    /* Cham routines */
+    CHAMELEON_zgetrf_incpiv(N, N, A2, LDA, L, IPIV);
+    CHAMELEON_zgetrs_incpiv(ChamNoTrans, N, NRHS, A2, LDA, L, IPIV, B2, LDB);
 
     printf("\n");
     printf("------ TESTS FOR CHAMELEON ZGETRF + ZGETRS ROUTINE -------  \n");
@@ -178,10 +178,10 @@ int testing_zgesv_incpiv(int argc, char **argv)
         for ( j = 0; j < NRHS; j++)
             B2[LDB*j+i] = B1[LDB*j+i];
 
-    /* MORSE routines */
-    MORSE_zgetrf_incpiv(N, N, A2, LDA, L, IPIV);
-    MORSE_ztrsmpl(N, NRHS, A2, LDA, L, IPIV, B2, LDB);
-    MORSE_ztrsm(MorseLeft, MorseUpper, MorseNoTrans, MorseNonUnit,
+    /* CHAMELEON routines */
+    CHAMELEON_zgetrf_incpiv(N, N, A2, LDA, L, IPIV);
+    CHAMELEON_ztrsmpl(N, NRHS, A2, LDA, L, IPIV, B2, LDB);
+    CHAMELEON_ztrsm(ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit,
                  N, NRHS, 1.0, A2, LDA, B2, LDB);
 
     printf("\n");
@@ -208,7 +208,7 @@ int testing_zgesv_incpiv(int argc, char **argv)
     }
 
     free(A1); free(A2); free(B1); free(B2); free(IPIV);
-    MORSE_Dealloc_Workspace( &L );
+    CHAMELEON_Dealloc_Workspace( &L );
 
     return hres;
 }
@@ -217,11 +217,11 @@ int testing_zgesv_incpiv(int argc, char **argv)
  *  Check the accuracy of the solution of the linear system
  */
 
-static int check_solution(int N, int NRHS, MORSE_Complex64_t *A1, int LDA, MORSE_Complex64_t *B1, MORSE_Complex64_t *B2, int LDB, double eps )
+static int check_solution(int N, int NRHS, CHAMELEON_Complex64_t *A1, int LDA, CHAMELEON_Complex64_t *B1, CHAMELEON_Complex64_t *B2, int LDB, double eps )
 {
     int info_solution;
     double Rnorm, Anorm, Xnorm, Bnorm, result;
-    MORSE_Complex64_t alpha, beta;
+    CHAMELEON_Complex64_t alpha, beta;
     double *work = (double *)malloc(N*sizeof(double));
 
     alpha = 1.0;
@@ -234,7 +234,7 @@ static int check_solution(int N, int NRHS, MORSE_Complex64_t *A1, int LDA, MORSE
     cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, N, NRHS, N, CBLAS_SADDR(alpha), A1, LDA, B2, LDB, CBLAS_SADDR(beta), B1, LDB);
     Rnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'i', N, NRHS, B1, LDB );
 
-    if (getenv("MORSE_TESTING_VERBOSE"))
+    if (getenv("CHAMELEON_TESTING_VERBOSE"))
       printf( "||A||_oo=%f\n||X||_oo=%f\n||B||_oo=%f\n||A X - B||_oo=%e\n", Anorm, Xnorm, Bnorm, Rnorm );
 
     result = Rnorm / ( (Anorm*Xnorm+Bnorm)*N*eps ) ;

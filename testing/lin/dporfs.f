@@ -38,7 +38,7 @@
       SUBROUTINE DPORFS( UPLO, N, NRHS, A, LDA, AF, LDAF, B, LDB, X,
      $                   LDX, FERR, BERR, WORK, IWORK, INFO )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK routine (version 3.2) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -154,7 +154,7 @@
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
-      INTEGER            COUNT, I, J, K, KASE, NZ, MORSE_UPLO
+      INTEGER            COUNT, I, J, K, KASE, NZ, CHAMELEON_UPLO
       DOUBLE PRECISION   EPS, LSTRES, S, SAFE1, SAFE2, SAFMIN, XK
 *     ..
 *     .. Local Arrays ..
@@ -208,9 +208,9 @@
       END IF
 *
       IF ( LSAME( UPLO, 'U' ) ) THEN
-          MORSE_UPLO = MORSEUPPER
+          CHAMELEON_UPLO = CHAMELEONUPPER
       ELSE
-          MORSE_UPLO = MORSELOWER
+          CHAMELEON_UPLO = CHAMELEONLOWER
       ENDIF
 *
 *     NZ = maximum number of nonzero elements in each row of A, plus 1
@@ -296,7 +296,7 @@
 *
 *           Update solution and try again.
 *
-            CALL MORSE_DPOTRS( MORSE_UPLO, N, 1, AF, LDAF, 
+            CALL CHAMELEON_DPOTRS( CHAMELEON_UPLO, N, 1, AF, LDAF, 
      $                         WORK( N+1 ), N, INFO )
             CALL DAXPY( N, ONE, WORK( N+1 ), 1, X( 1, J ), 1 )
             LSTRES = BERR( J )
@@ -343,7 +343,7 @@
 *
 *              Multiply by diag(W)*inv(A').
 *
-               CALL MORSE_DPOTRS( MORSE_UPLO, N, 1, AF, LDAF, 
+               CALL CHAMELEON_DPOTRS( CHAMELEON_UPLO, N, 1, AF, LDAF, 
      4                            WORK( N+1 ), N, INFO )
                DO 110 I = 1, N
                   WORK( N+I ) = WORK( I )*WORK( N+I )
@@ -355,7 +355,7 @@
                DO 120 I = 1, N
                   WORK( N+I ) = WORK( I )*WORK( N+I )
   120          CONTINUE
-               CALL MORSE_DPOTRS( MORSE_UPLO, N, 1, AF, LDAF, 
+               CALL CHAMELEON_DPOTRS( CHAMELEON_UPLO, N, 1, AF, LDAF, 
      $                            WORK( N+1 ), N, INFO )
             END IF
             GO TO 100

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -65,10 +65,10 @@ Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
 
 //  CORE_zplrnt - Generate a tile for random matrix.
 
-void CORE_zplrnt( int m, int n, MORSE_Complex64_t *A, int lda,
+void CORE_zplrnt( int m, int n, CHAMELEON_Complex64_t *A, int lda,
                   int bigM, int m0, int n0, unsigned long long int seed )
 {
-    MORSE_Complex64_t *tmp = A;
+    CHAMELEON_Complex64_t *tmp = A;
     int64_t i, j;
     unsigned long long int ran, jump;
 

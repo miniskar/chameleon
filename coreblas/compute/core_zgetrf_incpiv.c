@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetrf_incpiv computes an LU factorization of a general M-by-N tile A
  *  using partial pivoting with row interchanges.
@@ -72,7 +72,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -82,7 +82,7 @@
  */
 
 int CORE_zgetrf_incpiv( int M, int N, int IB,
-                        MORSE_Complex64_t *A, int LDA,
+                        CHAMELEON_Complex64_t *A, int LDA,
                         int *IPIV, int *INFO )
 {
     int i, j, k, sb;
@@ -109,7 +109,7 @@ int CORE_zgetrf_incpiv( int M, int N, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     k = chameleon_min(M, N);
 
@@ -137,7 +137,7 @@ int CORE_zgetrf_incpiv( int M, int N, int IB,
             IPIV[j] = i + IPIV[j];
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

@@ -41,7 +41,7 @@
 #include <sys/resource.h>
 #endif
 
-#include <morse.h>
+#include <chameleon.h>
 #if !defined(CHAMELEON_SIMULATION)
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
@@ -64,7 +64,7 @@
 #endif /* defined(CHAMELEON_HAVE_GETOPT_H) */
 
 static int RunTest(int *iparam, _PREC *dparam, double *t_);
-static inline void* morse_getaddr_null(const MORSE_desc_t *A, int m, int n)
+static inline void* chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
 {
     (void)A;(void)m;(void)n;
     return (void*)( NULL );
@@ -116,7 +116,7 @@ Test(int64_t n, int *iparam) {
     (void)M;(void)N;(void)K;(void)NRHS;
 
     if ( (n < 0) || (thrdnbr < 0 ) ) {
-        if (gnuplot && (MORSE_My_Mpi_Rank() == 0) ) {
+        if (gnuplot && (CHAMELEON_My_Mpi_Rank() == 0) ) {
             printf( "set title '%d_NUM_THREADS: ", thrdnbr );
             for (i = 0; env[i][0]; ++i) {
                 s = getenv( env[i] );
@@ -142,7 +142,7 @@ Test(int64_t n, int *iparam) {
         return 0;
     }
 
-    if ( MORSE_My_Mpi_Rank() == 0)
+    if ( CHAMELEON_My_Mpi_Rank() == 0)
         printf( "%7d %7d %7d ", iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_K] );
     fflush( stdout );
 
@@ -163,7 +163,7 @@ Test(int64_t n, int *iparam) {
 
     if ( iparam[IPARAM_WARMUP] ) {
       int status = RunTest( iparam, dparam, &(t[0]));
-      if (status != MORSE_SUCCESS) {
+      if (status != CHAMELEON_SUCCESS) {
           free(t);
           return status;
       }
@@ -185,7 +185,7 @@ Test(int64_t n, int *iparam) {
             iparam[IPARAM_PROFILE] = 2;
 
           int status = RunTest( iparam, dparam, &(t[iter]));
-          if (status != MORSE_SUCCESS) return status;
+          if (status != CHAMELEON_SUCCESS) return status;
 
           iparam[IPARAM_TRACE] = 0;
           iparam[IPARAM_DAG] = 0;
@@ -193,7 +193,7 @@ Test(int64_t n, int *iparam) {
         }
         else {
           int status = RunTest( iparam, dparam, &(t[iter]));
-          if (status != MORSE_SUCCESS) return status;
+          if (status != CHAMELEON_SUCCESS) return status;
         }
         gflops = flops / t[iter];
 
@@ -217,7 +217,7 @@ Test(int64_t n, int *iparam) {
     gflops = sumgf / niter;
     sd = sqrt((sumgf2 - (sumgf*sumgf)/niter)/niter);
 
-    if ( MORSE_My_Mpi_Rank() == 0) {
+    if ( CHAMELEON_My_Mpi_Rank() == 0) {
         printf( "%9.3f %9.2f +-%7.2f  ", sumt/niter, gflops, sd);
 
         if (iparam[IPARAM_BOUND]) {
@@ -504,7 +504,7 @@ set_iparam_default(int *iparam){
     iparam[IPARAM_NX            ] = -1;
     iparam[IPARAM_MX            ] = -1;
     iparam[IPARAM_NX            ] = -1;
-    iparam[IPARAM_INPLACE       ] = MORSE_OUTOFPLACE;
+    iparam[IPARAM_INPLACE       ] = ChamOutOfPlace;
     iparam[IPARAM_NMPI          ] = 1;
     iparam[IPARAM_P             ] = 1;
     iparam[IPARAM_Q             ] = 1;
@@ -641,47 +641,47 @@ main(int argc, char *argv[]) {
     mx = iparam[IPARAM_MX];
     nx = iparam[IPARAM_NX];
 
-    /* Initialize MORSE */
-    MORSE_Init( iparam[IPARAM_THRDNBR],
+    /* Initialize CHAMELEON */
+    CHAMELEON_Init( iparam[IPARAM_THRDNBR],
                 iparam[IPARAM_NCUDAS] );
 
     /* Get the number of threads set by the runtime */
-    iparam[IPARAM_THRDNBR] = MORSE_GetThreadNbr();
+    iparam[IPARAM_THRDNBR] = CHAMELEON_GetThreadNbr();
 
     /* Stops profiling here to avoid profiling uninteresting routines.
        It will be reactivated in the time_*.c routines with the macro START_TIMING() */
     RUNTIME_stop_profiling();
 
-    MORSE_Disable(MORSE_AUTOTUNING);
-    MORSE_Set(MORSE_TILE_SIZE,        iparam[IPARAM_NB] );
-    MORSE_Set(MORSE_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
+    CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE,        iparam[IPARAM_NB] );
+    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, iparam[IPARAM_IB] );
 
     /* Householder mode */
     if (iparam[IPARAM_RHBLK] < 1) {
-        MORSE_Set(MORSE_HOUSEHOLDER_MODE, MORSE_FLAT_HOUSEHOLDER);
+        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder);
     } else {
-        MORSE_Set(MORSE_HOUSEHOLDER_MODE, MORSE_TREE_HOUSEHOLDER);
-        MORSE_Set(MORSE_HOUSEHOLDER_SIZE, iparam[IPARAM_RHBLK]);
+        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder);
+        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_SIZE, iparam[IPARAM_RHBLK]);
     }
 
     if (iparam[IPARAM_PROFILE] == 1) {
-        MORSE_Enable(MORSE_PROFILING_MODE);
+        CHAMELEON_Enable(CHAMELEON_PROFILING_MODE);
     }
 
     if (iparam[IPARAM_PROGRESS] == 1) {
-        MORSE_Enable(MORSE_PROGRESS);
+        CHAMELEON_Enable(CHAMELEON_PROGRESS);
     }
 
     if (iparam[IPARAM_PRINT_WARNINGS] == 0) {
-        MORSE_Disable(MORSE_WARNINGS);
+        CHAMELEON_Disable(CHAMELEON_WARNINGS);
     }
 
     if (iparam[IPARAM_GEMM3M] == 1) {
-        MORSE_Enable(MORSE_GEMM3M);
+        CHAMELEON_Enable(CHAMELEON_GEMM3M);
     }
 
 #if defined(CHAMELEON_USE_MPI)
-    nbnode = MORSE_Comm_size();
+    nbnode = CHAMELEON_Comm_size();
     iparam[IPARAM_NMPI] = nbnode;
     /* Check P */
     if ( (iparam[IPARAM_P] > 1) &&
@@ -694,16 +694,16 @@ main(int argc, char *argv[]) {
     iparam[IPARAM_Q] = nbnode / iparam[IPARAM_P];
 
     /* Layout conversion */
-    MORSE_Set(MORSE_TRANSLATION_MODE, iparam[IPARAM_INPLACE]);
+    CHAMELEON_Set(CHAMELEON_TRANSLATION_MODE, iparam[IPARAM_INPLACE]);
 
-    if ( MORSE_My_Mpi_Rank() == 0 ) {
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
         print_header( argv[0], iparam);
     }
 
     if (step < 1) step = 1;
 
     status = Test( -1, iparam ); /* print header */
-    if (status != MORSE_SUCCESS) return status;
+    if (status != CHAMELEON_SUCCESS) return status;
     if ( n == -1 ){
         for (i = start; i <= stop; i += step)
         {
@@ -722,7 +722,7 @@ main(int argc, char *argv[]) {
                 iparam[IPARAM_N] = i;
             }
             status = Test( iparam[IPARAM_N], iparam );
-            if (status != MORSE_SUCCESS) {
+            if (status != CHAMELEON_SUCCESS) {
                 return status;
             }
             success += status;
@@ -734,10 +734,10 @@ main(int argc, char *argv[]) {
         }
         iparam[IPARAM_N] = n;
         status = Test( iparam[IPARAM_N], iparam );
-        if (status != MORSE_SUCCESS) return status;
+        if (status != CHAMELEON_SUCCESS) return status;
         success += status;
     }
-    MORSE_Finalize();
+    CHAMELEON_Finalize();
     return success;
 }
 

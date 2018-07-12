@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -35,7 +35,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgessq returns the values scl and ssq such that
  *
@@ -83,12 +83,12 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval -k, the k-th argument had an illegal value
  *
  */
 int CORE_zgessq(int M, int N,
-                const MORSE_Complex64_t *A, int LDA,
+                const CHAMELEON_Complex64_t *A, int LDA,
                 double *scale, double *sumsq)
 {
     int i, j;
@@ -108,5 +108,5 @@ int CORE_zgessq(int M, int N,
 #endif
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

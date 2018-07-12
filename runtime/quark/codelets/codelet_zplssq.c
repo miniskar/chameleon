@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -21,7 +21,7 @@
  */
 #include <math.h>
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zplssq_quark(Quark *quark)
@@ -41,9 +41,9 @@ void CORE_zplssq_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
- *  MORSE_TASK_zplssq returns: scl * sqrt(ssq)
+ *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -70,9 +70,9 @@ void CORE_zplssq_quark(Quark *quark)
  *          On exit, result contains scl * sqrt( ssq )
  *
  */
-void MORSE_TASK_zplssq( const MORSE_option_t *options,
-                        const MORSE_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const MORSE_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq_quark, (Quark_Task_Flags*)opt,
@@ -90,8 +90,8 @@ void CORE_zplssq2_quark(Quark *quark)
     RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
 }
 
-void MORSE_TASK_zplssq2( const MORSE_option_t *options,
-                         const MORSE_desc_t *RESULT, int RESULTm, int RESULTn )
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq2_quark, (Quark_Task_Flags*)opt,

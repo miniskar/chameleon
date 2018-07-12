@@ -18,11 +18,11 @@
  *
  */
 /**
- *  MORSE facilities of interest to both MORSE core developer
- *  and also of interest to MORSE community contributor.
+ *  CHAMELEON facilities of interest to both CHAMELEON core developer
+ *  and also of interest to CHAMELEON community contributor.
  */
-#ifndef _MORSE_COMMON_H_
-#define _MORSE_COMMON_H_
+#ifndef _CHAMELEON_COMMON_H_
+#define _CHAMELEON_COMMON_H_
 
 
 #if defined( _WIN32 ) || defined( _WIN64 )
@@ -65,7 +65,7 @@
 /**
  *  Chameleon header files
  */
-#include "morse.h"
+#include "chameleon.h"
 
 #include "control/global.h"
 #include "control/auxiliary.h"
@@ -76,35 +76,33 @@
 /**
  *  Global shortcuts
  */
-#define MORSE_RANK        morse_rank(morse)
-#define MORSE_SIZE        morse->world_size
-#define MORSE_GRPSIZE     morse->group_size
-#define MORSE_NB          morse->nb
-#define MORSE_IB          morse->ib
-#define MORSE_NBNBSIZE    morse->nbnbsize
-#define MORSE_IBNBSIZE    morse->ibnbsize
-#define MORSE_SCHEDULING  morse->scheduling
-#define MORSE_RHBLK       morse->rhblock
-#define MORSE_TRANSLATION morse->translation
-#define MORSE_PARALLEL    morse->parallel_enabled
-#define MORSE_PROFILING   morse->profiling_enabled
+#define CHAMELEON_RANK        chameleon_rank(chamctxt)
+#define CHAMELEON_SIZE        chamctxt->world_size
+#define CHAMELEON_GRPSIZE     chamctxt->group_size
+#define CHAMELEON_NB          chamctxt->nb
+#define CHAMELEON_IB          chamctxt->ib
+#define CHAMELEON_SCHEDULING  chamctxt->scheduling
+#define CHAMELEON_RHBLK       chamctxt->rhblock
+#define CHAMELEON_TRANSLATION chamctxt->translation
+#define CHAMELEON_PARALLEL    chamctxt->parallel_enabled
+#define CHAMELEON_PROFILING   chamctxt->profiling_enabled
 #if defined(CHAMELEON_USE_MPI)
-#define MORSE_MPI_RANK    morse->my_mpi_rank
-#define MORSE_MPI_SIZE    morse->mpi_comm_size
+#define CHAMELEON_MPI_RANK    chamctxt->my_mpi_rank
+#define CHAMELEON_MPI_SIZE    chamctxt->mpi_comm_size
 #endif
 
 /**
  *  IPT internal define
  */
-#define MorseIPT_NoDep   0
-#define MorseIPT_Panel   1
-#define MorseIPT_All     2
+#define ChamIPT_NoDep   0
+#define ChamIPT_Panel   1
+#define ChamIPT_All     2
 
 /**
  *  Global array of LAPACK constants
  */
-extern char *morse_lapack_constants[];
-#define morse_lapack_const(morse_const) morse_lapack_constants[morse_const][0]
+extern char *chameleon_lapack_constants[];
+#define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
 #ifdef __cplusplus
 extern "C" {
@@ -116,10 +114,10 @@ extern "C" {
 #include "control/compute_z.h"
 
 /*
-void morse_pdlag2s(MORSE_context_t *morse);
-void morse_pzlag2c(MORSE_context_t *morse);
-void morse_pslag2d(MORSE_context_t *morse);
-void morse_pclag2z(MORSE_context_t *morse);
+void chameleon_pdlag2s(CHAM_context_t *chamctxt);
+void chameleon_pzlag2c(CHAM_context_t *chamctxt);
+void chameleon_pslag2d(CHAM_context_t *chamctxt);
+void chameleon_pclag2z(CHAM_context_t *chamctxt);
 */
 
 #ifdef __cplusplus

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dulceneia Becker
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -38,12 +38,12 @@
  *  Parallel construction of Q using tile V (application to identity;
  *  reduction Householder) - dynamic scheduling
  */
-void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
-                     MORSE_desc_t *T, MORSE_desc_t *D, int BS,
-                     MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzunglqrh(CHAM_desc_t *A, CHAM_desc_t *Q,
+                     CHAM_desc_t *T, CHAM_desc_t *D, int BS,
+                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -54,12 +54,12 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
     int tempkm, tempkmin, tempNn, tempnn, tempmm, tempNRDn;
     int ib;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     /*
      * zunmqr = A->nb * ib
@@ -77,14 +77,14 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     K = chameleon_min(A->mt, A->nt);
     for (k = K-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
@@ -104,9 +104,9 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
                                           Q->get_rankof( Q, m, N+RD ) );
 
                     /* TT kernel */
-                    MORSE_TASK_ztpmlqt(
+                    INSERT_TASK_ztpmlqt(
                         &options,
-                        MorseRight, MorseNoTrans,
+                        ChamRight, ChamNoTrans,
                         tempmm, tempNRDn, tempkm, tempNRDn, ib, T->nb,
                         A (k, N+RD), ldak,
                         T2(k, N+RD), T->mb,
@@ -134,9 +134,9 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
                                           Q->get_rankof( Q, m, n ) );
 
                     /* TS kernel */
-                    MORSE_TASK_ztpmlqt(
+                    INSERT_TASK_ztpmlqt(
                         &options,
-                        MorseRight, MorseNoTrans,
+                        ChamRight, ChamNoTrans,
                         tempmm, tempnn, tempkm, 0, ib, T->nb,
                         A(k, n), ldak,
                         T(k, n), T->mb,
@@ -148,15 +148,15 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
                 RUNTIME_data_flush( sequence, T(k, n) );
             }
 #if defined(CHAMELEON_COPY_DIAG)
-            MORSE_TASK_zlacpy(
+            INSERT_TASK_zlacpy(
                 &options,
-                MorseUpper, tempkmin, tempNn, A->nb,
+                ChamUpper, tempkmin, tempNn, A->nb,
                 A(k, N), ldak,
                 D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-            MORSE_TASK_zlaset(
+            INSERT_TASK_zlaset(
                 &options,
-                MorseLower, tempkmin, tempNn,
+                ChamLower, tempkmin, tempNn,
                 0., 1.,
                 D(k, N), ldak );
 #endif
@@ -168,9 +168,9 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
                 RUNTIME_data_migrate( sequence, Q(m, N),
                                       Q->get_rankof( Q, m, N ) );
 
-                MORSE_TASK_zunmlq(
+                INSERT_TASK_zunmlq(
                     &options,
-                    MorseRight, MorseNoTrans,
+                    ChamRight, ChamNoTrans,
                     tempmm, tempNn,
                     tempkmin, ib, T->nb,
                     D(k, N), ldak,
@@ -180,10 +180,10 @@ void morse_pzunglqrh(MORSE_desc_t *A, MORSE_desc_t *Q,
             RUNTIME_data_flush( sequence, D(k, N) );
             RUNTIME_data_flush( sequence, T(k, N) );
         }
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
     (void)D;
 }

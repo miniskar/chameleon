@@ -3,12 +3,12 @@
 
 
 ###############################################################################
-# morse_testing.py  [nbcores]
+# chameleon_testing.py  [nbcores]
 #  nbcores is a optional argument to give the number of cores to run the testing
 # Example:
-#     ./morse_testing.py
+#     ./chameleon_testing.py
 #                 No argument, so will run on half of the core if the machine has more than 2 cores
-#     ./morse_testing.py nbcores
+#     ./chameleon_testing.py nbcores
 #                 Will run on nbcores
 ###############################################################################
 
@@ -103,7 +103,7 @@ except IOError:
      f = sys.stdout
 
 print " "
-print "---------------- Testing MORSE Routines ----------------"
+print "---------------- Testing CHAMELEON Routines ----------------"
 print " "
 print "-- Number of cores available =", ncpus_av
 print "-- Number of cores used for testing =", ncpus

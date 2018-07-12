@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
  * @date 2010-11-15
@@ -36,14 +36,14 @@
 /**
  *
  */
-void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *result,
-                   MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzlanhe(cham_normtype_t norm, cham_uplo_t uplo, CHAM_desc_t *A, double *result,
+                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_desc_t *VECNORMS_STEP1 = NULL;
-    MORSE_desc_t *VECNORMS_STEP2 = NULL;
-    MORSE_desc_t *RESULT         = NULL;
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_desc_t *VECNORMS_STEP1 = NULL;
+    CHAM_desc_t *VECNORMS_STEP2 = NULL;
+    CHAM_desc_t *RESULT         = NULL;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int workm, workn;
     int tempkm, tempkn;
@@ -54,39 +54,39 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
     /* part_p = A->myrank / A->q; */
     /* part_q = A->myrank % A->q; */
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     *result = 0.0;
     switch ( norm ) {
     /*
-     *  MorseOneNorm / MorseInfNorm
+     *  ChamOneNorm / ChamInfNorm
      */
-    case MorseOneNorm:
-    case MorseInfNorm:
+    case ChamOneNorm:
+    case ChamInfNorm:
         /* Init workspace handle for the call to zlanhe */
         RUNTIME_options_ws_alloc( &options, A->mb, 0 );
 
         workm = A->m;
         workn = chameleon_max( A->nt, A->q );
-        MORSE_Desc_Create(&(VECNORMS_STEP1), NULL, MorseRealDouble, A->mb, 1, A->mb,
+        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, A->mb, 1, A->mb,
                           workm, workn, 0, 0, workm, workn, A->p, A->q);
 
-        MORSE_Desc_Create(&(VECNORMS_STEP2), NULL, MorseRealDouble, A->mb, 1, A->mb,
+        CHAMELEON_Desc_Create(&(VECNORMS_STEP2), NULL, ChamRealDouble, A->mb, 1, A->mb,
                           workm, 1, 0, 0, workm, 1, A->p, A->q);
 
-        MORSE_Desc_Create(&(RESULT), NULL, MorseRealDouble, 1, 1, 1,
+        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 1, 1,
                           1, 1, 0, 0, 1, 1, 1, 1);
 
         /* Zeroes my intermediate vectors */
         for(m = 0; m < A->mt; m++) {
             tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             for(n = 0; n < workn; n++) {
-                MORSE_TASK_dlaset(
+                INSERT_TASK_dlaset(
                     &options,
-                    MorseUpperLower, tempkm, 1,
+                    ChamUpperLower, tempkm, 1,
                     0., 0.,
                     VECNORMS_STEP1(m, n), 1);
             }
@@ -97,32 +97,32 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
             ldam = BLKLDD(A, m);
 
             /* compute sums of absolute values on diagonal tile m */
-            MORSE_TASK_dzasum(
+            INSERT_TASK_dzasum(
                 &options,
-                MorseRowwise, uplo, tempkm, tempkm,
+                ChamRowwise, uplo, tempkm, tempkm,
                 A(m, m), ldam, VECNORMS_STEP1(m, m));
 
             /*
-             *  MorseLower
+             *  ChamLower
              */
-            if (uplo == MorseLower) {
+            if (uplo == ChamLower) {
                 //for(n = A->myrank % A->q; n < m; n+=A->q) {
                 for(n = 0; n < m; n++) {
                     tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                     /* compute sums of absolute values on rows of tile m */
-                    MORSE_TASK_dzasum(
+                    INSERT_TASK_dzasum(
                         &options,
-                        MorseRowwise, MorseUpperLower, tempkm, tempkn,
+                        ChamRowwise, ChamUpperLower, tempkm, tempkn,
                         A(m, n), ldam, VECNORMS_STEP1(m, n));
                     /* same operation on the symmetric part */
-                    MORSE_TASK_dzasum(
+                    INSERT_TASK_dzasum(
                         &options,
-                        MorseColumnwise, MorseUpperLower, tempkm, tempkn,
+                        ChamColumnwise, ChamUpperLower, tempkm, tempkn,
                         A(m, n), ldam, VECNORMS_STEP1(n, m));
                 }
             }
             /*
-             *  MorseUpper
+             *  ChamUpper
              */
             else {
 //                for(n = ( part_q > part_p ?  (m/part_p)*part_p + part_q : (m/part_p)*part_p + part_q + A->q );
@@ -130,14 +130,14 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
                 for(n = m+1; n < A->mt; n++) {
                     tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                     /* compute sums of absolute values on rows of tile m */
-                    MORSE_TASK_dzasum(
+                    INSERT_TASK_dzasum(
                         &options,
-                        MorseRowwise, MorseUpperLower, tempkm, tempkn,
+                        ChamRowwise, ChamUpperLower, tempkm, tempkn,
                         A(m, n), ldam, VECNORMS_STEP1(m, n));
                     /* same operation on the symmetric part */
-                    MORSE_TASK_dzasum(
+                    INSERT_TASK_dzasum(
                         &options,
-                        MorseColumnwise, MorseUpperLower, tempkm, tempkn,
+                        ChamColumnwise, ChamUpperLower, tempkm, tempkn,
                         A(m, n), ldam, VECNORMS_STEP1(n, m));
                 }
             }
@@ -146,15 +146,15 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
         /* compute vector sum between tiles in rows */
         for(m = (A->myrank / A->q); m < A->mt; m+=A->p) {
             tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            MORSE_TASK_dlaset(
+            INSERT_TASK_dlaset(
                 &options,
-                MorseUpperLower, tempkm, 1,
+                ChamUpperLower, tempkm, 1,
                 0., 0.,
                 VECNORMS_STEP2(m, 0), 1);
             for(n = 0; n < A->nt; n++) {
-                MORSE_TASK_dgeadd(
+                INSERT_TASK_dgeadd(
                     &options,
-                    MorseNoTrans, tempkm, 1, A->mb,
+                    ChamNoTrans, tempkm, 1, A->mb,
                     1.0, VECNORMS_STEP1(m, n), tempkm,
                     1.0, VECNORMS_STEP2(m, 0), tempkm);
             }
@@ -162,24 +162,24 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
              * Compute max norm of each segment of the final vector in the
              * previous workspace
              */
-            MORSE_TASK_dlange(
+            INSERT_TASK_dlange(
                 &options,
-                MorseMaxNorm, tempkm, 1, A->nb,
+                ChamMaxNorm, tempkm, 1, A->nb,
                 VECNORMS_STEP2(m, 0), tempkm,
                 VECNORMS_STEP1(m, 0));
         }
 
         /* Initialize RESULT array */
-        MORSE_TASK_dlaset(
+        INSERT_TASK_dlaset(
             &options,
-            MorseUpperLower, 1, 1,
+            ChamUpperLower, 1, 1,
             0., 0.,
             RESULT(0,0), 1);
 
         /* compute max norm between tiles in the column */
         if (A->myrank % A->q == 0) {
             for(m = 0; m < A->mt; m++) {
-                MORSE_TASK_dlange_max(
+                INSERT_TASK_dlange_max(
                     &options,
                     VECNORMS_STEP1(m, 0),
                     RESULT(0,0));
@@ -189,32 +189,32 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
         /* Scatter norm over processus */
         for(m = 0; m < A->p; m++) {
             for(n = 0; n < A->q; n++) {
-                MORSE_TASK_dlacpy(
+                INSERT_TASK_dlacpy(
                     &options,
-                    MorseUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1, 1,
                     RESULT(0,0), 1,
                     VECNORMS_STEP1(m, n), 1 );
             }
         }
-        MORSE_Desc_Flush( VECNORMS_STEP2, sequence );
-        MORSE_Desc_Flush( VECNORMS_STEP1, sequence );
-        MORSE_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(morse, sequence);
+        CHAMELEON_Desc_Flush( VECNORMS_STEP2, sequence );
+        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
+        CHAMELEON_Desc_Flush( RESULT, sequence );
+        RUNTIME_sequence_wait(chamctxt, sequence);
         *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
-        MORSE_Desc_Destroy( &(VECNORMS_STEP1) );
-        MORSE_Desc_Destroy( &(VECNORMS_STEP2) );
-        MORSE_Desc_Destroy( &(RESULT) );
+        CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
+        CHAMELEON_Desc_Destroy( &(VECNORMS_STEP2) );
+        CHAMELEON_Desc_Destroy( &(RESULT) );
         break;
     /*
-     *  MorseFrobeniusNorm
+     *  ChamFrobeniusNorm
      */
-    case MorseFrobeniusNorm:
+    case ChamFrobeniusNorm:
         workm = chameleon_max( A->mt, A->p );
         workn = chameleon_max( A->nt, A->q );
 
-        MORSE_Desc_Create(&(VECNORMS_STEP1), NULL, MorseRealDouble, 1, 2, 2,
+        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, 1, 2, 2,
                           workm, 2*workn, 0, 0, workm, 2*workn, A->p, A->q);
-        MORSE_Desc_Create(&(RESULT), NULL, MorseRealDouble, 1, 2, 2,
+        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 2, 2,
                           1, 2, 0, 0, 1, 2, 1, 1);
 
         /* Compute local norm to each tile */
@@ -224,35 +224,35 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
 
             /* Zeroes my intermediate vectors */
             for(n = A->myrank % A->q; n < workn; n+=A->q) {
-                MORSE_TASK_dlaset(
+                INSERT_TASK_dlaset(
                     &options,
-                    MorseUpperLower, 1, 2,
+                    ChamUpperLower, 1, 2,
                     1., 0.,
                     VECNORMS_STEP1(m,n), 1);
             }
 
             /* compute norm on diagonal tile m */
-            MORSE_TASK_zhessq(
+            INSERT_TASK_zhessq(
                 &options,
                 uplo, tempkm,
                 A(m, m), ldam,
                 VECNORMS_STEP1(m, m));
 
             /*
-             *  MorseLower
+             *  ChamLower
              */
-            if (uplo == MorseLower) {
+            if (uplo == ChamLower) {
                 //for(n = A->myrank % A->q; n < m; n+=A->q) {
                 for(n = 0; n < m; n++) {
                     tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                     /* compute norm on the lower part */
-                    MORSE_TASK_zgessq(
+                    INSERT_TASK_zgessq(
                         &options,
                         tempkm, tempkn,
                         A(m, n), ldam,
                         VECNORMS_STEP1(m, n));
                     /* same operation on the symmetric part */
-                    MORSE_TASK_zgessq(
+                    INSERT_TASK_zgessq(
                         &options,
                         tempkm, tempkn,
                         A(m, n), ldam,
@@ -260,7 +260,7 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
                 }
             }
             /*
-             *  MorseUpper
+             *  ChamUpper
              */
             else {
 //                for(n = ( part_q > part_p ?  (m/part_p)*part_p + part_q : (m/part_p)*part_p + part_q + A->q );
@@ -268,13 +268,13 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
                 for(n = m+1; n < A->mt; n++) {
                     tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                     /* compute norm on the lower part */
-                    MORSE_TASK_zgessq(
+                    INSERT_TASK_zgessq(
                         &options,
                         tempkm, tempkn,
                         A(m, n), ldam,
                         VECNORMS_STEP1(m, n));
                     /* same operation on the symmetric part */
-                    MORSE_TASK_zgessq(
+                    INSERT_TASK_zgessq(
                         &options,
                         tempkm, tempkn,
                         A(m, n), ldam,
@@ -284,34 +284,34 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
         }
 
         /* Initialize arrays */
-        MORSE_TASK_dlaset(
+        INSERT_TASK_dlaset(
             &options,
-            MorseUpperLower, 1, 2,
+            ChamUpperLower, 1, 2,
             1., 0.,
             RESULT(0,0), 1);
 
         /* Compute accumulation of scl and ssq */
         for(m = (A->myrank / A->q); m < A->mt; m+=A->p) {
             /*
-             *  MorseLower
+             *  ChamLower
              */
-            if (uplo == MorseLower) {
+            if (uplo == ChamLower) {
                 //for(n = A->myrank % A->q; n < m; n+=A->q) {
                 for(n = 0; n <= m; n++) {
-                    MORSE_TASK_dplssq(
+                    INSERT_TASK_dplssq(
                         &options,
                         VECNORMS_STEP1(m, n),
                         RESULT(0,0));
                 }
             }
             /*
-             *  MorseUpper
+             *  ChamUpper
              */
             else {
 //                for(n = ( part_q > part_p ?  (m/part_p)*part_p + part_q : (m/part_p)*part_p + part_q + A->q );
 //                    n < A->mt; n+=A->q) {
                 for(n = m; n < A->mt; n++) {
-                    MORSE_TASK_dplssq(
+                    INSERT_TASK_dplssq(
                         &options,
                         VECNORMS_STEP1(m, n),
                         RESULT(0,0));
@@ -320,33 +320,33 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
         }
 
         /* Compute scl * sqrt(ssq) */
-        MORSE_TASK_dplssq2(
+        INSERT_TASK_dplssq2(
             &options,
             RESULT(0,0));
 
         /* Copy max norm in tiles to dispatch on every nodes */
         for(m = 0; m < A->p; m++) {
             for(n = 0; n < A->q; n++) {
-                MORSE_TASK_dlacpy(
+                INSERT_TASK_dlacpy(
                     &options,
-                    MorseUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1, 1,
                     RESULT(0,0), 1,
                     VECNORMS_STEP1(m, n), 1 );
             }
         }
 
-        MORSE_Desc_Flush( VECNORMS_STEP1, sequence );
-        MORSE_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(morse, sequence);
+        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
+        CHAMELEON_Desc_Flush( RESULT, sequence );
+        RUNTIME_sequence_wait(chamctxt, sequence);
         *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
-        MORSE_Desc_Destroy( &(VECNORMS_STEP1) );
-        MORSE_Desc_Destroy( &(RESULT) );
+        CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
+        CHAMELEON_Desc_Destroy( &(RESULT) );
         break;
 
         /*
-         *  MorseMaxNorm
+         *  ChamMaxNorm
          */
-        case MorseMaxNorm:
+        case ChamMaxNorm:
         default:
             /* Init workspace handle for the call to zlange but unused */
             RUNTIME_options_ws_alloc( &options, 1, 0 );
@@ -354,9 +354,9 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
             workm = chameleon_max( A->mt, A->p );
             workn = chameleon_max( A->nt, A->q );
 
-            MORSE_Desc_Create(&(VECNORMS_STEP1), NULL, MorseRealDouble, 1, 1, 1,
+            CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, 1, 1, 1,
                               workm, workn, 0, 0, workm, workn, A->p, A->q);
-            MORSE_Desc_Create(&(RESULT), NULL, MorseRealDouble, 1, 1, 1,
+            CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 1, 1,
                               1, 1, 0, 0, 1, 1, 1, 1);
 
             /* Compute local maximum to each tile */
@@ -364,37 +364,37 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
                 tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                 ldam = BLKLDD(A, m);
 
-                MORSE_TASK_zlanhe(
+                INSERT_TASK_zlanhe(
                     &options,
-                    MorseMaxNorm, uplo, tempkm, A->nb,
+                    ChamMaxNorm, uplo, tempkm, A->nb,
                     A(m, m), ldam,
                     VECNORMS_STEP1(m, m));
 
                 /*
-                 *  MorseLower
+                 *  ChamLower
                  */
-                if (uplo == MorseLower) {
+                if (uplo == ChamLower) {
                     //for(n = A->myrank % A->q; n < m; n+=A->q) {
                     for(n = 0; n < m; n++) {
                         tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                        MORSE_TASK_zlange(
+                        INSERT_TASK_zlange(
                             &options,
-                            MorseMaxNorm, tempkm, tempkn, A->nb,
+                            ChamMaxNorm, tempkm, tempkn, A->nb,
                             A(m, n), ldam,
                             VECNORMS_STEP1(m, n));
                     }
                 }
                 /*
-                 *  MorseUpper
+                 *  ChamUpper
                  */
                 else {
                     //for(n = ( part_q > part_p ?  (m/part_p)*part_p + part_q : (m/part_p)*part_p + part_q + A->q );
                     //  n < A->mt; n+=A->q) {
                     for(n = m+1; n < A->mt; n++) {
                         tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                        MORSE_TASK_zlange(
+                        INSERT_TASK_zlange(
                             &options,
-                            MorseMaxNorm, tempkm, tempkn, A->nb,
+                            ChamMaxNorm, tempkm, tempkn, A->nb,
                             A(m, n), ldam,
                             VECNORMS_STEP1(m, n));
                     }
@@ -402,34 +402,34 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
             }
 
             /* Initialize RESULT array */
-            MORSE_TASK_dlaset(
+            INSERT_TASK_dlaset(
                 &options,
-                MorseUpperLower, 1, 1,
+                ChamUpperLower, 1, 1,
                 0., 0.,
                 RESULT(0,0), 1);
 
             /* Compute max norm between tiles */
             for(m = 0; m < A->mt; m++) {
                 /*
-                 *  MorseLower
+                 *  ChamLower
                  */
-                if (uplo == MorseLower) {
+                if (uplo == ChamLower) {
                     //for(n = A->myrank % A->q; n < m; n+=A->q) {
                     for(n = 0; n <= m; n++) {
-                        MORSE_TASK_dlange_max(
+                        INSERT_TASK_dlange_max(
                             &options,
                             VECNORMS_STEP1(m, n),
                             RESULT(0,0));
                     }
                 }
                 /*
-                 *  MorseUpper
+                 *  ChamUpper
                  */
                 else {
                     //for(n = ( part_q > part_p ?  (m/part_p)*part_p + part_q : (m/part_p)*part_p + part_q + A->q );
                     //  n < A->mt; n+=A->q) {
                     for(n = m; n < A->mt; n++) {
-                        MORSE_TASK_dlange_max(
+                        INSERT_TASK_dlange_max(
                             &options,
                             VECNORMS_STEP1(m, n),
                             RESULT(0,0));
@@ -440,21 +440,21 @@ void morse_pzlanhe(MORSE_enum norm, MORSE_enum uplo, MORSE_desc_t *A, double *re
             /* Copy max norm in tiles to dispatch on every nodes */
             for(m = 0; m < A->p; m++) {
                 for(n = 0; n < A->q; n++) {
-                    MORSE_TASK_dlacpy(
+                    INSERT_TASK_dlacpy(
                         &options,
-                        MorseUpperLower, 1, 1, 1,
+                        ChamUpperLower, 1, 1, 1,
                         RESULT(0,0), 1,
                         VECNORMS_STEP1(m, n), 1 );
                 }
             }
 
-            MORSE_Desc_Flush( VECNORMS_STEP1, sequence );
-            MORSE_Desc_Flush( RESULT, sequence );
-            RUNTIME_sequence_wait(morse, sequence);
+            CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
+            CHAMELEON_Desc_Flush( RESULT, sequence );
+            RUNTIME_sequence_wait(chamctxt, sequence);
             *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
-            MORSE_Desc_Destroy( &(VECNORMS_STEP1) );
-            MORSE_Desc_Destroy( &(RESULT) );
+            CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
+            CHAMELEON_Desc_Destroy( &(RESULT) );
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

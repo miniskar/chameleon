@@ -21,7 +21,7 @@
 
 static void RUNTIME_allocate_workspace_on_workers(void *arg)
 {
-    struct morse_starpu_ws_s *workspace = arg;
+    struct chameleon_starpu_ws_s *workspace = arg;
     enum starpu_worker_archtype type = 0;
     (void)type;
 
@@ -33,7 +33,7 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
     {
         int memory_location = workspace->memory_location;
 
-        if (memory_location == MORSE_HOST_MEM)
+        if (memory_location == CHAMELEON_HOST_MEM)
         {
             /* Use pinned memory because the kernel is very likely
              * to transfer these data between the CPU and the GPU.
@@ -59,7 +59,7 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
 
 static void RUNTIME_free_workspace_on_workers(void *arg)
 {
-    struct morse_starpu_ws_s *workspace = arg;
+    struct chameleon_starpu_ws_s *workspace = arg;
     enum starpu_worker_archtype type = 0;
     (void)type;
     int id = starpu_worker_get_id();
@@ -70,7 +70,7 @@ static void RUNTIME_free_workspace_on_workers(void *arg)
     {
         int memory_location = workspace->memory_location;
 
-        if (memory_location == MORSE_HOST_MEM)
+        if (memory_location == CHAMELEON_HOST_MEM)
         {
             cudaFreeHost(workspace->workspaces[id]);
         }
@@ -89,18 +89,18 @@ static void RUNTIME_free_workspace_on_workers(void *arg)
 
 /*
  * This function creates a workspace on each type of worker in "which_workers"
- * (eg. MORSE_CUDA|MORSE_CPU for all CPU and GPU workers).  The
+ * (eg. CHAMELEON_CUDA|CHAMELEON_CPU for all CPU and GPU workers).  The
  * memory_location argument indicates whether this should be a buffer in host
- * memory or in GPU memory (MORSE_HOST_MEM or MORSE_GPU_MEM). This function
+ * memory or in GPU memory (CHAMELEON_HOST_MEM or CHAMELEON_GPU_MEM). This function
  * returns 0 upon successful completion.:
  */
-int RUNTIME_starpu_ws_alloc(MORSE_starpu_ws_t **workspace,
+int RUNTIME_starpu_ws_alloc(CHAMELEON_starpu_ws_t **workspace,
                             size_t size, int which_workers, int memory_location)
 {
     if (!workspace)
         return -EINVAL;
 
-    struct morse_starpu_ws_s *descr = calloc(1, sizeof(struct morse_starpu_ws_s));
+    struct chameleon_starpu_ws_s *descr = calloc(1, sizeof(struct chameleon_starpu_ws_s));
 
     *workspace = descr;
 
@@ -116,7 +116,7 @@ int RUNTIME_starpu_ws_alloc(MORSE_starpu_ws_t **workspace,
     return 0;
 }
 
-int RUNTIME_starpu_ws_free(MORSE_starpu_ws_t *workspace)
+int RUNTIME_starpu_ws_free(CHAMELEON_starpu_ws_t *workspace)
 {
     if (!workspace)
         return -EINVAL;
@@ -128,9 +128,9 @@ int RUNTIME_starpu_ws_free(MORSE_starpu_ws_t *workspace)
     return 0;
 }
 
-void *RUNTIME_starpu_ws_getlocal(MORSE_starpu_ws_t *workspace)
+void *RUNTIME_starpu_ws_getlocal(CHAMELEON_starpu_ws_t *workspace)
 {
-    struct morse_starpu_ws_s *descr = workspace;
+    struct chameleon_starpu_ws_s *descr = workspace;
     int id = starpu_worker_get_id();
     return descr->workspaces[id];
 }

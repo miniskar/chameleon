@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -25,9 +25,9 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
- *  MORSE_TASK_zplssq returns: scl * sqrt(ssq)
+ *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -54,17 +54,17 @@
  *          On exit, result contains scl * sqrt( ssq )
  *
  */
-void MORSE_TASK_zplssq( const MORSE_option_t *options,
-                        const MORSE_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const MORSE_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(SCALESUMSQ, SCALESUMSQm, SCALESUMSQn);
-    MORSE_ACCESS_RW(SCLSSQ, SCLSSQm, SCLSSQn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(SCALESUMSQ, SCALESUMSQm, SCALESUMSQn);
+    CHAMELEON_ACCESS_RW(SCLSSQ, SCLSSQm, SCLSSQn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
@@ -104,13 +104,13 @@ static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
 
-void MORSE_TASK_zplssq2( const MORSE_option_t *options,
-                         const MORSE_desc_t *RESULT, int RESULTm, int RESULTn )
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
 
-    if ( morse_desc_islocal( RESULT, RESULTm, RESULTn ) ) {
+    if ( chameleon_desc_islocal( RESULT, RESULTm, RESULTn ) ) {
         starpu_insert_task(
             starpu_mpi_codelet(codelet),
             STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),

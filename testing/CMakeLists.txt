@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -32,7 +32,7 @@ endif()
 # ------------------------
 #add_subdirectory(lin)
 
-# Generate morse auxiliary testing sources for all possible precisions
+# Generate chameleon auxiliary testing sources for all possible precisions
 # --------------------------------------------------------------------
 set(TESTING_HDRS_GENERATED "")
 set(ZHDR
@@ -45,7 +45,7 @@ precisions_rules_py(TESTING_HDRS_GENERATED "${ZHDR}"
 add_custom_target(testing_include ALL SOURCES ${TESTING_HDRS_GENERATED})
 set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};testing_include" CACHE INTERNAL "List of targets of sources")
 
-# Generate morse testing sources for all possible precisions
+# Generate chameleon testing sources for all possible precisions
 # ----------------------------------------------------------
 set(ZSRC
     testing_zauxiliary.c

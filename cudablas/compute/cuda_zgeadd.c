@@ -26,7 +26,7 @@
 /**
  ******************************************************************************
  *
- * @ingroup CUDA_MORSE_Complex64_t
+ * @ingroup CUDA_CHAMELEON_Complex64_t
  *
  *  CUDA_zgeadd adds to matrices together as in PBLAS pzgeadd.
  *
@@ -39,9 +39,9 @@
  * @param[in] trans
  *          Specifies whether the matrix A is non-transposed, transposed, or
  *          conjugate transposed
- *          = MorseNoTrans:   op(A) = A
- *          = MorseTrans:     op(A) = A'
- *          = MorseConjTrans: op(A) = conj(A')
+ *          = ChamNoTrans:   op(A) = A
+ *          = ChamTrans:     op(A) = A'
+ *          = ChamConjTrans: op(A) = conj(A')
  *
  * @param[in] M
  *          Number of rows of the matrices op(A) and B.
@@ -53,12 +53,12 @@
  *          Scalar factor of A.
  *
  * @param[in] A
- *          Matrix of size LDA-by-N, if trans = MorseNoTrans, LDA-by-M
+ *          Matrix of size LDA-by-N, if trans = ChamNoTrans, LDA-by-M
  *          otherwise.
  *
  * @param[in] LDA
  *          Leading dimension of the array A. LDA >= max(1,k), with k=M, if
- *          trans = MorseNoTrans, and k=N otherwise.
+ *          trans = ChamNoTrans, and k=N otherwise.
  *
  * @param[in] beta
  *          Scalar factor of B.
@@ -73,11 +73,11 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-int CUDA_zgeadd(MORSE_enum trans,
+int CUDA_zgeadd(cham_trans_t trans,
                 int m, int n,
                 const cuDoubleComplex *alpha,
                 const cuDoubleComplex *A, int lda,
@@ -86,7 +86,7 @@ int CUDA_zgeadd(MORSE_enum trans,
                 CUBLAS_STREAM_PARAM)
 {
     cublasZgeam(CUBLAS_HANDLE
-                morse_cublas_const(trans), morse_cublas_const(MorseNoTrans),
+                chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
                 m, n,
                 CUBLAS_VALUE(alpha), A, lda,
                 CUBLAS_VALUE(beta),  B, ldb,
@@ -94,5 +94,5 @@ int CUDA_zgeadd(MORSE_enum trans,
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

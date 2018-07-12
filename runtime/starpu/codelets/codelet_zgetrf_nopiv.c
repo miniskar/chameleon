@@ -25,7 +25,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetrf_nopiv computes an LU factorization of a general diagonal
  *  dominant M-by-N matrix A witout pivoting.
@@ -62,7 +62,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -71,25 +71,25 @@
  *
  */
 
-void MORSE_TASK_zgetrf_nopiv(const MORSE_option_t *options,
+void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
                               int m, int n, int ib, int nb,
-                              const MORSE_desc_t *A, int Am, int An, int lda,
+                              const CHAM_desc_t *A, int Am, int An, int lda,
                               int iinfo)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgetrf_nopiv;
     void (*callback)(void*) = options->profiling ? cl_zgetrf_nopiv_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &m,                         sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         STARPU_PRIORITY,  options->priority,
@@ -109,12 +109,12 @@ static void cl_zgetrf_nopiv_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int iinfo;
     int info = 0;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &iinfo);
     CORE_zgetrf_nopiv(m, n, ib, A, lda, &info);
 }

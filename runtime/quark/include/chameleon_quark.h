@@ -17,8 +17,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _MORSE_QUARK_H_
-#define _MORSE_QUARK_H_
+#ifndef _CHAMELEON_QUARK_H_
+#define _CHAMELEON_QUARK_H_
 
 #include <quark.h>
 #include "coreblas.h"
@@ -48,4 +48,4 @@ typedef struct quark_option_s {
 
 #define RUNTIME_END_ACCESS_DECLARATION
 
-#endif /* _MORSE_QUARK_H_ */
+#endif /* _CHAMELEON_QUARK_H_ */

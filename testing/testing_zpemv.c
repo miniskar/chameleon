@@ -25,7 +25,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <morse.h>
+#include <chameleon.h>
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
@@ -34,21 +34,21 @@
 /*--------------------------------------------------------------
  * Check the pemv
  */
-static int check_solution(MORSE_enum trans, MORSE_enum storev,
+static int check_solution(cham_trans_t trans, cham_store_t storev,
                           int M, int N, int L,
-                          MORSE_Complex64_t alpha, MORSE_Complex64_t *A, int LDA,
-                          MORSE_Complex64_t *X, int INCX,
-                          MORSE_Complex64_t beta,  MORSE_Complex64_t *Y0, int INCY0,
-                          MORSE_Complex64_t *Y,  int INCY,
-                          MORSE_Complex64_t *W, double *Rnorm)
+                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          CHAMELEON_Complex64_t *X, int INCX,
+                          CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *Y0, int INCY0,
+                          CHAMELEON_Complex64_t *Y,  int INCY,
+                          CHAMELEON_Complex64_t *W, double *Rnorm)
 {
     int k;
     double eps = LAPACKE_dlamch_work('e');
     double *work;
-    MORSE_Complex64_t mzone = -1.0;
+    CHAMELEON_Complex64_t mzone = -1.0;
 
     /* Copy x to w */
-    if ( trans == MorseNoTrans ) {
+    if ( trans == ChamNoTrans ) {
         k = N;
     } else {
         k = M;
@@ -96,8 +96,8 @@ int testing_zpemv(int argc, char **argv)
     int arg_n = atoi(argv[0]);
 
     /* Local variables */
-    MORSE_Complex64_t *A, *X, *Y, *A0, *Y0, *work;
-    MORSE_Complex64_t alpha, beta, alpha0, beta0;
+    CHAMELEON_Complex64_t *A, *X, *Y, *A0, *Y0, *work;
+    CHAMELEON_Complex64_t alpha, beta, alpha0, beta0;
     int n    = arg_n;
     int lda  = arg_n;
 
@@ -105,7 +105,7 @@ int testing_zpemv(int argc, char **argv)
     int i, j, k, t;
     int nbtests = 0;
     int nfails = 0;
-    int storev;
+    cham_store_t storev;
     int l = 0;
     int m = n;
     int incx = 1;
@@ -115,12 +115,12 @@ int testing_zpemv(int argc, char **argv)
     double eps = LAPACKE_dlamch_work('e');
 
     /* Allocate Data */
-    A    = (MORSE_Complex64_t *)malloc(lda*n*sizeof(MORSE_Complex64_t));
-    A0   = (MORSE_Complex64_t *)malloc(lda*n*sizeof(MORSE_Complex64_t));
-    X    = (MORSE_Complex64_t *)malloc(lda*n*sizeof(MORSE_Complex64_t));
-    Y    = (MORSE_Complex64_t *)malloc(lda*n*sizeof(MORSE_Complex64_t));
-    Y0   = (MORSE_Complex64_t *)malloc(    n*sizeof(MORSE_Complex64_t));
-    work = (MORSE_Complex64_t *)malloc(  2*n*sizeof(MORSE_Complex64_t));
+    A    = (CHAMELEON_Complex64_t *)malloc(lda*n*sizeof(CHAMELEON_Complex64_t));
+    A0   = (CHAMELEON_Complex64_t *)malloc(lda*n*sizeof(CHAMELEON_Complex64_t));
+    X    = (CHAMELEON_Complex64_t *)malloc(lda*n*sizeof(CHAMELEON_Complex64_t));
+    Y    = (CHAMELEON_Complex64_t *)malloc(lda*n*sizeof(CHAMELEON_Complex64_t));
+    Y0   = (CHAMELEON_Complex64_t *)malloc(    n*sizeof(CHAMELEON_Complex64_t));
+    work = (CHAMELEON_Complex64_t *)malloc(  2*n*sizeof(CHAMELEON_Complex64_t));
 
     LAPACKE_zlarnv_work(1, ISEED, 1, &alpha0);
     LAPACKE_zlarnv_work(1, ISEED, 1, &beta0 );
@@ -135,9 +135,9 @@ int testing_zpemv(int argc, char **argv)
     }
 
     /* Initialize Data */
-    MORSE_zplrnt(n, n, A,  lda, 479 );
-    MORSE_zplrnt(n, n, X,  lda, 320 );
-    MORSE_zplrnt(n, 1, Y0, n,   573 );
+    CHAMELEON_zplrnt(n, n, A,  lda, 479 );
+    CHAMELEON_zplrnt(n, n, X,  lda, 320 );
+    CHAMELEON_zplrnt(n, 1, Y0, n,   573 );
 
     printf("\n");
     printf("------ TESTS FOR CHAMELEON ZPEMV ROUTINE -------  \n");
@@ -175,8 +175,8 @@ int testing_zpemv(int argc, char **argv)
             LAPACKE_zlacpy_work( LAPACK_COL_MAJOR, 'A', m, n,
                                  A, lda, A0, lda);
 
-            if ( trans[t] == MorseNoTrans ) {
-                storev = MorseRowwise;
+            if ( trans[t] == ChamNoTrans ) {
+                storev = ChamRowwise;
                 cstorev = storevstr[0];
 
                 /* zeroed the upper right triangle */
@@ -188,7 +188,7 @@ int testing_zpemv(int argc, char **argv)
                 }
             }
             else {
-                storev = MorseColumnwise;
+                storev = ChamColumnwise;
                 cstorev = storevstr[1];
 
                 /* zeroed the lower left triangle */

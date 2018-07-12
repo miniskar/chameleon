@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -25,12 +25,12 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zbuild_quark(Quark *quark)
 {
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     void *user_data;
     void (*user_build_callback)(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) ;
@@ -41,8 +41,8 @@ void CORE_zbuild_quark(Quark *quark)
     user_build_callback(row_min, row_max, col_min, col_max, A, lda, user_data);
 }
 
-void MORSE_TASK_zbuild( const MORSE_option_t *options,
-                        const MORSE_desc_t *A, int Am, int An, int lda,
+void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
+                        const CHAM_desc_t *A, int Am, int An, int lda,
                         void *user_data, void* user_build_callback )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -58,7 +58,7 @@ void MORSE_TASK_zbuild( const MORSE_option_t *options,
                       sizeof(int),                      &row_max,    VALUE,
                       sizeof(int),                      &col_min,    VALUE,
                       sizeof(int),                      &col_max,    VALUE,
-                      sizeof(MORSE_Complex64_t)*lda*A->nb, RTBLKADDR(A, MORSE_Complex64_t, Am, An),         OUTPUT,
+                      sizeof(CHAMELEON_Complex64_t)*lda*A->nb, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
                       sizeof(int),                      &lda,  VALUE,
                       sizeof(void*),                    &user_data,  VALUE,
                       sizeof(void*),                    &user_build_callback,   VALUE,

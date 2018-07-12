@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -25,14 +25,14 @@ if (CHAMELEON_SIMULATION)
 endif()
 
 if (CHAMELEON_PREC_D)
-    add_subdirectory(lapack_to_morse)
+    add_subdirectory(lapack_to_chameleon)
     if (CHAMELEON_SCHED_STARPU)
         if (${STARPU_VERSION_MAJOR} GREATER 0 AND ${STARPU_VERSION_MINOR} GREATER 1)
             add_subdirectory(out_of_core)
         endif()
     endif()
 else()
-    message(WARNING "CHAMELEON_PREC_D is set to OFF so that lapack_to_morse "
+    message(WARNING "CHAMELEON_PREC_D is set to OFF so that lapack_to_chameleon "
     "and out_core tutorials cannot be built (use only double arithmetic "
     "precision).\n Please set CHAMELEON_PREC_D to ON if you want to build "
     "executables of this tutorial.")

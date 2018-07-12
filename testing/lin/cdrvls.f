@@ -40,7 +40,7 @@
      $                   B, COPYB, C, S, COPYS, WORK, RWORK, IWORK,
      $                   NOUT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -176,7 +176,7 @@
      $                   ISCALE, ITRAN, ITYPE, J, K, LDA, LDB, LDWORK,
      $                   LWLSY, LWORK, M, MNMIN, N, NB, NCOLS, NERRS,
      $                   NFAIL, NRHS, NROWS, NRUN, RANK, IB,
-     $                   MORSE_TRANS
+     $                   CHAMELEON_TRANS
       INTEGER            HT( 2 )
       REAL               EPS, NORMA, NORMB, RCOND
 *     ..
@@ -275,25 +275,25 @@
                            IF ( (MAX(M, N) / 25) .GT. NB ) THEN
                               GOTO 40
                            END IF
-                           CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-                           CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB,
+                           CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+                           CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB,
      $                                      INFO )
 *
 *                          Allocate T
 *
-                           CALL MORSE_ALLOC_WORKSPACE_CGELS( M, N , HT,
+                           CALL CHAMELEON_ALLOC_WORKSPACE_CGELS( M, N , HT,
      $                                                        INFO )
 *
 *                           DO 30 ITRAN = 1, 2
                            DO 30 ITRAN = 1, 1
                               IF( ITRAN.EQ.1 ) THEN
                                  TRANS = 'N'
-                                 MORSE_TRANS = MORSENOTRANS 
+                                 CHAMELEON_TRANS = CHAMELEONNOTRANS 
                                  NROWS = M
                                  NCOLS = N
                               ELSE
                                  TRANS = 'C'
-                                 MORSE_TRANS = MORSECONJTRANS 
+                                 CHAMELEON_TRANS = CHAMELEONCONJTRANS 
                                  NROWS = N
                                  NCOLS = M
                               END IF
@@ -323,7 +323,7 @@
      $                                        COPYB, LDB, B, LDB )
                               END IF
                               SRNAMT = 'CGELS '
-                              CALL MORSE_CGELS( MORSE_TRANS,
+                              CALL CHAMELEON_CGELS( CHAMELEON_TRANS,
      $                                           M, N, NRHS,
      $                                           A, LDA, HT, B, LDB,
      $                                           INFO )
@@ -380,7 +380,7 @@
 *
 *                          Deallocate T
 *
-                           CALL MORSE_DEALLOC_HANDLE( HT, INFO )
+                           CALL CHAMELEON_DEALLOC_HANDLE( HT, INFO )
    40                   CONTINUE
                      END IF
 *

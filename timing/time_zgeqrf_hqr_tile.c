@@ -16,11 +16,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zgeqrf_param"
+#define _NAME  "CHAMELEON_zgeqrf_param"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_GEQRF(M, N)
 #define _FADDS FADDS_GEQRF(M, N)
@@ -29,10 +29,10 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
-    MORSE_desc_t *TS;
-    MORSE_desc_t *TT;
+    CHAM_desc_t *TS;
+    CHAM_desc_t *TT;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
     int hlvl, llvl, qr_a, domino;
@@ -44,23 +44,23 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
     }
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, MORSE_Complex64_t,  MorseComplexDouble, LDA, M, N );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  ( check && M == N ), MORSE_Complex64_t, MorseComplexDouble, LDB, M, NRHS );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA0, ( check && M == N ), MORSE_Complex64_t, MorseComplexDouble, LDA, M, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  ( check && M == N ), MORSE_Complex64_t, MorseComplexDouble, LDB, M, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA, 1, CHAMELEON_Complex64_t,  ChamComplexDouble, LDA, M, N );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  ( check && M == N ), CHAMELEON_Complex64_t, ChamComplexDouble, LDB, M, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descA0, ( check && M == N ), CHAMELEON_Complex64_t, ChamComplexDouble, LDA, M, N    );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  ( check && M == N ), CHAMELEON_Complex64_t, ChamComplexDouble, LDB, M, NRHS );
 
-    MORSE_zplrnt_Tile( descA, 5373 );
+    CHAMELEON_zplrnt_Tile( descA, 5373 );
 
     /* Save A for check */
     if (check == 1 && M == N){
-        MORSE_zlacpy_Tile(MorseUpperLower, descA, descA0);
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descA0);
     }
 
     /* Allocate Workspace */
-    MORSE_Alloc_Workspace_zgels(M, N, &TS, P, Q);
-    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(MorseComplexDouble));
-    MORSE_Alloc_Workspace_zgels(M, N, &TT, P, Q);
-    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(MorseComplexDouble));
+    CHAMELEON_Alloc_Workspace_zgels(M, N, &TS, P, Q);
+    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(ChamComplexDouble));
+    CHAMELEON_Alloc_Workspace_zgels(M, N, &TT, P, Q);
+    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(ChamComplexDouble));
 
     /* Initialize matrix */
     matrix.mt = TS->mt;
@@ -79,25 +79,25 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
                      &matrix, llvl, hlvl, qr_a, P, domino, 0);
 
     START_TIMING();
-    MORSE_zgeqrf_param_Tile(&qrtree, descA, TS, TT );
+    CHAMELEON_zgeqrf_param_Tile(&qrtree, descA, TS, TT );
     STOP_TIMING();
 
     /* Check the solution */
     if ( check && M == N)
     {
          /* Initialize and save B */
-        MORSE_zplrnt_Tile( descX, 2264 );
-        MORSE_zlacpy_Tile(MorseUpperLower, descX, descB);
+        CHAMELEON_zplrnt_Tile( descX, 2264 );
+        CHAMELEON_zlacpy_Tile(ChamUpperLower, descX, descB);
 
         /* Compute the solution */
-        MORSE_zgeqrs_param_Tile(&qrtree, descA, TS, TT, descX );
+        CHAMELEON_zgeqrs_param_Tile(&qrtree, descA, TS, TT, descX );
 
         /* Check solution */
-        dparam[IPARAM_ANORM] = MORSE_zlange_Tile(MorseInfNorm, descA0);
-        dparam[IPARAM_BNORM] = MORSE_zlange_Tile(MorseInfNorm, descB);
-        dparam[IPARAM_XNORM] = MORSE_zlange_Tile(MorseInfNorm, descX);
-        MORSE_zgemm_Tile( MorseNoTrans, MorseNoTrans, 1.0, descA0, descX, -1.0, descB );
-        dparam[IPARAM_RES] = MORSE_zlange_Tile(MorseInfNorm, descB);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descA0);
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descA0, descX, -1.0, descB );
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
         PASTE_CODE_FREE_MATRIX( descX  )
         PASTE_CODE_FREE_MATRIX( descA0 )
         PASTE_CODE_FREE_MATRIX( descB  )
@@ -105,8 +105,8 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 
     /* Free Workspace */
     libhqr_finalize( &qrtree );
-    MORSE_Dealloc_Workspace( &TS );
-    MORSE_Dealloc_Workspace( &TT );
+    CHAMELEON_Dealloc_Workspace( &TS );
+    CHAMELEON_Dealloc_Workspace( &TT );
     free( descA );
 
     return 0;

@@ -67,7 +67,7 @@
 *               eigenvalue routines
 *          = 5: the minimum column dimension for blocking to be used;
 *               rectangular blocks must have dimension at least k by m,
-*               where k is given by ILAENV(2,...) and m by MORSE_
+*               where k is given by ILAENV(2,...) and m by CHAMELEON_
 *               ILAENV(5,...)
 *          = 6: the crossover point for the SVD (when reducing an m by n
 *               matrix to bidiagonal form, if max(m,n)/min(m,n) exceeds

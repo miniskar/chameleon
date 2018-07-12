@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -25,7 +25,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztrasm - Computes the sums of the absolute values of elements in a same
  *  row or column in a triangular matrix.
@@ -35,18 +35,18 @@
  *
  * @param[in] storev
  *          Specifies whether the sums are made per column or row.
- *          = MorseColumnwise: Computes the sum on each column
- *          = MorseRowwise:    Computes the sum on each row
+ *          = ChamColumnwise: Computes the sum on each column
+ *          = ChamRowwise:    Computes the sum on each row
  *
  * @param[in] uplo
  *          Specifies whether the matrix A is upper triangular or lower triangular
- *          = MorseUpper: Upper triangle of A is referenced;
- *          = MorseLower: Lower triangle of A is referenced.
+ *          = ChamUpper: Upper triangle of A is referenced;
+ *          = ChamLower: Lower triangle of A is referenced.
  *
  * @param[in] diag
  *          Specifies whether or not A is unit triangular:
- *          = MorseNonUnit: A is non unit;
- *          = MorseUnit:    A us unit.
+ *          = ChamNonUnit: A is non unit;
+ *          = ChamUnit:    A us unit.
  *
  * @param[in] M
  *          M specifies the number of rows of the matrix A. M >= 0.
@@ -61,27 +61,27 @@
  *          The leading dimension of the array A. lda >= max(1,M).
  *
  * @param[in,out] work
- *          Array of dimension M if storev = MorseRowwise; N otherwise.
+ *          Array of dimension M if storev = ChamRowwise; N otherwise.
  *          On exit, contains the sums of the absolute values per column or row
  *          added to the input values.
  *
  */
 
-void CORE_ztrasm(MORSE_enum storev, MORSE_enum uplo, MORSE_enum diag,
+void CORE_ztrasm(cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag,
                  int M, int N,
-                 const MORSE_Complex64_t *A, int lda, double *work)
+                 const CHAMELEON_Complex64_t *A, int lda, double *work)
 {
-    const MORSE_Complex64_t *tmpA;
+    const CHAMELEON_Complex64_t *tmpA;
     int i, j, imax;
-    int idiag = (diag == MorseUnit) ? 1 : 0;
+    int idiag = (diag == ChamUnit) ? 1 : 0;
 
     /*
-     * MorseUpper / MorseColumnwise
+     * ChamUpper / ChamColumnwise
      */
-    if  (uplo == MorseUpper ) {
+    if  (uplo == ChamUpper ) {
         M = chameleon_min(M, N);
 
-        if (storev == MorseColumnwise) {
+        if (storev == ChamColumnwise) {
             for (j = 0; j < N; j++) {
                 tmpA = A+(j*lda);
                 imax = chameleon_min(j+1-idiag, M);
@@ -96,10 +96,10 @@ void CORE_ztrasm(MORSE_enum storev, MORSE_enum uplo, MORSE_enum diag,
             }
         }
         /*
-         * MorseUpper / MorseRowwise
+         * ChamUpper / ChamRowwise
          */
         else {
-            if (diag == MorseUnit) {
+            if (diag == ChamUnit) {
                 for (i = 0; i < M; i++) {
                     work[i] += 1.;
                 }
@@ -118,9 +118,9 @@ void CORE_ztrasm(MORSE_enum storev, MORSE_enum uplo, MORSE_enum diag,
         N = chameleon_min(M, N);
 
         /*
-         * MorseLower / MorseColumnwise
+         * ChamLower / ChamColumnwise
          */
-        if (storev == MorseColumnwise) {
+        if (storev == ChamColumnwise) {
             for (j = 0; j < N; j++) {
                 tmpA = A + j * (lda+1) + idiag;
 
@@ -132,10 +132,10 @@ void CORE_ztrasm(MORSE_enum storev, MORSE_enum uplo, MORSE_enum diag,
             }
         }
         /*
-         * MorseLower / MorseRowwise
+         * ChamLower / ChamRowwise
          */
         else {
-            if (diag == MorseUnit) {
+            if (diag == ChamUnit) {
                 for (i = 0; i < N; i++) {
                     work[i] += 1.;
                 }

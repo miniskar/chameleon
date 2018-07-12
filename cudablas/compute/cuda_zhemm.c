@@ -19,7 +19,7 @@
  */
 #include "cudablas.h"
 
-int CUDA_zhemm(MORSE_enum side, MORSE_enum uplo,
+int CUDA_zhemm(cham_side_t side, cham_uplo_t uplo,
                int m, int n,
                cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
@@ -29,12 +29,12 @@ int CUDA_zhemm(MORSE_enum side, MORSE_enum uplo,
                CUBLAS_STREAM_PARAM)
 {
     cublasZhemm(CUBLAS_HANDLE
-                morse_cublas_const(side), morse_cublas_const(uplo),
+                chameleon_cublas_const(side), chameleon_cublas_const(uplo),
                 m, n,
                 CUBLAS_VALUE(alpha), A, lda,
                                      B, ldb,
                 CUBLAS_VALUE(beta),  C, ldc);
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

@@ -6,13 +6,13 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
 #     Univ. of California Berkeley,
-#     Univ. of Colorado Denver. 
+#     Univ. of Colorado Denver.
 #
 # @version 1.0.0
 #  @author Florent Pruvost
@@ -31,7 +31,7 @@ configure_file("users_guide.org.in"
                "users_guide.org"
                @ONLY)
 
-set(FIGURES 
+set(FIGURES
     tile_lu.pdf
     tile_lu.jpg
     tile_layout.pdf
@@ -39,14 +39,14 @@ set(FIGURES
     trace_qr.pdf
     trace_qr.jpg
     potri_async.png
-    morse_header.png
+    chameleon_header.png
     )
-set(FIGURES_HTML 
+set(FIGURES_HTML
     tile_lu.jpg
     tile_layout.jpg
     trace_qr.jpg
     potri_async.png
-    morse_header.png
+    chameleon_header.png
     )
 
 foreach(_fig ${FIGURES})
@@ -65,7 +65,7 @@ if(EMACS_COMPILER)
     # ----------
     add_custom_command(OUTPUT  users_guide.html
                        COMMAND ${EMACS_COMPILER}
-                       ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org 
+                       ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
                                --batch
                                -f
                                org-html-export-to-html
@@ -75,7 +75,7 @@ if(EMACS_COMPILER)
                       )
     add_custom_command(OUTPUT  users_guide.pdf
                        COMMAND ${EMACS_COMPILER}
-                       ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org 
+                       ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
                                --batch
                                -f
                                org-latex-export-to-pdf

@@ -18,14 +18,14 @@
  */
 #include <math.h>
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
- *  MORSE_TASK_zplssq returns: scl * sqrt(ssq)
+ *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -73,9 +73,9 @@ CORE_zplssq_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zplssq( const MORSE_option_t *options,
-                        const MORSE_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const MORSE_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -101,8 +101,8 @@ CORE_zplssq2_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zplssq2( const MORSE_option_t *options,
-                         const MORSE_desc_t *RESULT, int RESULTm, int RESULTn )
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 

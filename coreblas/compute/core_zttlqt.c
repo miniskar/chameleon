@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Dulceneia Becker
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zttlqt computes a LQ factorization of a rectangular matrix
  *  formed by coupling side-by-side a complex M-by-M lower triangular tile A1
@@ -96,24 +96,24 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
 int CORE_zttlqt(int M, int N, int IB,
-                MORSE_Complex64_t *A1, int LDA1,
-                MORSE_Complex64_t *A2, int LDA2,
-                MORSE_Complex64_t *T, int LDT,
-                MORSE_Complex64_t *TAU, MORSE_Complex64_t *WORK)
+                CHAMELEON_Complex64_t *A1, int LDA1,
+                CHAMELEON_Complex64_t *A2, int LDA2,
+                CHAMELEON_Complex64_t *T, int LDT,
+                CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK)
 {
-    static MORSE_Complex64_t zone  = 1.0;
-    static MORSE_Complex64_t zzero = 0.0;
+    static CHAMELEON_Complex64_t zone  = 1.0;
+    static CHAMELEON_Complex64_t zzero = 0.0;
 #if defined(PRECISION_z) || defined(PRECISION_c)
     static int                ione  = 1;
 #endif
 
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t alpha;
     int i, j, l, ii, sb, mi, ni;
 
     /* Check input arguments */
@@ -136,11 +136,11 @@ int CORE_zttlqt(int M, int N, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     /* TODO: Need to check why some cases require
      *  this to not have uninitialized values */
-    CORE_zlaset( MorseUpperLower, IB, N,
+    CORE_zlaset( ChamUpperLower, IB, N,
                  0., 0., T, LDT);
 
     for(ii = 0; ii < M; ii += IB) {
@@ -168,7 +168,7 @@ int CORE_zttlqt(int M, int N, int IB,
                     WORK, 1);
 
                 cblas_zgemv(
-                    CblasColMajor, (CBLAS_TRANSPOSE)MorseNoTrans,
+                    CblasColMajor, (CBLAS_TRANSPOSE)ChamNoTrans,
                     mi, ni,
                     CBLAS_SADDR(zone), &A2[j+1], LDA2,
                     &A2[j], LDA2,
@@ -197,7 +197,7 @@ int CORE_zttlqt(int M, int N, int IB,
                 alpha = -(TAU[j]);
 
                 CORE_zpemv(
-                        MorseNoTrans, MorseRowwise,
+                        ChamNoTrans, ChamRowwise,
                         i , chameleon_min(j, N), l,
                         alpha, &A2[ii], LDA2,
                         &A2[j], LDA2,
@@ -206,9 +206,9 @@ int CORE_zttlqt(int M, int N, int IB,
 
                 /* T(0:i-1, j) = T(0:i-1, ii:j-1) * T(0:i-1, j) */
                 cblas_ztrmv(
-                        CblasColMajor, (CBLAS_UPLO)MorseUpper,
-                        (CBLAS_TRANSPOSE)MorseNoTrans,
-                        (CBLAS_DIAG)MorseNonUnit,
+                        CblasColMajor, (CBLAS_UPLO)ChamUpper,
+                        (CBLAS_TRANSPOSE)ChamNoTrans,
+                        (CBLAS_DIAG)ChamNonUnit,
                         i, &T[LDT*ii], LDT,
                         &T[LDT*j], 1);
 
@@ -228,8 +228,8 @@ int CORE_zttlqt(int M, int N, int IB,
             ni = chameleon_min(ii+sb, N);
             l  = chameleon_min(sb, chameleon_max(0, ni-ii));
             CORE_zparfb(
-                MorseRight, MorseNoTrans,
-                MorseForward, MorseRowwise,
+                ChamRight, ChamNoTrans,
+                ChamDirForward, ChamRowwise,
                 mi, IB, mi, ni, sb, l,
                 &A1[LDA1*ii+ii+sb], LDA1,
                 &A2[ii+sb], LDA2,
@@ -239,7 +239,7 @@ int CORE_zttlqt(int M, int N, int IB,
 
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

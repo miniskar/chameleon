@@ -43,7 +43,7 @@
 
 #include <starpu.h>
 #include "coreblas/lapacke.h"
-#include "morse.h"
+#include "chameleon.h"
 #include "control/common.h"
 
 /* Common functions for all steps of the tutorial */
@@ -71,7 +71,7 @@ static int startswith(const char *s, const char *prefix) {
 #define FADDS_TRSM(__m, __n) (0.5 * (double)(__n) * (double)(__m) * ((double)(__m)-1.))
 
 /* define some tools to time the program */
-#include <chameleon/chameleon_timer.h>
+#include <chameleon/timer.h>
 
 /* Integer parameters */
 enum iparam_ooc {

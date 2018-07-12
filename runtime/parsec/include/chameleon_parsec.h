@@ -17,8 +17,8 @@
  * @date 2018-02-06
  *
  */
-#ifndef _MORSE_PARSEC_H_
-#define _MORSE_PARSEC_H_
+#ifndef _CHAMELEON_PARSEC_H_
+#define _CHAMELEON_PARSEC_H_
 
 #include <parsec.h>
 #include <parsec/insert_function.h>
@@ -29,18 +29,18 @@
 
 #include "control/common.h"
 
-struct morse_parsec_desc_s {
+struct chameleon_parsec_desc_s {
     parsec_data_collection_t super;
     int                      arena_index;
-    MORSE_desc_t            *desc;
+    CHAM_desc_t            *desc;
     parsec_data_t          **data_map;
 };
 
-typedef struct morse_parsec_desc_s morse_parsec_desc_t;
+typedef struct chameleon_parsec_desc_s chameleon_parsec_desc_t;
 
 static inline int
-morse_parsec_get_arena_index(const MORSE_desc_t *desc) {
-    return ((morse_parsec_desc_t *)desc->schedopt)->arena_index;
+chameleon_parsec_get_arena_index(const CHAM_desc_t *desc) {
+    return ((chameleon_parsec_desc_t *)desc->schedopt)->arena_index;
 }
 
 /*
@@ -61,4 +61,4 @@ morse_parsec_get_arena_index(const MORSE_desc_t *desc) {
 
 #define RUNTIME_END_ACCESS_DECLARATION
 
-#endif /* _MORSE_PARSEC_H_ */
+#endif /* _CHAMELEON_PARSEC_H_ */

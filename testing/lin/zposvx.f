@@ -39,7 +39,7 @@
      $                   S, B, LDB, X, LDX, RCOND, FERR, BERR, WORK,
      $                   RWORK, INFO )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK driver routine (version 3.2) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -255,7 +255,7 @@
       LOGICAL            EQUIL, NOFACT, RCEQU
       INTEGER            I, INFEQU, J
       DOUBLE PRECISION   AMAX, ANORM, BIGNUM, SCOND, SMAX, SMIN, SMLNUM
-      INTEGER            MORSE_UPLO
+      INTEGER            CHAMELEON_UPLO
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -333,9 +333,9 @@
       END IF
 *
       IF( LSAME( UPLO, 'U' ) ) THEN
-         MORSE_UPLO = MORSEUPPER     
+         CHAMELEON_UPLO = CHAMELEONUPPER     
       ELSE
-         MORSE_UPLO = MORSELOWER     
+         CHAMELEON_UPLO = CHAMELEONLOWER     
       ENDIF
 *      
       IF( EQUIL ) THEN
@@ -367,7 +367,7 @@
 *        Compute the Cholesky factorization A = U'*U or A = L*L'.
 *
          CALL ZLACPY( UPLO, N, N, A, LDA, AF, LDAF )
-         CALL MORSE_ZPOTRF( MORSE_UPLO, N, AF, LDAF, INFO )
+         CALL CHAMELEON_ZPOTRF( CHAMELEON_UPLO, N, AF, LDAF, INFO )
 *
 *        Return if INFO is non-zero.
 *
@@ -388,7 +388,7 @@
 *     Compute the solution matrix X.
 *
       CALL ZLACPY( 'Full', N, NRHS, B, LDB, X, LDX )
-      CALL MORSE_ZPOTRS( MORSE_UPLO, N, NRHS, AF, LDAF, X, LDX, INFO )
+      CALL CHAMELEON_ZPOTRS( CHAMELEON_UPLO, N, NRHS, AF, LDAF, X, LDX, INFO )
 *
 *     Use iterative refinement to improve the computed solution and
 *     compute error bounds and backward error estimates for it.

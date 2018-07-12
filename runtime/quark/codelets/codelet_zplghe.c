@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -24,7 +24,7 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zplghe_quark(Quark *quark)
@@ -32,7 +32,7 @@ void CORE_zplghe_quark(Quark *quark)
     double bump;
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int bigM;
     int m0;
@@ -43,8 +43,8 @@ void CORE_zplghe_quark(Quark *quark)
     CORE_zplghe( bump, m, n, A, lda, bigM, m0, n0, seed );
 }
 
-void MORSE_TASK_zplghe( const MORSE_option_t *options,
-                        double bump, int m, int n, const MORSE_desc_t *A, int Am, int An, int lda,
+void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
+                        double bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -53,7 +53,7 @@ void MORSE_TASK_zplghe( const MORSE_option_t *options,
         sizeof(double),                   &bump, VALUE,
         sizeof(int),                      &m,    VALUE,
         sizeof(int),                      &n,    VALUE,
-        sizeof(MORSE_Complex64_t)*lda*n, RTBLKADDR(A, MORSE_Complex64_t, Am, An),         OUTPUT,
+        sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
         sizeof(int),                      &lda,  VALUE,
         sizeof(int),                      &bigM, VALUE,
         sizeof(int),                      &m0,   VALUE,

@@ -26,7 +26,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetf2_nopiv computes an LU factorization of a general diagonal
  *  dominant M-by-N matrix A witout no pivoting and no blocking. It is the
@@ -59,7 +59,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -69,10 +69,10 @@
  */
 int
 CORE_zgetf2_nopiv(int M, int N,
-                  MORSE_Complex64_t *A, int LDA)
+                  CHAMELEON_Complex64_t *A, int LDA)
 {
-    MORSE_Complex64_t mzone = (MORSE_Complex64_t)-1.0;
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
+    CHAMELEON_Complex64_t alpha;
     double sfmin;
     int i, j, k;
     int info;
@@ -94,13 +94,13 @@ CORE_zgetf2_nopiv(int M, int N,
 
     /* Quick return */
     if ( (M == 0) || (N == 0) )
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     sfmin = LAPACKE_dlamch_work('S');
     k = chameleon_min(M, N);
     for(i=0 ; i < k; i++) {
         alpha = A[i*LDA+i];
-        if ( alpha != (MORSE_Complex64_t)0.0 ) {
+        if ( alpha != (CHAMELEON_Complex64_t)0.0 ) {
             /* Compute elements J+1:M of J-th column. */
             if (i < M) {
                 if ( cabs(alpha) > sfmin ) {

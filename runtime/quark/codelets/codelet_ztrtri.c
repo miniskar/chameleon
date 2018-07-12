@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -24,45 +24,45 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_ztrtri_quark(Quark *quark)
 {
-    MORSE_enum uplo;
-    MORSE_enum diag;
+    cham_uplo_t uplo;
+    cham_diag_t diag;
     int N;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int LDA;
-    MORSE_sequence_t *sequence;
-    MORSE_request_t *request;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int iinfo;
 
     int info;
 
     quark_unpack_args_8(quark, uplo, diag, N, A, LDA, sequence, request, iinfo);
     CORE_ztrtri(uplo, diag, N, A, LDA, &info);
-    if ( (sequence->status == MORSE_SUCCESS) && (info > 0) ) {
-        RUNTIME_sequence_flush( (MORSE_context_t*)quark, sequence, request, iinfo+info );
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info > 0) ) {
+        RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info );
     }
 }
 
-void MORSE_TASK_ztrtri(const MORSE_option_t *options,
-                       MORSE_enum uplo, MORSE_enum diag,
+void INSERT_TASK_ztrtri(const RUNTIME_option_t *options,
+                       cham_uplo_t uplo, cham_diag_t diag,
                        int n, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An, int lda,
                        int iinfo)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(
         opt->quark, CORE_ztrtri_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),                &uplo,      VALUE,
-        sizeof(MORSE_enum),                &diag,      VALUE,
+        sizeof(int),                &uplo,      VALUE,
+        sizeof(int),                &diag,      VALUE,
         sizeof(int),                        &n,         VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),                 INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INOUT,
         sizeof(int),                        &lda,       VALUE,
-        sizeof(MORSE_sequence_t*),           &(options->sequence),  VALUE,
-        sizeof(MORSE_request_t*),            &(options->request),   VALUE,
+        sizeof(RUNTIME_sequence_t*),           &(options->sequence),  VALUE,
+        sizeof(RUNTIME_request_t*),            &(options->request),   VALUE,
         sizeof(int),                        &iinfo,     VALUE,
         0);
 }

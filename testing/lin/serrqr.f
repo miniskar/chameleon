@@ -37,7 +37,7 @@
 
       SUBROUTINE SERRQR( PATH, NUNIT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -98,10 +98,10 @@
       NOUT = NUNIT
       WRITE( NOUT, FMT = * )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -118,7 +118,7 @@
 *
 *     Allocate HT
 *
-      CALL MORSE_ALLOC_WORKSPACE_SGEQRF( 2, 2, HT, INFO )
+      CALL CHAMELEON_ALLOC_WORKSPACE_SGEQRF( 2, 2, HT, INFO )
 
 *
 *     Error exits for QR factorization
@@ -127,13 +127,13 @@
 *
       SRNAMT = 'SGEQRF'
       INFOT = 1
-      CALL MORSE_SGEQRF( -1, 0, A, 1, HT, INFO )
+      CALL CHAMELEON_SGEQRF( -1, 0, A, 1, HT, INFO )
       CALL CHKXER( 'SGEQRF', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SGEQRF( 0, -1, A, 1, HT, INFO )
+      CALL CHAMELEON_SGEQRF( 0, -1, A, 1, HT, INFO )
       CALL CHKXER( 'SGEQRF', INFOT, NOUT, INFO, OK )
       INFOT = 4
-      CALL MORSE_SGEQRF( 2, 1, A, 1, HT, INFO )
+      CALL CHAMELEON_SGEQRF( 2, 1, A, 1, HT, INFO )
       CALL CHKXER( 'SGEQRF', INFOT, NOUT, INFO, OK )
 *
 *     SGEQRS
@@ -141,94 +141,94 @@
 *
       SRNAMT = 'SGEQRS'
       INFOT = 1
-      CALL MORSE_SGEQRS( -1, 0, 0, A, 1, X, B, 1, INFO )
+      CALL CHAMELEON_SGEQRS( -1, 0, 0, A, 1, X, B, 1, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SGEQRS( 0, -1, 0, A, 1, X, B, 1, INFO )
+      CALL CHAMELEON_SGEQRS( 0, -1, 0, A, 1, X, B, 1, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SGEQRS( 1, 2, 0, A, 2, X, B, 2, INFO )
+      CALL CHAMELEON_SGEQRS( 1, 2, 0, A, 2, X, B, 2, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
       INFOT = 3
-      CALL MORSE_SGEQRS( 0, 0, -1, A, 1, X, B, 1, INFO )
+      CALL CHAMELEON_SGEQRS( 0, 0, -1, A, 1, X, B, 1, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
       INFOT = 5
-      CALL MORSE_SGEQRS( 2, 1, 0, A, 1, X, B, 2, INFO )
+      CALL CHAMELEON_SGEQRS( 2, 1, 0, A, 1, X, B, 2, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
       INFOT = 8
-      CALL MORSE_SGEQRS( 2, 1, 0, A, 2, X, B, 1, INFO )
+      CALL CHAMELEON_SGEQRS( 2, 1, 0, A, 2, X, B, 1, INFO )
       CALL CHKXER( 'SGEQRS', INFOT, NOUT, INFO, OK )
 *
 *     SORGQR
 *
       SRNAMT = 'SORGQR'
       INFOT = 1
-      CALL MORSE_SORGQR( -1, 0, 0, A, 1, HT, W, 1, INFO )
+      CALL CHAMELEON_SORGQR( -1, 0, 0, A, 1, HT, W, 1, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SORGQR( 0, -1, 0, A, 1, HT, W, 1, INFO )
+      CALL CHAMELEON_SORGQR( 0, -1, 0, A, 1, HT, W, 1, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SORGQR( 1, 2, 0, A, 1, HT, W, 2, INFO )
+      CALL CHAMELEON_SORGQR( 1, 2, 0, A, 1, HT, W, 2, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 3
-      CALL MORSE_SORGQR( 0, 0, -1, A, 1, HT, W, 1, INFO )
+      CALL CHAMELEON_SORGQR( 0, 0, -1, A, 1, HT, W, 1, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 3
-      CALL MORSE_SORGQR( 1, 1, 2, A, 1, HT, W, 1, INFO )
+      CALL CHAMELEON_SORGQR( 1, 1, 2, A, 1, HT, W, 1, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 5
-      CALL MORSE_SORGQR( 2, 2, 0, A, 1, HT, W, 2, INFO )
+      CALL CHAMELEON_SORGQR( 2, 2, 0, A, 1, HT, W, 2, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
       INFOT = 8
-      CALL MORSE_SORGQR( 2, 2, 0, A, 2, HT, W, 1, INFO )
+      CALL CHAMELEON_SORGQR( 2, 2, 0, A, 2, HT, W, 1, INFO )
       CALL CHKXER( 'SORGQR', INFOT, NOUT, INFO, OK )
 *
-*     MORSE_SORMQR
+*     CHAMELEON_SORMQR
 *
       SRNAMT = 'SORMQR'
       INFOT = 1
-      CALL MORSE_SORMQR( '/', MORSETRANS, 0, 0, 0, A, 1, HT, AF, 1,
+      CALL CHAMELEON_SORMQR( '/', CHAMELEONTRANS, 0, 0, 0, A, 1, HT, AF, 1,
      4                   INFO )
       CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
       INFOT = 2
-      CALL MORSE_SORMQR( MORSELEFT, '/', 0, 0, 0, A, 1, HT, AF, 1,
+      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, '/', 0, 0, 0, A, 1, HT, AF, 1,
      4                   INFO )
       CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
       INFOT = 3
-      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, -1, 0, 0, A, 1, HT,
+      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, -1, 0, 0, A, 1, HT,
      4                   AF, 1, INFO )
       CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
       INFOT = 4
-      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 0, -1, 0, A, 1, HT,
+      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 0, -1, 0, A, 1, HT,
      4                   AF, 1, INFO )
       CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
       INFOT = 5
-      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 0, 0, -1, A, 1, HT,
+      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 0, 0, -1, A, 1, HT,
      4                   AF, 1, INFO )
       CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 5
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 0, 1, 1, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 0, 1, 1, A, 1, HT,
 *     4                   AF, 1, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 5
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 1, 0, 1, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 1, 0, 1, A, 1, HT,
 *     4                   AF, 1, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 7
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 2, 1, 0, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 2, 1, 0, A, 1, HT,
 *     4                   AF, 2, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 7
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 1, 2, 0, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 1, 2, 0, A, 1, HT,
 *     4                   AF, 1, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 10
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 1, 2, 0, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 1, 2, 0, A, 1, HT,
 *     4                   AF, 1, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *      INFOT = 10
-*      CALL MORSE_SORMQR( MORSELEFT, MORSETRANS, 2, 1, 0, A, 1, HT,
+*      CALL CHAMELEON_SORMQR( CHAMELEONLEFT, CHAMELEONTRANS, 2, 1, 0, A, 1, HT,
 *     4                   AF, 2, INFO )
 *      CALL CHKXER( 'SORMQR', INFOT, NOUT, INFO, OK )
 *
@@ -238,12 +238,12 @@
 *
 *     Deallocate HT
 *
-      CALL MORSE_DEALLOC_HANDLE( HT, INFO )
+      CALL CHAMELEON_DEALLOC_HANDLE( HT, INFO )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

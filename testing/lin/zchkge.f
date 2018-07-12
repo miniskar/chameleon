@@ -40,7 +40,7 @@
      $                   AINV, B, X, XACT, WORK, RWORK, IWORK, 
      $                   NOUT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -159,14 +159,14 @@
       INTEGER            I, IM, IMAT, IN, INB, INFO, IOFF, IRHS, ITRAN,
      $                   IZERO, K, KL, KU, LDA, LWORK, M, MODE, N, NB,
      $                   NERRS, NFAIL, NIMAT, NRHS, NRUN, NT, IB,
-     $                   MORSE_TRANS
+     $                   CHAMELEON_TRANS
       DOUBLE PRECISION   AINVNM, ANORM, ANORMI, ANORMO, CNDNUM, DUMMY,
      $                   RCOND, RCONDC, RCONDI, RCONDO
       INTEGER            HL( 2 ), HPIV( 2 )
 *     ..
 *     .. Local Arrays ..
       CHARACTER          TRANSS( NTRAN )
-      INTEGER            ISEED( 4 ), ISEEDY( 4 ), MORSE_TRANSS( NTRAN )
+      INTEGER            ISEED( 4 ), ISEEDY( 4 ), CHAMELEON_TRANSS( NTRAN )
       DOUBLE PRECISION   RESULT( NTESTS )
 *     ..
 *     .. External Functions ..
@@ -195,7 +195,7 @@
       DATA               ISEEDY / 1988, 1989, 1990, 1991 / ,
 *     $                   TRANSS / 'N', 'T', 'C' /
      $                   TRANSS / 'N' /
-     $                   MORSE_TRANSS / MORSENOTRANS /
+     $                   CHAMELEON_TRANSS / CHAMELEONNOTRANS /
 *     ..
 *     .. Executable Statements ..
 *
@@ -306,21 +306,21 @@
                   IF ( (MAX(M, N) / 25) .GT. NB ) THEN
                      GOTO 90
                   END IF
-                  CALL MORSE_SET( MORSE_TILE_SIZE, NB, INFO )
-                  CALL MORSE_SET( MORSE_INNER_BLOCK_SIZE, IB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_TILE_SIZE, NB, INFO )
+                  CALL CHAMELEON_SET( CHAMELEON_INNER_BLOCK_SIZE, IB, INFO )
 *
 *                 ALLOCATE HL and HPIV
 *
-c$$$                  CALL MORSE_ALLOC_WORKSPACE_ZGETRF_INCPIV(
+c$$$                  CALL CHAMELEON_ALLOC_WORKSPACE_ZGETRF_INCPIV(
 c$$$     $                 M, N, HL, HPIV, INFO ) 
 *
 *                 Compute the LU factorization of the matrix.
 *
                   CALL ZLACPY( 'Full', M, N, A, LDA, AFAC, LDA )
                   SRNAMT = 'ZGETRF'
-c$$$                  CALL MORSE_ZGETRF_INCPIV( M, N, AFAC, LDA, HL, HPIV, 
+c$$$                  CALL CHAMELEON_ZGETRF_INCPIV( M, N, AFAC, LDA, HL, HPIV, 
 c$$$     $                 INFO )
-                  CALL MORSE_ZGETRF( M, N, AFAC, LDA, IWORK, 
+                  CALL CHAMELEON_ZGETRF( M, N, AFAC, LDA, IWORK, 
      $                 INFO )
 *
 *                 Check error code from ZGETRF.
@@ -372,7 +372,7 @@ c$$$     $                 INFO )
 *
                      DO 50 ITRAN = 1, NTRAN
                         TRANS = TRANSS( ITRAN )
-                        MORSE_TRANS = MORSE_TRANSS( ITRAN )
+                        CHAMELEON_TRANS = CHAMELEON_TRANSS( ITRAN )
                         IF( ITRAN.EQ.1 ) THEN
                            RCONDC = RCONDO
                         ELSE
@@ -390,10 +390,10 @@ c$$$     $                 INFO )
 *
                         CALL ZLACPY( 'Full', N, NRHS, B, LDA, X, LDA )
                         SRNAMT = 'ZGETRS'
-c$$$                        CALL MORSE_ZGETRS_INCPIV( MORSE_TRANS, N, 
+c$$$                        CALL CHAMELEON_ZGETRS_INCPIV( CHAMELEON_TRANS, N, 
 c$$$     $                       NRHS, AFAC, LDA, HL, HPIV,
 c$$$     $                       X, LDA, INFO )
-                        CALL MORSE_ZGETRS( MORSE_TRANS, N, 
+                        CALL CHAMELEON_ZGETRS( CHAMELEON_TRANS, N, 
      $                       NRHS, AFAC, LDA, IWORK,
      $                       X, LDA, INFO )
 *
@@ -435,8 +435,8 @@ c$$$     $                       X, LDA, INFO )
 *
 *                 DEALLOCATE HL and HPIV
 *
-c$$$                  CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-c$$$                  CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+c$$$                  CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+c$$$                  CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
    90          CONTINUE
   100       CONTINUE
 *

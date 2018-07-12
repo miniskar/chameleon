@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int
-CUDA_zherfb( MORSE_enum uplo, int n,
+CUDA_zherfb( cham_uplo_t uplo, int n,
              int k, int ib, int nb,
              const cuDoubleComplex *A, int lda,
              const cuDoubleComplex *T, int ldt,
@@ -29,7 +29,7 @@ CUDA_zherfb( MORSE_enum uplo, int n,
              CUBLAS_STREAM_PARAM )
 {
     /* Check input arguments */
-    if ((uplo != MorseUpper) && (uplo != MorseLower)) {
+    if ((uplo != ChamUpper) && (uplo != ChamLower)) {
         cudablas_error(1, "Illegal value of uplo");
         return -1;
     }
@@ -62,23 +62,23 @@ CUDA_zherfb( MORSE_enum uplo, int n,
         return -11;
     }
 
-    if (uplo == MorseLower) {
+    if (uplo == ChamLower) {
         /* Left */
-        CUDA_zunmqrt( MorseLeft, MorseConjTrans, n, n, k, ib,
+        CUDA_zunmqrt( ChamLeft, ChamConjTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
                       CUBLAS_STREAM_VALUE );
         /* Right */
-        CUDA_zunmqrt( MorseRight, MorseNoTrans, n, n, k, ib,
+        CUDA_zunmqrt( ChamRight, ChamNoTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
                       CUBLAS_STREAM_VALUE );
     }
     else {
         /* Right */
-        CUDA_zunmlqt( MorseRight, MorseConjTrans, n, n, k, ib,
+        CUDA_zunmlqt( ChamRight, ChamConjTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
                       CUBLAS_STREAM_VALUE );
         /* Left */
-        CUDA_zunmlqt( MorseLeft, MorseNoTrans, n, n, k, ib,
+        CUDA_zunmlqt( ChamLeft, ChamNoTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
                       CUBLAS_STREAM_VALUE );
     }

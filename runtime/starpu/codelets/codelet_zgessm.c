@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgessm applies the factors L computed by CORE_zgetrf_incpiv to
  *  a complex M-by-N tile A.
@@ -67,27 +67,27 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zgessm(const MORSE_option_t *options,
+void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
                        int m, int n, int k, int ib, int nb,
                        int *IPIV,
-                       const MORSE_desc_t *L, int Lm, int Ln, int ldl,
-                       const MORSE_desc_t *D, int Dm, int Dn, int ldd,
-                       const MORSE_desc_t *A, int Am, int An, int lda)
+                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                       const CHAM_desc_t *D, int Dm, int Dn, int ldd,
+                       const CHAM_desc_t *A, int Am, int An, int lda)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgessm;
     void (*callback)(void*) = options->profiling ? cl_zgessm_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(L, Lm, Ln);
-    MORSE_ACCESS_R(D, Dm, Dn);
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(L, Lm, Ln);
+    CHAMELEON_ACCESS_R(D, Dm, Dn);
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
@@ -96,11 +96,11 @@ void MORSE_TASK_zgessm(const MORSE_option_t *options,
         STARPU_VALUE,     &k,                        sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_VALUE,          &IPIV,                      sizeof(int*),
-        STARPU_R,             RTBLKADDR(L, MORSE_Complex64_t, Lm, Ln),
+        STARPU_R,             RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),
         STARPU_VALUE,   &ldl,                        sizeof(int),
-        STARPU_R,             RTBLKADDR(D, MORSE_Complex64_t, Dm, Dn),
+        STARPU_R,             RTBLKADDR(D, CHAMELEON_Complex64_t, Dm, Dn),
         STARPU_VALUE,   &ldd,                        sizeof(int),
-        STARPU_RW,            RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_RW,            RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,   &lda,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -120,13 +120,13 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
     int ib;
     int *IPIV;
     int ldl;
-    MORSE_Complex64_t *D;
+    CHAMELEON_Complex64_t *D;
     int ldd;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
 
-    D = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    D = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV, &ldl, &ldd, &lda);
     CORE_zgessm(m, n, k, ib, IPIV, D, ldd, A, lda);
 }

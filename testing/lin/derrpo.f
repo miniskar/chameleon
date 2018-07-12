@@ -37,7 +37,7 @@
 
       SUBROUTINE DERRPO( PATH, NUNIT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *
 *  -- LAPACK test routine (version 3.1) --
@@ -105,10 +105,10 @@
       WRITE( NOUT, FMT = * )
       C2 = PATH( 2: 3 )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -135,32 +135,32 @@
 *
          SRNAMT = 'DPOTRF'
          INFOT = 1
-         CALL MORSE_DPOTRF( '/', 0, A, 1, INFO )
+         CALL CHAMELEON_DPOTRF( '/', 0, A, 1, INFO )
          CALL CHKXER( 'DPOTRF', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_DPOTRF( MORSEUPPER, -1, A, 1, INFO )
+         CALL CHAMELEON_DPOTRF( CHAMELEONUPPER, -1, A, 1, INFO )
          CALL CHKXER( 'DPOTRF', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_DPOTRF( MORSEUPPER, 2, A, 1, INFO )
+         CALL CHAMELEON_DPOTRF( CHAMELEONUPPER, 2, A, 1, INFO )
          CALL CHKXER( 'DPOTRF', INFOT, NOUT, INFO, OK )
 *
 *        DPOTRS
 *
          SRNAMT = 'DPOTRS'
          INFOT = 1
-         CALL MORSE_DPOTRS( '/', 0, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_DPOTRS( '/', 0, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'DPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_DPOTRS( MORSEUPPER, -1, 0, A, 1, B, 1, INFO )
+         CALL CHAMELEON_DPOTRS( CHAMELEONUPPER, -1, 0, A, 1, B, 1, INFO )
          CALL CHKXER( 'DPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_DPOTRS( MORSEUPPER, 0, -1, A, 1, B, 1, INFO )
+         CALL CHAMELEON_DPOTRS( CHAMELEONUPPER, 0, -1, A, 1, B, 1, INFO )
          CALL CHKXER( 'DPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_DPOTRS( MORSEUPPER, 2, 1, A, 1, B, 2, INFO )
+         CALL CHAMELEON_DPOTRS( CHAMELEONUPPER, 2, 1, A, 1, B, 2, INFO )
          CALL CHKXER( 'DPOTRS', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_DPOTRS( MORSEUPPER, 2, 1, A, 2, B, 1, INFO )
+         CALL CHAMELEON_DPOTRS( CHAMELEONUPPER, 2, 1, A, 2, B, 1, INFO )
          CALL CHKXER( 'DPOTRS', INFOT, NOUT, INFO, OK )
       END IF
 *
@@ -168,10 +168,10 @@
 *
       CALL ALAESM( PATH, OK, NOUT )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

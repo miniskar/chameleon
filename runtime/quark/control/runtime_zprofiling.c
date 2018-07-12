@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon Quark MORSE_Complex64_t kernel progiling
+ * @brief Chameleon Quark CHAMELEON_Complex64_t kernel progiling
  *
  * @version 1.0.0
  * @author Mathieu Faverge
@@ -23,12 +23,12 @@
 
 void RUNTIME_zdisplay_allprofile()
 {
-    morse_warning("RUNTIME_zdisplay_allprofile(quark)", "Profiling is not available with Quark");
+    chameleon_warning("RUNTIME_zdisplay_allprofile(quark)", "Profiling is not available with Quark");
 }
 
-void RUNTIME_zdisplay_oneprofile( MORSE_kernel_t kernel )
+void RUNTIME_zdisplay_oneprofile( cham_tasktype_t kernel )
 {
     (void)kernel;
-    morse_warning("RUNTIME_zdisplay_oneprofile(quark)", "Profiling is not available with Quark\n");
+    chameleon_warning("RUNTIME_zdisplay_oneprofile(quark)", "Profiling is not available with Quark\n");
 }
 

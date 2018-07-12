@@ -40,33 +40,33 @@ void RUNTIME_free( void  *ptr,
     return;
 }
 
-void RUNTIME_desc_create( MORSE_desc_t *desc )
+void RUNTIME_desc_create( CHAM_desc_t *desc )
 {
     (void)desc;
     return;
 }
 
-void RUNTIME_desc_destroy( MORSE_desc_t *desc )
+void RUNTIME_desc_destroy( CHAM_desc_t *desc )
 {
     (void)desc;
     return;
 }
 
-int RUNTIME_desc_acquire( const MORSE_desc_t *desc )
+int RUNTIME_desc_acquire( const CHAM_desc_t *desc )
 {
     (void)desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
-int RUNTIME_desc_release( const MORSE_desc_t *desc )
+int RUNTIME_desc_release( const CHAM_desc_t *desc )
 {
     (void)desc;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 void
-RUNTIME_desc_flush( const MORSE_desc_t     *desc,
-                    const MORSE_sequence_t *sequence )
+RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+                    const RUNTIME_sequence_t *sequence )
 {
     (void)desc;
     (void)sequence;
@@ -81,8 +81,8 @@ RUNTIME_flush( )
 }
 
 void
-RUNTIME_data_flush( const MORSE_sequence_t *sequence,
-                    const MORSE_desc_t *A, int Am, int An )
+RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
+                    const CHAM_desc_t *A, int Am, int An )
 {
     (void)sequence;
     (void)A;
@@ -92,14 +92,14 @@ RUNTIME_data_flush( const MORSE_sequence_t *sequence,
 }
 
 #if defined(CHAMELEON_USE_MIGRATE)
-void RUNTIME_data_migrate( const MORSE_sequence_t *sequence,
-                           const MORSE_desc_t *A, int Am, int An, int new_rank )
+void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
+                           const CHAM_desc_t *A, int Am, int An, int new_rank )
 {
     (void)sequence; (void)A; (void)Am; (void)An; (void)new_rank;
 }
 #endif
 
-void *RUNTIME_data_getaddr( const MORSE_desc_t *desc, int m, int n )
+void *RUNTIME_data_getaddr( const CHAM_desc_t *desc, int m, int n )
 {
     return desc->get_blkaddr( desc, m, n );
 }

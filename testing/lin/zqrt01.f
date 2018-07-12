@@ -38,7 +38,7 @@
       SUBROUTINE ZQRT01( M, N, A, AF, Q, R, LDA, T, WORK, LWORK,
      $                   RWORK, RESULT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -144,7 +144,7 @@
 *     Factorize the matrix A in the array AF.
 *
       SRNAMT = 'ZGEQRF'
-      CALL MORSE_ZGEQRF( M, N, AF, LDA, T, INFO )
+      CALL CHAMELEON_ZGEQRF( M, N, AF, LDA, T, INFO )
 *
 *     Copy details of Q
 *
@@ -153,7 +153,7 @@
 *     Generate the m-by-m matrix Q
 *
       SRNAMT = 'ZUNGQR'
-      CALL MORSE_ZUNGQR( M, N, MINMN, AF, LDA, T, Q, LDA, INFO )
+      CALL CHAMELEON_ZUNGQR( M, N, MINMN, AF, LDA, T, Q, LDA, INFO )
 *
 *     Copy R
 *

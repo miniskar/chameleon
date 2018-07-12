@@ -17,12 +17,12 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgetrf_incpiv computes an LU factorization of a general M-by-N tile A
  *  using partial pivoting with row int erchanges.
@@ -66,7 +66,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -81,10 +81,10 @@ CORE_zgetrf_incpiv_parsec( parsec_execution_stream_t *context,
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int *IPIV;
-    MORSE_bool *check_info;
+    cham_bool_t *check_info;
     int iinfo;
 
     int info;
@@ -98,12 +98,12 @@ CORE_zgetrf_incpiv_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zgetrf_incpiv( const MORSE_option_t *options,
+void INSERT_TASK_zgetrf_incpiv( const RUNTIME_option_t *options,
                                int m, int n, int ib, int nb,
-                               const MORSE_desc_t *A, int Am, int An, int lda,
-                               const MORSE_desc_t *L, int Lm, int Ln, int ldl,
+                               const CHAM_desc_t *A, int Am, int An, int lda,
+                               const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                                int *IPIV,
-                               MORSE_bool check_info, int iinfo )
+                               cham_bool_t check_info, int iinfo )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -112,7 +112,7 @@ void MORSE_TASK_zgetrf_incpiv( const MORSE_option_t *options,
         sizeof(int),           &m,                                VALUE,
         sizeof(int),           &n,                                VALUE,
         sizeof(int),           &ib,                               VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),           &lda,                              VALUE,
         sizeof(int*),          &IPIV,                             VALUE,
         sizeof(int),           &check_info,                       VALUE,

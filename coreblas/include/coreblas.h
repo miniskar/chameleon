@@ -35,12 +35,12 @@
 #include "coreblas/cblas.h"
 
 /**
- * MORSE types and constants
+ * CHAMELEON types and constants
  */
-#include "chameleon/chameleon_config.h"
-#include "chameleon/morse_types.h"
-#include "chameleon/morse_struct.h"
-#include "chameleon/morse_constants.h"
+#include "chameleon/config.h"
+#include "chameleon/types.h"
+#include "chameleon/struct.h"
+#include "chameleon/constants.h"
 
 /**
  * CORE BLAS headers
@@ -77,8 +77,8 @@ END_C_DECLS
  */
 BEGIN_C_DECLS
 
-extern char *morse_lapack_constants[];
-#define morse_lapack_const(morse_const) morse_lapack_constants[morse_const][0]
+extern char *chameleon_lapack_constants[];
+#define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
 void set_coreblas_gemm3m_enabled( int v );
 int  get_coreblas_gemm3m_enabled( void );

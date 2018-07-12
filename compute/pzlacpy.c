@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -31,44 +31,44 @@
 /**
  *
  */
-void morse_pzlacpy(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
-                          MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int X, Y;
     int m, n;
     int ldam, ldbm;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     switch (uplo) {
     /*
-     *  MorseUpper
+     *  ChamUpper
      */
-    case MorseUpper:
+    case ChamUpper:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             ldam = BLKLDD(A, m);
             ldbm = BLKLDD(B, m);
             if (m < A->nt) {
                 Y = m == A->nt-1 ? A->n-m*A->nb : A->nb;
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper,
+                    ChamUpper,
                     X, Y, A->mb,
                     A(m, m), ldam,
                     B(m, m), ldbm);
             }
             for (n = m+1; n < A->nt; n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpperLower,
+                    ChamUpperLower,
                     X, Y, A->mb,
                     A(m, n), ldam,
                     B(m, n), ldbm);
@@ -76,27 +76,27 @@ void morse_pzlacpy(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
         }
         break;
     /*
-     *  MorseLower
+     *  ChamLower
      */
-    case MorseLower:
+    case ChamLower:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             ldam = BLKLDD(A, m);
             ldbm = BLKLDD(B, m);
             if (m < A->nt) {
                 Y = m == A->nt-1 ? A->n-m*A->nb : A->nb;
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseLower,
+                    ChamLower,
                     X, Y, A->mb,
                     A(m, m), ldam,
                     B(m, m), ldbm);
             }
             for (n = 0; n < chameleon_min(m, A->nt); n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpperLower,
+                    ChamUpperLower,
                     X, Y, A->mb,
                     A(m, n), ldam,
                     B(m, n), ldbm);
@@ -104,9 +104,9 @@ void morse_pzlacpy(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
         }
         break;
     /*
-     *  MorseUpperLower
+     *  ChamUpperLower
      */
-    case MorseUpperLower:
+    case ChamUpperLower:
     default:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
@@ -114,14 +114,14 @@ void morse_pzlacpy(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
             ldbm = BLKLDD(B, m);
             for (n = 0; n < A->nt; n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpperLower,
+                    ChamUpperLower,
                     X, Y, A->mb,
                     A(m, n), ldam,
                     B(m, n), ldbm);
             }
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

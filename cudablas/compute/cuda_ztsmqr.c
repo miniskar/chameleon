@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int CUDA_ztsmqr(
-        MORSE_enum side, MORSE_enum trans,
+        cham_side_t side, cham_trans_t trans,
         int M1, int N1,
         int M2, int N2,
         int K, int IB,
@@ -41,12 +41,12 @@ int CUDA_ztsmqr(
     int ni = N1;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         return -1;
     }
 
     /* NQ is the order of Q */
-    if (side == MorseLeft) {
+    if (side == ChamLeft) {
         NQ = M2;
         NW = IB;
     }
@@ -55,7 +55,7 @@ int CUDA_ztsmqr(
         NW = M1;
     }
 
-    if ((trans != MorseNoTrans) && (trans != MorseConjTrans)) {
+    if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
         return -2;
     }
     if (M1 < 0) {
@@ -65,16 +65,16 @@ int CUDA_ztsmqr(
         return -4;
     }
     if ( (M2 < 0) ||
-         ( (M2 != M1) && (side == MorseRight) ) ){
+         ( (M2 != M1) && (side == ChamRight) ) ){
         return -5;
     }
     if ( (N2 < 0) ||
-         ( (N2 != N1) && (side == MorseLeft) ) ){
+         ( (N2 != N1) && (side == ChamLeft) ) ){
         return -6;
     }
     if ((K < 0) ||
-        ( (side == MorseLeft)  && (K > M1) ) ||
-        ( (side == MorseRight) && (K > N1) ) ) {
+        ( (side == ChamLeft)  && (K > M1) ) ||
+        ( (side == ChamRight) && (K > N1) ) ) {
         return -7;
     }
     if (IB < 0) {
@@ -98,10 +98,10 @@ int CUDA_ztsmqr(
 
     /* Quick return */
     if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
-    if (((side == MorseLeft)  && (trans != MorseNoTrans))
-        || ((side == MorseRight) && (trans == MorseNoTrans))) {
+    if (((side == ChamLeft)  && (trans != ChamNoTrans))
+        || ((side == ChamRight) && (trans == ChamNoTrans))) {
         i1 = 0;
         i3 = IB;
     }
@@ -113,7 +113,7 @@ int CUDA_ztsmqr(
     for(i = i1; (i > -1) && (i < K); i += i3) {
         kb = chameleon_min(IB, K-i);
 
-        if (side == MorseLeft) {
+        if (side == ChamLeft) {
             /*
              * H or H' is applied to C(i:m,1:n)
              */
@@ -131,7 +131,7 @@ int CUDA_ztsmqr(
          * Apply H or H' (NOTE: CORE_zparfb used to be CORE_ztsrfb)
          */
         CUDA_zparfb(
-                side, trans, MorseForward, MorseColumnwise,
+                side, trans, ChamDirForward, ChamColumnwise,
                 mi, ni, M2, N2, kb, 0,
                 A1 + LDA1*jc+ic, LDA1,
                 A2, LDA2,
@@ -139,5 +139,5 @@ int CUDA_ztsmqr(
                 T + LDT*i, LDT,
                 WORK, LDWORK, WORKC, LDWORKC, CUBLAS_STREAM_VALUE );
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

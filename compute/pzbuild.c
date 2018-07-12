@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -32,9 +32,9 @@
  *
  * @param[in] uplo
  *          Specifies the part of the matrix A to be copied to B.
- *            = MorseUpperLower: All the matrix A
- *            = MorseUpper: Upper triangular part
- *            = MorseLower: Lower triangular part
+ *            = ChamUpperLower: All the matrix A
+ *            = ChamUpper: Upper triangular part
+ *            = ChamLower: Lower triangular part
  *
  * @param[in] A
  *          On exit, The matrix A generated.
@@ -53,33 +53,33 @@
  *          Identifies this function call (for exception handling purposes).
  *
  */
-void morse_pzbuild( MORSE_enum uplo, MORSE_desc_t *A, void *user_data, void* user_build_callback,
-                    MORSE_sequence_t *sequence, MORSE_request_t *request )
+void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback,
+                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-  MORSE_context_t *morse;
-  MORSE_option_t options;
+  CHAM_context_t *chamctxt;
+  RUNTIME_option_t options;
 
   int m, n;
   int ldam;
 
-  morse = morse_context_self();
-  if (sequence->status != MORSE_SUCCESS)
+  chamctxt = chameleon_context_self();
+  if (sequence->status != CHAMELEON_SUCCESS)
     return;
-  RUNTIME_options_init(&options, morse, sequence, request);
+  RUNTIME_options_init(&options, chamctxt, sequence, request);
 
   for (m = 0; m < A->mt; m++) {
     ldam = BLKLDD(A, m);
     for (n = 0; n < A->nt; n++) {
 
-      if ( ( uplo == MorseUpper && m <= n ) ||
-           ( uplo == MorseLower && m >= n ) ||
-           ( uplo == MorseUpperLower ) )
-        MORSE_TASK_zbuild(
+      if ( ( uplo == ChamUpper && m <= n ) ||
+           ( uplo == ChamLower && m >= n ) ||
+           ( uplo == ChamUpperLower ) )
+        INSERT_TASK_zbuild(
               &options,
               A(m, n), ldam,
               user_data, user_build_callback );
     }
   }
 
-  RUNTIME_options_finalize( &options, morse);
+  RUNTIME_options_finalize( &options, chamctxt);
 }

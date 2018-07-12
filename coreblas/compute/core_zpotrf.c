@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,14 +28,14 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void CORE_zpotrf(MORSE_enum uplo, int N, MORSE_Complex64_t *A, int LDA, int *INFO)
+void CORE_zpotrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, int *INFO)
 {
     *INFO = LAPACKE_zpotrf_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(uplo),
+        chameleon_lapack_const(uplo),
         N, A, LDA );
 }
 

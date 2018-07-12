@@ -9,8 +9,8 @@
 #
 ###
 #
-#  @project MORSE
-#  MORSE is a software package provided by:
+#  @project CHAMELEON
+#  CHAMELEON is a software package provided by:
 #     Inria Bordeaux - Sud-Ouest,
 #     Univ. of Tennessee,
 #     King Abdullah Univesity of Science and Technology
@@ -23,7 +23,7 @@
 #
 ###
 
-# Generate the morse sources for all possible precisions
+# Generate the chameleon sources for all possible precisions
 # ------------------------------------------------------
 set(CUDABLAS_SRCS_GENERATED "")
 set(ZSRC

@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon PaRSEC MORSE_Complex64_t kernel locality management
+ * @brief Chameleon PaRSEC CHAMELEON_Complex64_t kernel locality management
  *
  * @version 1.0.0
  * @author Reazul Hoque
@@ -22,23 +22,23 @@
 void RUNTIME_zlocality_allrestrict( uint32_t where )
 {
     (void)where;
-    morse_warning("RUNTIME_zlocality_allrestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_allrestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
 }
 
-void RUNTIME_zlocality_onerestrict( MORSE_kernel_t kernel, uint32_t where )
+void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 {
     (void)kernel;
     (void)where;
-    morse_warning("RUNTIME_zlocality_onerestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_onerestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
 }
 
 void RUNTIME_zlocality_allrestore( )
 {
-    morse_warning("RUNTIME_zlocality_allrestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_allrestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
 }
 
-void RUNTIME_zlocality_onerestore( MORSE_kernel_t kernel )
+void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
 {
     (void)kernel;
-    morse_warning("RUNTIME_zlocality_onerestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_onerestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
 }

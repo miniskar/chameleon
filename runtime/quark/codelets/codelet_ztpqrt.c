@@ -18,7 +18,7 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 static void
@@ -28,13 +28,13 @@ CORE_ztpqrt_quark( Quark *quark )
     int N;
     int L;
     int ib;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
-    MORSE_Complex64_t *B;
+    CHAMELEON_Complex64_t *B;
     int ldb;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
 
     quark_unpack_args_11( quark, M, N, L, ib,
                           A, lda, B, ldb, T, ldt, WORK );
@@ -43,11 +43,11 @@ CORE_ztpqrt_quark( Quark *quark )
                  A, lda, B, ldb, T, ldt, WORK );
 }
 
-void MORSE_TASK_ztpqrt( const MORSE_option_t *options,
+void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          int M, int N, int L, int ib, int nb,
-                         const MORSE_desc_t *A, int Am, int An, int lda,
-                         const MORSE_desc_t *B, int Bm, int Bn, int ldb,
-                         const MORSE_desc_t *T, int Tm, int Tn, int ldt )
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_TSQRT;
@@ -60,12 +60,12 @@ void MORSE_TASK_ztpqrt( const MORSE_option_t *options,
         sizeof(int),                         &N,   VALUE,
         sizeof(int),                         &L,   VALUE,
         sizeof(int),                         &ib,  VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,      RTBLKADDR( A, MORSE_Complex64_t, Am, An ), INOUT | QUARK_REGION_U | QUARK_REGION_D,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,      RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), INOUT | QUARK_REGION_U | QUARK_REGION_D,
         sizeof(int),                         &lda, VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,      RTBLKADDR( B, MORSE_Complex64_t, Bm, Bn ), INOUT | shapeB | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,      RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), INOUT | shapeB | LOCALITY,
         sizeof(int),                         &ldb, VALUE,
-        sizeof(MORSE_Complex64_t)*nb*ib,      RTBLKADDR( T, MORSE_Complex64_t, Tm, Tn ), OUTPUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*ib,      RTBLKADDR( T, CHAMELEON_Complex64_t, Tm, Tn ), OUTPUT,
         sizeof(int),                         &ldt, VALUE,
-        sizeof(MORSE_Complex64_t)*(ib+1)*nb,  NULL, SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*(ib+1)*nb,  NULL, SCRATCH,
         0);
 }

@@ -19,8 +19,8 @@
  */
 #include "cudablas.h"
 
-int CUDA_ztrsm(MORSE_enum side, MORSE_enum uplo,
-               MORSE_enum transa, MORSE_enum diag,
+int CUDA_ztrsm(cham_side_t side, cham_uplo_t uplo,
+               cham_trans_t transa, cham_diag_t diag,
                int m, int n,
                cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
@@ -28,13 +28,13 @@ int CUDA_ztrsm(MORSE_enum side, MORSE_enum uplo,
                CUBLAS_STREAM_PARAM)
 {
     cublasZtrsm(CUBLAS_HANDLE
-        morse_cublas_const(side), morse_cublas_const(uplo),
-        morse_cublas_const(transa), morse_cublas_const(diag),
+        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
+        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
         m, n,
         CUBLAS_VALUE(alpha), A, lda,
         B, ldb);
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

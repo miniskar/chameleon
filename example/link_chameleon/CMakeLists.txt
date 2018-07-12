@@ -3,29 +3,29 @@
 cmake_minimum_required(VERSION 2.8)
 project(LINK_CHAMELEON Fortran C CXX)
 
-# Add extra cmake module path and initialize morse cmake modules
+# Add extra cmake module path and initialize chameleon cmake modules
 # --------------------------------------------------------------
-set( MORSE_DISTRIB_DIR "" CACHE PATH "Directory of MORSE distribution")
-option( MORSE_CHAMELEON_USE_QUARK "CHAMELEON to be linked with QUARK runtime" OFF)
-option( MORSE_CHAMELEON_USE_STARPU "CHAMELEON to be linked with StarPU runtime (default)" ON)
+set( CHAMELEON_DISTRIB_DIR "" CACHE PATH "Directory of CHAMELEON distribution")
+option( CHAMELEON_CHAMELEON_USE_QUARK "CHAMELEON to be linked with QUARK runtime" OFF)
+option( CHAMELEON_CHAMELEON_USE_STARPU "CHAMELEON to be linked with StarPU runtime (default)" ON)
 
 # Both options cannot be ON at the same time: it is either QUARK or StarPU
-if (MORSE_CHAMELEON_USE_QUARK)
-    set(MORSE_CHAMELEON_USE_STARPU OFF)
-elseif (MORSE_CHAMELEON_USE_STARPU)
-    set(MORSE_CHAMELEON_USE_QUARK OFF)
+if (CHAMELEON_CHAMELEON_USE_QUARK)
+    set(CHAMELEON_CHAMELEON_USE_STARPU OFF)
+elseif (CHAMELEON_CHAMELEON_USE_STARPU)
+    set(CHAMELEON_CHAMELEON_USE_QUARK OFF)
 endif()
 
-if (MORSE_DISTRIB_DIR)
-    set( MORSE_CMAKE_MODULE_DIR "${MORSE_DISTRIB_DIR}/morse_cmake/modules" CACHE PATH
-         "Directory where to find MORSE CMake modules (morse_cmake/modules)")
-    list(APPEND CMAKE_MODULE_PATH "${MORSE_CMAKE_MODULE_DIR}")
-    list(APPEND CMAKE_MODULE_PATH "${MORSE_CMAKE_MODULE_DIR}/find")
-    message(STATUS "MORSE_CMAKE_MODULE_DIR : ${MORSE_CMAKE_MODULE_DIR}/morse_cmake/modules")
-    include(MorseInit)
+if (CHAMELEON_DISTRIB_DIR)
+    set( CHAMELEON_CMAKE_MODULE_DIR "${CHAMELEON_DISTRIB_DIR}/morse_cmake/modules" CACHE PATH
+         "Directory where to find CHAMELEON CMake modules (morse_cmake/modules)")
+    list(APPEND CMAKE_MODULE_PATH "${CHAMELEON_CMAKE_MODULE_DIR}")
+    list(APPEND CMAKE_MODULE_PATH "${CHAMELEON_CMAKE_MODULE_DIR}/find")
+    message(STATUS "CHAMELEON_CMAKE_MODULE_DIR : ${CHAMELEON_CMAKE_MODULE_DIR}/morse_cmake/modules")
+    include(ChamInit)
 
     # Detect CHAMELEON
-    if (MORSE_CHAMELEON_USE_QUARK)
+    if (CHAMELEON_CHAMELEON_USE_QUARK)
         find_package(CHAMELEON COMPONENTS QUARK)
     else()
         find_package(CHAMELEON COMPONENTS STARPU MPI CUDA FXT)
@@ -45,8 +45,8 @@ if (MORSE_DISTRIB_DIR)
     add_executable(link_chameleon_f link_chameleon.f90)
     target_link_libraries(link_chameleon_f ${CHAMELEON_LIBRARIES_DEP})
 else()
-    message(STATUS "MORSE_DISTRIB_DIR is not set")
-    message(STATUS "Please indicate where is located your MORSE distribution directory."
+    message(STATUS "CHAMELEON_DISTRIB_DIR is not set")
+    message(STATUS "Please indicate where is located your CHAMELEON distribution directory."
     " This is necessary to find cmake_modules.")
 endif()
 

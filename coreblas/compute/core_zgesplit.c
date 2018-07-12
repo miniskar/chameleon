@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -27,7 +27,7 @@
 /**
  ***************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zgesplit splits a matrix A into two parts (Upper/Lower), A keeps its
  *  lower/upper part unchanged and the other part is filled with zeros. Ones
@@ -57,17 +57,17 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-int CORE_zgesplit(MORSE_enum side, MORSE_enum diag,
+int CORE_zgesplit(cham_side_t side, cham_diag_t diag,
                   int M, int N,
-                  MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t *B, int LDB)
+                  CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *B, int LDB)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
 
     if (M < 0) {
         coreblas_error(1, "Illegal value of M");
@@ -86,20 +86,20 @@ int CORE_zgesplit(MORSE_enum side, MORSE_enum diag,
         return -7;
     }
 
-    if (side == MorseLeft){
-        uplo = MorseUpper;
+    if (side == ChamLeft){
+        uplo = ChamUpper;
     } else{
-        uplo = MorseLower;
+        uplo = ChamLower;
     }
 
     LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                        morse_lapack_const(MorseUpperLower),
+                        chameleon_lapack_const(ChamUpperLower),
                         M, N, A, LDA, B, LDB);
 
     LAPACKE_zlaset_work(LAPACK_COL_MAJOR,
-                        morse_lapack_const(uplo),
+                        chameleon_lapack_const(uplo),
                         M, N, 0., 1., A, LDA);
 
     (void)diag;
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

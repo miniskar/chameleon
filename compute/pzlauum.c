@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -29,41 +29,41 @@
 /**
  *  Parallel UU' or L'L operation - dynamic scheduling
  */
-void morse_pzlauum(MORSE_enum uplo, MORSE_desc_t *A,
-                          MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int k, m, n;
     int ldak, ldam, ldan;
     int tempkm, tempkn;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
-     *  MorseLower
+     *  ChamLower
      */
-    if (uplo == MorseLower) {
+    if (uplo == ChamLower) {
         for (k = 0; k < A->mt; k++) {
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
             for(n = 0; n < k; n++) {
                 ldan = BLKLDD(A, n);
-                MORSE_TASK_zherk(
+                INSERT_TASK_zherk(
                     &options,
-                    uplo, MorseConjTrans,
+                    uplo, ChamConjTrans,
                     A->mb, tempkm, A->mb,
                     1.0, A(k, n), ldak,
                     1.0, A(n, n), ldan);
 
                 for(m = n+1; m < k; m++) {
                     ldam = BLKLDD(A, m);
-                    MORSE_TASK_zgemm(
+                    INSERT_TASK_zgemm(
                         &options,
-                        MorseConjTrans, MorseNoTrans,
+                        ChamConjTrans, ChamNoTrans,
                         A->mb, A->nb, tempkm, A->mb,
                         1.0, A(k, m), ldak,
                              A(k, n), ldak,
@@ -72,22 +72,22 @@ void morse_pzlauum(MORSE_enum uplo, MORSE_desc_t *A,
             }
             for (n = 0; n < k; n++) {
                 RUNTIME_data_flush( sequence, A(k, n) );
-                MORSE_TASK_ztrmm(
+                INSERT_TASK_ztrmm(
                     &options,
-                    MorseLeft, uplo, MorseConjTrans, MorseNonUnit,
+                    ChamLeft, uplo, ChamConjTrans, ChamNonUnit,
                     tempkm, A->nb, A->mb,
                     1.0, A(k, k), ldak,
                          A(k, n), ldak);
             }
             RUNTIME_data_flush( sequence, A(k, k) );
-            MORSE_TASK_zlauum(
+            INSERT_TASK_zlauum(
                 &options,
                 uplo, tempkm, A->mb,
                 A(k, k), ldak);
         }
     }
     /*
-     *  MorseUpper
+     *  ChamUpper
      */
     else {
         for (k = 0; k < A->mt; k++) {
@@ -96,18 +96,18 @@ void morse_pzlauum(MORSE_enum uplo, MORSE_desc_t *A,
 
             for (m = 0; m < k; m++) {
                 ldam = BLKLDD(A, m);
-                MORSE_TASK_zherk(
+                INSERT_TASK_zherk(
                     &options,
-                    uplo, MorseNoTrans,
+                    uplo, ChamNoTrans,
                     A->mb, tempkn, A->mb,
                     1.0, A(m, k), ldam,
                     1.0, A(m, m), ldam);
 
                 for (n = m+1; n < k; n++){
                     ldan = BLKLDD(A, n);
-                    MORSE_TASK_zgemm(
+                    INSERT_TASK_zgemm(
                         &options,
-                        MorseNoTrans, MorseConjTrans,
+                        ChamNoTrans, ChamConjTrans,
                         A->mb, A->nb, tempkn, A->mb,
                         1.0, A(m, k), ldam,
                              A(n, k), ldan,
@@ -117,19 +117,19 @@ void morse_pzlauum(MORSE_enum uplo, MORSE_desc_t *A,
             for (m = 0; m < k; m++) {
                 ldam = BLKLDD(A, m);
                 RUNTIME_data_flush( sequence, A(m, k) );
-                MORSE_TASK_ztrmm(
+                INSERT_TASK_ztrmm(
                     &options,
-                    MorseRight, uplo, MorseConjTrans, MorseNonUnit,
+                    ChamRight, uplo, ChamConjTrans, ChamNonUnit,
                     A->mb, tempkn, A->mb,
                     1.0, A(k, k), ldak,
                          A(m, k), ldam);
             }
             RUNTIME_data_flush( sequence, A(k, k) );
-            MORSE_TASK_zlauum(
+            INSERT_TASK_zlauum(
                 &options,
                 uplo, tempkn, A->mb,
                 A(k, k), ldak);
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Azzam Haidar
@@ -38,12 +38,12 @@
 /**
  *  Parallel application of Q using tile V - LQ factorization - dynamic scheduling
  */
-void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
-                   MORSE_desc_t *A, MORSE_desc_t *B, MORSE_desc_t *T, MORSE_desc_t *D,
-                   MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzunmlq(cham_side_t side, cham_trans_t trans,
+                   CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D,
+                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -52,12 +52,12 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
     int tempmm, tempnn, tempkn, tempkm, tempkmin;
     int ib, minMT, minM;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     if (A->m > A->n) {
         minM  = A->n;
@@ -86,40 +86,40 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
     ws_worker = chameleon_max( ws_worker, ib * A->mb * 2 );
 #endif
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
-    if (side == MorseLeft ) {
-        if (trans == MorseNoTrans) {
+    if (side == ChamLeft ) {
+        if (trans == ChamNoTrans) {
             /*
-             *  MorseLeft / MorseNoTrans
+             *  ChamLeft / ChamNoTrans
              */
             for (k = 0; k < minMT; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
                 ldak = BLKLDD(A, k);
                 ldbk = BLKLDD(B, k);
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkmin, tempkm, A->nb,
+                    ChamUpper, tempkmin, tempkm, A->nb,
                     A(k, k), ldak,
                     D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkmin, tempkm,
+                    ChamLower, tempkmin, tempkm,
                     0., 1.,
                     D(k), ldak );
 #endif
 #endif
                 for (n = 0; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                    MORSE_TASK_zunmlq(
+                    INSERT_TASK_zunmlq(
                         &options,
                         side, trans,
                         tempkm, tempnn, tempkmin, ib, T->nb,
@@ -141,7 +141,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                               B->get_rankof( B, m, n ) );
 
                         /* TS kernel */
-                        MORSE_TASK_ztpmlqt(
+                        INSERT_TASK_ztpmlqt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, 0, ib, T->nb,
@@ -161,15 +161,15 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                           B->get_rankof( B, k, n ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
-         *  MorseLeft / MorseConjTrans
+         *  ChamLeft / ChamConjTrans
          */
         else {
             for (k = minMT-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
@@ -185,7 +185,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                               B->get_rankof( B, m, n ) );
 
                         /* TS kernel */
-                        MORSE_TASK_ztpmlqt(
+                        INSERT_TASK_ztpmlqt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, 0, ib, T->nb,
@@ -199,15 +199,15 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                     RUNTIME_data_flush( sequence, T(k, m) );
                 }
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkmin, tempkm, A->nb,
+                    ChamUpper, tempkmin, tempkm, A->nb,
                     A(k, k), ldak,
                     D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkmin, tempkm,
+                    ChamLower, tempkmin, tempkm,
                     0., 1.,
                     D(k), ldak );
 #endif
@@ -218,7 +218,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                     RUNTIME_data_migrate( sequence, B(k, n),
                                           B->get_rankof( B, k, n ) );
 
-                    MORSE_TASK_zunmlq(
+                    INSERT_TASK_zunmlq(
                         &options,
                         side, trans,
                         tempkm, tempnn, tempkmin, ib, T->nb,
@@ -228,17 +228,17 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                 }
                 RUNTIME_data_flush( sequence, D(k)    );
                 RUNTIME_data_flush( sequence, T(k, k) );
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
     /*
-     *  MorseRight / MorseNoTrans
+     *  ChamRight / ChamNoTrans
      */
     else {
-        if (trans == MorseNoTrans) {
+        if (trans == ChamNoTrans) {
             for (k = minMT-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn   = k == B->nt - 1 ? B->n - k * B->nb : B->nb;
                 tempkmin = k == minMT - 1 ? minM - k * A->nb : A->nb;
@@ -253,7 +253,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                               B->get_rankof( B, m, n ) );
 
                         /* TS kernel */
-                        MORSE_TASK_ztpmlqt(
+                        INSERT_TASK_ztpmlqt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, 0, ib, T->nb,
@@ -267,15 +267,15 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                     RUNTIME_data_flush( sequence, T(k, n) );
                 }
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkmin, tempkn, A->nb,
+                    ChamUpper, tempkmin, tempkn, A->nb,
                     A(k, k), ldak,
                     D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkmin, tempkn,
+                    ChamLower, tempkmin, tempkn,
                     0., 1.,
                     D(k), ldak );
 #endif
@@ -287,7 +287,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                     RUNTIME_data_migrate( sequence, B(m, k),
                                           B->get_rankof( B, m, k ) );
 
-                    MORSE_TASK_zunmlq(
+                    INSERT_TASK_zunmlq(
                         &options,
                         side, trans,
                         tempmm, tempkn, tempkmin, ib, T->nb,
@@ -299,29 +299,29 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                 RUNTIME_data_flush( sequence, D(k)    );
                 RUNTIME_data_flush( sequence, T(k, k) );
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
-         *  MorseRight / MorseConjTrans
+         *  ChamRight / ChamConjTrans
          */
         else {
             for (k = 0; k < minMT; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn   = k == B->nt-1 ? B->n-k*B->nb : B->nb;
                 tempkmin = k == minMT-1 ? minM-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkmin, tempkn, A->nb,
+                    ChamUpper, tempkmin, tempkn, A->nb,
                     A(k, k), ldak,
                     D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkmin, tempkn,
+                    ChamLower, tempkmin, tempkn,
                     0., 1.,
                     D(k), ldak );
 #endif
@@ -329,7 +329,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                 for (m = 0; m < B->mt; m++) {
                     tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
                     ldbm = BLKLDD(B, m);
-                    MORSE_TASK_zunmlq(
+                    INSERT_TASK_zunmlq(
                         &options,
                         side, trans,
                         tempmm, tempkn, tempkmin, ib, T->nb,
@@ -351,7 +351,7 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                               B->get_rankof( B, m, n ) );
 
                         /* TS kernel */
-                        MORSE_TASK_ztpmlqt(
+                        INSERT_TASK_ztpmlqt(
                             &options,
                             side, trans,
                             tempmm, tempnn, tempkmin, 0, ib, T->nb,
@@ -371,11 +371,11 @@ void morse_pzunmlq(MORSE_enum side, MORSE_enum trans,
                                           B->get_rankof( B, m, k ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Dulceneia Becker
@@ -38,11 +38,11 @@
 /*
  *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
  */
-void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
-                     MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
+                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -52,12 +52,12 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
     int tempkmin, tempkm, tempNn, tempnn, tempmm, tempNRDn;
     int ib;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     /*
      * zgelqt = A->nb * (ib+1)
@@ -79,8 +79,8 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
@@ -88,29 +88,29 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
 
     /* The number of the factorization */
     for (k = 0; k < K; k++) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
         for (N = k; N < A->nt; N += BS) {
             tempNn = N == A->nt-1 ? A->n-N*A->nb : A->nb;
             tempkmin = chameleon_min(tempkm, tempNn);
-            MORSE_TASK_zgelqt(
+            INSERT_TASK_zgelqt(
                 &options,
                 tempkm, tempNn, ib, T->nb,
                 A(k, N), ldak,
                 T(k, N), T->mb);
             if ( k < (A->mt-1) ) {
 #if defined(CHAMELEON_COPY_DIAG)
-                MORSE_TASK_zlacpy(
+                INSERT_TASK_zlacpy(
                     &options,
-                    MorseUpper, tempkm, tempNn, A->nb,
+                    ChamUpper, tempkm, tempNn, A->nb,
                     A(k, N), ldak,
                     D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                MORSE_TASK_zlaset(
+                INSERT_TASK_zlaset(
                     &options,
-                    MorseLower, tempkm, tempNn,
+                    ChamLower, tempkm, tempNn,
                     0., 1.,
                     D(k, N), ldak );
 #endif
@@ -119,9 +119,9 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
             for (m = k+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                 ldam = BLKLDD(A, m);
-                MORSE_TASK_zunmlq(
+                INSERT_TASK_zunmlq(
                     &options,
-                    MorseRight, MorseConjTrans,
+                    ChamRight, ChamConjTrans,
                     tempmm, tempNn, tempkmin, ib, T->nb,
                     D(k, N), ldak,
                     T(k, N), T->mb,
@@ -137,7 +137,7 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
                                       A->get_rankof( A, k, n ) );
 
                 /* TS kernel */
-                MORSE_TASK_ztplqt(
+                INSERT_TASK_ztplqt(
                     &options,
                     tempkm, tempnn, 0, ib, T->nb,
                     A(k, N), ldak,
@@ -151,9 +151,9 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
                     RUNTIME_data_migrate( sequence, A(m, N),
                                           A->get_rankof( A, m, n ) );
 
-                    MORSE_TASK_ztpmlqt(
+                    INSERT_TASK_ztpmlqt(
                         &options,
-                        MorseRight, MorseConjTrans,
+                        ChamRight, ChamConjTrans,
                         tempmm, tempnn, tempkm, 0, ib, T->nb,
                         A(k, n), ldak,
                         T(k, n), T->mb,
@@ -174,7 +174,7 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
                                       A->get_rankof( A, k, N+RD ) );
 
                 /* TT kernel */
-                MORSE_TASK_ztplqt(
+                INSERT_TASK_ztplqt(
                     &options,
                     tempkm, tempNRDn, chameleon_min(tempNRDn, tempkm), ib, T->nb,
                     A (k, N   ), ldak,
@@ -190,9 +190,9 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
                     RUNTIME_data_migrate( sequence, A(m, N+RD),
                                           A->get_rankof( A, m, N+RD ) );
 
-                    MORSE_TASK_ztpmlqt(
+                    INSERT_TASK_ztpmlqt(
                         &options,
-                        MorseRight, MorseConjTrans,
+                        ChamRight, ChamConjTrans,
                         tempmm, tempNRDn, tempkm, tempNRDn, ib, T->nb,
                         A (k, N+RD), ldak,
                         T2(k, N+RD), T->mb,
@@ -210,10 +210,10 @@ void morse_pzgelqfrh(MORSE_desc_t *A, MORSE_desc_t *T, MORSE_desc_t *D, int BS,
                                   A->get_rankof( A, m, k ) );
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
     (void)D;
 }

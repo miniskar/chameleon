@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for MORSE 1.0.0
+ *          from Plasma 2.6.0 for CHAMELEON 1.0.0
  * @author Mathieu Faverge
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -25,14 +25,14 @@
 
 /**
  *
- * @defgroup CORE_MORSE_Complex64_t
+ * @defgroup CORE_CHAMELEON_Complex64_t
  * @brief Linear algebra routines exposed to users. CPU functions.
  *
  */
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_dzasum - Computes the sums of the absolute values of elements in a same
  *  row or column.
@@ -42,14 +42,14 @@
  *
  * @param[in] storev
  *          Specifies whether the sums are made per column or row.
- *          = MorseColumnwise: Computes the sum on each column
- *          = MorseRowwise:    Computes the sum on each row
+ *          = ChamColumnwise: Computes the sum on each column
+ *          = ChamRowwise:    Computes the sum on each row
  *
  * @param[in] uplo
  *          Specifies whether the matrix A is upper triangular or lower triangular or general
- *          = MorseUpperLower: All matrix A is referenced;
- *          = MorseUpper: Upper triangle of A is referenced;
- *          = MorseLower: Lower triangle of A is referenced.
+ *          = ChamUpperLower: All matrix A is referenced;
+ *          = ChamUpper: Upper triangle of A is referenced;
+ *          = ChamLower: Lower triangle of A is referenced.
  *
  * @param[in] M
  *          M specifies the number of rows of the matrix A. M >= 0.
@@ -64,20 +64,20 @@
  *          The leading dimension of the array A. lda >= max(1,M).
  *
  * @param[inout] work
- *          Array of dimension M if storev = MorseRowwise; N otherwise.
+ *          Array of dimension M if storev = ChamRowwise; N otherwise.
  *          On exit, contains the sums of the absolute values per column or row.
  *
  */
 
-void CORE_dzasum(MORSE_enum storev, MORSE_enum uplo, int M, int N,
-                 const MORSE_Complex64_t *A, int lda, double *work)
+void CORE_dzasum(cham_store_t storev, cham_uplo_t uplo, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int lda, double *work)
 {
-    const MORSE_Complex64_t *tmpA;
+    const CHAMELEON_Complex64_t *tmpA;
     double *tmpW, sum, abs;
     int i,j;
 
     switch (uplo) {
-    case MorseUpper:
+    case ChamUpper:
         for (j = 0; j < N; j++) {
             tmpA = A+(j*lda);
             sum = 0.0;
@@ -90,7 +90,7 @@ void CORE_dzasum(MORSE_enum storev, MORSE_enum uplo, int M, int N,
             work[j] += sum + cabs(*tmpA);
         }
         break;
-    case MorseLower:
+    case ChamLower:
         for (j = 0; j < N; j++) {
             tmpA = A+(j*lda)+j;
 
@@ -107,9 +107,9 @@ void CORE_dzasum(MORSE_enum storev, MORSE_enum uplo, int M, int N,
             work[j] += sum;
         }
         break;
-    case MorseUpperLower:
+    case ChamUpperLower:
     default:
-        if (storev == MorseColumnwise) {
+        if (storev == ChamColumnwise) {
             for (j = 0; j < N; j++) {
                 /* work[j] += cblas_dzasum(M, &(A[j*lda]), 1); */
                 tmpA = A+(j*lda);

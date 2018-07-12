@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dulceneia Becker
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -26,29 +26,29 @@
 #include "coreblas/lapacke.h"
 #include "coreblas.h"
 
-static inline int CORE_zpamm_a2(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
+static inline int CORE_zpamm_a2(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
                                 int M, int N, int K, int L,
                                 int vi2, int vi3,
-                                MORSE_Complex64_t *A2, int LDA2,
-                                const MORSE_Complex64_t *V, int LDV,
-                                MORSE_Complex64_t *W, int LDW);
-static inline int CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
+                                CHAMELEON_Complex64_t *A2, int LDA2,
+                                const CHAMELEON_Complex64_t *V, int LDV,
+                                CHAMELEON_Complex64_t *W, int LDW);
+static inline int CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
                                int M, int N, int K, int L,
                                int vi2, int vi3,
-                               const MORSE_Complex64_t *A1, int LDA1,
-                                     MORSE_Complex64_t *A2, int LDA2,
-                               const MORSE_Complex64_t *V, int LDV,
-                                     MORSE_Complex64_t *W, int LDW);
+                               const CHAMELEON_Complex64_t *A1, int LDA1,
+                                     CHAMELEON_Complex64_t *A2, int LDA2,
+                               const CHAMELEON_Complex64_t *V, int LDV,
+                                     CHAMELEON_Complex64_t *W, int LDW);
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  ZPAMM  performs one of the matrix-matrix operations
  *
  *                    LEFT                      RIGHT
- *     OP MorseW  :  W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
- *     OP MorseA2 :  A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
+ *     OP ChameleonW  :  W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
+ *     OP ChameleonA2 :  A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
  *
  *  where  op( V ) is one of
  *
@@ -104,41 +104,41 @@ static inline int CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum upl
  *
  *         OP specifies which operation to perform:
  *
- *         @arg MorseW  : W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
- *         @arg MorseA2 : A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
+ *         @arg ChameleonW  : W  = A1 + op(V) * A2  or  W  = A1 + A2 * op(V)
+ *         @arg ChameleonA2 : A2 = A2 - op(V) * W   or  A2 = A2 - W * op(V)
  *
  * @param[in] side
  *
  *         SIDE specifies whether  op( V ) multiplies A2
  *         or W from the left or right as follows:
  *
- *         @arg MorseLeft  : multiply op( V ) from the left
- *                            OP MorseW  :  W  = A1 + op(V) * A2
- *                            OP MorseA2 :  A2 = A2 - op(V) * W
+ *         @arg ChamLeft  : multiply op( V ) from the left
+ *                            OP ChameleonW  :  W  = A1 + op(V) * A2
+ *                            OP ChameleonA2 :  A2 = A2 - op(V) * W
  *
- *         @arg MorseRight : multiply op( V ) from the right
- *                            OP MorseW  :  W  = A1 + A2 * op(V)
- *                            OP MorseA2 :  A2 = A2 - W * op(V)
+ *         @arg ChamRight : multiply op( V ) from the right
+ *                            OP ChameleonW  :  W  = A1 + A2 * op(V)
+ *                            OP ChameleonA2 :  A2 = A2 - W * op(V)
  *
  * @param[in] storev
  *
  *         Indicates how the vectors which define the elementary
  *         reflectors are stored in V:
  *
- *         @arg MorseColumnwise
- *         @arg MorseRowwise
+ *         @arg ChamColumnwise
+ *         @arg ChamRowwise
  *
  * @param[in] M
  *         The number of rows of the A1, A2 and W
- *         If SIDE is MorseLeft, the number of rows of op( V )
+ *         If SIDE is ChamLeft, the number of rows of op( V )
  *
  * @param[in] N
  *         The number of columns of the A1, A2 and W
- *         If SIDE is MorseRight, the number of columns of op( V )
+ *         If SIDE is ChamRight, the number of columns of op( V )
  *
  * @param[in] K
- *         If SIDE is MorseLeft, the number of columns of op( V )
- *         If SIDE is MorseRight, the number of rows of op( V )
+ *         If SIDE is ChamLeft, the number of columns of op( V )
+ *         If SIDE is ChamRight, the number of rows of op( V )
  *
  * @param[in] L
  *         The size of the triangular part of V
@@ -151,23 +151,23 @@ static inline int CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum upl
  *
  * @param[in,out] A2
  *         On entry, the M-by-N tile A2.
- *         On exit, if OP is MorseA2 A2 is overwritten
+ *         On exit, if OP is ChameleonA2 A2 is overwritten
  *
  * @param[in] LDA2
  *         The leading dimension of the tile A2. LDA2 >= max(1,M).
  *
  * @param[in] V
  *         The matrix V as described above.
- *         If SIDE is MorseLeft : op( V ) is M-by-K
- *         If SIDE is MorseRight: op( V ) is K-by-N
+ *         If SIDE is ChamLeft : op( V ) is M-by-K
+ *         If SIDE is ChamRight: op( V ) is K-by-N
  *
  * @param[in] LDV
  *         The leading dimension of the array V.
  *
  * @param[in,out] W
  *         On entry, the M-by-N matrix W.
- *         On exit, W is overwritten either if OP is MorseA2 or MorseW.
- *         If OP is MorseA2, W is an input and is used as a workspace.
+ *         On exit, W is overwritten either if OP is ChameleonA2 or ChameleonW.
+ *         If OP is ChameleonA2, W is an input and is used as a workspace.
  *
  * @param[in] LDW
  *         The leading dimension of array WORK.
@@ -175,32 +175,32 @@ static inline int CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum upl
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 int
-CORE_zpamm(int op, MORSE_enum side, MORSE_enum storev,
+CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
            int M, int N, int K, int L,
-           const MORSE_Complex64_t *A1, int LDA1,
-                 MORSE_Complex64_t *A2, int LDA2,
-           const MORSE_Complex64_t *V, int LDV,
-                 MORSE_Complex64_t *W, int LDW)
+           const CHAMELEON_Complex64_t *A1, int LDA1,
+                 CHAMELEON_Complex64_t *A2, int LDA2,
+           const CHAMELEON_Complex64_t *V, int LDV,
+                 CHAMELEON_Complex64_t *W, int LDW)
 {
 
 
     int vi2, vi3, uplo, trans, info;
 
     /* Check input arguments */
-    if ((op != MorseW) && (op != MorseA2)) {
+    if ((op != ChameleonW) && (op != ChameleonA2)) {
         coreblas_error(1, "Illegal value of op");
         return -1;
     }
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         coreblas_error(2, "Illegal value of side");
         return -2;
     }
-    if ((storev != MorseColumnwise) && (storev != MorseRowwise)) {
+    if ((storev != ChamColumnwise) && (storev != ChamRowwise)) {
         coreblas_error(3, "Illegal value of storev");
         return -3;
     }
@@ -239,13 +239,13 @@ CORE_zpamm(int op, MORSE_enum side, MORSE_enum storev,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (K == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     /*
      * TRANS is set as:
      *
      *        -------------------------------------
-     *         side   direct     MorseW  MorseA2
+     *         side   direct     ChameleonW  ChameleonA2
      *        -------------------------------------
      *         left   colwise       T        N
      *                rowwise       N        T
@@ -255,42 +255,42 @@ CORE_zpamm(int op, MORSE_enum side, MORSE_enum storev,
      */
 
     /* Columnwise*/
-    if (storev == MorseColumnwise) {
-        uplo = CblasUpper;
-        if (side == MorseLeft) {
-            trans = op == MorseA2 ? MorseNoTrans : MorseConjTrans;
-            vi2 = trans == MorseNoTrans ? M - L : K - L;
+    if (storev == ChamColumnwise) {
+        uplo = ChamUpper;
+        if (side == ChamLeft) {
+            trans = op == ChameleonA2 ? ChamNoTrans : ChamConjTrans;
+            vi2 = trans == ChamNoTrans ? M - L : K - L;
         }
         else {
-            trans = op == MorseW ? MorseNoTrans : MorseConjTrans;
-            vi2 = trans == MorseNoTrans ? K - L : N - L;
+            trans = op == ChameleonW ? ChamNoTrans : ChamConjTrans;
+            vi2 = trans == ChamNoTrans ? K - L : N - L;
         }
         vi3 = LDV * L;
     }
 
     /* Rowwise */
     else {
-        uplo = CblasLower;
-        if (side == MorseLeft) {
-            trans = op == MorseW ? MorseNoTrans : MorseConjTrans;
-            vi2 = trans == MorseNoTrans ? K - L : M - L;
+        uplo = ChamLower;
+        if (side == ChamLeft) {
+            trans = op == ChameleonW ? ChamNoTrans : ChamConjTrans;
+            vi2 = trans == ChamNoTrans ? K - L : M - L;
         }
         else {
-            trans = op == MorseA2 ? MorseNoTrans : MorseConjTrans;
-            vi2 = trans == MorseNoTrans ? N - L : K - L;
+            trans = op == ChameleonA2 ? ChamNoTrans : ChamConjTrans;
+            vi2 = trans == ChamNoTrans ? N - L : K - L;
         }
         vi2 *= LDV;
         vi3  = L;
     }
 
     /**/
-    if (op==MorseW) {
+    if (op==ChameleonW) {
         info = CORE_zpamm_w(
                 side, trans, uplo, M, N, K, L, vi2, vi3,
                 A1, LDA1, A2, LDA2, V, LDV, W, LDW);
         if (info != 0)
             return info;
-    } else if (op==MorseA2) {
+    } else if (op==ChameleonA2) {
         info = CORE_zpamm_a2(
                 side, trans, uplo, M, N, K, L, vi2, vi3,
                 A2, LDA2, V, LDV, W, LDW);
@@ -298,18 +298,18 @@ CORE_zpamm(int op, MORSE_enum side, MORSE_enum storev,
             return info;
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**/
 static inline int
-CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
+CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
              int M, int N, int K, int L,
              int vi2, int vi3,
-             const MORSE_Complex64_t *A1, int LDA1,
-                   MORSE_Complex64_t *A2, int LDA2,
-             const MORSE_Complex64_t *V, int LDV,
-                   MORSE_Complex64_t *W, int LDW)
+             const CHAMELEON_Complex64_t *A1, int LDA1,
+                   CHAMELEON_Complex64_t *A2, int LDA2,
+             const CHAMELEON_Complex64_t *V, int LDV,
+                   CHAMELEON_Complex64_t *W, int LDW)
 {
 
    /*
@@ -317,13 +317,13 @@ CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
     */
 
     int j;
-    static MORSE_Complex64_t zone  =  1.0;
-    static MORSE_Complex64_t zzero =  0.0;
+    static CHAMELEON_Complex64_t zone  =  1.0;
+    static CHAMELEON_Complex64_t zzero =  0.0;
 
-    if (side == MorseLeft) {
+    if (side == ChamLeft) {
 
-        if (((trans == MorseConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == MorseNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             /*
              * W = A1 + V' * A2
@@ -331,7 +331,7 @@ CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
 
             /* W = A2_2 */
             LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                morse_lapack_const(MorseUpperLower),
+                chameleon_lapack_const(ChamUpperLower),
                 L, N,
                 &A2[K-L], LDA2, W, LDW);
 
@@ -375,16 +375,16 @@ CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
         }
         else {
             printf("Left Upper/NoTrans & Lower/ConjTrans not implemented yet\n");
-            return MORSE_ERR_NOT_SUPPORTED;
+            return CHAMELEON_ERR_NOT_SUPPORTED;
 
         }
     }
     else { //side right
 
-        if (((trans == MorseConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == MorseNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
             printf("Right Upper/ConjTrans & Lower/NoTrans not implemented yet\n");
-            return MORSE_ERR_NOT_SUPPORTED;
+            return CHAMELEON_ERR_NOT_SUPPORTED;
 
         }
         else {
@@ -397,7 +397,7 @@ CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
 
                 /* W = A2_2 */
                 LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                    morse_lapack_const(MorseUpperLower),
+                    chameleon_lapack_const(ChamUpperLower),
                     M, L,
                     &A2[LDA2*(K-L)], LDA2, W, LDW);
 
@@ -440,17 +440,17 @@ CORE_zpamm_w(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
         }
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 /**/
 static inline int
-CORE_zpamm_a2(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
+CORE_zpamm_a2(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
               int M, int N, int K, int L,
               int vi2, int vi3,
-                    MORSE_Complex64_t *A2, int LDA2,
-              const MORSE_Complex64_t *V, int LDV,
-                    MORSE_Complex64_t *W, int LDW)
+                    CHAMELEON_Complex64_t *A2, int LDA2,
+              const CHAMELEON_Complex64_t *V, int LDV,
+                    CHAMELEON_Complex64_t *W, int LDW)
 {
 
    /*
@@ -458,16 +458,16 @@ CORE_zpamm_a2(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
     */
 
     int j;
-    static MORSE_Complex64_t zone  =  1.0;
-    static MORSE_Complex64_t mzone  =  -1.0;
+    static CHAMELEON_Complex64_t zone  =  1.0;
+    static CHAMELEON_Complex64_t mzone  =  -1.0;
 
-    if (side == MorseLeft) {
+    if (side == ChamLeft) {
 
-        if (((trans == MorseConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == MorseNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             printf("Left Upper/ConjTrans & Lower/NoTrans not implemented yet\n");
-            return MORSE_ERR_NOT_SUPPORTED;
+            return CHAMELEON_ERR_NOT_SUPPORTED;
 
         }
         else {  //trans
@@ -515,8 +515,8 @@ CORE_zpamm_a2(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
     }
     else { //side right
 
-        if (((trans == MorseConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == MorseNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             /*
              * A2 = A2 - W * V'
@@ -561,11 +561,11 @@ CORE_zpamm_a2(MORSE_enum side, MORSE_enum trans, MORSE_enum uplo,
         }
         else {
             printf("Right Upper/NoTrans & Lower/ConjTrans not implemented yet\n");
-            return MORSE_ERR_NOT_SUPPORTED;
+            return CHAMELEON_ERR_NOT_SUPPORTED;
         }
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

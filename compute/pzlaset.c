@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -29,13 +29,13 @@
  *  Parallel initialization a 2-D array A to BETA on the diagonal and
  *  ALPHA on the offdiagonals.
  */
-void morse_pzlaset(MORSE_enum uplo,
-                          MORSE_Complex64_t alpha, MORSE_Complex64_t beta,
-                          MORSE_desc_t *A,
-                          MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzlaset(cham_uplo_t uplo,
+                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                          CHAM_desc_t *A,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int i, j;
     int ldai, ldaj;
@@ -43,41 +43,41 @@ void morse_pzlaset(MORSE_enum uplo,
     int tempjm, tempjn;
     int minmn = chameleon_min(A->mt, A->nt);
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
 
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    if (uplo == MorseLower) {
+    if (uplo == ChamLower) {
        for (j = 0; j < minmn; j++){
            tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
            ldaj = BLKLDD(A, j);
-           MORSE_TASK_zlaset(
+           INSERT_TASK_zlaset(
                &options,
-               MorseLower, tempjm, tempjn, alpha, beta,
+               ChamLower, tempjm, tempjn, alpha, beta,
                A(j, j), ldaj);
 
            for (i = j+1; i < A->mt; i++){
                tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
                ldai = BLKLDD(A, i);
-               MORSE_TASK_zlaset(
+               INSERT_TASK_zlaset(
                    &options,
-                   MorseUpperLower, tempim, tempjn, alpha, alpha,
+                   ChamUpperLower, tempim, tempjn, alpha, alpha,
                    A(i, j), ldai);
            }
        }
     }
-    else if (uplo == MorseUpper) {
+    else if (uplo == ChamUpper) {
        for (j = 1; j < A->nt; j++){
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
            for (i = 0; i < chameleon_min(j, A->mt); i++){
                tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
                ldai = BLKLDD(A, i);
-               MORSE_TASK_zlaset(
+               INSERT_TASK_zlaset(
                    &options,
-                   MorseUpperLower, tempim, tempjn, alpha, alpha,
+                   ChamUpperLower, tempim, tempjn, alpha, alpha,
                    A(i, j), ldai);
            }
        }
@@ -85,9 +85,9 @@ void morse_pzlaset(MORSE_enum uplo,
            tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
            ldaj = BLKLDD(A, j);
-           MORSE_TASK_zlaset(
+           INSERT_TASK_zlaset(
                &options,
-               MorseUpper, tempjm, tempjn, alpha, beta,
+               ChamUpper, tempjm, tempjn, alpha, beta,
                A(j, j), ldaj);
        }
     }
@@ -97,9 +97,9 @@ void morse_pzlaset(MORSE_enum uplo,
            ldai = BLKLDD(A, i);
            for (j = 0; j < A->nt; j++){
                tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-               MORSE_TASK_zlaset(
+               INSERT_TASK_zlaset(
                    &options,
-                   MorseUpperLower, tempim, tempjn, alpha, alpha,
+                   ChamUpperLower, tempim, tempjn, alpha, alpha,
                    A(i, j), ldai);
            }
        }
@@ -107,11 +107,11 @@ void morse_pzlaset(MORSE_enum uplo,
            tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
            ldaj = BLKLDD(A, j);
-           MORSE_TASK_zlaset(
+           INSERT_TASK_zlaset(
                &options,
-               MorseUpperLower, tempjm, tempjn, alpha, beta,
+               ChamUpperLower, tempjm, tempjn, alpha, beta,
                A(j, j), ldaj);
        }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

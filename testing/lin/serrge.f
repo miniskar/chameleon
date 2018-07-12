@@ -37,7 +37,7 @@
 
       SUBROUTINE SERRGE( PATH, NUNIT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -107,10 +107,10 @@
       WRITE( NOUT, FMT = * )
       C2 = PATH( 2: 3 )
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
 *     Set the variables to innocuous values.
 *
@@ -133,7 +133,7 @@
 *
 *        ALLOCATE L and IPIV
 *
-         CALL MORSE_ALLOC_WORKSPACE_SGETRF_INCPIV(
+         CALL CHAMELEON_ALLOC_WORKSPACE_SGETRF_INCPIV(
      $        2, 1, HL, HPIV, INFO )
 *
 *        Test error exits of the routines that use the LU decomposition
@@ -143,78 +143,78 @@
 *
          SRNAMT = 'SGETRF'
          INFOT = 1
-         CALL MORSE_SGETRF_INCPIV( -1, 0, A, 1, HL, HPIV, INFO )
+         CALL CHAMELEON_SGETRF_INCPIV( -1, 0, A, 1, HL, HPIV, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SGETRF_INCPIV( 0, -1, A, 1, HL, HPIV, INFO )
+         CALL CHAMELEON_SGETRF_INCPIV( 0, -1, A, 1, HL, HPIV, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_SGETRF_INCPIV( 2, 1, A, 1, HL, HPIV, INFO )
+         CALL CHAMELEON_SGETRF_INCPIV( 2, 1, A, 1, HL, HPIV, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
 *
 *        SGETRS
 *
          SRNAMT = 'SGETRS'
          INFOT = 103
-         CALL MORSE_SGETRS_INCPIV( '/', -1, 0, A, 1, HL, HPIV, 
+         CALL CHAMELEON_SGETRS_INCPIV( '/', -1, 0, A, 1, HL, HPIV, 
      $        B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SGETRS_INCPIV( MORSENOTRANS, -1, 0, A, 1, HL, 
+         CALL CHAMELEON_SGETRS_INCPIV( CHAMELEONNOTRANS, -1, 0, A, 1, HL, 
      $        HPIV, B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_SGETRS_INCPIV( MORSENOTRANS, 0, -1, A, 1, HL, 
+         CALL CHAMELEON_SGETRS_INCPIV( CHAMELEONNOTRANS, 0, -1, A, 1, HL, 
      $        HPIV, B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_SGETRS_INCPIV( MORSENOTRANS, 2, 1, A, 1, HL, 
+         CALL CHAMELEON_SGETRS_INCPIV( CHAMELEONNOTRANS, 2, 1, A, 1, HL, 
      $        HPIV, B, 2, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 9
-         CALL MORSE_SGETRS_INCPIV( MORSENOTRANS, 2, 1, A, 2, HL, 
+         CALL CHAMELEON_SGETRS_INCPIV( CHAMELEONNOTRANS, 2, 1, A, 2, HL, 
      $        HPIV, B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
 *
 *        DEALLOCATE L and IPIV
 *
-         CALL MORSE_DEALLOC_HANDLE( HL, INFO )
-         CALL MORSE_DEALLOC_HANDLE( HPIV, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HL, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HPIV, INFO )
 *
 *        LAPACK Interface
 *        SGETRF
 *
          SRNAMT = 'SGETRF'
          INFOT = 1
-         CALL MORSE_SGETRF( -1, 0, A, 1, IP, INFO )
+         CALL CHAMELEON_SGETRF( -1, 0, A, 1, IP, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SGETRF( 0, -1, A, 1, IP, INFO )
+         CALL CHAMELEON_SGETRF( 0, -1, A, 1, IP, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_SGETRF( 2, 1, A, 1, IP, INFO )
+         CALL CHAMELEON_SGETRF( 2, 1, A, 1, IP, INFO )
          CALL CHKXER( 'SGETRF', INFOT, NOUT, INFO, OK )
 *
 *        SGETRS
 *
          SRNAMT = 'SGETRS'
          INFOT = 1
-         CALL MORSE_SGETRS( '/', 0, 0, A, 1, IP, B, 1, INFO )
+         CALL CHAMELEON_SGETRS( '/', 0, 0, A, 1, IP, B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SGETRS( MORSENOTRANS, -1, 0, A, 1, IP, 
+         CALL CHAMELEON_SGETRS( CHAMELEONNOTRANS, -1, 0, A, 1, IP, 
      $        B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_SGETRS( MORSENOTRANS, 0, -1, A, 1, IP, 
+         CALL CHAMELEON_SGETRS( CHAMELEONNOTRANS, 0, -1, A, 1, IP, 
      $        B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 5
-         CALL MORSE_SGETRS( MORSENOTRANS, 2, 1, A, 1, IP, 
+         CALL CHAMELEON_SGETRS( CHAMELEONNOTRANS, 2, 1, A, 1, IP, 
      $        B, 2, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
          INFOT = 7
-         CALL MORSE_SGETRS( MORSENOTRANS, 2, 1, A, 2, IP, 
+         CALL CHAMELEON_SGETRS( CHAMELEONNOTRANS, 2, 1, A, 2, IP, 
      $        B, 1, INFO )
          CALL CHKXER( 'SGETRS', INFOT, NOUT, INFO, OK )
 
@@ -224,10 +224,10 @@
 *
       CALL ALAESM( PATH, OK, NOUT )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

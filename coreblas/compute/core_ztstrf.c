@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -29,7 +29,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztstrf computes an LU factorization of a complex matrix formed
  *  by an upper triangular NB-by-N tile U on top of a M-by-N tile A
@@ -85,7 +85,7 @@
  *******************************************************************************
  *
  * @return
- *         \retval MORSE_SUCCESS successful exit
+ *         \retval CHAMELEON_SUCCESS successful exit
  *         \retval <0 if INFO = -k, the k-th argument had an illegal value
  *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
@@ -96,17 +96,17 @@
 
 
 int CORE_ztstrf(int M, int N, int IB, int NB,
-                MORSE_Complex64_t *U, int LDU,
-                MORSE_Complex64_t *A, int LDA,
-                MORSE_Complex64_t *L, int LDL,
+                CHAMELEON_Complex64_t *U, int LDU,
+                CHAMELEON_Complex64_t *A, int LDA,
+                CHAMELEON_Complex64_t *L, int LDL,
                 int *IPIV,
-                MORSE_Complex64_t *WORK, int LDWORK,
+                CHAMELEON_Complex64_t *WORK, int LDWORK,
                 int *INFO)
 {
-    static MORSE_Complex64_t zzero = 0.0;
-    static MORSE_Complex64_t mzone =-1.0;
+    static CHAMELEON_Complex64_t zzero = 0.0;
+    static CHAMELEON_Complex64_t mzone =-1.0;
 
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t alpha;
     int i, j, ii, sb;
     int im, ip;
 
@@ -139,10 +139,10 @@ int CORE_ztstrf(int M, int N, int IB, int NB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     /* Set L to 0 */
-    memset(L, 0, LDL*N*sizeof(MORSE_Complex64_t));
+    memset(L, 0, LDL*N*sizeof(CHAMELEON_Complex64_t));
 
     ip = 0;
     for (ii = 0; ii < N; ii += IB) {
@@ -176,7 +176,7 @@ int CORE_ztstrf(int M, int N, int IB, int NB,
                 *INFO = ii+i+1;
             }
 
-            alpha = ((MORSE_Complex64_t)1. / U[LDU*(ii+i)+ii+i]);
+            alpha = ((CHAMELEON_Complex64_t)1. / U[LDU*(ii+i)+ii+i]);
             cblas_zscal(M, CBLAS_SADDR(alpha), &A[LDA*(ii+i)], 1);
             cblas_zcopy(M, &A[LDA*(ii+i)], 1, &WORK[LDWORK*i], 1);
             cblas_zgeru(
@@ -210,7 +210,7 @@ int CORE_ztstrf(int M, int N, int IB, int NB,
             }
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dulceneia Becker
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zpemv  performs one of the matrix-vector operations
  *
@@ -46,14 +46,14 @@
  *
  * @param[in] storev
  *
- *         @arg MorseColumnwise :  array A stored columwise
- *         @arg MorseRowwise    :  array A stored rowwise
+ *         @arg ChamColumnwise :  array A stored columwise
+ *         @arg ChamRowwise    :  array A stored rowwise
  *
  * @param[in] trans
  *
- *         @arg MorseNoTrans   :  y := alpha*A*x    + beta*y.
- *         @arg MorseTrans     :  y := alpha*A**T*x + beta*y.
- *         @arg MorseConjTrans :  y := alpha*A**H*x + beta*y.
+ *         @arg ChamNoTrans   :  y := alpha*A*x    + beta*y.
+ *         @arg ChamTrans     :  y := alpha*A**T*x + beta*y.
+ *         @arg ChamConjTrans :  y := alpha*A**H*x + beta*y.
  *
  * @param[in] M
  *         Number of rows of the matrix A.
@@ -114,20 +114,20 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
 
-int CORE_zpemv(MORSE_enum trans, int storev,
+int CORE_zpemv(cham_trans_t trans, cham_store_t storev,
                int M, int N, int L,
-               MORSE_Complex64_t ALPHA,
-               const MORSE_Complex64_t *A, int LDA,
-               const MORSE_Complex64_t *X, int INCX,
-               MORSE_Complex64_t BETA,
-               MORSE_Complex64_t *Y, int INCY,
-               MORSE_Complex64_t *WORK)
+               CHAMELEON_Complex64_t ALPHA,
+               const CHAMELEON_Complex64_t *A, int LDA,
+               const CHAMELEON_Complex64_t *X, int INCX,
+               CHAMELEON_Complex64_t BETA,
+               CHAMELEON_Complex64_t *Y, int INCY,
+               CHAMELEON_Complex64_t *WORK)
 {
 
    /*
@@ -135,20 +135,20 @@ int CORE_zpemv(MORSE_enum trans, int storev,
     */
 
     int K;
-    static MORSE_Complex64_t zzero = 0.0;
+    static CHAMELEON_Complex64_t zzero = 0.0;
 
 
     /* Check input arguments */
-    if ((trans < MorseNoTrans) || (trans > MorseConjTrans)) {
+    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
         coreblas_error(1, "Illegal value of trans");
         return -1;
     }
-    if ((storev != MorseColumnwise) && (storev != MorseRowwise)) {
+    if ((storev != ChamColumnwise) && (storev != ChamRowwise)) {
         coreblas_error(2, "Illegal value of storev");
         return -2;
     }
-    if (!( ((storev == MorseColumnwise) && (trans != MorseNoTrans)) ||
-           ((storev == MorseRowwise) && (trans == MorseNoTrans)) )) {
+    if (!( ((storev == ChamColumnwise) && (trans != ChamNoTrans)) ||
+           ((storev == ChamRowwise) && (trans == ChamNoTrans)) )) {
         coreblas_error(2, "Illegal values of trans/storev");
         return -2;
     }
@@ -179,15 +179,15 @@ int CORE_zpemv(MORSE_enum trans, int storev,
 
     /* Quick return */
     if ((M == 0) || (N == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
     if ((ALPHA == zzero) && (BETA == zzero))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     /* If L < 2, there is no triangular part */
     if (L == 1) L = 0;
 
     /* Columnwise */
-    if (storev == MorseColumnwise) {
+    if (storev == ChamColumnwise) {
         /*
          *        ______________
          *        |      |     |    A1: A[ 0 ]
@@ -204,8 +204,8 @@ int CORE_zpemv(MORSE_enum trans, int storev,
 
 
         /* Columnwise / NoTrans */
-        if (trans == MorseNoTrans) {
-            coreblas_error(1, "The case MorseNoTrans / MorseColumnwise is not yet implemented");
+        if (trans == ChamNoTrans) {
+            coreblas_error(1, "The case ChamNoTrans / ChamColumnwise is not yet implemented");
             return -1;
         }
         /* Columnwise / [Conj]Trans */
@@ -218,9 +218,9 @@ int CORE_zpemv(MORSE_enum trans, int storev,
                 cblas_zcopy(
                             L, &X[INCX*(M-L)], INCX, WORK, 1);
                 cblas_ztrmv(
-                            CblasColMajor, (CBLAS_UPLO)MorseUpper,
+                            CblasColMajor, (CBLAS_UPLO)ChamUpper,
                             (CBLAS_TRANSPOSE)trans,
-                            (CBLAS_DIAG)MorseNonUnit,
+                            (CBLAS_DIAG)ChamNonUnit,
                             L, &A[M-L], LDA, WORK, 1);
 
                 if (M > L) {
@@ -271,7 +271,7 @@ int CORE_zpemv(MORSE_enum trans, int storev,
          */
 
         /* Rowwise / NoTrans */
-        if (trans == MorseNoTrans) {
+        if (trans == ChamNoTrans) {
             /* L top rows of A and y */
             if (L > 0) {
 
@@ -279,16 +279,16 @@ int CORE_zpemv(MORSE_enum trans, int storev,
                 cblas_zcopy(
                             L, &X[INCX*(N-L)], INCX, WORK, 1);
                 cblas_ztrmv(
-                            CblasColMajor, (CBLAS_UPLO)MorseLower,
-                            (CBLAS_TRANSPOSE)MorseNoTrans,
-                            (CBLAS_DIAG)MorseNonUnit,
+                            CblasColMajor, (CBLAS_UPLO)ChamLower,
+                            (CBLAS_TRANSPOSE)ChamNoTrans,
+                            (CBLAS_DIAG)ChamNonUnit,
                             L, &A[LDA*(N-L)], LDA, WORK, 1);
 
                 if (N > L) {
 
                     /* y_1 = beta * y_1 [ + alpha * A_1 * x_1 ] */
                     cblas_zgemv(
-                                CblasColMajor, (CBLAS_TRANSPOSE)MorseNoTrans,
+                                CblasColMajor, (CBLAS_TRANSPOSE)ChamNoTrans,
                                 L, N-L, CBLAS_SADDR(ALPHA), A, LDA,
                                 X, INCX, CBLAS_SADDR(BETA), Y, INCY);
 
@@ -311,17 +311,17 @@ int CORE_zpemv(MORSE_enum trans, int storev,
             /* M-L bottom rows of Y */
             if (M > L) {
                 cblas_zgemv(
-                        CblasColMajor, (CBLAS_TRANSPOSE)MorseNoTrans,
+                        CblasColMajor, (CBLAS_TRANSPOSE)ChamNoTrans,
                         M-L, N, CBLAS_SADDR(ALPHA), &A[L], LDA,
                         X, INCX, CBLAS_SADDR(BETA), &Y[INCY*L], INCY);
             }
         }
         /* Rowwise / [Conj]Trans */
         else {
-            coreblas_error(1, "The case Morse[Conj]Trans / MorseRowwise is not yet implemented");
+            coreblas_error(1, "The case Cham[Conj]Trans / ChamRowwise is not yet implemented");
             return -1;
         }
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

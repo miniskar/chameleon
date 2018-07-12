@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -28,19 +28,19 @@
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t
+ * @ingroup CHAMELEON_Complex64_t
  *
- *  MORSE_zgetrs_nopiv - Solves a system of linear equations A * X = B, with a general N-by-N matrix A
- *  using the tile LU factorization computed by MORSE_zgetrf_nopiv.
+ *  CHAMELEON_zgetrs_nopiv - Solves a system of linear equations A * X = B, with a general N-by-N matrix A
+ *  using the tile LU factorization computed by CHAMELEON_zgetrf_nopiv.
  *
  *******************************************************************************
  *
  * @param[in] trans
  *          Intended to specify the the form of the system of equations:
- *          = MorseNoTrans:   A * X = B     (No transpose)
- *          = MorseTrans:     A**T * X = B  (Transpose)
- *          = MorseConjTrans: A**H * X = B  (Conjugate transpose)
- *          Currently only MorseNoTrans is supported.
+ *          = ChamNoTrans:   A * X = B     (No transpose)
+ *          = ChamTrans:     A**T * X = B  (Transpose)
+ *          = ChamConjTrans: A**H * X = B  (Conjugate transpose)
+ *          Currently only ChamNoTrans is supported.
  *
  * @param[in] N
  *          The order of the matrix A.  N >= 0.
@@ -50,7 +50,7 @@
  *          NRHS >= 0.
  *
  * @param[in] A
- *          The tile factors L and U from the factorization, computed by MORSE_zgetrf_nopiv.
+ *          The tile factors L and U from the factorization, computed by CHAMELEON_zgetrf_nopiv.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,N).
@@ -65,107 +65,107 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \return <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
- * @sa MORSE_zgetrs_nopiv_Tile
- * @sa MORSE_zgetrs_nopiv_Tile_Async
- * @sa MORSE_cgetrs_nopiv
- * @sa MORSE_dgetrs_nopiv
- * @sa MORSE_sgetrs_nopiv
- * @sa MORSE_zgetrf_nopiv
+ * @sa CHAMELEON_zgetrs_nopiv_Tile
+ * @sa CHAMELEON_zgetrs_nopiv_Tile_Async
+ * @sa CHAMELEON_cgetrs_nopiv
+ * @sa CHAMELEON_dgetrs_nopiv
+ * @sa CHAMELEON_sgetrs_nopiv
+ * @sa CHAMELEON_zgetrf_nopiv
  *
  */
-int MORSE_zgetrs_nopiv( MORSE_enum trans, int N, int NRHS,
-                        MORSE_Complex64_t *A, int LDA,
-                        MORSE_Complex64_t *B, int LDB )
+int CHAMELEON_zgetrs_nopiv( cham_trans_t trans, int N, int NRHS,
+                        CHAMELEON_Complex64_t *A, int LDA,
+                        CHAMELEON_Complex64_t *B, int LDB )
 {
     int NB;
     int status;
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
-    MORSE_desc_t descAl, descAt;
-    MORSE_desc_t descBl, descBt;
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
+    CHAM_desc_t descBl, descBt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgetrs_nopiv", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_nopiv", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
-    if (trans != MorseNoTrans) {
-        morse_error("MORSE_zgetrs_nopiv", "only MorseNoTrans supported");
-        return MORSE_ERR_NOT_SUPPORTED;
+    if (trans != ChamNoTrans) {
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "only ChamNoTrans supported");
+        return CHAMELEON_ERR_NOT_SUPPORTED;
     }
     if (N < 0) {
-        morse_error("MORSE_zgetrs_nopiv", "illegal value of N");
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "illegal value of N");
         return -2;
     }
     if (NRHS < 0) {
-        morse_error("MORSE_zgetrs_nopiv", "illegal value of NRHS");
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "illegal value of NRHS");
         return -3;
     }
     if (LDA < chameleon_max(1, N)) {
-        morse_error("MORSE_zgetrs_nopiv", "illegal value of LDA");
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "illegal value of LDA");
         return -5;
     }
     if (LDB < chameleon_max(1, N)) {
-        morse_error("MORSE_zgetrs_nopiv", "illegal value of LDB");
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "illegal value of LDB");
         return -9;
     }
     /* Quick return */
     if (chameleon_min(N, NRHS) == 0)
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     /* Tune NB & IB depending on N & NRHS; Set NBNBSIZE */
-    status = morse_tune(MORSE_FUNC_ZGESV, N, N, NRHS);
-    if (status != MORSE_SUCCESS) {
-        morse_error("MORSE_zgetrs_nopiv", "morse_tune() failed");
+    status = chameleon_tune(CHAMELEON_FUNC_ZGESV, N, N, NRHS);
+    if (status != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_nopiv", "chameleon_tune() failed");
         return status;
     }
 
     /* Set NT & NTRHS */
-    NB    = MORSE_NB;
+    NB    = CHAMELEON_NB;
 
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, MorseDescInput, MorseUpperLower,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
                      A, NB, NB, LDA, N, N, N, sequence, &request );
-    morse_zlap2tile( morse, &descBl, &descBt, MorseDescInout, MorseUpperLower,
+    chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
                      B, NB, NB, LDB, NRHS, N, NRHS, sequence, &request );
 
     /* Call the tile interface */
-    MORSE_zgetrs_nopiv_Tile_Async( &descAt, &descBt, sequence, &request );
+    CHAMELEON_zgetrs_nopiv_Tile_Async( &descAt, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
-    morse_ztile2lap( morse, &descAl, &descAt,
-                     MorseDescInput, MorseUpperLower, sequence, &request );
-    morse_ztile2lap( morse, &descBl, &descBt,
-                     MorseDescInout, MorseUpperLower, sequence, &request );
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
+                     ChamDescInput, ChamUpperLower, sequence, &request );
+    chameleon_ztile2lap( chamctxt, &descBl, &descBt,
+                     ChamDescInout, ChamUpperLower, sequence, &request );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descAl, &descAt );
-    morse_ztile2lap_cleanup( morse, &descBl, &descBt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile
+ * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  MORSE_zgetrs_nopiv_Tile - Solves a system of linear equations using previously
+ *  CHAMELEON_zgetrs_nopiv_Tile - Solves a system of linear equations using previously
  *  computed LU factorization.
- *  Tile equivalent of MORSE_zgetrs_nopiv().
+ *  Tile equivalent of CHAMELEON_zgetrs_nopiv().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
@@ -173,7 +173,7 @@ int MORSE_zgetrs_nopiv( MORSE_enum trans, int N, int NRHS,
  *******************************************************************************
  *
  * @param[in] A
- *          The tile factors L and U from the factorization, computed by MORSE_zgetrf_nopiv.
+ *          The tile factors L and U from the factorization, computed by CHAMELEON_zgetrf_nopiv.
  *
  * @param[in,out] B
  *          On entry, the N-by-NRHS matrix of right hand side matrix B.
@@ -182,51 +182,51 @@ int MORSE_zgetrs_nopiv( MORSE_enum trans, int N, int NRHS,
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
- * @sa MORSE_zgetrs_nopiv
- * @sa MORSE_zgetrs_nopiv_Tile_Async
- * @sa MORSE_cgetrs_nopiv_Tile
- * @sa MORSE_dgetrs_nopiv_Tile
- * @sa MORSE_sgetrs_nopiv_Tile
- * @sa MORSE_zgetrf_nopiv_Tile
+ * @sa CHAMELEON_zgetrs_nopiv
+ * @sa CHAMELEON_zgetrs_nopiv_Tile_Async
+ * @sa CHAMELEON_cgetrs_nopiv_Tile
+ * @sa CHAMELEON_dgetrs_nopiv_Tile
+ * @sa CHAMELEON_sgetrs_nopiv_Tile
+ * @sa CHAMELEON_zgetrf_nopiv_Tile
  *
  */
-int MORSE_zgetrs_nopiv_Tile( MORSE_desc_t *A, MORSE_desc_t *B )
+int CHAMELEON_zgetrs_nopiv_Tile( CHAM_desc_t *A, CHAM_desc_t *B )
 {
-    MORSE_context_t *morse;
-    MORSE_sequence_t *sequence = NULL;
-    MORSE_request_t request = MORSE_REQUEST_INITIALIZER;
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgetrs_nopiv_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_nopiv_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
-    MORSE_zgetrs_nopiv_Tile_Async( A, B, sequence, &request );
+    CHAMELEON_zgetrs_nopiv_Tile_Async( A, B, sequence, &request );
 
-    MORSE_Desc_Flush( A, sequence );
-    MORSE_Desc_Flush( B, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
+    CHAMELEON_Desc_Flush( B, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
 /**
  ********************************************************************************
  *
- * @ingroup MORSE_Complex64_t_Tile_Async
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  MORSE_zgetrs_nopiv_Tile_Async - Solves a system of linear equations using previously
+ *  CHAMELEON_zgetrs_nopiv_Tile_Async - Solves a system of linear equations using previously
  *  computed LU factorization.
- *  Non-blocking equivalent of MORSE_zgetrs_nopiv_Tile().
+ *  Non-blocking equivalent of CHAMELEON_zgetrs_nopiv_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
@@ -241,62 +241,62 @@ int MORSE_zgetrs_nopiv_Tile( MORSE_desc_t *A, MORSE_desc_t *B )
  *
  *******************************************************************************
  *
- * @sa MORSE_zgetrs_nopiv
- * @sa MORSE_zgetrs_nopiv_Tile
- * @sa MORSE_cgetrs_nopiv_Tile_Async
- * @sa MORSE_dgetrs_nopiv_Tile_Async
- * @sa MORSE_sgetrs_nopiv_Tile_Async
- * @sa MORSE_zgetrf_nopiv_Tile_Async
+ * @sa CHAMELEON_zgetrs_nopiv
+ * @sa CHAMELEON_zgetrs_nopiv_Tile
+ * @sa CHAMELEON_cgetrs_nopiv_Tile_Async
+ * @sa CHAMELEON_dgetrs_nopiv_Tile_Async
+ * @sa CHAMELEON_sgetrs_nopiv_Tile_Async
+ * @sa CHAMELEON_zgetrf_nopiv_Tile_Async
  *
  */
-int MORSE_zgetrs_nopiv_Tile_Async( MORSE_desc_t *A, MORSE_desc_t *B,
-                                   MORSE_sequence_t *sequence, MORSE_request_t *request )
+int CHAMELEON_zgetrs_nopiv_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *B,
+                                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    MORSE_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("MORSE_zgetrs_nopiv_Tile", "MORSE not initialized");
-        return MORSE_ERR_NOT_INITIALIZED;
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_nopiv_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("MORSE_zgetrs_nopiv_Tile", "NULL sequence");
-        return MORSE_ERR_UNALLOCATED;
+        chameleon_fatal_error("CHAMELEON_zgetrs_nopiv_Tile", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("MORSE_zgetrs_nopiv_Tile", "NULL request");
-        return MORSE_ERR_UNALLOCATED;
+        chameleon_fatal_error("CHAMELEON_zgetrs_nopiv_Tile", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == MORSE_SUCCESS) {
-        request->status = MORSE_SUCCESS;
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, MORSE_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgetrs_nopiv_Tile", "invalid first descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_nopiv_Tile", "invalid first descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(B) != MORSE_SUCCESS) {
-        morse_error("MORSE_zgetrs_nopiv_Tile", "invalid third descriptor");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(B) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_nopiv_Tile", "invalid third descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb || B->nb != B->mb) {
-        morse_error("MORSE_zgetrs_nopiv_Tile", "only square tiles supported");
-        return morse_request_fail(sequence, request, MORSE_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zgetrs_nopiv_Tile", "only square tiles supported");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Quick return */
     /*
      if (chameleon_min(N, NRHS) == 0)
-     return MORSE_SUCCESS;
+     return CHAMELEON_SUCCESS;
      */
-    morse_pztrsm( MorseLeft, MorseLower, MorseNoTrans, MorseUnit, (MORSE_Complex64_t)1.0, A, B, sequence, request );
+    chameleon_pztrsm( ChamLeft, ChamLower, ChamNoTrans, ChamUnit, (CHAMELEON_Complex64_t)1.0, A, B, sequence, request );
 
-    morse_pztrsm( MorseLeft, MorseUpper, MorseNoTrans, MorseNonUnit, (MORSE_Complex64_t)1.0, A, B, sequence, request );
+    chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, (CHAMELEON_Complex64_t)1.0, A, B, sequence, request );
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

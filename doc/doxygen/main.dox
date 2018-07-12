@@ -13,8 +13,8 @@ This document aims at describing Chameleon's API and internal functions.
 - @ref Workspace
 
 @section sec_linalg Linear algebra routines
-- @ref MORSE_Complex64_t "LAPACK matrix layout"
-- @ref MORSE_Complex64_t_Tile "Tile matrix layout"
-- @ref MORSE_Complex64_t_Tile_Async "Tile matrix layout, asynchronous interface"
+- @ref CHAMELEON_Complex64_t "LAPACK matrix layout"
+- @ref CHAMELEON_Complex64_t_Tile "Tile matrix layout"
+- @ref CHAMELEON_Complex64_t_Tile_Async "Tile matrix layout, asynchronous interface"
 
 */

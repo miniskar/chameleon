@@ -171,7 +171,7 @@ int CUDA_ztslqt(
 #undef dt_ref
 #undef d_ref
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 
 }
 #endif

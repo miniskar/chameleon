@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Dulceneia Becker
@@ -29,7 +29,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zunmlq overwrites the general complex M-by-N tile C with
  *
@@ -48,12 +48,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  Transpose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  Transpose, apply Q**H.
  *
  * @param[in] M
  *         The number of rows of the tile C.  M >= 0.
@@ -64,15 +64,15 @@
  * @param[in] K
  *         The number of elementary reflectors whose product defines
  *         the matrix Q.
- *         If SIDE = MorseLeft,  M >= K >= 0;
- *         if SIDE = MorseRight, N >= K >= 0.
+ *         If SIDE = ChamLeft,  M >= K >= 0;
+ *         if SIDE = ChamRight, N >= K >= 0.
  *
  * @param[in] IB
  *         The inner-blocking size.  IB >= 0.
  *
  * @param[in] A
- *         Dimension:  (LDA,M) if SIDE = MorseLeft,
- *                     (LDA,N) if SIDE = MorseRight,
+ *         Dimension:  (LDA,M) if SIDE = ChamLeft,
+ *                     (LDA,N) if SIDE = ChamRight,
  *         The i-th row must contain the vector which defines the
  *         elementary reflector H(i), for i = 1,2,...,k, as returned by
  *         CORE_zgelqt in the first k rows of its array argument A.
@@ -100,46 +100,46 @@
  *
  * @param[in] LDWORK
  *         The dimension of the array WORK.
- *         If SIDE = MorseLeft,  LDWORK >= max(1,N);
- *         if SIDE = MorseRight, LDWORK >= max(1,M).
+ *         If SIDE = ChamLeft,  LDWORK >= max(1,N);
+ *         if SIDE = ChamRight, LDWORK >= max(1,M).
  *
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zunmlq(const MORSE_option_t *options,
-                       MORSE_enum side, MORSE_enum trans,
+void INSERT_TASK_zunmlq(const RUNTIME_option_t *options,
+                       cham_side_t side, cham_trans_t trans,
                        int m, int n, int k, int ib, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt,
-                       const MORSE_desc_t *C, int Cm, int Cn, int ldc)
+                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
+                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
 {
     struct starpu_codelet *codelet = &cl_zunmlq;
     void (*callback)(void*) = options->profiling ? cl_zunmlq_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_R(A, Am, An);
-    MORSE_ACCESS_R(T, Tm, Tn);
-    MORSE_ACCESS_RW(C, Cm, Cn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_R(T, Tm, Tn);
+    CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &side,              sizeof(MORSE_enum),
-        STARPU_VALUE,    &trans,             sizeof(MORSE_enum),
+        STARPU_VALUE,    &side,              sizeof(int),
+        STARPU_VALUE,    &trans,             sizeof(int),
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_R,         RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,               sizeof(int),
-        STARPU_R,         RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE,    &ldt,               sizeof(int),
-        STARPU_RW,        RTBLKADDR(C, MORSE_Complex64_t, Cm, Cn),
+        STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_VALUE,    &ldc,               sizeof(int),
         /* ib * nb */
         STARPU_SCRATCH,   options->ws_worker,
@@ -156,25 +156,25 @@ void MORSE_TASK_zunmlq(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zunmlq_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum side;
-    MORSE_enum trans;
+    cham_side_t side;
+    cham_trans_t trans;
     int m;
     int n;
     int k;
     int ib;
-    const MORSE_Complex64_t *A;
+    const CHAMELEON_Complex64_t *A;
     int lda;
-    const MORSE_Complex64_t *T;
+    const CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *C;
+    CHAMELEON_Complex64_t *C;
     int ldc;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
 
-    A    = (const MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
 
     starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
                                &lda, &ldt, &ldc, &ldwork);
@@ -186,8 +186,8 @@ static void cl_zunmlq_cpu_func(void *descr[], void *cl_arg)
 #if defined(CHAMELEON_USE_CUDA)
 static void cl_zunmlq_cuda_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum side;
-    MORSE_enum trans;
+    cham_side_t side;
+    cham_trans_t trans;
     int m;
     int n;
     int k;

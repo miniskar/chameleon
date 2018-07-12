@@ -17,7 +17,7 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 static inline int
@@ -28,7 +28,7 @@ CORE_ztile_zero_parsec( parsec_execution_stream_t *context,
     int X2;
     int Y1;
     int Y2;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int x, y;
 
@@ -43,9 +43,9 @@ CORE_ztile_zero_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
+void INSERT_TASK_ztile_zero( const RUNTIME_option_t *options,
                             int X1, int X2, int Y1, int Y2,
-                            const MORSE_desc_t *A, int Am, int An, int lda )
+                            const CHAM_desc_t *A, int Am, int An, int lda )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -55,7 +55,7 @@ void MORSE_TASK_ztile_zero( const MORSE_option_t *options,
         sizeof(int),       &X2,                       VALUE,
         sizeof(int),       &Y1,                       VALUE,
         sizeof(int),       &Y2,                       VALUE,
-        PASSED_BY_REF,     RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
+        PASSED_BY_REF,     RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
         sizeof(int),       &lda,                      VALUE,
         PARSEC_DTD_ARG_END );
 }

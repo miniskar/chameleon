@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dulceneia Becker
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zparfb applies a complex upper triangular block reflector H
  *  or its transpose H' to a complex rectangular matrix formed by
@@ -52,24 +52,24 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   : No transpose, apply Q;
- *         @arg MorseConjTrans : ConjTranspose, apply Q**H.
+ *         @arg ChamNoTrans   : No transpose, apply Q;
+ *         @arg ChamConjTrans : ConjTranspose, apply Q**H.
  *
  * @param[in] direct
  *         Indicates how H is formed from a product of elementary
  *         reflectors
- *         @arg MorseForward  : H = H(1) H(2) . . . H(k) (Forward)
- *         @arg MorseBackward : H = H(k) . . . H(2) H(1) (Backward)
+ *         @arg ChamDirForward  : H = H(1) H(2) . . . H(k) (Forward)
+ *         @arg ChamDirBackward : H = H(k) . . . H(2) H(1) (Backward)
  *
  * @param[in] storev
  *         Indicates how the vectors which define the elementary
  *         reflectors are stored:
- *         @arg MorseColumnwise
- *         @arg MorseRowwise
+ *         @arg ChamColumnwise
+ *         @arg ChamRowwise
  *
  * @param[in] M1
  *         The number of columns of the tile A1. M1 >= 0.
@@ -133,39 +133,39 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 /* This kernel is never traced so return type on previous line for convert2eztrace.pl script */
 int
-CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum storev,
+CORE_zparfb(cham_side_t side, cham_trans_t trans, cham_dir_t direct, cham_store_t storev,
             int M1, int N1, int M2, int N2, int K, int L,
-                  MORSE_Complex64_t *A1, int LDA1,
-                  MORSE_Complex64_t *A2, int LDA2,
-            const MORSE_Complex64_t *V, int LDV,
-            const MORSE_Complex64_t *T, int LDT,
-                  MORSE_Complex64_t *WORK, int LDWORK)
+                  CHAMELEON_Complex64_t *A1, int LDA1,
+                  CHAMELEON_Complex64_t *A2, int LDA2,
+            const CHAMELEON_Complex64_t *V, int LDV,
+            const CHAMELEON_Complex64_t *T, int LDT,
+                  CHAMELEON_Complex64_t *WORK, int LDWORK)
 {
-    static MORSE_Complex64_t zone  =  1.0;
-    static MORSE_Complex64_t mzone = -1.0;
+    static CHAMELEON_Complex64_t zone  =  1.0;
+    static CHAMELEON_Complex64_t mzone = -1.0;
 
     int j;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         coreblas_error(1, "Illegal value of side");
         return -1;
     }
-    if ((trans != MorseNoTrans) && (trans != MorseConjTrans)) {
+    if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
         coreblas_error(2, "Illegal value of trans");
         return -2;
     }
-    if ((direct != MorseForward) && (direct != MorseBackward)) {
+    if ((direct != ChamDirForward) && (direct != ChamDirBackward)) {
         coreblas_error(3, "Illegal value of direct");
         return -3;
     }
-    if ((storev != MorseColumnwise) && (storev != MorseRowwise)) {
+    if ((storev != ChamColumnwise) && (storev != ChamRowwise)) {
         coreblas_error(4, "Illegal value of storev");
         return -4;
     }
@@ -178,12 +178,12 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
         return -6;
     }
     if ((M2 < 0) ||
-        ( (side == MorseRight) && (M1 != M2) ) ) {
+        ( (side == ChamRight) && (M1 != M2) ) ) {
         coreblas_error(7, "Illegal value of M2");
         return -7;
     }
     if ((N2 < 0) ||
-        ( (side == MorseLeft) && (N1 != N2) ) ) {
+        ( (side == ChamLeft) && (N1 != N2) ) ) {
         coreblas_error(8, "Illegal value of N2");
         return -8;
     }
@@ -194,11 +194,11 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
 
     /* Quick return */
     if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
-    if (direct == MorseForward) {
+    if (direct == ChamDirForward) {
 
-        if (side == MorseLeft) {
+        if (side == ChamLeft) {
 
             /*
              * Column or Rowwise / Forward / Left
@@ -210,7 +210,7 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
 
             /* W = A1 + op(V) * A2 */
             CORE_zpamm(
-                    MorseW, MorseLeft, storev,
+                    ChameleonW, ChamLeft, storev,
                     K, N1, M2, L,
                     A1, LDA1,
                     A2, LDA2,
@@ -234,7 +234,7 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
             /* A2 = A2 - op(V) * W  */
             /* W also changes: W = V * W, A2 = A2 - W */
             CORE_zpamm(
-                    MorseA2, MorseLeft, storev,
+                    ChameleonA2, ChamLeft, storev,
                     M2, N2, K, L,
                     A1, LDA1,
                     A2, LDA2,
@@ -252,7 +252,7 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
 
             /* W = A1 + A2 * op(V) */
             CORE_zpamm(
-                    MorseW, MorseRight, storev,
+                    ChameleonW, ChamRight, storev,
                     M1, K, N2, L,
                     A1, LDA1,
                     A2, LDA2,
@@ -276,7 +276,7 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
             /* A2 = A2 - W * op(V) */
             /* W also changes: W = W * V', A2 = A2 - W */
             CORE_zpamm(
-                    MorseA2, MorseRight, storev,
+                    ChameleonA2, ChamRight, storev,
                     M2, N2, K, L,
                     A1, LDA1,
                     A2, LDA2,
@@ -286,8 +286,8 @@ CORE_zparfb(MORSE_enum side, MORSE_enum trans, MORSE_enum direct, MORSE_enum sto
     }
     else {
         coreblas_error(3, "Not implemented (Backward / Left or Right)");
-        return MORSE_ERR_NOT_SUPPORTED;
+        return CHAMELEON_ERR_NOT_SUPPORTED;
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

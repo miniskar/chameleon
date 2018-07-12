@@ -20,7 +20,7 @@
 #include "cudablas.h"
 
 int
-CUDA_ztpmqrt( MORSE_enum side, MORSE_enum trans,
+CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
               int M, int N, int K, int L, int IB,
               const cuDoubleComplex *V, int LDV,
               const cuDoubleComplex *T, int LDT,
@@ -32,12 +32,12 @@ CUDA_ztpmqrt( MORSE_enum side, MORSE_enum trans,
     int m1, n1, ldwork, ldworkc, ws;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         cudablas_error(1, "Illegal value of side");
         return -1;
     }
 
-    if ( side == MorseLeft ) {
+    if ( side == ChamLeft ) {
         m1 = K;
         n1 = N;
         ldwork  = IB;
@@ -71,5 +71,5 @@ CUDA_ztpmqrt( MORSE_enum side, MORSE_enum trans,
         return -6;
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

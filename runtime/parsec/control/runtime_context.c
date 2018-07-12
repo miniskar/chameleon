@@ -23,30 +23,30 @@
 /**
  *  Create new context
  */
-void RUNTIME_context_create( MORSE_context_t *morse )
+void RUNTIME_context_create( CHAM_context_t *chamctxt )
 {
     /* In case of PaRSEC, this is done in init */
-    morse->scheduler = RUNTIME_SCHED_PARSEC;
+    chamctxt->scheduler = RUNTIME_SCHED_PARSEC;
     return;
 }
 
 /**
  *  Clean the context
  */
-void RUNTIME_context_destroy( MORSE_context_t *morse )
+void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 
 /**
  *
  */
-void RUNTIME_enable(MORSE_enum lever)
+void RUNTIME_enable(int lever)
 {
     switch (lever)
     {
-    case MORSE_PROFILING_MODE:
+    case CHAMELEON_PROFILING_MODE:
         break;
     default:
         return;
@@ -57,11 +57,11 @@ void RUNTIME_enable(MORSE_enum lever)
 /**
  *
  */
-void RUNTIME_disable(MORSE_enum lever)
+void RUNTIME_disable(int lever)
 {
     switch (lever)
     {
-    case MORSE_PROFILING_MODE:
+    case CHAMELEON_PROFILING_MODE:
         break;
     default:
         return;

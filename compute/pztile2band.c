@@ -27,28 +27,28 @@
 /**
  *  Parallel copy of a band matrix from full NxN tile storage to band storage (LDABxN).
  */
-void morse_pztile2band(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
-                       MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
+                       RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int j;
     int ldaj, ldx;
     int tempjm, tempjn;
     int minmnt = chameleon_min(A->mt, A->nt);
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ldx = B->mb-1;
 
     /*
-     *  MorseLower => Lower Band
+     *  ChamLower => Lower Band
      */
-    if ( uplo == MorseLower ) {
+    if ( uplo == ChamLower ) {
        for (j = 0; j < minmnt; j++){
            /* Compute dimension on N with B since it is dimensioned with chameleon_min(A->m, A->n) */
            assert( A->m == B->n );
@@ -58,30 +58,30 @@ void morse_pztile2band(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
            tempjn = j == B->nt-1 ? B->n - j * B->nb : B->nb;
            ldaj = BLKLDD(A, j);
 
-           MORSE_TASK_zlaset(
+           INSERT_TASK_zlaset(
                &options,
-               MorseUpperLower, B->mb, tempjn,
+               ChamUpperLower, B->mb, tempjn,
                0., 0.,
                B(0, j), B->mb );
 
-           MORSE_TASK_zlacpy(
+           INSERT_TASK_zlacpy(
                &options,
-               MorseLower, tempjm, tempjn, A->nb,
+               ChamLower, tempjm, tempjn, A->nb,
                A(j, j), ldaj,
                B(0, j), ldx );
 
            if( j<minmnt-1 ){
                tempjm = (j+1) == A->mt-1 ? A->m-(j+1)*A->mb : A->mb;
                ldaj = BLKLDD(A, j+1);
-               MORSE_TASK_zlacpyx(
+               INSERT_TASK_zlacpyx(
                    &options,
-                   MorseUpper, tempjm, tempjn, A->nb,
+                   ChamUpper, tempjm, tempjn, A->nb,
                    0,     A(j+1, j), ldaj,
                    A->nb, B(0,   j), ldx);
            }
        }
     }
-    else if ( uplo == MorseUpper ) {
+    else if ( uplo == ChamUpper ) {
        for (j = 0; j < minmnt; j++){
            /* Compute dimension on M with B since it is dimensioned with chameleon_min(A->m, A->n) */
            assert( A->n == B->n );
@@ -89,29 +89,29 @@ void morse_pztile2band(MORSE_enum uplo, MORSE_desc_t *A, MORSE_desc_t *B,
            tempjn = j == A->nt-1 ? A->n - j * A->nb : A->nb;
            ldaj = BLKLDD(A, j);
 
-           MORSE_TASK_zlaset(
+           INSERT_TASK_zlaset(
                &options,
-               MorseUpperLower, B->mb, tempjn,
+               ChamUpperLower, B->mb, tempjn,
                0., 0.,
                B(0, j), B->mb );
 
            if(j > 0){
-               MORSE_TASK_zlacpy(
+               INSERT_TASK_zlacpy(
                    &options,
-                   MorseLower, A->mb, tempjn, A->nb,
+                   ChamLower, A->mb, tempjn, A->nb,
                    A(j-1, j), BLKLDD(A, j-1),
                    B(0,   j), ldx);
            }
 
            tempjm = j == B->nt-1 ? B->n - j * B->nb : B->nb;
-           MORSE_TASK_zlacpyx(
+           INSERT_TASK_zlacpyx(
                &options,
-               MorseUpper, tempjm, tempjn, A->nb,
+               ChamUpper, tempjm, tempjn, A->nb,
                0,     A(j, j), ldaj,
                A->nb, B(0, j), ldx);
        }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }
 #undef B
 #undef A

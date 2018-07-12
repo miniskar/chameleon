@@ -29,10 +29,10 @@ int main(int argc, char *argv[]) {
     int NRHS; // number of RHS vectors
     int NCPU; // number of cores to use
     int NGPU; // number of gpus (cuda devices) to use
-    int UPLO = MorseUpper; // where is stored L
+    int UPLO = ChamUpper; // where is stored L
 
-    /* descriptors necessary for calling MORSE tile interface  */
-    MORSE_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
+    /* descriptors necessary for calling CHAMELEON tile interface  */
+    CHAM_desc_t *descA = NULL, *descAC = NULL, *descB = NULL, *descX = NULL;
 
     /* declarations to time the program and evaluate performances */
     double fmuls, fadds, flops, gflops, cpu_time;
@@ -78,12 +78,12 @@ int main(int argc, char *argv[]) {
         setenv ("STARPU_LIMIT_CPU_MEM", maxMemoryAllowed, 1);
     }
 
-     /* Initialize MORSE with main parameters */
-    if ( MORSE_Init( NCPU, NGPU ) != MORSE_SUCCESS ) {
-        fprintf(stderr, "Error initializing MORSE library\n");
+     /* Initialize CHAMELEON with main parameters */
+    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
+        fprintf(stderr, "Error initializing CHAMELEON library\n");
         return EXIT_FAILURE;
     }
-    MORSE_Set(MORSE_TILE_SIZE, NB);
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE, NB);
 
     /* limit ram memory */
     if (iparam[IPARAM_OUTOFCORE] > 0) {
@@ -95,30 +95,30 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    MORSE_Desc_Create_User(&descA, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
                            NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1,
-                           morse_getaddr_null, // specific function
-                           morse_getblkldd_ccrb,
-                           morse_getrankof_2d);
-    MORSE_Desc_Create(&descB,  NULL, MorseRealDouble,
+                           chameleon_getaddr_null, // specific function
+                           chameleon_getblkldd_ccrb,
+                           chameleon_getrankof_2d);
+    CHAMELEON_Desc_Create(&descB,  NULL, ChamRealDouble,
                       NB, NB,  NB*NB, N, NRHS, 0, 0, N, NRHS, 1, 1);
-    MORSE_Desc_Create(&descX,  NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descX,  NULL, ChamRealDouble,
                       NB, NB,  NB*NB, N, NRHS, 0, 0, N, NRHS, 1, 1);
-    MORSE_Desc_Create(&descAC, NULL, MorseRealDouble,
+    CHAMELEON_Desc_Create(&descAC, NULL, ChamRealDouble,
                       NB, NB,  NB*NB, N, N, 0, 0, N, N, 1, 1);
 
     /* generate A matrix with random values such that it is spd */
-    MORSE_dplgsy_Tile( (double)N, MorseUpperLower, descA, 51 );
+    CHAMELEON_dplgsy_Tile( (double)N, ChamUpperLower, descA, 51 );
 
     /* generate RHS */
-    MORSE_dplrnt_Tile( descB, 5673 );
+    CHAMELEON_dplrnt_Tile( descB, 5673 );
 
     /* copy A before facto. in order to check the result */
-    MORSE_dlacpy_Tile(MorseUpperLower, descA, descAC);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descA, descAC);
 
     /* copy B in X before solving
      * same sense as memcpy(X, B, N*NRHS*sizeof(double)) but for descriptors */
-    MORSE_dlacpy_Tile(MorseUpperLower, descB, descX);
+    CHAMELEON_dlacpy_Tile(ChamUpperLower, descB, descX);
 
     /************************************************************/
     /* solve the system AX = B using the Cholesky factorization */
@@ -128,13 +128,13 @@ int main(int argc, char *argv[]) {
 
     /* Cholesky factorization:
      * A is replaced by its factorization L or L^T depending on uplo */
-    MORSE_dpotrf_Tile( UPLO, descA );
+    CHAMELEON_dpotrf_Tile( UPLO, descA );
 
     /* Solve:
      * B is stored in X on entry, X contains the result on exit.
      * Forward and back substitutions
      */
-    MORSE_dpotrs_Tile( UPLO, descA, descX );
+    CHAMELEON_dpotrs_Tile( UPLO, descA, descX );
 
     cpu_time += CHAMELEON_timer();
 
@@ -148,14 +148,14 @@ int main(int argc, char *argv[]) {
     /************************************************************/
 
     /* compute norms to check the result */
-    anorm = MORSE_dlange_Tile( MorseInfNorm, descAC);
-    bnorm = MORSE_dlange_Tile( MorseInfNorm, descB);
-    xnorm = MORSE_dlange_Tile( MorseInfNorm, descX);
+    anorm = CHAMELEON_dlange_Tile( ChamInfNorm, descAC);
+    bnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descB);
+    xnorm = CHAMELEON_dlange_Tile( ChamInfNorm, descX);
 
     /* compute A*X-B, store the result in B */
-    MORSE_dgemm_Tile( MorseNoTrans, MorseNoTrans,
+    CHAMELEON_dgemm_Tile( ChamNoTrans, ChamNoTrans,
                       1.0, descAC, descX, -1.0, descB );
-    res = MORSE_dlange_Tile( MorseInfNorm, descB );
+    res = CHAMELEON_dlange_Tile( ChamInfNorm, descB );
 
     /* check residual and print a message */
     eps = LAPACKE_dlamch_work( 'e' );
@@ -178,13 +178,13 @@ int main(int argc, char *argv[]) {
     }
 
     /* free descriptors descA, descB, descX, descAC */
-    MORSE_Desc_Destroy( &descA );
-    MORSE_Desc_Destroy( &descB );
-    MORSE_Desc_Destroy( &descX );
-    MORSE_Desc_Destroy( &descAC );
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
+    CHAMELEON_Desc_Destroy( &descX );
+    CHAMELEON_Desc_Destroy( &descAC );
 
-    /* Finalize MORSE */
-    MORSE_Finalize();
+    /* Finalize CHAMELEON */
+    CHAMELEON_Finalize();
 
     return EXIT_SUCCESS;
 }

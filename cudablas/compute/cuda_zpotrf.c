@@ -33,6 +33,6 @@ int CUDA_zpotrf(
         fprintf(stderr, "Error in MAGMA: %d\n", ret);
         exit(-1);
     }
-     return MORSE_SUCCESS;
+     return CHAMELEON_SUCCESS;
 }
 #endif

@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -30,41 +30,41 @@
 /**
  *  Parallel tile Cholesky factorization - dynamic scheduling
  */
-void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
-                   MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
+                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
 
     int k, m, n;
     int ldak, ldam, ldan;
     int tempkm, tempmm, tempnn;
     size_t ws_host   = 0;
 
-    MORSE_Complex64_t zone  = (MORSE_Complex64_t) 1.0;
-    MORSE_Complex64_t mzone = (MORSE_Complex64_t)-1.0;
+    CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
+    CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     RUNTIME_options_ws_alloc( &options, 0, ws_host );
 
     /*
-     *  MorseLower
+     *  ChamLower
      */
-    if (uplo == MorseLower) {
+    if (uplo == ChamLower) {
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
 
             options.priority = 2*A->mt - 2*k;
-            MORSE_TASK_zpotrf(
+            INSERT_TASK_zpotrf(
                 &options,
-                MorseLower, tempkm, A->mb,
+                ChamLower, tempkm, A->mb,
                 A(k, k), ldak, A->nb*k);
 
             for (m = k+1; m < A->mt; m++) {
@@ -72,9 +72,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 ldam = BLKLDD(A, m);
 
                 options.priority = 2*A->mt - 2*k - m;
-                MORSE_TASK_ztrsm(
+                INSERT_TASK_ztrsm(
                     &options,
-                    MorseRight, MorseLower, MorseConjTrans, MorseNonUnit,
+                    ChamRight, ChamLower, ChamConjTrans, ChamNonUnit,
                     tempmm, A->mb, A->mb,
                     zone, A(k, k), ldak,
                           A(m, k), ldam);
@@ -86,9 +86,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 ldan = BLKLDD(A, n);
 
                 options.priority = 2*A->mt - 2*k - n;
-                MORSE_TASK_zherk(
+                INSERT_TASK_zherk(
                     &options,
-                    MorseLower, MorseNoTrans,
+                    ChamLower, ChamNoTrans,
                     tempnn, A->nb, A->mb,
                     -1.0, A(n, k), ldan,
                      1.0, A(n, n), ldan);
@@ -98,9 +98,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                     ldam = BLKLDD(A, m);
 
                     options.priority = 2*A->mt - 2*k - n - m;
-                    MORSE_TASK_zgemm(
+                    INSERT_TASK_zgemm(
                         &options,
-                        MorseNoTrans, MorseConjTrans,
+                        ChamNoTrans, ChamConjTrans,
                         tempmm, tempnn, A->mb, A->mb,
                         mzone, A(m, k), ldam,
                                A(n, k), ldan,
@@ -108,23 +108,23 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 }
                 RUNTIME_data_flush( sequence, A(n, k) );
             }
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
     /*
-     *  MorseUpper
+     *  ChamUpper
      */
     else {
         for (k = 0; k < A->nt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->nt-1 ? A->n-k*A->nb : A->nb;
             ldak = BLKLDD(A, k);
 
             options.priority = 2*A->nt - 2*k;
-            MORSE_TASK_zpotrf(
+            INSERT_TASK_zpotrf(
                 &options,
-                MorseUpper,
+                ChamUpper,
                 tempkm, A->mb,
                 A(k, k), ldak, A->nb*k);
 
@@ -132,9 +132,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 tempnn = n == A->nt-1 ? A->n - n*A->nb : A->nb;
 
                 options.priority = 2*A->nt - 2*k - n;
-                MORSE_TASK_ztrsm(
+                INSERT_TASK_ztrsm(
                     &options,
-                    MorseLeft, MorseUpper, MorseConjTrans, MorseNonUnit,
+                    ChamLeft, ChamUpper, ChamConjTrans, ChamNonUnit,
                     A->mb, tempnn, A->mb,
                     zone, A(k, k), ldak,
                           A(k, n), ldak);
@@ -146,9 +146,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 ldam = BLKLDD(A, m);
 
                 options.priority = 2*A->nt - 2*k  - m;
-                MORSE_TASK_zherk(
+                INSERT_TASK_zherk(
                     &options,
-                    MorseUpper, MorseConjTrans,
+                    ChamUpper, ChamConjTrans,
                     tempmm, A->mb, A->mb,
                     -1.0, A(k, m), ldak,
                      1.0, A(m, m), ldam);
@@ -157,9 +157,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                     tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
                     options.priority = 2*A->nt - 2*k - n - m;
-                    MORSE_TASK_zgemm(
+                    INSERT_TASK_zgemm(
                         &options,
-                        MorseConjTrans, MorseNoTrans,
+                        ChamConjTrans, ChamNoTrans,
                         tempmm, tempnn, A->mb, A->mb,
                         mzone, A(k, m), ldak,
                                A(k, n), ldak,
@@ -168,9 +168,9 @@ void morse_pzpotrf(MORSE_enum uplo, MORSE_desc_t *A,
                 RUNTIME_data_flush( sequence, A(k, m) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

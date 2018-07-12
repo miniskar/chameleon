@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Azzam Haidar
@@ -26,28 +26,28 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_ztsmqr_quark(Quark *quark)
 {
-    MORSE_enum side;
-    MORSE_enum trans;
+    cham_side_t side;
+    cham_trans_t trans;
     int m1;
     int n1;
     int m2;
     int n2;
     int k;
     int ib;
-    MORSE_Complex64_t *A1;
+    CHAMELEON_Complex64_t *A1;
     int lda1;
-    MORSE_Complex64_t *A2;
+    CHAMELEON_Complex64_t *A2;
     int lda2;
-    MORSE_Complex64_t *V;
+    CHAMELEON_Complex64_t *V;
     int ldv;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *WORK;
     int ldwork;
 
     quark_unpack_args_18(quark, side, trans, m1, n1, m2, n2, k, ib,
@@ -58,7 +58,7 @@ void CORE_ztsmqr_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztsmqr overwrites the general complex M1-by-N1 tile A1 and
  *  M2-by-N2 tile A2 with
@@ -80,12 +80,12 @@ void CORE_ztsmqr_quark(Quark *quark)
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
  *
  * @param[in] M1
  *         The number of rows of the tile A1. M1 >= 0.
@@ -95,11 +95,11 @@ void CORE_ztsmqr_quark(Quark *quark)
  *
  * @param[in] M2
  *         The number of rows of the tile A2. M2 >= 0.
- *         M2 = M1 if side == MorseRight.
+ *         M2 = M1 if side == ChamRight.
  *
  * @param[in] N2
  *         The number of columns of the tile A2. N2 >= 0.
- *         N2 = N1 if side == MorseLeft.
+ *         N2 = N1 if side == ChamLeft.
  *
  * @param[in] K
  *         The number of elementary reflectors whose product defines
@@ -140,51 +140,51 @@ void CORE_ztsmqr_quark(Quark *quark)
  *
  * @param[out] WORK
  *         Workspace array of size
- *             LDWORK-by-N1 if side == MorseLeft
- *             LDWORK-by-IB if side == MorseRight
+ *             LDWORK-by-N1 if side == ChamLeft
+ *             LDWORK-by-IB if side == ChamRight
  *
  * @param[in] LDWORK
  *         The leading dimension of the array WORK.
- *             LDWORK >= max(1,IB) if side == MorseLeft
- *             LDWORK >= max(1,M1) if side == MorseRight
+ *             LDWORK >= max(1,IB) if side == ChamLeft
+ *             LDWORK >= max(1,M1) if side == ChamRight
  *
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void MORSE_TASK_ztsmqr(const MORSE_option_t *options,
-                       MORSE_enum side, MORSE_enum trans,
+void INSERT_TASK_ztsmqr(const RUNTIME_option_t *options,
+                       cham_side_t side, cham_trans_t trans,
                        int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                       const MORSE_desc_t *A1, int A1m, int A1n, int lda1,
-                       const MORSE_desc_t *A2, int A2m, int A2n, int lda2,
-                       const MORSE_desc_t *V, int Vm, int Vn, int ldv,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
+                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
+                       const CHAM_desc_t *V, int Vm, int Vn, int ldv,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
 {
-    int ldwork = side == MorseLeft ? ib : nb;
+    int ldwork = side == ChamLeft ? ib : nb;
 
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_TSMQR;
     QUARK_Insert_Task(opt->quark, CORE_ztsmqr_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),              &side,  VALUE,
-        sizeof(MORSE_enum),              &trans, VALUE,
+        sizeof(int),              &side,  VALUE,
+        sizeof(int),              &trans, VALUE,
         sizeof(int),                     &m1,    VALUE,
         sizeof(int),                     &n1,    VALUE,
         sizeof(int),                     &m2,    VALUE,
         sizeof(int),                     &n2,    VALUE,
         sizeof(int),                     &k,     VALUE,
         sizeof(int),                     &ib,    VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb, RTBLKADDR(A1, MORSE_Complex64_t, A1m, A1n), INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb, RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n), INOUT,
         sizeof(int),                     &lda1,  VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb, RTBLKADDR(A2, MORSE_Complex64_t, A2m, A2n), INOUT | LOCALITY,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb, RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n), INOUT | LOCALITY,
         sizeof(int),                     &lda2,  VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb, RTBLKADDR(V, MORSE_Complex64_t, Vm, Vn),    INPUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb, RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),    INPUT,
         sizeof(int),                     &ldv,   VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb, RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),    INPUT,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb, RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),    INPUT,
         sizeof(int),                     &ldt,   VALUE,
-        sizeof(MORSE_Complex64_t)*ib*nb, NULL,          SCRATCH,
+        sizeof(CHAMELEON_Complex64_t)*ib*nb, NULL,          SCRATCH,
         sizeof(int),                     &ldwork, VALUE,
         0);
 }

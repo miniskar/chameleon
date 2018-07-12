@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon MORSE_Complex64_t auxiliary testings routines
+ * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
  * @version 1.0.0
  * @author Mathieu Faverge
@@ -27,20 +27,20 @@
 #include <unistd.h>
 #include <sys/resource.h>
 #endif
-#include <morse.h>
+#include <chameleon.h>
 #include "testing_zauxiliary.h"
 
 int   IONE     = 1;
 int   ISEED[4] = {0,0,0,1};   /* initial seed for zlarnv() */
 
-int   format[6]= { MorseCM, MorseRM, MorseCCRB, MorseCRRB, MorseRCRB, MorseRRRB };
-int   side[2]  = { MorseLeft,    MorseRight };
-int   uplo[2]  = { MorseUpper,   MorseLower };
-int   diag[2]  = { MorseNonUnit, MorseUnit  };
-int   trans[3] = { MorseNoTrans, MorseTrans, MorseConjTrans };
-int   itype[3]  = { 1, 2, 3 };
-int   storev[2] = { MorseRowwise, MorseColumnwise };
-int   norm[4]   = { MorseMaxNorm, MorseOneNorm, MorseInfNorm, MorseFrobeniusNorm };
+cham_storage_t  format[6] = { ChamCM, ChamRM, ChamCCRB, ChamCRRB, ChamRCRB, ChamRRRB };
+cham_side_t     side[2]   = { ChamLeft,    ChamRight };
+cham_uplo_t     uplo[2]   = { ChamUpper,   ChamLower };
+cham_diag_t     diag[2]   = { ChamNonUnit, ChamUnit  };
+cham_trans_t    trans[3]  = { ChamNoTrans, ChamTrans, ChamConjTrans };
+int             itype[3]  = { 1, 2, 3 };
+cham_store_t    storev[2] = { ChamRowwise, ChamColumnwise };
+cham_normtype_t norm[4]   = { ChamMaxNorm, ChamOneNorm, ChamInfNorm, ChamFrobeniusNorm };
 
 char *formatstr[6]= { "CM", "RM", "CCRB", "CRRB", "RCRB", "RRRB"};
 char *sidestr[2]  = { "Left ", "Right" };
@@ -170,14 +170,14 @@ int main (int argc, char **argv)
     sscanf( argv[2], "%d",   &ngpus  );
     sscanf( argv[3], "%31s",  func   );
 
-    /* Initialize MORSE */
+    /* Initialize CHAMELEON */
     /*if(nthreads_per_worker)
-     MORSE_InitPar(ncores/nthreads_per_worker, ncudas, nthreads_per_worker);
+     CHAMELEON_InitPar(ncores/nthreads_per_worker, ncudas, nthreads_per_worker);
      else*/
-    MORSE_Init( ncores, ngpus);
-    MORSE_Disable(MORSE_AUTOTUNING);
-    MORSE_Set(MORSE_TILE_SIZE,         32 );
-    MORSE_Set(MORSE_INNER_BLOCK_SIZE,   5 );
+    CHAMELEON_Init( ncores, ngpus);
+    CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE,         32 );
+    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE,   5 );
 
     argc -= 4;
     argv += 4;
@@ -317,7 +317,7 @@ int main (int argc, char **argv)
         printf( "TESTING %s FAILED : not enough memory\n", func);
     }
 
-    MORSE_Finalize();
+    CHAMELEON_Finalize();
 
     return info;
 }

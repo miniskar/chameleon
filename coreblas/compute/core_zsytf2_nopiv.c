@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -29,23 +29,23 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-static MORSE_Complex64_t zone  =  1.;
-static MORSE_Complex64_t mzone = -1.;
+static CHAMELEON_Complex64_t zone  =  1.;
+static CHAMELEON_Complex64_t mzone = -1.;
 
-int CORE_zsytf2_nopiv(MORSE_enum uplo, int n, MORSE_Complex64_t *A, int lda)
+int CORE_zsytf2_nopiv(cham_uplo_t uplo, int n, CHAMELEON_Complex64_t *A, int lda)
 {
-    MORSE_Complex64_t *Akk = A;   /* A [k  ][k] */
-    MORSE_Complex64_t *Amk;
-    MORSE_Complex64_t  alpha;
+    CHAMELEON_Complex64_t *Akk = A;   /* A [k  ][k] */
+    CHAMELEON_Complex64_t *Amk;
+    CHAMELEON_Complex64_t  alpha;
     int k;
 
     if (n == 0)
         return 0;
 
-    if ( uplo == MorseLower )
+    if ( uplo == ChamLower )
     {
         for ( k=0; k<n-1; k++ )
         {

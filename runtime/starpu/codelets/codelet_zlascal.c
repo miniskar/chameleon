@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Dalal Sukkari
  * @date 2010-11-15
  * @precisions normal z -> c d s
@@ -24,7 +24,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zlascal adds to matrices together.
  *
@@ -50,32 +50,32 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zlascal(const MORSE_option_t *options,
-                        MORSE_enum uplo,
+void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
+                        cham_uplo_t uplo,
                         int m, int n, int nb,
-                        MORSE_Complex64_t alpha,
-                        const MORSE_desc_t *A, int Am, int An, int lda)
+                        CHAMELEON_Complex64_t alpha,
+                        const CHAM_desc_t *A, int Am, int An, int lda)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlascal;
     void (*callback)(void*) = options->profiling ? cl_zlascal_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A, Am, An);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &uplo,              sizeof(MORSE_enum),
+        STARPU_VALUE,    &uplo,              sizeof(int),
         STARPU_VALUE,    &m,                  sizeof(int),
         STARPU_VALUE,    &n,                  sizeof(int),
-        STARPU_VALUE,    &alpha,              sizeof(MORSE_Complex64_t),
-        STARPU_RW,         RTBLKADDR(A, MORSE_Complex64_t, Am, An),
+        STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
+        STARPU_RW,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,                sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
@@ -89,14 +89,14 @@ void MORSE_TASK_zlascal(const MORSE_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int M;
     int N;
-    MORSE_Complex64_t alpha;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
     int LDA;
 
-    A = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &LDA);
     CORE_zlascal(uplo, M, N, alpha, A, LDA);
     return;

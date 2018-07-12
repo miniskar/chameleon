@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Dulceneia Becker
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_zttqrt computes a QR factorization of a rectangular matrix
  *  formed by coupling a complex N-by-N upper triangular tile A1
@@ -96,37 +96,37 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-void MORSE_TASK_zttqrt(const MORSE_option_t *options,
+void INSERT_TASK_zttqrt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const MORSE_desc_t *A1, int A1m, int A1n, int lda1,
-                       const MORSE_desc_t *A2, int A2m, int A2n, int lda2,
-                       const MORSE_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
+                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zttqrt;
     void (*callback)(void*) = options->profiling ? cl_zttqrt_callback : NULL;
 
-    MORSE_BEGIN_ACCESS_DECLARATION;
-    MORSE_ACCESS_RW(A1, A1m, A1n);
-    MORSE_ACCESS_RW(A2, A2m, A2n);
-    MORSE_ACCESS_W(T, Tm, Tn);
-    MORSE_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A1, A1m, A1n);
+    CHAMELEON_ACCESS_RW(A2, A2m, A2n);
+    CHAMELEON_ACCESS_W(T, Tm, Tn);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_RW,        RTBLKADDR(A1, MORSE_Complex64_t, A1m, A1n),
+        STARPU_RW,        RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
         STARPU_VALUE,    &lda1,              sizeof(int),
-        STARPU_RW,        RTBLKADDR(A2, MORSE_Complex64_t, A2m, A2n),
+        STARPU_RW,        RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
         STARPU_VALUE,    &lda2,              sizeof(int),
-        STARPU_W,         RTBLKADDR(T, MORSE_Complex64_t, Tm, Tn),
+        STARPU_W,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_VALUE,    &ldt,               sizeof(int),
          /* nb * (ib+1) */
         STARPU_SCRATCH,   options->ws_worker,
@@ -148,19 +148,19 @@ static void cl_zttqrt_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     int ib;
-    MORSE_Complex64_t *A1;
+    CHAMELEON_Complex64_t *A1;
     int lda1;
-    MORSE_Complex64_t *A2;
+    CHAMELEON_Complex64_t *A2;
     int lda2;
-    MORSE_Complex64_t *T;
+    CHAMELEON_Complex64_t *T;
     int ldt;
-    MORSE_Complex64_t *TAU;
-    MORSE_Complex64_t *WORK;
+    CHAMELEON_Complex64_t *TAU;
+    CHAMELEON_Complex64_t *WORK;
 
-    A1  = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    A2  = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    T   = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    TAU = (MORSE_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* nb * (ib+1) */
+    A1  = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A2  = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    T   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    TAU = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* nb * (ib+1) */
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda1, &lda2, &ldt);
 

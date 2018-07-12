@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  *  CORE_ztslqt computes a LQ factorization of a rectangular matrix
  *  formed by coupling side-by-side a complex M-by-M
@@ -95,21 +95,21 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
 int CORE_ztslqt(int M, int N, int IB,
-                MORSE_Complex64_t *A1, int LDA1,
-                MORSE_Complex64_t *A2, int LDA2,
-                MORSE_Complex64_t *T, int LDT,
-                MORSE_Complex64_t *TAU, MORSE_Complex64_t *WORK)
+                CHAMELEON_Complex64_t *A1, int LDA1,
+                CHAMELEON_Complex64_t *A2, int LDA2,
+                CHAMELEON_Complex64_t *T, int LDT,
+                CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK)
 {
-    static MORSE_Complex64_t zone  = 1.0;
-    static MORSE_Complex64_t zzero = 0.0;
+    static CHAMELEON_Complex64_t zone  = 1.0;
+    static CHAMELEON_Complex64_t zzero = 0.0;
 
-    MORSE_Complex64_t alpha;
+    CHAMELEON_Complex64_t alpha;
     int i, ii, sb;
 
     /* Check input arguments */
@@ -132,7 +132,7 @@ int CORE_ztslqt(int M, int N, int IB,
 
     /* Quick return */
     if ((M == 0) || (N == 0) || (IB == 0))
-        return MORSE_SUCCESS;
+        return CHAMELEON_SUCCESS;
 
     for(ii = 0; ii < M; ii += IB) {
         sb = chameleon_min(M-ii, IB);
@@ -157,7 +157,7 @@ int CORE_ztslqt(int M, int N, int IB,
                     WORK, 1);
 
                 cblas_zgemv(
-                    CblasColMajor, (CBLAS_TRANSPOSE)MorseNoTrans,
+                    CblasColMajor, (CBLAS_TRANSPOSE)ChamNoTrans,
                     sb-i-1, N,
                     CBLAS_SADDR(zone), &A2[ii+i+1], LDA2,
                     &A2[ii+i], LDA2,
@@ -178,7 +178,7 @@ int CORE_ztslqt(int M, int N, int IB,
              * Calculate T.
              */
             cblas_zgemv(
-                CblasColMajor, (CBLAS_TRANSPOSE)MorseNoTrans, i, N,
+                CblasColMajor, (CBLAS_TRANSPOSE)ChamNoTrans, i, N,
                 CBLAS_SADDR(alpha), &A2[ii], LDA2,
                 &A2[ii+i], LDA2,
                 CBLAS_SADDR(zzero), &T[LDT*(ii+i)], 1);
@@ -187,8 +187,8 @@ int CORE_ztslqt(int M, int N, int IB,
             LAPACKE_zlacgv_work(1, &A1[LDA1*(ii+i)+ii+i], LDA1 );
 #endif
             cblas_ztrmv(
-                CblasColMajor, (CBLAS_UPLO)MorseUpper,
-                (CBLAS_TRANSPOSE)MorseNoTrans, (CBLAS_DIAG)MorseNonUnit, i,
+                CblasColMajor, (CBLAS_UPLO)ChamUpper,
+                (CBLAS_TRANSPOSE)ChamNoTrans, (CBLAS_DIAG)ChamNonUnit, i,
                 &T[LDT*ii], LDT,
                 &T[LDT*(ii+i)], 1);
 
@@ -196,7 +196,7 @@ int CORE_ztslqt(int M, int N, int IB,
         }
         if (M > ii+sb) {
             CORE_ztsmlq(
-                MorseRight, MorseConjTrans,
+                ChamRight, ChamConjTrans,
                 M-(ii+sb), sb, M-(ii+sb), N, IB, IB,
                 &A1[LDA1*ii+ii+sb], LDA1,
                 &A2[ii+sb], LDA2,
@@ -205,7 +205,7 @@ int CORE_ztslqt(int M, int N, int IB,
                 WORK, LDA1);
         }
     }
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }
 
 

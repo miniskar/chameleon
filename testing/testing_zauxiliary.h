@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon MORSE_Complex64_t auxiliary testings header
+ * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings header
  *
  * @version 1.0.0
  * @author Mathieu Faverge
@@ -45,14 +45,14 @@
 extern int IONE;
 extern int ISEED[4];
 
-extern int format[6];
-extern int trans[3];
-extern int uplo[2];
-extern int side[2];
-extern int diag[2];
-extern int itype[3];
-extern int storev[2];
-extern int norm[4];
+extern cham_storage_t  format[6];
+extern cham_trans_t    trans[3];
+extern cham_uplo_t     uplo[2];
+extern cham_side_t     side[2];
+extern cham_diag_t     diag[2];
+extern int             itype[3];
+extern cham_store_t    storev[2];
+extern cham_normtype_t norm[4];
 
 extern char *formatstr[6];
 extern char *transstr[3];

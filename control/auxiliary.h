@@ -19,10 +19,11 @@
  * @date 2010-11-15
  *
  */
-#ifndef _MORSE_AUXILIARY_H_
-#define _MORSE_AUXILIARY_H_
+#ifndef _CHAMELEON_AUXILIARY_H_
+#define _CHAMELEON_AUXILIARY_H_
 
-#include "chameleon/morse_struct.h"
+#include "chameleon/struct.h"
+#include "chameleon/tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,18 +32,18 @@ extern "C" {
 /**
  *  Internal routines
  */
-void morse_warning      (const char *func_name, const char* msg_text);
-void morse_error        (const char *func_name, const char* msg_text);
-void morse_fatal_error  (const char *func_name, const char* msg_text);
-int  morse_rank         (MORSE_context_t *morse);
-int  morse_tune         (MORSE_enum func, int M, int N, int NRHS);
+void chameleon_warning      (const char *func_name, const char* msg_text);
+void chameleon_error        (const char *func_name, const char* msg_text);
+void chameleon_fatal_error  (const char *func_name, const char* msg_text);
+int  chameleon_rank         (CHAM_context_t *chamctxt);
+int  chameleon_tune         (cham_tasktype_t func, int M, int N, int NRHS);
 
 /**
  *  API routines
  */
-int  MORSE_Version      (int *ver_major, int *ver_minor, int *ver_micro);
-int  MORSE_Element_Size (int type);
-int  MORSE_My_Mpi_Rank  (void);
+int  CHAMELEON_Version      (int *ver_major, int *ver_minor, int *ver_micro);
+int  CHAMELEON_Element_Size (int type);
+int  CHAMELEON_My_Mpi_Rank  (void);
 
 #ifdef __cplusplus
 }

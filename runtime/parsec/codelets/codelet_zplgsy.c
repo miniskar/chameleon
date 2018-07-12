@@ -17,17 +17,17 @@
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 static inline int
 CORE_zplgsy_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
-    MORSE_Complex64_t bump;
+    CHAMELEON_Complex64_t bump;
     int m;
     int n;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int lda;
     int bigM;
     int m0;
@@ -43,18 +43,18 @@ CORE_zplgsy_parsec( parsec_execution_stream_t *context,
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void MORSE_TASK_zplgsy( const MORSE_option_t *options,
-                        MORSE_Complex64_t bump, int m, int n, const MORSE_desc_t *A, int Am, int An, int lda,
+void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
+                        CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zplgsy_parsec, options->priority, "zplgsy",
-        sizeof(MORSE_Complex64_t), &bump,                          VALUE,
+        sizeof(CHAMELEON_Complex64_t), &bump,                          VALUE,
         sizeof(int),               &m,                             VALUE,
         sizeof(int),               &n,                             VALUE,
-        PASSED_BY_REF,             RTBLKADDR( A, MORSE_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
+        PASSED_BY_REF,             RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
         sizeof(int),               &lda,                           VALUE,
         sizeof(int),               &bigM,                          VALUE,
         sizeof(int),               &m0,                            VALUE,

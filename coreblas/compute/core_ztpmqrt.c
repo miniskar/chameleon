@@ -22,7 +22,7 @@
 /**
  *******************************************************************************
  *
- * @ingroup CORE_MORSE_Complex64_t
+ * @ingroup CORE_CHAMELEON_Complex64_t
  *
  * CORE_ztpmqrt applies a complex orthogonal matrix Q obtained from a
  * "triangular-pentagonal" complex block reflector H to a general complex matrix
@@ -31,12 +31,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg MorseLeft  : apply Q or Q**H from the Left;
- *         @arg MorseRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q**H from the Left;
+ *         @arg ChamRight : apply Q or Q**H from the Right.
  *
  * @param[in] trans
- *         @arg MorseNoTrans   :  No transpose, apply Q;
- *         @arg MorseConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamNoTrans   :  No transpose, apply Q;
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
  *
  * @param[in] M
  *         The number of rows of the tile B. M >= 0.
@@ -72,16 +72,16 @@
  *         The leading dimension of the array T. LDT >= IB.
  *
  * @param[in,out] A
- *         A is COMPLEX*16 array, dimension (LDA,N) if side = MorseLeft
- *         or (LDA,K) if SIDE = MorseRight
+ *         A is COMPLEX*16 array, dimension (LDA,N) if side = ChamLeft
+ *         or (LDA,K) if SIDE = ChamRight
  *         On entry, the K-by-N or M-by-K matrix A.
  *         On exit, A is overwritten by the corresponding block of
  *         Q*C or Q**H*C or C*Q or C*Q**H.  See Further Details.
  *
  * @param[in] LDA
  *         The leading dimension of the array A. LDA >= max(1,M).
- *         If side = MorseLeft,  LDA >= max(1,K);
- *         If side = Morseright, LDA >= max(1,M).
+ *         If side = ChamLeft,  LDA >= max(1,K);
+ *         If side = Chamright, LDA >= max(1,M).
  *
  * @param[in,out] B
  *         On entry, the M-by-N tile B.
@@ -93,7 +93,7 @@
  *
  * @param[out] WORK
  *         Workspace array of size LDWORK-by-NB.
- *         LDWORK = N if side = MorseLeft, or  M if side = MorseRight.
+ *         LDWORK = N if side = ChamLeft, or  M if side = ChamRight.
  *
  *******************************************************************************
  *
@@ -112,10 +112,10 @@
  *  rows of a K-by-K upper triangular matrix.  If L=K, V2 is upper triangular;
  *  if L=0, there is no trapezoidal block, hence V = V1 is rectangular.
  *
- *  If side = MorseLeft:  C = [A]  where A is K-by-N,  B is M-by-N and V is M-by-K.
+ *  If side = ChamLeft:  C = [A]  where A is K-by-N,  B is M-by-N and V is M-by-K.
  *                            [B]
  *
- *  If side = MorseRight: C = [A B]  where A is M-by-K, B is M-by-N and V is N-by-K.
+ *  If side = ChamRight: C = [A B]  where A is M-by-K, B is M-by-N and V is N-by-K.
  *
  *  The complex orthogonal matrix Q is formed from V and T.
  *
@@ -130,28 +130,28 @@
  *******************************************************************************
  *
  * @return
- *          \retval MORSE_SUCCESS successful exit
+ *          \retval CHAMELEON_SUCCESS successful exit
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
-int CORE_ztpmqrt( MORSE_enum side, MORSE_enum trans,
+int CORE_ztpmqrt( cham_side_t side, cham_trans_t trans,
                   int M, int N, int K, int L, int IB,
-                  const MORSE_Complex64_t *V, int LDV,
-                  const MORSE_Complex64_t *T, int LDT,
-                  MORSE_Complex64_t *A, int LDA,
-                  MORSE_Complex64_t *B, int LDB,
-                  MORSE_Complex64_t *WORK )
+                  const CHAMELEON_Complex64_t *V, int LDV,
+                  const CHAMELEON_Complex64_t *T, int LDT,
+                  CHAMELEON_Complex64_t *A, int LDA,
+                  CHAMELEON_Complex64_t *B, int LDB,
+                  CHAMELEON_Complex64_t *WORK )
 {
     int m1, n1, ldwork;
 
     /* Check input arguments */
-    if ((side != MorseLeft) && (side != MorseRight)) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         coreblas_error(1, "Illegal value of side");
         return -1;
     }
 
-    if ( side == MorseLeft ) {
+    if ( side == ChamLeft ) {
         m1 = K;
         n1 = N;
         ldwork = IB;
@@ -180,5 +180,5 @@ int CORE_ztpmqrt( MORSE_enum side, MORSE_enum trans,
         return -6;
     }
 
-    return MORSE_SUCCESS;
+    return CHAMELEON_SUCCESS;
 }

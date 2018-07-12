@@ -37,7 +37,7 @@
 
       SUBROUTINE SERRLS( PATH, NUNIT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
@@ -108,10 +108,10 @@
       A( 2, 1 ) = 4.0E+0
       OK = .TRUE.
 *
-*     Disable MORSE warnings/errors
+*     Disable CHAMELEON warnings/errors
 * 
-      CALL MORSE_DISABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_DISABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_DISABLE( CHAMELEON_ERRORS,   INFO )
 *
       IF( LSAMEN( 2, C2, 'LS' ) ) THEN
 *
@@ -119,34 +119,34 @@
 *
 *        SGELS
 *
-         CALL MORSE_ALLOC_WORKSPACE_SGELS( 2, 2, HT, INFO )
+         CALL CHAMELEON_ALLOC_WORKSPACE_SGELS( 2, 2, HT, INFO )
 *
          SRNAMT = 'SGELS '
          INFOT = 103
-         CALL MORSE_SGELS( '/', 0, 0, 0, A, 1, HT, B, 1, INFO )
+         CALL CHAMELEON_SGELS( '/', 0, 0, 0, A, 1, HT, B, 1, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
          INFOT = 2
-         CALL MORSE_SGELS( MORSENOTRANS, -1, 0, 0, A, 1, HT,
+         CALL CHAMELEON_SGELS( CHAMELEONNOTRANS, -1, 0, 0, A, 1, HT,
      $                     B, 1, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
          INFOT = 3
-         CALL MORSE_SGELS( MORSENOTRANS, 0, -1, 0, A, 1, HT,
+         CALL CHAMELEON_SGELS( CHAMELEONNOTRANS, 0, -1, 0, A, 1, HT,
      $                     B, 1, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
          INFOT = 4
-         CALL MORSE_SGELS( MORSENOTRANS, 0, 0, -1, A, 1, HT,
+         CALL CHAMELEON_SGELS( CHAMELEONNOTRANS, 0, 0, -1, A, 1, HT,
      $                     B, 1, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
          INFOT = 6
-         CALL MORSE_SGELS( MORSENOTRANS, 2, 0, 0, A, 1, HT,
+         CALL CHAMELEON_SGELS( CHAMELEONNOTRANS, 2, 0, 0, A, 1, HT,
      $                     B, 2, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
          INFOT = 9
-         CALL MORSE_SGELS( MORSENOTRANS, 2, 0, 0, A, 2, HT,
+         CALL CHAMELEON_SGELS( CHAMELEONNOTRANS, 2, 0, 0, A, 2, HT,
      $                     B, 1, INFO )
          CALL CHKXER( 'SGELS ', INFOT, NOUT, INFO, OK )
 *
-         CALL MORSE_DEALLOC_HANDLE( HT, INFO )
+         CALL CHAMELEON_DEALLOC_HANDLE( HT, INFO )
 *
       END IF
 *
@@ -154,10 +154,10 @@
 *
       CALL ALAESM( PATH, OK, NOUT )
 *
-*     Enable MORSE warnings/errors
+*     Enable CHAMELEON warnings/errors
 * 
-      CALL MORSE_ENABLE( MORSE_WARNINGS, INFO )
-      CALL MORSE_ENABLE( MORSE_ERRORS,   INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_WARNINGS, INFO )
+      CALL CHAMELEON_ENABLE( CHAMELEON_ERRORS,   INFO )
 *
       RETURN
 *

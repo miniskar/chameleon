@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU MORSE_Complex64_t codelets header
+ * @brief Chameleon StarPU CHAMELEON_Complex64_t codelets header
  *
  * @version 1.0.0
  * @author Cedric Augonnet
@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include "runtime_codelets.h"
 
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas/coreblas_z.h"
 #if defined(CHAMELEON_USE_CUDA)

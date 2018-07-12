@@ -13,11 +13,11 @@
  * @precisions normal z -> c d s
  *
  */
-#define _TYPE  MORSE_Complex64_t
+#define _TYPE  CHAMELEON_Complex64_t
 #define _PREC  double
 #define _LAMCH LAPACKE_dlamch_work
 
-#define _NAME  "MORSE_zpotrf"
+#define _NAME  "CHAMELEON_zpotrf"
 /* See Lawn 41 page 120 */
 #define _FMULS FMULS_POTRF( N )
 #define _FADDS FADDS_POTRF( N )
@@ -26,35 +26,35 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     PASTE_CODE_IPARAM_LOCALS( iparam );
-    int uplo = MorseLower;
+    cham_uplo_t uplo = ChamLower;
 
     LDA = chameleon_max(LDA, N);
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, MORSE_Complex64_t, LDA, N );
+    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N );
 
     /* Initialiaze Data */
-    MORSE_zplghe( (double)N, MorseUpperLower, N, A, LDA, 51 );
+    CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A, LDA, 51 );
 
     /* Save A and b  */
-    PASTE_CODE_ALLOCATE_COPY( A2, check, MORSE_Complex64_t, A, LDA, N    );
+    PASTE_CODE_ALLOCATE_COPY( A2, check, CHAMELEON_Complex64_t, A, LDA, N    );
 
-    /* MORSE ZPOSV */
+    /* CHAMELEON ZPOSV */
     START_TIMING();
-    MORSE_zpotrf(uplo, N, A, LDA);
+    CHAMELEON_zpotrf(uplo, N, A, LDA);
     STOP_TIMING();
 
     /* Check the solution */
     if (check)
       {
-        PASTE_CODE_ALLOCATE_MATRIX( B, check, MORSE_Complex64_t, LDB, NRHS );
-        MORSE_zplrnt( N, NRHS, B, LDB, 5673 );
-        PASTE_CODE_ALLOCATE_COPY( X,  check, MORSE_Complex64_t, B, LDB, NRHS );
+        PASTE_CODE_ALLOCATE_MATRIX( B, check, CHAMELEON_Complex64_t, LDB, NRHS );
+        CHAMELEON_zplrnt( N, NRHS, B, LDB, 5673 );
+        PASTE_CODE_ALLOCATE_COPY( X,  check, CHAMELEON_Complex64_t, B, LDB, NRHS );
 
-        MORSE_zpotrs(uplo, N, NRHS, A, LDA, X, LDB);
+        CHAMELEON_zpotrs(uplo, N, NRHS, A, LDA, X, LDB);
 
         dparam[IPARAM_RES] = z_check_solution(N, N, NRHS, A2, LDA, B, X, LDB,
                                               &(dparam[IPARAM_ANORM]),

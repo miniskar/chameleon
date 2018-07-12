@@ -29,14 +29,14 @@
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
  */
-void morse_pzungqr_param(const libhqr_tree_t *qrtree,
-                         MORSE_desc_t *A, MORSE_desc_t *Q,
-                         MORSE_desc_t *TS, MORSE_desc_t *TT, MORSE_desc_t *D,
-                         MORSE_sequence_t *sequence, MORSE_request_t *request)
+void chameleon_pzungqr_param(const libhqr_tree_t *qrtree,
+                         CHAM_desc_t *A, CHAM_desc_t *Q,
+                         CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    MORSE_context_t *morse;
-    MORSE_option_t options;
-    MORSE_desc_t *T;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
+    CHAM_desc_t *T;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -46,12 +46,12 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
     int ib, minMT;
     int *tiles;
 
-    morse = morse_context_self();
-    if (sequence->status != MORSE_SUCCESS)
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    ib = MORSE_IB;
+    ib = CHAMELEON_IB;
 
     if (A->m > A->n) {
         minMT = A->nt;
@@ -83,13 +83,13 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
 
     tiles = (int*)calloc(qrtree->mt, sizeof(int));
 
-    ws_worker *= sizeof(MORSE_Complex64_t);
-    ws_host   *= sizeof(MORSE_Complex64_t);
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     for (k = minMT-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
@@ -124,9 +124,9 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
                 RUNTIME_data_migrate( sequence, Q(m, n),
                                       Q->get_rankof( Q, m, n ) );
 
-                MORSE_TASK_ztpmqrt(
+                INSERT_TASK_ztpmqrt(
                     &options,
-                    MorseLeft, MorseNoTrans,
+                    ChamLeft, ChamNoTrans,
                     tempmm, tempnn, tempkn, L, ib, T->nb,
                     A(m, k), ldam,
                     T(m, k), T->mb,
@@ -147,15 +147,15 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
             ldqm = BLKLDD(Q, m);
 
 #if defined(CHAMELEON_COPY_DIAG)
-            MORSE_TASK_zlacpy(
+            INSERT_TASK_zlacpy(
                 &options,
-                MorseLower, tempmm, tempkmin, A->nb,
+                ChamLower, tempmm, tempkmin, A->nb,
                 A(m, k), ldam,
                 D(m, k), ldam );
 #if defined(CHAMELEON_USE_CUDA)
-            MORSE_TASK_zlaset(
+            INSERT_TASK_zlaset(
                 &options,
-                MorseUpper, tempmm, tempkmin,
+                ChamUpper, tempmm, tempkmin,
                 0., 1.,
                 D(m, k), ldam );
 #endif
@@ -168,9 +168,9 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
                 RUNTIME_data_migrate( sequence, Q(m, n),
                                       Q->get_rankof( Q, m, n ) );
 
-                MORSE_TASK_zunmqr(
+                INSERT_TASK_zunmqr(
                     &options,
-                    MorseLeft, MorseNoTrans,
+                    ChamLeft, ChamNoTrans,
                     tempmm, tempnn, tempkmin, ib, T->nb,
                     D(m, k), ldam,
                     T(m, k), T->mb,
@@ -180,10 +180,10 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
             RUNTIME_data_flush( sequence, T(m, k) );
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     free(tiles);
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

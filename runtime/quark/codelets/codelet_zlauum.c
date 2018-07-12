@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for MORSE 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -24,30 +24,30 @@
  *
  */
 #include "chameleon_quark.h"
-#include "chameleon/morse_tasks_z.h"
+#include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
 void CORE_zlauum_quark(Quark *quark)
 {
-    MORSE_enum uplo;
+    cham_uplo_t uplo;
     int N;
-    MORSE_Complex64_t *A;
+    CHAMELEON_Complex64_t *A;
     int LDA;
 
     quark_unpack_args_4(quark, uplo, N, A, LDA);
     CORE_zlauum(uplo, N, A, LDA);
 }
 
-void MORSE_TASK_zlauum(const MORSE_option_t *options,
-                       MORSE_enum uplo, int n, int nb,
-                       const MORSE_desc_t *A, int Am, int An, int lda)
+void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
+                       cham_uplo_t uplo, int n, int nb,
+                       const CHAM_desc_t *A, int Am, int An, int lda)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LAUUM;
     QUARK_Insert_Task(opt->quark, CORE_zlauum_quark, (Quark_Task_Flags*)opt,
-        sizeof(MORSE_enum),                &uplo,  VALUE,
+        sizeof(int),                &uplo,  VALUE,
         sizeof(int),                        &n,     VALUE,
-        sizeof(MORSE_Complex64_t)*nb*nb,    RTBLKADDR(A, MORSE_Complex64_t, Am, An),             INOUT,
+        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INOUT,
         sizeof(int),                        &lda,   VALUE,
         0);
 }

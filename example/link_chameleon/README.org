@@ -22,7 +22,7 @@ Example to link with chameleon in CMake project, see the
 #+begin_src
 mkdir build
 cd build
-cmake .. -DMORSE_DISTRIB_DIR=$PWD/../../../cmake_modules -DMORSE_CHAMELEON_USE_STARPU=ON
+cmake .. -DCHAMELEON_DISTRIB_DIR=$PWD/../../../cmake_modules -DCHAMELEON_CHAMELEON_USE_STARPU=ON
 make VERBOSE=1
 ./link_chameleon_c
 ./link_chameleon_f
