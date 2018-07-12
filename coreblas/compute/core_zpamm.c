@@ -256,7 +256,7 @@ CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
 
     /* Columnwise*/
     if (storev == ChamColumnwise) {
-        uplo = CblasUpper;
+        uplo = ChamUpper;
         if (side == ChamLeft) {
             trans = op == ChameleonA2 ? ChamNoTrans : ChamConjTrans;
             vi2 = trans == ChamNoTrans ? M - L : K - L;
@@ -270,7 +270,7 @@ CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
 
     /* Rowwise */
     else {
-        uplo = CblasLower;
+        uplo = ChamLower;
         if (side == ChamLeft) {
             trans = op == ChameleonW ? ChamNoTrans : ChamConjTrans;
             vi2 = trans == ChamNoTrans ? K - L : M - L;
@@ -322,8 +322,8 @@ CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
 
     if (side == ChamLeft) {
 
-        if (((trans == ChamConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             /*
              * W = A1 + V' * A2
@@ -381,8 +381,8 @@ CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
     }
     else { //side right
 
-        if (((trans == ChamConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
             printf("Right Upper/ConjTrans & Lower/NoTrans not implemented yet\n");
             return CHAMELEON_ERR_NOT_SUPPORTED;
 
@@ -463,8 +463,8 @@ CORE_zpamm_a2(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
 
     if (side == ChamLeft) {
 
-        if (((trans == ChamConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             printf("Left Upper/ConjTrans & Lower/NoTrans not implemented yet\n");
             return CHAMELEON_ERR_NOT_SUPPORTED;
@@ -515,8 +515,8 @@ CORE_zpamm_a2(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
     }
     else { //side right
 
-        if (((trans == ChamConjTrans) && (uplo == CblasUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == CblasLower))) {
+        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
 
             /*
              * A2 = A2 - W * V'

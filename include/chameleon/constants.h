@@ -93,13 +93,13 @@ typedef enum chameleon_side_e {
  */
 typedef enum chameleon_normtype_e {
     ChamOneNorm       = 171, /**< One norm:       max_j( sum_i( |a_{ij}| ) )   */
-    ChamRealOneNorm   = 172,
-    ChamTwoNorm       = 173,
+    /* ChamRealOneNorm   = 172, */
+    /* ChamTwoNorm       = 173, */
     ChamFrobeniusNorm = 174, /**< Frobenius norm: sqrt( sum_{i,j} (a_{ij}^2) ) */
     ChamInfNorm       = 175, /**< Inifinite norm: max_i( sum_j( |a_{ij}| ) )   */
-    ChamRealInfNorm   = 176,
+    /* ChamRealInfNorm   = 176, */
     ChamMaxNorm       = 177, /**< Inifinite norm: max_{i,j}( | a_{ij} | )      */
-    ChamRealMaxNorm   = 178
+    /* ChamRealMaxNorm   = 178 */
 } cham_normtype_t;
 
 /**

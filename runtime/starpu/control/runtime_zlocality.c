@@ -82,53 +82,53 @@ void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 {
     switch( kernel ) {
     /* Blas 3 */
-    case CHAMELEON_GEMM:   cl_zgemm_restrict_where( where );  break;
+    case TASK_GEMM:   cl_zgemm_restrict_where( where );  break;
 #if defined(PRECISION_z) || defined(PRECISION_c)
-    case CHAMELEON_HEMM:   cl_zhemm_restrict_where( where );  break;
-    case CHAMELEON_HER2K:  cl_zher2k_restrict_where( where ); break;
-    case CHAMELEON_HERK:   cl_zherk_restrict_where( where );  break;
-    case CHAMELEON_SYTRF_NOPIV: cl_zsytrf_nopiv_restrict_where( where );  break;
+    case TASK_HEMM:   cl_zhemm_restrict_where( where );  break;
+    case TASK_HER2K:  cl_zher2k_restrict_where( where ); break;
+    case TASK_HERK:   cl_zherk_restrict_where( where );  break;
+    case TASK_SYTRF_NOPIV: cl_zsytrf_nopiv_restrict_where( where );  break;
 #endif
-    case CHAMELEON_SYMM:   cl_zhemm_restrict_where( where );  break;
-    case CHAMELEON_SYR2K:  cl_zher2k_restrict_where( where ); break;
-    case CHAMELEON_SYRK:   cl_zherk_restrict_where( where );  break;
-    case CHAMELEON_TRMM:   cl_ztrmm_restrict_where( where );  break;
-    case CHAMELEON_TRSM:   cl_ztrsm_restrict_where( where );  break;
+    case TASK_SYMM:   cl_zhemm_restrict_where( where );  break;
+    case TASK_SYR2K:  cl_zher2k_restrict_where( where ); break;
+    case TASK_SYRK:   cl_zherk_restrict_where( where );  break;
+    case TASK_TRMM:   cl_ztrmm_restrict_where( where );  break;
+    case TASK_TRSM:   cl_ztrsm_restrict_where( where );  break;
 
     /*
      * Lapack
      */
     /* Cholesky */
-    case CHAMELEON_POTRF:  cl_zpotrf_restrict_where( where ); break;
-    case CHAMELEON_LAUUM:  cl_zlauum_restrict_where( where ); break;
-    case CHAMELEON_TRTRI:  cl_ztrtri_restrict_where( where ); break;
+    case TASK_POTRF:  cl_zpotrf_restrict_where( where ); break;
+    case TASK_LAUUM:  cl_zlauum_restrict_where( where ); break;
+    case TASK_TRTRI:  cl_ztrtri_restrict_where( where ); break;
 
     /* LU */
-    case CHAMELEON_GETRF_INCPIV: cl_zgetrf_incpiv_restrict_where( where ); break;
-    case CHAMELEON_GETRF_NOPIV: cl_zgetrf_nopiv_restrict_where( where ); break;
-    case CHAMELEON_GESSM:  cl_zgessm_restrict_where( where ); break;
-    case CHAMELEON_SSSSM:  cl_zssssm_restrict_where( where ); break;
-    case CHAMELEON_TSTRF:  cl_ztstrf_restrict_where( where ); break;
+    case TASK_GETRF_INCPIV: cl_zgetrf_incpiv_restrict_where( where ); break;
+    case TASK_GETRF_NOPIV: cl_zgetrf_nopiv_restrict_where( where ); break;
+    case TASK_GESSM:  cl_zgessm_restrict_where( where ); break;
+    case TASK_SSSSM:  cl_zssssm_restrict_where( where ); break;
+    case TASK_TSTRF:  cl_ztstrf_restrict_where( where ); break;
 
     /* QR */
-    case CHAMELEON_GEQRT:  cl_zgeqrt_restrict_where( where ); break;
-    case CHAMELEON_UNMQR:  cl_zunmqr_restrict_where( where ); break;
-    case CHAMELEON_TSMQR:  cl_ztsmqr_restrict_where( where ); break;
-    case CHAMELEON_TSQRT:  cl_ztsqrt_restrict_where( where ); break;
+    case TASK_GEQRT:  cl_zgeqrt_restrict_where( where ); break;
+    case TASK_UNMQR:  cl_zunmqr_restrict_where( where ); break;
+    case TASK_TSMQR:  cl_ztsmqr_restrict_where( where ); break;
+    case TASK_TSQRT:  cl_ztsqrt_restrict_where( where ); break;
 
     /* QR-RH */
-/*     case CHAMELEON_TTMQR:  cl_zttmqr_restrict_where( where ); break; */
-/*     case CHAMELEON_TTQRT:  cl_zttqrt_restrict_where( where ); break; */
+/*     case TASK_TTMQR:  cl_zttmqr_restrict_where( where ); break; */
+/*     case TASK_TTQRT:  cl_zttqrt_restrict_where( where ); break; */
 
     /* LQ */
-   case CHAMELEON_GELQT:  cl_zgelqt_restrict_where( where ); break;
-   case CHAMELEON_UNMLQ:  cl_zunmlq_restrict_where( where ); break;
-   case CHAMELEON_TSMLQ:  cl_ztsmlq_restrict_where( where ); break;
-   case CHAMELEON_TSLQT:  cl_ztslqt_restrict_where( where ); break;
+   case TASK_GELQT:  cl_zgelqt_restrict_where( where ); break;
+   case TASK_UNMLQ:  cl_zunmlq_restrict_where( where ); break;
+   case TASK_TSMLQ:  cl_ztsmlq_restrict_where( where ); break;
+   case TASK_TSLQT:  cl_ztslqt_restrict_where( where ); break;
 
     /* LQ-RH */
-/*     case CHAMELEON_TTMLQ:  cl_zttmlq_restrict_where( where ); break; */
-/*     case CHAMELEON_TTLQT:  cl_zttlqt_restrict_where( where ); break; */
+/*     case TASK_TTMLQ:  cl_zttmlq_restrict_where( where ); break; */
+/*     case TASK_TTLQT:  cl_zttlqt_restrict_where( where ); break; */
 
     default:
       return;
@@ -191,53 +191,53 @@ void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
 {
     switch( kernel ) {
     /* Blas 3 */
-    case CHAMELEON_GEMM:   cl_zgemm_restore_where();  break;
+    case TASK_GEMM:   cl_zgemm_restore_where();  break;
 #if defined(PRECISION_z) || defined(PRECISION_c)
-    case CHAMELEON_HEMM:   cl_zhemm_restore_where();  break;
-    case CHAMELEON_HER2K:  cl_zher2k_restore_where(); break;
-    case CHAMELEON_HERK:   cl_zherk_restore_where();  break;
-    case CHAMELEON_SYTRF_NOPIV: cl_zsytrf_nopiv_restore_where();  break;
+    case TASK_HEMM:   cl_zhemm_restore_where();  break;
+    case TASK_HER2K:  cl_zher2k_restore_where(); break;
+    case TASK_HERK:   cl_zherk_restore_where();  break;
+    case TASK_SYTRF_NOPIV: cl_zsytrf_nopiv_restore_where();  break;
 #endif
-    case CHAMELEON_SYMM:   cl_zhemm_restore_where();  break;
-    case CHAMELEON_SYR2K:  cl_zher2k_restore_where(); break;
-    case CHAMELEON_SYRK:   cl_zherk_restore_where();  break;
-    case CHAMELEON_TRMM:   cl_ztrmm_restore_where();  break;
-    case CHAMELEON_TRSM:   cl_ztrsm_restore_where();  break;
+    case TASK_SYMM:   cl_zhemm_restore_where();  break;
+    case TASK_SYR2K:  cl_zher2k_restore_where(); break;
+    case TASK_SYRK:   cl_zherk_restore_where();  break;
+    case TASK_TRMM:   cl_ztrmm_restore_where();  break;
+    case TASK_TRSM:   cl_ztrsm_restore_where();  break;
 
     /*
      * Lapack
      */
     /* Cholesky */
-    case CHAMELEON_POTRF:  cl_zpotrf_restore_where(); break;
-    case CHAMELEON_LAUUM:  cl_zlauum_restore_where(); break;
-    case CHAMELEON_TRTRI:  cl_ztrtri_restore_where(); break;
+    case TASK_POTRF:  cl_zpotrf_restore_where(); break;
+    case TASK_LAUUM:  cl_zlauum_restore_where(); break;
+    case TASK_TRTRI:  cl_ztrtri_restore_where(); break;
 
     /* LU */
-    case CHAMELEON_GETRF_INCPIV: cl_zgetrf_incpiv_restore_where(); break;
-    case CHAMELEON_GETRF_NOPIV: cl_zgetrf_nopiv_restore_where(); break;
-    case CHAMELEON_GESSM:  cl_zgessm_restore_where(); break;
-    case CHAMELEON_SSSSM:  cl_zssssm_restore_where(); break;
-    case CHAMELEON_TSTRF:  cl_ztstrf_restore_where(); break;
+    case TASK_GETRF_INCPIV: cl_zgetrf_incpiv_restore_where(); break;
+    case TASK_GETRF_NOPIV: cl_zgetrf_nopiv_restore_where(); break;
+    case TASK_GESSM:  cl_zgessm_restore_where(); break;
+    case TASK_SSSSM:  cl_zssssm_restore_where(); break;
+    case TASK_TSTRF:  cl_ztstrf_restore_where(); break;
 
     /* QR */
-    case CHAMELEON_GEQRT:  cl_zgeqrt_restore_where(); break;
-    case CHAMELEON_UNMQR:  cl_zunmqr_restore_where(); break;
-    case CHAMELEON_TSMQR:  cl_ztsmqr_restore_where(); break;
-    case CHAMELEON_TSQRT:  cl_ztsqrt_restore_where(); break;
+    case TASK_GEQRT:  cl_zgeqrt_restore_where(); break;
+    case TASK_UNMQR:  cl_zunmqr_restore_where(); break;
+    case TASK_TSMQR:  cl_ztsmqr_restore_where(); break;
+    case TASK_TSQRT:  cl_ztsqrt_restore_where(); break;
 
     /* QR-RH */
-/*     case CHAMELEON_TTMQR:  cl_zttmqr_restore_where(); break; */
-/*     case CHAMELEON_TTQRT:  cl_zttqrt_restore_where(); break; */
+/*     case TASK_TTMQR:  cl_zttmqr_restore_where(); break; */
+/*     case TASK_TTQRT:  cl_zttqrt_restore_where(); break; */
 
     /* LQ */
-   case CHAMELEON_GELQT:  cl_zgelqt_restore_where(); break;
-   case CHAMELEON_UNMLQ:  cl_zunmlq_restore_where(); break;
-   case CHAMELEON_TSMLQ:  cl_ztsmlq_restore_where(); break;
-   case CHAMELEON_TSLQT:  cl_ztslqt_restore_where(); break;
+   case TASK_GELQT:  cl_zgelqt_restore_where(); break;
+   case TASK_UNMLQ:  cl_zunmlq_restore_where(); break;
+   case TASK_TSMLQ:  cl_ztsmlq_restore_where(); break;
+   case TASK_TSLQT:  cl_ztslqt_restore_where(); break;
 
     /* LQ-RH */
-/*     case CHAMELEON_TTMLQ:  cl_zttmlq_restore_where(); break; */
-/*     case CHAMELEON_TTLQT:  cl_zttlqt_restore_where(); break; */
+/*     case TASK_TTMLQ:  cl_zttmlq_restore_where(); break; */
+/*     case TASK_TTLQT:  cl_zttlqt_restore_where(); break; */
 
     default:
       return;
