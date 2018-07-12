@@ -45,15 +45,13 @@ chameleon_starpu_tag_init( int user_tag_width,
         tag_width = user_tag_width;
         tag_sep   = user_tag_sep;
 
+        void *tag_ub_p = NULL;
 #if defined(HAVE_STARPU_MPI_COMM_GET_ATTR)
-        int64_t *tag_ub_p = NULL;
         starpu_mpi_comm_get_attr(MPI_COMM_WORLD, STARPU_MPI_TAG_UB, &tag_ub_p, &ok);
-        tag_ub = *tag_ub_p;
 #else
-        int *tag_ub_p = NULL;
         MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &tag_ub_p, &ok);
-        tag_ub = *tag_ub_p;
 #endif
+        tag_ub = (uintptr_t)tag_ub_p;
 
         if ( !ok ) {
             chameleon_error("RUNTIME_desc_create", "MPI_TAG_UB not known by StarPU");
@@ -235,12 +233,9 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
         for (n = 0; n < lnt; n++) {
             for (m = 0; m < lmt; m++)
             {
-                if (*handle == NULL)
-                {
-                    handle++;
-                    continue;
+                if (*handle != NULL) {
+                    starpu_data_unregister(*handle);
                 }
-                starpu_data_unregister(*handle);
                 handle++;
             }
         }
@@ -252,8 +247,8 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
             if (cudaHostUnregister(desc->mat) != cudaSuccess)
             {
                 chameleon_warning("RUNTIME_desc_destroy(StarPU)",
-                              "cudaHostUnregister failed to unregister the "
-                              "pinned memory associated to the matrix");
+                                  "cudaHostUnregister failed to unregister the "
+                                  "pinned memory associated to the matrix");
             }
         }
 #endif /* defined(CHAMELEON_USE_CUDA) */
