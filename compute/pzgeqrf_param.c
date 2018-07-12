@@ -29,11 +29,11 @@
 /**
  *  Parallel tile QR factorization (reduction Householder) - dynamic scheduling
  */
-void morse_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                           CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     CHAM_desc_t *T;
     size_t ws_worker = 0;
@@ -46,10 +46,10 @@ void morse_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
     int ib;
     int *tiles;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -89,7 +89,7 @@ void morse_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
 
     /* The number of the factorization */
     for (k = 0; k < K; k++) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
         /* The number of geqrt to apply */
@@ -197,10 +197,10 @@ void morse_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                                   A->get_rankof( A, k, n ) );
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     free(tiles);
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

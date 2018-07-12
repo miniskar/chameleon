@@ -35,7 +35,7 @@ void CORE_ztrtri(cham_uplo_t uplo, cham_diag_t diag, int N, CHAMELEON_Complex64_
 {
     *info = LAPACKE_ztrtri_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(uplo), morse_lapack_const(diag),
+        chameleon_lapack_const(uplo), chameleon_lapack_const(diag),
         N, A, LDA);
 }
 

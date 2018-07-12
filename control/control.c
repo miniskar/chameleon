@@ -80,24 +80,24 @@ int CHAMELEON_Init(int cores, int gpus)
  */
 int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
     /* Create context and insert in the context map */
-    morse = morse_context_create();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Init", "morse_context_create() failed");
+    chamctxt = chameleon_context_create();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Init", "chameleon_context_create() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
 #if defined(CHAMELEON_USE_MPI)
 #  if defined(CHAMELEON_SIMULATION)
     /* Assuming that we don't initialize MPI ourself (which SMPI doesn't support anyway) */
-    morse->mpi_outer_init = 1;
+    chamctxt->mpi_outer_init = 1;
 #  else
     {
       int flag = 0, provided = 0;
       MPI_Initialized( &flag );
-      morse->mpi_outer_init = flag;
+      chamctxt->mpi_outer_init = flag;
       if ( !flag ) {
           MPI_Init_thread( NULL, NULL, MPI_THREAD_MULTIPLE, &provided );
       }
@@ -105,11 +105,11 @@ int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
 #  endif
 #endif
 
-    RUNTIME_init( morse, ncpus, ncudas, nthreads_per_worker );
+    RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
 
 #if defined(CHAMELEON_USE_MPI)
-    morse->my_mpi_rank   = RUNTIME_comm_rank( morse );
-    morse->mpi_comm_size = RUNTIME_comm_size( morse );
+    chamctxt->my_mpi_rank   = RUNTIME_comm_rank( chamctxt );
+    chamctxt->mpi_comm_size = RUNTIME_comm_size( chamctxt );
 #endif
 
     return CHAMELEON_SUCCESS;
@@ -129,23 +129,23 @@ int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
  */
 int CHAMELEON_Finalize(void)
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_flush();
 #  if !defined(CHAMELEON_SIMULATION)
-    RUNTIME_barrier(morse);
+    RUNTIME_barrier(chamctxt);
 #  endif
-    RUNTIME_finalize( morse );
+    RUNTIME_finalize( chamctxt );
 
 #if defined(CHAMELEON_USE_MPI)
-    if (!morse->mpi_outer_init)
+    if (!chamctxt->mpi_outer_init)
         MPI_Finalize();
 #endif
 
-    morse_context_destroy();
+    chameleon_context_destroy();
     return CHAMELEON_SUCCESS;
 }
 
@@ -163,12 +163,12 @@ int CHAMELEON_Finalize(void)
  */
 int CHAMELEON_Pause(void)
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Pause()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Pause()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_pause(morse);
+    RUNTIME_pause(chamctxt);
     return CHAMELEON_SUCCESS;
 }
 
@@ -187,12 +187,12 @@ int CHAMELEON_Pause(void)
  */
 int CHAMELEON_Resume(void)
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Resume()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Resume()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_resume(morse);
+    RUNTIME_resume(chamctxt);
     return CHAMELEON_SUCCESS;
 }
 
@@ -210,12 +210,12 @@ int CHAMELEON_Resume(void)
  */
 int CHAMELEON_Distributed_start(void)
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_barrier (morse);
+    RUNTIME_barrier (chamctxt);
     return CHAMELEON_SUCCESS;
 }
 
@@ -233,12 +233,12 @@ int CHAMELEON_Distributed_start(void)
  */
 int CHAMELEON_Distributed_stop(void)
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_barrier (morse);
+    RUNTIME_barrier (chamctxt);
     return CHAMELEON_SUCCESS;
 }
 
@@ -256,13 +256,13 @@ int CHAMELEON_Distributed_stop(void)
  */
 int CHAMELEON_Comm_size()
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Comm_size()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Comm_size()", "CHAMELEON not initialized");
         return -1;
     }
 
-    return RUNTIME_comm_size( morse );
+    return RUNTIME_comm_size( chamctxt );
 }
 
 /**
@@ -279,13 +279,13 @@ int CHAMELEON_Comm_size()
  */
 int CHAMELEON_Comm_rank()
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Comm_rank()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Comm_rank()", "CHAMELEON not initialized");
         return -1;
     }
 
-    return RUNTIME_comm_rank( morse );
+    return RUNTIME_comm_rank( chamctxt );
 }
 
 /**
@@ -303,11 +303,11 @@ int CHAMELEON_Comm_rank()
  */
 int CHAMELEON_GetThreadNbr( )
 {
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_GetThreadNbr()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_GetThreadNbr()", "CHAMELEON not initialized");
         return -1;
     }
 
-    return RUNTIME_thread_size( morse );
+    return RUNTIME_thread_size( chamctxt );
 }

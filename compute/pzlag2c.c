@@ -33,20 +33,20 @@
 /**
  *
  */
-void morse_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
+void chameleon_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int X, Y;
     int m, n;
     int ldam, ldbm;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for(m = 0; m < SA->mt; m++) {
         X = m == SA->mt-1 ? SA->m-m*SA->mb : SA->mb;
@@ -61,5 +61,5 @@ void morse_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
                 B(m, n), ldbm);
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

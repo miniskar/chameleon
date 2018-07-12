@@ -30,14 +30,14 @@
 /**
  *
  */
-void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
+void chameleon_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
                    CHAM_desc_t *A, double *result,
                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
     CHAM_desc_t *VECNORMS_STEP1 = NULL;
     CHAM_desc_t *VECNORMS_STEP2 = NULL;
     CHAM_desc_t *RESULT         = NULL;
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int workm, workn;
@@ -51,10 +51,10 @@ void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
     /* part_p = A->myrank / A->q; */
     /* part_q = A->myrank % A->q; */
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     *result = 0.0;
     switch ( norm ) {
@@ -223,7 +223,7 @@ void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
         CHAMELEON_Desc_Flush( VECNORMS_STEP2, sequence );
         CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
         CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(morse, sequence);
+        RUNTIME_sequence_wait(chamctxt, sequence);
         *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
         CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
         CHAMELEON_Desc_Destroy( &(VECNORMS_STEP2) );
@@ -395,7 +395,7 @@ void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
         CHAMELEON_Desc_Flush( VECNORMS_STEP2, sequence );
         CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
         CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(morse, sequence);
+        RUNTIME_sequence_wait(chamctxt, sequence);
         *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
         CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
         CHAMELEON_Desc_Destroy( &(VECNORMS_STEP2) );
@@ -537,7 +537,7 @@ void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
 
         CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
         CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(morse, sequence);
+        RUNTIME_sequence_wait(chamctxt, sequence);
         *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
         CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
         CHAMELEON_Desc_Destroy( &(RESULT) );
@@ -663,11 +663,11 @@ void morse_pzlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
 
             CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
             CHAMELEON_Desc_Flush( RESULT, sequence );
-            RUNTIME_sequence_wait(morse, sequence);
+            RUNTIME_sequence_wait(chamctxt, sequence);
             *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
             CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
             CHAMELEON_Desc_Destroy( &(RESULT) );
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

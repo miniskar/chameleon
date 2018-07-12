@@ -67,31 +67,31 @@ subs = {
     ( 'r', '#include([\s\S]*)plasma_private_alloc\(([^,]*),([\s\S]*?),([^)]*)\)',         '//WS_ALLOC : \\3\n#include\\1'                                ),
     # end get
 
-    ( 'u', 'plasma_static_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',               'morse_\\3(,\\4;'                                              ),
-    ( 'u', 'plasma_dynamic_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',              'morse_\\3(,\\4;'                                              ),
-    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',             'morse_\\3(,\\4;'                                              ),
-    ( 'u', 'plasma_static_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',    'morse_\\3(,\\4)'                                              ),
-    ( 'u', 'plasma_dynamic_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',   'morse_\\3(,\\4)'                                              ),
-    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',  'morse_\\3(,\\4)'                                              ),
-    # Dirty replacement to put the correct call of 'morse_pz***` by removing all types
+    ( 'u', 'plasma_static_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',               'chameleon_\\3(,\\4;'                                              ),
+    ( 'u', 'plasma_dynamic_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',              'chameleon_\\3(,\\4;'                                              ),
+    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',             'chameleon_\\3(,\\4;'                                              ),
+    ( 'u', 'plasma_static_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',    'chameleon_\\3(,\\4)'                                              ),
+    ( 'u', 'plasma_dynamic_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',   'chameleon_\\3(,\\4)'                                              ),
+    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([\s\S]*?)request\)',  'chameleon_\\3(,\\4)'                                              ),
+    # Dirty replacement to put the correct call of 'chameleon_pz***` by removing all types
     # The 8 first lines are called n times more to be sure to change all `plasma_desc_mat_free(&desc` to `RUNTIME_desc_getoncpu(`
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_enum([ \w\*]*),([^;]*);',             'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_desc([ \w\*]*),([^;]*);',             'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_Complex64_t([ \w\*]*),([^;]*);',      'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_sequence([ \w\*]*),([^;]*);',         'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_request([ \w\*]*),([^;]*);',          'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)int([ \w\*]*),([^;]*);',                     'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)float([ \w\*]*),([^;]*);',                   'morse_p\\1(\\2,\\5;'                                          ),
-    ( 'r', 'morse_p([\w]*)\(([^;]*),([\s\w]*)double([ \w\*]*),([^;]*);',                  'morse_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_enum([ \w\*]*),([^;]*);',             'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_desc([ \w\*]*),([^;]*);',             'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_Complex64_t([ \w\*]*),([^;]*);',      'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_sequence([ \w\*]*),([^;]*);',         'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)PLASMA_request([ \w\*]*),([^;]*);',          'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)int([ \w\*]*),([^;]*);',                     'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)float([ \w\*]*),([^;]*);',                   'chameleon_p\\1(\\2,\\5;'                                          ),
+    ( 'r', 'chameleon_p([\w]*)\(([^;]*),([\s\w]*)double([ \w\*]*),([^;]*);',                  'chameleon_p\\1(\\2,\\5;'                                          ),
 
-    ( 'u', 'morse_p([\w]*)\(([, ]*)',                                                     'morse_p\\1('                                                  ),
+    ( 'u', 'chameleon_p([\w]*)\(([, ]*)',                                                     'chameleon_p\\1('                                                  ),
   ],
   #
   #
   'compute' : [
     # Check the 2 next lines when plasma const will be right
     ( 'u', 'OUTOFPLACE([^}]+)plasma_zooptile2lap\(([\s]*)([^,]+),([^}]+)plasma_dynamic_sync\(\);([\s]*)plasma_desc_mat_free([^}]+)}',
-           'OUTOFPLACE\\1morse_zooptile2lap(\\3,\\4RUNTIME_barrier(morse);\\5RUNTIME_desc_getoncpu(&\\3);\\5plasma_desc_mat_free\\6}'                    ),
+           'OUTOFPLACE\\1chameleon_zooptile2lap(\\3,\\4RUNTIME_barrier(morse);\\5RUNTIME_desc_getoncpu(&\\3);\\5plasma_desc_mat_free\\6}'                    ),
     ( 'u', 'OUTOFPLACE([^}]+)RUNTIME_desc_getoncpu([^;]+);([\s]*)([^}]+)}([\s\S]*)_Tile\(([\s\S]*)plasma_dynamic_sync\(\);([\s]*)status = sequence->status',
            'OUTOFPLACE\\1RUNTIME_desc_getoncpu\\2;\\4}\\5_Tile(\\6RUNTIME_barrier(morse);\\7\\4\\7status = sequence->status'                             ),
     # Dirty replacement for CHAMELEON_z*_Tile to put RUNTIME_desc_getoncpu
@@ -103,11 +103,11 @@ subs = {
     # TODO: it works because it is the last call in the function
     #       we need to find better delimiters
     ( 'u', '_zplghe\(([\s\S]*)\n([ \t]*)plasma_ziptile2lap\(([^;]*);',
-           '_zplghe(\\1\n\\2RUNTIME_barrier(morse);\n\\2morse_zooptile2lap(\\3;' ),
+           '_zplghe(\\1\n\\2RUNTIME_barrier(morse);\n\\2chameleon_zooptile2lap(\\3;' ),
     ( 'u', '_zplgsy\(([\s\S]*)\n([ \t]*)plasma_ziptile2lap\(([^;]*);',
-           '_zplgsy(\\1\n\\2RUNTIME_barrier(morse);\n\\2morse_zooptile2lap(\\3;' ),
+           '_zplgsy(\\1\n\\2RUNTIME_barrier(morse);\n\\2chameleon_zooptile2lap(\\3;' ),
     ( 'u', '_zplrnt\(([\s\S]*)\n([ \t]*)plasma_ziptile2lap\(([^;]*);',
-           '_zplrnt(\\1\n\\2RUNTIME_barrier(morse);\n\\2morse_zooptile2lap(\\3;' ),
+           '_zplrnt(\\1\n\\2RUNTIME_barrier(morse);\n\\2chameleon_zooptile2lap(\\3;' ),
     # end specific
 
     # Remove INPLACE / OUTOFPLACE
@@ -119,11 +119,11 @@ subs = {
     ( 'u', '\n([ ]+)([\s]*)plasma_ziplap2tile([^;]*);([ \t]*)\n',                         '\n/*\\1\\2plasma_ziplap2tile\\3;\\4*/\n'                      ),
     # end remove
 
-    # Change plasma_desc_init into morse_zdesc_alloc
-    ( 'u', 'desc([\w]*)([ \t]*)=([ \t]*)plasma_desc_init\(([^,]*),([^;]*);([\s]*)([^;]*);', 'morse_zdesc_alloc(desc\\1,\\5;'                             ),
-    ( 'u', 'morse_zdesc_alloc\(([^;]*),([\w\s]*)\*([\w\s]*),([^;]*);',                      'morse_zdesc_alloc(\\1,\\4;'                                 ),
-    ( 'u', 'morse_zdesc_alloc\(([^;]*)\n([ \t]*)([^;]*);',                                  'morse_zdesc_alloc(\\1 \\3;'                                 ),
-    ( 'u', 'morse_zdesc_alloc\(desc([\w]*)([^;]*)\);',                                   'morse_zdesc_alloc(desc\\1\\2, morse_desc_mat_free(&desc\\1));' ),
+    # Change plasma_desc_init into chameleon_zdesc_alloc
+    ( 'u', 'desc([\w]*)([ \t]*)=([ \t]*)plasma_desc_init\(([^,]*),([^;]*);([\s]*)([^;]*);', 'chameleon_zdesc_alloc(desc\\1,\\5;'                             ),
+    ( 'u', 'chameleon_zdesc_alloc\(([^;]*),([\w\s]*)\*([\w\s]*),([^;]*);',                      'chameleon_zdesc_alloc(\\1,\\4;'                                 ),
+    ( 'u', 'chameleon_zdesc_alloc\(([^;]*)\n([ \t]*)([^;]*);',                                  'chameleon_zdesc_alloc(\\1 \\3;'                                 ),
+    ( 'u', 'chameleon_zdesc_alloc\(desc([\w]*)([^;]*)\);',                                   'chameleon_zdesc_alloc(desc\\1\\2, chameleon_desc_mat_free(&desc\\1));' ),
     # end chhange
 
     # Remove desc in Async
@@ -139,13 +139,13 @@ subs = {
            '_Tile_Async(\\1\n\\7\n}\n'                                                                                                                   ),
     ( 'r', '_Tile_Async\(([\s\S]*)\n([ \t]*)}([ \t]*)else([ \t]*){([\s]*)}([ \t]*)\n([\s\S]*)\n}\n' ,
            '_Tile_Async(\\1\n\\2}\n\\7\n}\n'                                                                                                             ),
-    ( 'r', '_Tile_Async\(([\s\S]*)morse_p([\w]*)\(([^;]*)desc([a-zA-Z0-9]+)([^;]*);([\s\S]*)\n}\n' ,
-           '_Tile_Async(\\1morse_p\\2(\\3\\4\\5;\\6\n}\n'                                                                                                ),
+    ( 'r', '_Tile_Async\(([\s\S]*)chameleon_p([\w]*)\(([^;]*)desc([a-zA-Z0-9]+)([^;]*);([\s\S]*)\n}\n' ,
+           '_Tile_Async(\\1chameleon_p\\2(\\3\\4\\5;\\6\n}\n'                                                                                                ),
     # end remove
 
-    # Patch for morse_desc_submatrix (this will not work with 2-sided and LU inversion)
-    ( 'r', '_Tile_Async\(([\s\S]*)^([\s]*)morse_p([\w]*)\(([^;]*)plasma_desc_submatrix\(([\s]*)([a-zA-Z0-9]+),([\s\S]*)\),([^;]*);',
-           '_Tile_Async(\\1\\2sub\\6 = morse_desc_submatrix(\\5\\6,\\7);\n\\2morse_p\\3(\\4sub\\6,\\8;\n\\2free(sub\\6);'                                ),
+    # Patch for chameleon_desc_submatrix (this will not work with 2-sided and LU inversion)
+    ( 'r', '_Tile_Async\(([\s\S]*)^([\s]*)chameleon_p([\w]*)\(([^;]*)plasma_desc_submatrix\(([\s]*)([a-zA-Z0-9]+),([\s\S]*)\),([^;]*);',
+           '_Tile_Async(\\1\\2sub\\6 = chameleon_desc_submatrix(\\5\\6,\\7);\n\\2chameleon_p\\3(\\4sub\\6,\\8;\n\\2free(sub\\6);'                                ),
     ( 'r', '_Tile_Async\(([^)]*)\)([\s]*){([\s\S]*)free\(sub([\w]*)\)',
            '_Tile_Async(\\1)\\2{\n\tCHAM_desc_t *sub\\4;\\3FLAGFREE(sub\\4)'                                                                            ),
     ( 'r', '_Tile_Async\(([^)]*)\)([\s]*){([\s\S]*)CHAM_desc_t \*sub([\w]*);([\s\S]*)\n^([\s]*)CHAM_desc_t \*sub\\4;',
@@ -166,10 +166,10 @@ subs = {
     ( 'u', 'plasma',                                                                      'morse'                                                        ),
 
     # Fix for zgels et zgelqs
-    ( 'u', 'CHAMELEON_zgels_Tile_Async([\s\S]*)sub([\w]*) = ([\s\S]*?)morse_pztile_zero([\s\S]*?)free([^;]*);',
-           'CHAMELEON_zgels_Tile_Async\\1/* sub\\2 = \\3morse_pztile_zero\\4free\\5; */'                                                                     ),
-    ( 'u', 'CHAMELEON_zgelqs_Tile_Async([\s\S]*)sub([\w]*) = ([\s\S]*?)morse_pztile_zero([\s\S]*?)free([^;]*);',
-           'CHAMELEON_zgelqs_Tile_Async\\1/* sub\\2 = \\3morse_pztile_zero\\4free\\5; */'                                                                    ),
+    ( 'u', 'CHAMELEON_zgels_Tile_Async([\s\S]*)sub([\w]*) = ([\s\S]*?)chameleon_pztile_zero([\s\S]*?)free([^;]*);',
+           'CHAMELEON_zgels_Tile_Async\\1/* sub\\2 = \\3chameleon_pztile_zero\\4free\\5; */'                                                                     ),
+    ( 'u', 'CHAMELEON_zgelqs_Tile_Async([\s\S]*)sub([\w]*) = ([\s\S]*?)chameleon_pztile_zero([\s\S]*?)free([^;]*);',
+           'CHAMELEON_zgelqs_Tile_Async\\1/* sub\\2 = \\3chameleon_pztile_zero\\4free\\5; */'                                                                    ),
 
   ],
 
@@ -177,7 +177,7 @@ subs = {
   # replacements applied to pcompute files.
   'pcompute' : [
     ( 'u', '#if 0([\s\S]*?)#endif',                                                       ''                                                             ),
-    ( 'u', 'plasma_([\w]*)_quark\(',                                                      'morse_\\1('                                                   ),
+    ( 'u', 'plasma_([\w]*)_quark\(',                                                      'chameleon_\\1('                                                   ),
     ( 'u', '\*\*/([\s]*?)void([\s]*?)plasma_([\w]*?)\(([\s\S]*)}([\s]*?)/\*\*',           '**/\\1\n/**'                                                  ),
     ( 'u', 'static scheduling([\s\S]*)dynamic scheduling',                                'dynamic scheduling'                                           ),
 
@@ -217,7 +217,7 @@ subs = {
   #
   # specific patch because of dirty source code
   'pzgebrd_tb2bd.c' : [
-    ( 'u', '#define A\(_m, _n\) \(CHAMELEON_Complex64_t \*\)morse_geteltaddr\(&A, \(_m\), \(_n\), eltsize\)',
+    ( 'u', '#define A\(_m, _n\) \(CHAMELEON_Complex64_t \*\)chameleon_geteltaddr\(&A, \(_m\), \(_n\), eltsize\)',
            '#define A(_m,_n) BLKADDR(&dA, CHAMELEON_Complex64_t, _m, _n)'                                                                                    ),
   ],
   'pzgetrf_reclap.c' : [
@@ -296,7 +296,7 @@ subs = {
   # ------------------------------------------------------------
   # replacements applied to codelet_quark files.
   'codelet_quark' : [
-    ( 'u', '#include "common.h"',                                                         '#include "morse_quark.h"'                                     ),
+    ( 'u', '#include "common.h"',                                                         '#include "chameleon_quark.h"'                                     ),
     ( 'u', '#if defined\(PLASMA_HAVE_WEAK\)([\s\S]*?)#endif',                             ''                                                             ),
 
     ( 'u', '\n([\s\w]*)void([\s]*)CORE_([a-zA-Z0-9]*)\(([^)]*)\)([\s]*){([\s\S]*?)\n}',   ''                                                             ),
@@ -367,7 +367,7 @@ subs = {
   # replacements applied to codelet_starpu files.
   'codelet_starpu' : [
     # Transformation for cl_***_cpu_func
-    ( 'u', '#include "morse_quark.h"',                                                    '#include "morse_starpu.h"'                                    ),
+    ( 'u', '#include "chameleon_quark.h"',                                                    '#include "chameleon_starpu.h"'                                    ),
     ( 'u', 'void([ \t]*)CORE_([\w]*)_quark\(([^)]*)\)',                                   'static void cl_\\2_cpu_func(void *descr[], void *cl_arg)'     ),
     ( 'u', '\n([ \t]*)RUNTIME_sequence_t([ \t]*)\*sequence;([ \t]*)\n',                     '\n'                                                           ),
     ( 'u', '\n([ \t]*)RUNTIME_request_t([ \t]*)\*request;([ \t]*)\n',                       '\n'                                                           ),
@@ -620,13 +620,13 @@ subs = {
   # replacements applied to control files.
   'control' : [
     ( 'u', 'plasma_alloc_ipiv\(([\w]*), ([\w]*), PLASMA_FUNC_ZGESV, \(void([ ]*)\*\*\)IPIV\)',
-           'morse_alloc_ipiv(\\1, \\2, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV)'                                                       ),
-    ( 'u', 'plasma_shared_alloc',                                                         'morse_desc_mat_alloc'                                         ),
+           'chameleon_alloc_ipiv(\\1, \\2, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV)'                                                       ),
+    ( 'u', 'plasma_shared_alloc',                                                         'chameleon_desc_mat_alloc'                                         ),
     ( 'u', 'Declarations of parallel functions \(static scheduling\)([\s\S]*?)Declarations of internal sequential functions',
            'Declarations of internal sequential functions'                                                                                               ),
-    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',             'morse_\\3(\\4;'                                               ),
-    ( 'u', 'morse_pzlapack_to_tile\(([^;]*?);',                                           'morse_pzlapack_to_tile(A, lm, &descA, seq, req);'             ),
-    ( 'u', 'morse_pztile_to_lapack\(([^;]*?);',                                           'morse_pztile_to_lapack(&descA, A, lm, seq, req);'             ),
+    ( 'u', 'plasma_parallel_call_([\w]*)\(([\s\\\]*)plasma_([\w]*),([^;]*);',             'chameleon_\\3(\\4;'                                               ),
+    ( 'u', 'chameleon_pzlapack_to_tile\(([^;]*?);',                                           'chameleon_pzlapack_to_tile(A, lm, &descA, seq, req);'             ),
+    ( 'u', 'chameleon_pztile_to_lapack\(([^;]*?);',                                           'chameleon_pztile_to_lapack(&descA, A, lm, seq, req);'             ),
     ( 'u', 'PLASMA_Dealloc_Handle_Tile',                                                  'CHAMELEON_Dealloc_Workspace'                                      ),
 
     ( 'u', 'PLASMA_sequence',                                                             'RUNTIME_sequence_t'                                             ),
@@ -639,9 +639,9 @@ subs = {
     ( 'u', 'plasma',                                                                      'morse'                                                        ),
     ( 'u', '_quark',                                                                      ''                                                             ),
 
-    # Add morse_zdesc_alloc in compute_z.h
-    ( 'u', '#define morse_zdesc_alloc',
-           '#define morse_zdesc_alloc2(descA, mb, nb, lm, ln, i, j, m, n)         \\\n\tdescA = morse_desc_init(                                          \\\n\t\tChamComplexDouble, (mb), (nb), ((mb)*(nb)),                  \\\n\t\t(m), (n), (i), (j), (m), (n));                                \\\n\tmorse_desc_mat_alloc( &(descA) );\n\n#define morse_zdesc_alloc' ),
+    # Add chameleon_zdesc_alloc in compute_z.h
+    ( 'u', '#define chameleon_zdesc_alloc',
+           '#define chameleon_zdesc_alloc2(descA, mb, nb, lm, ln, i, j, m, n)         \\\n\tdescA = chameleon_desc_init(                                          \\\n\t\tChamComplexDouble, (mb), (nb), ((mb)*(nb)),                  \\\n\t\t(m), (n), (i), (j), (m), (n));                                \\\n\tchameleon_desc_mat_alloc( &(descA) );\n\n#define chameleon_zdesc_alloc' ),
     # end add
   ],
 
@@ -652,7 +652,7 @@ subs = {
     ( 'u', 'PLASMA_sequence',                                                             'RUNTIME_sequence_t'                                             ),
     ( 'u', 'PLASMA_request',                                                              'RUNTIME_request_t'                                              ),
     ( 'u', 'PLASMA_desc',                                                                 'CHAM_desc_t'                                                 ),
-    ( 'u', 'real_Double_t',                                                               'morse_time_t'                                                 ),
+    ( 'u', 'real_Double_t',                                                               'chameleon_time_t'                                                 ),
     ( 'u', 'PLASMA',                                                                      'CHAMELEON'                                                        ),
     ( 'u', 'Plasma',                                                                      'Cham'                                                        ),
     ( 'u', 'plasma',                                                                      'morse'                                                        ),
@@ -666,7 +666,7 @@ subs = {
   'testing' : [
     ( 'u', 'core_blas.h',                                                                 'coreblas.h'                                                   ),
     ( 'u', 'testing_zmain.h',                                                             'testing_zauxiliary.h'                                         ),
-    ( 'u', 'real_Double_t',                                                               'morse_time_t'                                                 ),
+    ( 'u', 'real_Double_t',                                                               'chameleon_time_t'                                                 ),
     ( 'u', 'int([\s]*)testing_([^{]*){',                                                  'int\\1testing_\\2{\n\tint hres = 0;'                          ),
     ( 'u', 'int([\s]*)testing_([\s\S]*?)return 0;',                                       'int\\1testing_\\2return hres;'                                ),
     ( 'u', 'int([\s]*)testing_([\s\S]*?)FAILED([^;]*?);',                                 'int\\1testing_\\2FAILED\\3;\thres++;'                         ),

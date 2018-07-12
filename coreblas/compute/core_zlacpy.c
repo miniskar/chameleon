@@ -37,7 +37,7 @@ void CORE_zlacpy(cham_uplo_t uplo, int M, int N,
 {
     LAPACKE_zlacpy_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(uplo),
+        chameleon_lapack_const(uplo),
         M, N, A, LDA, B, LDB);
 }
 

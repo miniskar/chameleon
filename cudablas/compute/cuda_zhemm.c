@@ -29,7 +29,7 @@ int CUDA_zhemm(cham_side_t side, cham_uplo_t uplo,
                CUBLAS_STREAM_PARAM)
 {
     cublasZhemm(CUBLAS_HANDLE
-                morse_cublas_const(side), morse_cublas_const(uplo),
+                chameleon_cublas_const(side), chameleon_cublas_const(uplo),
                 m, n,
                 CUBLAS_VALUE(alpha), A, lda,
                                      B, ldb,

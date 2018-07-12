@@ -33,7 +33,7 @@
  */
 void CORE_zlauum(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA)
 {
-    LAPACKE_zlauum_work(LAPACK_COL_MAJOR, morse_lapack_const(uplo), N, A, LDA );
+    LAPACKE_zlauum_work(LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, A, LDA );
 }
 
 

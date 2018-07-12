@@ -27,7 +27,7 @@
 ###
 
 
-# Generate the morse headers for all possible precisions
+# Generate the chameleon headers for all possible precisions
 # ------------------------------------------------------
 set(CHAMELEON_HDRS_GENERATED "")
 set(ZHDR
@@ -47,8 +47,8 @@ set(CHAMELEON_HDRS
     descriptor.h
     gkkleader.h
     global.h
-    morse_f77.h
-    morsewinthread.h
+    chameleon_f77.h
+    chameleonwinthread.h
     workspace.h
     )
 

@@ -110,7 +110,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
 
-    if ( morse_desc_islocal( RESULT, RESULTm, RESULTn ) ) {
+    if ( chameleon_desc_islocal( RESULT, RESULTm, RESULTn ) ) {
         starpu_insert_task(
             starpu_mpi_codelet(codelet),
             STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),

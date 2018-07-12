@@ -24,13 +24,13 @@
 /**
  *  Create a sequence
  */
-int RUNTIME_sequence_create( CHAM_context_t  *morse,
+int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
                              RUNTIME_sequence_t *sequence )
 {
-    sequence->schedopt = (void*)QUARK_Sequence_Create((Quark*)(morse->schedopt));
+    sequence->schedopt = (void*)QUARK_Sequence_Create((Quark*)(chamctxt->schedopt));
 
     if (sequence->schedopt == NULL) {
-        morse_error("CHAMELEON_Sequence_Create", "QUARK_Sequence_Create() failed");
+        chameleon_error("CHAMELEON_Sequence_Create", "QUARK_Sequence_Create() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
     sequence->status = CHAMELEON_SUCCESS;
@@ -40,10 +40,10 @@ int RUNTIME_sequence_create( CHAM_context_t  *morse,
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
+int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
                               RUNTIME_sequence_t *sequence )
 {
-    QUARK_Sequence_Destroy( (Quark*)(morse->schedopt),
+    QUARK_Sequence_Destroy( (Quark*)(chamctxt->schedopt),
                             (Quark_Sequence *)(sequence->schedopt) );
     return CHAMELEON_SUCCESS;
 }
@@ -51,10 +51,10 @@ int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
 /**
  *  Wait for the completion of a sequence
  */
-int RUNTIME_sequence_wait( CHAM_context_t  *morse,
+int RUNTIME_sequence_wait( CHAM_context_t  *chamctxt,
                            RUNTIME_sequence_t *sequence )
 {
-    QUARK_Sequence_Wait( (Quark*)(morse->schedopt),
+    QUARK_Sequence_Wait( (Quark*)(chamctxt->schedopt),
                          (Quark_Sequence *)(sequence->schedopt) );
     return CHAMELEON_SUCCESS;
 }
@@ -62,7 +62,7 @@ int RUNTIME_sequence_wait( CHAM_context_t  *morse,
 /**
  *  Terminate a sequence
  */
-void RUNTIME_sequence_flush( CHAM_context_t  *morse,
+void RUNTIME_sequence_flush( CHAM_context_t  *chamctxt,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request,
                              int status )
@@ -70,6 +70,6 @@ void RUNTIME_sequence_flush( CHAM_context_t  *morse,
     sequence->request = request;
     sequence->status = status;
     request->status = status;
-    QUARK_Sequence_Cancel( (Quark*)(morse),
+    QUARK_Sequence_Cancel( (Quark*)(chamctxt),
                            (Quark_Sequence *)(sequence->schedopt) );
 }

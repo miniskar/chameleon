@@ -50,7 +50,7 @@
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeev(int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(N, N, CHAMELEON_FUNC_ZGEEV, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(N, N, CHAMELEON_FUNC_ZGEEV, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -75,7 +75,7 @@ int CHAMELEON_Alloc_Workspace_zgeev(int N, CHAM_desc_t **descT, int p, int q) {
  *
  */
 int CHAMELEON_Alloc_Workspace_zgehrd(int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(N, N, CHAMELEON_FUNC_ZGEHRD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(N, N, CHAMELEON_FUNC_ZGEHRD, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -102,7 +102,7 @@ int CHAMELEON_Alloc_Workspace_zgehrd(int N, CHAM_desc_t **descT, int p, int q) {
  *
  */
 int CHAMELEON_Alloc_Workspace_zgebrd(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGEBRD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGEBRD, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -130,7 +130,7 @@ int CHAMELEON_Alloc_Workspace_zgebrd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zgels(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -164,7 +164,7 @@ int CHAMELEON_Alloc_Workspace_zgels(int M, int N, CHAM_desc_t **descT, int p, in
  *
  */
 int CHAMELEON_Alloc_Workspace_zgels_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -198,7 +198,7 @@ int CHAMELEON_Alloc_Workspace_zgels_Tile(int M, int N, CHAM_desc_t **descT, int 
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeqrf(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -232,7 +232,7 @@ int CHAMELEON_Alloc_Workspace_zgeqrf(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeqrf_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -266,7 +266,7 @@ int CHAMELEON_Alloc_Workspace_zgeqrf_Tile(int M, int N, CHAM_desc_t **descT, int
  *
  */
 int CHAMELEON_Alloc_Workspace_zgelqf(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -299,7 +299,7 @@ int CHAMELEON_Alloc_Workspace_zgelqf(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zgelqf_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGELS, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -329,7 +329,7 @@ int CHAMELEON_Alloc_Workspace_zgelqf_Tile(int M, int N, CHAM_desc_t **descT, int
  *
  */
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv(int N, CHAM_desc_t **descL, int **IPIV, int p, int q) {
-    return morse_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
+    return chameleon_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
 
 /**
  *
@@ -360,7 +360,7 @@ int CHAMELEON_Alloc_Workspace_zgesv_incpiv(int N, CHAM_desc_t **descL, int **IPI
  */
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv_Tile(int N, CHAM_desc_t **descL, int **IPIV, int p, int q)
 {
-    return morse_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q);
+    return chameleon_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q);
 }
 /**
  *
@@ -393,7 +393,7 @@ int CHAMELEON_Alloc_Workspace_zgesv_incpiv_Tile(int N, CHAM_desc_t **descL, int 
  *
  */
 int CHAMELEON_Alloc_Workspace_zgesvd(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGESVD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZGESVD, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -432,7 +432,7 @@ int CHAMELEON_Alloc_Workspace_zgesvd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zgetrf_incpiv(int M, int N, CHAM_desc_t **descL, int **IPIV, int p, int q) {
-    return morse_alloc_ipiv(M, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
+    return chameleon_alloc_ipiv(M, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
 
 /**
  *
@@ -461,7 +461,7 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv(int M, int N, CHAM_desc_t **descL, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int **IPIV, int p, int q) {
-    return morse_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
+    return chameleon_alloc_ipiv(N, N, CHAMELEON_FUNC_ZGESV, ChamComplexDouble, descL, (void**)IPIV, p, q); }
 
 /**
  *
@@ -493,7 +493,7 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int
  *
  */
 int CHAMELEON_Alloc_Workspace_zheev(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEEV, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEEV, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -525,7 +525,7 @@ int CHAMELEON_Alloc_Workspace_zheev(int M, int N, CHAM_desc_t **descT, int p, in
  *
  */
 int CHAMELEON_Alloc_Workspace_zheevd(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEEVD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEEVD, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -557,7 +557,7 @@ int CHAMELEON_Alloc_Workspace_zheevd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zhegv(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEGV, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEGV, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -589,7 +589,7 @@ int CHAMELEON_Alloc_Workspace_zhegv(int M, int N, CHAM_desc_t **descT, int p, in
  *
  */
 int CHAMELEON_Alloc_Workspace_zhegvd(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEGVD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHEGVD, ChamComplexDouble, descT, p, q); }
 
 /**
  *
@@ -621,4 +621,4 @@ int CHAMELEON_Alloc_Workspace_zhegvd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  */
 int CHAMELEON_Alloc_Workspace_zhetrd(int M, int N, CHAM_desc_t **descT, int p, int q) {
-    return morse_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHETRD, ChamComplexDouble, descT, p, q); }
+    return chameleon_alloc_ibnb_tile(M, N, CHAMELEON_FUNC_ZHETRD, ChamComplexDouble, descT, p, q); }

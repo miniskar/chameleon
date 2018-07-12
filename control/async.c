@@ -30,7 +30,7 @@
 /**
  *  Register an exception.
  */
-int morse_request_fail(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int status)
+int chameleon_request_fail(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int status)
 {
     sequence->request = request;
     sequence->status = status;
@@ -41,14 +41,14 @@ int morse_request_fail(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request,
 /**
  *  Create a sequence
  */
-int morse_sequence_create(CHAM_context_t *morse, RUNTIME_sequence_t **sequence)
+int chameleon_sequence_create(CHAM_context_t *chamctxt, RUNTIME_sequence_t **sequence)
 {
     if ((*sequence = malloc(sizeof(RUNTIME_sequence_t))) == NULL) {
-        morse_error("CHAMELEON_Sequence_Create", "malloc() failed");
+        chameleon_error("CHAMELEON_Sequence_Create", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
-    RUNTIME_sequence_create( morse, *sequence );
+    RUNTIME_sequence_create( chamctxt, *sequence );
 
     (*sequence)->status = CHAMELEON_SUCCESS;
     return CHAMELEON_SUCCESS;
@@ -57,9 +57,9 @@ int morse_sequence_create(CHAM_context_t *morse, RUNTIME_sequence_t **sequence)
 /**
  *  Destroy a sequence
  */
-int morse_sequence_destroy(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
+int chameleon_sequence_destroy(CHAM_context_t *chamctxt, RUNTIME_sequence_t *sequence)
 {
-    RUNTIME_sequence_destroy( morse, sequence );
+    RUNTIME_sequence_destroy( chamctxt, sequence );
     free(sequence);
     return CHAMELEON_SUCCESS;
 }
@@ -67,9 +67,9 @@ int morse_sequence_destroy(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
 /**
  *  Wait for the completion of a sequence
  */
-int morse_sequence_wait(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
+int chameleon_sequence_wait(CHAM_context_t *chamctxt, RUNTIME_sequence_t *sequence)
 {
-    RUNTIME_sequence_wait( morse, sequence );
+    RUNTIME_sequence_wait( chamctxt, sequence );
     return CHAMELEON_SUCCESS;
 }
 
@@ -92,15 +92,15 @@ int morse_sequence_wait(CHAM_context_t *morse, RUNTIME_sequence_t *sequence)
  */
 int CHAMELEON_Sequence_Create(RUNTIME_sequence_t **sequence)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Create", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Sequence_Create", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    status = morse_sequence_create(morse, sequence);
+    status = chameleon_sequence_create(chamctxt, sequence);
     return status;
 }
 
@@ -123,19 +123,19 @@ int CHAMELEON_Sequence_Create(RUNTIME_sequence_t **sequence)
  */
 int CHAMELEON_Sequence_Destroy(RUNTIME_sequence_t *sequence)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Destroy", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Sequence_Destroy", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Destroy", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_Sequence_Destroy", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    status = morse_sequence_destroy(morse, sequence);
+    status = chameleon_sequence_destroy(chamctxt, sequence);
     return status;
 }
 
@@ -158,19 +158,19 @@ int CHAMELEON_Sequence_Destroy(RUNTIME_sequence_t *sequence)
  */
 int CHAMELEON_Sequence_Wait(RUNTIME_sequence_t *sequence)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Wait", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Sequence_Wait", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Wait", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_Sequence_Wait", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    status = morse_sequence_wait(morse, sequence);
+    status = chameleon_sequence_wait(chamctxt, sequence);
     return status;
 }
 
@@ -196,19 +196,19 @@ int CHAMELEON_Sequence_Wait(RUNTIME_sequence_t *sequence)
  */
 int CHAMELEON_Sequence_Flush(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Flush", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Sequence_Flush", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_Sequence_Flush", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_Sequence_Flush", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
 
-    RUNTIME_sequence_flush( morse->schedopt, sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+    RUNTIME_sequence_flush( chamctxt->schedopt, sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
 
     return CHAMELEON_SUCCESS;
 }

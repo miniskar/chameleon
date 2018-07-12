@@ -163,48 +163,48 @@ list(APPEND libs_for_tests ${CMAKE_Fortran_LDFLAGS})
 # Define precisions to compile
 # ----------------------------
 if(CHAMELEON_PREC_S)
-    add_executable(morse_xlintsts ${ALINTST} ${SLINTST} ${SCLNTST})
-    set_property(TARGET morse_xlintsts PROPERTY LINKER_LANGUAGE Fortran)
-    target_link_libraries(morse_xlintsts ${libs_for_tests})
-    install(TARGETS morse_xlintsts
+    add_executable(chameleon_xlintsts ${ALINTST} ${SLINTST} ${SCLNTST})
+    set_property(TARGET chameleon_xlintsts PROPERTY LINKER_LANGUAGE Fortran)
+    target_link_libraries(chameleon_xlintsts ${libs_for_tests})
+    install(TARGETS chameleon_xlintsts
       DESTINATION bin/testing/lin)
 endif()
 
 if(CHAMELEON_PREC_S)
-    add_executable(morse_xlintstd ${ALINTST} ${DLINTST} ${DZLNTST})
-    set_property(TARGET morse_xlintstd PROPERTY LINKER_LANGUAGE Fortran)
-    target_link_libraries(morse_xlintstd ${libs_for_tests})
-    install(TARGETS morse_xlintstd
+    add_executable(chameleon_xlintstd ${ALINTST} ${DLINTST} ${DZLNTST})
+    set_property(TARGET chameleon_xlintstd PROPERTY LINKER_LANGUAGE Fortran)
+    target_link_libraries(chameleon_xlintstd ${libs_for_tests})
+    install(TARGETS chameleon_xlintstd
       DESTINATION bin/testing/lin)
 endif()
 
 if(CHAMELEON_PREC_C)
-    add_executable(morse_xlintstc ${ALINTST} ${CLINTST} ${SCLNTST})
-    set_property(TARGET morse_xlintstc PROPERTY LINKER_LANGUAGE Fortran)
-    target_link_libraries(morse_xlintstc ${libs_for_tests})
-    install(TARGETS morse_xlintstc
+    add_executable(chameleon_xlintstc ${ALINTST} ${CLINTST} ${SCLNTST})
+    set_property(TARGET chameleon_xlintstc PROPERTY LINKER_LANGUAGE Fortran)
+    target_link_libraries(chameleon_xlintstc ${libs_for_tests})
+    install(TARGETS chameleon_xlintstc
       DESTINATION bin/testing/lin)
 endif()
 
 if(CHAMELEON_PREC_Z)
-    add_executable(morse_xlintstz ${ALINTST} ${ZLINTST} ${DZLNTST})
-    set_property(TARGET morse_xlintstz PROPERTY LINKER_LANGUAGE Fortran)
-    target_link_libraries(morse_xlintstz ${libs_for_tests})
-    install(TARGETS morse_xlintstz
+    add_executable(chameleon_xlintstz ${ALINTST} ${ZLINTST} ${DZLNTST})
+    set_property(TARGET chameleon_xlintstz PROPERTY LINKER_LANGUAGE Fortran)
+    target_link_libraries(chameleon_xlintstz ${libs_for_tests})
+    install(TARGETS chameleon_xlintstz
       DESTINATION bin/testing/lin)
 endif()
 
 # Copy launcher
 # -------------
 add_custom_target(lin_launcher ALL
-                  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/morse_lintesting.py
-                                                   ${CMAKE_CURRENT_BINARY_DIR}/morse_lintesting.py)
+                  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/chameleon_lintesting.py
+                                                   ${CMAKE_CURRENT_BINARY_DIR}/chameleon_lintesting.py)
 
 # Add tests (C/CPP)
 # -----------------
 add_test(NAME    lapack_testing
          COMMAND ${PYTHON_EXECUTABLE}
-                 ${CMAKE_CURRENT_BINARY_DIR}/morse_lintesting.py
+                 ${CMAKE_CURRENT_BINARY_DIR}/chameleon_lintesting.py
         )
 
 ###

@@ -53,19 +53,19 @@
  *          Identifies this function call (for exception handling purposes).
  *
  */
-void morse_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback,
+void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback,
                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-  CHAM_context_t *morse;
+  CHAM_context_t *chamctxt;
   RUNTIME_option_t options;
 
   int m, n;
   int ldam;
 
-  morse = morse_context_self();
+  chamctxt = chameleon_context_self();
   if (sequence->status != CHAMELEON_SUCCESS)
     return;
-  RUNTIME_options_init(&options, morse, sequence, request);
+  RUNTIME_options_init(&options, chamctxt, sequence, request);
 
   for (m = 0; m < A->mt; m++) {
     ldam = BLKLDD(A, m);
@@ -81,5 +81,5 @@ void morse_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* use
     }
   }
 
-  RUNTIME_options_finalize( &options, morse);
+  RUNTIME_options_finalize( &options, chamctxt);
 }

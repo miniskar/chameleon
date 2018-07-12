@@ -86,8 +86,8 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zlange_max;
     void (*callback)(void*) = options->profiling ? cl_zlange_callback : NULL;
 
-    if ( morse_desc_islocal( A, Am, An ) ||
-         morse_desc_islocal( B, Bm, Bn ) )
+    if ( chameleon_desc_islocal( A, Am, An ) ||
+         chameleon_desc_islocal( B, Bm, Bn ) )
     {
         starpu_insert_task(
             starpu_mpi_codelet(codelet),

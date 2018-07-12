@@ -81,6 +81,6 @@ void CORE_zlanhe(cham_normtype_t norm, cham_uplo_t uplo, int N,
 {
     *normA = LAPACKE_zlanhe_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(norm), morse_lapack_const(uplo),
+        chameleon_lapack_const(norm), chameleon_lapack_const(uplo),
         N, A, LDA, work);
 }

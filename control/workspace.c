@@ -31,23 +31,23 @@
 /**
  *
  */
-int morse_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, int p, int q)
+int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, int p, int q)
 {
     int status;
     int IB, NB, MT, NT;
     int64_t lm, ln;
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("morse_alloc_ibnb_tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("chameleon_alloc_ibnb_tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Tune NB & IB depending on M & N; Set IBNBSIZE */
-    status = morse_tune(func, M, N, 0);
+    status = chameleon_tune(func, M, N, 0);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("morse_alloc_ibnb_tile", "morse_tune() failed");
+        chameleon_error("chameleon_alloc_ibnb_tile", "chameleon_tune() failed");
         return CHAMELEON_ERR_UNEXPECTED;
     }
 
@@ -58,7 +58,7 @@ int morse_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_des
     NT = (N%NB==0) ? (N/NB) : (N/NB+1);
 
     /* Size is doubled for RH QR to store the reduction T */
-    if ((morse->householder == ChamTreeHouseholder) &&
+    if ((chamctxt->householder == ChamTreeHouseholder) &&
         ((func == CHAMELEON_FUNC_SGELS)  ||
          (func == CHAMELEON_FUNC_DGELS)  ||
          (func == CHAMELEON_FUNC_CGELS)  ||
@@ -75,14 +75,14 @@ int morse_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_des
     /* Allocate and initialize descriptor */
     *desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (*desc == NULL) {
-        morse_error("morse_alloc_ibnb_tile", "malloc() failed");
+        chameleon_error("chameleon_alloc_ibnb_tile", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
-    **desc = morse_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q);
+    **desc = chameleon_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q);
 
     /* Allocate matrix */
-    if (morse_desc_mat_alloc(*desc)) {
-        morse_error("morse_alloc_ibnb_tile", "malloc() failed");
+    if (chameleon_desc_mat_alloc(*desc)) {
+        chameleon_error("chameleon_alloc_ibnb_tile", "malloc() failed");
         free(*desc);
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
@@ -90,9 +90,9 @@ int morse_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_des
     RUNTIME_desc_create( *desc );
 
     /* Check that everything is ok */
-    status = morse_desc_check(*desc);
+    status = chameleon_desc_check(*desc);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("morse_alloc_ibnb_tile", "invalid descriptor");
+        chameleon_error("chameleon_alloc_ibnb_tile", "invalid descriptor");
         free(*desc);
         return status;
     }
@@ -103,24 +103,24 @@ int morse_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM_des
 /**
  *
  */
-int morse_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, void **IPIV, int p, int q)
+int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t **desc, void **IPIV, int p, int q)
 {
     int status;
     int NB, IB, MT, NT;
     int64_t lm, ln;
     size_t size;
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("morse_alloc_ipiv", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("chameleon_alloc_ipiv", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Tune NB & IB depending on M & N; Set IBNBSIZE */
-    status = morse_tune(func, M, N, 0);
+    status = chameleon_tune(func, M, N, 0);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("morse_alloc_ipiv", "morse_tune() failed");
+        chameleon_error("chameleon_alloc_ipiv", "chameleon_tune() failed");
         return CHAMELEON_ERR_UNEXPECTED;
     }
 
@@ -143,10 +143,10 @@ int morse_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t *
     *IPIV = (int*)malloc( size );
 
     *desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    **desc = morse_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
+    **desc = chameleon_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
 
-    if ( morse_desc_mat_alloc(*desc) ) {
-        morse_error("morse_alloc_ipiv", "malloc() failed");
+    if ( chameleon_desc_mat_alloc(*desc) ) {
+        chameleon_error("chameleon_alloc_ipiv", "malloc() failed");
         free(*desc);
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
@@ -176,22 +176,22 @@ int morse_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc_t *
  */
 int CHAMELEON_Dealloc_Workspace(CHAM_desc_t **desc)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_Dealloc_Workspace", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Dealloc_Workspace", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (*desc == NULL) {
-        morse_error("CHAMELEON_Dealloc_Workspace", "attempting to deallocate a NULL descriptor");
+        chameleon_error("CHAMELEON_Dealloc_Workspace", "attempting to deallocate a NULL descriptor");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if ((*desc)->mat == NULL && (*desc)->use_mat == 1) {
-        morse_error("CHAMELEON_Dealloc_Worspace", "attempting to deallocate a NULL pointer");
+        chameleon_error("CHAMELEON_Dealloc_Worspace", "attempting to deallocate a NULL pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    morse_desc_mat_free( *desc );
+    chameleon_desc_mat_free( *desc );
     RUNTIME_desc_destroy( *desc );
 
     free(*desc);

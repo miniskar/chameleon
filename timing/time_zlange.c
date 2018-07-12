@@ -24,10 +24,10 @@
 #include "./timing.c"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     int    hres = 0;
-    double normmorse, normlapack, result;
+    double normcham, normlapack, result;
     int    norm = ChamInfNorm;
 
     PASTE_CODE_IPARAM_LOCALS( iparam );
@@ -39,15 +39,15 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 
     /* CHAMELEON ZLANGE */
     START_TIMING();
-    normmorse = CHAMELEON_zlange(norm, M, N, A, LDA);
+    normcham = CHAMELEON_zlange(norm, M, N, A, LDA);
     STOP_TIMING();
 
     /* Check the solution */
     if ( check )
     {
         double *work = (double*) malloc(chameleon_max(M,N)*sizeof(double));
-        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm), M, N, A, LDA, work);
-        result = fabs(normmorse - normlapack);
+        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm), M, N, A, LDA, work);
+        result = fabs(normcham - normlapack);
         switch(norm) {
         case ChamMaxNorm:
             /* result should be perfectly equal */

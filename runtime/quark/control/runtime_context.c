@@ -23,9 +23,9 @@
 /**
  *  Create new context
  */
-void RUNTIME_context_create( CHAM_context_t *morse )
+void RUNTIME_context_create( CHAM_context_t *chamctxt )
 {
-    morse->scheduler = RUNTIME_SCHED_QUARK;
+    chamctxt->scheduler = RUNTIME_SCHED_QUARK;
     /* Will require the static initialization if we want to use it in this code */
     return;
 }
@@ -33,9 +33,9 @@ void RUNTIME_context_create( CHAM_context_t *morse )
 /**
  *  Clean the context
  */
-void RUNTIME_context_destroy( CHAM_context_t *morse )
+void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 

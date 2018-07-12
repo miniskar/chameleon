@@ -109,10 +109,10 @@ int testing_zgesvd(int argc, char **argv)
     */
     /* Initialize A1 */
     LAPACKE_zlatms_work( LAPACK_COL_MAJOR, M, N,
-                         morse_lapack_const(ChamDistUniform), ISEED,
-                         morse_lapack_const(ChamNonsymPosv), S1, mode, rcond,
+                         chameleon_lapack_const(ChamDistUniform), ISEED,
+                         chameleon_lapack_const(ChamNonsymPosv), S1, mode, rcond,
                          dmax, M, N,
-                         morse_lapack_const(ChamNoPacking), A1, LDA, work );
+                         chameleon_lapack_const(ChamNoPacking), A1, LDA, work );
     free(work);
 
     /* Copy A1 for check */
@@ -216,7 +216,7 @@ static int check_orthogonality(cham_side_t side, int M, int N, CHAMELEON_Complex
     else
         cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans,   M, N, done, Q, LDQ, mdone, Id, M);
 
-    normQ = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamInfNorm), 'U', minMN, Id, minMN, work);
+    normQ = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamInfNorm), 'U', minMN, Id, minMN, work);
 
     if (getenv("CHAMELEON_TESTING_VERBOSE"))
         printf( "||Q||_oo=%e\n", normQ );
@@ -267,7 +267,7 @@ static int check_reduction(int M, int N, double *S, CHAMELEON_Complex64_t *A, in
     CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(M    *N    *sizeof(CHAMELEON_Complex64_t));
     double *work = (double *)malloc(maxMN*sizeof(double));
 
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamUpperLower), M, N, A, LDA, Residual, M);
+    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamUpperLower), M, N, A, LDA, Residual, M);
 
     if ( M >= N ) {
         /* Compute TEMP =  SIGMA * Vt */
@@ -297,8 +297,8 @@ static int check_reduction(int M, int N, double *S, CHAMELEON_Complex64_t *A, in
     }
 
     /* Compute the norms */
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), M, N, Residual, M,   work);
-    Anorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), M, N, A,        LDA, work);
+    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamOneNorm), M, N, Residual, M,   work);
+    Anorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamOneNorm), M, N, A,        LDA, work);
 
     if (getenv("CHAMELEON_TESTING_VERBOSE"))
         printf( "||A||_oo=%e\n||A - U*SIGMA*VT||_oo=%e\n", Anorm, Rnorm );

@@ -102,32 +102,32 @@ int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
 {
     int NB;
     int status;
-    CHAM_context_t  *morse;
+    CHAM_context_t  *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t   request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t descAl, descAt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zheevd", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zheevd", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Check input arguments */
     if (jobz != ChamNoVec && jobz != ChamVec) {
-        morse_error("CHAMELEON_zheevd", "illegal value of jobz");
+        chameleon_error("CHAMELEON_zheevd", "illegal value of jobz");
         return -1;
     }
     if ((uplo != ChamLower) && (uplo != ChamUpper)) {
-        morse_error("CHAMELEON_zheevd", "illegal value of uplo");
+        chameleon_error("CHAMELEON_zheevd", "illegal value of uplo");
         return -2;
     }
     if (N < 0) {
-        morse_error("CHAMELEON_zheevd", "illegal value of N");
+        chameleon_error("CHAMELEON_zheevd", "illegal value of N");
         return -3;
     }
     if (LDA < chameleon_max(1, N)) {
-        morse_error("CHAMELEON_zheevd", "illegal value of LDA");
+        chameleon_error("CHAMELEON_zheevd", "illegal value of LDA");
         return -5;
     }
 
@@ -136,35 +136,35 @@ int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
         return CHAMELEON_SUCCESS;
 
     /* Tune NB & IB depending on N; Set NBNB */
-    status = morse_tune(CHAMELEON_FUNC_ZHEEVD, N, N, 0);
+    status = chameleon_tune(CHAMELEON_FUNC_ZHEEVD, N, N, 0);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zheevd", "morse_tune() failed");
+        chameleon_error("CHAMELEON_zheevd", "chameleon_tune() failed");
         return status;
     }
 
     /* Set NT */
     NB = CHAMELEON_NB;
 
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInout, uplo,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, uplo,
                      A, NB, NB, LDA, N, N, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zheevd_Tile_Async( jobz, uplo, &descAt, W, descT, sequence, &request );
 
     /* Submit the matrix conversion back */
-    morse_ztile2lap( morse, &descAl, &descAt,
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                      ChamDescInout, uplo, sequence, &request );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descAl, &descAt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 /**
@@ -238,26 +238,26 @@ int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
 int CHAMELEON_zheevd_Tile( cham_job_t jobz, cham_uplo_t uplo,
                        CHAM_desc_t *A, double *W, CHAM_desc_t *T )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zheevd_Tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zheevd_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     CHAMELEON_zheevd_Tile_Async( jobz, uplo, A, W, T, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( T, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -331,7 +331,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
                              CHAM_desc_t *A, double *W, CHAM_desc_t *T,
                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     CHAM_desc_t descA;
     CHAM_desc_t descT;
     CHAM_desc_t D, *Dptr = NULL;
@@ -343,17 +343,17 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     CHAM_desc_t descVl, descVt;
     CHAM_desc_t *subA, *subQ, *subT;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zheevd_Tile_Async", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zheevd_Tile_Async", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_zheevd_Tile_Async", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_zheevd_Tile_Async", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("CHAMELEON_zheevd_Tile_Async", "NULL request");
+        chameleon_fatal_error("CHAMELEON_zheevd_Tile_Async", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -361,38 +361,38 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
         request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "invalid descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "invalid descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     } else {
         descA = *A;
     }
-    if (morse_desc_check(T) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "invalid descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(T) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "invalid descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     } else {
         descT = *T;
     }
     /* Check input arguments */
     if (jobz != ChamNoVec && jobz != ChamVec) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "illegal value of jobz");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "illegal value of jobz");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if ((uplo != ChamLower) && (uplo != ChamUpper)) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "illegal value of uplo");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "illegal value of uplo");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if (descA.m != descA.n) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "matrix need to be square");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "matrix need to be square");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if (descA.nb != descA.mb) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "only square tiles supported");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "only square tiles supported");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     N  = descA.m;
@@ -401,7 +401,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     /* Allocate data structures for reduction to tridiagonal form */
     E = malloc( (N - 1) * sizeof(double) );
     if (E == NULL) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "malloc(E) failed");
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "malloc(E) failed");
         free(E);
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
@@ -418,18 +418,18 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
                                       Q2, N,
                                       sequence, request );
     if (status != 0) {
-        morse_error("CHAMELEON_zheevd_Tile", "CHAMELEON_zhetrd failed");
+        chameleon_error("CHAMELEON_zheevd_Tile", "CHAMELEON_zhetrd failed");
     }
 
     if (jobz == ChamNoVec){
 #if !defined(CHAMELEON_SIMULATION)
         /* Tridiagonal eigensolver */
         status = LAPACKE_zstedc( LAPACK_COL_MAJOR,
-                                 morse_lapack_const(jobz),
+                                 chameleon_lapack_const(jobz),
                                  N, W, E,
                                  NULL, N );
         if (status != 0) {
-            morse_error("CHAMELEON_zheevd_Tile_Async", "LAPACKE_zstedc failed");
+            chameleon_error("CHAMELEON_zheevd_Tile_Async", "LAPACKE_zstedc failed");
         }
 #endif /* !defined(CHAMELEON_SIMULATION) */
         free(E);
@@ -438,7 +438,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
 
     V = malloc( N * N * sizeof(CHAMELEON_Complex64_t) );
     if (V == NULL) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "malloc(V) failed");
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "malloc(V) failed");
         free(V);
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
@@ -451,11 +451,11 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
      */
 #if !defined(CHAMELEON_SIMULATION)
     status = LAPACKE_zstedc( LAPACK_COL_MAJOR,
-                             morse_lapack_const(ChamIvec),
+                             chameleon_lapack_const(ChamIvec),
                              N, W, E,
                              V, N );
     if (status != 0) {
-        morse_error("CHAMELEON_zheevd_Tile_Async", "LAPACKE_zstedc failed");
+        chameleon_error("CHAMELEON_zheevd_Tile_Async", "LAPACKE_zstedc failed");
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -464,10 +464,10 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     /* Q   from CHAMELEON_zhetrd   refers to Q2 (lapack layout) */
     /* V   from LAPACKE_zstedc refers to V  (lapack layout) */
     /* The final eigenvectors are (Q1 Q2 V) or (Q1^h Q2 V)  */
-    morse_zlap2tile( morse, &descQ2l, &descQ2t, ChamDescInput, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descQ2l, &descQ2t, ChamDescInput, ChamUpperLower,
                      Q2, NB, NB, N, N, N, N, sequence, request );
 
-    morse_zlap2tile( morse, &descVl, &descVt, ChamDescInput, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descVl, &descVt, ChamDescInput, ChamUpperLower,
                      V, NB, NB, N, N, N, N, sequence, request );
 
     if (uplo == ChamLower)
@@ -475,21 +475,21 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
 #if defined(CHAMELEON_COPY_DIAG)
         {
             int n = chameleon_min(A->mt, A->nt) * A->nb;
-            morse_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
+            chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
             Dptr = &D;
         }
 #endif
-        subA = morse_desc_submatrix(&descA,   descA.mb,   0, descA.m  -descA.mb,   descA.n-descA.nb);
-        subQ = morse_desc_submatrix(&descQ2t, descQ2t.mb, 0, descQ2t.m-descQ2t.mb, descQ2t.n );
-        subT = morse_desc_submatrix(&descT,   descT.mb,   0, descT.m  -descT.mb,   descT.n-descT.nb);
+        subA = chameleon_desc_submatrix(&descA,   descA.mb,   0, descA.m  -descA.mb,   descA.n-descA.nb);
+        subQ = chameleon_desc_submatrix(&descQ2t, descQ2t.mb, 0, descQ2t.m-descQ2t.mb, descQ2t.n );
+        subT = chameleon_desc_submatrix(&descT,   descT.mb,   0, descT.m  -descT.mb,   descT.n-descT.nb);
 
         /* Compute Q2 = Q1 * Q2 */
-        morse_pzunmqr( ChamLeft, ChamNoTrans,
+        chameleon_pzunmqr( ChamLeft, ChamNoTrans,
                        subA, subQ, subT, Dptr,
                        sequence, request );
 
         /* Compute the final eigenvectors A = (Q1 * Q2) * V */
-        morse_pzgemm( ChamNoTrans, ChamNoTrans,
+        chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
                       1.0, &descQ2t, &descVt,
                       0.0, &descA,
                       sequence, request );
@@ -499,43 +499,43 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
 #if defined(CHAMELEON_COPY_DIAG)
         {
             int m = chameleon_min(A->mt, A->nt) * A->mb;
-            morse_zdesc_alloc(D, A->mb, A->nb, m, A->n, 0, 0, m, A->n, );
+            chameleon_zdesc_alloc(D, A->mb, A->nb, m, A->n, 0, 0, m, A->n, );
             Dptr = &D;
         }
 #endif
-        subA = morse_desc_submatrix(&descA,   0,   descA.nb, descA.m  -descA.mb,   descA.n -descA.nb );
-        subQ = morse_desc_submatrix(&descQ2t, descQ2t.mb, 0, descQ2t.m-descQ2t.mb, descQ2t.n );
-        subT = morse_desc_submatrix(&descT,   0,   descT.nb, descT.m  -descT.mb,   descT.n -descT.nb );
+        subA = chameleon_desc_submatrix(&descA,   0,   descA.nb, descA.m  -descA.mb,   descA.n -descA.nb );
+        subQ = chameleon_desc_submatrix(&descQ2t, descQ2t.mb, 0, descQ2t.m-descQ2t.mb, descQ2t.n );
+        subT = chameleon_desc_submatrix(&descT,   0,   descT.nb, descT.m  -descT.mb,   descT.n -descT.nb );
 
         /* Compute Q2 = Q1^h * Q2 */
-        morse_pzunmlq( ChamLeft, ChamConjTrans,
+        chameleon_pzunmlq( ChamLeft, ChamConjTrans,
                        subA, subQ, subT, Dptr,
                        sequence, request );
 
         /* Compute the final eigenvectors A =  (Q1^h * Q2) * V */
-        morse_pzgemm( ChamNoTrans, ChamNoTrans,
+        chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
                       1.0, &descQ2t, &descVt,
                       0.0, &descA,
                       sequence, request );
     }
 
-    morse_ztile2lap( morse, &descQ2l, &descQ2t,
+    chameleon_ztile2lap( chamctxt, &descQ2l, &descQ2t,
                      ChamDescInput, ChamUpperLower, sequence, request );
-    morse_ztile2lap( morse, &descVl, &descVt,
+    chameleon_ztile2lap( chamctxt, &descVl, &descVt,
                      ChamDescInput, ChamUpperLower, sequence, request );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descQ2l, &descQ2t );
-    morse_ztile2lap_cleanup( morse, &descVl, &descVt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descQ2l, &descQ2t );
+    chameleon_ztile2lap_cleanup( chamctxt, &descVl, &descVt );
 
     free(subA); free(subQ); free(subT);
     free(Q2);
     free(V);
     free(E);
     if (Dptr != NULL) {
-        morse_desc_mat_free( Dptr );
+        chameleon_desc_mat_free( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

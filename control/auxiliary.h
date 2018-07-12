@@ -32,11 +32,11 @@ extern "C" {
 /**
  *  Internal routines
  */
-void morse_warning      (const char *func_name, const char* msg_text);
-void morse_error        (const char *func_name, const char* msg_text);
-void morse_fatal_error  (const char *func_name, const char* msg_text);
-int  morse_rank         (CHAM_context_t *morse);
-int  morse_tune         (cham_tasktype_t func, int M, int N, int NRHS);
+void chameleon_warning      (const char *func_name, const char* msg_text);
+void chameleon_error        (const char *func_name, const char* msg_text);
+void chameleon_fatal_error  (const char *func_name, const char* msg_text);
+int  chameleon_rank         (CHAM_context_t *chamctxt);
+int  chameleon_tune         (cham_tasktype_t func, int M, int N, int NRHS);
 
 /**
  *  API routines

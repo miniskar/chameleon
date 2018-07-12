@@ -67,7 +67,7 @@ void CORE_zlaset(cham_uplo_t uplo, int M, int N,
 {
     LAPACKE_zlaset_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(uplo),
+        chameleon_lapack_const(uplo),
         M, N, alpha, beta, A, LDA);
 }
 

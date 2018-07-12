@@ -29,20 +29,20 @@
 /**
  *  Parallel UU' or L'L operation - dynamic scheduling
  */
-void morse_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
+void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
     int ldak, ldam, ldan;
     int tempkm, tempkn;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLower
      */
@@ -131,5 +131,5 @@ void morse_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
                 A(k, k), ldak);
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -40,11 +40,11 @@
  *  Parallel application of Q using tile V - QR factorization (reduction
  *  Householder) - dynamic scheduling
  */
-void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
+void chameleon_pzunmqrrh( cham_side_t side, cham_trans_t trans,
                       CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
                       RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
@@ -56,10 +56,10 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
     int tempMm, tempkn, tempnn, tempmm, tempMRDm, tempkmin;
     int ib;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -91,7 +91,7 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
              *  ChamLeft / ChamConjTrans
              */
             for (k = 0; k < K; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 for (M = k; M < A->mt; M += BS) {
@@ -185,14 +185,14 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
                                           B->get_rankof( B, k, n ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         } else {
             /*
              *  ChamLeft / ChamNoTrans
              */
             for (k = K-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 lastRD = 0;
@@ -284,7 +284,7 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
                     RUNTIME_data_flush( sequence, D(M, k) );
                     RUNTIME_data_flush( sequence, T(M, k) );
                 }
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
@@ -294,7 +294,7 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
              *  ChamRight / ChamConjTrans
              */
             for (k = K-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 lastRD = 0;
@@ -387,14 +387,14 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
                     RUNTIME_data_flush( sequence, T(M, k) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         } else {
             /*
              *  ChamRight / ChamNoTrans
              */
             for (k = 0; k < K; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 for (M = k; M < A->mt; M += BS) {
@@ -487,12 +487,12 @@ void morse_pzunmqrrh( cham_side_t side, cham_trans_t trans,
                                           B->get_rankof( B, m, k ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
     (void)D;
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_f77.c
+ * @file chameleon_f77.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "control/common.h"
 #include "chameleon.h"
-#include "morse_f77.h"
+#include "chameleon_f77.h"
 
 #ifdef __cplusplus
 extern "C" {

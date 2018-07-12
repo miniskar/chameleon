@@ -100,7 +100,7 @@ void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
         sizeof(int),           &m,                          VALUE,
         sizeof(int),           &n,                          VALUE,
         sizeof(int),           &ib,                         VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),           &lda,                        VALUE,
         sizeof(int),           &iinfo,                      VALUE,
         PARSEC_DTD_ARG_END );

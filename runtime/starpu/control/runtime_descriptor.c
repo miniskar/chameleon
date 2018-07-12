@@ -56,7 +56,7 @@ chameleon_starpu_tag_init( int user_tag_width,
 #endif
 
         if ( !ok ) {
-            morse_error("RUNTIME_desc_create", "MPI_TAG_UB not known by StarPU");
+            chameleon_error("RUNTIME_desc_create", "MPI_TAG_UB not known by StarPU");
         }
 
         while ( ((uintptr_t)((1UL<<tag_width) - 1) > tag_ub ) &&
@@ -67,7 +67,7 @@ chameleon_starpu_tag_init( int user_tag_width,
         }
 
         if ( tag_width < TAG_WIDTH_MIN ) {
-            morse_error("RUNTIME_desc_create", "MPI_TAG_UB too small to identify all the data");
+            chameleon_error("RUNTIME_desc_create", "MPI_TAG_UB too small to identify all the data");
             return CHAMELEON_ERR_OUT_OF_RESOURCES;
         }
 
@@ -97,7 +97,7 @@ void RUNTIME_comm_set_tag_sizes( int user_tag_width,
     int rc;
     rc = chameleon_starpu_tag_init( user_tag_width, user_tag_sep );
     if ( rc != CHAMELEON_SUCCESS ) {
-        morse_error("RUNTIME_user_tag_size",
+        chameleon_error("RUNTIME_user_tag_size",
                     "must be called before creating any Cham descriptor with CHAMELEON_Desc_create(). The tag sizes will not be modified.");
     }
 #endif
@@ -171,7 +171,7 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
         {
             /* Disable the unregister as register failed */
             desc->register_mat = 0;
-            morse_warning("RUNTIME_desc_create(StarPU): cudaHostRegister - ", cudaGetErrorString( rc ));
+            chameleon_warning("RUNTIME_desc_create(StarPU): cudaHostRegister - ", cudaGetErrorString( rc ));
         }
     }
 #endif
@@ -187,7 +187,7 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
              ((desc->mb * lastnn   * eltsze) % pagesize != 0) ||
              ((lastmm   * lastnn   * eltsze) % pagesize != 0) )
         {
-            morse_error("RUNTIME_desc_create", "Matrix and tile size not suitable for out-of-core: all tiles have to be multiples of 4096. Tip : choose 'n' and 'nb' as both multiples of 32.");
+            chameleon_error("RUNTIME_desc_create", "Matrix and tile size not suitable for out-of-core: all tiles have to be multiples of 4096. Tip : choose 'n' and 'nb' as both multiples of 32.");
             return;
         }
     }
@@ -201,13 +201,13 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
 
         /* Check that we won't create overflow in tags used */
         if ( ((uintptr_t)(lnt*lmt)) > ((uintptr_t)(1UL<<tag_sep)) ) {
-            morse_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
+            chameleon_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
             return;
         }
         assert(lmt*lmt<=(1<<tag_sep));
 
         if ( ((uintptr_t)desc->id) >= (uintptr_t)(1UL<<(tag_width-tag_sep)) ) {
-            morse_fatal_error("RUNTIME_desc_create", "Number of descriptor available in MPI mode out of stock");
+            chameleon_fatal_error("RUNTIME_desc_create", "Number of descriptor available in MPI mode out of stock");
             return;
         }
         assert( ((uintptr_t)desc->id) < (uintptr_t)(1UL<<(tag_width-tag_sep)) );
@@ -251,7 +251,7 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
             /* Unmap the pinned memory associated to the matrix */
             if (cudaHostUnregister(desc->mat) != cudaSuccess)
             {
-                morse_warning("RUNTIME_desc_destroy(StarPU)",
+                chameleon_warning("RUNTIME_desc_destroy(StarPU)",
                               "cudaHostUnregister failed to unregister the "
                               "pinned memory associated to the matrix");
             }
@@ -276,7 +276,7 @@ int RUNTIME_desc_acquire( const CHAM_desc_t *desc )
         for (m = 0; m < lmt; m++)
         {
             if ( (*handle == NULL) ||
-                 !morse_desc_islocal( desc, m, n ) )
+                 !chameleon_desc_islocal( desc, m, n ) )
             {
                 handle++;
                 continue;
@@ -302,7 +302,7 @@ int RUNTIME_desc_release( const CHAM_desc_t *desc )
         for (m = 0; m < lmt; m++)
         {
             if ( (*handle == NULL) ||
-                 !morse_desc_islocal( desc, m, n ) )
+                 !chameleon_desc_islocal( desc, m, n ) )
             {
                 handle++;
                 continue;
@@ -378,7 +378,7 @@ void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
 #if defined(CHAMELEON_USE_MPI)
             starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
 #endif
-            if ( morse_desc_islocal( desc, m, n ) ) {
+            if ( chameleon_desc_islocal( desc, m, n ) ) {
                 chameleon_starpu_data_wont_use( *handle );
             }
         }
@@ -404,7 +404,7 @@ void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
     starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
 #endif
 
-    if ( morse_desc_islocal( A, m, n ) ) {
+    if ( chameleon_desc_islocal( A, m, n ) ) {
         chameleon_starpu_data_wont_use( *handle );
     }
 

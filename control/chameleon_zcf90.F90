@@ -77,7 +77,7 @@
 ! @date 2011-12-15
 ! @precisions mixed zc -> ds
 !
-module morse_zc
+module chameleon_zc
 
       interface
          function CHAMELEON_zcgesv_c(N,NRHS,A,LDA,IPIV,B,LDB,X,LDX,ITER) &
@@ -361,4 +361,4 @@ module morse_zc
          info = CHAMELEON_zcungesv_Tile_Async_c(trans,A,T,B,X,c_loc(ITER),sequence,request)
       end subroutine CHAMELEON_zcungesv_Tile_Async
 
-end module morse_zc
+end module chameleon_zc

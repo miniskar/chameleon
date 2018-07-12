@@ -26,45 +26,45 @@ double RUNTIME_get_time(){
 
 void RUNTIME_start_profiling()
 {
-    morse_warning("RUNTIME_start_profiling()", "FxT profiling is not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_start_profiling()", "FxT profiling is not available with PaRSEC\n");
 }
 
 void RUNTIME_stop_profiling()
 {
-    morse_warning("RUNTIME_stop_profiling()", "FxT profiling is not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_stop_profiling()", "FxT profiling is not available with PaRSEC\n");
 }
 
 void RUNTIME_start_stats()
 {
-    morse_warning("RUNTIME_start_stats()", "pruning stats are not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_start_stats()", "pruning stats are not available with PaRSEC\n");
 }
 
 void RUNTIME_stop_stats()
 {
-    morse_warning("RUNTIME_stop_stats()", "pruning stats are not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_stop_stats()", "pruning stats are not available with PaRSEC\n");
 }
 
 void RUNTIME_schedprofile_display(void)
 {
-    morse_warning("RUNTIME_schedprofile_display(parsec)", "Scheduler profiling is not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_schedprofile_display(parsec)", "Scheduler profiling is not available with PaRSEC\n");
 }
 
 void RUNTIME_kernelprofile_display(void)
 {
-    morse_warning("RUNTIME_kernelprofile_display(parsec)", "Kernel profiling is not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_kernelprofile_display(parsec)", "Kernel profiling is not available with PaRSEC\n");
 }
 
 /**
  *  Set iteration numbers for traces
  */
-void RUNTIME_iteration_push( CHAM_context_t *morse, unsigned long iteration )
+void RUNTIME_iteration_push( CHAM_context_t *chamctxt, unsigned long iteration )
 {
-    (void)morse; (void)iteration;
+    (void)chamctxt; (void)iteration;
     return;
 }
-void RUNTIME_iteration_pop( CHAM_context_t *morse )
+void RUNTIME_iteration_pop( CHAM_context_t *chamctxt )
 {
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 

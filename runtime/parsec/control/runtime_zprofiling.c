@@ -21,12 +21,12 @@
 
 void RUNTIME_zdisplay_allprofile()
 {
-    morse_warning("RUNTIME_zdisplay_allprofile(PaRSEC)", "Profiling is not available with PaRSEC");
+    chameleon_warning("RUNTIME_zdisplay_allprofile(PaRSEC)", "Profiling is not available with PaRSEC");
 }
 
 void RUNTIME_zdisplay_oneprofile( cham_tasktype_t kernel )
 {
     (void)kernel;
-    morse_warning("RUNTIME_zdisplay_oneprofile(PaRSEC)", "Profiling is not available with PaRSEC\n");
+    chameleon_warning("RUNTIME_zdisplay_oneprofile(PaRSEC)", "Profiling is not available with PaRSEC\n");
 }
 

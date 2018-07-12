@@ -35,14 +35,14 @@
 /**
  *  Parallel tile QR factorization - dynamic scheduling
  */
-void morse_pztpgqrt( int L,
+void chameleon_pztpgqrt( int L,
                      CHAM_desc_t *V1, CHAM_desc_t *T1,
                      CHAM_desc_t *V2, CHAM_desc_t *T2,
                      CHAM_desc_t *Q1, CHAM_desc_t *Q2,
                      CHAM_desc_t *D,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
@@ -58,10 +58,10 @@ void morse_pztpgqrt( int L,
     int maxmt = (maxm % Q2->mb == 0) ? (maxm / Q2->mb) : (maxm / Q2->mb + 1);
     int maxmtk;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
     /*
@@ -84,7 +84,7 @@ void morse_pztpgqrt( int L,
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     for (k = V1->nt-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkm = k == V1->mt-1 ? V1->m-k*V1->mb : V1->mb;
         tempkk = k == V1->nt-1 ? V1->n-k*V1->nb : V1->nb;
@@ -157,10 +157,10 @@ void morse_pztpgqrt( int L,
                 Q1(k, n), ldqk);
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
     (void)D;
 }

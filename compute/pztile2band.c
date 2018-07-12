@@ -27,10 +27,10 @@
 /**
  *  Parallel copy of a band matrix from full NxN tile storage to band storage (LDABxN).
  */
-void morse_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
+void chameleon_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int j;
@@ -38,10 +38,10 @@ void morse_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
     int tempjm, tempjn;
     int minmnt = chameleon_min(A->mt, A->nt);
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ldx = B->mb-1;
 
@@ -111,7 +111,7 @@ void morse_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                A->nb, B(0, j), ldx);
        }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }
 #undef B
 #undef A

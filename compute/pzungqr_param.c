@@ -29,12 +29,12 @@
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
  */
-void morse_pzungqr_param(const libhqr_tree_t *qrtree,
+void chameleon_pzungqr_param(const libhqr_tree_t *qrtree,
                          CHAM_desc_t *A, CHAM_desc_t *Q,
                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     CHAM_desc_t *T;
     size_t ws_worker = 0;
@@ -46,10 +46,10 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
     int ib, minMT;
     int *tiles;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -89,7 +89,7 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     for (k = minMT-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
@@ -180,10 +180,10 @@ void morse_pzungqr_param(const libhqr_tree_t *qrtree,
             RUNTIME_data_flush( sequence, T(m, k) );
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     free(tiles);
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

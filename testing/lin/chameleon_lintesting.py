@@ -28,7 +28,7 @@ for dtype in range(4):
   print " "
   sys.stdout.flush() # make sure progress of testing is shown
   f = open(filename, "a")
-  test1 = os.popen("morse_xlintst%s < %stest.in" % (letter, letter))
+  test1 = os.popen("chameleon_xlintst%s < %stest.in" % (letter, letter))
   for line in test1.readlines():
     f.write(str(line))
     if "passed" in line : print line,

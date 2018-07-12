@@ -36,7 +36,7 @@ static int nbdesc = 0;
  *
  * @ingroup Descriptor
  *
- * morse_desc_init_user - Internal function to create tiled matrix descriptor
+ * chameleon_desc_init_user - Internal function to create tiled matrix descriptor
  * with generic function for data distribution and storage format.
  *
  ******************************************************************************
@@ -96,28 +96,28 @@ static int nbdesc = 0;
  * @return  The descriptor with the matrix description parameters set.
  *
  */
-CHAM_desc_t morse_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j,
                                   int m,  int n,  int p, int q,
                                   void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                   int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
                                   int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     CHAM_desc_t desc;
 
     memset( &desc, 0, sizeof(CHAM_desc_t) );
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
         return desc;
     }
 
-    // If one of the function get_* is NULL, we switch back to the default, like in morse_desc_init()
-    desc.get_blkaddr = get_blkaddr ? get_blkaddr : morse_getaddr_ccrb;
-    desc.get_blkldd  = get_blkldd  ? get_blkldd  : morse_getblkldd_ccrb;
-    desc.get_rankof  = get_rankof  ? get_rankof  : morse_getrankof_2d;
+    // If one of the function get_* is NULL, we switch back to the default, like in chameleon_desc_init()
+    desc.get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
+    desc.get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
+    desc.get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
     // Matrix properties
     desc.dtyp = dtyp;
     // Should be given as parameter to follow get_blkaddr (unused)
@@ -144,10 +144,10 @@ CHAM_desc_t morse_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
     desc.occurences = 0;
     desc.use_mat      = 1;
     desc.alloc_mat    = 1;
-    desc.register_mat = (morse->ncudas > 0) ? 1 : 0;
+    desc.register_mat = (chamctxt->ncudas > 0) ? 1 : 0;
     desc.ooc          = 0;
 
-    desc.myrank = RUNTIME_comm_rank( morse );
+    desc.myrank = RUNTIME_comm_rank( chamctxt );
 
     // Grid size
     desc.p = p;
@@ -194,39 +194,39 @@ CHAM_desc_t morse_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
 /**
  *  Internal static descriptor initializer
  */
-CHAM_desc_t morse_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                              int lm, int ln, int i, int j,
                              int m,  int n,  int p, int q)
 {
-    return morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                morse_getaddr_ccrb, morse_getblkldd_ccrb, morse_getrankof_2d);
+    return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
+                                chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d);
 }
 
 /**
  *  Internal static descriptor initializer for a block diagonal matrix
  */
-CHAM_desc_t morse_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j,
                                   int m,  int n,  int p, int q)
 {
-    return morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                morse_getaddr_ccrb, morse_getblkldd_ccrb, morse_getrankof_2d_diag);
+    return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
+                                chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d_diag);
 }
 
 /**
  *  Internal static descriptor initializer for submatrices
  */
-CHAM_desc_t* morse_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n)
+CHAM_desc_t* chameleon_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n)
 {
     CHAM_desc_t *descB = malloc(sizeof(CHAM_desc_t));
     int mb, nb;
 
     if ( (descA->i + i + m) > descA->lm ) {
-        morse_error("morse_desc_submatrix", "The number of rows (i+m) of the submatrix doesn't fit in the parent matrix");
+        chameleon_error("chameleon_desc_submatrix", "The number of rows (i+m) of the submatrix doesn't fit in the parent matrix");
         assert((descA->i + i + m) > descA->lm);
     }
     if ( (descA->j + j + n) > descA->ln ) {
-        morse_error("morse_desc_submatrix", "The number of rows (j+n) of the submatrix doesn't fit in the parent matrix");
+        chameleon_error("chameleon_desc_submatrix", "The number of rows (j+n) of the submatrix doesn't fit in the parent matrix");
         assert((descA->j + j + n) > descA->ln);
     }
 
@@ -251,45 +251,45 @@ CHAM_desc_t* morse_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n
 /**
  *  Check for descriptor correctness
  */
-int morse_desc_check(const CHAM_desc_t *desc)
+int chameleon_desc_check(const CHAM_desc_t *desc)
 {
     if (desc == NULL) {
-        morse_error("morse_desc_check", "NULL descriptor");
+        chameleon_error("chameleon_desc_check", "NULL descriptor");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (desc->mat == NULL && desc->use_mat == 1) {
-        morse_error("morse_desc_check", "NULL matrix pointer");
+        chameleon_error("chameleon_desc_check", "NULL matrix pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (desc->dtyp != ChamRealFloat &&
         desc->dtyp != ChamRealDouble &&
         desc->dtyp != ChamComplexFloat &&
         desc->dtyp != ChamComplexDouble  ) {
-        morse_error("morse_desc_check", "invalid matrix type");
+        chameleon_error("chameleon_desc_check", "invalid matrix type");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->mb <= 0 || desc->nb <= 0) {
-        morse_error("morse_desc_check", "negative tile dimension");
+        chameleon_error("chameleon_desc_check", "negative tile dimension");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->bsiz < desc->mb*desc->nb) {
-        morse_error("morse_desc_check", "tile memory size smaller than the product of dimensions");
+        chameleon_error("chameleon_desc_check", "tile memory size smaller than the product of dimensions");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->lm <= 0 || desc->ln <= 0) {
-        morse_error("morse_desc_check", "negative matrix dimension");
+        chameleon_error("chameleon_desc_check", "negative matrix dimension");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if ((desc->lm < desc->m) || (desc->ln < desc->n)) {
-        morse_error("morse_desc_check", "matrix dimensions larger than leading dimensions");
+        chameleon_error("chameleon_desc_check", "matrix dimensions larger than leading dimensions");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if ((desc->i > 0 && desc->i >= desc->lm) || (desc->j > 0 && desc->j >= desc->ln)) {
-        morse_error("morse_desc_check", "beginning of the matrix out of scope");
+        chameleon_error("chameleon_desc_check", "beginning of the matrix out of scope");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     if (desc->i+desc->m > desc->lm || desc->j+desc->n > desc->ln) {
-        morse_error("morse_desc_check", "submatrix out of scope");
+        chameleon_error("chameleon_desc_check", "submatrix out of scope");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     return CHAMELEON_SUCCESS;
@@ -298,12 +298,12 @@ int morse_desc_check(const CHAM_desc_t *desc)
 /**
  *
  */
-int morse_desc_mat_alloc( CHAM_desc_t *desc )
+int chameleon_desc_mat_alloc( CHAM_desc_t *desc )
 {
     size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
         * (size_t)CHAMELEON_Element_Size(desc->dtyp);
     if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
-        morse_error("morse_desc_mat_alloc", "malloc() failed");
+        chameleon_error("chameleon_desc_mat_alloc", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
@@ -316,7 +316,7 @@ int morse_desc_mat_alloc( CHAM_desc_t *desc )
 /**
  *
  */
-int morse_desc_mat_free( CHAM_desc_t *desc )
+int chameleon_desc_mat_free( CHAM_desc_t *desc )
 {
     if ( (desc->mat       != NULL) &&
          (desc->use_mat   == 1   ) &&
@@ -396,25 +396,25 @@ int morse_desc_mat_free( CHAM_desc_t *desc )
 int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                       int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Allocate memory and initialize the descriptor */
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("CHAMELEON_Desc_Create", "malloc() failed");
+        chameleon_error("CHAMELEON_Desc_Create", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
-    *desc = morse_desc_init(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q);
+    *desc = chameleon_desc_init(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q);
 
     if (mat == NULL) {
 
@@ -422,7 +422,7 @@ int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
             * (size_t)CHAMELEON_Element_Size(desc->dtyp);
 
         if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
-            morse_error("CHAMELEON_Desc_Create", "malloc() failed");
+            chameleon_error("CHAMELEON_Desc_Create", "malloc() failed");
             free(desc);
             return CHAMELEON_ERR_OUT_OF_RESOURCES;
         }
@@ -441,9 +441,9 @@ int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
     /* Create scheduler structure like registering data */
     RUNTIME_desc_create( desc );
 
-    status = morse_desc_check( desc );
+    status = chameleon_desc_check( desc );
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_Desc_Create", "invalid descriptor");
+        chameleon_error("CHAMELEON_Desc_Create", "invalid descriptor");
         CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
@@ -513,26 +513,26 @@ int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t 
                            int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
                            int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Desc_Create_User", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Desc_Create_User", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Allocate memory and initialize the descriptor */
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("CHAMELEON_Desc_Create_User", "malloc() failed");
+        chameleon_error("CHAMELEON_Desc_Create_User", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
-    *desc = morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
+    *desc = chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
                                  get_blkaddr, get_blkldd, get_rankof);
 
     /* if the user gives a pointer to the overall data (tiles) we can use it */
@@ -549,9 +549,9 @@ int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t 
     /* Create runtime specific structure like registering data */
     RUNTIME_desc_create( desc );
 
-    status = morse_desc_check( desc );
+    status = chameleon_desc_check( desc );
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_Desc_Create_User", "invalid descriptor");
+        chameleon_error("CHAMELEON_Desc_Create_User", "invalid descriptor");
         CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
@@ -613,28 +613,28 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
     (void)lm; (void)ln; (void)i; (void)j; (void)m; (void)n; (void)p; (void)q;
     (void)get_rankof;
 
-    morse_error("CHAMELEON_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
+    chameleon_error("CHAMELEON_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
     return CHAMELEON_ERR_NOT_INITIALIZED;
 #else
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
     int status;
 
     *descptr = NULL;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Desc_Create_OOC_User", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Allocate memory and initialize the descriptor */
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     if (desc == NULL) {
-        morse_error("CHAMELEON_Desc_Create_OOC_User", "malloc() failed");
+        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
-    *desc = morse_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                 morse_getaddr_null, NULL, get_rankof);
+    *desc = chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
+                                 chameleon_getaddr_null, NULL, get_rankof);
 
     /* memory of the matrix is completely handled by runtime */
     desc->use_mat      = 0;
@@ -647,9 +647,9 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
     /* Create scheduler structure like registering data */
     RUNTIME_desc_create( desc );
 
-    status = morse_desc_check( desc );
+    status = chameleon_desc_check( desc );
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_Desc_Create_OOC_User", "invalid descriptor");
+        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "invalid descriptor");
         CHAMELEON_Desc_Destroy( &desc );
         return status;
     }
@@ -705,7 +705,7 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
 {
     return CHAMELEON_Desc_Create_OOC_User( descptr, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
-                                       morse_getrankof_2d );
+                                       chameleon_getrankof_2d );
 }
 
 /**
@@ -728,21 +728,21 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
  */
 int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Desc_Destroy", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Desc_Destroy", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     if (*desc == NULL) {
-        morse_error("CHAMELEON_Desc_Destroy", "attempting to destroy a NULL descriptor");
+        chameleon_error("CHAMELEON_Desc_Destroy", "attempting to destroy a NULL descriptor");
         return CHAMELEON_ERR_UNALLOCATED;
     }
 
     RUNTIME_desc_destroy( *desc );
-    morse_desc_mat_free( *desc );
+    chameleon_desc_mat_free( *desc );
     free(*desc);
     *desc = NULL;
     return CHAMELEON_SUCCESS;

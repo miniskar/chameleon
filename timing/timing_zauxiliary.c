@@ -220,23 +220,23 @@ int z_check_LLTfactorization(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex
 double z_check_gemm(cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
                    CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
                    CHAMELEON_Complex64_t *B, int LDB,
-                   CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cmorse,
+                   CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Ccham,
                    CHAMELEON_Complex64_t *Cref, int LDC,
-                   double *Cinitnorm, double *Cmorsenorm, double *Clapacknorm )
+                   double *Cinitnorm, double *Cchamnorm, double *Clapacknorm )
 {
     CHAMELEON_Complex64_t beta_const = -1.0;
     double Rnorm;
     double *work = (double *)malloc(chameleon_max(K,chameleon_max(M, N))* sizeof(double));
 
     *Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref,    LDC, work);
-    *Cmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cmorse, LDC, work);
+    *Cchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Ccham, LDC, work);
 
     cblas_zgemm(CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K,
                 CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC);
 
     *Clapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref, LDC, work);
 
-    cblas_zaxpy(LDC * N, CBLAS_SADDR(beta_const), Cmorse, 1, Cref, 1);
+    cblas_zaxpy(LDC * N, CBLAS_SADDR(beta_const), Ccham, 1, Cref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref, LDC, work);
 
@@ -251,8 +251,8 @@ double z_check_gemm(cham_trans_t transA, cham_trans_t transB, int M, int N, int 
 double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                    int M, int NRHS, CHAMELEON_Complex64_t alpha,
                    CHAMELEON_Complex64_t *A, int LDA,
-                   CHAMELEON_Complex64_t *Bmorse, CHAMELEON_Complex64_t *Bref, int LDB,
-                   double *Binitnorm, double *Bmorsenorm, double *Blapacknorm )
+                   CHAMELEON_Complex64_t *Bcham, CHAMELEON_Complex64_t *Bref, int LDB,
+                   double *Binitnorm, double *Bchamnorm, double *Blapacknorm )
 {
     CHAMELEON_Complex64_t beta_const = -1.0;
     double Rnorm;
@@ -260,7 +260,7 @@ double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham
     /*double eps = LAPACKE_dlamch_work('e');*/
 
     *Binitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref,    LDB, work);
-    *Bmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bmorse, LDB, work);
+    *Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bcham, LDB, work);
 
     cblas_ztrsm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
                 (CBLAS_TRANSPOSE)trans, (CBLAS_DIAG)diag, M, NRHS,
@@ -268,7 +268,7 @@ double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham
 
     *Blapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work);
 
-    cblas_zaxpy(LDB * NRHS, CBLAS_SADDR(beta_const), Bmorse, 1, Bref, 1);
+    cblas_zaxpy(LDB * NRHS, CBLAS_SADDR(beta_const), Bcham, 1, Bref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work);
     Rnorm = Rnorm / *Blapacknorm;

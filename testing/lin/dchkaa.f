@@ -37,7 +37,7 @@
 
       PROGRAM DCHKAA
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- CHAMELEON test routine (from LAPACK version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..

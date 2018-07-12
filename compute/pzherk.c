@@ -28,12 +28,12 @@
 /**
  *  Parallel tile Hermitian rank-k update - dynamic scheduling
  */
-void morse_pzherk(cham_uplo_t uplo, cham_trans_t trans,
+void chameleon_pzherk(cham_uplo_t uplo, cham_trans_t trans,
                          double alpha, CHAM_desc_t *A,
                          double beta,  CHAM_desc_t *C,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int m, n, k;
@@ -45,10 +45,10 @@ void morse_pzherk(cham_uplo_t uplo, cham_trans_t trans,
     CHAMELEON_Complex64_t zbeta;
     double dbeta;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (n = 0; n < C->nt; n++) {
         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -168,5 +168,5 @@ void morse_pzherk(cham_uplo_t uplo, cham_trans_t trans,
             }
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

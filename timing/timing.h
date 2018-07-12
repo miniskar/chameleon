@@ -13,7 +13,7 @@
 #ifndef TIMING_H
 #define TIMING_H
 
-typedef double morse_time_t;
+typedef double chameleon_time_t;
 
 enum iparam_timing {
     IPARAM_THRDNBR,        /* Number of cores                            */
@@ -122,7 +122,7 @@ enum dparam_timing {
                                                      P, Q);             \
         else if (!bigmat)                                               \
             status ## _desc_ = CHAMELEON_Desc_Create_User(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
-                                                      P, Q, morse_getaddr_null, NULL, NULL); \
+                                                      P, Q, chameleon_getaddr_null, NULL, NULL); \
         else                                                            \
             status ## _desc_ = CHAMELEON_Desc_Create(&(_desc_), NULL, _type2_, MB, NB, MB*NB, _lda_, _n_, 0, 0, _m_, _n_, \
                                                  P, Q);                 \

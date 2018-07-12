@@ -1,5 +1,5 @@
 #
-# Check Example lapack_to_morse
+# Check Example lapack_to_chameleon
 #
 
 set(TESTLIST 

@@ -50,7 +50,7 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
         PARSEC_dtd_taskpool, CORE_zgessq_parsec, options->priority, "gessq",
         sizeof(int),    &m,            VALUE,
         sizeof(int),    &n,            VALUE,
-        PASSED_BY_REF,   RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INPUT,
+        PASSED_BY_REF,   RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),    &lda,          VALUE,
         PASSED_BY_REF,   RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ), INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );

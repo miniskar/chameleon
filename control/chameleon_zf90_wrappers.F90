@@ -111,9 +111,9 @@
 ! ZLASET CHAMELEON_zlaset
 #define PRECISION_z
 
-      subroutine morse_wrap_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
+      subroutine chameleon_wrap_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -124,14 +124,14 @@
             integer, intent(out), target :: IPIV(*)
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             complex(kind=wp), intent(inout), target :: B(LDB,*)
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZGESV"
             call CHAMELEON_ZGESV(N,NRHS,A,LDA,IPIV,B,LDB,INFO)
-      end subroutine morse_wrap_ZGESV
+      end subroutine chameleon_wrap_ZGESV
 
-      subroutine morse_wrap_ZGETRF(M,N,A,LDA,IPIV,INFO)
+      subroutine chameleon_wrap_ZGETRF(M,N,A,LDA,IPIV,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -140,14 +140,14 @@
             integer, intent(out) :: INFO
             integer, intent(out), target :: IPIV(*)
             complex(kind=wp), intent(inout), target :: A(LDA,*)
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZGETRF"
             call CHAMELEON_ZGETRF(M,N,A,LDA,IPIV,INFO)
-      end subroutine morse_wrap_ZGETRF
+      end subroutine chameleon_wrap_ZGETRF
 
-      subroutine morse_wrap_ZGETRS(TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
+      subroutine chameleon_wrap_ZGETRS(TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -169,14 +169,14 @@
             else
                local_TRANS = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZGETRS"
             call CHAMELEON_ZGETRS(local_TRANS,N,NRHS,A,LDA,IPIV,B,LDB,INFO)
-      end subroutine morse_wrap_ZGETRS
+      end subroutine chameleon_wrap_ZGETRS
 
-      subroutine morse_wrap_ZHEGST(ITYPE,UPLO,N,A,LDA,B,LDB,INFO)
+      subroutine chameleon_wrap_ZHEGST(ITYPE,UPLO,N,A,LDA,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: ITYPE
@@ -195,14 +195,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZHEGST"
             call CHAMELEON_ZHEGST(ITYPE,local_UPLO,N,A,LDA,B,LDB,INFO)
-      end subroutine morse_wrap_ZHEGST
+      end subroutine chameleon_wrap_ZHEGST
 
-      subroutine morse_wrap_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX)
+      subroutine chameleon_wrap_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: INCX
@@ -213,14 +213,14 @@
             integer, intent(in), target :: IPIV(*)
             complex(kind=wp), intent(inout), target :: A(LDA,*)
             integer :: local_ret
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZLASWP"
             call CHAMELEON_ZLASWP(N,A,LDA,K1,K2,IPIV,INCX,local_ret)
-      end subroutine morse_wrap_ZLASWP
+      end subroutine chameleon_wrap_ZLASWP
 
-      subroutine morse_wrap_ZLAUUM(UPLO,N,A,LDA,INFO)
+      subroutine chameleon_wrap_ZLAUUM(UPLO,N,A,LDA,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -236,14 +236,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZLAUUM"
             call CHAMELEON_ZLAUUM(local_UPLO,N,A,LDA,INFO)
-      end subroutine morse_wrap_ZLAUUM
+      end subroutine chameleon_wrap_ZLAUUM
 
-      subroutine morse_wrap_ZPOSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+      subroutine chameleon_wrap_ZPOSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -262,14 +262,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZPOSV"
             call CHAMELEON_ZPOSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
-      end subroutine morse_wrap_ZPOSV
+      end subroutine chameleon_wrap_ZPOSV
 
-      subroutine morse_wrap_ZSYSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+      subroutine chameleon_wrap_ZSYSV(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -288,14 +288,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZSYSV"
             call CHAMELEON_ZSYSV(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
-      end subroutine morse_wrap_ZSYSV
+      end subroutine chameleon_wrap_ZSYSV
 
-      subroutine morse_wrap_ZPOTRF(UPLO,N,A,LDA,INFO)
+      subroutine chameleon_wrap_ZPOTRF(UPLO,N,A,LDA,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -311,14 +311,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZPOTRF"
             call CHAMELEON_ZPOTRF(local_UPLO,N,A,LDA,INFO)
-      end subroutine morse_wrap_ZPOTRF
+      end subroutine chameleon_wrap_ZPOTRF
 
-      subroutine morse_wrap_ZSYTRF(UPLO,N,A,LDA,INFO)
+      subroutine chameleon_wrap_ZSYTRF(UPLO,N,A,LDA,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -334,14 +334,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZSYTRF"
             call CHAMELEON_ZSYTRF(local_UPLO,N,A,LDA,INFO)
-      end subroutine morse_wrap_ZSYTRF
+      end subroutine chameleon_wrap_ZSYTRF
 
-      subroutine morse_wrap_ZPOTRI(UPLO,N,A,LDA,INFO)
+      subroutine chameleon_wrap_ZPOTRI(UPLO,N,A,LDA,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -357,14 +357,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZPOTRI"
             call CHAMELEON_ZPOTRI(local_UPLO,N,A,LDA,INFO)
-      end subroutine morse_wrap_ZPOTRI
+      end subroutine chameleon_wrap_ZPOTRI
 
-      subroutine morse_wrap_ZPOTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+      subroutine chameleon_wrap_ZPOTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -383,14 +383,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZPOTRS"
             call CHAMELEON_ZPOTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
-      end subroutine morse_wrap_ZPOTRS
+      end subroutine chameleon_wrap_ZPOTRS
 
-      subroutine morse_wrap_ZSYTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
+      subroutine chameleon_wrap_ZSYTRS(UPLO,N,NRHS,A,LDA,B,LDB,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -409,14 +409,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZSYTRS"
             call CHAMELEON_ZSYTRS(local_UPLO,N,NRHS,A,LDA,B,LDB,INFO)
-      end subroutine morse_wrap_ZSYTRS
+      end subroutine chameleon_wrap_ZSYTRS
 
-      subroutine morse_wrap_ZTRTRI(UPLO,DIAG,N,A,LDA,INFO)
+      subroutine chameleon_wrap_ZTRTRI(UPLO,DIAG,N,A,LDA,INFO)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -441,14 +441,14 @@
             else
                local_DIAG = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,INFO)
+            if (.not. chameleon_initialized) call chameleon_init(24,INFO)
             ! write(*,*) " Calling CHAMELEON_ZTRTRI"
             call CHAMELEON_ZTRTRI(local_UPLO,local_DIAG,N,A,LDA,INFO)
-      end subroutine morse_wrap_ZTRTRI
+      end subroutine chameleon_wrap_ZTRTRI
 
-      subroutine morse_wrap_ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+      subroutine chameleon_wrap_ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: K
@@ -485,15 +485,15 @@
             else
                local_TRANSB = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZGEMM"
             call CHAMELEON_ZGEMM(local_TRANSA,local_TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZGEMM
+      end subroutine chameleon_wrap_ZGEMM
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
-      subroutine morse_wrap_ZHEMM(SIDE,UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+      subroutine chameleon_wrap_ZHEMM(SIDE,UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -525,14 +525,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZHEMM"
             call CHAMELEON_ZHEMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZHEMM
+      end subroutine chameleon_wrap_ZHEMM
 
-      subroutine morse_wrap_ZHER2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+      subroutine chameleon_wrap_ZHER2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: K
@@ -566,14 +566,14 @@
             else
                local_TRANS = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZHER2K"
             call CHAMELEON_ZHER2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZHER2K
+      end subroutine chameleon_wrap_ZHER2K
 
-      subroutine morse_wrap_ZHERK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
+      subroutine chameleon_wrap_ZHERK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: K
@@ -605,15 +605,15 @@
             else
                local_TRANS = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZHERK"
             call CHAMELEON_ZHERK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZHERK
+      end subroutine chameleon_wrap_ZHERK
 #endif
 
-      subroutine morse_wrap_ZSYMM(SIDE,UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+      subroutine chameleon_wrap_ZSYMM(SIDE,UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -645,14 +645,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZSYMM"
             call CHAMELEON_ZSYMM(local_SIDE,local_UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZSYMM
+      end subroutine chameleon_wrap_ZSYMM
 
-      subroutine morse_wrap_ZSYR2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+      subroutine chameleon_wrap_ZSYR2K(UPLO,TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: K
@@ -686,14 +686,14 @@
             else
                local_TRANS = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZSYR2K"
             call CHAMELEON_ZSYR2K(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZSYR2K
+      end subroutine chameleon_wrap_ZSYR2K
 
-      subroutine morse_wrap_ZSYRK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
+      subroutine chameleon_wrap_ZSYRK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: K
@@ -725,14 +725,14 @@
             else
                local_TRANS = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZSYRK"
             call CHAMELEON_ZSYRK(local_UPLO,local_TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC,local_ret)
-      end subroutine morse_wrap_ZSYRK
+      end subroutine chameleon_wrap_ZSYRK
 
-      subroutine morse_wrap_ZTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
+      subroutine chameleon_wrap_ZTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -781,14 +781,14 @@
             else
                local_DIAG = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZTRMM"
             call CHAMELEON_ZTRMM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
-      end subroutine morse_wrap_ZTRMM
+      end subroutine chameleon_wrap_ZTRMM
 
-      subroutine morse_wrap_ZTRSM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
+      subroutine chameleon_wrap_ZTRSM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -837,14 +837,14 @@
             else
                local_DIAG = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZTRSM"
             call CHAMELEON_ZTRSM(local_SIDE,local_UPLO,local_TRANSA,local_DIAG,M,N,ALPHA,A,LDA,B,LDB,local_ret)
-      end subroutine morse_wrap_ZTRSM
+      end subroutine chameleon_wrap_ZTRSM
 
-      subroutine morse_wrap_ZLACPY(UPLO,M,N,A,LDA,B,LDB)
+      subroutine chameleon_wrap_ZLACPY(UPLO,M,N,A,LDA,B,LDB)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -863,14 +863,14 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZLACPY"
             call CHAMELEON_ZLACPY(local_UPLO,M,N,A,LDA,B,LDB,local_ret)
-      end subroutine morse_wrap_ZLACPY
+      end subroutine chameleon_wrap_ZLACPY
 
-      subroutine morse_wrap_ZLASET(UPLO,M,N,ALPHA,BETA,A,LDA)
+      subroutine chameleon_wrap_ZLASET(UPLO,M,N,ALPHA,BETA,A,LDA)
             use iso_c_binding
-            use morse
+            use chameleon
             implicit none
             integer, parameter :: wp = kind(0.0d0)
             integer, intent(in) :: LDA
@@ -889,7 +889,7 @@
             else
                local_UPLO = -1
             end if
-            if (.not. morse_initialized) call morse_init(24,local_ret)
+            if (.not. chameleon_initialized) call chameleon_init(24,local_ret)
             ! write(*,*) " Calling CHAMELEON_ZLASET"
             call CHAMELEON_ZLASET(local_UPLO,M,N,ALPHA,BETA,A,LDA,local_ret)
-      end subroutine morse_wrap_ZLASET
+      end subroutine chameleon_wrap_ZLASET

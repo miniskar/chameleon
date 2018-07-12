@@ -1,6 +1,6 @@
 /**
  *
- * @file morsewinthread.c
+ * @file chameleonwinthread.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -17,7 +17,7 @@
  * @date 2012-09-15
  *
  */
-#include "control/morsewinthread.h"
+#include "control/chameleonwinthread.h"
 
 #include <limits.h>
 
@@ -27,8 +27,8 @@
 #include <stdio.h>
 #include <chameleon.h>
 
-CRITICAL_SECTION morsewinthread_static_initializer_check_lock;
-static int morsewinthread_initialized = 0;
+CRITICAL_SECTION chameleonwinthread_static_initializer_check_lock;
+static int chameleonwinthread_initialized = 0;
 
 CHAMELEON_DLLPORT unsigned int CHAMELEON_CDECL pthread_self_id(void) {
   return GetCurrentThreadId();
@@ -61,14 +61,14 @@ CHAMELEON_DLLPORT int CHAMELEON_CDECL pthread_mutex_init(pthread_mutex_t *mutex,
 static int pthread_mutex_check_for_static_initialization( pthread_mutex_t *mutex ) {
     int retval = 0;
     /* This should be called once to initialize some structures */
-    if ( morsewinthread_initialized == 0 ) {
-        InitializeCriticalSection( &morsewinthread_static_initializer_check_lock );
-        morsewinthread_initialized = 1;
+    if ( chameleonwinthread_initialized == 0 ) {
+        InitializeCriticalSection( &chameleonwinthread_static_initializer_check_lock );
+        chameleonwinthread_initialized = 1;
     }
-    EnterCriticalSection( &morsewinthread_static_initializer_check_lock );
+    EnterCriticalSection( &chameleonwinthread_static_initializer_check_lock );
     if ( *mutex == PTHREAD_MUTEX_INITIALIZER )
         retval = pthread_mutex_init( mutex, NULL );
-    LeaveCriticalSection( &morsewinthread_static_initializer_check_lock );
+    LeaveCriticalSection( &chameleonwinthread_static_initializer_check_lock );
     return retval;
 }
 

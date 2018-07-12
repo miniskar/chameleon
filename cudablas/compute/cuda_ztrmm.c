@@ -33,8 +33,8 @@ int CUDA_ztrmm(
 
     cublasZtrmm(
         CUBLAS_HANDLE
-        morse_cublas_const(side), morse_cublas_const(uplo),
-        morse_cublas_const(transa), morse_cublas_const(diag),
+        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
+        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
         m, n,
         CUBLAS_VALUE(alpha), A, lda,
         B, ldb,
@@ -44,8 +44,8 @@ int CUDA_ztrmm(
 
     cublasZtrmm(
         CUBLAS_HANDLE
-        morse_cublas_const(side), morse_cublas_const(uplo),
-        morse_cublas_const(transa), morse_cublas_const(diag),
+        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
+        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
         m, n,
         CUBLAS_VALUE(alpha), A, lda,
                              B, ldb);

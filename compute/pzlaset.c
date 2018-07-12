@@ -29,12 +29,12 @@
  *  Parallel initialization a 2-D array A to BETA on the diagonal and
  *  ALPHA on the offdiagonals.
  */
-void morse_pzlaset(cham_uplo_t uplo,
+void chameleon_pzlaset(cham_uplo_t uplo,
                           CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
                           CHAM_desc_t *A,
                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int i, j;
@@ -43,11 +43,11 @@ void morse_pzlaset(cham_uplo_t uplo,
     int tempjm, tempjn;
     int minmn = chameleon_min(A->mt, A->nt);
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
 
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     if (uplo == ChamLower) {
        for (j = 0; j < minmn; j++){
@@ -113,5 +113,5 @@ void morse_pzlaset(cham_uplo_t uplo,
                A(j, j), ldaj);
        }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

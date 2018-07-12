@@ -25,9 +25,9 @@
 #include "./timing.c"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
-    double normmorse, normlapack, result;
+    double normcham, normlapack, result;
     int    norm = ChamInfNorm;
 
     PASTE_CODE_IPARAM_LOCALS( iparam );
@@ -38,7 +38,7 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 
     /* CHAMELEON ZPOSV */
     START_TIMING();
-    normmorse = CHAMELEON_zlange_Tile(norm, descA);
+    normcham = CHAMELEON_zlange_Tile(norm, descA);
     STOP_TIMING();
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -48,8 +48,8 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
         /* Allocate Data */
         PASTE_TILE_TO_LAPACK( descA, A, check, CHAMELEON_Complex64_t, M, N );
         double *work = (double*) malloc(chameleon_max(M,N)*sizeof(double));
-        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm), M, N, A, LDA, work);
-        result = fabs(normmorse - normlapack);
+        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm), M, N, A, LDA, work);
+        result = fabs(normcham - normlapack);
         switch(norm) {
         case ChamMaxNorm:
             /* result should be perfectly equal */
@@ -79,6 +79,6 @@ RunTest(int *iparam, double *dparam, morse_time_t *t_)
 #endif
 
     PASTE_CODE_FREE_MATRIX( descA );
-    (void)normmorse;
+    (void)normcham;
     return 0;
 }

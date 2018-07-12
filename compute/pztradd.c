@@ -28,22 +28,22 @@
 /**
  *  Parallel tile matrix-matrix multiplication - dynamic scheduling
  */
-void morse_pztradd(cham_uplo_t uplo, cham_trans_t trans,
+void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
                    CHAMELEON_Complex64_t alpha, CHAM_desc_t *A,
                    CHAMELEON_Complex64_t beta,  CHAM_desc_t *B,
                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int tempmm, tempnn, tempmn, tempnm;
     int m, n;
     int ldam, ldan, ldbm, ldbn;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     switch(uplo){
     case ChamLower:
@@ -188,5 +188,5 @@ void morse_pztradd(cham_uplo_t uplo, cham_trans_t trans,
         }
     }
 
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

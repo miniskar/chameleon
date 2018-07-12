@@ -25,7 +25,7 @@
 #
 ###
 
-# Generate the morse auxiliary headers for all possible precisions
+# Generate the chameleon auxiliary headers for all possible precisions
 # ----------------------------------------------------------------
 set(TIMING_AUX_HDRS_GENERATED "")
 set(ZHDR
@@ -47,7 +47,7 @@ add_custom_target(timing_include ALL SOURCES ${TIMING_AUX_HDRS})
 set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};timing_include" CACHE INTERNAL "List of targets of sources")
 
 if (NOT CHAMELEON_SIMULATION)
-    # Generate the morse auxiliary sources for all possible precisions
+    # Generate the chameleon auxiliary sources for all possible precisions
     # ----------------------------------------------------------------
     set(TIMING_AUX_SRCS_GENERATED "")
     set(ZSRC
@@ -70,7 +70,7 @@ if (NOT CHAMELEON_SIMULATION)
     add_dependencies(chameleon_timing timing_include timing_aux_sources)
 endif()
 
-# Generate the morse testing sources for all possible precisions
+# Generate the chameleon testing sources for all possible precisions
 # --------------------------------------------------------------
 set(TIMINGS "")
 set(ZSRC_LAP_INT

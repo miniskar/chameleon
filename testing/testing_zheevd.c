@@ -89,10 +89,10 @@ int testing_zheevd(int argc, char **argv)
         }
     }
     LAPACKE_zlatms_work( LAPACK_COL_MAJOR, N, N,
-                         morse_lapack_const(ChamDistSymmetric), ISEED,
-                         morse_lapack_const(ChamHermGeev), W1, mode, rcond,
+                         chameleon_lapack_const(ChamDistSymmetric), ISEED,
+                         chameleon_lapack_const(ChamHermGeev), W1, mode, rcond,
                          dmax, N, N,
-                         morse_lapack_const(ChamNoPacking), A2, LDA, work );
+                         chameleon_lapack_const(ChamNoPacking), A2, LDA, work );
 
     /*
      * Sort the eigenvalue because when computing the tridiag
@@ -178,7 +178,7 @@ static int check_orthogonality(int M, int N, CHAMELEON_Complex64_t *Q, int LDQ, 
     else
         cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans,   M, N, done, Q, LDQ, mdone, Id, minMN);
 
-    normQ = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamInfNorm), 'U', minMN, Id, minMN, work);
+    normQ = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamInfNorm), 'U', minMN, Id, minMN, work);
 
     result = normQ / (minMN * eps);
     printf(" ======================================================\n");
@@ -213,7 +213,7 @@ static int check_reduction(cham_uplo_t uplo, int N, int bw, CHAMELEON_Complex64_
     int i;
 
     /* Compute TEMP =  Q * LAMBDA */
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamUpperLower), N, N, Q, LDA, TEMP, N);
+    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamUpperLower), N, N, Q, LDA, TEMP, N);
 
     for (i = 0; i < N; i++){
         cblas_zdscal(N, D[i], &(TEMP[i*N]), 1);
@@ -224,11 +224,11 @@ static int check_reduction(cham_uplo_t uplo, int N, int bw, CHAMELEON_Complex64_
      * otherwise it need to be symetrized before
      * checking.
      */
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamUpperLower), N, N, A, LDA, Residual, N);
+    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamUpperLower), N, N, A, LDA, Residual, N);
     cblas_zgemm(CblasColMajor, CblasNoTrans, CblasConjTrans, N, N, N, CBLAS_SADDR(mzone), TEMP, N,  Q, LDA, CBLAS_SADDR(zone), Residual,     N);
 
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), N, N, Residual, N,   work);
-    Anorm = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, morse_lapack_const(ChamOneNorm), morse_lapack_const(uplo), N, A, LDA, work);
+    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamOneNorm), N, N, Residual, N,   work);
+    Anorm = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, chameleon_lapack_const(ChamOneNorm), chameleon_lapack_const(uplo), N, A, LDA, work);
 
     result = Rnorm / ( Anorm * N * eps);
     if ( uplo == ChamLower ){

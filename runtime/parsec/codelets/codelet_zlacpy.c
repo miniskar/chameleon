@@ -62,10 +62,10 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         sizeof(int),           &m,                         VALUE,
         sizeof(int),           &n,                         VALUE,
         sizeof(int),           &displA,                    VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INPUT,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),           &lda,                       VALUE,
         sizeof(int),           &displB,                    VALUE,
-        PASSED_BY_REF,         RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), morse_parsec_get_arena_index( B ) | OUTPUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), chameleon_parsec_get_arena_index( B ) | OUTPUT | AFFINITY,
         sizeof(int),           &ldb,                       VALUE,
         PARSEC_DTD_ARG_END );
     (void)nb;

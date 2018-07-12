@@ -29,13 +29,13 @@
 /**
  *  Parallel application of Q using tile V - LQ factorization - dynamic scheduling
  */
-void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
+void chameleon_pzunmlq_param(const libhqr_tree_t *qrtree,
                          cham_side_t side, cham_trans_t trans,
                          CHAM_desc_t *A, CHAM_desc_t *B,
                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     CHAM_desc_t *T;
     size_t ws_worker = 0;
@@ -47,10 +47,10 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
     int ib, K, L;
     int *tiles;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -90,7 +90,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
              *  ChamLeft / ChamNoTrans
              */
             for (k = 0; k < K; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
@@ -180,7 +180,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
                                           B->get_rankof( B, k, n ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
@@ -188,7 +188,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
          */
         else {
             for (k = K-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
@@ -276,7 +276,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
                     RUNTIME_data_flush( sequence, T(k, p) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
@@ -286,7 +286,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
     else {
         if (trans == ChamNoTrans) {
             for (k = K-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
@@ -373,7 +373,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
                     RUNTIME_data_flush( sequence, T(k, p) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
@@ -381,7 +381,7 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
          */
         else {
             for (k = 0; k < K; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
@@ -465,12 +465,12 @@ void morse_pzunmlq_param(const libhqr_tree_t *qrtree,
                     RUNTIME_data_flush( sequence, T(k, n) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
 
     free(tiles);
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

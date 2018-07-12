@@ -79,7 +79,7 @@
 # #
 # #     Chameleon provides a Fortran interface to user functions. Example:
 # #     #+begin_src
-# #     call morse_version(major, minor, patch) !or
+# #     call chameleon_version(major, minor, patch) !or
 # #     call CHAMELEON_VERSION(major, minor, patch)
 # #     #+end_src
 # #
@@ -117,7 +117,7 @@
    option ~-[-]help~ or ~-[-]h~.  This set of binaries are separated into
    three categories and can be found in three different directories:
    * *example*: contains examples of API usage and more specifically the
-     sub-directory ~lapack_to_morse/~ provides a tutorial that explains
+     sub-directory ~lapack_to_chameleon/~ provides a tutorial that explains
      how to use Chameleon functionalities starting from a full LAPACK
      code, see [[sec:tuto][Tutorial LAPACK to Chameleon]]
    * *testing*: contains testing drivers to check numerical correctness of
@@ -349,7 +349,7 @@
     to let Chameleon initialize user's data (matrices/vectors) in
     parallel.
 
-    Source files can be found in the ~example/lapack_to_morse/~
+    Source files can be found in the ~example/lapack_to_chameleon/~
     directory.  If CMake option *CHAMELEON_ENABLE_EXAMPLE* is ON then
     source files are compiled with the project libraries.  The
     arithmetic precision is /double/.  To execute a step
@@ -580,7 +580,7 @@
      #+begin_example
      /* Cham structure containing parameters and a structure to interact with
       * the Runtime system */
-     CHAM_context_t *morse;
+     CHAM_context_t *chamctxt;
      /* CHAMELEON sequence uniquely identifies a set of asynchronous function calls
       * sharing common exception handling */
      RUNTIME_sequence_t *sequence = NULL;
@@ -590,7 +590,7 @@
 
      ...
 
-     morse_sequence_create(morse, &sequence);
+     chameleon_sequence_create(chamctxt, &sequence);
 
      /* Factorization: */
      CHAMELEON_dpotrf_Tile_Async( UPLO, descA, sequence, &request );
@@ -600,7 +600,7 @@
 
      /* Synchronization barrier (the runtime ensures that all submitted tasks
       * have been terminated */
-     RUNTIME_barrier(morse);
+     RUNTIME_barrier(chamctxt);
      /* Ensure that all data processed on the gpus we are depending on are back
       * in main memory */
      RUNTIME_desc_getoncpu(descA);
@@ -701,9 +701,9 @@
                             NB, NB, NB*NB, N, N,
                             0, 0, N, N,
                             GRID_P, GRID_Q,
-                            morse_getaddr_ccrb,
-                            morse_getblkldd_ccrb,
-                            morse_getrankof_2d);
+                            chameleon_getaddr_ccrb,
+                            chameleon_getblkldd_ccrb,
+                            chameleon_getrankof_2d);
      #+end_example
      is equivalent to the following call
 
@@ -713,15 +713,15 @@
                        0, 0, N, N,
                        GRID_P, GRID_Q);
      #+end_example
-     functions *morse_getaddr_ccrb*, *morse_getblkldd_ccrb*,
-     *morse_getrankof_2d* being used in *Desc_Create*.  It is interesting
+     functions *chameleon_getaddr_ccrb*, *chameleon_getblkldd_ccrb*,
+     *chameleon_getrankof_2d* being used in *Desc_Create*.  It is interesting
      to notice that the code is almost the same as Step5.  The only
      additional information to give is the way tiles are distributed
      through the third function given to *CHAMELEON_Desc_Create_User*.
      Here, because we have made experiments only with a 2-D
      block-cyclic distribution, we have parameters P and Q in the
      interface of *Desc_Create* but they have sense only for 2-D
-     block-cyclic distribution and then using *morse_getrankof_2d*
+     block-cyclic distribution and then using *chameleon_getrankof_2d*
      function.  Of course it could be used with other distributions,
      being no more the parameters of a 2-D block-cyclic grid but of
      another distribution.

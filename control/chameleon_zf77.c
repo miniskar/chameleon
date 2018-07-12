@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_zf77.c
+ * @file chameleon_zf77.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -26,7 +26,7 @@
  */
 #include <stdlib.h>
 #include "control/common.h"
-#include "control/morse_f77.h"
+#include "control/chameleon_f77.h"
 
 /**
  *  FORTRAN API - math functions (simple interface)

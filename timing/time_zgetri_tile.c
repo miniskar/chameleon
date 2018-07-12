@@ -129,7 +129,7 @@ static int check_getri_inverse(CHAM_desc_t *descA1, CHAM_desc_t *descA2, int *IP
 }
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     CHAM_desc_t descW;
     int ret = 0;

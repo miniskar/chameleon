@@ -93,11 +93,11 @@ int CORE_zgesplit(cham_side_t side, cham_diag_t diag,
     }
 
     LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                        morse_lapack_const(ChamUpperLower),
+                        chameleon_lapack_const(ChamUpperLower),
                         M, N, A, LDA, B, LDB);
 
     LAPACKE_zlaset_work(LAPACK_COL_MAJOR,
-                        morse_lapack_const(uplo),
+                        chameleon_lapack_const(uplo),
                         M, N, 0., 1., A, LDA);
 
     (void)diag;

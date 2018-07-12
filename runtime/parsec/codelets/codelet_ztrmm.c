@@ -66,9 +66,9 @@ void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
         sizeof(int),            &m,                     VALUE,
         sizeof(int),            &n,                     VALUE,
         sizeof(CHAMELEON_Complex64_t),         &alpha,      VALUE,
-        PASSED_BY_REF,          RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INPUT,
+        PASSED_BY_REF,          RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),            &lda,                   VALUE,
-        PASSED_BY_REF,          RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), morse_parsec_get_arena_index( B ) | INOUT | AFFINITY,
+        PASSED_BY_REF,          RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), chameleon_parsec_get_arena_index( B ) | INOUT | AFFINITY,
         sizeof(int),            &ldb,                   VALUE,
         PARSEC_DTD_ARG_END );
 

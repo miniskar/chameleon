@@ -79,7 +79,7 @@
 !
 #define PRECISION_z
 
-module morse_z
+module chameleon_z
     !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     !  FORTRAN API - math functions (simple interface)
     !
@@ -5478,4 +5478,4 @@ module morse_z
          info = CHAMELEON_zTile_to_Lapack_c(A,c_loc(Af77),LDA)
       end subroutine CHAMELEON_zTile_to_Lapack
 
-end module morse_z
+end module chameleon_z

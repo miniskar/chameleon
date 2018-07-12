@@ -25,7 +25,7 @@
 #include "./timing.c"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_) 
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_) 
 {
     CHAM_desc_t *descL;
     int *piv;

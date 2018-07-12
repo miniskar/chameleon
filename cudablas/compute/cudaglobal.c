@@ -21,7 +21,7 @@
 /**
  *  LAPACK Constants
  */
-int morse_cublas_constants[] =
+int chameleon_cublas_constants[] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

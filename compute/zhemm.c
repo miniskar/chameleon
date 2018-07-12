@@ -112,44 +112,44 @@ int CHAMELEON_zhemm( cham_side_t side, cham_uplo_t uplo, int M, int N,
     CHAM_desc_t descAl, descAt;
     CHAM_desc_t descBl, descBt;
     CHAM_desc_t descCl, descCt;
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zhemm", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zhemm", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     /* Check input arguments */
     if ( (side != ChamLeft) && (side != ChamRight) ){
-        morse_error("CHAMELEON_zhemm", "illegal value of side");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of side");
         return -1;
     }
     if ((uplo != ChamLower) && (uplo != ChamUpper)) {
-        morse_error("CHAMELEON_zhemm", "illegal value of uplo");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of uplo");
         return -2;
     }
     Am = ( side == ChamLeft ) ? M : N;
     if (M < 0) {
-        morse_error("CHAMELEON_zhemm", "illegal value of M");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of M");
         return -3;
     }
     if (N < 0) {
-        morse_error("CHAMELEON_zhemm", "illegal value of N");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of N");
         return -4;
     }
     if (LDA < chameleon_max(1, Am)) {
-        morse_error("CHAMELEON_zhemm", "illegal value of LDA");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of LDA");
         return -7;
     }
     if (LDB < chameleon_max(1, M)) {
-        morse_error("CHAMELEON_zhemm", "illegal value of LDB");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of LDB");
         return -9;
     }
     if (LDC < chameleon_max(1, M)) {
-        morse_error("CHAMELEON_zhemm", "illegal value of LDC");
+        chameleon_error("CHAMELEON_zhemm", "illegal value of LDC");
         return -12;
     }
 
@@ -159,45 +159,45 @@ int CHAMELEON_zhemm( cham_side_t side, cham_uplo_t uplo, int M, int N,
         return CHAMELEON_SUCCESS;
 
     /* Tune NB depending on M, N & NRHS; Set NBNBSIZE */
-    status = morse_tune(CHAMELEON_FUNC_ZHEMM, M, N, 0);
+    status = chameleon_tune(CHAMELEON_FUNC_ZHEMM, M, N, 0);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zhemm", "morse_tune() failed");
+        chameleon_error("CHAMELEON_zhemm", "chameleon_tune() failed");
         return status;
     }
 
     /* Set MT & NT & KT */
     NB = CHAMELEON_NB;
 
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInput, uplo,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, uplo,
                      A, NB, NB, LDA, Am, Am, Am, sequence, &request );
-    morse_zlap2tile( morse, &descBl, &descBt, ChamDescInput, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInput, ChamUpperLower,
                      B, NB, NB, LDB, N, M,  N, sequence, &request );
-    morse_zlap2tile( morse, &descCl, &descCt, ChamDescInout, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descCl, &descCt, ChamDescInout, ChamUpperLower,
                      C, NB, NB, LDC, N, M,  N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zhemm_Tile_Async(  side, uplo, alpha, &descAt, &descBt, beta, &descCt, sequence, &request );
 
     /* Submit the matrix conversion back */
-    morse_ztile2lap( morse, &descAl, &descAt,
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                      ChamDescInput, uplo, sequence, &request );
-    morse_ztile2lap( morse, &descBl, &descBt,
+    chameleon_ztile2lap( chamctxt, &descBl, &descBt,
                      ChamDescInput, ChamUpperLower, sequence, &request );
-    morse_ztile2lap( morse, &descCl, &descCt,
+    chameleon_ztile2lap( chamctxt, &descCl, &descCt,
                      ChamDescInout, ChamUpperLower, sequence, &request );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descAl, &descAt );
-    morse_ztile2lap_cleanup( morse, &descBl, &descBt );
-    morse_ztile2lap_cleanup( morse, &descCl, &descCt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descCl, &descCt );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -264,17 +264,17 @@ int CHAMELEON_zhemm_Tile( cham_side_t side, cham_uplo_t uplo,
                       CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                       CHAMELEON_Complex64_t beta,  CHAM_desc_t *C )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zhemm_Tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zhemm_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     CHAMELEON_zhemm_Tile_Async(side, uplo, alpha, A, B, beta, C, sequence, &request );
 
@@ -282,9 +282,9 @@ int CHAMELEON_zhemm_Tile( cham_side_t side, cham_uplo_t uplo,
     CHAMELEON_Desc_Flush( B, sequence );
     CHAMELEON_Desc_Flush( C, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -321,19 +321,19 @@ int CHAMELEON_zhemm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
                             CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zhemm_Tile_Async", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zhemm_Tile_Async", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_zhemm_Tile_Async", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_zhemm_Tile_Async", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("CHAMELEON_zhemm_Tile_Async", "NULL request");
+        chameleon_fatal_error("CHAMELEON_zhemm_Tile_Async", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -341,72 +341,72 @@ int CHAMELEON_zhemm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
         request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "invalid first descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "invalid first descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(B) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "invalid second descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(B) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "invalid second descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(C) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "invalid third descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(C) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "invalid third descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if ( (side != ChamLeft) && (side != ChamRight) ){
-        morse_error("CHAMELEON_zhemm_Tile_Async", "illegal value of side");
-        return morse_request_fail(sequence, request, -1);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "illegal value of side");
+        return chameleon_request_fail(sequence, request, -1);
     }
     if ((uplo != ChamLower) && (uplo != ChamUpper)) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "illegal value of uplo");
-        return morse_request_fail(sequence, request, -2);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "illegal value of uplo");
+        return chameleon_request_fail(sequence, request, -2);
     }
 
     /* Check matrices sizes */
     if ( (B->m != C->m) || (B->n != C->n) ) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "B and C must have the same size");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "B and C must have the same size");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if ( (A->m != A->n) ||
          ( (side == ChamLeft)  && (A->m != B->m ) ) ||
          ( (side == ChamRight) && (A->m != B->n ) ) ) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "Matrix A must be square of size M or N regarding side.");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "Matrix A must be square of size M or N regarding side.");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     /* Check tiles sizes */
     if ( (B->mb != C->mb) || (B->nb != C->nb) ) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "B and C must have the same tile sizes");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "B and C must have the same tile sizes");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     if ( (A->mb != A->nb) ||
          ( (side == ChamLeft)  && (A->mb != B->mb ) ) ||
          ( (side == ChamRight) && (A->mb != B->nb ) ) ) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "Matrix A must be square with square tiles wich fits the reagding tile size of B and C");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "Matrix A must be square with square tiles wich fits the reagding tile size of B and C");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     /* Check submatrix starting point */
     /* if ( (B->i != C->i) || (B->j != C->j) ) { */
-    /*     morse_error("CHAMELEON_zhemm_Tile_Async", "B and C submatrices doesn't match"); */
-    /*     return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
+    /*     chameleon_error("CHAMELEON_zhemm_Tile_Async", "B and C submatrices doesn't match"); */
+    /*     return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
     /* } */
     /* if ( (A->i != A->j) ||  */
     /*          ( (side == ChamLeft)  && (A->i != B->i ) ) ||  */
     /*          ( (side == ChamRight) && (A->i != B->j ) ) ) { */
-    /*     morse_error("CHAMELEON_zhemm_Tile_Async", "Submatrix A must start on diagnonal and match submatrices B and C."); */
-    /*     return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
+    /*     chameleon_error("CHAMELEON_zhemm_Tile_Async", "Submatrix A must start on diagnonal and match submatrices B and C."); */
+    /*     return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
     /* } */
     if( (A->i != 0) || (A->j != 0) ||
         (B->i != 0) || (B->j != 0) ||
         (C->i != 0) || (C->j != 0) ) {
-        morse_error("CHAMELEON_zhemm_Tile_Async", "Submatrices are not supported for now");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zhemm_Tile_Async", "Submatrices are not supported for now");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 
     /* Quick return */
@@ -416,7 +416,7 @@ int CHAMELEON_zhemm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
         return CHAMELEON_SUCCESS;
     }
 
-    morse_pzhemm( side, uplo, alpha, A, B, beta, C, sequence, request );
+    chameleon_pzhemm( side, uplo, alpha, A, B, beta, C, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

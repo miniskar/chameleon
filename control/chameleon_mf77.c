@@ -1,6 +1,6 @@
 /**
  *
- * @file morse_mf77.c
+ * @file chameleon_mf77.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

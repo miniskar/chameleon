@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(LINK_CHAMELEON Fortran C CXX)
 
-# Add extra cmake module path and initialize morse cmake modules
+# Add extra cmake module path and initialize chameleon cmake modules
 # --------------------------------------------------------------
 set( CHAMELEON_DISTRIB_DIR "" CACHE PATH "Directory of CHAMELEON distribution")
 option( CHAMELEON_CHAMELEON_USE_QUARK "CHAMELEON to be linked with QUARK runtime" OFF)

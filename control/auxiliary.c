@@ -46,14 +46,14 @@
  *          Warning message to display.
  *
  */
-void morse_warning(const char *func_name, const char *msg_text)
+void chameleon_warning(const char *func_name, const char *msg_text)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL)
-        morse_fatal_error("morse_warning", "CHAMELEON not initialized");
-    if (morse->warnings_enabled)
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL)
+        chameleon_fatal_error("chameleon_warning", "CHAMELEON not initialized");
+    if (chamctxt->warnings_enabled)
         fprintf(stderr, "CHAMELEON WARNING: %s(): %s\n", func_name, msg_text);
 }
 
@@ -71,7 +71,7 @@ void morse_warning(const char *func_name, const char *msg_text)
  *          Warning message to display.
  *
  */
-void morse_error(const char *func_name, const char *msg_text)
+void chameleon_error(const char *func_name, const char *msg_text)
 {
     fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", func_name, msg_text);
 }
@@ -89,7 +89,7 @@ void morse_error(const char *func_name, const char *msg_text)
  *          Warning message to display.
  *
  */
-void morse_fatal_error(const char *func_name, const char *msg_text)
+void chameleon_fatal_error(const char *func_name, const char *msg_text)
 {
     fprintf(stderr, "CHAMELEON FATAL ERROR: %s(): %s\n", func_name, msg_text);
     exit(0);
@@ -98,20 +98,20 @@ void morse_fatal_error(const char *func_name, const char *msg_text)
 /**
  *  Returns core id
  */
-int morse_rank(CHAM_context_t *morse)
+int chameleon_rank(CHAM_context_t *chamctxt)
 {
-    return RUNTIME_thread_rank( morse );
+    return RUNTIME_thread_rank( chamctxt );
 }
 
 /**
  *  Tune block size nb and internal block size ib
  */
-int morse_tune(cham_tasktype_t func, int M, int N, int NRHS)
+int chameleon_tune(cham_tasktype_t func, int M, int N, int NRHS)
 {
-    CHAM_context_t *morse;
-    morse = morse_context_self();
-    if ( morse && morse->autotuning_enabled == CHAMELEON_TRUE ) {
-        morse_warning( "morse_tune", "Autotunning not available for now" );
+    CHAM_context_t *chamctxt;
+    chamctxt = chameleon_context_self();
+    if ( chamctxt && chamctxt->autotuning_enabled == CHAMELEON_TRUE ) {
+        chameleon_warning( "chameleon_tune", "Autotunning not available for now" );
     }
     (void)func;
     (void)M;
@@ -193,7 +193,7 @@ int CHAMELEON_Element_Size(int type)
         case ChamRealDouble:    return   sizeof(double);
         case ChamComplexFloat:  return 2*sizeof(float);
         case ChamComplexDouble: return 2*sizeof(double);
-        default: morse_fatal_error("CHAMELEON_Element_Size", "undefined type");
+        default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type");
                  return CHAMELEON_ERR_ILLEGAL_VALUE;
 
     }
@@ -216,9 +216,9 @@ int CHAMELEON_Element_Size(int type)
 int CHAMELEON_My_Mpi_Rank(void)
 {
 #if defined(CHAMELEON_USE_MPI)
-    CHAM_context_t *morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     return CHAMELEON_MPI_RANK;

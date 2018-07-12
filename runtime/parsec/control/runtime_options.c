@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "chameleon_parsec.h"
 
-void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
+void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     options->sequence   = sequence;
@@ -36,10 +36,10 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
     return;
 }
 
-void RUNTIME_options_finalize( RUNTIME_option_t *options, CHAM_context_t *morse )
+void RUNTIME_options_finalize( RUNTIME_option_t *options, CHAM_context_t *chamctxt )
 {
     (void)options;
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 

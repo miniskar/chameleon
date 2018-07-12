@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "chameleon_quark.h"
 
-void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
+void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     /* Create the task flag */
@@ -46,7 +46,7 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
     options->ws_host    = NULL;
 
     /* quark in options */
-    qopt->quark = (Quark*)(morse->schedopt);
+    qopt->quark = (Quark*)(chamctxt->schedopt);
     options->schedopt = qopt;
 
     QUARK_Task_Flag_Set((Quark_Task_Flags*)qopt, TASK_SEQUENCE, (intptr_t)(sequence->schedopt));
@@ -54,11 +54,11 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *morse,
     return;
 }
 
-void RUNTIME_options_finalize( RUNTIME_option_t *options, CHAM_context_t *morse )
+void RUNTIME_options_finalize( RUNTIME_option_t *options, CHAM_context_t *chamctxt )
 {
     /* we can free the task_flags without waiting for quark
        because they should have been copied for every task */
-    (void)morse;
+    (void)chamctxt;
     free( options->schedopt );
     return;
 }

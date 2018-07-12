@@ -30,11 +30,11 @@
 /**
  *  Parallel tile triangular solve - dynamic scheduling
  */
-void morse_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
+void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
@@ -46,10 +46,10 @@ void morse_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_d
     CHAMELEON_Complex64_t minvalpha  = (CHAMELEON_Complex64_t)-1.0 / alpha;
     CHAMELEON_Complex64_t lalpha;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLeft / ChamUpper / ChamNoTrans
      */
@@ -365,5 +365,5 @@ void morse_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_d
             }
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

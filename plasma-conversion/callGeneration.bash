@@ -50,9 +50,9 @@ plasma_dir="$PWD/plasma_$plasma_relname"
 licence_dir="$PWD/insert-licence"
 # source of the original chameleon
 # ex in this plasma_conversion directory: svn checkout https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon
-morse_dir="$PWD/.."
+chameleon_dir="$PWD/.."
 # source of the converted chameleon
-morse_tmp="$PWD/chameleon"
+chameleon_tmp="$PWD/chameleon"
 
 if [[ ! -e $plasma_dir ]]; then
     echo "plasma_dir is set to $plasma_dir which does not exist, please set the variable plasma_dir in the script $0"
@@ -62,19 +62,19 @@ if [[ ! -e $licence_dir ]]; then
     echo "licence_dir is set to $licence_dir which does not exist, please set the variable licence_dir in the script $0"
     exit $?
 fi
-if [[ ! -e $morse_dir ]]; then
-    echo "morse_dir is set to $morse_dir which does not exist, try to download it"
+if [[ ! -e $chameleon_dir ]]; then
+    echo "chameleon_dir is set to $chameleon_dir which does not exist, try to download it"
     svn export svn+ssh://fpruvost@scm.gforge.inria.fr/svnroot/morse/trunk/chameleon
-    if [[ ! -e $morse_dir ]]; then
-        echo "morse_dir is set to $morse_dir which does not exist, please set the variable morse_dir in the script $0 and check that this path exists"
+    if [[ ! -e $chameleon_dir ]]; then
+        echo "chameleon_dir is set to $chameleon_dir which does not exist, please set the variable chameleon_dir in the script $0 and check that this path exists"
         exit $?
     fi
 fi
-if [[ ! -e $morse_tmp ]]; then
-    echo "morse_tmp is set to $morse_tmp which does not exist, lets create it"
-    mkdir $morse_tmp
-    if [[ ! -e $morse_tmp ]]; then
-        echo "morse_tmp is set to $morse_tmp which does not exist, please set the variable morse_tmp in the script $0"
+if [[ ! -e $chameleon_tmp ]]; then
+    echo "chameleon_tmp is set to $chameleon_tmp which does not exist, lets create it"
+    mkdir $chameleon_tmp
+    if [[ ! -e $chameleon_tmp ]]; then
+        echo "chameleon_tmp is set to $chameleon_tmp which does not exist, please set the variable chameleon_tmp in the script $0"
         exit $?
     fi
 fi
@@ -441,14 +441,14 @@ timing/time_zgesv_incpiv_tile.c
 
 # Génération des sources
 # ----------------------
-python ${plasma_conv_dir}/generate_morseSrc.py -o ${morse_tmp} -p ${plasma_dir} -f "${list_file}" --force
+python ${plasma_conv_dir}/generate_morseSrc.py -o ${chameleon_tmp} -p ${plasma_dir} -f "${list_file}" --force
 
 # Copie de la licence en entête des fichiers générés
 current_dir=$PWD
-cd ${morse_tmp}
+cd ${chameleon_tmp}
 ${licence_dir}/insert-licence-chameleon.sh
 cd ${current_dir}
 
 # Recopie de magma_morse
 # ----------------------
-python ${plasma_conv_dir}/generate_morseSrc.py -o ${morse_dir} -m ${morse_tmp} --force
+python ${plasma_conv_dir}/generate_morseSrc.py -o ${chameleon_dir} -m ${chameleon_tmp} --force

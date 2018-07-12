@@ -23,12 +23,12 @@
 
 void RUNTIME_zdisplay_allprofile()
 {
-    morse_warning("RUNTIME_zdisplay_allprofile(quark)", "Profiling is not available with Quark");
+    chameleon_warning("RUNTIME_zdisplay_allprofile(quark)", "Profiling is not available with Quark");
 }
 
 void RUNTIME_zdisplay_oneprofile( cham_tasktype_t kernel )
 {
     (void)kernel;
-    morse_warning("RUNTIME_zdisplay_oneprofile(quark)", "Profiling is not available with Quark\n");
+    chameleon_warning("RUNTIME_zdisplay_oneprofile(quark)", "Profiling is not available with Quark\n");
 }
 

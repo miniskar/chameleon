@@ -1,7 +1,7 @@
 
 program fortran_example
     implicit none
-    include 'morse_fortran.h'
+    include 'chameleon_fortran.h'
     integer, parameter:: dp=kind(0.d0) ! double precision
     integer, parameter :: NCPU=2, NGPU=0
     integer, parameter :: N=500, NRHS=1

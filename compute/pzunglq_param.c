@@ -29,11 +29,11 @@
 /**
  *  Parallel construction of Q using tile V - dynamic scheduling
  */
-void morse_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
+void chameleon_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     CHAM_desc_t *T;
     size_t ws_worker = 0;
@@ -46,10 +46,10 @@ void morse_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_
     int ib;
     int *tiles;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -85,7 +85,7 @@ void morse_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_
     K = chameleon_min(A->mt, A->nt);
 
     for (k = K-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
@@ -171,10 +171,10 @@ void morse_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_
             RUNTIME_data_flush( sequence, T(k, p) );
         }
 
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     free(tiles);
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -38,7 +38,7 @@
       SUBROUTINE CQRT02( M, N, K, A, AF, Q, R, LDA, T, WORK, LWORK,
      $                   RWORK, RESULT )
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- LAPACK test routine (version 3.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..

@@ -2,9 +2,9 @@
 # Copyright (C) 2017 Inria
 # See the file ../users_guide.org for copying conditions.
 ** CHAMELEON project
-   #+NAME: fig:morse_header
+   #+NAME: fig:chameleon_header
    #+ATTR_HTML: :align center
-   [[file:morse_header.png]]
+   [[file:chameleon_header.png]]
 
    Chameleon is a linear algebra software created jointly by several
    research teams as part of the CHAMELEON associate team: [[http://www.icl.utk.edu/][ICL]], [[https://www.inria.fr/en/][Inria]],

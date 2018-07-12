@@ -33,41 +33,41 @@ extern "C" {
 /**
  *  Internal routines
  */
-inline static void* morse_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize);
-inline static void* morse_getaddr_cm    (const CHAM_desc_t *A, int m, int n);
-inline static void* morse_getaddr_ccrb  (const CHAM_desc_t *A, int m, int n);
-inline static void* morse_getaddr_null  (const CHAM_desc_t *A, int m, int n);
-inline static int   morse_getblkldd_cm  (const CHAM_desc_t *A, int m);
-inline static int   morse_getblkldd_ccrb(const CHAM_desc_t *A, int m);
+inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize);
+inline static void* chameleon_getaddr_cm    (const CHAM_desc_t *A, int m, int n);
+inline static void* chameleon_getaddr_ccrb  (const CHAM_desc_t *A, int m, int n);
+inline static void* chameleon_getaddr_null  (const CHAM_desc_t *A, int m, int n);
+inline static int   chameleon_getblkldd_cm  (const CHAM_desc_t *A, int m);
+inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 
 /**
  *  Data distributions
  */
-inline static int   morse_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
-inline static int   morse_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
+inline static int   chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
+inline static int   chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
 
-CHAM_desc_t morse_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                              int lm, int ln, int i, int j, int m, int n, int p, int q);
-CHAM_desc_t morse_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j, int m, int n, int p, int q);
-CHAM_desc_t morse_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
+CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                   int lm, int ln, int i, int j,
                                   int m,  int n,  int p, int q,
                                   void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                   int (*get_blkldd)( const CHAM_desc_t*, int ),
                                   int (*get_rankof)( const CHAM_desc_t*, int, int ));
-CHAM_desc_t* morse_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n);
+CHAM_desc_t* chameleon_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n);
 
-int morse_desc_check    (const CHAM_desc_t *desc);
-int morse_desc_mat_alloc(CHAM_desc_t *desc);
-int morse_desc_mat_free (CHAM_desc_t *desc);
+int chameleon_desc_check    (const CHAM_desc_t *desc);
+int chameleon_desc_mat_alloc(CHAM_desc_t *desc);
+int chameleon_desc_mat_free (CHAM_desc_t *desc);
 
 #define BLKLDD(A, k) A->get_blkldd( A, k )
 
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
  */
-inline static void* morse_getaddr_ccrb(const CHAM_desc_t *A, int m, int n)
+inline static void* chameleon_getaddr_ccrb(const CHAM_desc_t *A, int m, int n)
 {
     size_t mm = m + A->i / A->mb;
     size_t nn = n + A->j / A->nb;
@@ -99,7 +99,7 @@ inline static void* morse_getaddr_ccrb(const CHAM_desc_t *A, int m, int n)
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
  */
-inline static void *morse_getaddr_cm(const CHAM_desc_t *A, int m, int n)
+inline static void *chameleon_getaddr_cm(const CHAM_desc_t *A, int m, int n)
 {
     size_t mm = m + A->i / A->mb;
     size_t nn = n + A->j / A->nb;
@@ -120,7 +120,7 @@ inline static void *morse_getaddr_cm(const CHAM_desc_t *A, int m, int n)
  *  Internal function to return address of block (m,n) with m,n = block indices
  *  This version lets the runtime allocate on-demand.
  */
-inline static void *morse_getaddr_null(const CHAM_desc_t *A, int m, int n)
+inline static void *chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
 {
     (void)A; (void)m; (void)n;
     return NULL;
@@ -129,7 +129,7 @@ inline static void *morse_getaddr_null(const CHAM_desc_t *A, int m, int n)
 /**
  *  Internal function to return address of element A(m,n) with m,n = matrix indices
  */
-inline static void* morse_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize) // Not used anywhere ?!
+inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize) // Not used anywhere ?!
 {
     size_t mm = (m + A->i)/A->mb;
     size_t nn = (n + A->j)/A->nb;
@@ -159,13 +159,13 @@ inline static void* morse_geteltaddr(const CHAM_desc_t *A, int m, int n, int elt
 /**
  *  Internal function to return the leading dimension of element A(m,*) with m,n = block indices
  */
-inline static int morse_getblkldd_ccrb(const CHAM_desc_t *A, int m)
+inline static int chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m)
 {
     int mm = m + A->i / A->mb;
     return ( ((mm+1) == A->lmt) && ((A->lm % A->mb) != 0)) ? A->lm % A->mb : A->mb;
 }
 
-inline static int morse_getblkldd_cm(const CHAM_desc_t *A, int m) {
+inline static int chameleon_getblkldd_cm(const CHAM_desc_t *A, int m) {
     (void)m;
     return A->llm;
 }
@@ -174,7 +174,7 @@ inline static int morse_getblkldd_cm(const CHAM_desc_t *A, int m) {
 /**
  *  Internal function to return MPI rank of element A(m,n) with m,n = block indices
  */
-inline static int morse_getrankof_2d(const CHAM_desc_t *A, int m, int n)
+inline static int chameleon_getrankof_2d(const CHAM_desc_t *A, int m, int n)
 {
     int mm = m + A->i / A->mb;
     int nn = n + A->j / A->nb;
@@ -184,7 +184,7 @@ inline static int morse_getrankof_2d(const CHAM_desc_t *A, int m, int n)
 /**
  *  Internal function to return MPI rank of element DIAG(m,0) with m,n = block indices
  */
-inline static int morse_getrankof_2d_diag(const CHAM_desc_t *A, int m, int n)
+inline static int chameleon_getrankof_2d_diag(const CHAM_desc_t *A, int m, int n)
 {
     int mm = m + A->i / A->mb;
     assert( n == 0 );
@@ -195,7 +195,7 @@ inline static int morse_getrankof_2d_diag(const CHAM_desc_t *A, int m, int n)
 /**
  * Detect if the tile is local or not
  */
-inline static int morse_desc_islocal( const CHAM_desc_t *A, int m, int n )
+inline static int chameleon_desc_islocal( const CHAM_desc_t *A, int m, int n )
 {
 #if defined(CHAMELEON_USE_MPI)
     return (A->myrank == A->get_rankof(A, m, n));
@@ -214,32 +214,32 @@ inline static int morse_desc_islocal( const CHAM_desc_t *A, int m, int n )
  * CHAMELEON_END_ACCESS_DECLARATION
  */
 #define CHAMELEON_BEGIN_ACCESS_DECLARATION { \
-    unsigned __morse_need_submit = 0; \
+    unsigned __chameleon_need_submit = 0; \
     RUNTIME_BEGIN_ACCESS_DECLARATION
 
 #define CHAMELEON_ACCESS_R(A, Am, An) do { \
-    if (morse_desc_islocal(A, Am, An)) __morse_need_submit = 1; \
+    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
     RUNTIME_ACCESS_R(A, Am, An); \
 } while(0)
 
 #define CHAMELEON_ACCESS_W(A, Am, An) do { \
-    if (morse_desc_islocal(A, Am, An)) __morse_need_submit = 1; \
+    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
     RUNTIME_ACCESS_W(A, Am, An); \
 } while(0)
 
 #define CHAMELEON_ACCESS_RW(A, Am, An) do { \
-    if (morse_desc_islocal(A, Am, An)) __morse_need_submit = 1; \
+    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
     RUNTIME_ACCESS_RW(A, Am, An); \
 } while(0)
 
 #define CHAMELEON_RANK_CHANGED(rank) do {\
-    __morse_need_submit = 1; \
+    __chameleon_need_submit = 1; \
     RUNTIME_RANK_CHANGED(rank); \
 } while (0)
 
 #define CHAMELEON_END_ACCESS_DECLARATION \
     RUNTIME_END_ACCESS_DECLARATION; \
-    if (!__morse_need_submit) return; \
+    if (!__chameleon_need_submit) return; \
 }
 
 #ifdef __cplusplus

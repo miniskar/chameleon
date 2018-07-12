@@ -86,7 +86,7 @@ int CUDA_zgeadd(cham_trans_t trans,
                 CUBLAS_STREAM_PARAM)
 {
     cublasZgeam(CUBLAS_HANDLE
-                morse_cublas_const(trans), morse_cublas_const(ChamNoTrans),
+                chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
                 m, n,
                 CUBLAS_VALUE(alpha), A, lda,
                 CUBLAS_VALUE(beta),  B, ldb,

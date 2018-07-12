@@ -37,10 +37,10 @@
 
 static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
                              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB);
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB);
 static int check_ge_solution(cham_trans_t trans, int M, int N,
                              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB);
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB);
 
 int testing_zgeadd(int argc, char **argv)
 {
@@ -185,10 +185,10 @@ int testing_zgeadd(int argc, char **argv)
 
 static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
                              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB)
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB)
 {
     int info_solution;
-    double Anorm, Binitnorm, Bmorsenorm, Rnorm, result;
+    double Anorm, Binitnorm, Bchamnorm, Rnorm, result;
     double eps;
     CHAMELEON_Complex64_t mzone;
 
@@ -215,29 +215,29 @@ static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
     /*                                 Am, An, A, LDA, work); */
     /* } */
 
-    /* Binitnorm  = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', morse_lapack_const(uplo[u]), 'N', */
+    /* Binitnorm  = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo[u]), 'N', */
     /*                                  M, N, Bref,   LDB, work); */
-    /* Bmorsenorm = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', morse_lapack_const(uplo[u]), 'N', */
-    /*                                  M, N, Bmorse, LDB, work); */
+    /* Bchamnorm = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo[u]), 'N', */
+    /*                                  M, N, Bcham, LDB, work); */
 
     Anorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
                                 Am, An, A, LDA, work);
     Binitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
                                       M, N, Bref,    LDB, work);
-    Bmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                      M, N, Bmorse, LDB, work);
+    Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
+                                      M, N, Bcham, LDB, work);
 
     CORE_ztradd(uplo, trans, M, N,
                 alpha, A,    LDA,
                 beta,  Bref, LDB);
-    cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bmorse, 1, Bref, 1);
+    cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, work);
 
     eps = LAPACKE_dlamch_work('e');
 
     printf("Rnorm %e, Anorm %e, Bnorm %e, (alpha A + beta B) norm %e\n",
-           Rnorm, Anorm, Binitnorm, Bmorsenorm);
+           Rnorm, Anorm, Binitnorm, Bchamnorm);
 
     result = Rnorm / (max(Anorm, Binitnorm) * eps);
     printf("============\n");
@@ -265,10 +265,10 @@ static int check_tr_solution(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
 
 static int check_ge_solution(cham_trans_t trans, int M, int N,
                              CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB)
+                             CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB)
 {
     int info_solution;
-    double Anorm, Binitnorm, Bmorsenorm, Rnorm, result;
+    double Anorm, Binitnorm, Bchamnorm, Rnorm, result;
     double eps;
     CHAMELEON_Complex64_t mzone;
 
@@ -287,20 +287,20 @@ static int check_ge_solution(cham_trans_t trans, int M, int N,
                                      Am, An, A,      LDA, work);
     Binitnorm  = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
                                      M,  N,  Bref,   LDB, work);
-    Bmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                     M,  N,  Bmorse, LDB, work);
+    Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
+                                     M,  N,  Bcham, LDB, work);
 
     CORE_zgeadd(trans, M, N,
                 alpha, A,    LDA,
                 beta,  Bref, LDB);
-    cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bmorse, 1, Bref, 1);
+    cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, work);
 
     eps = LAPACKE_dlamch_work('e');
 
     printf("Rnorm %e, Anorm %e, Bnorm %e, (alpha A + beta B) norm %e\n",
-           Rnorm, Anorm, Binitnorm, Bmorsenorm);
+           Rnorm, Anorm, Binitnorm, Bchamnorm);
 
     result = Rnorm / (max(Anorm, Binitnorm) * eps);
     printf("============\n");

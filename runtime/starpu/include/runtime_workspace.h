@@ -27,14 +27,14 @@
 #define CHAMELEON_HOST_MEM    0
 #define CHAMELEON_WORKER_MEM  1
 
-struct morse_starpu_ws_s {
+struct chameleon_starpu_ws_s {
     size_t size;
     int    memory_location;
     int    which_workers;
     void  *workspaces[STARPU_NMAXWORKERS];
 };
 
-typedef struct morse_starpu_ws_s CHAMELEON_starpu_ws_t;
+typedef struct chameleon_starpu_ws_s CHAMELEON_starpu_ws_t;
 
 /*
  * This function creates a workspace on each type of worker in "which_workers"

@@ -55,7 +55,7 @@ void INSERT_TASK_ztile_zero( const RUNTIME_option_t *options,
         sizeof(int),       &X2,                       VALUE,
         sizeof(int),       &Y1,                       VALUE,
         sizeof(int),       &Y2,                       VALUE,
-        PASSED_BY_REF,     RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
+        PASSED_BY_REF,     RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
         sizeof(int),       &lda,                      VALUE,
         PARSEC_DTD_ARG_END );
 }

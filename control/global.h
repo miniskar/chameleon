@@ -26,7 +26,7 @@
 #define _CHAMELEON_GLOBAL_H_
 
 #if defined( _WIN32 ) || defined( _WIN64 )
-#include "control/morsewinthread.h"
+#include "control/chameleonwinthread.h"
 #else
 #include <pthread.h>
 #endif

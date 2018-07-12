@@ -38,11 +38,11 @@
 /**
  *  Parallel application of Q using tile V - LQ factorization - dynamic scheduling
  */
-void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
+void chameleon_pzunmlq(cham_side_t side, cham_trans_t trans,
                    CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D,
                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
@@ -52,10 +52,10 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
     int tempmm, tempnn, tempkn, tempkm, tempkmin;
     int ib, minMT, minM;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -97,7 +97,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
              *  ChamLeft / ChamNoTrans
              */
             for (k = 0; k < minMT; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
@@ -161,7 +161,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
                                           B->get_rankof( B, k, n ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
@@ -169,7 +169,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
          */
         else {
             for (k = minMT-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
@@ -228,7 +228,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
                 }
                 RUNTIME_data_flush( sequence, D(k)    );
                 RUNTIME_data_flush( sequence, T(k, k) );
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
@@ -238,7 +238,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
     else {
         if (trans == ChamNoTrans) {
             for (k = minMT-1; k >= 0; k--) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn   = k == B->nt - 1 ? B->n - k * B->nb : B->nb;
                 tempkmin = k == minMT - 1 ? minM - k * A->nb : A->nb;
@@ -299,7 +299,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
                 RUNTIME_data_flush( sequence, D(k)    );
                 RUNTIME_data_flush( sequence, T(k, k) );
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
         /*
@@ -307,7 +307,7 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
          */
         else {
             for (k = 0; k < minMT; k++) {
-                RUNTIME_iteration_push(morse, k);
+                RUNTIME_iteration_push(chamctxt, k);
 
                 tempkn   = k == B->nt-1 ? B->n-k*B->nb : B->nb;
                 tempkmin = k == minMT-1 ? minM-k*A->mb : A->mb;
@@ -371,11 +371,11 @@ void morse_pzunmlq(cham_side_t side, cham_trans_t trans,
                                           B->get_rankof( B, m, k ) );
                 }
 
-                RUNTIME_iteration_pop(morse);
+                RUNTIME_iteration_pop(chamctxt);
             }
         }
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -38,7 +38,7 @@
 static int check_solution(cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
                           CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
                           CHAMELEON_Complex64_t *B, int LDB,
-                          CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC);
+                          CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC);
 
 int testing_zgemm(int argc, char **argv)
 {
@@ -160,10 +160,10 @@ int testing_zgemm(int argc, char **argv)
 static int check_solution(cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
                           CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
                           CHAMELEON_Complex64_t *B, int LDB,
-                          CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC)
+                          CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC)
 {
     int info_solution;
-    double Anorm, Bnorm, Cinitnorm, Cmorsenorm, Clapacknorm, Rnorm, result;
+    double Anorm, Bnorm, Cinitnorm, Cchamnorm, Clapacknorm, Rnorm, result;
     double eps;
     CHAMELEON_Complex64_t beta_const;
 
@@ -186,27 +186,27 @@ static int check_solution(cham_trans_t transA, cham_trans_t transB, int M, int N
     Anorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', Am, An, A,       LDA, work);
     Bnorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', Bm, Bn, B,       LDB, work);
     Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M,  N,  Cref,    LDC, work);
-    Cmorsenorm  = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M,  N,  Cmorse, LDC, work);
+    Cchamnorm  = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M,  N,  Ccham, LDC, work);
 
     cblas_zgemm(CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K, 
                 CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC);
 
     Clapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref, LDC, work);
 
-    cblas_zaxpy(LDC * N, CBLAS_SADDR(beta_const), Cmorse, 1, Cref, 1);
+    cblas_zaxpy(LDC * N, CBLAS_SADDR(beta_const), Ccham, 1, Cref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref, LDC, work);
 
     eps = LAPACKE_dlamch_work('e');
     if (CHAMELEON_My_Mpi_Rank() == 0)
-        printf("Rnorm %e, Anorm %e, Bnorm %e, Cinitnorm %e, Cmorsenorm %e, Clapacknorm %e\n",
-               Rnorm, Anorm, Bnorm, Cinitnorm, Cmorsenorm, Clapacknorm);
+        printf("Rnorm %e, Anorm %e, Bnorm %e, Cinitnorm %e, Cchamnorm %e, Clapacknorm %e\n",
+               Rnorm, Anorm, Bnorm, Cinitnorm, Cchamnorm, Clapacknorm);
 
     result = Rnorm / ((Anorm + Bnorm + Cinitnorm) * N * eps);
     if (CHAMELEON_My_Mpi_Rank() == 0){
         printf("============\n");
         printf("Checking the norm of the difference against reference ZGEMM \n");
-        printf("-- ||Cmorse - Clapack||_oo/((||A||_oo+||B||_oo+||C||_oo).N.eps) = %e \n",
+        printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||B||_oo+||C||_oo).N.eps) = %e \n",
                result);
     }
 

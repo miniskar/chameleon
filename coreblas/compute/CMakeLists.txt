@@ -25,7 +25,7 @@
 #
 ###
 
-# Generate the morse sources for all possible precisions
+# Generate the chameleon sources for all possible precisions
 # ------------------------------------------------------
 
 set(COREBLAS_SRCS_GENERATED "")

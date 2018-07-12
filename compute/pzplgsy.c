@@ -28,23 +28,23 @@
 
 #define A(m,n) A,  m,  n
 /**
- *  morse_pzplgsy - Generate a random symmetric (positive definite if 'bump' is large enough) half-matrix by tiles.
+ *  chameleon_pzplgsy - Generate a random symmetric (positive definite if 'bump' is large enough) half-matrix by tiles.
  */
-void morse_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A,
+void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A,
                     unsigned long long int seed,
                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int m, n;
     int ldam;
     int tempmm, tempnn;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (m = 0; m < A->mt; m++) {
         tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
@@ -92,5 +92,5 @@ void morse_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A
             }
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

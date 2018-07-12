@@ -97,7 +97,7 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
 
         // W = C^H V
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(ChamConjTrans), morse_cublas_const(notransV),
+                     chameleon_cublas_const(ChamConjTrans), chameleon_cublas_const(notransV),
                      N, K, M,
                      CUBLAS_SADDR(zone),  C, LDC,
                                           V, LDV,
@@ -112,7 +112,7 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
 
         // C = C - V W^H = C - V T V^H C = (I - V T V^H) C = H C
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(notransV), morse_cublas_const(ChamConjTrans),
+                     chameleon_cublas_const(notransV), chameleon_cublas_const(ChamConjTrans),
                      M, N, K,
                      CUBLAS_SADDR(mzone), V,    LDV,
                                           WORK, LDWORK,
@@ -124,7 +124,7 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
 
         // W = C V
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(ChamNoTrans), morse_cublas_const(notransV),
+                     chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(notransV),
                      M, K, N,
                      CUBLAS_SADDR(zone),  C, LDC,
                                           V, LDV,
@@ -139,7 +139,7 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
 
         // C = C - W V^H = C - C V T V^H = C (I - V T V^H) = C H
         cublasZgemm( CUBLAS_HANDLE
-                     morse_cublas_const(ChamNoTrans), morse_cublas_const(transV),
+                     chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transV),
                      M, N, K,
                      CUBLAS_SADDR(mzone), WORK, LDWORK,
                                           V,    LDV,

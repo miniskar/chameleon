@@ -58,43 +58,43 @@
  */
 int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request;
     CHAM_desc_t *B;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zLapack_to_Tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zLapack_to_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check descriptor for correctness */
-    if (morse_desc_check( A ) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zLapack_to_Tile", "invalid descriptor");
+    if (chameleon_desc_check( A ) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zLapack_to_Tile", "invalid descriptor");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
     /* Create the B descriptor to handle the Lapack format matrix */
     CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                             LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                            morse_getaddr_cm, morse_getblkldd_cm, NULL );
+                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
     /* Start the computation */
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
-    morse_pzlacpy( ChamUpperLower, B, A, sequence, &request );
+    chameleon_pzlacpy( ChamUpperLower, B, A, sequence, &request );
 
     CHAMELEON_Desc_Flush( B, sequence );
     CHAMELEON_Desc_Flush( A, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Destroy temporary B descriptor */
     CHAMELEON_Desc_Destroy( &B );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -135,41 +135,41 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
  */
 int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request;
     CHAM_desc_t *B;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zTile_to_Lapack", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zTile_to_Lapack", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check descriptor for correctness */
-    if (morse_desc_check( A ) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zTile_to_Lapack", "invalid descriptor");
+    if (chameleon_desc_check( A ) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zTile_to_Lapack", "invalid descriptor");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
     /* Create the B descriptor to handle the Lapack format matrix */
     CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                             LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                            morse_getaddr_cm, morse_getblkldd_cm, NULL );
+                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
     /* Start the computation */
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
-    morse_pzlacpy( ChamUpperLower, A, B, sequence, &request );
+    chameleon_pzlacpy( ChamUpperLower, A, B, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     CHAMELEON_Desc_Destroy( &B );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }

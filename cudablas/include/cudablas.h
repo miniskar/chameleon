@@ -89,15 +89,15 @@ END_C_DECLS
  */
 BEGIN_C_DECLS
 
-extern char *morse_lapack_constants[];
-#define morse_lapack_const(morse_const) morse_lapack_constants[morse_const][0]
+extern char *chameleon_lapack_constants[];
+#define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
-extern int morse_cublas_constants[];
+extern int chameleon_cublas_constants[];
 
 #if defined(CHAMELEON_USE_CUBLAS_V2)
-#define morse_cublas_const(morse_const) morse_cublas_constants[morse_const]
+#define chameleon_cublas_const(chameleon_const) chameleon_cublas_constants[chameleon_const]
 #else
-#define morse_cublas_const(morse_const) morse_lapack_constants[morse_const][0]
+#define chameleon_cublas_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 #endif
 
 END_C_DECLS

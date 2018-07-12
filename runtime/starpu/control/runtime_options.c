@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include "chameleon_starpu.h"
 
-void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *morse,
+void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *chamctxt,
                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     option->sequence   = sequence;
@@ -37,10 +37,10 @@ void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *morse,
     return;
 }
 
-void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *morse )
+void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *chamctxt )
 {
     (void)option;
-    (void)morse;
+    (void)chamctxt;
     return;
 }
 

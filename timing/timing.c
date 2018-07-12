@@ -64,7 +64,7 @@
 #endif /* defined(CHAMELEON_HAVE_GETOPT_H) */
 
 static int RunTest(int *iparam, _PREC *dparam, double *t_);
-static inline void* morse_getaddr_null(const CHAM_desc_t *A, int m, int n)
+static inline void* chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
 {
     (void)A;(void)m;(void)n;
     return (void*)( NULL );

@@ -31,9 +31,9 @@
 extern "C" {
 #endif
 
-CHAM_context_t* morse_context_create  ();
-CHAM_context_t* morse_context_self    ();
-int              morse_context_destroy ();
+CHAM_context_t* chameleon_context_create  ();
+CHAM_context_t* chameleon_context_self    ();
+int              chameleon_context_destroy ();
 
 #ifdef __cplusplus
 }

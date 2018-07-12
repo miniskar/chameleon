@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* Question morse to get the block (tile) size (number of columns) */
+    /* Question chameleon to get the block (tile) size (number of columns) */
     CHAMELEON_Get( CHAMELEON_TILE_SIZE, &NB );
 
     /* allocate tile data */
@@ -110,8 +110,8 @@ int main(int argc, char *argv[]) {
      * in your matrix. The only thing important is to have well defined
      * functions get_blkaddr, get_blkldd, get_rankof corresponding to your data.
      * Note that this call of CHAMELEON_Desc_Create_User routine with
-     * morse_getaddr_ccrb, morse_getblkldd_ccrband morse_getrankof_2d functions
-     * is equivalent to a call to CHAMELEON_Desc_Create (morse_get... are the
+     * chameleon_getaddr_ccrb, chameleon_getblkldd_ccrband chameleon_getrankof_2d functions
+     * is equivalent to a call to CHAMELEON_Desc_Create (chameleon_get... are the
      * functions used inside CHAMELEON_Desc_Create).
      */
     CHAMELEON_Desc_Create(&descB, NULL, ChamRealDouble,

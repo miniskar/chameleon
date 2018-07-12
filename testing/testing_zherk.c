@@ -34,7 +34,7 @@
 
 static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
                           double alpha, CHAMELEON_Complex64_t *A, int LDA,
-                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC);
+                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC);
 
 
 int testing_zherk(int argc, char **argv)
@@ -139,10 +139,10 @@ int testing_zherk(int argc, char **argv)
 
 static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
                           double alpha, CHAMELEON_Complex64_t *A, int LDA,
-                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Cmorse, int LDC)
+                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC)
 {
     int info_solution;
-    double Anorm, Cinitnorm, Cmorsenorm, Clapacknorm, Rnorm;
+    double Anorm, Cinitnorm, Cchamnorm, Clapacknorm, Rnorm;
     double eps;
     CHAMELEON_Complex64_t beta_const;
     double result;
@@ -153,29 +153,29 @@ static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
                                 (trans == ChamNoTrans) ? N : K,
                                 (trans == ChamNoTrans) ? K : N, A, LDA, work);
     Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref,    LDC, work);
-    Cmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cmorse, LDC, work);
+    Cchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Ccham, LDC, work);
 
     cblas_zherk(CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
                 N, K, (alpha), A, LDA, (beta), Cref, LDC);
 
     Clapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref, LDC, work);
 
-    cblas_zaxpy(LDC*N, CBLAS_SADDR(beta_const), Cmorse, 1, Cref, 1);
+    cblas_zaxpy(LDC*N, CBLAS_SADDR(beta_const), Ccham, 1, Cref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref, LDC, work);
 
     eps = LAPACKE_dlamch_work('e');
 
-    printf("Rnorm %e, Anorm %e, Cinitnorm %e, Cmorsenorm %e, Clapacknorm %e\n",
-           Rnorm, Anorm, Cinitnorm, Cmorsenorm, Clapacknorm);
+    printf("Rnorm %e, Anorm %e, Cinitnorm %e, Cchamnorm %e, Clapacknorm %e\n",
+           Rnorm, Anorm, Cinitnorm, Cchamnorm, Clapacknorm);
 
     result = Rnorm / ((Anorm + Cinitnorm) * N * eps);
 
     printf("============\n");
     printf("Checking the norm of the difference against reference ZHERK \n");
-    printf("-- ||Cmorse - Clapack||_oo/((||A||_oo+||C||_oo).N.eps) = %e \n", result);
+    printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||C||_oo).N.eps) = %e \n", result);
 
-    if ( isinf(Clapacknorm) || isinf(Cmorsenorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+    if ( isinf(Clapacknorm) || isinf(Cchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
         printf("-- The solution is suspicious ! \n");
         info_solution = 1;
     }

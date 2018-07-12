@@ -29,10 +29,10 @@
 /**
  *  Parallel tile Cholesky factorization - dynamic scheduling
  */
-void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *C,
+void chameleon_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *C,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
@@ -47,10 +47,10 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
     CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     /*
      *  ChamLower
@@ -60,7 +60,7 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
          *  ZPOTRF
          */
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
@@ -106,13 +106,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 RUNTIME_data_flush( sequence, A(n, k) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZTRTRI
          */
         for (k = 0; k < A->nt; k++) {
-            RUNTIME_iteration_push(morse, A->nt + k);
+            RUNTIME_iteration_push(chamctxt, A->nt + k);
 
             tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
             ldak = BLKLDD(A, k);
@@ -156,13 +156,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 tempkn, A->mb,
                 A(k, k), ldak, A->nb*k);
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZLAUUM
          */
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, 2*A->nt + k);
+            RUNTIME_iteration_push(chamctxt, 2*A->nt + k);
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
@@ -201,13 +201,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 uplo, tempkm, A->mb,
                 A(k, k), ldak);
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZSYMM Right / Lower
          */
         for (k = 0; k < C->nt; k++) {
-            RUNTIME_iteration_push(morse, 3*A->nt + k);
+            RUNTIME_iteration_push(chamctxt, 3*A->nt + k);
 
             tempkn = k == C->nt-1 ? C->n-k*C->nb : C->nb;
             ldak = BLKLDD(A, k);
@@ -258,7 +258,7 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 RUNTIME_data_flush( sequence, A(k, n) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
     /*
@@ -269,7 +269,7 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
          *  ZPOTRF
          */
         for (k = 0; k < A->nt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->nt-1 ? A->n-k*A->nb : A->nb;
             ldak = BLKLDD(A, k);
@@ -315,13 +315,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 RUNTIME_data_flush( sequence, A(k, m) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZTRTRI
          */
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, A->nt + k);
+            RUNTIME_iteration_push(chamctxt, A->nt + k);
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
@@ -365,13 +365,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 tempkm, A->mb,
                 A(k, k), ldak, A->mb*k);
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZLAUUM
          */
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, 2*A->nt + k);
+            RUNTIME_iteration_push(chamctxt, 2*A->nt + k);
 
             tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
             ldak = BLKLDD(A, k);
@@ -412,13 +412,13 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 uplo, tempkn, A->mb,
                 A(k, k), ldak);
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
         /*
          *  ZSYMM Right / Upper
          */
         for (k = 0; k < C->nt; k++) {
-            RUNTIME_iteration_push(morse, 3*A->nt + k);
+            RUNTIME_iteration_push(chamctxt, 3*A->nt + k);
 
             tempkn = k == C->nt-1 ? C->n-k*C->nb : C->nb;
             ldak = BLKLDD(A, k);
@@ -469,9 +469,9 @@ void morse_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc
                 RUNTIME_data_flush( sequence, A(m, k) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
 
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

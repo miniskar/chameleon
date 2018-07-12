@@ -36,11 +36,11 @@
 /**
  *  Parallel tile BAND Tridiagonal Reduction - dynamic scheduler
  */
-void morse_pzhetrd_he2hb(cham_uplo_t uplo,
+void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                          CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *E,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     CHAM_desc_t *D  = NULL;
     CHAM_desc_t *AT = NULL;
@@ -52,11 +52,11 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
     int tempkm, tempkn, tempmm, tempnn, tempjj;
     int ib;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
 
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
     ib = CHAMELEON_IB;
 
     /*
@@ -87,13 +87,13 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
 
     /* Copy of the diagonal tiles to keep the general version of the tile all along the computation */
     D = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    morse_zdesc_alloc_diag(*D, A->mb, A->nb, chameleon_min(A->m, A->n) - A->mb, A->nb, 0, 0, chameleon_min(A->m, A->n) - A->mb, A->nb, A->p, A->q);
+    chameleon_zdesc_alloc_diag(*D, A->mb, A->nb, chameleon_min(A->m, A->n) - A->mb, A->nb, 0, 0, chameleon_min(A->m, A->n) - A->mb, A->nb, A->p, A->q);
 
     AT = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    *AT = morse_desc_init(
+    *AT = chameleon_desc_init(
         ChamComplexDouble, A->mb, A->nb, (A->mb*A->nb),
         chameleon_min(A->mt, A->nt) * A->mb, A->nb, 0, 0, chameleon_min(A->mt, A->nt) * A->mb, A->nb, 1, 1);
-    morse_desc_mat_alloc( AT );
+    chameleon_desc_mat_alloc( AT );
     RUNTIME_desc_create( AT );
 
     /* Let's extract the diagonal in a temporary copy that contains A and A' */
@@ -110,7 +110,7 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
 
     if (uplo == ChamLower) {
        for (k = 0; k < A->nt-1; k++){
-           RUNTIME_iteration_push(morse, k);
+           RUNTIME_iteration_push(chamctxt, k);
 
            tempkm = k+1 == A->mt-1 ? A->m-(k+1)*A->mb : A->mb;
            tempkn = k   == A->nt-1 ? A->n- k   *A->nb : A->nb;
@@ -262,12 +262,12 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
                options.priority = 0;
            }
 
-           RUNTIME_iteration_pop(morse);
+           RUNTIME_iteration_pop(chamctxt);
        }
     }
     else {
        for (k = 0; k < A->nt-1; k++){
-           RUNTIME_iteration_push(morse, k);
+           RUNTIME_iteration_push(chamctxt, k);
 
            tempkn = k+1 == A->nt-1 ? A->n-(k+1)*A->nb : A->nb;
            tempkm = k   == A->mt-1 ? A->m- k   *A->mb : A->mb;
@@ -416,7 +416,7 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
            }
            options.priority = 0;
 
-           RUNTIME_iteration_pop(morse);
+           RUNTIME_iteration_pop(chamctxt);
        }
     }
 
@@ -433,13 +433,13 @@ void morse_pzhetrd_he2hb(cham_uplo_t uplo,
 
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 
     CHAMELEON_Sequence_Wait(sequence);
-    morse_desc_mat_free(D);
+    chameleon_desc_mat_free(D);
     free(D);
 
-    morse_desc_mat_free(AT);
+    chameleon_desc_mat_free(AT);
     free(AT);
 
     (void)E;

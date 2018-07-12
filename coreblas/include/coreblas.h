@@ -77,8 +77,8 @@ END_C_DECLS
  */
 BEGIN_C_DECLS
 
-extern char *morse_lapack_constants[];
-#define morse_lapack_const(morse_const) morse_lapack_constants[morse_const][0]
+extern char *chameleon_lapack_constants[];
+#define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
 void set_coreblas_gemm3m_enabled( int v );
 int  get_coreblas_gemm3m_enabled( void );

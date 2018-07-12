@@ -29,12 +29,12 @@
 /**
  *  Parallel tile symmetric matrix-matrix multiplication - dynamic scheduling
  */
-void morse_pzsymm(cham_side_t side, cham_uplo_t uplo,
+void chameleon_pzsymm(cham_side_t side, cham_uplo_t uplo,
                           CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                           CHAMELEON_Complex64_t beta, CHAM_desc_t *C,
                           RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
@@ -44,10 +44,10 @@ void morse_pzsymm(cham_side_t side, cham_uplo_t uplo,
     CHAMELEON_Complex64_t zbeta;
     CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     /*
      *  ChamLeft
@@ -251,5 +251,5 @@ void morse_pzsymm(cham_side_t side, cham_uplo_t uplo,
             }
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

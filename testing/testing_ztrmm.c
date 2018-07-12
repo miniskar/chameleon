@@ -35,7 +35,7 @@
 static int check_solution(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                           int M, int N, CHAMELEON_Complex64_t alpha,
                           CHAMELEON_Complex64_t *A, int LDA,
-                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB);
+                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB);
 
 int testing_ztrmm(int argc, char **argv)
 {
@@ -145,10 +145,10 @@ int testing_ztrmm(int argc, char **argv)
 static int check_solution(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                           int M, int N, CHAMELEON_Complex64_t alpha,
                           CHAMELEON_Complex64_t *A, int LDA,
-                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bmorse, int LDB)
+                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB)
 {
     int info_solution;
-    double Anorm, Binitnorm, Bmorsenorm, Blapacknorm, Rnorm, result;
+    double Anorm, Binitnorm, Bchamnorm, Blapacknorm, Rnorm, result;
     double eps;
     CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
@@ -161,32 +161,32 @@ static int check_solution(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans
         Am = N; An = N;
     }
 
-    Anorm       = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', morse_lapack_const(uplo), morse_lapack_const(diag),
+    Anorm       = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), chameleon_lapack_const(diag),
                                 Am, An, A, LDA, work);
     Binitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref,    LDB, work);
-    Bmorsenorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bmorse, LDB, work);
+    Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bcham, LDB, work);
 
     cblas_ztrmm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
                 (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
 
     Blapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref, LDB, work);
 
-    cblas_zaxpy(LDB * N, CBLAS_SADDR(mzone), Bmorse, 1, Bref, 1);
+    cblas_zaxpy(LDB * N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1);
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref, LDB, work);
 
     eps = LAPACKE_dlamch_work('e');
 
-    printf("Rnorm %e, Anorm %e, Binitnorm %e, Bmorsenorm %e, Blapacknorm %e\n",
-           Rnorm, Anorm, Binitnorm, Bmorsenorm, Blapacknorm);
+    printf("Rnorm %e, Anorm %e, Binitnorm %e, Bchamnorm %e, Blapacknorm %e\n",
+           Rnorm, Anorm, Binitnorm, Bchamnorm, Blapacknorm);
 
     result = Rnorm / ((Anorm + Blapacknorm) * max(M,N) * eps);
 
     printf("============\n");
     printf("Checking the norm of the difference against reference ZTRMM \n");
-    printf("-- ||Cmorse - Clapack||_oo/((||A||_oo+||B||_oo).N.eps) = %e \n", result);
+    printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||B||_oo).N.eps) = %e \n", result);
 
-    if ( isinf(Blapacknorm) || isinf(Bmorsenorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+    if ( isinf(Blapacknorm) || isinf(Bchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
         printf("-- The solution is suspicious ! \n");
         info_solution = 1;
     }

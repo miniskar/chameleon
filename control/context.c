@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #if defined( _WIN32 ) || defined( _WIN64 )
-#include "control/morsewinthread.h"
+#include "control/chamctxtwinthread.h"
 #else
 #include <pthread.h>
 #endif
@@ -44,70 +44,70 @@
  *  Global data
  */
 /* master threads context lookup table */
-static CHAM_context_t *morse_ctxt = NULL;
+static CHAM_context_t *chameleon_ctxt = NULL;
 
 /**
  *  Create new context
  */
-CHAM_context_t *morse_context_create()
+CHAM_context_t *chameleon_context_create()
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    if ( morse_ctxt != NULL ) {
-        morse_error("morse_context_create", "a context is already existing\n");
+    if ( chameleon_ctxt != NULL ) {
+        chameleon_error("chameleon_context_create", "a context is already existing\n");
         return NULL;
     }
 
-    morse = (CHAM_context_t*)malloc(sizeof(CHAM_context_t));
-    if (morse == NULL) {
-        morse_error("morse_context_create", "malloc() failed");
+    chamctxt = (CHAM_context_t*)malloc(sizeof(CHAM_context_t));
+    if (chamctxt == NULL) {
+        chameleon_error("chameleon_context_create", "malloc() failed");
         return NULL;
     }
 
     /* These initializations are just in case the user
        disables autotuning and does not set nb and ib */
-    morse->nb                 = 128;
-    morse->ib                 = 32;
-    morse->rhblock            = 4;
+    chamctxt->nb                 = 128;
+    chamctxt->ib                 = 32;
+    chamctxt->rhblock            = 4;
 
-    morse->nworkers           = 1;
-    morse->ncudas             = 0;
-    morse->nthreads_per_worker= 1;
+    chamctxt->nworkers           = 1;
+    chamctxt->ncudas             = 0;
+    chamctxt->nthreads_per_worker= 1;
 
-    morse->warnings_enabled     = CHAMELEON_TRUE;
-    morse->autotuning_enabled   = CHAMELEON_TRUE;
-    morse->parallel_enabled     = CHAMELEON_FALSE;
-    morse->profiling_enabled    = CHAMELEON_FALSE;
-    morse->progress_enabled     = CHAMELEON_FALSE;
+    chamctxt->warnings_enabled     = CHAMELEON_TRUE;
+    chamctxt->autotuning_enabled   = CHAMELEON_TRUE;
+    chamctxt->parallel_enabled     = CHAMELEON_FALSE;
+    chamctxt->profiling_enabled    = CHAMELEON_FALSE;
+    chamctxt->progress_enabled     = CHAMELEON_FALSE;
 
-    morse->householder        = ChamFlatHouseholder;
-    morse->translation        = ChamOutOfPlace;
+    chamctxt->householder        = ChamFlatHouseholder;
+    chamctxt->translation        = ChamOutOfPlace;
 
 
     /* Initialize scheduler */
-    RUNTIME_context_create(morse);
+    RUNTIME_context_create(chamctxt);
 
-    morse_ctxt = morse;
-    return morse;
+    chameleon_ctxt = chamctxt;
+    return chamctxt;
 }
 
 
 /**
  *  Return context for a thread
  */
-CHAM_context_t *morse_context_self()
+CHAM_context_t *chameleon_context_self()
 {
-    return morse_ctxt;
+    return chameleon_ctxt;
 }
 
 /**
  *  Clean the context
  */
-int morse_context_destroy(){
+int chameleon_context_destroy(){
 
-    RUNTIME_context_destroy(morse_ctxt);
-    free(morse_ctxt);
-    morse_ctxt = NULL;
+    RUNTIME_context_destroy(chameleon_ctxt);
+    free(chameleon_ctxt);
+    chameleon_ctxt = NULL;
 
     return CHAMELEON_SUCCESS;
 }
@@ -136,40 +136,40 @@ int morse_context_destroy(){
  */
 int CHAMELEON_Enable(int option)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Enable", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Enable", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     switch (option)
     {
         case CHAMELEON_WARNINGS:
-            morse->warnings_enabled = CHAMELEON_TRUE;
+            chamctxt->warnings_enabled = CHAMELEON_TRUE;
             break;
         case CHAMELEON_AUTOTUNING:
-            morse->autotuning_enabled = CHAMELEON_TRUE;
+            chamctxt->autotuning_enabled = CHAMELEON_TRUE;
             break;
         case CHAMELEON_PROFILING_MODE:
-            morse->profiling_enabled = CHAMELEON_TRUE;
+            chamctxt->profiling_enabled = CHAMELEON_TRUE;
             break;
         case CHAMELEON_PROGRESS:
-            morse->progress_enabled = CHAMELEON_TRUE;
+            chamctxt->progress_enabled = CHAMELEON_TRUE;
             break;
         case CHAMELEON_GEMM3M:
 #if defined(CBLAS_HAS_ZGEMM3M) && !defined(CHAMELEON_SIMULATION)
             set_coreblas_gemm3m_enabled(1);
 #else
-            morse_error("CHAMELEON_Enable", "cannot enable GEMM3M (not available in cblas)");
+            chameleon_error("CHAMELEON_Enable", "cannot enable GEMM3M (not available in cblas)");
 #endif
             break;
         /* case CHAMELEON_PARALLEL: */
-        /*     morse->parallel_enabled = CHAMELEON_TRUE; */
+        /*     chamctxt->parallel_enabled = CHAMELEON_TRUE; */
         /*     break; */
         default:
-            morse_error("CHAMELEON_Enable", "illegal parameter value");
+            chameleon_error("CHAMELEON_Enable", "illegal parameter value");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
         case CHAMELEON_BOUND:
             break;
@@ -205,26 +205,26 @@ int CHAMELEON_Enable(int option)
  */
 int CHAMELEON_Disable(int option)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Disable", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Disable", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     switch ( option )
     {
         case CHAMELEON_WARNINGS:
-            morse->warnings_enabled = CHAMELEON_FALSE;
+            chamctxt->warnings_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_AUTOTUNING:
-            morse->autotuning_enabled = CHAMELEON_FALSE;
+            chamctxt->autotuning_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_PROFILING_MODE:
-            morse->profiling_enabled = CHAMELEON_FALSE;
+            chamctxt->profiling_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_PROGRESS:
-            morse->progress_enabled = CHAMELEON_FALSE;
+            chamctxt->progress_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_GEMM3M:
 #if defined(CBLAS_HAS_ZGEMM3M) && !defined(CHAMELEON_SIMULATION)
@@ -232,10 +232,10 @@ int CHAMELEON_Disable(int option)
 #endif
             break;
         case CHAMELEON_PARALLEL_MODE:
-            morse->parallel_enabled = CHAMELEON_FALSE;
+            chamctxt->parallel_enabled = CHAMELEON_FALSE;
             break;
         default:
-            morse_error("CHAMELEON_Disable", "illegal parameter value");
+            chameleon_error("CHAMELEON_Disable", "illegal parameter value");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
@@ -269,70 +269,70 @@ int CHAMELEON_Disable(int option)
  */
 int CHAMELEON_Set(int param, int value)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Set", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Set", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     switch (param) {
         case CHAMELEON_TILE_SIZE:
             if (value <= 0) {
-                morse_error("CHAMELEON_Set", "negative tile size");
+                chameleon_error("CHAMELEON_Set", "negative tile size");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            morse->nb = value;
-            if ( morse->autotuning_enabled ) {
-                morse->autotuning_enabled = CHAMELEON_FALSE;
-                morse_warning("CHAMELEON_Set", "autotuning has been automatically disable\n");
+            chamctxt->nb = value;
+            if ( chamctxt->autotuning_enabled ) {
+                chamctxt->autotuning_enabled = CHAMELEON_FALSE;
+                chameleon_warning("CHAMELEON_Set", "autotuning has been automatically disable\n");
             }
             /* Limit ib to nb */
-            morse->ib = chameleon_min( morse->nb, morse->ib );
+            chamctxt->ib = chameleon_min( chamctxt->nb, chamctxt->ib );
             break;
         case CHAMELEON_INNER_BLOCK_SIZE:
             if (value <= 0) {
-                morse_error("CHAMELEON_Set", "negative inner block size");
+                chameleon_error("CHAMELEON_Set", "negative inner block size");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            if (value > morse->nb) {
-                morse_error("CHAMELEON_Set", "inner block larger than tile");
+            if (value > chamctxt->nb) {
+                chameleon_error("CHAMELEON_Set", "inner block larger than tile");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            /* if (morse->nb % value != 0) { */
-            /*     morse_error("CHAMELEON_Set", "inner block does not divide tile"); */
+            /* if (chamctxt->nb % value != 0) { */
+            /*     chameleon_error("CHAMELEON_Set", "inner block does not divide tile"); */
             /*     return CHAMELEON_ERR_ILLEGAL_VALUE; */
             /* } */
-            morse->ib = value;
+            chamctxt->ib = value;
 
-            if ( morse->autotuning_enabled ) {
-                morse->autotuning_enabled = CHAMELEON_FALSE;
-                morse_warning("CHAMELEON_Set", "autotuning has been automatically disable\n");
+            if ( chamctxt->autotuning_enabled ) {
+                chamctxt->autotuning_enabled = CHAMELEON_FALSE;
+                chameleon_warning("CHAMELEON_Set", "autotuning has been automatically disable\n");
             }
             break;
         case CHAMELEON_HOUSEHOLDER_MODE:
             if (value != ChamFlatHouseholder && value != ChamTreeHouseholder) {
-                morse_error("CHAMELEON_Set", "illegal value of CHAMELEON_HOUSEHOLDER_MODE");
+                chameleon_error("CHAMELEON_Set", "illegal value of CHAMELEON_HOUSEHOLDER_MODE");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            morse->householder = value;
+            chamctxt->householder = value;
             break;
         case CHAMELEON_HOUSEHOLDER_SIZE:
             if (value <= 0) {
-                morse_error("CHAMELEON_Set", "negative householder size");
+                chameleon_error("CHAMELEON_Set", "negative householder size");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            morse->rhblock = value;
+            chamctxt->rhblock = value;
             break;
         case CHAMELEON_TRANSLATION_MODE:
             if (value != ChamInPlace && value != ChamOutOfPlace) {
-                morse_error("CHAMELEON_Set", "illegal value of CHAMELEON_TRANSLATION_MODE");
+                chameleon_error("CHAMELEON_Set", "illegal value of CHAMELEON_TRANSLATION_MODE");
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
-            morse->translation = value;
+            chamctxt->translation = value;
             break;
         default:
-            morse_error("CHAMELEON_Set", "unknown parameter");
+            chameleon_error("CHAMELEON_Set", "unknown parameter");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
@@ -363,31 +363,31 @@ int CHAMELEON_Set(int param, int value)
  */
 int CHAMELEON_Get(int param, int *value)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_error("CHAMELEON_Get", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_error("CHAMELEON_Get", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     switch (param) {
         case CHAMELEON_TILE_SIZE:
-            *value = morse->nb;
+            *value = chamctxt->nb;
             return CHAMELEON_SUCCESS;
         case CHAMELEON_INNER_BLOCK_SIZE:
-            *value = morse->ib;
+            *value = chamctxt->ib;
             return CHAMELEON_SUCCESS;
         case CHAMELEON_HOUSEHOLDER_MODE:
-            *value = morse->householder;
+            *value = chamctxt->householder;
             return CHAMELEON_SUCCESS;
         case CHAMELEON_HOUSEHOLDER_SIZE:
-            *value = morse->rhblock;
+            *value = chamctxt->rhblock;
             return CHAMELEON_SUCCESS;
         case CHAMELEON_TRANSLATION_MODE:
-            *value = morse->translation;
+            *value = chamctxt->translation;
             return CHAMELEON_SUCCESS;
         default:
-            morse_error("CHAMELEON_Get", "unknown parameter");
+            chameleon_error("CHAMELEON_Get", "unknown parameter");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 

@@ -51,9 +51,9 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
         PARSEC_dtd_taskpool, CORE_zaxpy_parsec, options->priority,  "axpy",
         sizeof(int),               &M,     VALUE,
         sizeof(CHAMELEON_Complex64_t), &alpha, VALUE,
-        PASSED_BY_REF,  RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INPUT,
+        PASSED_BY_REF,  RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),               &incA, VALUE,
-        PASSED_BY_REF,  RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), morse_parsec_get_arena_index( B ) | INOUT | AFFINITY,
+        PASSED_BY_REF,  RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), chameleon_parsec_get_arena_index( B ) | INOUT | AFFINITY,
         sizeof(int),               &incB, VALUE,
         PARSEC_DTD_ARG_END );
 }

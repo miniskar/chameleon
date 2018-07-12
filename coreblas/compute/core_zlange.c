@@ -79,6 +79,6 @@ void CORE_zlange(cham_normtype_t norm, int M, int N,
 {
     *normA = LAPACKE_zlange_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(norm),
+        chameleon_lapack_const(norm),
         M, N, A, LDA, work);
 }

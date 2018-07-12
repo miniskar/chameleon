@@ -74,17 +74,17 @@
 ! @date 2011-09-15
 ! @precisions normal z -> c d s
 !
-module morse
+module chameleon
 
-      use morse_s
-      use morse_d
-      use morse_ds
-      use morse_c
-      use morse_z
-      use morse_zc
-      include 'morse_fortran.h'
+      use chameleon_s
+      use chameleon_d
+      use chameleon_ds
+      use chameleon_c
+      use chameleon_z
+      use chameleon_zc
+      include 'chameleon_fortran.h'
 
-      logical :: morse_initialized = .false.
+      logical :: chameleon_initialized = .false.
       integer, parameter :: sp = kind(0.0)
       integer, parameter :: dp = kind(0.0d0)
 
@@ -309,164 +309,164 @@ module morse
          end function CHAMELEON_Sequence_Flush_c
       end interface
 
-      interface morse_lapack_to_tile
-         module procedure morse_lapack_to_tile_s
-         module procedure morse_lapack_to_tile_d
-         module procedure morse_lapack_to_tile_cpx
-         module procedure morse_lapack_to_tile_z
-      end interface morse_lapack_to_tile
+      interface chameleon_lapack_to_tile
+         module procedure chameleon_lapack_to_tile_s
+         module procedure chameleon_lapack_to_tile_d
+         module procedure chameleon_lapack_to_tile_cpx
+         module procedure chameleon_lapack_to_tile_z
+      end interface chameleon_lapack_to_tile
 
-      interface morse_tile_to_lapack
-         module procedure morse_tile_to_lapack_s
-         module procedure morse_tile_to_lapack_d
-         module procedure morse_tile_to_lapack_cpx
-         module procedure morse_tile_to_lapack_z
-      end interface morse_tile_to_lapack
+      interface chameleon_tile_to_lapack
+         module procedure chameleon_tile_to_lapack_s
+         module procedure chameleon_tile_to_lapack_d
+         module procedure chameleon_tile_to_lapack_cpx
+         module procedure chameleon_tile_to_lapack_z
+      end interface chameleon_tile_to_lapack
 
-      interface morse_desc_create
-         module procedure morse_desc_create_s
-         module procedure morse_desc_create_d
-         module procedure morse_desc_create_cpx
-         module procedure morse_desc_create_z
-      end interface morse_desc_create
+      interface chameleon_desc_create
+         module procedure chameleon_desc_create_s
+         module procedure chameleon_desc_create_d
+         module procedure chameleon_desc_create_cpx
+         module procedure chameleon_desc_create_z
+      end interface chameleon_desc_create
 
    contains
 
-   subroutine morse_init(cores,gpus,info)
+   subroutine chameleon_init(cores,gpus,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: cores, gpus
       integer(kind=c_int), intent(out) :: info
-      info = morse_init_c(cores,gpus)
-      morse_initialized = .true.
-   end subroutine morse_init
+      info = chameleon_init_c(cores,gpus)
+      chameleon_initialized = .true.
+   end subroutine chameleon_init
 
-   subroutine morse_finalize(info)
+   subroutine chameleon_finalize(info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(out) :: info
-      info = morse_finalize_c()
-      morse_initialized = .false.
-   end subroutine morse_finalize
+      info = chameleon_finalize_c()
+      chameleon_initialized = .false.
+   end subroutine chameleon_finalize
 
-   subroutine morse_set(param,pval,info)
+   subroutine chameleon_set(param,pval,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: param
       integer(kind=c_int), intent(in) :: pval
       integer(kind=c_int), intent(out) :: info
-      info = morse_set_c(param,pval)
-   end subroutine morse_set
+      info = chameleon_set_c(param,pval)
+   end subroutine chameleon_set
 
-   subroutine morse_get(param,pval,info)
+   subroutine chameleon_get(param,pval,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: param
       integer(kind=c_int), intent(out), target :: pval
       integer(kind=c_int), intent(out) :: info
-      info = morse_get_c(param,c_loc(pval))
-   end subroutine morse_get
+      info = chameleon_get_c(param,c_loc(pval))
+   end subroutine chameleon_get
 
-   subroutine morse_enable(param,info)
+   subroutine chameleon_enable(param,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: param
       integer(kind=c_int), intent(out) :: info
-      info = morse_enable_c(param)
-   end subroutine morse_enable
+      info = chameleon_enable_c(param)
+   end subroutine chameleon_enable
 
-   subroutine morse_disable(param,info)
+   subroutine chameleon_disable(param,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: param
       integer(kind=c_int), intent(out) :: info
-      info = morse_disable_c(param)
-   end subroutine morse_disable
+      info = chameleon_disable_c(param)
+   end subroutine chameleon_disable
 
 ! overloaded: single precision
-   subroutine morse_lapack_to_tile_s(a_lpk,lda,a_pma,info)
+   subroutine chameleon_lapack_to_tile_s(a_lpk,lda,a_pma,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       real(kind=sp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(out) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
-   end subroutine morse_lapack_to_tile_s
+      info = chameleon_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
+   end subroutine chameleon_lapack_to_tile_s
 ! overloaded: double precision
-   subroutine morse_lapack_to_tile_d(a_lpk,lda,a_pma,info)
+   subroutine chameleon_lapack_to_tile_d(a_lpk,lda,a_pma,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       real(kind=dp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(out) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
-   end subroutine morse_lapack_to_tile_d
+      info = chameleon_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
+   end subroutine chameleon_lapack_to_tile_d
 ! overloaded: single precision complex
-   subroutine morse_lapack_to_tile_cpx(a_lpk,lda,a_pma,info)
+   subroutine chameleon_lapack_to_tile_cpx(a_lpk,lda,a_pma,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       complex(kind=sp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(out) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
-   end subroutine morse_lapack_to_tile_cpx
+      info = chameleon_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
+   end subroutine chameleon_lapack_to_tile_cpx
 ! overloaded: double precision complex
-   subroutine morse_lapack_to_tile_z(a_lpk,lda,a_pma,info)
+   subroutine chameleon_lapack_to_tile_z(a_lpk,lda,a_pma,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       complex(kind=dp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(out) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
-   end subroutine morse_lapack_to_tile_z
+      info = chameleon_lapack_to_tile_c(c_loc(a_lpk),lda,a_pma)
+   end subroutine chameleon_lapack_to_tile_z
 
 ! overloaded: single precision
-   subroutine morse_tile_to_lapack_s(a_pma,a_lpk,lda,info)
+   subroutine chameleon_tile_to_lapack_s(a_pma,a_lpk,lda,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       real(kind=sp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(in) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
-   end subroutine morse_tile_to_lapack_s
+      info = chameleon_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
+   end subroutine chameleon_tile_to_lapack_s
 ! overloaded: double precision
-   subroutine morse_tile_to_lapack_d(a_pma,a_lpk,lda,info)
+   subroutine chameleon_tile_to_lapack_d(a_pma,a_lpk,lda,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       real(kind=dp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(in) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
-   end subroutine morse_tile_to_lapack_d
+      info = chameleon_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
+   end subroutine chameleon_tile_to_lapack_d
 ! overloaded: single precision complex
-   subroutine morse_tile_to_lapack_cpx(a_pma,a_lpk,lda,info)
+   subroutine chameleon_tile_to_lapack_cpx(a_pma,a_lpk,lda,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       complex(kind=sp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(in) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
-   end subroutine morse_tile_to_lapack_cpx
+      info = chameleon_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
+   end subroutine chameleon_tile_to_lapack_cpx
 ! overloaded: double precision complex
-   subroutine morse_tile_to_lapack_z(a_pma,a_lpk,lda,info)
+   subroutine chameleon_tile_to_lapack_z(a_pma,a_lpk,lda,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: lda
       complex(kind=dp), intent(out), target :: a_lpk(lda,*)
       type(c_ptr), intent(in) ::  a_pma
       integer(kind=c_int), intent(out) :: info
-      info = morse_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
-   end subroutine morse_tile_to_lapack_z
+      info = chameleon_tile_to_lapack_c(a_pma,c_loc(a_lpk),lda)
+   end subroutine chameleon_tile_to_lapack_z
 
 ! overloaded: single precision
-   subroutine morse_desc_create_s(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
+   subroutine chameleon_desc_create_s(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(out) :: desc
@@ -474,10 +474,10 @@ module morse
       real(kind=sp), intent(in), target :: mat(lm,*)
       integer(kind=c_int), intent(in) :: dtyp
       integer(kind=c_int), intent(out) :: info
-      info = morse_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
-   end subroutine morse_desc_create_s
+      info = chameleon_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
+   end subroutine chameleon_desc_create_s
 ! overloaded: double precision
-   subroutine morse_desc_create_d(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
+   subroutine chameleon_desc_create_d(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(out) :: desc
@@ -485,10 +485,10 @@ module morse
       real(kind=dp), intent(in), target :: mat(lm,*)
       integer(kind=c_int), intent(in) :: dtyp
       integer(kind=c_int), intent(out) :: info
-      info = morse_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
-   end subroutine morse_desc_create_d
+      info = chameleon_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
+   end subroutine chameleon_desc_create_d
 ! overloaded: single precision complex
-   subroutine morse_desc_create_cpx(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
+   subroutine chameleon_desc_create_cpx(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(out) :: desc
@@ -496,10 +496,10 @@ module morse
       complex(kind=sp), intent(in), target :: mat(lm,*)
       integer(kind=c_int), intent(in) :: dtyp
       integer(kind=c_int), intent(out) :: info
-      info = morse_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
-   end subroutine morse_desc_create_cpx
+      info = chameleon_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
+   end subroutine chameleon_desc_create_cpx
 ! overloaded: double precision complex
-   subroutine morse_desc_create_z(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
+   subroutine chameleon_desc_create_z(desc,mat,dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(out) :: desc
@@ -507,87 +507,87 @@ module morse
       complex(kind=dp), intent(in), target :: mat(lm,*)
       integer(kind=c_int), intent(in) :: dtyp
       integer(kind=c_int), intent(out) :: info
-      info = morse_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
-   end subroutine morse_desc_create_z
+      info = chameleon_desc_create_c(desc,c_loc(mat),dtyp,mb,nb,bsiz,lm,ln,i,j,m,n,p,q)
+   end subroutine chameleon_desc_create_z
 
-   subroutine morse_desc_destroy(desc,info)
+   subroutine chameleon_desc_destroy(desc,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(inout) :: desc
       integer(kind=c_int), intent(out) :: info
-      info = morse_desc_destroy_c(desc)
-   end subroutine morse_desc_destroy
+      info = chameleon_desc_destroy_c(desc)
+   end subroutine chameleon_desc_destroy
 
-   subroutine morse_free(ptr)
+   subroutine chameleon_free(ptr)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(in) :: ptr
       call free_c(ptr)
-   end subroutine morse_free
+   end subroutine chameleon_free
 
-   subroutine morse_version(ver_major,ver_minor,ver_micro,info)
+   subroutine chameleon_version(ver_major,ver_minor,ver_micro,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(out), target :: ver_major,ver_minor,ver_micro
       integer(kind=c_int), intent(out) :: info
-      info = morse_version_c(c_loc(ver_major),c_loc(ver_minor),c_loc(ver_micro))
-   end subroutine morse_version
+      info = chameleon_version_c(c_loc(ver_major),c_loc(ver_minor),c_loc(ver_micro))
+   end subroutine chameleon_version
 
-   subroutine morse_init_affinity(cores,bindtab,info)
+   subroutine chameleon_init_affinity(cores,bindtab,info)
       use iso_c_binding
       implicit none
       integer(kind=c_int), intent(in) :: cores
       integer(kind=c_int), intent(out), target :: bindtab
       integer(kind=c_int), intent(out) :: info
-      info = morse_init_affinity_c(cores,c_loc(bindtab))
-   end subroutine morse_init_affinity
+      info = chameleon_init_affinity_c(cores,c_loc(bindtab))
+   end subroutine chameleon_init_affinity
 
-   subroutine morse_dealloc_handle(handle,info)
+   subroutine chameleon_dealloc_handle(handle,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(inout) :: handle
       integer(kind=c_int), intent(out) :: info
-      info = morse_dealloc_handle_c(handle)
-   end subroutine morse_dealloc_handle
+      info = chameleon_dealloc_handle_c(handle)
+   end subroutine chameleon_dealloc_handle
 
-   subroutine morse_dealloc_handle_tile(desc,info)
+   subroutine chameleon_dealloc_handle_tile(desc,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(inout) :: desc
       integer(kind=c_int), intent(out) :: info
-      info = morse_dealloc_handle_tile_c(desc)
-   end subroutine morse_dealloc_handle_tile
+      info = chameleon_dealloc_handle_tile_c(desc)
+   end subroutine chameleon_dealloc_handle_tile
 
-   subroutine morse_sequence_create(sequence,info)
+   subroutine chameleon_sequence_create(sequence,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(out) :: sequence
       integer(kind=c_int), intent(out) :: info
-      info = morse_sequence_create_c(sequence)
-   end subroutine morse_sequence_create
+      info = chameleon_sequence_create_c(sequence)
+   end subroutine chameleon_sequence_create
 
-   subroutine morse_sequence_destroy(sequence,info)
+   subroutine chameleon_sequence_destroy(sequence,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(in) :: sequence
       integer(kind=c_int), intent(out) :: info
-      info = morse_sequence_destroy_c(sequence)
-   end subroutine morse_sequence_destroy
+      info = chameleon_sequence_destroy_c(sequence)
+   end subroutine chameleon_sequence_destroy
 
-   subroutine morse_sequence_wait(sequence,info)
+   subroutine chameleon_sequence_wait(sequence,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(in) :: sequence
       integer(kind=c_int), intent(out) :: info
-      info = morse_sequence_wait_c(sequence)
-   end subroutine morse_sequence_wait
+      info = chameleon_sequence_wait_c(sequence)
+   end subroutine chameleon_sequence_wait
 
-   subroutine morse_sequence_flush(sequence,request,info)
+   subroutine chameleon_sequence_flush(sequence,request,info)
       use iso_c_binding
       implicit none
       type(c_ptr), intent(in) :: sequence, request
       integer(kind=c_int), intent(out) :: info
-      info = morse_sequence_flush_c(sequence,request)
-   end subroutine morse_sequence_flush
+      info = chameleon_sequence_flush_c(sequence,request)
+   end subroutine chameleon_sequence_flush
 
-end module morse
+end module chameleon

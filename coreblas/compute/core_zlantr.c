@@ -93,9 +93,9 @@ void CORE_zlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
 #if defined(LAPACKE_CORRECT_DLANTR)
     *normA = LAPACKE_zlantr_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(norm),
-        morse_lapack_const(uplo),
-        morse_lapack_const(diag),
+        chameleon_lapack_const(norm),
+        chameleon_lapack_const(uplo),
+        chameleon_lapack_const(diag),
         M, N, A, LDA, work);
 #else
     const CHAMELEON_Complex64_t *tmpA;

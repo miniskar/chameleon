@@ -53,7 +53,7 @@ void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
         PARSEC_dtd_taskpool, CORE_zlauum_parsec, options->priority, "lauum",
         sizeof(int),    &uplo,                  VALUE,
         sizeof(int),           &n,                     VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int),           &lda,                   VALUE,
         PARSEC_DTD_ARG_END );
 

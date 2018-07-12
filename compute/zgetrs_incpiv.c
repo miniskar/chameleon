@@ -90,36 +90,36 @@ int CHAMELEON_zgetrs_incpiv( cham_trans_t trans, int N, int NRHS,
 {
     int NB;
     int status;
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t descAl, descAt;
     CHAM_desc_t descBl, descBt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zgetrs_incpiv", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_incpiv", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
     if (trans != ChamNoTrans) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "only ChamNoTrans supported");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "only ChamNoTrans supported");
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
     if (N < 0) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "illegal value of N");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "illegal value of N");
         return -2;
     }
     if (NRHS < 0) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "illegal value of NRHS");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "illegal value of NRHS");
         return -3;
     }
     if (LDA < chameleon_max(1, N)) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "illegal value of LDA");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "illegal value of LDA");
         return -5;
     }
     if (LDB < chameleon_max(1, N)) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "illegal value of LDB");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "illegal value of LDB");
         return -9;
     }
     /* Quick return */
@@ -127,41 +127,41 @@ int CHAMELEON_zgetrs_incpiv( cham_trans_t trans, int N, int NRHS,
         return CHAMELEON_SUCCESS;
 
     /* Tune NB & IB depending on N & NRHS; Set NBNBSIZE */
-    status = morse_tune(CHAMELEON_FUNC_ZGESV, N, N, NRHS);
+    status = chameleon_tune(CHAMELEON_FUNC_ZGESV, N, N, NRHS);
     if (status != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zgetrs_incpiv", "morse_tune() failed");
+        chameleon_error("CHAMELEON_zgetrs_incpiv", "chameleon_tune() failed");
         return status;
     }
 
     /* Set NT & NTRHS */
     NB    = CHAMELEON_NB;
 
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    morse_zlap2tile( morse, &descAl, &descAt, ChamDescInput, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
                      A, NB, NB, LDA, N, N, N, sequence, &request );
-    morse_zlap2tile( morse, &descBl, &descBt, ChamDescInout, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
                      B, NB, NB, LDB, NRHS, N, NRHS, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zgetrs_incpiv_Tile_Async( &descAt, descL, IPIV, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
-    morse_ztile2lap( morse, &descAl, &descAt,
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                      ChamDescInput, ChamUpperLower, sequence, &request );
-    morse_ztile2lap( morse, &descBl, &descBt,
+    chameleon_ztile2lap( chamctxt, &descBl, &descBt,
                      ChamDescInout, ChamUpperLower, sequence, &request );
     CHAMELEON_Desc_Flush( descL, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    morse_ztile2lap_cleanup( morse, &descAl, &descAt );
-    morse_ztile2lap_cleanup( morse, &descBl, &descBt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
+    chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
 
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -209,17 +209,17 @@ int CHAMELEON_zgetrs_incpiv( cham_trans_t trans, int N, int NRHS,
  */
 int CHAMELEON_zgetrs_incpiv_Tile( CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHAM_desc_t *B )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    morse_sequence_create( morse, &sequence );
+    chameleon_sequence_create( chamctxt, &sequence );
 
     CHAMELEON_zgetrs_incpiv_Tile_Async( A, L, IPIV, B, sequence, &request );
 
@@ -227,9 +227,9 @@ int CHAMELEON_zgetrs_incpiv_Tile( CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHA
     CHAMELEON_Desc_Flush( L, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
 
-    morse_sequence_wait( morse, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
-    morse_sequence_destroy( morse, sequence );
+    chameleon_sequence_destroy( chamctxt, sequence );
     return status;
 }
 
@@ -266,19 +266,19 @@ int CHAMELEON_zgetrs_incpiv_Tile( CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHA
 int CHAMELEON_zgetrs_incpiv_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHAM_desc_t *B,
                                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
 
-    morse = morse_context_self();
-    if (morse == NULL) {
-        morse_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "CHAMELEON not initialized");
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        morse_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        morse_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "NULL request");
+        chameleon_fatal_error("CHAMELEON_zgetrs_incpiv_Tile", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -286,35 +286,35 @@ int CHAMELEON_zgetrs_incpiv_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *L, int *IPI
         request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
     }
 
     /* Check descriptors for correctness */
-    if (morse_desc_check(A) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid first descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid first descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(L) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid second descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(L) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid second descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (morse_desc_check(B) != CHAMELEON_SUCCESS) {
-        morse_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid third descriptor");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if (chameleon_desc_check(B) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zgetrs_incpiv_Tile", "invalid third descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb || B->nb != B->mb) {
-        morse_error("CHAMELEON_zgetrs_incpiv_Tile", "only square tiles supported");
-        return morse_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        chameleon_error("CHAMELEON_zgetrs_incpiv_Tile", "only square tiles supported");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Quick return */
     /*
      if (chameleon_min(N, NRHS) == 0)
      return CHAMELEON_SUCCESS;
      */
-    morse_pztrsmpl( A, B, L, IPIV, sequence, request );
+    chameleon_pztrsmpl( A, B, L, IPIV, sequence, request );
 
-    morse_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, A, B, sequence, request );
+    chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, A, B, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

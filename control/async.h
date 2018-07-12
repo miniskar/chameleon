@@ -29,10 +29,10 @@ extern "C" {
 /**
  *  Internal routines
  */
-int morse_request_fail     (RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int error);
-int morse_sequence_create  (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t **sequence);
-int morse_sequence_destroy (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
-int morse_sequence_wait    (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
+int chameleon_request_fail     (RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int error);
+int chameleon_sequence_create  (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t **sequence);
+int chameleon_sequence_destroy (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
+int chameleon_sequence_wait    (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
 
 #ifdef __cplusplus
 }

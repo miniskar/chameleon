@@ -85,8 +85,8 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_clag2z;
     void (*callback)(void*) = options->profiling ? cl_clag2z_callback : NULL;
 
-    if ( morse_desc_islocal( A, Am, An ) ||
-         morse_desc_islocal( B, Bm, Bn ) )
+    if ( chameleon_desc_islocal( A, Am, An ) ||
+         chameleon_desc_islocal( B, Bm, Bn ) )
     {
         starpu_insert_task(
             starpu_mpi_codelet(codelet),

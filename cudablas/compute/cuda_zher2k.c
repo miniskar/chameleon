@@ -29,7 +29,7 @@ int CUDA_zher2k(cham_uplo_t uplo, cham_trans_t trans,
                 CUBLAS_STREAM_PARAM)
 {
     cublasZher2k(CUBLAS_HANDLE
-                 morse_cublas_const(uplo), morse_cublas_const(trans),
+                 chameleon_cublas_const(uplo), chameleon_cublas_const(trans),
                  n, k,
                  CUBLAS_VALUE(alpha), A, lda,
                                       B, ldb,

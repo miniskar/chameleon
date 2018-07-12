@@ -37,7 +37,7 @@
 
       PROGRAM ZCHKAA
 *
-      INCLUDE 'morse_fortran.h'
+      INCLUDE 'chameleon_fortran.h'
 *
 *  -- CHAMELEON test routine (From LAPACK version 3.1.1) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..

@@ -61,10 +61,10 @@ void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
         sizeof(int),           &n,                                 VALUE,
         sizeof(int),           &k,                                 VALUE,
         sizeof(CHAMELEON_Complex64_t),           &alpha,               VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), morse_parsec_get_arena_index( A ) | INPUT,
+        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),           &lda,                               VALUE,
         sizeof(CHAMELEON_Complex64_t),           &beta,                VALUE,
-        PASSED_BY_REF,         RTBLKADDR( C, CHAMELEON_Complex64_t, Cm, Cn ), morse_parsec_get_arena_index( C ) | INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( C, CHAMELEON_Complex64_t, Cm, Cn ), chameleon_parsec_get_arena_index( C ) | INOUT | AFFINITY,
         sizeof(int),           &ldc,                               VALUE,
         PARSEC_DTD_ARG_END );
 

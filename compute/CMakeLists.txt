@@ -57,9 +57,9 @@ set(CHAMELEON_CONTROL
     ../control/descriptor.c
     ../control/workspace.c
     ../control/tile.c
-    ../control/morse_f77.c
-    ../control/morse_mf77.c
-#    ../control/morsewinthread.c
+    ../control/chameleon_f77.c
+    ../control/chameleon_mf77.c
+#    ../control/chameleonwinthread.c
    )
 
 set(flags_to_add "")
@@ -68,7 +68,7 @@ foreach(_prec ${CHAMELEON_PRECISION})
 endforeach()
 set_source_files_properties(../control/tile.c PROPERTIES COMPILE_FLAGS "${flags_to_add}")
 
-# Generate the morse sources for all possible precisions
+# Generate the chameleon sources for all possible precisions
 # ------------------------------------------------------
 set(CHAMELEON_SRCS_GENERATED "")
 set(ZSRC
@@ -251,7 +251,7 @@ precisions_rules_py(CHAMELEON_SRCS_GENERATED "${ZSRC}"
 set(CONTROL_SRCS_GENERATED "")
 set(ZSRC
     ../control/workspace_z.c
-    ../control/morse_zf77.c
+    ../control/chameleon_zf77.c
 )
 
 precisions_rules_py(CONTROL_SRCS_GENERATED "${ZSRC}"
@@ -264,21 +264,21 @@ set(CHAMELEON_SRCS
     ${CONTROL_SRCS_GENERATED}
    )
 
-# Generate the morse fortran sources for all possible precisions
+# Generate the chameleon fortran sources for all possible precisions
 # --------------------------------------------------------------
 if(HAVE_ISO_C_BINDING)
     set(CHAMELEON_SRCS_F_GENERATED "")
     set(ZSRCF
-        ../control/morse_zcf90.F90
-        ../control/morse_zf90.F90
-        ../control/morse_zf90_wrappers.F90
+        ../control/chameleon_zcf90.F90
+        ../control/chameleon_zf90.F90
+        ../control/chameleon_zf90_wrappers.F90
        )
     precisions_rules_py(CHAMELEON_SRCS_F_GENERATED "${ZSRCF}"
                         PRECISIONS "${CHAMELEON_PRECISION}"
                         TARGETDIR "control" )
 
     set(CHAMELEON_SRCSF
-        ../control/morse_f90.f90
+        ../control/chameleon_f90.f90
         ${CHAMELEON_SRCS_F_GENERATED}
        )
 endif(HAVE_ISO_C_BINDING)

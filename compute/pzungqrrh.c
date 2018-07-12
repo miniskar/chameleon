@@ -40,11 +40,11 @@
  *  Parallel construction of Q using tile V (application to identity;
  *  reduction Householder) - dynamic scheduling
  */
-void morse_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
+void chameleon_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
                      CHAM_desc_t *T,  CHAM_desc_t *D, int BS,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     size_t ws_worker = 0;
     size_t ws_host = 0;
@@ -56,10 +56,10 @@ void morse_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
     int tempkn, tempMm, tempnn, tempmm, tempMRDm, tempkmin;
     int ib;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
 
@@ -86,7 +86,7 @@ void morse_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
 
     K = chameleon_min(A->mt, A->nt);
     for (k = K-1; k >= 0; k--) {
-        RUNTIME_iteration_push(morse, k);
+        RUNTIME_iteration_push(chamctxt, k);
 
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         lastRD = 0;
@@ -186,10 +186,10 @@ void morse_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
             RUNTIME_data_flush( sequence, D(M, k) );
             RUNTIME_data_flush( sequence, T(M, k) );
         }
-        RUNTIME_iteration_pop(morse);
+        RUNTIME_iteration_pop(chamctxt);
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
     (void)D;
 }

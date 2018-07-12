@@ -21,7 +21,7 @@
 
 static void RUNTIME_allocate_workspace_on_workers(void *arg)
 {
-    struct morse_starpu_ws_s *workspace = arg;
+    struct chameleon_starpu_ws_s *workspace = arg;
     enum starpu_worker_archtype type = 0;
     (void)type;
 
@@ -59,7 +59,7 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
 
 static void RUNTIME_free_workspace_on_workers(void *arg)
 {
-    struct morse_starpu_ws_s *workspace = arg;
+    struct chameleon_starpu_ws_s *workspace = arg;
     enum starpu_worker_archtype type = 0;
     (void)type;
     int id = starpu_worker_get_id();
@@ -100,7 +100,7 @@ int RUNTIME_starpu_ws_alloc(CHAMELEON_starpu_ws_t **workspace,
     if (!workspace)
         return -EINVAL;
 
-    struct morse_starpu_ws_s *descr = calloc(1, sizeof(struct morse_starpu_ws_s));
+    struct chameleon_starpu_ws_s *descr = calloc(1, sizeof(struct chameleon_starpu_ws_s));
 
     *workspace = descr;
 
@@ -130,7 +130,7 @@ int RUNTIME_starpu_ws_free(CHAMELEON_starpu_ws_t *workspace)
 
 void *RUNTIME_starpu_ws_getlocal(CHAMELEON_starpu_ws_t *workspace)
 {
-    struct morse_starpu_ws_s *descr = workspace;
+    struct chameleon_starpu_ws_s *descr = workspace;
     int id = starpu_worker_get_id();
     return descr->workspaces[id];
 }

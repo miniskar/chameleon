@@ -25,22 +25,22 @@
 
 #define A(m, n) A,  m,  n
 /**
- *  morse_pzplghe - Generate a random matrix by tiles.
+ *  chameleon_pzplghe - Generate a random matrix by tiles.
  */
-void morse_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
+void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int m, n;
     int ldam;
     int tempmm, tempnn;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (m = 0; m < A->mt; m++) {
         tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
@@ -55,5 +55,5 @@ void morse_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
                 A->m, m*A->mb, n*A->nb, seed );
         }
     }
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

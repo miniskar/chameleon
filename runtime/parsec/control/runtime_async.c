@@ -23,10 +23,10 @@
 /**
  *  Create a sequence
  */
-int RUNTIME_sequence_create( CHAM_context_t  *morse,
+int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
                              RUNTIME_sequence_t *sequence )
 {
-    parsec_context_t  *parsec        = (parsec_context_t *)(morse->schedopt);
+    parsec_context_t  *parsec        = (parsec_context_t *)(chamctxt->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = parsec_dtd_taskpool_new();
 
     parsec_enqueue( parsec, (parsec_taskpool_t *)parsec_dtd_tp );
@@ -40,10 +40,10 @@ int RUNTIME_sequence_create( CHAM_context_t  *morse,
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
+int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
                               RUNTIME_sequence_t *sequence )
 {
-    parsec_context_t  *parsec = (parsec_context_t *)(morse->schedopt);
+    parsec_context_t  *parsec = (parsec_context_t *)(chamctxt->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *)(sequence->schedopt);
 
     assert( parsec_dtd_tp );
@@ -57,10 +57,10 @@ int RUNTIME_sequence_destroy( CHAM_context_t  *morse,
 /**
  *  Wait for the completion of a sequence
  */
-int RUNTIME_sequence_wait( CHAM_context_t  *morse,
+int RUNTIME_sequence_wait( CHAM_context_t  *chamctxt,
                            RUNTIME_sequence_t *sequence )
 {
-    parsec_context_t  *parsec = (parsec_context_t *)morse->schedopt;
+    parsec_context_t  *parsec = (parsec_context_t *)chamctxt->schedopt;
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *) sequence->schedopt;
 
     assert( parsec_dtd_tp );
@@ -72,7 +72,7 @@ int RUNTIME_sequence_wait( CHAM_context_t  *morse,
 /**
  *  Terminate a sequence
  */
-void RUNTIME_sequence_flush( CHAM_context_t  *morse,
+void RUNTIME_sequence_flush( CHAM_context_t  *chamctxt,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request,
                              int status )
@@ -80,6 +80,6 @@ void RUNTIME_sequence_flush( CHAM_context_t  *morse,
     sequence->request = request;
     sequence->status = status;
     request->status = status;
-    (void)morse;
+    (void)chamctxt;
     return;
 }

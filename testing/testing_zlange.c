@@ -52,7 +52,7 @@ int testing_zlange(int argc, char **argv)
     /* Allocate Data */
     CHAMELEON_Complex64_t *A    = (CHAMELEON_Complex64_t *)malloc(LDAxN*sizeof(CHAMELEON_Complex64_t));
     double            *work = (double*) malloc(max(M,N)*sizeof(double));
-    double normmorse, normlapack, result;
+    double normcham, normlapack, result;
 
     eps = LAPACKE_dlamch_work('e');
 
@@ -74,10 +74,10 @@ int testing_zlange(int argc, char **argv)
 
     /* CHAMELEON ZLANGE */
     for(n=0; n<4; n++) {
-        normmorse  = CHAMELEON_zlange(norm[n], M, N, A, LDA);
-        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), M, N, A, LDA, work);
-        printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
-        result = fabs(normmorse - normlapack) / (normlapack * eps);
+        normcham  = CHAMELEON_zlange(norm[n], M, N, A, LDA);
+        normlapack = LAPACKE_zlange_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), M, N, A, LDA, work);
+        printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
+        result = fabs(normcham - normlapack) / (normlapack * eps);
 
         switch(norm[n]) {
         case ChamMaxNorm:
@@ -114,12 +114,12 @@ int testing_zlange(int argc, char **argv)
         for(u=0; u<2; u++) {
             int d;
             for(d=0; d<2; d++) {
-                normmorse = CHAMELEON_zlantr(norm[n], uplo[u], diag[d], M, N, A, LDA);
-                normlapack = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]),
-                                                 morse_lapack_const(diag[d]), M, N, A, LDA, work);
-                printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+                normcham = CHAMELEON_zlantr(norm[n], uplo[u], diag[d], M, N, A, LDA);
+                normlapack = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]),
+                                                 chameleon_lapack_const(diag[d]), M, N, A, LDA, work);
+                printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-                result = fabs(normmorse - normlapack) / (normlapack * eps);
+                result = fabs(normcham - normlapack) / (normlapack * eps);
                 switch(norm[n]) {
                 case ChamMaxNorm:
                     /* result should be perfectly equal */
@@ -156,11 +156,11 @@ int testing_zlange(int argc, char **argv)
     /* CHAMELEON ZLANSY */
     for(n=0; n<4; n++) {
         for(u=0; u<2; u++) {
-            normmorse = CHAMELEON_zlansy(norm[n], uplo[u], min(M,N), A, LDA);
-            normlapack = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]), min(M,N), A, LDA, work);
-            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+            normcham = CHAMELEON_zlansy(norm[n], uplo[u], min(M,N), A, LDA);
+            normlapack = LAPACKE_zlansy_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]), min(M,N), A, LDA, work);
+            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-            result = fabs(normmorse - normlapack) / (normlapack * eps);
+            result = fabs(normcham - normlapack) / (normlapack * eps);
             switch(norm[n]) {
             case ChamMaxNorm:
                 /* result should be perfectly equal */
@@ -201,11 +201,11 @@ int testing_zlange(int argc, char **argv)
 
     for(n=0; n<4; n++) {
         for(u=0; u<2; u++) {
-            normmorse = CHAMELEON_zlanhe(norm[n], uplo[u], min(M,N), A, LDA);
-            normlapack = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, morse_lapack_const(norm[n]), morse_lapack_const(uplo[u]), min(M,N), A, LDA, work);
-            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normmorse);
+            normcham = CHAMELEON_zlanhe(norm[n], uplo[u], min(M,N), A, LDA);
+            normlapack = LAPACKE_zlanhe_work(LAPACK_COL_MAJOR, chameleon_lapack_const(norm[n]), chameleon_lapack_const(uplo[u]), min(M,N), A, LDA, work);
+            printf("LAPACK %e, CHAMELEON %e\n", normlapack, normcham);
 
-            result = fabs(normmorse - normlapack) / (normlapack * eps);
+            result = fabs(normcham - normlapack) / (normlapack * eps);
             switch(norm[n]) {
             case ChamMaxNorm:
                 /* result should be perfectly equal */

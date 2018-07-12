@@ -97,9 +97,9 @@ int main(int argc, char *argv[]) {
 
     CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
                            NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1,
-                           morse_getaddr_null, // specific function
-                           morse_getblkldd_ccrb,
-                           morse_getrankof_2d);
+                           chameleon_getaddr_null, // specific function
+                           chameleon_getblkldd_ccrb,
+                           chameleon_getrankof_2d);
     CHAMELEON_Desc_Create(&descB,  NULL, ChamRealDouble,
                       NB, NB,  NB*NB, N, NRHS, 0, 0, N, NRHS, 1, 1);
     CHAMELEON_Desc_Create(&descX,  NULL, ChamRealDouble,

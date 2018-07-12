@@ -331,7 +331,7 @@ CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
 
             /* W = A2_2 */
             LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                morse_lapack_const(ChamUpperLower),
+                chameleon_lapack_const(ChamUpperLower),
                 L, N,
                 &A2[K-L], LDA2, W, LDW);
 
@@ -397,7 +397,7 @@ CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
 
                 /* W = A2_2 */
                 LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,
-                    morse_lapack_const(ChamUpperLower),
+                    chameleon_lapack_const(ChamUpperLower),
                     M, L,
                     &A2[LDA2*(K-L)], LDA2, W, LDW);
 

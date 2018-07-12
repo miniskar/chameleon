@@ -65,19 +65,19 @@ void CORE_zlaset2(cham_uplo_t uplo, int M, int N,
     if (uplo == ChamUpper) {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M, N-1, alpha, alpha, A+LDA, LDA);
     }
     else if (uplo == ChamLower) {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M-1, N, alpha, alpha, A+1, LDA);
     }
     else {
         LAPACKE_zlaset_work(
             LAPACK_COL_MAJOR,
-            morse_lapack_const(uplo),
+            chameleon_lapack_const(uplo),
             M, N, alpha, alpha, A, LDA);
     }
 }

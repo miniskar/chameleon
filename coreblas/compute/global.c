@@ -32,7 +32,7 @@ get_coreblas_gemm3m_enabled(void) {
 /**
  *  LAPACK Constants
  */
-char *morse_lapack_constants[] =
+char *chameleon_lapack_constants[] =
 {
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",

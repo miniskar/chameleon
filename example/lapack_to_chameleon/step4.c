@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* Question morse to get the block (tile) size (number of columns) */
+    /* Question chameleon to get the block (tile) size (number of columns) */
     CHAMELEON_Get( CHAMELEON_TILE_SIZE, &NB );
 
     /* Initialize the structure required for CHAMELEON tile interface */

@@ -26,7 +26,7 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, morse_time_t *t_)
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     CHAMELEON_Complex64_t alpha;
     PASTE_CODE_IPARAM_LOCALS( iparam );

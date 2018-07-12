@@ -76,19 +76,19 @@
 /**
  *  Global shortcuts
  */
-#define CHAMELEON_RANK        morse_rank(morse)
-#define CHAMELEON_SIZE        morse->world_size
-#define CHAMELEON_GRPSIZE     morse->group_size
-#define CHAMELEON_NB          morse->nb
-#define CHAMELEON_IB          morse->ib
-#define CHAMELEON_SCHEDULING  morse->scheduling
-#define CHAMELEON_RHBLK       morse->rhblock
-#define CHAMELEON_TRANSLATION morse->translation
-#define CHAMELEON_PARALLEL    morse->parallel_enabled
-#define CHAMELEON_PROFILING   morse->profiling_enabled
+#define CHAMELEON_RANK        chameleon_rank(chamctxt)
+#define CHAMELEON_SIZE        chamctxt->world_size
+#define CHAMELEON_GRPSIZE     chamctxt->group_size
+#define CHAMELEON_NB          chamctxt->nb
+#define CHAMELEON_IB          chamctxt->ib
+#define CHAMELEON_SCHEDULING  chamctxt->scheduling
+#define CHAMELEON_RHBLK       chamctxt->rhblock
+#define CHAMELEON_TRANSLATION chamctxt->translation
+#define CHAMELEON_PARALLEL    chamctxt->parallel_enabled
+#define CHAMELEON_PROFILING   chamctxt->profiling_enabled
 #if defined(CHAMELEON_USE_MPI)
-#define CHAMELEON_MPI_RANK    morse->my_mpi_rank
-#define CHAMELEON_MPI_SIZE    morse->mpi_comm_size
+#define CHAMELEON_MPI_RANK    chamctxt->my_mpi_rank
+#define CHAMELEON_MPI_SIZE    chamctxt->mpi_comm_size
 #endif
 
 /**
@@ -101,8 +101,8 @@
 /**
  *  Global array of LAPACK constants
  */
-extern char *morse_lapack_constants[];
-#define morse_lapack_const(morse_const) morse_lapack_constants[morse_const][0]
+extern char *chameleon_lapack_constants[];
+#define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,10 +114,10 @@ extern "C" {
 #include "control/compute_z.h"
 
 /*
-void morse_pdlag2s(CHAM_context_t *morse);
-void morse_pzlag2c(CHAM_context_t *morse);
-void morse_pslag2d(CHAM_context_t *morse);
-void morse_pclag2z(CHAM_context_t *morse);
+void chameleon_pdlag2s(CHAM_context_t *chamctxt);
+void chameleon_pzlag2c(CHAM_context_t *chamctxt);
+void chameleon_pslag2d(CHAM_context_t *chamctxt);
+void chameleon_pclag2z(CHAM_context_t *chamctxt);
 */
 
 #ifdef __cplusplus

@@ -28,15 +28,15 @@
 /* Variable parsec_dtd_no_of_arenas is private and cannot be changed */
 #define CHAMELEON_PARSEC_DTD_NO_OF_ARENA 16 /**< Number of arenas available per DTD */
 
-typedef struct morse_parsec_arena_s {
+typedef struct chameleon_parsec_arena_s {
     /* int mb; */
     /* int nb; */
     /* cham_flttype_t dtype; */
     size_t size;
-} morse_parsec_arena_t;
+} chameleon_parsec_arena_t;
 
-static int morse_parsec_nb_arenas = 0;
-static morse_parsec_arena_t morse_parsec_registered_arenas[CHAMELEON_PARSEC_DTD_NO_OF_ARENA] = { { 0 } };
+static int chameleon_parsec_nb_arenas = 0;
+static chameleon_parsec_arena_t chameleon_parsec_registered_arenas[CHAMELEON_PARSEC_DTD_NO_OF_ARENA] = { { 0 } };
 
 #endif
 
@@ -60,10 +60,10 @@ void RUNTIME_free( void *ptr, size_t size )
 }
 
 static inline void
-morse_parsec_key_to_coordinates(parsec_data_collection_t *data_collection, parsec_data_key_t key,
+chameleon_parsec_key_to_coordinates(parsec_data_collection_t *data_collection, parsec_data_key_t key,
                                 int *m, int *n)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     int _m, _n;
 
@@ -74,9 +74,9 @@ morse_parsec_key_to_coordinates(parsec_data_collection_t *data_collection, parse
 }
 
 static inline parsec_data_key_t
-morse_parsec_data_key(parsec_data_collection_t *data_collection, ...)
+chameleon_parsec_data_key(parsec_data_collection_t *data_collection, ...)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
@@ -95,9 +95,9 @@ morse_parsec_data_key(parsec_data_collection_t *data_collection, ...)
 }
 
 static inline uint32_t
-morse_parsec_rank_of(parsec_data_collection_t *data_collection, ...)
+chameleon_parsec_rank_of(parsec_data_collection_t *data_collection, ...)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
@@ -116,32 +116,32 @@ morse_parsec_rank_of(parsec_data_collection_t *data_collection, ...)
 }
 
 static inline uint32_t
-morse_parsec_rank_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
+chameleon_parsec_rank_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
 {
     int m, n;
-    morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
-    return morse_parsec_rank_of(data_collection, m, n);
+    chameleon_parsec_key_to_coordinates(data_collection, key, &m, &n);
+    return chameleon_parsec_rank_of(data_collection, m, n);
 }
 
 static inline int32_t
-morse_parsec_vpid_of(parsec_data_collection_t *data_collection, ... )
+chameleon_parsec_vpid_of(parsec_data_collection_t *data_collection, ... )
 {
     (void)data_collection;
     return 0;
 }
 
 static inline int32_t
-morse_parsec_vpid_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
+chameleon_parsec_vpid_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
 {
     int m, n;
-    morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
-    return morse_parsec_vpid_of(data_collection, m, n);
+    chameleon_parsec_key_to_coordinates(data_collection, key, &m, &n);
+    return chameleon_parsec_vpid_of(data_collection, m, n);
 }
 
 static inline parsec_data_t*
-morse_parsec_data_of(parsec_data_collection_t *data_collection, ...)
+chameleon_parsec_data_of(parsec_data_collection_t *data_collection, ...)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     va_list ap;
     int m, n;
@@ -161,18 +161,18 @@ morse_parsec_data_of(parsec_data_collection_t *data_collection, ...)
     //assert( data_collection->nodes == 1 );
 #endif
     return parsec_data_create( pdesc->data_map + n * mdesc->lmt + m, data_collection,
-                               morse_parsec_data_key( data_collection, m, n ),
+                               chameleon_parsec_data_key( data_collection, m, n ),
                                mdesc->get_blkaddr( mdesc, m, n ),
                                mdesc->bsiz * CHAMELEON_Element_Size(mdesc->dtyp) );
 }
 
 static inline parsec_data_t*
-morse_parsec_data_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
+chameleon_parsec_data_of_key(parsec_data_collection_t *data_collection, parsec_data_key_t key)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     int m, n;
-    morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
+    chameleon_parsec_key_to_coordinates(data_collection, key, &m, &n);
 
 #if defined(CHAMELEON_USE_MPI)
     /* TODO: change displacement in data_map when in distributed */
@@ -185,12 +185,12 @@ morse_parsec_data_of_key(parsec_data_collection_t *data_collection, parsec_data_
 
 #ifdef parsec_PROF_TRACE
 static inline int
-morse_parsec_key_to_string(parsec_data_collection_t *data_collection, parsec_data_key_t key, char * buffer, uint32_t buffer_size)
+chameleon_parsec_key_to_string(parsec_data_collection_t *data_collection, parsec_data_key_t key, char * buffer, uint32_t buffer_size)
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)data_collection;
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)data_collection;
     CHAM_desc_t *mdesc = pdesc->desc;
     int m, n, res;
-    morse_parsec_key_to_coordinates(data_collection, key, &m, &n);
+    chameleon_parsec_key_to_coordinates(data_collection, key, &m, &n);
     res = snprintf(buffer, buffer_size, "(%d, %d)", m, n);
     if (res < 0)
     {
@@ -207,10 +207,10 @@ morse_parsec_key_to_string(parsec_data_collection_t *data_collection, parsec_dat
 void RUNTIME_desc_create( CHAM_desc_t *mdesc )
 {
     parsec_data_collection_t *data_collection;
-    morse_parsec_desc_t *pdesc;
+    chameleon_parsec_desc_t *pdesc;
     int comm_size;
 
-    pdesc = malloc( sizeof(morse_parsec_desc_t) );
+    pdesc = malloc( sizeof(chameleon_parsec_desc_t) );
     data_collection = (parsec_data_collection_t*)pdesc;
 
     /* Super setup */
@@ -218,17 +218,17 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
     data_collection->nodes  = comm_size;
     data_collection->myrank = mdesc->myrank;
 
-    data_collection->data_key    = morse_parsec_data_key;
-    data_collection->rank_of     = morse_parsec_rank_of;
-    data_collection->rank_of_key = morse_parsec_rank_of_key;
-    data_collection->data_of     = morse_parsec_data_of;
-    data_collection->data_of_key = morse_parsec_data_of_key;
-    data_collection->vpid_of     = morse_parsec_vpid_of;
-    data_collection->vpid_of_key = morse_parsec_vpid_of_key;
+    data_collection->data_key    = chameleon_parsec_data_key;
+    data_collection->rank_of     = chameleon_parsec_rank_of;
+    data_collection->rank_of_key = chameleon_parsec_rank_of_key;
+    data_collection->data_of     = chameleon_parsec_data_of;
+    data_collection->data_of_key = chameleon_parsec_data_of_key;
+    data_collection->vpid_of     = chameleon_parsec_vpid_of;
+    data_collection->vpid_of_key = chameleon_parsec_vpid_of_key;
 #if defined(parsec_PROF_TRACE)
     {
         int rc;
-        data_collection->key_to_string = morse_parsec_key_to_string;
+        data_collection->key_to_string = chameleon_parsec_key_to_string;
         data_collection->key           = NULL;
         rc = asprintf(&(data_collection->key_dim), "(%d, %d)", mdesc->lmt, mdesc->lnt);
         (void)rc;
@@ -251,18 +251,18 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
 #if defined(CHAMELEON_USE_MPI)
     /* Look if an arena already exists for this descriptor */
     {
-        morse_parsec_arena_t *arena = morse_parsec_registered_arenas;
+        chameleon_parsec_arena_t *arena = chameleon_parsec_registered_arenas;
         size_t size = mdesc->mb * mdesc->nb * CHAMELEON_Element_Size(mdesc->dtyp);
         int i;
 
-        for(i=0; i<morse_parsec_nb_arenas; i++, arena++) {
+        for(i=0; i<chameleon_parsec_nb_arenas; i++, arena++) {
             if ( size == arena->size) {
                 pdesc->arena_index = i;
                 break;
             }
         }
 
-        if (i == morse_parsec_nb_arenas) {
+        if (i == chameleon_parsec_nb_arenas) {
             parsec_datatype_t datatype;
 
             /* Create a taskpool to make sur the system is initialized */
@@ -272,7 +272,7 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
             }
 
             /* Internal limitation of PaRSEC */
-            assert(morse_parsec_nb_arenas < CHAMELEON_PARSEC_DTD_NO_OF_ARENA);
+            assert(chameleon_parsec_nb_arenas < CHAMELEON_PARSEC_DTD_NO_OF_ARENA);
 
             switch(mdesc->dtyp) {
             case ChamInteger:       datatype = parsec_datatype_int32_t; break;
@@ -280,7 +280,7 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
             case ChamRealDouble:    datatype = parsec_datatype_double_t; break;
             case ChamComplexFloat:  datatype = parsec_datatype_complex_t; break;
             case ChamComplexDouble: datatype = parsec_datatype_double_complex_t; break;
-            default: morse_fatal_error("CHAMELEON_Element_Size", "undefined type"); break;
+            default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type"); break;
             }
 
             /* Register the new arena */
@@ -288,7 +288,7 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
                                      mdesc->mb, mdesc->nb, mdesc->mb, PARSEC_ARENA_ALIGNMENT_SSE, -1 );
             arena->size = size;
             pdesc->arena_index = i;
-            morse_parsec_nb_arenas++;
+            chameleon_parsec_nb_arenas++;
         }
     }
 #endif
@@ -303,7 +303,7 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
  */
 void RUNTIME_desc_destroy( CHAM_desc_t *mdesc )
 {
-    morse_parsec_desc_t *pdesc = (morse_parsec_desc_t*)(mdesc->schedopt);
+    chameleon_parsec_desc_t *pdesc = (chameleon_parsec_desc_t*)(mdesc->schedopt);
     if ( pdesc == NULL ) {
         return;
     }

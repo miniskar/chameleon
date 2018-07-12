@@ -29,10 +29,10 @@
 /**
  *  Parallel tile Cholesky factorization - dynamic scheduling
  */
-void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
+void chameleon_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
@@ -43,10 +43,10 @@ void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
     CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
     CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     RUNTIME_options_ws_alloc( &options, 0, ws_host );
 
@@ -55,7 +55,7 @@ void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
      */
     if (uplo == ChamLower) {
         for (k = 0; k < A->mt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
             ldak = BLKLDD(A, k);
@@ -101,7 +101,7 @@ void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
                 RUNTIME_data_flush( sequence, A(n, k) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
     /*
@@ -109,7 +109,7 @@ void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
      */
     else {
         for (k = 0; k < A->nt; k++) {
-            RUNTIME_iteration_push(morse, k);
+            RUNTIME_iteration_push(chamctxt, k);
 
             tempkm = k == A->nt-1 ? A->n-k*A->nb : A->nb;
             ldak = BLKLDD(A, k);
@@ -155,10 +155,10 @@ void morse_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
                 RUNTIME_data_flush( sequence, A(k, m) );
             }
 
-            RUNTIME_iteration_pop(morse);
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }

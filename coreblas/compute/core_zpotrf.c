@@ -35,7 +35,7 @@ void CORE_zpotrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, int
 {
     *INFO = LAPACKE_zpotrf_work(
         LAPACK_COL_MAJOR,
-        morse_lapack_const(uplo),
+        chameleon_lapack_const(uplo),
         N, A, LDA );
 }
 

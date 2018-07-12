@@ -132,8 +132,8 @@ int CORE_zgeqrt(int M, int N, int IB,
                             &A[LDA*i+i], LDA, &TAU[i], WORK);
 
         LAPACKE_zlarft_work(LAPACK_COL_MAJOR,
-            morse_lapack_const(ChamDirForward),
-            morse_lapack_const(ChamColumnwise),
+            chameleon_lapack_const(ChamDirForward),
+            chameleon_lapack_const(ChamColumnwise),
             M-i, sb,
             &A[LDA*i+i], LDA, &TAU[i],
             &T[LDT*i], LDT);
@@ -141,10 +141,10 @@ int CORE_zgeqrt(int M, int N, int IB,
         if (N > i+sb) {
             LAPACKE_zlarfb_work(
                 LAPACK_COL_MAJOR,
-                morse_lapack_const(ChamLeft),
-                morse_lapack_const(ChamConjTrans),
-                morse_lapack_const(ChamDirForward),
-                morse_lapack_const(ChamColumnwise),
+                chameleon_lapack_const(ChamLeft),
+                chameleon_lapack_const(ChamConjTrans),
+                chameleon_lapack_const(ChamDirForward),
+                chameleon_lapack_const(ChamColumnwise),
                 M-i, N-i-sb, sb,
                 &A[LDA*i+i],      LDA,
                 &T[LDT*i],        LDT,

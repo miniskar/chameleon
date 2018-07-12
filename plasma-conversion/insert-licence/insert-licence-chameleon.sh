@@ -52,7 +52,7 @@
 #  @date 2012-07-13
 #
 ###
-for i in $(find . -name "*.c" -or -name "*.h" -not -path "*svn*" -not -name "morse_fortran.h")
+for i in $(find . -name "*.c" -or -name "*.h" -not -path "*svn*" -not -name "chameleon_fortran.h")
 do
   cat $(dirname $0)/chameleon_c.licence > $(dirname $0)/buffer.tmp
   cat $i >> $(dirname $0)/buffer.tmp
@@ -60,7 +60,7 @@ do
   rm $(dirname $0)/buffer.tmp
 done
 
-for i in $(find . -name "*.f" -or -name "*.F" -or -name "*.f77" -or -name "*.F77" -or -name "*.f90" -or -name "*.F90" -or -name "morse_fortran.h")
+for i in $(find . -name "*.f" -or -name "*.F" -or -name "*.f77" -or -name "*.F77" -or -name "*.f90" -or -name "*.F90" -or -name "chameleon_fortran.h")
 do
   cat $(dirname $0)/chameleon_f.licence > $(dirname $0)/buffer.tmp
   cat $i >> $(dirname $0)/buffer.tmp

@@ -31,12 +31,12 @@
 /**
  *  Parallel tile triangular matrix-matrix multiplication - dynamic scheduling
  */
-void morse_pztrmm(cham_side_t side, cham_uplo_t uplo,
+void chameleon_pztrmm(cham_side_t side, cham_uplo_t uplo,
                          cham_trans_t trans, cham_diag_t diag,
                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
-    CHAM_context_t *morse;
+    CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int k, m, n;
@@ -45,10 +45,10 @@ void morse_pztrmm(cham_side_t side, cham_uplo_t uplo,
 
     CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
 
-    morse = morse_context_self();
+    chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, morse, sequence, request);
+    RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLeft / ChamUpper / ChamNoTrans
      */
@@ -306,5 +306,5 @@ void morse_pztrmm(cham_side_t side, cham_uplo_t uplo,
         }
     }
 
-    RUNTIME_options_finalize(&options, morse);
+    RUNTIME_options_finalize(&options, chamctxt);
 }
