@@ -25,7 +25,7 @@ linear algebra algorithms on very different type of architecture:
 laptop, many-core nodes, CPUs-GPUs, multiple nodes. For example,
 Chameleon is able to perform a Cholesky factorization
 (double-precision) at 80 TFlop/s on a dense matrix of order 400 000
-(i.e. 4 min). Chameleon is a sub-project of [[http://icl.cs.utk.edu/morse/][CHAMELEON]] specifically
+(i.e. 4 min). Chameleon is a sub-project of [[http://icl.cs.utk.edu/morse/][MORSE]] specifically
 dedicated to dense linear algebra.
 
 * Get Chameleon
