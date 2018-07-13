@@ -3,7 +3,8 @@ image: hpclib/hiepacs
 stages:
   - build
   - test
-  - third
+  - analyse
+  - deploy
 
 before_script:
   - git submodule update --init --recursive
@@ -235,7 +236,7 @@ test_parsec_master:
     - master@solverstack/chameleon
 
 coverity:
-  stage: third
+  stage: analyse
   dependencies: []
   artifacts:
     name: chameleon_coverity
@@ -257,7 +258,7 @@ coverity:
     - master@solverstack/chameleon
 
 sonarqube:
-  stage: third
+  stage: analyse
   dependencies:
     - test_starpu_master
     - test_starpu_simgrid_master
@@ -285,17 +286,18 @@ sonarqube:
     - master@solverstack/chameleon
 
 doc:
-  stage: third
+  stage: deploy
   dependencies: []
   artifacts:
     name: chameleon_doc
     expire_in: 1 week
     paths:
-      - build/doc/doxygen
-      - build/doc/orgmode
+      - public
   script:
     - cd build
     - cmake .. -DCHAMELEON_ENABLE_DOC=ON
     - make doc -j5
+    - mv docs/doxygen ../public/
+    - mv docs/orgmode ../public/
   only:
     - master@solverstack/chameleon
