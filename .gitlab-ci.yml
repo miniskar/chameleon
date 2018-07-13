@@ -285,7 +285,7 @@ sonarqube:
   only:
     - master@solverstack/chameleon
 
-doc:
+pages:
   stage: deploy
   dependencies: []
   artifacts:
