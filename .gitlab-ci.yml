@@ -275,12 +275,6 @@ sonarqube:
       - sonar.log
   script:
     - cat *.log > chameleon_build.log
-    - lcov -a $PWD/chameleon_starpu.lcov
-           -a $PWD/chameleon_starpu_simgrid.lcov
-           -a $PWD/chameleon_quark.lcov
-           -a $PWD/chameleon_parsec.lcov
-           -o $PWD/chameleon.lcov
-    - lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
     - ./tools/analysis.sh
   only:
     - master@solverstack/chameleon
@@ -297,7 +291,7 @@ pages:
     - cd build
     - cmake .. -DCHAMELEON_ENABLE_DOC=ON
     - make doc -j5
-    - mv docs/doxygen ../public/
-    - mv docs/orgmode ../public/
+    - mv doc/doxygen ../public/
+    - mv doc/orgmode ../public/
   only:
     - master@solverstack/chameleon

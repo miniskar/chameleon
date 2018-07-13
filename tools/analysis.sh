@@ -11,10 +11,20 @@
 # - exclude cblas.h and lapacke-.h because not really part of chameleon and make cppcheck analysis too long
 ./tools/find_sources.sh
 
+# Generate coverage xml output
+lcov -a $PWD/chameleon_starpu.lcov
+     -a $PWD/chameleon_starpu_simgrid.lcov
+     -a $PWD/chameleon_quark.lcov
+     -a $PWD/chameleon_parsec.lcov
+     -o $PWD/chameleon.lcov
+lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
+
 # Undefine this because not relevant in our configuration
 export UNDEFINITIONS="-UCHAMELEON_USE_OPENCL -UWIN32 -UWIN64 -U_MSC_EXTENSIONS -U_MSC_VER -U__SUNPRO_C -U__SUNPRO_CC -U__sun -Usun -U__cplusplus"
+
 # run cppcheck analysis
 cppcheck -v -f --language=c --platform=unix64 --enable=all --xml --xml-version=2 --suppress=missingInclude ${UNDEFINITIONS} --file-list=./filelist.txt 2> chameleon_cppcheck.xml
+
 # run rats analysis
 rats -w 3 --xml  `cat filelist.txt` > chameleon_rats.xml
 
@@ -46,6 +56,7 @@ sonar.c.coverage.reportPath=chameleon_coverage.xml
 sonar.c.cppcheck.reportPath=chameleon_cppcheck.xml
 sonar.c.rats.reportPath=chameleon_rats.xml
 sonar.c.clangsa.reportPath=build/analyzer_reports/*/*.plist
+sonar.c.jsonCompilationDatabase=build/compile_commands.json
 EOF
 
 # run sonar analysis + publish on sonarqube-dev
