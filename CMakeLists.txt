@@ -612,9 +612,6 @@ if( CHAMELEON_SCHED_STARPU )
             list(INSERT CHAMELEON_DEP 0 ${STARPU_LIBRARIES_DEP})
             set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")
         endif()
-        if (CHAMELEON_SIMULATION)
-            list(APPEND CMAKE_REQUIRED_FLAGS "-include" "starpu_simgrid_wrap.h")
-        endif()
         string(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
         check_function_exists(starpu_data_idle_prefetch_on_node HAVE_STARPU_IDLE_PREFETCH)
         if ( HAVE_STARPU_IDLE_PREFETCH )
@@ -1006,6 +1003,19 @@ if(CHAMELEON_ENABLE_DOC)
     endif()
 endif()
 #------------------------------------------------------------------------------
+
+
+###############################################################################
+# Make cmake include starpu_simgrid_wrap.h (which #define main and thus makes #
+# link tests fail) only after tests.                                          #
+###############################################################################
+if( CHAMELEON_SCHED_STARPU )
+    if ( STARPU_FOUND )
+        if (CHAMELEON_SIMULATION)
+            list(APPEND CMAKE_REQUIRED_FLAGS "-include" "starpu_simgrid_wrap.h")
+        endif()
+    endif()
+endif()
 
 ###############################################################################
 # Config files (pkg_config) #
