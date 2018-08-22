@@ -130,6 +130,7 @@ test_starpu_master:
 test_starpu_simgrid_branches:
   <<: *test_script
   variables:
+    SIMU: simu
     TESTS_RESTRICTION: "-R simu"
     VERSION: starpu_simgrid
   dependencies:
@@ -149,6 +150,7 @@ test_starpu_simgrid_branches:
 test_starpu_simgrid_master:
   <<: *test_script
   variables:
+    SIMU: simu
     TESTS_RESTRICTION: "-R simu"
     VERSION: starpu_simgrid
   dependencies:

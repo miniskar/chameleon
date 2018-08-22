@@ -430,6 +430,14 @@ if(NOT CHAMELEON_SIMULATION)
         endif (CUDA_FOUND)
 
         list(APPEND EXTRA_LIBRARIES ${EXTRA_LIBRARIES_CUDA})
+        foreach (_lib ${EXTRA_LIBRARIES_CUDA})
+            if (EXISTS ${_lib})
+                get_filename_component(libdir ${_lib} PATH)
+                if (EXISTS ${libdir})
+                    list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
+                endif()
+            endif()
+        endforeach()
 
     endif(CHAMELEON_USE_CUDA)
 
@@ -462,6 +470,15 @@ if(NOT CHAMELEON_SIMULATION)
                 string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
             endif()
         endif (MPI_C_FOUND)
+
+        foreach (_lib ${MPI_C_LIBRARIES})
+            if (EXISTS ${_lib})
+                get_filename_component(libdir ${_lib} PATH)
+                if (EXISTS ${libdir})
+                    list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
+                endif()
+            endif()
+        endforeach()
 
     endif (CHAMELEON_USE_MPI)
 
@@ -568,6 +585,15 @@ else (NOT CHAMELEON_SIMULATION)
         endif (MPI_C_FOUND)
 
     endif (CHAMELEON_USE_MPI)
+
+    foreach (_lib ${SIMGRID_LIBRARIES} ${MPI_C_LIBRARIES})
+        if (EXISTS ${_lib})
+            get_filename_component(libdir ${_lib} PATH)
+            if (EXISTS ${libdir})
+                list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
+            endif()
+        endif()
+    endforeach()
 
 endif(NOT CHAMELEON_SIMULATION)
 

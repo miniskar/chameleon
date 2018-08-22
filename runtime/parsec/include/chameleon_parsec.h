@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2017 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -21,7 +21,7 @@
 #define _CHAMELEON_PARSEC_H_
 
 #include <parsec.h>
-#include <parsec/insert_function.h>
+#include <parsec/interfaces/superscalar/insert_function.h>
 #include <parsec/data_dist/matrix/matrix.h>
 
 /* Undefined PaRSEC definition of BLKLDD */
