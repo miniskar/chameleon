@@ -25,6 +25,38 @@
 /**
  *
  */
+static int chameleon_starpu_init( starpu_conf_t *conf )
+{
+    int hres;
+
+#if defined(CHAMELEON_USE_MPI)
+
+    {
+        int flag = 0;
+#  if !defined(CHAMELEON_SIMULATION)
+        MPI_Initialized( &flag );
+#  endif
+
+#  ifdef HAVE_STARPU_MPI_INIT_CONF
+        hres = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);
+#  else
+        hres = starpu_init(conf);
+        if (hres < 0) {
+            return hres;
+        }
+        starpu_mpi_init(NULL, NULL, !flag);
+    }
+#  endif
+
+#else
+
+    hres = starpu_init(conf);
+
+#endif
+
+    return hres;
+}
+
 int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncpus,
                   int ncudas,
@@ -66,7 +98,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     {
         chamctxt->parallel_enabled = CHAMELEON_FALSE;
 
-        hres = starpu_init( conf );
+        hres = chameleon_starpu_init( conf );
     }
     else {
         int worker;
@@ -81,7 +113,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 
         conf->use_explicit_workers_bindid = 1;
 
-        hres = starpu_init( conf );
+        hres = chameleon_starpu_init( conf );
 
         chamctxt->nworkers = ncpus;
         chamctxt->nthreads_per_worker = nthreads_per_worker;
@@ -93,16 +125,6 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
             | STARPU_MALLOC_SIMULATION_FOLDED
 #endif
             );
-#endif
-
-#if defined(CHAMELEON_USE_MPI)
-    {
-        int flag = 0;
-#if !defined(CHAMELEON_SIMULATION)
-        MPI_Initialized( &flag );
-#endif
-        starpu_mpi_init(NULL, NULL, !flag);
-    }
 #endif
 
 #if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
@@ -124,15 +146,17 @@ void RUNTIME_finalize( CHAM_context_t *chamctxt )
         return;
     }
 
-#if defined(CHAMELEON_USE_MPI)
-    starpu_mpi_shutdown();
-#endif
-
 #if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
     starpu_cublas_shutdown();
 #endif
 
+#if defined(CHAMELEON_USE_MPI)
+    starpu_mpi_shutdown();
+#endif
+
+#if !defined(CHAMELEON_USE_MPI) || !defined(HAVE_STARPU_MPI_INIT_CONF)
     starpu_shutdown();
+#endif
     return;
 }
 
