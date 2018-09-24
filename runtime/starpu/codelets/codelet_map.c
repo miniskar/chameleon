@@ -17,6 +17,8 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+CHAMELEON_CL_CB(map, starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0, M*N);
+
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_map_cpu_func(void *descr[], void *cl_arg)
 {
