@@ -59,7 +59,9 @@ set(CHAMELEON_CONTROL
     ../control/tile.c
     ../control/chameleon_f77.c
     ../control/chameleon_mf77.c
-#    ../control/chameleonwinthread.c
+    #    ../control/chameleonwinthread.c
+    map.c
+    pmap.c
    )
 
 set(flags_to_add "")
