@@ -37,11 +37,12 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
 
-    QUARK_Insert_Task(opt->quark, CORE_map_quark, (Quark_Task_Flags*)opt,
+    QUARK_Insert_Task(
+        opt->quark, CORE_map_quark, (Quark_Task_Flags*)opt,
         sizeof(CHAM_desc_t*),             &A,    VALUE,
         sizeof(cham_uplo_t),              &uplo, VALUE,
-        sizeof(int),                      &Am    VALUE,
-        sizeof(int),                      &An    VALUE,
+        sizeof(int),                      &Am,   VALUE,
+        sizeof(int),                      &An,   VALUE,
         sizeof(CHAMELEON_Complex64_t), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
         sizeof(cham_unary_operator_t),    &operator, VALUE,
         sizeof(void*),                    &op_args,  VALUE,
