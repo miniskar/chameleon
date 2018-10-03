@@ -54,9 +54,6 @@
 /* ****************************************************************************
  * CHAMELEON functionnalities
  */
-int CHAMELEON_map( cham_uplo_t uplo, int M, int N,
-                   CHAMELEON_Complex64_t *A, int LDA,
-                   cham_unary_operator_t operator, void *op_args );
 int CHAMELEON_map_Tile( cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
                         cham_unary_operator_t operator,
