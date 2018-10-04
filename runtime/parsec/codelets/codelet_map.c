@@ -49,7 +49,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(cham_uplo_t),              &uplo, VALUE,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
-        PASSED_BY_REF, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), chameleon_parsec_get_arena_index( A ) | INOUT,
+        PASSED_BY_REF, RTBLKADDR(A, void, Am, An), chameleon_parsec_get_arena_index( A ) | INOUT,
         sizeof(cham_unary_operator_t),    &operator, VALUE,
         sizeof(void*),                    &op_args,  VALUE,
         PARSEC_DTD_ARG_END );

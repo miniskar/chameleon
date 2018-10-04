@@ -43,7 +43,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(cham_uplo_t),              &uplo, VALUE,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
-        sizeof(CHAMELEON_Complex64_t), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
+        sizeof(char), RTBLKADDR(A, void, Am, An), INOUT,
         sizeof(cham_unary_operator_t),    &operator, VALUE,
         sizeof(void*),                    &op_args,  VALUE,
         0);
