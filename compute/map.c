@@ -116,15 +116,15 @@ int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile", "NULL request");
+        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -137,7 +137,7 @@ int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
 
     /* Check descriptors for correctness */
     if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_map_Tile", "invalid descriptor");
+        chameleon_error("CHAMELEON_map_Tile_Async", "invalid descriptor");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 

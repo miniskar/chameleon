@@ -857,21 +857,23 @@
        * heevd: eigenvalues/eigenvectors computation with A Hermitian
      * *Extra routines*
        * *Norms*
-         * lange: computes norm of a matrix (Max, One, Inf, Frobenius)
+         * lange: compute norm of a matrix (Max, One, Inf, Frobenius)
          * lanhe: lange with A Hermitian
          * lansy: lange with A symmetric
          * lantr: lange with A triangular
        * *Random matrices generation*
-         * plghe: generates a random Hermitian matrix
-         * plgsy: generates a random symmetrix matrix
-         * plrnt: generates a random matrix
+         * plghe: generate a random Hermitian matrix
+         * plgsy: generate a random symmetrix matrix
+         * plrnt: generate a random matrix
        * *Others*
          * geadd: general matrix matrix addition
          * lacpy: copy matrix into another
-         * lascal: scales a matrix
+         * lascal: scale a matrix
          * laset: copy the triangular part of a matrix into another, set a
            value for the diagonal and off-diagonal part
          * tradd: trapezoidal matrices addition
+       * *Map functions*
+         * map: apply a user operator on each tile of the matrix
 
 **** Options routines
      Enable CHAMELEON feature.
