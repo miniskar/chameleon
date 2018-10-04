@@ -105,6 +105,10 @@ set(CODELETS_ZSRC
     codelets/codelet_zbuild.c
     )
 
+set(CODELETS_SRC
+  codelets/codelet_map.c
+)
+
 # Check for the subdirectories
 # ----------------------------
 if( CHAMELEON_SCHED_QUARK )

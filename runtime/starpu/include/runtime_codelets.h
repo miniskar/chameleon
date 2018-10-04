@@ -117,9 +117,6 @@
 #define CCODELETS_HEADER(name)                CODELETS_HEADER(c##name)
 #define ZCODELETS_HEADER(name)                CODELETS_HEADER(z##name)
 
-#define SCODELETS_CPU_HEADER(name)        CODELETS_CPU_HEADER(s##name)
-#define DCODELETS_CPU_HEADER(name)        CODELETS_CPU_HEADER(d##name)
-#define CCODELETS_CPU_HEADER(name)        CODELETS_CPU_HEADER(c##name)
-#define ZCODELETS_CPU_HEADER(name)        CODELETS_CPU_HEADER(z##name)
+CODELETS_HEADER(map);
 
 #endif /* _CODELETS_H_ */

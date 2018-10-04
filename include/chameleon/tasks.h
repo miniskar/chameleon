@@ -86,6 +86,14 @@ typedef enum chameleon_tasktype_e {
   TASK_NBKERNELS
 } cham_tasktype_t;
 
+typedef int (*cham_unary_operator_t)( const CHAM_desc_t *desc,
+                                      cham_uplo_t uplo, int m, int n,
+                                      void *data, void *op_args );
+
+void INSERT_TASK_map( const RUNTIME_option_t *options,
+                      cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
+                      cham_unary_operator_t operator, void *op_args );
+
 #include "chameleon/tasks_z.h"
 #include "chameleon/tasks_d.h"
 #include "chameleon/tasks_c.h"

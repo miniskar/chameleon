@@ -102,6 +102,7 @@ precisions_rules_py(RUNTIME_SRCS_GENERATED "${ZSRC}"
 set(RUNTIME_SRCS
   ${RUNTIME_COMMON}
   ${RUNTIME_SRCS_GENERATED}
+  ${CODELETS_SRC}
   )
 
 # Force generation of sources
