@@ -37,11 +37,11 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
-    CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descA, 51 );
+    CHAMELEON_zplghe_Tile( (double)N, uplo, descA, 51 );
 
     /* Save A for check */
     if (check == 1){
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
+        CHAMELEON_zlacpy_Tile(uplo, descA, descAC);
     }
 
     //RUNTIME_zlocality_allrestrict( STARPU_CUDA );
