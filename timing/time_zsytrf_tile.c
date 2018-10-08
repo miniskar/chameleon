@@ -37,37 +37,38 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
-    CHAMELEON_zplgsy_Tile( (double)N, ChamUpperLower, descA, 51 );
 
-    /* Save A for check */
-    if (check == 1){
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
+    /* Initialize data and save A if check */
+    if ( check ) {
+        CHAMELEON_zplgsy_Tile( (double)N, ChamUpperLower, descAC, 51 );
+        CHAMELEON_zlacpy_Tile( uplo, descAC, descA );
+    }
+    else {
+        CHAMELEON_zplgsy_Tile( (double)N, uplo, descA, 51 );
     }
 
     /* CHAMELEON ZSYSV */
     START_TIMING();
-    CHAMELEON_zsytrf_Tile(uplo, descA);
+    CHAMELEON_zsytrf_Tile( uplo, descA );
     STOP_TIMING();
 
     /* Check the solution */
     if ( check )
     {
         CHAMELEON_zplrnt_Tile( descB, 7672 );
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descB, descX);
+        CHAMELEON_zlacpy_Tile( ChamUpperLower, descB, descX );
         CHAMELEON_zsytrs_Tile( uplo, descA, descX );
-        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
-        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
-        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
-                CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
-                dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descAC );
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descB  );
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descX  );
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
 
         PASTE_CODE_FREE_MATRIX( descB  );
         PASTE_CODE_FREE_MATRIX( descAC );
         PASTE_CODE_FREE_MATRIX( descX  );
-
     }
 
     PASTE_CODE_FREE_MATRIX( descA );
-
     return 0;
 }

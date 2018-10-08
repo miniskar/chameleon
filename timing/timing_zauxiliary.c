@@ -259,18 +259,18 @@ double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham
     double *work = (double *)malloc(chameleon_max(M, NRHS)* sizeof(double));
     /*double eps = LAPACKE_dlamch_work('e');*/
 
-    *Binitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref,    LDB, work);
-    *Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bcham, LDB, work);
+    *Binitnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, Bref,  LDB, work );
+    *Bchamnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, Bcham, LDB, work );
 
-    cblas_ztrsm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
-                (CBLAS_TRANSPOSE)trans, (CBLAS_DIAG)diag, M, NRHS,
-                CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
+    cblas_ztrsm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
+                 (CBLAS_TRANSPOSE)trans, (CBLAS_DIAG)diag, M, NRHS,
+                 CBLAS_SADDR(alpha), A, LDA, Bref, LDB );
 
-    *Blapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work);
+    *Blapacknorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work );
 
-    cblas_zaxpy(LDB * NRHS, CBLAS_SADDR(beta_const), Bcham, 1, Bref, 1);
+    cblas_zaxpy( LDB * NRHS, CBLAS_SADDR(beta_const), Bcham, 1, Bref, 1 );
 
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work);
+    Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, Bref, LDB, work );
     Rnorm = Rnorm / *Blapacknorm;
     /* chameleon_max(M,NRHS) * eps);*/
 
@@ -297,7 +297,9 @@ double z_check_solution(int M, int N, int NRHS, CHAMELEON_Complex64_t *A, int LD
     *xnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, NRHS, X, LDB, work);
     *bnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, NRHS, B, LDB, work);
 
-    cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, NRHS, N, CBLAS_SADDR(zone), A, LDA, X, LDB, CBLAS_SADDR(mzone), B, LDB);
+    cblas_zgemm( CblasColMajor, CblasNoTrans, CblasNoTrans, M, NRHS, N,
+                 CBLAS_SADDR(zone),  A, LDA, X, LDB,
+                 CBLAS_SADDR(mzone), B, LDB );
 
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, NRHS, B, LDB, work);
 

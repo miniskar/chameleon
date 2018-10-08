@@ -38,34 +38,39 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
 
-    /* Initialize AT and bT for Symmetric Positif Matrix */
-    CHAMELEON_zplghe_Tile((double)N, ChamUpperLower, descA, 51 );
-    CHAMELEON_zplrnt_Tile( descX, 7732 );
+    /* Initialize data and save A and B if check */
+    CHAMELEON_zplrnt_Tile( descX, 7672 );
+    if ( check ) {
+        CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descAC, 51 );
+        CHAMELEON_zlacpy_Tile( uplo, descAC, descA );
 
-    /* Save AT and bT for check */
-    if (check == 1){
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descX, descB);
+        CHAMELEON_zlacpy_Tile( ChamUpperLower, descX, descB );
     }
+    else {
+        CHAMELEON_zplghe_Tile( (double)N, uplo, descA, 51 );
+    }
+
     /* CHAMELEON ZPOSV */
     START_TIMING();
-    CHAMELEON_zposv_Tile(uplo, descA, descX);
+    CHAMELEON_zposv_Tile( uplo, descA, descX );
     STOP_TIMING();
 
     /* Check the solution */
     if (check)
-      {
-        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
-        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
-        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+    {
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descAC );
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descB  );
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descX  );
+
         CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
-        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
+
         PASTE_CODE_FREE_MATRIX( descAC );
         PASTE_CODE_FREE_MATRIX( descB  );
-      }
+    }
 
     PASTE_CODE_FREE_MATRIX( descA );
     PASTE_CODE_FREE_MATRIX( descX );
-
     return 0;
 }

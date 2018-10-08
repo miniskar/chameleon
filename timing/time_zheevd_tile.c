@@ -41,7 +41,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX( S, 1, double, N, 1 );
 
     /* Allocate Workspace */
-    CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A, LDA, 51 );
+    CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, 51 );
     CHAMELEON_Alloc_Workspace_zheevd(N, N, &descT, 1, 1);
 
     START_TIMING();

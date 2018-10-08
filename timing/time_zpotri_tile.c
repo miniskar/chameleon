@@ -42,7 +42,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
      * It's done in static to avoid having the same sequence than one
      * the function we want to trace
      */
-    CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descA, 51 );
+    CHAMELEON_zplghe_Tile( (double)N, uplo, descA, 51 );
 
     /* CHAMELEON ZPOTRF / ZTRTRI / ZLAUUM  */
     /*
