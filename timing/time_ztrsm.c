@@ -29,6 +29,8 @@ static int
 RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     CHAMELEON_Complex64_t alpha;
+    cham_uplo_t uplo = ChamLower;
+
     PASTE_CODE_IPARAM_LOCALS( iparam );
 
     LDA = chameleon_max( LDA, N );
@@ -38,26 +40,25 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX( B,      1, CHAMELEON_Complex64_t, LDB, NRHS);
     PASTE_CODE_ALLOCATE_MATRIX( B2, check, CHAMELEON_Complex64_t, LDB, NRHS);
 
-     /* Initialiaze Data */
-    CHAMELEON_zplgsy( (CHAMELEON_Complex64_t)N, ChamUpperLower, N, A, LDA, 453 );
+     /* Initialize Data */
+    CHAMELEON_zplgsy( (CHAMELEON_Complex64_t)N, uplo, N, A, LDA, 453 );
     CHAMELEON_zplrnt( N, NRHS, B, LDB, 5673 );
     LAPACKE_zlarnv_work(1, ISEED, 1, &alpha);
     alpha = 10.; /*alpha * N  /  2.;*/
 
-    if (check)
-    {
+    if ( check ) {
         memcpy(B2, B, LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
     }
 
     START_TIMING();
-    CHAMELEON_ztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamUnit,
-                  N, NRHS, alpha, A, LDA, B, LDB );
+    CHAMELEON_ztrsm( ChamLeft, uplo, ChamNoTrans, ChamUnit,
+                     N, NRHS, alpha, A, LDA, B, LDB );
     STOP_TIMING();
 
     /* Check the solution */
-    if (check)
+    if ( check )
     {
-        dparam[IPARAM_RES] = z_check_trsm( ChamLeft, ChamUpper, ChamNoTrans, ChamUnit,
+        dparam[IPARAM_RES] = z_check_trsm( ChamLeft, uplo, ChamNoTrans, ChamUnit,
                                            N, NRHS,
                                            alpha, A, LDA, B, B2, LDB,
                                            &(dparam[IPARAM_ANORM]),
@@ -68,6 +69,5 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 
     free( A );
     free( B );
-
     return 0;
 }

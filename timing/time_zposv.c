@@ -34,33 +34,38 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     LDA = chameleon_max(LDA, N);
 
     /* Allocate Data */
-    PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N    );
-    PASTE_CODE_ALLOCATE_MATRIX( X, 1, CHAMELEON_Complex64_t, LDB, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX( A,  1,     CHAMELEON_Complex64_t, LDA, N    );
+    PASTE_CODE_ALLOCATE_MATRIX( A2, check, CHAMELEON_Complex64_t, LDA, N    );
+    PASTE_CODE_ALLOCATE_MATRIX( X,  1,     CHAMELEON_Complex64_t, LDB, NRHS );
 
-    /* Initialiaze Data */
-    CHAMELEON_zplghe((double)N, ChamUpperLower, N, A, LDA, 51 );
+    /* Initialize data and save A if check */
+    if ( check ) {
+        CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A2, LDA, 51 );
+        CHAMELEON_zlacpy( uplo, N, N, A2, LDA, A, LDA );
+    }
+    else {
+        CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, 51 );
+    }
     CHAMELEON_zplrnt( N, NRHS, X, LDB, 5673 );
 
-    /* Save A and b  */
-    PASTE_CODE_ALLOCATE_COPY( Acpy, check, CHAMELEON_Complex64_t, A, LDA, N    );
-    PASTE_CODE_ALLOCATE_COPY( B,    check, CHAMELEON_Complex64_t, X, LDB, NRHS );
+    /* Save b  */
+    PASTE_CODE_ALLOCATE_COPY( B, check, CHAMELEON_Complex64_t, X, LDB, NRHS );
 
     /* CHAMELEON ZPOSV */
     START_TIMING();
-    CHAMELEON_zposv(uplo, N, NRHS, A, LDA, X, LDB);
+    CHAMELEON_zposv( uplo, N, NRHS, A, LDA, X, LDB );
     STOP_TIMING();
 
     /* Check the solution */
     if (check)
-      {
-        dparam[IPARAM_RES] = z_check_solution(N, N, NRHS, Acpy, LDA, B, X, LDB,
-                                              &(dparam[IPARAM_ANORM]),
-                                              &(dparam[IPARAM_BNORM]),
-                                              &(dparam[IPARAM_XNORM]));
-        free(Acpy); free(B);
-      }
+    {
+        dparam[IPARAM_RES] = z_check_solution( N, N, NRHS, A2, LDA, B, X, LDB,
+                                               &(dparam[IPARAM_ANORM]),
+                                               &(dparam[IPARAM_BNORM]),
+                                               &(dparam[IPARAM_XNORM]) );
+        free(A2); free(B);
+    }
 
     free(A); free(X);
-
     return 0;
 }

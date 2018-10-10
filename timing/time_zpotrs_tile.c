@@ -30,51 +30,51 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_IPARAM_LOCALS( iparam );
     cham_uplo_t uplo = ChamUpper;
 
-    LDA = chameleon_max(LDA, N);
-    check = 1;
+    LDA = chameleon_max( LDA, N );
 
     /* Allocate Data */
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descA,  1,     CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descB,  1,     CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descAC, check, CHAMELEON_Complex64_t, ChamComplexDouble, LDA, N, N    );
-    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  check, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
-    CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descA, 51 );
+    PASTE_CODE_ALLOCATE_MATRIX_TILE( descX,  1,     CHAMELEON_Complex64_t, ChamComplexDouble, LDB, N, NRHS );
 
-    /* Save A for check */
-    if (check == 1){
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descA, descAC);
+    /* Initialize data and save A and B if check */
+    CHAMELEON_zplrnt_Tile( descX, 7672 );
+    if ( check ) {
+        CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descAC, 51 );
+        CHAMELEON_zlacpy_Tile( uplo, descAC, descA );
+
+        CHAMELEON_zlacpy_Tile( ChamUpperLower, descX, descB );
     }
-
+    else {
+        CHAMELEON_zplghe_Tile( (double)N, uplo, descA, 51 );
+    }
     //RUNTIME_zlocality_allrestrict( STARPU_CUDA );
 
     /* CHAMELEON ZPOTRF */
     CHAMELEON_zpotrf_Tile(uplo, descA);
 
+    /* Compute the solution */
+    START_TIMING();
+    CHAMELEON_zpotrs_Tile( uplo, descA, descX );
+    STOP_TIMING();
+
     /* Check the solution */
     if ( check )
     {
-        /* Initialize and save B */
-        CHAMELEON_zplrnt_Tile( descB, 7672 );
-        CHAMELEON_zlacpy_Tile(ChamUpperLower, descB, descX);
-
-        /* Compute the solution */
-        START_TIMING();
-        CHAMELEON_zpotrs_Tile( uplo, descA, descX );
-        STOP_TIMING();
-
         /* Check solution */
-        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descAC);
-        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
-        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile(ChamInfNorm, descX);
+        dparam[IPARAM_ANORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descAC );
+        dparam[IPARAM_BNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descB  );
+        dparam[IPARAM_XNORM] = CHAMELEON_zlange_Tile( ChamInfNorm, descX  );
         CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1.0, descAC, descX, -1.0, descB );
-        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
+        dparam[IPARAM_RES] = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
 
-        PASTE_CODE_FREE_MATRIX( descB  );
         PASTE_CODE_FREE_MATRIX( descAC );
-        PASTE_CODE_FREE_MATRIX( descX  );
-
     }
+
     PASTE_CODE_FREE_MATRIX( descA );
+    PASTE_CODE_FREE_MATRIX( descX );
+    PASTE_CODE_FREE_MATRIX( descB );
 
     return 0;
 }

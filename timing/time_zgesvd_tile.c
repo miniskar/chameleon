@@ -39,7 +39,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX( U,  (jobu  == ChamVec), CHAMELEON_Complex64_t, M, M );
     PASTE_CODE_ALLOCATE_MATRIX( S, 1, double, N, 1 );
 
-    /* Initialiaze Data */
+    /* Initialize Data */
     CHAMELEON_zplrnt_Tile(descA, 51 );
 
     /* Allocate Workspace */

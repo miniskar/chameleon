@@ -39,7 +39,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX( A, 1, CHAMELEON_Complex64_t, LDA, N    );
     PASTE_CODE_ALLOCATE_MATRIX( X, 1, CHAMELEON_Complex64_t, LDB, NRHS );
 
-    /* Initialiaze Data */
+    /* Initialize Data */
     CHAMELEON_zplrnt( N, N,    A, LDA,   51 );
     CHAMELEON_zplrnt( N, NRHS, X, LDB, 5673 );
 

@@ -40,7 +40,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descB, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDB, K, N );
     PASTE_CODE_ALLOCATE_MATRIX_TILE( descC, 1, CHAMELEON_Complex64_t, ChamComplexDouble, LDC, M, N );
 
-    /* Initialiaze Data */
+    /* Initialize Data */
     CHAMELEON_zplrnt_Tile( descA, 5373 );
     CHAMELEON_zplrnt_Tile( descB, 7672 );
     CHAMELEON_zplrnt_Tile( descC, 6387 );
