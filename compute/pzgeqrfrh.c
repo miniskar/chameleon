@@ -29,17 +29,13 @@
 #define A(m,n)  A,  (m),  (n)
 #define T(m,n)  T,  (m),  (n)
 #define T2(m,n) T,  (m), ((n)+A->nt)
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(m,n) D, ((m)/BS), 0
-#else
-#define D(m,n) A,  (m),  (n)
-#endif
+#define D(m,n)  D,  (m),  (n)
 
 /**
  *  Parallel tile QR factorization (reduction Householder) - dynamic scheduling
  */
-void chameleon_pzgeqrfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
-                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgeqrfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -59,13 +55,16 @@ void chameleon_pzgeqrfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
 
     ib = CHAMELEON_IB;
 
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
+    }
+
     /*
      * zgeqrt = A->nb * (ib+1)
      * zunmqr = A->nb * ib
-     * ztsqrt = A->nb * (ib+1)
-     * zttqrt = A->nb * (ib+1)
-     * ztsmqr = A->nb * ib
-     * zttmqr = A->nb * ib
+     * ztpqrt = A->nb * (ib+1)
+     * ztpmqr = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
@@ -74,7 +73,7 @@ void chameleon_pzgeqrfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
     /* Worker space
      *
      * zunmqr = A->nb * ib
-     * ztsmqr = 2 * A->nb * ib
+     * ztpmqr = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
@@ -99,20 +98,18 @@ void chameleon_pzgeqrfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
                 tempMm, tempkn, ib, T->nb,
                 A(M, k), ldaM,
                 T(M, k), T->mb);
-            if ( k < (A->nt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
-            INSERT_TASK_zlacpy(
-                &options,
-                ChamLower, tempMm, A->nb, A->nb,
-                A(M, k), ldaM,
-                D(M, k), ldaM );
+            if ( genD ) {
+                INSERT_TASK_zlacpy(
+                    &options,
+                    ChamLower, tempMm, A->nb, A->nb,
+                    A(M, k), ldaM,
+                    D(M, k), ldaM );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
                     ChamUpper, tempMm, A->nb,
                     0., 1.,
                     D(M, k), ldaM );
-#endif
 #endif
             }
             for (n = k+1; n < A->nt; n++) {

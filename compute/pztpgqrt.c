@@ -26,21 +26,17 @@
 #define T2(m,n) T2,  m,  n
 #define Q1(m,n) Q1,  m,  n
 #define Q2(m,n) Q2,  m,  n
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(k)    D, k, 0
-#else
-#define D(k)    V1, k, k
-#endif
+#define D(k)    D,   k,  k
 
 /**
  *  Parallel tile QR factorization - dynamic scheduling
  */
-void chameleon_pztpgqrt( int L,
-                     CHAM_desc_t *V1, CHAM_desc_t *T1,
-                     CHAM_desc_t *V2, CHAM_desc_t *T2,
-                     CHAM_desc_t *Q1, CHAM_desc_t *Q2,
-                     CHAM_desc_t *D,
-                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+void chameleon_pztpgqrt( int genD, int L,
+                         CHAM_desc_t *V1, CHAM_desc_t *T1,
+                         CHAM_desc_t *V2, CHAM_desc_t *T2,
+                         CHAM_desc_t *Q1, CHAM_desc_t *Q2,
+                         CHAM_desc_t *D,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -64,6 +60,12 @@ void chameleon_pztpgqrt( int L,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
+
+    if ( D == NULL ) {
+        D    = V1;
+        genD = 0;
+    }
+
     /*
      * ztpmqrt = Q1->nb * ib
      */
@@ -132,27 +134,27 @@ void chameleon_pztpgqrt( int L,
             }
         }
 
-#if defined(CHAMELEON_COPY_DIAG)
-        INSERT_TASK_zlacpy(
-            &options,
-            ChamLower, tempkm, tempkk, V1->nb,
-            V1(k, k), ldvk,
-            D(k), ldvk );
+        if ( genD ) {
+            INSERT_TASK_zlacpy(
+                &options,
+                ChamLower, tempkm, tempkk, V1->nb,
+                V1(k, k), ldvk,
+                D(k), ldvk );
 #if defined(CHAMELEON_USE_CUDA)
-        INSERT_TASK_zlaset(
-            &options,
-            ChamUpper, tempkm, tempkk,
-            0., 1.,
-            D(k), ldvk );
+            INSERT_TASK_zlaset(
+                &options,
+                ChamUpper, tempkm, tempkk,
+                0., 1.,
+                D(k), ldvk );
 #endif
-#endif
+        }
         for (n = k; n < Q1->nt; n++) {
             tempnn = n == Q1->nt-1 ? Q1->n-n*Q1->nb : Q1->nb;
             INSERT_TASK_zunmqr(
                 &options,
                 ChamLeft, ChamNoTrans,
                 tempkm, tempnn, tempkk, ib, T1->nb,
-                D(k), ldvk,
+                D(k),     ldvk,
                 T1(k, k), T1->mb,
                 Q1(k, n), ldqk);
         }

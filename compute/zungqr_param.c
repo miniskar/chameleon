@@ -310,7 +310,7 @@ int CHAMELEON_zungqr_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
 #endif
 
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q, sequence, request );
-    chameleon_pzungqr_param( qrtree, A, Q, TS, TT, Dptr, sequence, request );
+    chameleon_pzungqr_param( 1, qrtree, A, Q, TS, TT, Dptr, sequence, request );
 
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );

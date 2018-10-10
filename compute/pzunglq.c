@@ -28,17 +28,13 @@
 #define A(m,n) A,  m,  n
 #define Q(m,n) Q,  m,  n
 #define T(m,n) T,  m,  n
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(k)   D,  k,  0
-#else
 #define D(k)   D,  k,  k
-#endif
 
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
  */
-void chameleon_pzunglq(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D,
-                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -64,13 +60,14 @@ void chameleon_pzunglq(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc
         minMT = A->mt;
     }
 
-    if (D == NULL) {
-        D = A;
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
     }
 
     /*
      * zunmlq = A->nb * ib
-     * ztsmlq = A->nb * ib
+     * ztpmlq = A->nb * ib
      */
     ws_worker = A->nb * ib;
 
@@ -79,7 +76,7 @@ void chameleon_pzunglq(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc
     /* Worker space
      *
      * zunmlq = A->nb * ib
-     * ztsmlq = 2 * A->nb * ib
+     * ztpmlq = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
@@ -119,20 +116,22 @@ void chameleon_pzunglq(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc
             RUNTIME_data_flush( sequence, A(k, n) );
             RUNTIME_data_flush( sequence, T(k, n) );
         }
-#if defined(CHAMELEON_COPY_DIAG)
-        INSERT_TASK_zlacpy(
-            &options,
-            ChamUpper, tempkmin, tempkn, A->nb,
-            A(k, k), ldak,
-            D(k), ldak );
+
+
+        if ( genD ) {
+            INSERT_TASK_zlacpy(
+                &options,
+                ChamUpper, tempkmin, tempkn, A->nb,
+                A(k, k), ldak,
+                D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-        INSERT_TASK_zlaset(
-            &options,
-            ChamLower, tempkmin, tempkn,
-            0., 1.,
-            D(k), ldak );
+            INSERT_TASK_zlaset(
+                &options,
+                ChamLower, tempkmin, tempkn,
+                0., 1.,
+                D(k), ldak );
 #endif
-#endif
+        }
         for (m = k; m < Q->mt; m++) {
             tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
             ldqm = BLKLDD(Q, m);

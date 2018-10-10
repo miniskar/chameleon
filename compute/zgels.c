@@ -382,20 +382,18 @@ int CHAMELEON_zgels_Tile_Async( cham_trans_t trans, CHAM_desc_t *A,
         }
 #endif
         if (chamctxt->householder == ChamFlatHouseholder) {
+            chameleon_pzgeqrf( 1, A, T, Dptr, sequence, request );
 
-            chameleon_pzgeqrf( A, T, Dptr, sequence, request );
-
-            chameleon_pzunmqr( ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
+            chameleon_pzunmqr( 0, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
         }
         else {
-            chameleon_pzgeqrfrh( A, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+            chameleon_pzgeqrfrh( 1, CHAMELEON_RHBLK, A, T, Dptr, sequence, request );
 
-            chameleon_pzunmqrrh( ChamLeft, ChamConjTrans, A, B, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+            chameleon_pzunmqrrh( 0, CHAMELEON_RHBLK, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
         }
         subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
         subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
         chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
-
     }
     else {
         /* subB = chameleon_desc_submatrix(B, A->m, 0, A->n-A->m, B->n);
@@ -409,20 +407,20 @@ int CHAMELEON_zgels_Tile_Async( cham_trans_t trans, CHAM_desc_t *A,
         }
 #endif
         if (chamctxt->householder == ChamFlatHouseholder) {
-            chameleon_pzgelqf( A, T, Dptr, sequence, request );
+            chameleon_pzgelqf( 1, A, T, Dptr, sequence, request );
         }
         else {
-            chameleon_pzgelqfrh( A, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+            chameleon_pzgelqfrh( 1, CHAMELEON_RHBLK, A, T, Dptr, sequence, request );
         }
         subB = chameleon_desc_submatrix(B, 0, 0, A->m, B->n);
         subA = chameleon_desc_submatrix(A, 0, 0, A->m, A->m);
         chameleon_pztrsm( ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
 
         if (chamctxt->householder == ChamFlatHouseholder) {
-            chameleon_pzunmlq( ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
+            chameleon_pzunmlq( 0, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
         }
         else {
-            chameleon_pzunmlqrh( ChamLeft, ChamConjTrans, A, B, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+            chameleon_pzunmlqrh( 0, CHAMELEON_RHBLK, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
         }
     }
 

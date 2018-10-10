@@ -27,17 +27,13 @@
 
 #define A(m,n) A,  m,  n
 #define T(m,n) T,  m,  n
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(k)   D,  k,  0
-#else
 #define D(k)   D,  k,  k
-#endif
 
 /**
  *  Parallel tile QR factorization - dynamic scheduling
  */
-void chameleon_pzgeqrf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
-                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgeqrf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -58,7 +54,8 @@ void chameleon_pzgeqrf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
     ib = CHAMELEON_IB;
 
     if ( D == NULL ) {
-        D = A;
+        D    = A;
+        genD = 0;
     }
 
     /*
@@ -95,8 +92,7 @@ void chameleon_pzgeqrf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
             tempkm, tempkn, ib, T->nb,
             A(k, k), ldak,
             T(k, k), T->mb);
-        if ( k < (A->nt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
+        if ( genD ) {
             INSERT_TASK_zlacpy(
                 &options,
                 ChamLower, A->mb, A->nb, A->nb,
@@ -108,7 +104,6 @@ void chameleon_pzgeqrf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
                 ChamUpper, A->mb, A->nb,
                 0., 1.,
                 D(k), ldak );
-#endif
 #endif
         }
         for (n = k+1; n < A->nt; n++) {

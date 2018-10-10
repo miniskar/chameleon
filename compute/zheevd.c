@@ -96,9 +96,9 @@
  *
  */
 int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
-                  CHAMELEON_Complex64_t *A, int LDA,
-                  double *W,
-                  CHAM_desc_t *descT )
+                      CHAMELEON_Complex64_t *A, int LDA,
+                      double *W,
+                      CHAM_desc_t *descT )
 {
     int NB;
     int status;
@@ -149,14 +149,14 @@ int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, uplo,
-                     A, NB, NB, LDA, N, N, N, sequence, &request );
+                         A, NB, NB, LDA, N, N, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zheevd_Tile_Async( jobz, uplo, &descAt, W, descT, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, uplo, sequence, &request );
+                         ChamDescInout, uplo, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -236,7 +236,7 @@ int CHAMELEON_zheevd( cham_job_t jobz, cham_uplo_t uplo, int N,
  *
  */
 int CHAMELEON_zheevd_Tile( cham_job_t jobz, cham_uplo_t uplo,
-                       CHAM_desc_t *A, double *W, CHAM_desc_t *T )
+                           CHAM_desc_t *A, double *W, CHAM_desc_t *T )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -328,8 +328,8 @@ int CHAMELEON_zheevd_Tile( cham_job_t jobz, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
-                             CHAM_desc_t *A, double *W, CHAM_desc_t *T,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 CHAM_desc_t *A, double *W, CHAM_desc_t *T,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t descA;
@@ -414,9 +414,9 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     }
 
     status = CHAMELEON_zhetrd_Tile_Async( jobz, uplo,
-                                      A, W, E, T,
-                                      Q2, N,
-                                      sequence, request );
+                                          A, W, E, T,
+                                          Q2, N,
+                                          sequence, request );
     if (status != 0) {
         chameleon_error("CHAMELEON_zheevd_Tile", "CHAMELEON_zhetrd failed");
     }
@@ -465,10 +465,10 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     /* V   from LAPACKE_zstedc refers to V  (lapack layout) */
     /* The final eigenvectors are (Q1 Q2 V) or (Q1^h Q2 V)  */
     chameleon_zlap2tile( chamctxt, &descQ2l, &descQ2t, ChamDescInput, ChamUpperLower,
-                     Q2, NB, NB, N, N, N, N, sequence, request );
+                         Q2, NB, NB, N, N, N, N, sequence, request );
 
     chameleon_zlap2tile( chamctxt, &descVl, &descVt, ChamDescInput, ChamUpperLower,
-                     V, NB, NB, N, N, N, N, sequence, request );
+                         V, NB, NB, N, N, N, N, sequence, request );
 
     if (uplo == ChamLower)
     {
@@ -484,15 +484,15 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
         subT = chameleon_desc_submatrix(&descT,   descT.mb,   0, descT.m  -descT.mb,   descT.n-descT.nb);
 
         /* Compute Q2 = Q1 * Q2 */
-        chameleon_pzunmqr( ChamLeft, ChamNoTrans,
-                       subA, subQ, subT, Dptr,
-                       sequence, request );
+        chameleon_pzunmqr( 1, ChamLeft, ChamNoTrans,
+                           subA, subQ, subT, Dptr,
+                           sequence, request );
 
         /* Compute the final eigenvectors A = (Q1 * Q2) * V */
         chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
-                      1.0, &descQ2t, &descVt,
-                      0.0, &descA,
-                      sequence, request );
+                          1.0, &descQ2t, &descVt,
+                          0.0, &descA,
+                          sequence, request );
 
     }
     else {
@@ -508,21 +508,21 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
         subT = chameleon_desc_submatrix(&descT,   0,   descT.nb, descT.m  -descT.mb,   descT.n -descT.nb );
 
         /* Compute Q2 = Q1^h * Q2 */
-        chameleon_pzunmlq( ChamLeft, ChamConjTrans,
-                       subA, subQ, subT, Dptr,
-                       sequence, request );
+        chameleon_pzunmlq( 1, ChamLeft, ChamConjTrans,
+                           subA, subQ, subT, Dptr,
+                           sequence, request );
 
         /* Compute the final eigenvectors A =  (Q1^h * Q2) * V */
         chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
-                      1.0, &descQ2t, &descVt,
-                      0.0, &descA,
-                      sequence, request );
+                          1.0, &descQ2t, &descVt,
+                          0.0, &descA,
+                          sequence, request );
     }
 
     chameleon_ztile2lap( chamctxt, &descQ2l, &descQ2t,
-                     ChamDescInput, ChamUpperLower, sequence, request );
+                         ChamDescInput, ChamUpperLower, sequence, request );
     chameleon_ztile2lap( chamctxt, &descVl, &descVt,
-                     ChamDescInput, ChamUpperLower, sequence, request );
+                         ChamDescInput, ChamUpperLower, sequence, request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 

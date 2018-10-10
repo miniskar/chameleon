@@ -143,12 +143,12 @@
  *
  */
 int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
-                  int M, int N,
-                  CHAMELEON_Complex64_t *A, int LDA,
-                  double *S,
-                  CHAM_desc_t *descT,
-                  CHAMELEON_Complex64_t *U, int LDU,
-                  CHAMELEON_Complex64_t *VT, int LDVT )
+                      int M, int N,
+                      CHAMELEON_Complex64_t *A, int LDA,
+                      double *S,
+                      CHAM_desc_t *descT,
+                      CHAMELEON_Complex64_t *U, int LDU,
+                      CHAMELEON_Complex64_t *VT, int LDVT )
 {
     int NB;
     int status;
@@ -211,14 +211,14 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                     A, NB, NB,  LDA, N, M, N, sequence, &request );
+                         A, NB, NB,  LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zgesvd_Tile_Async( jobu, jobvt, &descAt, S, descT, U, LDU, VT, LDVT, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -331,11 +331,11 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  *
  */
 int CHAMELEON_zgesvd_Tile( cham_job_t jobu, cham_job_t jobvt,
-                       CHAM_desc_t *A,
-                       double *S,
-                       CHAM_desc_t *T,
-                       CHAMELEON_Complex64_t *U, int LDU,
-                       CHAMELEON_Complex64_t *VT, int LDVT )
+                           CHAM_desc_t *A,
+                           double *S,
+                           CHAM_desc_t *T,
+                           CHAMELEON_Complex64_t *U, int LDU,
+                           CHAMELEON_Complex64_t *VT, int LDVT )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -391,12 +391,12 @@ int CHAMELEON_zgesvd_Tile( cham_job_t jobu, cham_job_t jobvt,
  *
  */
 int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
-                             CHAM_desc_t *A,
-                             double *S,
-                             CHAM_desc_t *T,
-                             CHAMELEON_Complex64_t *U, int LDU,
-                             CHAMELEON_Complex64_t *VT, int LDVT,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 CHAM_desc_t *A,
+                                 double *S,
+                                 CHAM_desc_t *T,
+                                 CHAMELEON_Complex64_t *U, int LDU,
+                                 CHAMELEON_Complex64_t *VT, int LDVT,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_desc_t descA;
     CHAM_desc_t descT;
@@ -475,21 +475,21 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     }
 #endif
     /* Reduction to band */
-    chameleon_pzgebrd_ge2gb( &descA, &descT, Dptr,
-                         sequence, request );
+    chameleon_pzgebrd_ge2gb( 1, &descA, &descT, Dptr,
+                             sequence, request );
 
     /* Allocate band structure */
     chameleon_zdesc_alloc_diag( descAB,
-                            LDAB, NB,
-                            LDAB, MINMN,
-                            0, 0,
-                            LDAB, MINMN,
-                            1, 1 );
+                                LDAB, NB,
+                                LDAB, MINMN,
+                                0, 0,
+                                LDAB, MINMN,
+                                1, 1 );
 
     /* Convert matrix to band form */
     chameleon_pztile2band( uplo,
-                       &descA, &descAB,
-                       sequence, request );
+                           &descA, &descAB,
+                           sequence, request );
 
     E = malloc( MINMN * sizeof(double) );
     if (E == NULL) {
@@ -561,52 +561,52 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
 
     if ( jobu != ChamNoVec ) {
         chameleon_zlap2tile( chamctxt, &descUl, &descUt, ChamDescInout, ChamUpperLower,
-                         U, NB, NB, LDU, M, M, M, sequence, request );
+                             U, NB, NB, LDU, M, M, M, sequence, request );
 
         if ( M < N ){
             subA   = chameleon_desc_submatrix(&descA,  descA.mb,  0, descA.m -descA.mb,  descA.n-descA.nb);
             subUVT = chameleon_desc_submatrix(&descUt, descUt.mb, 0, descUt.m-descUt.mb, descUt.n);
             subT   = chameleon_desc_submatrix(&descT,  descT.mb,  0, descT.m -descT.mb,  descT.n-descT.nb);
 
-            chameleon_pzunmqr( ChamLeft, ChamNoTrans,
-                           subA, subUVT, subT, Dptr,
-                           sequence, request );
+            chameleon_pzunmqr( 0, ChamLeft, ChamNoTrans,
+                               subA, subUVT, subT, Dptr,
+                               sequence, request );
 
             free(subA); free(subUVT); free(subT);
         }
         else {
-            chameleon_pzunmqr( ChamLeft, ChamNoTrans,
-                           &descA, &descUt, &descT, Dptr,
-                           sequence, request );
+            chameleon_pzunmqr( 0, ChamLeft, ChamNoTrans,
+                               &descA, &descUt, &descT, Dptr,
+                               sequence, request );
         }
 
         chameleon_ztile2lap( chamctxt, &descUl, &descUt,
-                         ChamDescInout, ChamUpperLower, sequence, request );
+                             ChamDescInout, ChamUpperLower, sequence, request );
     }
 
     if ( jobvt != ChamNoVec ) {
         chameleon_zlap2tile( chamctxt, &descVTl, &descVTt, ChamDescInout, ChamUpperLower,
-                         VT, NB, NB, LDVT, N, N, N, sequence, request );
+                             VT, NB, NB, LDVT, N, N, N, sequence, request );
 
         if ( M < N ){
-            chameleon_pzunmlq( ChamRight, ChamNoTrans,
-                           &descA, &descVTt, &descT, Dptr,
-                           sequence, request );
+            chameleon_pzunmlq( 0, ChamRight, ChamNoTrans,
+                               &descA, &descVTt, &descT, Dptr,
+                               sequence, request );
         }
         else {
             subA   = chameleon_desc_submatrix(&descA,   0, descA.nb,   descA.m-descA.mb, descA.n  -descA.nb  );
             subUVT = chameleon_desc_submatrix(&descVTt, 0, descVTt.nb, descVTt.m,        descVTt.n-descVTt.nb);
             subT   = chameleon_desc_submatrix(&descT,   0, descT.nb,   descT.m-descT.mb, descT.n  -descT.nb  );
 
-            chameleon_pzunmlq( ChamRight, ChamNoTrans,
-                           subA, subUVT, subT, Dptr,
-                           sequence, request );
+            chameleon_pzunmlq( 0, ChamRight, ChamNoTrans,
+                               subA, subUVT, subT, Dptr,
+                               sequence, request );
 
             free(subA); free(subUVT); free(subT);
         }
 
         chameleon_ztile2lap( chamctxt, &descVTl, &descVTt,
-                         ChamDescInout, ChamUpperLower, sequence, request );
+                             ChamDescInout, ChamUpperLower, sequence, request );
     }
     chameleon_sequence_wait( chamctxt, sequence );
 

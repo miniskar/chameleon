@@ -119,10 +119,12 @@ int CHAMELEON_zunmlq( cham_side_t side, cham_trans_t trans, int M, int N, int K,
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    if (side == ChamLeft)
+    if (side == ChamLeft) {
         An = M;
-    else
+    }
+    else {
         An = N;
+    }
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -367,17 +369,13 @@ int CHAMELEON_zunmlq_Tile_Async( cham_side_t side, cham_trans_t trans,
 #endif
 
     if (chamctxt->householder == ChamFlatHouseholder) {
-        if ( (trans == ChamConjTrans) &&
-             (side == ChamLeft) ) {
-            chameleon_pzunmlq( side, trans, A, C, T, Dptr, sequence, request );
-        } else {
-            chameleon_pzunmlq( side, trans, A, C, T, Dptr, sequence, request );
-        }
+        chameleon_pzunmlq( 1, side, trans, A, C, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzunmlqrh( side, trans, A, C, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzunmlqrh( 1, CHAMELEON_RHBLK, side, trans, A, C, T, Dptr, sequence, request );
     }
-    if (Dptr != NULL) {
+
+    if ( Dptr != NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( C, sequence );
         CHAMELEON_Desc_Flush( T, sequence );

@@ -30,9 +30,9 @@
 /*
  *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
  */
-void chameleon_pzgelqf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
-                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -55,7 +55,8 @@ void chameleon_pzgelqf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
     ib = CHAMELEON_IB;
 
     if ( D == NULL ) {
-        D = A;
+        D    = A;
+        genD = 0;
     }
 
     /*
@@ -108,8 +109,7 @@ void chameleon_pzgelqf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                 tempkm, temppn, ib, T->nb,
                 A( k, p), ldak,
                 T(k, p), T->mb);
-            if ( k < (A->mt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
+            if ( genD ) {
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpper, tempkm, temppn, A->nb,
@@ -121,7 +121,6 @@ void chameleon_pzgelqf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                     ChamLower, tempkm, temppn,
                     0., 1.,
                     D(k, p), ldak );
-#endif
 #endif
             }
             for (m = k+1; m < A->mt; m++) {

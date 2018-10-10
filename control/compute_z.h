@@ -33,20 +33,20 @@
  *  Macro for matrix conversion / Lapack interface
  */
 #define chameleon_zdesc_alloc_diag( descA, mb, nb, lm, ln, i, j, m, n, p, q) \
-    descA = chameleon_desc_init_diag(                                       \
-        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                    \
+    descA = chameleon_desc_init_diag(                                   \
+        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                     \
         (m), (n), (i), (j), (m), (n), p, q);                            \
-    chameleon_desc_mat_alloc( &(descA) );                                   \
+    chameleon_desc_mat_alloc( &(descA) );                               \
     RUNTIME_desc_create( &(descA) );
 
-#define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free)     \
-    descA = chameleon_desc_init(                                            \
-        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                    \
+#define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
+    descA = chameleon_desc_init(                                        \
+        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                     \
         (m), (n), (i), (j), (m), (n), 1, 1);                            \
-    if ( chameleon_desc_mat_alloc( &(descA) ) ) {                           \
-        chameleon_error( __func__, "chameleon_desc_mat_alloc() failed");        \
+    if ( chameleon_desc_mat_alloc( &(descA) ) ) {                       \
+        chameleon_error( __func__, "chameleon_desc_mat_alloc() failed"); \
         {free;};                                                        \
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;                              \
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;                          \
     }                                                                   \
     RUNTIME_desc_create( &(descA) );
 
@@ -54,8 +54,8 @@
  *  Declarations of internal sequential functions
  */
 int chameleon_zshift(CHAM_context_t *chamctxt, int m, int n, CHAMELEON_Complex64_t *A,
-                  int nprob, int me, int ne, int L,
-                  RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+                     int nprob, int me, int ne, int L,
+                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 
 /**
  *  Declarations of parallel functions (dynamic scheduling) - alphabetical order
@@ -65,12 +65,12 @@ void chameleon_pzbarrier_row2tl(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RU
 void chameleon_pzbarrier_tl2pnl(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzbarrier_tl2row(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgebrd_gb2bd(cham_uplo_t uplo, CHAM_desc_t *A, double *D, double *E, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgelqf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgemm(cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgeqrf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgeqrfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgeqrf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgeqrfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgetrf_incpiv(CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, int *IPIV, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgetrf_nopiv(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgetrf_reclap(CHAM_desc_t *A, int *IPIV, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
@@ -103,7 +103,7 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_
 void chameleon_pzsyr2k(cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pztile2band(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *descAB, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pztpgqrt( int L, CHAM_desc_t *V1, CHAM_desc_t *T1, CHAM_desc_t *V2, CHAM_desc_t *T2, CHAM_desc_t *Q1, CHAM_desc_t *Q2, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pztpgqrt( int genD, int L, CHAM_desc_t *V1, CHAM_desc_t *T1, CHAM_desc_t *V2, CHAM_desc_t *T2, CHAM_desc_t *Q1, CHAM_desc_t *Q2, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAMELEON_Complex64_t beta, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pztrmm(cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
@@ -113,33 +113,33 @@ void chameleon_pztrsmrv(cham_side_t side, cham_uplo_t uplo, cham_trans_t transA,
 void chameleon_pztrtri(cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzungbr(cham_side_t side, CHAM_desc_t *A, CHAM_desc_t *O, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzungbrrh(cham_side_t side, CHAM_desc_t *A, CHAM_desc_t *O, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzungqr(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D,int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunglq(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunglqrh(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzungqr( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzungqrrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunglqrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzungtr(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmqr(cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmqrrh(cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmlq(cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, int BS, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmqr( int genD, cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
-void chameleon_pzgelqf_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzgeqrf_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmlq_param(const libhqr_tree_t *qrtree, cham_side_t side, cham_trans_t trans,
-                         CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunmqr_param(const libhqr_tree_t *qrtree, cham_side_t side, cham_trans_t trans,
-                         CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzunglq_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
-                         CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzungqr_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
-                         CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree, cham_side_t side, cham_trans_t trans,
+                              CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree, cham_side_t side, cham_trans_t trans,
+                              CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pzungqr_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *Q,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 
 
 /**
@@ -148,21 +148,21 @@ void chameleon_pzungqr_param(const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_d
  */
 static inline int
 chameleon_zlap2tile( CHAM_context_t *chamctxt,
-                 CHAM_desc_t *descAl, CHAM_desc_t *descAt,
-                 int mode, cham_uplo_t uplo,
-                 CHAMELEON_Complex64_t *A, int mb, int nb, int lm, int ln, int m, int n,
-                 RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
+                     CHAM_desc_t *descAl, CHAM_desc_t *descAt,
+                     int mode, cham_uplo_t uplo,
+                     CHAMELEON_Complex64_t *A, int mb, int nb, int lm, int ln, int m, int n,
+                     RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
 {
     /* Initialize the Lapack descriptor */
     *descAl = chameleon_desc_init_user( ChamComplexDouble, mb, nb, (mb)*(nb),
-                                    lm, ln, 0, 0, m, n, 1, 1,
-                                    chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
+                                        lm, ln, 0, 0, m, n, 1, 1,
+                                        chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
     descAl->mat = A;
     descAl->styp = ChamCM;
 
     /* Initialize the tile descriptor */
     *descAt = chameleon_desc_init( ChamComplexDouble, mb, nb, (mb)*(nb),
-                               lm, ln, 0, 0, m, n, 1, 1 );
+                                   lm, ln, 0, 0, m, n, 1, 1 );
 
     if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
         if ( chameleon_desc_mat_alloc( descAt ) ) {
@@ -200,7 +200,7 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
  */
 static inline int
 chameleon_ztile2lap( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t *descAt,
-                 int mode, cham_uplo_t uplo, RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
+                     int mode, cham_uplo_t uplo, RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
 {
     if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
         if ( mode & ChamDescOutput ) {

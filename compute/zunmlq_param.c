@@ -373,9 +373,9 @@ int CHAMELEON_zunmlq_param_Tile_Async( const libhqr_tree_t *qrtree, cham_side_t 
     }
 #endif
 
-    chameleon_pzunmlq_param( qrtree, side, trans, A, C, TS, TT, Dptr, sequence, request );
+    chameleon_pzunmlq_param( 1, qrtree, side, trans, A, C, TS, TT, Dptr, sequence, request );
 
-    if (Dptr != NULL) {
+    if ( Dptr != NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( C, sequence );
         CHAMELEON_Desc_Flush( TS, sequence );

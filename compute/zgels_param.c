@@ -396,8 +396,8 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
         subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
         subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
 
-        chameleon_pzgeqrf_param( qrtree, A, TS, TT, Dptr, sequence, request );
-        chameleon_pzunmqr_param( qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+        chameleon_pzgeqrf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
+        chameleon_pzunmqr_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
         chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
     }
     else {
@@ -412,9 +412,9 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
         subB = chameleon_desc_submatrix(B, 0, 0, A->m, B->n);
         subA = chameleon_desc_submatrix(A, 0, 0, A->m, A->m);
 
-        chameleon_pzgelqf_param( qrtree, A, TS, TT, Dptr, sequence, request );
+        chameleon_pzgelqf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
         chameleon_pztrsm( ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
-        chameleon_pzunmlq_param( qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+        chameleon_pzunmlq_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
     }
 
     free(subA);

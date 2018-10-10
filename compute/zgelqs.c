@@ -1,6 +1,6 @@
 /**
  *
- * @file zgelqs.c
+ * @File zgelqs.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -327,10 +327,10 @@ int CHAMELEON_zgelqs_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *B,
 #endif
 
     if (chamctxt->householder == ChamFlatHouseholder) {
-        chameleon_pzunmlq( ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
+        chameleon_pzunmlq( 1, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzunmlqrh( ChamLeft, ChamConjTrans, A, B, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzunmlqrh( 1, CHAMELEON_RHBLK, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
     }
 
     if (Dptr != NULL) {

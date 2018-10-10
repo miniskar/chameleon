@@ -333,10 +333,10 @@ int CHAMELEON_ztpgqrt_Tile( int L,
  *
  */
 int CHAMELEON_ztpgqrt_Tile_Async( int L,
-                              CHAM_desc_t *V1, CHAM_desc_t *T1,
-                              CHAM_desc_t *V2, CHAM_desc_t *T2,
-                              CHAM_desc_t *Q1, CHAM_desc_t *Q2,
-                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                  CHAM_desc_t *V1, CHAM_desc_t *T1,
+                                  CHAM_desc_t *V2, CHAM_desc_t *T2,
+                                  CHAM_desc_t *Q1, CHAM_desc_t *Q2,
+                                  RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
@@ -412,11 +412,8 @@ int CHAMELEON_ztpgqrt_Tile_Async( int L,
     /* if (chamctxt->householder == ChamFlatHouseholder) { */
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q1, sequence, request );
     chameleon_pzlaset( ChamUpperLower, 0., 0., Q2, sequence, request );
-    chameleon_pztpgqrt( L, V1, T1, V2, T2, Q1, Q2, Dptr, sequence, request );
-    /* } */
-    /* else { */
-    /*    chameleon_pztpgqrtrh( Q1, T, CHAMELEON_RHBLK, sequence, request ); */
-    /* } */
+    chameleon_pztpgqrt( 1, L, V1, T1, V2, T2, Q1, Q2, Dptr, sequence, request );
+
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( V1, sequence );
         CHAMELEON_Desc_Flush( T1, sequence );

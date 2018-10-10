@@ -26,23 +26,19 @@
  */
 #include "control/common.h"
 
-#define A(m,n) A,  (m),  (n)
-#define B(m,n) B,  (m),  (n)
-#define T(m,n) T,  (m),  (n)
-#define T2(m,n) T,  (m),  ((n)+A->nt)
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(m,n) D, ((n)/BS), 0
-#else
-#define D(m,n) A, (m), (n)
-#endif
+#define A(m,n)  A, (m), (n)
+#define B(m,n)  B, (m), (n)
+#define T(m,n)  T, (m), (n)
+#define T2(m,n) T, (m), ((n)+A->nt)
+#define D(m,n)  D, (m), (n)
 
 /**
  *  Parallel application of Q using tile V - LQ factorization (reduction
  *  Householder) - dynamic scheduling
  */
-void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
-                     CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
-                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans,
+                          CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -61,6 +57,11 @@ void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
+
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
+    }
 
     /*
      * zunmlq = A->nb * ib
@@ -98,20 +99,20 @@ void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
                     tempNn   = N == A->nt-1 ? A->n-N*A->nb : A->nb;
                     tempkmin = chameleon_min(tempkm,tempNn);
                     ldbN = BLKLDD(B, N);
-#if defined(CHAMELEON_COPY_DIAG)
-                    INSERT_TASK_zlacpy(
-                        &options,
-                        ChamUpper, tempkmin, tempNn, A->nb,
-                        A(k, N), ldak,
-                        D(k, N), ldak );
+                    if ( genD ) {
+                        INSERT_TASK_zlacpy(
+                            &options,
+                            ChamUpper, tempkmin, tempNn, A->nb,
+                            A(k, N), ldak,
+                            D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                    INSERT_TASK_zlaset(
-                        &options,
-                        ChamLower, tempkmin, tempNn,
-                        0., 1.,
-                        D(k, N), ldak );
+                        INSERT_TASK_zlaset(
+                            &options,
+                            ChamLower, tempkmin, tempNn,
+                            0., 1.,
+                            D(k, N), ldak );
 #endif
-#endif
+                    }
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                         INSERT_TASK_zunmlq(
@@ -253,20 +254,20 @@ void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
                         RUNTIME_data_flush( sequence, A(k, m) );
                         RUNTIME_data_flush( sequence, T(k, m) );
                     }
-#if defined(CHAMELEON_COPY_DIAG)
-                    INSERT_TASK_zlacpy(
-                        &options,
-                        ChamUpper, tempkmin, tempNn, A->nb,
-                        A(k, N), ldak,
-                        D(k, N), ldak );
+                    if ( genD ) {
+                        INSERT_TASK_zlacpy(
+                            &options,
+                            ChamUpper, tempkmin, tempNn, A->nb,
+                            A(k, N), ldak,
+                            D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                    INSERT_TASK_zlaset(
-                        &options,
-                        ChamLower, tempkmin, tempNn,
-                        0., 1.,
-                        D(k, N), ldak );
+                        INSERT_TASK_zlaset(
+                            &options,
+                            ChamLower, tempkmin, tempNn,
+                            0., 1.,
+                            D(k, N), ldak );
 #endif
-#endif
+                    }
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
@@ -355,20 +356,20 @@ void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
                         RUNTIME_data_flush( sequence, A(k, n) );
                         RUNTIME_data_flush( sequence, T(k, n) );
                     }
-#if defined(CHAMELEON_COPY_DIAG)
-                    INSERT_TASK_zlacpy(
-                        &options,
-                        ChamUpper, tempkmin, tempNn, A->nb,
-                        A(k, N), ldak,
-                        D(k, N), ldak );
+                    if ( genD ) {
+                        INSERT_TASK_zlacpy(
+                            &options,
+                            ChamUpper, tempkmin, tempNn, A->nb,
+                            A(k, N), ldak,
+                            D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                    INSERT_TASK_zlaset(
-                        &options,
-                        ChamLower, tempkmin, tempNn,
-                        0., 1.,
-                        D(k, N), ldak );
+                        INSERT_TASK_zlaset(
+                            &options,
+                            ChamLower, tempkmin, tempNn,
+                            0., 1.,
+                            D(k, N), ldak );
 #endif
-#endif
+                    }
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
                         ldbm = BLKLDD(B, m);
@@ -403,20 +404,20 @@ void chameleon_pzunmlqrh(cham_side_t side, cham_trans_t trans,
                 for (N = k; N < A->nt; N += BS) {
                     tempNn = N == A->nt-1 ? A->n-N*A->nb : A->nb;
                     tempkmin = chameleon_min(tempkm,tempNn);
-#if defined(CHAMELEON_COPY_DIAG)
-                    INSERT_TASK_zlacpy(
-                        &options,
-                        ChamUpper, tempkmin, tempNn, A->nb,
-                        A(k, N), ldak,
-                        D(k, N), ldak );
+                    if ( genD ) {
+                        INSERT_TASK_zlacpy(
+                            &options,
+                            ChamUpper, tempkmin, tempNn, A->nb,
+                            A(k, N), ldak,
+                            D(k, N), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-                    INSERT_TASK_zlaset(
-                        &options,
-                        ChamLower, tempkmin, tempNn,
-                        0., 1.,
-                        D(k, N), ldak );
+                        INSERT_TASK_zlaset(
+                            &options,
+                            ChamLower, tempkmin, tempNn,
+                            0., 1.,
+                            D(k, N), ldak );
 #endif
-#endif
+                    }
                     for (m = 0; m < B->mt; m++) {
                         ldbm = BLKLDD(B, m);
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
