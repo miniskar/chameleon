@@ -316,10 +316,10 @@ int CHAMELEON_zgeqrs_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *B,
 #endif
 
     if (chamctxt->householder == ChamFlatHouseholder) {
-        chameleon_pzunmqr( ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
+        chameleon_pzunmqr( 1, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzunmqrrh( ChamLeft, ChamConjTrans, A, B, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzunmqrrh( 1, CHAMELEON_RHBLK, ChamLeft, ChamConjTrans, A, B, T, Dptr, sequence, request );
     }
 
     subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);

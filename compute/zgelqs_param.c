@@ -338,7 +338,7 @@ int CHAMELEON_zgelqs_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
     }
 #endif
 
-    chameleon_pzunmlq_param( qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+    chameleon_pzunmlq_param( 1, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( B, sequence );

@@ -28,17 +28,14 @@
 #define A(m,n) A,  m,  n
 #define Q(m,n) Q,  m,  n
 #define T(m,n) T,  m,  n
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(k)   D,  k,  0
-#else
 #define D(k)   D,  k,  k
-#endif
 
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
  */
-void chameleon_pzungqr(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc_t *D,
-                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzungqr( int genD, CHAM_desc_t *A, CHAM_desc_t *Q,
+                        CHAM_desc_t *T, CHAM_desc_t *D,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -64,8 +61,9 @@ void chameleon_pzungqr(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc
         minMT = A->mt;
     }
 
-    if (D == NULL) {
-        D = A;
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
     }
 
     /*
@@ -122,20 +120,20 @@ void chameleon_pzungqr(CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T, CHAM_desc
             RUNTIME_data_flush( sequence, T(m, k) );
         }
 
-#if defined(CHAMELEON_COPY_DIAG)
-        INSERT_TASK_zlacpy(
-            &options,
-            ChamLower, tempkm, tempkmin, A->nb,
-            A(k, k), ldak,
-            D(k), ldak );
+        if ( genD ) {
+            INSERT_TASK_zlacpy(
+                &options,
+                ChamLower, tempkm, tempkmin, A->nb,
+                A(k, k), ldak,
+                D(k), ldak );
 #if defined(CHAMELEON_USE_CUDA)
-        INSERT_TASK_zlaset(
-            &options,
-            ChamUpper, tempkm, tempkmin,
-            0., 1.,
-            D(k), ldak );
+            INSERT_TASK_zlaset(
+                &options,
+                ChamUpper, tempkm, tempkmin,
+                0., 1.,
+                D(k), ldak );
 #endif
-#endif
+        }
         for (n = k; n < Q->nt; n++) {
             tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
 

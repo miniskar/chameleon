@@ -27,17 +27,13 @@
 
 #define A(m,n) A,  m,  n
 #define T(m,n) T,  m,  n
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(k)   D, k, 0
-#else
-#define D(k)   D, k, k
-#endif
+#define D(k)   D,  k,  k
 
 /**
  *  Parallel tile LQ factorization - dynamic scheduling
  */
-void chameleon_pzgelqf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
-                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -63,7 +59,8 @@ void chameleon_pzgelqf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
     }
 
     if ( D == NULL ) {
-        D = A;
+        D    = A;
+        genD = 0;
     }
 
     /*
@@ -100,8 +97,7 @@ void chameleon_pzgelqf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
             tempkm, tempkn, ib, T->nb,
             A(k, k), ldak,
             T(k, k), T->mb);
-        if ( k < (A->mt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
+        if ( genD ) {
             INSERT_TASK_zlacpy(
                 &options,
                 ChamUpper, A->mb, A->nb, A->nb,
@@ -113,7 +109,6 @@ void chameleon_pzgelqf(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
                 ChamLower, A->mb, A->nb,
                 0., 1.,
                 D(k), ldak );
-#endif
 #endif
         }
         for (m = k+1; m < A->mt; m++) {

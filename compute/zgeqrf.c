@@ -286,10 +286,10 @@ int CHAMELEON_zgeqrf_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T,
 #endif
 
     if (chamctxt->householder == ChamFlatHouseholder) {
-        chameleon_pzgeqrf( A, T, Dptr, sequence, request );
+        chameleon_pzgeqrf( 1, A, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzgeqrfrh( A, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzgeqrfrh( 1, CHAMELEON_RHBLK, A, T, Dptr, sequence, request );
     }
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );

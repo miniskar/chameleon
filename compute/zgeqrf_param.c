@@ -74,8 +74,8 @@
  *
  */
 int CHAMELEON_zgeqrf_param( const libhqr_tree_t *qrtree, int M, int N,
-                        CHAMELEON_Complex64_t *A, int LDA,
-                        CHAM_desc_t *descTS, CHAM_desc_t *descTT )
+                            CHAMELEON_Complex64_t *A, int LDA,
+                            CHAM_desc_t *descTS, CHAM_desc_t *descTT )
 {
     int NB;
     int status;
@@ -186,7 +186,8 @@ int CHAMELEON_zgeqrf_param( const libhqr_tree_t *qrtree, int M, int N,
  * @sa CHAMELEON_zgeqrs_param_Tile
  *
  */
-int CHAMELEON_zgeqrf_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT )
+int CHAMELEON_zgeqrf_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                                 CHAM_desc_t *TS, CHAM_desc_t *TT )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -241,8 +242,9 @@ int CHAMELEON_zgeqrf_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CH
  * @sa CHAMELEON_zgeqrs_param_Tile_Async
  *
  */
-int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT,
-                                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                                       CHAM_desc_t *TS, CHAM_desc_t *TT,
+                                       RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
@@ -299,7 +301,7 @@ int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
     }
 #endif
 
-    chameleon_pzgeqrf_param( qrtree, A, TS, TT, Dptr, sequence, request );
+    chameleon_pzgeqrf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
 
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );

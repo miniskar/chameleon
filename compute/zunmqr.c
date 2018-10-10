@@ -103,9 +103,9 @@
  *
  */
 int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
-                  CHAMELEON_Complex64_t *A, int LDA,
-                  CHAM_desc_t *descT,
-                  CHAMELEON_Complex64_t *C, int LDC )
+                      CHAMELEON_Complex64_t *A, int LDA,
+                      CHAM_desc_t *descT,
+                      CHAMELEON_Complex64_t *C, int LDC )
 {
     int NB, Am;
     int status;
@@ -174,18 +174,18 @@ int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamLower,
-                     A, NB, NB, LDA, K, Am, K, sequence, &request );
+                         A, NB, NB, LDA, K, Am, K, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descCl, &descCt, ChamDescInout, ChamUpperLower,
-                     C, NB, NB, LDC, N, M,  N, sequence, &request );
+                         C, NB, NB, LDC, N, M,  N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zunmqr_Tile_Async(  side, trans, &descAt, descT, &descCt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInput, ChamLower, sequence, &request );
+                         ChamDescInput, ChamLower, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descCl, &descCt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
     CHAMELEON_Desc_Flush( descT, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
@@ -250,7 +250,7 @@ int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
  *
  */
 int CHAMELEON_zunmqr_Tile( cham_side_t side, cham_trans_t trans,
-                       CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *C )
+                           CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *C )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -305,8 +305,8 @@ int CHAMELEON_zunmqr_Tile( cham_side_t side, cham_trans_t trans,
  *
  */
 int CHAMELEON_zunmqr_Tile_Async( cham_side_t side, cham_trans_t trans,
-                             CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *C,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *C,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
@@ -372,19 +372,13 @@ int CHAMELEON_zunmqr_Tile_Async( cham_side_t side, cham_trans_t trans,
 #endif
 
     if (chamctxt->householder == ChamFlatHouseholder) {
-        if ( (trans == ChamConjTrans) &&
-             (side == ChamLeft) ) {
-            chameleon_pzunmqr( side, trans, A, C, T, Dptr, sequence, request );
-        }
-        else {
-            chameleon_pzunmqr( side, trans, A, C, T, Dptr, sequence, request );
-        }
+        chameleon_pzunmqr( 1, side, trans, A, C, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzunmqrrh( side, trans, A, C, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzunmqrrh( 1, CHAMELEON_RHBLK, side, trans, A, C, T, Dptr, sequence, request );
     }
 
-    if (Dptr != NULL) {
+    if ( Dptr != NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( C, sequence );
         CHAMELEON_Desc_Flush( T, sequence );

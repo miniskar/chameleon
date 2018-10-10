@@ -109,11 +109,11 @@
  *
  */
 int CHAMELEON_zhetrd( cham_job_t jobz, cham_uplo_t uplo, int N,
-                  CHAMELEON_Complex64_t *A, int LDA,
-                  double *D,
-                  double *E,
-                  CHAM_desc_t *descT,
-                  CHAMELEON_Complex64_t *Q, int LDQ )
+                      CHAMELEON_Complex64_t *A, int LDA,
+                      double *D,
+                      double *E,
+                      CHAM_desc_t *descT,
+                      CHAMELEON_Complex64_t *Q, int LDQ )
 {
     int NB;
     int status;
@@ -163,14 +163,14 @@ int CHAMELEON_zhetrd( cham_job_t jobz, cham_uplo_t uplo, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, uplo,
-                     A, NB, NB, LDA, N, N, N, sequence, &request );
+                         A, NB, NB, LDA, N, N, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zhetrd_Tile_Async( jobz, uplo, &descAt, D, E, descT, Q, LDQ, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, uplo, sequence, &request );
+                         ChamDescInout, uplo, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -263,8 +263,8 @@ int CHAMELEON_zhetrd( cham_job_t jobz, cham_uplo_t uplo, int N,
  *
  */
 int CHAMELEON_zhetrd_Tile( cham_job_t jobz, cham_uplo_t uplo,
-                       CHAM_desc_t *A, double *D, double *E,
-                       CHAM_desc_t *T, CHAMELEON_Complex64_t *Q, int LDQ )
+                           CHAM_desc_t *A, double *D, double *E,
+                           CHAM_desc_t *T, CHAMELEON_Complex64_t *Q, int LDQ )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -322,13 +322,13 @@ int CHAMELEON_zhetrd_Tile( cham_job_t jobz, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
-                             cham_uplo_t uplo,
-                             CHAM_desc_t *A,
-                             double *W,
-                             double *E,
-                             CHAM_desc_t *T,
-                             CHAMELEON_Complex64_t *Q, int LDQ,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 cham_uplo_t uplo,
+                                 CHAM_desc_t *A,
+                                 double *W,
+                                 double *E,
+                                 CHAM_desc_t *T,
+                                 CHAMELEON_Complex64_t *Q, int LDQ,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t descA;
@@ -393,27 +393,28 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     NB = descA.mb;
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        chameleon_zdesc_alloc_diag(D, A->mb, A->nb, chameleon_min(A->m, A->n), A->nb, 0, 0, chameleon_min(A->m, A->n), A->nb, A->p, A->q);
+        chameleon_zdesc_alloc_diag( D, A->mb, A->nb, chameleon_min(A->m, A->n), A->nb,
+                                    0, 0, chameleon_min(A->m, A->n), A->nb, A->p, A->q );
         Dptr = &D;
     }
 #endif
     /* Reduction to band. On exit, T contains reflectors */
     chameleon_pzhetrd_he2hb( uplo, A, T, Dptr,
-                         sequence, request );
+                             sequence, request );
 
     LDAB = NB+1;
 
     /* Allocate band structure */
     chameleon_zdesc_alloc_diag( descAB,
-                            LDAB, NB, /* mb, nb */
-                            LDAB, N,  /* lm, ln */
-                            0, 0,     /* i, j */
-                            LDAB, N,  /* m, n */
-                            1, 1 );
+                                LDAB, NB, /* mb, nb */
+                                LDAB, N,  /* lm, ln */
+                                0, 0,     /* i, j */
+                                LDAB, N,  /* m, n */
+                                1, 1 );
 
     /* Copy data into band structure */
     chameleon_pztile2band( uplo, A, &descAB,
-                       sequence, request );
+                           sequence, request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 

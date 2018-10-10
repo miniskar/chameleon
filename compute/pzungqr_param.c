@@ -29,10 +29,10 @@
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
  */
-void chameleon_pzungqr_param(const libhqr_tree_t *qrtree,
-                         CHAM_desc_t *A, CHAM_desc_t *Q,
-                         CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzungqr_param( int genD, const libhqr_tree_t *qrtree,
+                              CHAM_desc_t *A, CHAM_desc_t *Q,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -60,7 +60,8 @@ void chameleon_pzungqr_param(const libhqr_tree_t *qrtree,
     }
 
     if (D == NULL) {
-        D = A;
+        D    = A;
+        genD = 0;
     }
 
     /*
@@ -146,20 +147,20 @@ void chameleon_pzungqr_param(const libhqr_tree_t *qrtree,
             ldam = BLKLDD(A, m);
             ldqm = BLKLDD(Q, m);
 
-#if defined(CHAMELEON_COPY_DIAG)
-            INSERT_TASK_zlacpy(
-                &options,
-                ChamLower, tempmm, tempkmin, A->nb,
-                A(m, k), ldam,
-                D(m, k), ldam );
+            if ( genD ) {
+                INSERT_TASK_zlacpy(
+                    &options,
+                    ChamLower, tempmm, tempkmin, A->nb,
+                    A(m, k), ldam,
+                    D(m, k), ldam );
 #if defined(CHAMELEON_USE_CUDA)
-            INSERT_TASK_zlaset(
-                &options,
-                ChamUpper, tempmm, tempkmin,
-                0., 1.,
-                D(m, k), ldam );
+                INSERT_TASK_zlaset(
+                    &options,
+                    ChamUpper, tempmm, tempkmin,
+                    0., 1.,
+                    D(m, k), ldam );
 #endif
-#endif
+            }
 
             for (n = k; n < Q->nt; n++) {
                 tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;

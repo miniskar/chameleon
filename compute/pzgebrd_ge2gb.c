@@ -20,8 +20,8 @@
  */
 #include "control/common.h"
 
-void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     int k;
     int tempkm, tempkn;
@@ -38,12 +38,12 @@ void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
                 D1 = chameleon_desc_submatrix(D, k*D->mb, k*D->nb, D->m-k*D->mb, tempkn);
             }
 
-            chameleon_pzgeqrf( A1, T1, D1,
-                           sequence, request);
+            chameleon_pzgeqrf( genD, A1, T1, D1,
+                               sequence, request);
 
-            chameleon_pzunmqr( ChamLeft, ChamConjTrans,
-                           A1, A2, T1, D1,
-                           sequence, request);
+            chameleon_pzunmqr( 0, ChamLeft, ChamConjTrans,
+                               A1, A2, T1, D1,
+                               sequence, request);
 
             if (k+1 < A->nt){
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
@@ -55,12 +55,12 @@ void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
                     D1 = chameleon_desc_submatrix(D, k*D->mb, (k+1)*D->nb, tempkm,           D->n-(k+1)*D->nb);
                 }
 
-                chameleon_pzgelqf( A1, T1, D1,
-                               sequence, request);
+                chameleon_pzgelqf( genD, A1, T1, D1,
+                                   sequence, request);
 
-                chameleon_pzunmlq( ChamRight, ChamConjTrans,
-                               A1, A2, T1, D1,
-                               sequence, request);
+                chameleon_pzunmlq( 0, ChamRight, ChamConjTrans,
+                                   A1, A2, T1, D1,
+                                   sequence, request);
             }
         }
     }
@@ -74,12 +74,12 @@ void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
             if ( D != NULL ) {
                 D1 = chameleon_desc_submatrix(D, k*D->mb, k*D->nb, tempkm,           D->n-k*D->nb);
             }
-            chameleon_pzgelqf( A1, T1, D1,
-                           sequence, request);
+            chameleon_pzgelqf( genD, A1, T1, D1,
+                               sequence, request);
 
-            chameleon_pzunmlq( ChamRight, ChamConjTrans,
-                           A1, A2, T1, D1,
-                           sequence, request);
+            chameleon_pzunmlq( 0, ChamRight, ChamConjTrans,
+                               A1, A2, T1, D1,
+                               sequence, request);
 
             if (k+1 < A->mt){
                 tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
@@ -91,12 +91,12 @@ void chameleon_pzgebrd_ge2gb(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
                     D1 = chameleon_desc_submatrix(D, (k+1)*D->mb, k*D->nb, D->m-(k+1)*D->mb, tempkn);
                 }
 
-                chameleon_pzgeqrf( A1, T1, D1,
-                               sequence, request);
+                chameleon_pzgeqrf( genD, A1, T1, D1,
+                                   sequence, request);
 
-                chameleon_pzunmqr( ChamLeft, ChamConjTrans,
-                               A1, A2, T1, D1,
-                               sequence, request);
+                chameleon_pzunmqr( 0, ChamLeft, ChamConjTrans,
+                                   A1, A2, T1, D1,
+                                   sequence, request);
             }
         }
     }

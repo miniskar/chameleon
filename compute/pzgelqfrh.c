@@ -29,17 +29,13 @@
 #define A(m,n)  A,  (m),  (n)
 #define T(m,n)  T,  (m),  (n)
 #define T2(m,n) T,  (m),  (n)+A->nt
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(m,n) D, ((n)/BS), 0
-#else
-#define D(m,n) A,  (m),  (n)
-#endif
+#define D(m,n)  D,  (m),  (n)
 
 /*
  *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
  */
-void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
-                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -59,13 +55,16 @@ void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
 
     ib = CHAMELEON_IB;
 
-    /*
+     if ( D == NULL ) {
+        D    = A;
+        genD = 0;
+    }
+
+     /*
      * zgelqt = A->nb * (ib+1)
      * zunmlq = A->nb * ib
-     * ztslqt = A->nb * (ib+1)
-     * zttlqt = A->nb * (ib+1)
-     * ztsmlq = A->nb * ib
-     * zttmlq = A->nb * ib
+     * ztplqt = A->nb * (ib+1)
+     * ztpmlq = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
@@ -74,7 +73,7 @@ void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
     /* Worker space
      *
      * zunmqr = A->nb * ib
-     * ztsmqr = 2 * A->nb * ib
+     * ztpmqr = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
@@ -100,8 +99,7 @@ void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
                 tempkm, tempNn, ib, T->nb,
                 A(k, N), ldak,
                 T(k, N), T->mb);
-            if ( k < (A->mt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
+            if ( genD ) {
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpper, tempkm, tempNn, A->nb,
@@ -113,7 +111,6 @@ void chameleon_pzgelqfrh(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, int BS,
                     ChamLower, tempkm, tempNn,
                     0., 1.,
                     D(k, N), ldak );
-#endif
 #endif
             }
             for (m = k+1; m < A->mt; m++) {

@@ -26,23 +26,20 @@
  */
 #include "control/common.h"
 
-#define A(m,n) A,  (m),  (n)
-#define Q(m,n) Q,  (m),  (n)
-#define T(m,n) T,  (m),  (n)
-#define T2(m,n) T,  (m),  (n)+(A->nt)
-#if defined(CHAMELEON_COPY_DIAG)
-#define D(m,n) D, ((m)/BS), 0
-#else
-#define D(m,n) A, (m), (n)
-#endif
+#define A(m,n)  A, (m), (n)
+#define Q(m,n)  Q, (m), (n)
+#define T(m,n)  T, (m), (n)
+#define T2(m,n) T, (m), (n)+(A->nt)
+#define D(m,n)  D, (m), (n)
 
 /**
  *  Parallel construction of Q using tile V (application to identity;
  *  reduction Householder) - dynamic scheduling
  */
-void chameleon_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
-                     CHAM_desc_t *T,  CHAM_desc_t *D, int BS,
-                     RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzungqrrh( int genD, int BS,
+                          CHAM_desc_t *A, CHAM_desc_t *Q,
+                          CHAM_desc_t *T,  CHAM_desc_t *D,
+                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -62,6 +59,11 @@ void chameleon_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
+
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
+    }
 
     /*
      * zunmqr = A->nb * ib
@@ -153,20 +155,20 @@ void chameleon_pzungqrrh(CHAM_desc_t *A, CHAM_desc_t *Q,
                 RUNTIME_data_flush( sequence, T(m, k) );
             }
 
-#if defined(CHAMELEON_COPY_DIAG)
-            INSERT_TASK_zlacpy(
-                &options,
-                ChamLower, tempMm, tempkmin, A->nb,
-                A(M, k), ldaM,
-                D(M, k), ldaM );
+            if ( genD ) {
+                INSERT_TASK_zlacpy(
+                    &options,
+                    ChamLower, tempMm, tempkmin, A->nb,
+                    A(M, k), ldaM,
+                    D(M, k), ldaM );
 #if defined(CHAMELEON_USE_CUDA)
-            INSERT_TASK_zlaset(
-                &options,
-                ChamUpper, tempMm, tempkmin,
-                0., 1.,
-                D(M, k), ldaM );
+                INSERT_TASK_zlaset(
+                    &options,
+                    ChamUpper, tempMm, tempkmin,
+                    0., 1.,
+                    D(M, k), ldaM );
 #endif
-#endif
+            }
             for (n = k; n < Q->nt; n++) {
                 tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
 

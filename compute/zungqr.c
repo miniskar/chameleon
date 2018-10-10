@@ -307,10 +307,10 @@ int CHAMELEON_zungqr_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *Q,
 
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q, sequence, request );
     if (chamctxt->householder == ChamFlatHouseholder) {
-        chameleon_pzungqr( A, Q, T, Dptr, sequence, request );
+        chameleon_pzungqr( 1, A, Q, T, Dptr, sequence, request );
     }
     else {
-        chameleon_pzungqrrh( A, Q, T, Dptr, CHAMELEON_RHBLK, sequence, request );
+        chameleon_pzungqrrh( 1, CHAMELEON_RHBLK, A, Q, T, Dptr, sequence, request );
     }
 
     if (Dptr != NULL) {

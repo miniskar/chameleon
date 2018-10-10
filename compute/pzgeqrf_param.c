@@ -29,9 +29,9 @@
 /**
  *  Parallel tile QR factorization (reduction Householder) - dynamic scheduling
  */
-void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
-                          CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -40,7 +40,7 @@ void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
     size_t ws_host = 0;
 
     int k, m, n, i, p;
-    int K, L;
+    int K, L, nbgeqrt;
     int ldap, ldam;
     int tempkmin, tempkn, tempnn, tempmm;
     int ib;
@@ -54,25 +54,23 @@ void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
     ib = CHAMELEON_IB;
 
     if ( D == NULL ) {
-        D = A;
+        D    = A;
+        genD = 0;
     }
 
     /*
-     * zgeqrt = A->nb * (ib+1)
-     * zunmqr = A->nb * ib
-     * ztsqrt = A->nb * (ib+1)
-     * zttqrt = A->nb * (ib+1)
-     * ztsmqr = A->nb * ib
-     * zttmqr = A->nb * ib
+     * zgeqrt  = A->nb * (ib+1)
+     * zunmqr  = A->nb * ib
+     * ztpqrt  = A->nb * (ib+1)
+     * ztpmqrt = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
     /* Allocation of temporary (scratch) working space */
 #if defined(CHAMELEON_USE_CUDA)
-    /* Worker space
-     *
-     * zunmqr = A->nb * ib
-     * ztsmqr = 2 * A->nb * ib
+    /*
+     * zunmqr  = A->nb * ib
+     * ztpmqrt = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
@@ -93,7 +91,8 @@ void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
         /* The number of geqrt to apply */
-        for (i = 0; i < qrtree->getnbgeqrf(qrtree, k); i++) {
+        nbgeqrt = qrtree->getnbgeqrf(qrtree, k);
+        for (i = 0; i < nbgeqrt; i++) {
             m = qrtree->getm(qrtree, k, i);
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             tempkmin = chameleon_min(tempmm, tempkn);
@@ -106,8 +105,7 @@ void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                 tempmm, tempkn, ib, T->nb,
                 A(m, k), ldam,
                 T(m, k), T->mb);
-            if ( k < (A->nt-1) ) {
-#if defined(CHAMELEON_COPY_DIAG)
+            if ( genD ) {
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamLower, tempmm, A->nb, A->nb,
@@ -119,7 +117,6 @@ void chameleon_pzgeqrf_param( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                     ChamUpper, tempmm, A->nb,
                     0., 1.,
                     D(m, k), ldam );
-#endif
 #endif
             }
             for (n = k+1; n < A->nt; n++) {
