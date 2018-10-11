@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2015 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2017 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -29,17 +29,6 @@ cmake_minimum_required(VERSION 2.8)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
-
-# Generate headers for all possible precisions
-# --------------------------------------------
-#set(RUNTIME_HDRS_GENERATED "")
-#set(ZHDR
-  #include/runtime_codelet_z.h
-  #)
-
-#precisions_rules_py(RUNTIME_HDRS_GENERATED "${ZHDR}"
-  #PRECISIONS "s;d;c;z;ds;zc"
-  #TARGETDIR  "include")
 
 # Define the list of headers
 # --------------------------
@@ -71,17 +60,6 @@ install(
 
 # Generate the Chameleon common for all possible precisions
 # ---------------------------------------------------------
-# FIXME: restore this generation once file is done
-#set(RUNTIME_COMMON_GENERATED "")
-#set(ZSRC
-  #control/runtime_zprofiling.c
-  #control/runtime_zlocality.c
-  #)
-
-#precisions_rules_py(
-  #RUNTIME_COMMON_GENERATED "${ZSRC}"
-  #PRECISIONS "${CHAMELEON_PRECISION}"
-  #TARGETDIR "control")
 
 set(RUNTIME_COMMON
   control/runtime_async.c
@@ -90,21 +68,13 @@ set(RUNTIME_COMMON
   control/runtime_descriptor.c
   control/runtime_options.c
   control/runtime_profiling.c
-  #control/runtime_workspace.c
   ${RUNTIME_COMMON_GENERATED}
   )
-
-#set(flags_to_add "")
-#foreach(_prec ${CHAMELEON_PRECISION})
-  #set(flags_to_add "${flags_to_add} -DPRECISION_${_prec}")
-#endforeach()
-#set_source_files_properties(control/runtime_profiling.c PROPERTIES COMPILE_FLAGS "${flags_to_add}")
 
 # Generate the Chameleon sources for all possible precisions
 # ----------------------------------------------------------
 set(RUNTIME_SRCS_GENERATED "")
 set(ZSRC
-  #codelets/codelet_zcallback.c
   ${CODELETS_ZSRC}
   )
 

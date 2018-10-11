@@ -50,8 +50,11 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
         options->ws_worker = malloc(worker_size* sizeof(char));
         options->ws_wsize = worker_size;
     }
-    // TODO maybe we'll need it at some point
-    options->ws_hsize = host_size;
+    if (host_size > 0) {
+        // TODO used for scratch, maybe we can do better than malloc
+        options->ws_host = malloc(host_size * sizeof(char));
+        options->ws_hsize = host_size;
+    }
     return CHAMELEON_SUCCESS;
 }
 
@@ -61,6 +64,9 @@ int RUNTIME_options_ws_free( RUNTIME_option_t *options )
         free(options->ws_worker);
         options->ws_wsize = 0;
     }
-    options->ws_hsize = 0;
+    if (options->ws_hsize) {
+        free(options->ws_host);
+        options->ws_hsize = 0;
+    }
     return CHAMELEON_SUCCESS;
 }

@@ -135,6 +135,16 @@ int CHAMELEON_Sequence_Create  (RUNTIME_sequence_t **sequence);
 int CHAMELEON_Sequence_Destroy (RUNTIME_sequence_t *sequence);
 int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
 
+#if defined(CHAMELEON_SCHED_OPENMP)
+#define CHAMELEON_INIT(nworkers, ncudas)\
+  CHAMELEON_Init(nworkers, ncudas);\
+  _Pragma("omp parallel")\
+  _Pragma("omp master")
+#else
+#define CHAMELEON_INIT(nworkers, ncudas)\
+  CHAMELEON_Init(nworkers, ncudas);
+#endif
+
 END_C_DECLS
 
 #endif /* _chameleon_h_ */

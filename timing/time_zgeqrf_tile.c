@@ -48,14 +48,8 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     memset(descT->mat, 0, (descT->llm*descT->lln)*sizeof(ChamComplexDouble));
 
     /* CHAMELEON ZGEQRF */
-#if defined (CHAMELEON_SCHED_OPENMP)
-#pragma omp parallel
-#pragma omp master
-#endif
-    {
     START_TIMING();
     CHAMELEON_zgeqrf_Tile( descA, descT );
-    }
     STOP_TIMING();
 
     /* Check the solution */

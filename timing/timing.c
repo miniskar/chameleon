@@ -619,46 +619,25 @@ parse_arguments(int *_argc, char ***_argv, int *iparam, int *start, int *stop, i
     } while(-1 != c);
 }
 
+// NOTE: this function is here to cope with the fact that OpenMP parallel
+// regions must not have instructions jumping outside the region (eg: returns)
+
 int
-main(int argc, char *argv[]) {
-    int i, m, n, mx, nx;
+CHAMELEON_Main(int *iparam, char *prog_name, int start, int stop, int step) {
+
     int status;
+    int i, m, n, mx, nx;
     int nbnode = 1;
-    int start =  500;
-    int stop  = 5000;
-    int step  =  500;
-    int iparam[IPARAM_SIZEOF];
     int success = 0;
-
-    set_iparam_default(iparam);
-
-    parse_arguments(&argc, &argv, iparam, &start, &stop, &step);
-
-#if !defined(CHAMELEON_USE_CUDA)
-    if (iparam[IPARAM_NCUDAS] != 0){
-    	fprintf(stderr, "ERROR: CHAMELEON_USE_CUDA is not defined. "
-    			"The number of CUDA devices must be set to 0 (--gpus=0).\n");
-    	return EXIT_FAILURE;
-    }
-#endif
 
     n  = iparam[IPARAM_N];
     m  = iparam[IPARAM_M];
     mx = iparam[IPARAM_MX];
     nx = iparam[IPARAM_NX];
 
-    /* Initialize CHAMELEON */
-    CHAMELEON_Init( iparam[IPARAM_THRDNBR],
-                iparam[IPARAM_NCUDAS] );
 
-#if defined (CHAMELEON_SCHED_OPENMP)
-#pragma omp parallel
-#pragma omp master
-#endif
-    {
     /* Get the number of threads set by the runtime */
     iparam[IPARAM_THRDNBR] = CHAMELEON_GetThreadNbr();
-    }
 
     /* Stops profiling here to avoid profiling uninteresting routines.
        It will be reactivated in the time_*.c routines with the macro START_TIMING() */
@@ -709,7 +688,7 @@ main(int argc, char *argv[]) {
     CHAMELEON_Set(CHAMELEON_TRANSLATION_MODE, iparam[IPARAM_INPLACE]);
 
     if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
-        print_header( argv[0], iparam);
+        print_header( prog_name, iparam);
     }
 
     if (step < 1) step = 1;
@@ -749,7 +728,37 @@ main(int argc, char *argv[]) {
         if (status != CHAMELEON_SUCCESS) return status;
         success += status;
     }
+}
+
+int
+main(int argc, char *argv[]) {
+    int start =  500;
+    int stop  = 5000;
+    int step  =  500;
+    int iparam[IPARAM_SIZEOF];
+
+    set_iparam_default(iparam);
+
+    parse_arguments(&argc, &argv, iparam, &start, &stop, &step);
+
+#if !defined(CHAMELEON_USE_CUDA)
+    if (iparam[IPARAM_NCUDAS] != 0){
+        fprintf(stderr, "ERROR: CHAMELEON_USE_CUDA is not defined. "
+                "The number of CUDA devices must be set to 0 (--gpus=0).\n");
+        return EXIT_FAILURE;
+    }
+#endif
+    int return_code;
+
+    /* Initialize CHAMELEON */
+    CHAMELEON_INIT( iparam[IPARAM_THRDNBR],
+                iparam[IPARAM_NCUDAS] );
+
+    {
+        return_code = CHAMELEON_Main(iparam, argv[0], start, stop, step);
+    }
+
     CHAMELEON_Finalize();
-    return success;
+    return return_code;
 }
 
