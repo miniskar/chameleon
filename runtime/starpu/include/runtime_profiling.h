@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_profiling.h
+ * @file starpu/runtime_profiling.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -17,8 +17,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _PROFILING_H_
-#define _PROFILING_H_
+#ifndef _runtime_profiling_h_
+#define _runtime_profiling_h_
 
 #ifdef CHAMELEON_ENABLE_PRUNING_STATS
 extern unsigned long RUNTIME_total_tasks;
@@ -51,4 +51,4 @@ void CHAMELEON_crestore_Model();
 void CHAMELEON_drestore_Model();
 void CHAMELEON_srestore_Model();
 
-#endif
+#endif /* _runtime_profiling_h_ */

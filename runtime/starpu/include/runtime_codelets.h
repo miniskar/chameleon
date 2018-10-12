@@ -1,6 +1,6 @@
  /**
  *
- * @file runtime_codelets.h
+ * @file starpu/runtime_codelets.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -18,8 +18,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _CODELETS_H_
-#define _CODELETS_H_
+#ifndef _runtime_codelets_h_
+#define _runtime_codelets_h_
 
 #include "chameleon/config.h"
 #include "runtime_codelet_profile.h"
@@ -119,4 +119,4 @@
 
 CODELETS_HEADER(map);
 
-#endif /* _CODELETS_H_ */
+#endif /* _runtime_codelets_h_ */

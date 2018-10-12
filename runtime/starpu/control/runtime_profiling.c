@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_profiling.c
+ * @file starpu/runtime_profiling.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

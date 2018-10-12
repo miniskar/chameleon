@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_codelet_profile.h
+ * @file starpu/runtime_codelet_profile.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -18,8 +18,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef __CODELET_PROFILE_H__
-#define __CODELET_PROFILE_H__
+#ifndef _runtime_codelet_profile_h_
+#define _runtime_codelet_profile_h_
 
 #include <math.h>
 
@@ -74,4 +74,4 @@
     void cl_##name##_callback();                        \
     void profiling_display_##name##_info(void);
 
-#endif /* __CODELET_PROFILE_H__ */
+#endif /* _runtime_codelet_profile_h_ */

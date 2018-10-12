@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_workspace.h
+ * @file starpu/runtime_workspace.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -16,8 +16,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _CHAMELEON_STARPU_WORKSPACE_H_
-#define _CHAMELEON_STARPU_WORKSPACE_H_
+#ifndef _runtime_workspace_h_
+#define _runtime_workspace_h_
 
 /*
  * Allocate workspace in host memory: CPU for any worker
@@ -47,4 +47,4 @@ int   RUNTIME_starpu_ws_alloc   ( CHAMELEON_starpu_ws_t **workspace, size_t size
 int   RUNTIME_starpu_ws_free    ( CHAMELEON_starpu_ws_t  *workspace);
 void *RUNTIME_starpu_ws_getlocal( CHAMELEON_starpu_ws_t  *workspace);
 
-#endif /* _CHAMELEON_STARPU_WORKSPACE_H_ */
+#endif /* _runtime_workspace_h_ */
