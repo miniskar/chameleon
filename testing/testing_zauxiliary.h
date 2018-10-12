@@ -18,8 +18,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef TESTING_ZAUXILIARY_H
-#define TESTING_ZAUXILIARY_H
+#ifndef _testing_zauxiliary_h_
+#define _testing_zauxiliary_h_
 
 //#include "testing.h"
 
@@ -113,4 +113,4 @@ int testing_zcgesv(int argc, char **argv);
 int testing_zcungesv(int argc, char **argv);
 #endif
 
-#endif /* TESTINGS_H */
+#endif /* _testing_zauxiliary_h_ */

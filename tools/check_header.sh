@@ -35,6 +35,10 @@ check_header_file()
         then
             toto=`grep " @file .*/$basename" $filename`
         fi
+        if [ $? -ne 0 ]
+        then
+            toto=`grep " @file chameleon_$basename" $filename`
+        fi
 
         if [ $? -ne 0 ]
         then
