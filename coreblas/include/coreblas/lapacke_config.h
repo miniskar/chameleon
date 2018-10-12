@@ -47,8 +47,8 @@
 * Generated May, 2011
 */
 
-#ifndef _LAPACKE_CONFIG_H_
-#define _LAPACKE_CONFIG_H_
+#ifndef _lapacke_config_h_
+#define _lapacke_config_h_
 
 #ifdef __cplusplus
 #if defined(LAPACK_COMPLEX_CPP)
@@ -132,4 +132,4 @@ lapack_complex_double lapack_make_complex_double( double re, double im );
 }
 #endif /* __cplusplus */
 
-#endif /* _LAPACKE_CONFIG_H_ */
+#endif /* _lapacke_config_h_ */

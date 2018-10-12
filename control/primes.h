@@ -20,8 +20,8 @@
  * and its fortran implementation.
  *
  */
-#ifndef PRIMES_H
-#define PRIMES_H
+#ifndef _primes_h_
+#define _primes_h_
 
 #define IMBALANCE_THRESHOLD 10
 #define PWR_MAXSIZE   32
@@ -55,4 +55,4 @@ int     minloc(int n, int *T);
 int64_t maxval(int n, int *T);
 int64_t sum   (int n, int *T);
 
-#endif /* PRIMES_H */
+#endif /* _primes_h_ */

@@ -18,8 +18,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef _CHAMELEON_DESCRIPTOR_H_
-#define _CHAMELEON_DESCRIPTOR_H_
+#ifndef _chameleon_descriptor_h_
+#define _chameleon_descriptor_h_
 
 #include <assert.h>
 #include "chameleon/config.h"
@@ -246,4 +246,4 @@ inline static int chameleon_desc_islocal( const CHAM_desc_t *A, int m, int n )
 }
 #endif
 
-#endif
+#endif /* _chameleon_descriptor_h_ */

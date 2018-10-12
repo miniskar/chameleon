@@ -16,8 +16,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef CBLAS_H
-#define CBLAS_H
+#ifndef _cblas_h_
+#define _cblas_h_
 #include <stddef.h>
 
 /*
@@ -594,4 +594,4 @@ void cblas_xerbla(int p, const char *rout, const char *form, ...);
 #endif
 
 
-#endif
+#endif /* _cblas_h_ */

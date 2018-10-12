@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CORE_BLAS_H_
-#define _CORE_BLAS_H_
+#ifndef _coreblas_h_
+#define _coreblas_h_
 
 #include <stdio.h>
 #include <math.h>
@@ -85,4 +85,4 @@ int  get_coreblas_gemm3m_enabled( void );
 
 END_C_DECLS
 
-#endif
+#endif /* _coreblas_h_ */

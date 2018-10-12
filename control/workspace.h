@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CHAMELEON_WORKSPACE_H_
-#define _CHAMELEON_WORKSPACE_H_
+#ifndef _chameleon_workspace_h_
+#define _chameleon_workspace_h_
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +34,4 @@ int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc
 }
 #endif
 
-#endif
+#endif /* _chameleon_workspace_h_ */

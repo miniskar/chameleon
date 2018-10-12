@@ -22,6 +22,9 @@
  * @precisions normal z -> c d s
  *
  */
+#ifndef _compute_z_h_
+#define _compute_z_h_
+
 /**
  *  LAPACK/Tile Descriptor accesses
  */
@@ -236,3 +239,5 @@ chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM
     RUNTIME_desc_destroy( descAl );
     RUNTIME_desc_destroy( descAt );
 }
+
+#endif  /* _compute_z_h_ */

@@ -19,8 +19,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef _CHAMELEON_CONTEXT_H_
-#define _CHAMELEON_CONTEXT_H_
+#ifndef _chameleon_context_h_
+#define _chameleon_context_h_
 
 #include "chameleon/struct.h"
 
@@ -33,10 +33,10 @@ extern "C" {
 
 CHAM_context_t* chameleon_context_create  ();
 CHAM_context_t* chameleon_context_self    ();
-int              chameleon_context_destroy ();
+int             chameleon_context_destroy ();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* _chameleon_context_h_ */

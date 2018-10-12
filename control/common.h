@@ -21,8 +21,8 @@
  *  CHAMELEON facilities of interest to both CHAMELEON core developer
  *  and also of interest to CHAMELEON community contributor.
  */
-#ifndef _CHAMELEON_COMMON_H_
-#define _CHAMELEON_COMMON_H_
+#ifndef _chameleon_common_h_
+#define _chameleon_common_h_
 
 
 #if defined( _WIN32 ) || defined( _WIN64 )
@@ -128,4 +128,4 @@ void chameleon_pclag2z(CHAM_context_t *chamctxt);
 }
 #endif
 
-#endif
+#endif /* _chameleon_common_h_ */

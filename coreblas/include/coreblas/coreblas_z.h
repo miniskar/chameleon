@@ -24,8 +24,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _CHAMELEON_CORE_ZBLAS_H_
-#define _CHAMELEON_CORE_ZBLAS_H_
+#ifndef _coreblas_z_h_
+#define _coreblas_z_h_
 
 /**
  *  Declarations of serial kernels - alphabetical order
@@ -399,4 +399,5 @@ int  CORE_zunmqr(cham_side_t side, cham_trans_t trans,
                  const CHAMELEON_Complex64_t *T, int LDT,
                  CHAMELEON_Complex64_t *C, int LDC,
                  CHAMELEON_Complex64_t *WORK, int LDWORK);
-#endif
+
+#endif /* _coreblas_z_h_ */

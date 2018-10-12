@@ -1,5 +1,22 @@
 !!!
 !
+! @file chameleon_zcf90.F90
+!
+!  CHAMELEON Fortran 90 interfaces using Fortran 2003 ISO C bindings
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
+!  Univ. of California Berkeley and Univ. of Colorado Denver
+!
+! @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+!                      Univ. Bordeaux. All rights reserved.
+!
+! @version 1.0.0
+! @author Numerical Algorithm Group
+! @author Mathieu Faverge
+! @author Emmanuel Agullo
+! @author Cedric Castagnede
+! @date 2011-09-15
+! @precisions mixed zc -> ds
+!
 ! -- Inria
 ! -- (C) Copyright 2012
 !
@@ -63,19 +80,6 @@
 !     negligence or otherwise) arising in any way out of the use of this
 !     software, even if advised of the possibility of such damage.
 !
-!
-!
-!  CHAMELEON Fortran 90 interfaces using Fortran 2003 ISO C bindings
-!  CHAMELEON is a software package provided by Univ. of Tennessee,
-!  Univ. of California Berkeley and Univ. of Colorado Denver
-!
-! @version 1.0.0
-! @author Numerical Algorithms Group
-! @author Mathieu Faverge
-! @author Emmanuel Agullo
-! @author Cedric Castagnede
-! @date 2011-12-15
-! @precisions mixed zc -> ds
 !
 module chameleon_zc
 

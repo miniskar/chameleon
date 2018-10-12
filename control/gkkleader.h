@@ -19,8 +19,8 @@
  * and its fortran implementation.
  *
  */
-#ifndef GKKLEADERS_H
-#define GKKLEADERS_H
+#ifndef _gkkleaders_h_
+#define _gkkleaders_h_
 
 int  GKK_doublingtable(int x, int m, int emax, int *dt);
 int  GKK_modpow(int *dt, int e, int m);
@@ -39,4 +39,4 @@ void GKK_output_tables(int m, int n, int q, primedec_t *pr_q, int t,
 
 int  GKK_getLeaderNbr(int me, int ne, int *nleaders, int **leaders);
 
-#endif /* GKKLEADERS_H */
+#endif /* _gkkleaders_h_ */

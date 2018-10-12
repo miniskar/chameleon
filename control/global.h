@@ -22,8 +22,8 @@
  *  CHAMELEON internals of interest to CHAMELEON core developers, but not necessarily
  *  of interest to CHAMELEON community contributors.
  */
-#ifndef _CHAMELEON_GLOBAL_H_
-#define _CHAMELEON_GLOBAL_H_
+#ifndef _chameleon_global_h_
+#define _chameleon_global_h_
 
 /**
  *  Numerical operations
@@ -105,4 +105,4 @@
 #define CHAMELEON_FUNC_ZSYSV  75
 #define CHAMELEON_FUNC_CSYSV  76
 
-#endif
+#endif /* _chameleon_global_h_ */
