@@ -1,5 +1,21 @@
 !**
 !
+! @file chameleon_fortran.h
+! @brief Chameleon Fortran77 header
+!
+! @copyright 2009-2014 The University of Tennessee and The University of
+!                      Tennessee Research Foundation. All rights reserved.
+! @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+!                      Univ. Bordeaux. All rights reserved.
+!
+! @version 1.0.0
+! @author Bilel Hadri
+! @author Mathieu Faverge
+! @author Cedric Castagnede
+! @date 2010-11-15
+!
+!**
+!
 ! -- Inria
 ! -- (C) Copyright 2012
 !
@@ -32,15 +48,6 @@
 !
 ! The fact that you are presently reading this means that you have had
 ! knowledge of the CeCILL-B license and that you accept its terms.
-!
-!**
-!
-! @brief Chameleon Fortran77 header
-! @version 1.0.0
-! @author Bilel Hadri
-! @author Mathieu Faverge
-! @author Cedric Castagnede
-! @date 2010-11-15
 !
 !**
 

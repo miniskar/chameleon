@@ -240,4 +240,4 @@ chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM
     RUNTIME_desc_destroy( descAt );
 }
 
-#endif  /* _compute_z_h_ */
+#endif /* _compute_z_h_ */

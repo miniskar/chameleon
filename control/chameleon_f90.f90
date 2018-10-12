@@ -1,5 +1,18 @@
 !!!
 !
+! @file chameleon_f90.f90
+!
+!  CHAMELEON Fortran 90 interfaces using Fortran 2003 ISO C bindings
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
+!  Univ. of California Berkeley and Univ. of Colorado Denver
+!
+! @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+!                      Univ. Bordeaux. All rights reserved.
+!
+! @version 1.0.0
+! @author Numerical Algorithm Group
+! @date 2011-09-15
+!
 ! -- Inria
 ! -- (C) Copyright 2012
 !
@@ -34,7 +47,6 @@
 ! knowledge of the CeCILL-B license and that you accept its terms.
 !
 !!!
-
 !
 ! Copyright © 2011 The Numerical Algorithms Group Ltd. All rights reserved.
 !
@@ -62,17 +74,6 @@
 ! liability, whether in contract, strict liability, or tort (including
 ! negligence or otherwise) arising in any way out of the use of this
 ! software, even if advised of the possibility of such damage.
-!
-!
-!
-!  CHAMELEON fortran 90 interface
-!  CHAMELEON is a software package provided by Univ. of Tennessee,
-!  Univ. of California Berkeley and Univ. of Colorado Denver
-!
-! @version 1.0.0
-! @author Numerical Algorithm Group
-! @date 2011-09-15
-! @precisions normal z -> c d s
 !
 module chameleon
 

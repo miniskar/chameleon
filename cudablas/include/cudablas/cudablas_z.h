@@ -17,8 +17,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _CHAMELEON_CUDA_ZBLAS_H_
-#define _CHAMELEON_CUDA_ZBLAS_H_
+#ifndef _cudablas_z_h_
+#define _cudablas_z_h_
 
 /**
  *  Declarations of cuda kernels - alphabetical order
@@ -44,4 +44,4 @@ int CUDA_zttmqr( cham_side_t side, cham_trans_t trans, int M1, int N1, int M2, i
 int CUDA_zunmlqt(cham_side_t side, cham_trans_t trans, int M, int N, int K, int IB, const cuDoubleComplex *A,    int LDA, const cuDoubleComplex *T,    int LDT, cuDoubleComplex *C,    int LDC, cuDoubleComplex *WORK, int LDWORK, CUBLAS_STREAM_PARAM );
 int CUDA_zunmqrt(cham_side_t side, cham_trans_t trans, int M, int N, int K, int IB, const cuDoubleComplex *A,    int LDA, const cuDoubleComplex *T,    int LDT, cuDoubleComplex *C,    int LDC, cuDoubleComplex *WORK, int LDWORK, CUBLAS_STREAM_PARAM );
 
-#endif
+#endif /* _cudablas_z_h_ */

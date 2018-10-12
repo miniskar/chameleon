@@ -17,8 +17,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _CUDA_BLAS_H_
-#define _CUDA_BLAS_H_
+#ifndef _cudablas_h_
+#define _cudablas_h_
 
 #include "chameleon/config.h"
 
@@ -102,4 +102,4 @@ extern int chameleon_cublas_constants[];
 
 END_C_DECLS
 
-#endif
+#endif /* _cudablas_h_ */
