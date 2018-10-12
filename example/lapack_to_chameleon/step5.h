@@ -16,8 +16,8 @@
  * @date 2014-10-29
  *
  */
-#ifndef STEP5_H
-#define STEP5_H
+#ifndef _step5_h_
+#define _step5_h_
 
 /* Common include for all steps of the tutorial */
 #include "lapack_to_chameleon.h"
@@ -134,4 +134,4 @@ static void print_header(char *prog_name, int * iparam) {
     return;
 }
 
-#endif /* STEP5_H */
+#endif /* _step5_h_ */

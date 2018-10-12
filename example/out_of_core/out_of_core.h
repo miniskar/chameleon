@@ -16,8 +16,8 @@
  * @date 2016-08-23
  *
  */
-#ifndef OOC_H
-#define OOC_H
+#ifndef _out_of_core_h_
+#define _out_of_core_h_
 
 #include <math.h>
 #include <stdio.h>
@@ -193,4 +193,4 @@ print_o_direct_wont_work(void) {
                     "multiples of 4096. Tip : chose 'n' and 'nb' as both multiples of 32.\n");
 }
 
-#endif /* OOC_H */
+#endif /* _out_of_core_h_ */

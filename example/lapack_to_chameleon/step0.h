@@ -16,8 +16,8 @@
  * @date 2014-10-29
  *
  */
-#ifndef STEP0_H
-#define STEP0_H
+#ifndef _step0_h_
+#define _step0_h_
 
 /* Common include for all steps of the tutorial */
 #include "lapack_to_chameleon.h"
@@ -242,4 +242,4 @@ static void CORE_dplrnt( int m, int n, double *A, int lda,
     }
 }
 
-#endif /* STEP0_H */
+#endif /* _step0_h_ */
