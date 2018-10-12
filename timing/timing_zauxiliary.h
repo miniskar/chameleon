@@ -13,8 +13,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef TIMING_ZAUXILIARY_H
-#define TIMING_ZAUXILIARY_H
+#ifndef _timing_zauxiliary_h_
+#define _timing_zauxiliary_h_
 
 int    z_check_orthogonality   (int M, int N, int LDQ, CHAMELEON_Complex64_t *Q);
 int    z_check_QRfactorization (int M, int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA, CHAMELEON_Complex64_t *Q);
@@ -41,4 +41,4 @@ int zcheck_inverse(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2,
                          int LDA, cham_uplo_t uplo, double *rnorm, double *anorm, double *ainvnorm);
 
 
-#endif /* TIMING_ZAUXILIARY_H */
+#endif /* _timing_zauxiliary_h_ */
