@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -19,8 +19,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CHAMELEON_AUXILIARY_H_
-#define _CHAMELEON_AUXILIARY_H_
+#ifndef _chameleon_auxiliary_h_
+#define _chameleon_auxiliary_h_
 
 #include "chameleon/struct.h"
 #include "chameleon/tasks.h"
@@ -49,4 +49,4 @@ int  CHAMELEON_My_Mpi_Rank  (void);
 }
 #endif
 
-#endif
+#endif /* _chameleon_auxiliary_h_ */

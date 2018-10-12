@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2017 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,8 +16,8 @@
  * @date 2017-05-03
  *
  */
-#ifndef _CHAMELEON_F77_H_
-#define _CHAMELEON_F77_H_
+#ifndef _chameleon_f77_h_
+#define _chameleon_f77_h_
 
 #include "chameleon/mangling.h"
 
@@ -46,4 +46,4 @@
 #define CHAMELEON_LAPACK_TO_TILE CHAMELEON_GLOBAL(chameleon_lapack_to_tile, CHAMELEON_LAPACK_TO_TILE)
 #define CHAMELEON_TILE_TO_LAPACK CHAMELEON_GLOBAL(chameleon_tile_to_lapack, CHAMELEON_TILE_TO_LAPACK)
 
-#endif
+#endif /* _chameleon_f77_h_ */

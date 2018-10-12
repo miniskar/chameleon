@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -19,8 +19,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef _CHAMELEON_H_
-#define _CHAMELEON_H_
+#ifndef _chameleon_h_
+#define _chameleon_h_
 
 /* ****************************************************************************
  * CHAMELEON types and constants
@@ -137,4 +137,4 @@ int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
 
 END_C_DECLS
 
-#endif
+#endif /* _chameleon_h_ */

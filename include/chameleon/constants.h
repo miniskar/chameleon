@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -224,4 +224,4 @@ typedef enum chameleon_translation_e {
 #define CHAMELEON_ERR_UNEXPECTED       -110
 #define CHAMELEON_ERR_SEQUENCE_FLUSHED -111
 
-#endif
+#endif /* _chameleon_constants_h_ */

@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -59,7 +59,6 @@ set(CHAMELEON_CONTROL
     ../control/tile.c
     ../control/chameleon_f77.c
     ../control/chameleon_mf77.c
-    #    ../control/chameleonwinthread.c
     map.c
     pmap.c
    )
