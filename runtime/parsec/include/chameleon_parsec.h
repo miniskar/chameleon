@@ -1,6 +1,6 @@
 /**
  *
- * @file chameleon_parsec.h
+ * @file parsec/chameleon_parsec.h
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -17,8 +17,8 @@
  * @date 2018-02-06
  *
  */
-#ifndef _CHAMELEON_PARSEC_H_
-#define _CHAMELEON_PARSEC_H_
+#ifndef _chameleon_parsec_h_
+#define _chameleon_parsec_h_
 
 #include <parsec.h>
 #include <parsec/interfaces/superscalar/insert_function.h>
@@ -61,4 +61,4 @@ chameleon_parsec_get_arena_index(const CHAM_desc_t *desc) {
 
 #define RUNTIME_END_ACCESS_DECLARATION
 
-#endif /* _CHAMELEON_PARSEC_H_ */
+#endif /* _chameleon_parsec_h_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @file codelet_zaxpy.c
+ * @file parsec/codelet_zaxpy.c
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

@@ -1,6 +1,6 @@
 /**
  *
- * @file codelet_zttlqt.c
+ * @file parsec/codelet_zttlqt.c
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

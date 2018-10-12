@@ -1,6 +1,6 @@
 /**
  *
- * @file codelet_zsytrf_nopiv.c
+ * @file parsec/codelet_zsytrf_nopiv.c
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_context.c
+ * @file parsec/runtime_context.c
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

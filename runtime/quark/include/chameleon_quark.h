@@ -1,6 +1,6 @@
 /**
  *
- * @file chameleon_quark.h
+ * @file quark/chameleon_quark.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -17,8 +17,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _CHAMELEON_QUARK_H_
-#define _CHAMELEON_QUARK_H_
+#ifndef _chameleon_quark_h_
+#define _chameleon_quark_h_
 
 #include <quark.h>
 #include "coreblas.h"
@@ -48,4 +48,4 @@ typedef struct quark_option_s {
 
 #define RUNTIME_END_ACCESS_DECLARATION
 
-#endif /* _CHAMELEON_QUARK_H_ */
+#endif /* _chameleon_quark_h_ */

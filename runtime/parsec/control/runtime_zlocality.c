@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_zlocality.c
+ * @file parsec/runtime_zlocality.c
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

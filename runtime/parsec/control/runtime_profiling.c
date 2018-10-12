@@ -1,6 +1,6 @@
 /**
  *
- * @file runtime_profiling.c
+ * @file parsec/runtime_profiling.c
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.

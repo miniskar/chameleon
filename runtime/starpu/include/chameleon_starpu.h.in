@@ -18,8 +18,8 @@
  * @date 2011-06-01
  *
  */
-#ifndef _CHAMELEON_STARPU_H_
-#define _CHAMELEON_STARPU_H_
+#ifndef _chameleon_starpu_h_
+#define _chameleon_starpu_h_
 
 #include "chameleon/config.h"
 
@@ -198,4 +198,4 @@ chameleon_starpu_data_iscached(const CHAM_desc_t *A, int m, int n)
 #define RUNTIME_END_ACCESS_DECLARATION          \
     RUNTIME_PRUNING_STATS_END_ACCESS_DECLARATION;
 
-#endif /* _CHAMELEON_STARPU_H_ */
+#endif /* _chameleon_starpu_h_ */
