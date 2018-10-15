@@ -30,7 +30,7 @@ CORE_map_parsec( parsec_execution_stream_t *context,
     void *op_args;
 
     parsec_dtd_unpack_args(
-        this_task, desc, uplo, m, n, data, operator, op_args );
+        this_task, &desc, &uplo, &m, &n, &data, &operator, &op_args );
     operator( desc, uplo, m, n, data, op_args );
 
     (void)context;
