@@ -35,12 +35,9 @@ void CORE_zlag2c_quark(Quark *quark)
     int ldb;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
-    int info;
 
     quark_unpack_args_8(quark, m, n, A, lda, B, ldb, sequence, request);
     CORE_zlag2c( m, n, A, lda, B, ldb);
-    if (sequence->status == CHAMELEON_SUCCESS && info != 0)
-        RUNTIME_sequence_flush(quark, sequence, request, info);
 }
 
 void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,

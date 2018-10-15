@@ -51,6 +51,8 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
+        STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
+        STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
         /* STARPU_SCRATCH,   options->ws_worker, */
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
@@ -69,12 +71,18 @@ static void cl_zpotrf_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t *A;
     int lda;
     int iinfo;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo, &sequence, &request);
     CORE_zpotrf(uplo, n, A, lda, &info);
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

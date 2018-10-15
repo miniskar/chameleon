@@ -113,6 +113,8 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         STARPU_VALUE,    &iinfo,             sizeof(int),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &h_work,            sizeof(CHAMELEON_starpu_ws_t *),
+        STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
+        STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
@@ -134,13 +136,18 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
-
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldl, &IPIV, &check_info, &iinfo, &h_work);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldl, &IPIV, &check_info, &iinfo, &h_work, &sequence, &request);
     CORE_zgetrf_incpiv(m, n, ib, A, lda, IPIV, &info);
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

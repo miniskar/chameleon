@@ -130,6 +130,8 @@ void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
         STARPU_VALUE,    &nb,                        sizeof(int),
         STARPU_VALUE,    &check_info,                sizeof(cham_bool_t),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
+        STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
+        STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
@@ -158,7 +160,8 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
     int ldwork;
     cham_bool_t check_info;
     int iinfo;
-
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int info = 0;
 
     U = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
@@ -166,9 +169,15 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
     L = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb, &ldu, &lda, &ldl, &IPIV, &d_work, &ldwork, &check_info, &iinfo);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb, &ldu, &lda, &ldl,
+                               &IPIV, &d_work, &ldwork, &check_info, &iinfo,
+                               &sequence, &request);
 
     CORE_ztstrf(m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info);
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

@@ -31,12 +31,18 @@ CORE_zgetrf_parsec( parsec_execution_stream_t *context,
     int *IPIV;
     cham_bool_t *check_info;
     int iinfo;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int info;
 
     parsec_dtd_unpack_args(
-        this_task, &m, &n, &A, &lda, &IPIV, &check_info, &iinfo );
+        this_task, &m, &n, &A, &lda, &IPIV, &check_info, &iinfo, &sequence, &request );
 
     CORE_zgetrf( m, n, A, lda, IPIV, &info );
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
@@ -52,12 +58,14 @@ void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgetrf_parsec, options->priority, "getrf",
-        sizeof(int),        &m,                          VALUE,
-        sizeof(int),        &n,                          VALUE,
-        PASSED_BY_REF,       RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),        &lda,                        VALUE,
-        sizeof(int)*nb,      IPIV,                        SCRATCH,
-        sizeof(cham_bool_t), &check_info,                 VALUE,
-        sizeof(int),        &iinfo,                      VALUE,
+        sizeof(int),                 &m,                          VALUE,
+        sizeof(int),                 &n,                          VALUE,
+        PASSED_BY_REF,               RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        sizeof(int),                 &lda,                        VALUE,
+        sizeof(int)*nb,              IPIV,                        SCRATCH,
+        sizeof(cham_bool_t),         &check_info,                 VALUE,
+        sizeof(int),                 &iinfo,                      VALUE,
+        sizeof(RUNTIME_sequence_t*), &(options->sequence),        VALUE,
+        sizeof(RUNTIME_request_t*),  &(options->request),         VALUE,
         PARSEC_DTD_ARG_END );
 }

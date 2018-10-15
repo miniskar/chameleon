@@ -31,16 +31,19 @@ CORE_zpotrf_parsec( parsec_execution_stream_t *context,
 {
     cham_uplo_t uplo;
     int tempkm, ldak, iinfo, info;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     CHAMELEON_Complex64_t *A;
 
     parsec_dtd_unpack_args(
-        this_task, &uplo, &tempkm, &A, &ldak, &iinfo );
+        this_task, &uplo, &tempkm, &A, &ldak, &iinfo, &sequence, &request );
 
     CORE_zpotrf( uplo, tempkm, A, ldak, &info );
 
-    /* if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) { */
-    /*     RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info ); */
-    /* } */
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
+
     (void)context;
     (void)info;
     (void)iinfo;
@@ -56,11 +59,13 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zpotrf_parsec, options->priority, "potrf",
-        sizeof(int),    &uplo,                             VALUE,
-        sizeof(int),           &n,                                VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                              VALUE,
-        sizeof(int),           &iinfo,                            VALUE,
+        sizeof(int),                 &uplo,                             VALUE,
+        sizeof(int),                 &n,                                VALUE,
+        PASSED_BY_REF,               RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        sizeof(int),                 &lda,                              VALUE,
+        sizeof(int),                 &iinfo,                            VALUE,
+        sizeof(RUNTIME_sequence_t*), &(options->sequence),              VALUE,
+        sizeof(RUNTIME_request_t*),  &(options->request),               VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;
