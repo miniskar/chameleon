@@ -17,6 +17,7 @@ lcov -a $PWD/chameleon_starpu.lcov
      -a $PWD/chameleon_quark.lcov
      -a $PWD/chameleon_parsec.lcov
      -o $PWD/chameleon.lcov
+lcov --summary chameleon.lcov
 lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 
 # Undefine this because not relevant in our configuration

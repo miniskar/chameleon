@@ -237,6 +237,23 @@ test_parsec_master:
   only:
     - master@solverstack/chameleon
 
+coverage:
+  stage: analyse
+  dependencies:
+    - test_starpu_branches
+    - test_starpu_simgrid_branches
+    - test_quark_branches
+    - test_parsec_branches
+  script:
+      - lcov -a chameleon_starpu.lcov
+             -a chameleon_starpu_simgrid.lcov
+             -a chameleon_quark.lcov
+             -a chameleon_parsec.lcov
+             -o chameleon.lcov
+      - lcov --summary chameleon.lcov
+  only:
+    - branches
+
 coverity:
   stage: analyse
   dependencies: []
