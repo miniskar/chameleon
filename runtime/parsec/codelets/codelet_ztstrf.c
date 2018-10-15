@@ -39,13 +39,18 @@ CORE_ztstrf_parsec( parsec_execution_stream_t *context,
     int ldwork;
     cham_bool_t *check_info;
     int iinfo;
-
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
     int info;
 
     parsec_dtd_unpack_args(
-        this_task, &m, &n, &ib, &nb, &U, &ldu, &A, &lda, &L, &ldl, &IPIV, &WORK, &ldwork, &check_info, &iinfo );
+        this_task, &m, &n, &ib, &nb, &U, &ldu, &A, &lda, &L, &ldl, &IPIV, &WORK, &ldwork, &check_info, &iinfo, &sequence, &request );
 
     CORE_ztstrf( m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info );
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
@@ -63,21 +68,23 @@ void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztstrf_parsec, options->priority, "tstrf",
-        sizeof(int),           &m,                                VALUE,
-        sizeof(int),           &n,                                VALUE,
-        sizeof(int),           &ib,                               VALUE,
-        sizeof(int),           &nb,                               VALUE,
-        PASSED_BY_REF,         RTBLKADDR( U, CHAMELEON_Complex64_t, Um, Un ), chameleon_parsec_get_arena_index( U ) | INOUT,
-        sizeof(int),           &ldu,                              VALUE,
-        PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                              VALUE,
-        PASSED_BY_REF,         RTBLKADDR( L, CHAMELEON_Complex64_t, Lm, Ln ), chameleon_parsec_get_arena_index( L ) | OUTPUT,
-        sizeof(int),           &ldl,                              VALUE,
-        sizeof(int*),          &IPIV,                             VALUE,
+        sizeof(int),                 &m,                                VALUE,
+        sizeof(int),                 &n,                                VALUE,
+        sizeof(int),                 &ib,                               VALUE,
+        sizeof(int),                 &nb,                               VALUE,
+        PASSED_BY_REF,               RTBLKADDR( U, CHAMELEON_Complex64_t, Um, Un ), chameleon_parsec_get_arena_index( U ) | INOUT,
+        sizeof(int),                 &ldu,                              VALUE,
+        PASSED_BY_REF,               RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
+        sizeof(int),                 &lda,                              VALUE,
+        PASSED_BY_REF,               RTBLKADDR( L, CHAMELEON_Complex64_t, Lm, Ln ), chameleon_parsec_get_arena_index( L ) | OUTPUT,
+        sizeof(int),                 &ldl,                              VALUE,
+        sizeof(int*),                &IPIV,                             VALUE,
         sizeof(CHAMELEON_Complex64_t)*ib*nb,    NULL,                 SCRATCH,
-        sizeof(int),           &nb,                               VALUE,
-        sizeof(int),           &check_info,                       VALUE,
-        sizeof(int),           &iinfo,                            VALUE,
+        sizeof(int),                 &nb,                               VALUE,
+        sizeof(int),                 &check_info,                       VALUE,
+        sizeof(int),                 &iinfo,                            VALUE,
+        sizeof(RUNTIME_sequence_t*), &(options->sequence),              VALUE,
+        sizeof(RUNTIME_request_t*),  &(options->request),               VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

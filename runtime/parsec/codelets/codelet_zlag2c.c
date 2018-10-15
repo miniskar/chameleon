@@ -35,7 +35,6 @@ CORE_zlag2c_parsec( parsec_execution_stream_t *context,
     int lda;
     CHAMELEON_Complex32_t *B;
     int ldb;
-    int info;
 
     parsec_dtd_unpack_args(
         this_task, &m, &n, &A, &lda, &B, &ldb );
