@@ -253,6 +253,8 @@ coverage:
       - lcov --summary chameleon.lcov
   only:
     - branches
+  except:
+    - master
 
 coverity:
   stage: analyse
