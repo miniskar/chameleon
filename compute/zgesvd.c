@@ -407,9 +407,10 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     CHAM_desc_t *subA, *subT, *subUVT;
     double *E;
     int M, N, MINMN, NB, LDAB;
-    int KL, KU, uplo, nru, ncvt;
-    int info = 0;
-    char gbbrd_vect;
+    cham_uplo_t uplo;
+#if !defined(CHAMELEON_SIMULATION)
+    int KL, KU, nru, ncvt;
+#endif
 
     CHAM_context_t *chamctxt;
     chamctxt = chameleon_context_self();
@@ -500,54 +501,59 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     memset(E, 0, MINMN * sizeof(double) );
 
 #if !defined(CHAMELEON_SIMULATION)
-    /* NCC = 0, C = NULL, we do not update any matrix with new singular vectors */
-    /* On exit, AB = U (S +~ E) VT */
-    if (uplo == ChamUpper){
-        KL = 0;
-        KU = NB;
-    }
-    else{
-        KL = NB;
-        KU = 0;
-    }
+    {
+        char gbbrd_vect;
+        int info;
 
-    /* Manage the case where only singular values are required */
-    if (jobu == ChamNoVec) {
-        nru = 0;
-        if (jobvt == ChamNoVec) {
-            gbbrd_vect = 'N';
-            ncvt = 0;
+        /* NCC = 0, C = NULL, we do not update any matrix with new singular vectors */
+        /* On exit, AB = U (S +~ E) VT */
+        if (uplo == ChamUpper){
+            KL = 0;
+            KU = NB;
+        }
+        else{
+            KL = NB;
+            KU = 0;
+        }
+
+        /* Manage the case where only singular values are required */
+        if (jobu == ChamNoVec) {
+            nru = 0;
+            if (jobvt == ChamNoVec) {
+                gbbrd_vect = 'N';
+                ncvt = 0;
+            }
+            else {
+                gbbrd_vect = 'P';
+                ncvt = N;
+            }
         }
         else {
-            gbbrd_vect = 'P';
-            ncvt = N;
+            nru = M;
+            if (jobvt == ChamNoVec) {
+                gbbrd_vect = 'Q';
+                ncvt = 0;
+            }
+            else {
+                gbbrd_vect = 'B';
+                ncvt = N;
+            }
         }
-    }
-    else {
-        nru = M;
-        if (jobvt == ChamNoVec) {
-            gbbrd_vect = 'Q';
-            ncvt = 0;
-        }
-        else {
-            gbbrd_vect = 'B';
-            ncvt = N;
-        }
-    }
 
-    chameleon_sequence_wait( chamctxt, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
 
-    info = LAPACKE_zgbbrd( LAPACK_COL_MAJOR,
-                           gbbrd_vect,
-                           M, N,
-                           0, KL, KU,
-                           (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
-                           S, E,
-                           U, LDU,
-                           VT, LDVT,
-                           NULL, 1 );
-    if (info != 0) {
-        fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zgbbrd = %d\n", info );
+        info = LAPACKE_zgbbrd( LAPACK_COL_MAJOR,
+                               gbbrd_vect,
+                               M, N,
+                               0, KL, KU,
+                               (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
+                               S, E,
+                               U, LDU,
+                               VT, LDVT,
+                               NULL, 1 );
+        if (info != 0) {
+            fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zgbbrd = %d\n", info );
+        }
     }
 #else
     chameleon_sequence_wait( chamctxt, sequence );
@@ -621,12 +627,14 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     /* Solve the bidiagonal SVD problem */
     /* On exit, U and VT are updated with bidiagonal matrix singular vectors */
 #if !defined(CHAMELEON_SIMULATION)
-    info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, 'U',
-                           MINMN, ncvt, nru, 0,
-                           S, E,
-                           VT, LDVT, U, LDU, NULL, 1 );
-    if (info != 0) {
-        fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
+    {
+        int info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, 'U',
+                                   MINMN, ncvt, nru, 0,
+                                   S, E,
+                                   VT, LDVT, U, LDU, NULL, 1 );
+        if (info != 0) {
+            fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
+        }
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

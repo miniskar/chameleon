@@ -334,7 +334,6 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     CHAM_desc_t descA;
     CHAM_desc_t descAB;
     int N, NB, LDAB;
-    int status;
     CHAM_desc_t D, *Dptr = NULL;
 
     chamctxt = chameleon_context_self();
@@ -420,14 +419,16 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
 
     /* Reduce band matrix to tridiagonal matrix */
 #if !defined(CHAMELEON_SIMULATION)
-    status = LAPACKE_zhbtrd( LAPACK_COL_MAJOR,
-                             chameleon_lapack_const(jobz),
-                             chameleon_lapack_const(uplo),
-                             N, NB,
-                             (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
-                             W, E, Q, LDQ );
-    if (status != 0) {
-        chameleon_error("CHAMELEON_zhetrd_Tile_Async", "LAPACKE_zhbtrd failed");
+    {
+        int info = LAPACKE_zhbtrd( LAPACK_COL_MAJOR,
+                                   chameleon_lapack_const(jobz),
+                                   chameleon_lapack_const(uplo),
+                                   N, NB,
+                                   (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
+                                   W, E, Q, LDQ );
+        if (info != 0) {
+            chameleon_error("CHAMELEON_zhetrd_Tile_Async", "LAPACKE_zhbtrd failed");
+        }
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
     if (Dptr != NULL) {

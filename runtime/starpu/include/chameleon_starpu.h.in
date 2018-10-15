@@ -128,8 +128,9 @@ chameleon_starpu_data_iscached(const CHAM_desc_t *A, int m, int n)
     starpu_data_handle_t *ptrtile = A->schedopt;
     ptrtile += ((int64_t)A->lmt) * nn + mm;
 
-    if (!(*ptrtile))
+    if (!(*ptrtile)) {
         return 0;
+    }
 
     return starpu_mpi_cached_receive(*ptrtile);
 }
@@ -139,7 +140,9 @@ chameleon_starpu_data_iscached(const CHAM_desc_t *A, int m, int n)
 
 #else
 
+#if defined(CHAMELEON_USE_MPI)
 #warning "WAR dependencies need starpu_mpi_cached_receive support from StarPU 1.2.1 or greater"
+#endif
 #define RUNTIME_ACCESS_WRITE_CACHED(A, Am, An) do {} while (0)
 
 #endif

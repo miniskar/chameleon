@@ -27,7 +27,7 @@
 static int
 RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
-    double normcham, normlapack, result;
+    double normcham;
     int    norm = ChamInfNorm;
 
     PASTE_CODE_IPARAM_LOCALS( iparam );
@@ -45,6 +45,8 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     /* Check the solution */
     if ( check )
     {
+        double normlapack, result;
+
         /* Allocate Data */
         PASTE_TILE_TO_LAPACK( descA, A, check, CHAMELEON_Complex64_t, M, N );
         double *work = (double*) malloc(chameleon_max(M,N)*sizeof(double));
