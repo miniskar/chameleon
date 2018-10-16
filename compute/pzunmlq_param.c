@@ -42,7 +42,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
     size_t ws_host = 0;
 
     int k, m, n, i, p;
-    int ldbm, ldak, ldbp;
+    int ldbm, ldak, ldbp, lddk;
     int tempnn, temppn, tempkmin, tempmm, tempkm;
     int ib, K, L;
     int *tiles;
@@ -95,6 +95,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
+                lddk = BLKLDD(D, k);
 
                 T = TS;
                 for (i = 0; i < qrtree->getnbgeqrf(qrtree, k); i++) {
@@ -109,13 +110,13 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             ChamUpper, tempkmin, temppn, A->nb,
                             A(k, p), ldak,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamLower, tempkmin, temppn,
                             0., 1.,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #endif
                     }
                     for (n = 0; n < B->nt; n++) {
@@ -124,7 +125,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             side, trans,
                             temppn, tempnn, tempkmin, ib, T->nb,
-                            D(k, p), ldak,
+                            D(k, p), lddk,
                             T(k, p), T->mb,
                             B(p, n), ldbp);
                     }
@@ -193,6 +194,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
+                lddk = BLKLDD(D, k);
 
                 /* Setting the order of the tiles*/
                 libhqr_walk_stepk(qrtree, k, tiles + (k+1));
@@ -249,13 +251,13 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             ChamUpper, tempkmin, temppn, A->nb,
                             A(k, p), ldak,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamLower, tempkmin, temppn,
                             0., 1.,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #endif
                     }
                     for (n = 0; n < B->nt; n++) {
@@ -268,7 +270,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             side, trans,
                             temppn, tempnn, tempkmin, ib, T->nb,
-                            D(k, p), ldak,
+                            D(k, p), lddk,
                             T(k, p), T->mb,
                             B(p, n), ldbp);
                     }
@@ -291,6 +293,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
+                lddk = BLKLDD(D, k);
 
                 /* Setting the order of the tiles*/
                 libhqr_walk_stepk(qrtree, k, tiles + (k+1));
@@ -345,13 +348,13 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             ChamUpper, tempkmin, temppn, A->nb,
                             A(k, p), ldak,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamLower, tempkmin, temppn,
                             0., 1.,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #endif
                     }
                     for (m = 0; m < B->mt; m++) {
@@ -365,7 +368,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(k, p), ldak,
+                            D(k, p), lddk,
                             T(k, p), T->mb,
                             B(m, p), ldbm);
                     }
@@ -386,6 +389,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
 
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
                 ldak = BLKLDD(A, k);
+                lddk = BLKLDD(D, k);
 
                 T = TS;
                 for (i = 0; i < qrtree->getnbgeqrf(qrtree, k); i++) {
@@ -399,13 +403,13 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             ChamUpper, tempkmin, temppn, A->nb,
                             A(k, p), ldak,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamLower, tempkmin, temppn,
                             0., 1.,
-                            D(k, p), ldak );
+                            D(k, p), lddk );
 #endif
                     }
                     for (m = 0; m < B->mt; m++) {
@@ -415,7 +419,7 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                             &options,
                             side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(k, p), ldak,
+                            D(k, p), lddk,
                             T(k, p), TS->mb,
                             B(m, p), ldbm);
                     }

@@ -44,7 +44,7 @@ void chameleon_pztpgqrt( int genD, int L,
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldvk, ldvm;
+    int ldvk, ldvm, lddk;
     int ldqk, ldqm;
     int tempkm, tempkn, tempkk, tempnn, tempmm, templm;
     int ib;
@@ -92,6 +92,7 @@ void chameleon_pztpgqrt( int genD, int L,
         tempkk = k == V1->nt-1 ? V1->n-k*V1->nb : V1->nb;
         tempkn = k == Q1->nt-1 ? Q1->n-k*Q1->nb : Q1->nb;
         ldvk = BLKLDD(V1, k);
+        lddk = BLKLDD(D,  k);
         ldqk = BLKLDD(Q1, k);
 
         /* Equivalent to the tsmqr step on Q1,Q2 */
@@ -139,13 +140,13 @@ void chameleon_pztpgqrt( int genD, int L,
                 &options,
                 ChamLower, tempkm, tempkk, V1->nb,
                 V1(k, k), ldvk,
-                D(k), ldvk );
+                D(k), lddk );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(
                 &options,
                 ChamUpper, tempkm, tempkk,
                 0., 1.,
-                D(k), ldvk );
+                D(k), lddk );
 #endif
         }
         for (n = k; n < Q1->nt; n++) {
@@ -154,7 +155,7 @@ void chameleon_pztpgqrt( int genD, int L,
                 &options,
                 ChamLeft, ChamNoTrans,
                 tempkm, tempnn, tempkk, ib, T1->nb,
-                D(k),     ldvk,
+                D(k),     lddk,
                 T1(k, k), T1->mb,
                 Q1(k, n), ldqk);
         }
