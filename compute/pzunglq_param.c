@@ -41,7 +41,7 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
     int k, m, n, i, p;
     int K, L;
-    int ldak, ldqm;
+    int ldak, ldqm, lddk;
     int tempkm, tempkmin, temppn, tempnn, tempmm;
     int ib;
     int *tiles;
@@ -93,6 +93,7 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD(D, k);
 
         /* Setting the order of the tiles*/
         libhqr_walk_stepk(qrtree, k, tiles + (k+1));
@@ -147,13 +148,13 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                     &options,
                     ChamUpper, tempkmin, temppn, A->nb,
                     A(k, p), ldak,
-                    D(k, p), ldak );
+                    D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
                     ChamLower, tempkmin, temppn,
                     0., 1.,
-                    D(k, p), ldak );
+                    D(k, p), lddk );
 #endif
             }
             for (m = k; m < Q->mt; m++) {
@@ -167,7 +168,7 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                     &options,
                     ChamRight, ChamNoTrans,
                     tempmm, temppn, tempkmin, ib, T->nb,
-                    D(k, p), ldak,
+                    D(k, p), lddk,
                     T(k, p), T->mb,
                     Q(m, p), ldqm);
             }

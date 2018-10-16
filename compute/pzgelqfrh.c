@@ -44,7 +44,7 @@ void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
 
     int k, m, n;
     int K, N, RD;
-    int ldak, ldam;
+    int ldak, ldam, lddk;
     int tempkmin, tempkm, tempNn, tempnn, tempmm, tempNRDn;
     int ib;
 
@@ -91,6 +91,8 @@ void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD(D, k);
+
         for (N = k; N < A->nt; N += BS) {
             tempNn = N == A->nt-1 ? A->n-N*A->nb : A->nb;
             tempkmin = chameleon_min(tempkm, tempNn);
@@ -104,13 +106,13 @@ void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
                     &options,
                     ChamUpper, tempkm, tempNn, A->nb,
                     A(k, N), ldak,
-                    D(k, N), ldak );
+                    D(k, N), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
                     ChamLower, tempkm, tempNn,
                     0., 1.,
-                    D(k, N), ldak );
+                    D(k, N), lddk );
 #endif
             }
             for (m = k+1; m < A->mt; m++) {
@@ -120,7 +122,7 @@ void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
                     &options,
                     ChamRight, ChamConjTrans,
                     tempmm, tempNn, tempkmin, ib, T->nb,
-                    D(k, N), ldak,
+                    D(k, N), lddk,
                     T(k, N), T->mb,
                     A(m, N), ldam);
             }

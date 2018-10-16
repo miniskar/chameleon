@@ -42,7 +42,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
     int k, m, n, i, p;
     int K, L;
-    int ldak, ldam;
+    int ldak, ldam, lddk;
     int tempkmin, tempkm, tempnn, tempmm, temppn;
     int ib;
     int *tiles;
@@ -96,6 +96,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD(D, k);
 
         T = TS;
         /* The number of geqrt to apply */
@@ -114,13 +115,13 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                     &options,
                     ChamUpper, tempkm, temppn, A->nb,
                     A(k, p), ldak,
-                    D(k, p), ldak );
+                    D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
                     ChamLower, tempkm, temppn,
                     0., 1.,
-                    D(k, p), ldak );
+                    D(k, p), lddk );
 #endif
             }
             for (m = k+1; m < A->mt; m++) {
@@ -130,7 +131,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                     &options,
                     ChamRight, ChamConjTrans,
                    tempmm, temppn, tempkmin, ib, T->nb,
-                    D(k, p), ldak,
+                    D(k, p), lddk,
                     T(k, p), T->mb,
                     A(m, p), ldam);
             }

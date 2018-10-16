@@ -305,7 +305,7 @@ int CHAMELEON_zunglq_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
      */
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        int m = chameleon_min(A->mt, A->nt) * A->mb;
+        int m = chameleon_min(A->m, A->n);
         chameleon_zdesc_alloc(D, A->mb, A->nb, m, A->n, 0, 0, m, A->n, );
         Dptr = &D;
     }

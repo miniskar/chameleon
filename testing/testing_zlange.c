@@ -54,6 +54,8 @@ int testing_zlange(int argc, char **argv)
     double            *work = (double*) malloc(max(M,N)*sizeof(double));
     double normcham, normlapack, result;
 
+    RUNTIME_comm_set_tag_sizes( 31, 16 );
+
     eps = LAPACKE_dlamch_work('e');
 
     printf("\n");
@@ -238,5 +240,5 @@ int testing_zlange(int argc, char **argv)
 
     free(A);
     free(work);
-    return 0 /*hres*/;
+    return hres;
 }

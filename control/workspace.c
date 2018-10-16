@@ -67,7 +67,9 @@ int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM
          (func == CHAMELEON_FUNC_DGESVD) ||
          (func == CHAMELEON_FUNC_CGESVD) ||
          (func == CHAMELEON_FUNC_ZGESVD)))
+    {
         NT *= 2;
+    }
 
     lm = IB * MT;
     ln = NB * NT;

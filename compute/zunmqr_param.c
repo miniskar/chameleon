@@ -374,7 +374,7 @@ int CHAMELEON_zunmqr_param_Tile_Async( const libhqr_tree_t *qrtree,
 
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        int n = chameleon_min(A->mt, A->nt) * A->nb;
+        int n = chameleon_min(A->m, A->n);
         chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
         Dptr = &D;
     }
