@@ -116,9 +116,7 @@ set(ZSRC
     pzgetrf_nopiv.c
     pzlacpy.c
     pzlange.c
-    pzlanhe.c
     pzlansy.c
-    pzlantr.c
     pzlaset2.c
     pzlaset.c
     pzlauum.c

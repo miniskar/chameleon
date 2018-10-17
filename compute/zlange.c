@@ -287,7 +287,7 @@ int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *v
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzlange( norm, A, value, sequence, request );
+    chameleon_pzlange_generic( norm, ChamUpperLower, ChamNonUnit, A, value, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }
