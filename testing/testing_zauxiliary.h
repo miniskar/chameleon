@@ -23,12 +23,14 @@
 
 //#include "testing.h"
 
-#define USAGE(name, args, details)                                             \
-  printf(" Proper Usage is : ./ztesting ncores ngpus " name " " args " with\n" \
-         "   - ncores : number of cores \n"                                    \
-         "   - ngpus  : number of GPUs\n"                                      \
-         "   - name   : name of function to test\n"                            \
-         details);
+#define USAGE(name, args, details)                                      \
+    printf(" Proper Usage is : ./ztesting ncores ngpus nb ib " name " " args " with\n" \
+           "   - ncores : number of cores\n"                            \
+           "   - ngpus  : number of GPUs\n"                             \
+           "   - nb     : define the tile size\n"                       \
+           "   - ib     : define the inner tile size\n"                 \
+           "   - FUNC   : name of function to test\n"                   \
+           details);
 
 #ifdef WIN32
 #include <float.h>

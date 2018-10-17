@@ -43,8 +43,9 @@ void chameleon_pzlaset2(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha,
     int minmn = chameleon_min(A->mt, A->nt);
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
 
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 

@@ -47,8 +47,9 @@ void chameleon_pzungqr_param( int genD, int K,
     int ib, nbgeqrt, node, nbtiles, *tiles;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

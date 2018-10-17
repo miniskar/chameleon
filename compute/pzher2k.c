@@ -47,8 +47,9 @@ void chameleon_pzher2k(cham_uplo_t uplo, cham_trans_t trans,
     double dbeta;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (n = 0; n < C->nt; n++) {

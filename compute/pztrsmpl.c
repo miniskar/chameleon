@@ -44,8 +44,9 @@ void chameleon_pztrsmpl( CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *L, int *IP
     int ib;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

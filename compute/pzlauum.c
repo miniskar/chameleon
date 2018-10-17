@@ -40,8 +40,9 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
     int tempkm, tempkn;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLower

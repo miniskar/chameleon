@@ -55,8 +55,9 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
     int minMNT = chameleon_min(A->mt, A->nt);
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

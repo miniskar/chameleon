@@ -49,8 +49,9 @@ void chameleon_pzungqr( int genD, CHAM_desc_t *A, CHAM_desc_t *Q,
     int ib, minMT;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

@@ -44,8 +44,9 @@ void chameleon_pzsytrf(cham_uplo_t uplo, CHAM_desc_t *A,
     CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     RUNTIME_options_ws_alloc( &options, 0, ws_host );

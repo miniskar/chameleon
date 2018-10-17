@@ -43,8 +43,9 @@ void chameleon_pztrtri(cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
     CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLower
