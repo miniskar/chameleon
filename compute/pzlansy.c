@@ -335,12 +335,11 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
     case ChamInfNorm:
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        CHAMELEON_Desc_Create( &Wcol, NULL, ChamRealDouble, 1, A->nb, A->nb,
-                               workmt, worknt * A->nb, 0, 0, workmt, worknt * A->nb, A->p, A->q );
+        CHAMELEON_Desc_Create( &Wcol, NULL, ChamRealDouble, A->mb, 1, A->mb,
+                               workmt * A->mb, worknt, 0, 0, workmt * A->mb, worknt, A->p, A->q );
 
         CHAMELEON_Desc_Create( &Welt, NULL, ChamRealDouble, 1, 1, 1,
-                               A->p, worknt, 0, 0, A->p, worknt, A->p, A->q );
-
+                               workmt, A->q, 0, 0, workmt, A->q, A->p, A->q );
         break;
 
         /*
