@@ -295,7 +295,7 @@ int CHAMELEON_zlanhe_Tile_Async( cham_normtype_t norm, cham_uplo_t uplo, CHAM_de
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzlanhe( norm, uplo, A, value, sequence, request );
+    chameleon_pzlansy_generic( norm, uplo, ChamConjTrans, A, value, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

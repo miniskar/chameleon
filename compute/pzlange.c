@@ -26,26 +26,364 @@
 //WS_ADD :  A->mb + A->nb
 #include "control/common.h"
 
-#define A(m, n) A, m, n
-#define VECNORMS_STEP1(m, n) VECNORMS_STEP1, m, n
-#define VECNORMS_STEP2(m, n) VECNORMS_STEP2, m, n
-#define RESULT(m, n) RESULT, m, n
+#define A(m, n)    A,    (m), (n)
+#define Wcol(m, n) Wcol, (m), (n)
+#define Welt(m, n) Welt, (m), (n)
+
+static inline void
+chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
+                       CHAM_desc_t *Wcol, CHAM_desc_t *Welt,
+                       RUNTIME_option_t *options)
+{
+    int m, n;
+    int minMNT = chameleon_min( A->mt, A->nt );
+    int minMN  = chameleon_min( A->m,  A->n  );
+    int MT = (uplo == ChamUpper) ? minMNT : A->mt;
+    int NT = (uplo == ChamLower) ? minMNT : A->nt;
+    int M  = (uplo == ChamUpper) ? minMN  : A->m;
+    int N  = (uplo == ChamLower) ? minMN  : A->n;
+    int P  = Welt->p;
+    int Q  = Welt->q;
+
+    /**
+     * Step 1:
+     *  For j in [1,P], W(i, n) = reduce( A(i+k*P, n) )
+     */
+    for(n = 0; n < NT; n++) {
+        int mmin = ( uplo == ChamLower ) ? n                      : 0;
+        int mmax = ( uplo == ChamUpper ) ? chameleon_min(n+1, MT) : MT;
+
+        int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
+
+        for(m = mmin; m < mmax; m++) {
+            int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
+            int ldam = BLKLDD( A, m );
+
+            if ( (n == m)  && (uplo != ChamUpperLower) ) {
+                INSERT_TASK_ztrasm(
+                    options,
+                    ChamColumnwise, uplo, diag, tempmm, tempnn,
+                    A(m, n), ldam, Wcol(m, n) );
+            }
+            else {
+                INSERT_TASK_dzasum(
+                    options,
+                    ChamColumnwise, ChamUpperLower, tempmm, tempnn,
+                    A(m, n), ldam, Wcol(m, n) );
+            }
+
+            if ( m >= P ) {
+                INSERT_TASK_dgeadd(
+                    options,
+                    ChamNoTrans, tempnn, 1, A->nb,
+                    1.0, Wcol(m,   n), tempnn,
+                    1.0, Wcol(m%P, n), tempnn );
+            }
+        }
+
+        /**
+         * Step 2:
+         *  For each i, W(i, n) = reduce( W(0..P-1, n) )
+         */
+        for(m = 1; m < P; n++) {
+            INSERT_TASK_dgeadd(
+                options,
+                ChamNoTrans, tempnn, 1, A->nb,
+                1.0, Wcol(m, n), tempnn,
+                1.0, Wcol(0, n), tempnn );
+        }
+
+        INSERT_TASK_dlange(
+            options,
+            ChamMaxNorm, tempnn, 1, A->nb,
+            Wcol(0, n), tempnn, Welt(0, n));
+    }
+
+    /**
+     * Step 3:
+     *  For n in 0..Q-1, W(m, n) = max( W(m, n..nt[Q] ) )
+     */
+    for(n = Q; n < NT; n++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(0, n), Welt(0, n%Q) );
+    }
+
+    /**
+     * Step 4:
+     *  For each i, Welt(i, n) = max( Welt(0..P-1, n) )
+     */
+    for(n = 1; n < Q; n++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(0, n), Welt(0, 0) );
+    }
+}
+
+static inline void
+chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
+                       CHAM_desc_t *Wcol, CHAM_desc_t *Welt,
+                       RUNTIME_option_t *options)
+{
+    int m, n;
+    int minMNT = chameleon_min( A->mt, A->nt );
+    int minMN  = chameleon_min( A->m,  A->n  );
+    int MT = (uplo == ChamUpper) ? minMNT : A->mt;
+    int NT = (uplo == ChamLower) ? minMNT : A->nt;
+    int M  = (uplo == ChamUpper) ? minMN  : A->m;
+    int N  = (uplo == ChamLower) ? minMN  : A->n;
+    int P  = Welt->p;
+    int Q  = Welt->q;
+
+    /**
+     * Step 1:
+     *  For j in [1,Q], Wcol(m, j) = reduce( A(m, j+k*Q) )
+     */
+    for(m = 0; m < MT; m++) {
+        int nmin = ( uplo == ChamUpper ) ? m                      : 0;
+        int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
+
+        int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
+        int ldam = BLKLDD( A, m );
+
+        for(n = nmin; n < nmax; n++) {
+            int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
+
+            if ( (n == m)  && (uplo != ChamUpperLower) ) {
+                INSERT_TASK_ztrasm(
+                    options,
+                    ChamRowwise, uplo, diag, tempmm, tempnn,
+                    A(m, n), ldam, Wcol(m, n) );
+            }
+            else {
+                INSERT_TASK_dzasum(
+                    options,
+                    ChamRowwise, ChamUpperLower, tempmm, tempnn,
+                    A(m, n), ldam, Wcol(m, n) );
+            }
+
+            if ( n >= Q ) {
+                INSERT_TASK_dgeadd(
+                    options,
+                    ChamNoTrans, tempmm, 1, A->mb,
+                    1.0, Wcol(m, n  ), tempmm,
+                    1.0, Wcol(m, n%Q), tempmm );
+            }
+        }
+
+        /**
+         * Step 2:
+         *  For each j, W(m, j) = reduce( Wcol(m, 0..Q-1) )
+         */
+        for(n = 1; n < Q; n++) {
+            INSERT_TASK_dgeadd(
+                options,
+                ChamNoTrans, tempmm, 1, A->mb,
+                1.0, Wcol(m, n), tempmm,
+                1.0, Wcol(m, 0), tempmm );
+        }
+
+        INSERT_TASK_dlange(
+            options,
+            ChamMaxNorm, tempmm, 1, A->nb,
+            Wcol(m, 0), 1, Welt(m, 0));
+    }
+
+    /**
+     * Step 3:
+     *  For m in 0..P-1, Welt(m, n) = max( Wcol(m..mt[P], n ) )
+     */
+    for(m = P; m < MT; m++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(m, 0), Welt(m%P, 0) );
+    }
+
+    /**
+     * Step 4:
+     *  For each i, Welt(i, n) = max( Welt(0..P-1, n) )
+     */
+    for(m = 1; m < P; m++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(m, 0), Welt(0, 0) );
+    }
+}
+
+static inline void
+chameleon_pzlange_max( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_desc_t *Welt,
+                       RUNTIME_option_t *options)
+{
+    int m, n;
+    int minMNT = chameleon_min( A->mt, A->nt );
+    int minMN  = chameleon_min( A->m,  A->n  );
+    int MT = (uplo == ChamUpper) ? minMNT : A->mt;
+    int NT = (uplo == ChamLower) ? minMNT : A->nt;
+    int M  = (uplo == ChamUpper) ? minMN  : A->m;
+    int N  = (uplo == ChamLower) ? minMN  : A->n;
+    int P  = Welt->p;
+    int Q  = Welt->q;
+
+    /**
+     * Step 1:
+     *  For j in [1,Q], Welt(m, j) = reduce( A(m, j+k*Q) )
+     */
+    for(m = 0; m < MT; m++) {
+        int nmin = ( uplo == ChamUpper ) ? m                      : 0;
+        int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
+
+        int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
+        int ldam = BLKLDD( A, m );
+
+        for(n = nmin; n < nmax; n++) {
+            int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
+
+            if ( (n == m)  && (uplo != ChamUpperLower) ) {
+                INSERT_TASK_zlantr(
+                    options,
+                    ChamMaxNorm, uplo, diag, tempmm, tempnn, A->nb,
+                    A(m, n), ldam, Welt(m, n));
+            }
+            else {
+                INSERT_TASK_zlange(
+                    options,
+                    ChamMaxNorm, tempmm, tempnn, A->nb,
+                    A(m, n), ldam, Welt(m, n));
+            }
+
+            if ( n >= Q ) {
+                INSERT_TASK_dlange_max(
+                    options,
+                    Welt(m, n), Welt(m, n%Q) );
+            }
+        }
+
+        /**
+         * Step 2:
+         *  For each j, W(m, j) = reduce( Welt(m, 0..Q-1) )
+         */
+        for(n = 1; n < Q; n++) {
+            INSERT_TASK_dlange_max(
+                options,
+                Welt(m, n), Welt(m, 0) );
+        }
+    }
+
+    /**
+     * Step 3:
+     *  For m in 0..P-1, Welt(m, n) = max( Welt(m..mt[P], n ) )
+     */
+    for(m = P; m < MT; m++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(m, 0), Welt(m%P, 0) );
+    }
+
+    /**
+     * Step 4:
+     *  For each i, Welt(i, n) = max( Welt(0..P-1, n) )
+     */
+    for(m = 1; m < P; m++) {
+        INSERT_TASK_dlange_max(
+            options,
+            Welt(m, 0), Welt(0, 0) );
+    }
+}
+
+static inline void
+chameleon_pzlange_frb( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_desc_t *Welt,
+                       RUNTIME_option_t *options)
+{
+    int m, n;
+    int minMNT = chameleon_min( A->mt, A->nt );
+    int minMN  = chameleon_min( A->m,  A->n  );
+    int MT = (uplo == ChamUpper) ? minMNT : A->mt;
+    int NT = (uplo == ChamLower) ? minMNT : A->nt;
+    int M  = (uplo == ChamUpper) ? minMN  : A->m;
+    int N  = (uplo == ChamLower) ? minMN  : A->n;
+    int P  = Welt->p;
+    int Q  = Welt->q;
+
+    /**
+     * Step 1:
+     *  For j in [1,Q], Welt(m, j) = reduce( A(m, j+k*Q) )
+     */
+    for(m = 0; m < MT; m++) {
+        int nmin = ( uplo == ChamUpper ) ? m                      : 0;
+        int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
+
+        int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
+        int ldam = BLKLDD( A, m );
+
+        for(n = nmin; n < nmax; n++) {
+            int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
+
+            if ( (n == m) && (uplo != ChamUpperLower) ) {
+                INSERT_TASK_ztrssq(
+                    options,
+                    uplo, diag, tempmm, tempnn,
+                    A(m, n), ldam, Welt(m, n) );
+            }
+            else {
+                INSERT_TASK_zgessq(
+                    options,
+                    tempmm, tempnn,
+                    A(m, n), ldam, Welt(m, n) );
+            }
+
+            if ( n >= Q ) {
+                INSERT_TASK_dplssq(
+                    options, Welt(m, n), Welt(m, n%Q) );
+            }
+        }
+
+        /**
+         * Step 2:
+         *  For each j, W(m, j) = reduce( Welt(m, 0..Q-1) )
+         */
+        for(n = 1; n < Q; n++) {
+            INSERT_TASK_dplssq(
+                options, Welt(m, n), Welt(m, 0) );
+        }
+    }
+
+    /**
+     * Step 3:
+     *  For m in 0..P-1, Welt(m, n) = max( Welt(m..mt[P], n ) )
+     */
+    for(m = P; m < MT; m++) {
+        INSERT_TASK_dplssq(
+            options, Welt(m, 0), Welt(m%P, 0) );
+    }
+
+    /**
+     * Step 4:
+     *  For each i, Welt(i, n) = max( Welt(0..P-1, n) )
+     */
+    for(m = 1; m < P; m++) {
+        INSERT_TASK_dplssq(
+            options, Welt(m, 0), Welt(0, 0) );
+    }
+
+    INSERT_TASK_dplssq2(
+        options, Welt(0, 0) );
+}
 
 /**
  *
  */
-void chameleon_pzlange( cham_normtype_t norm, CHAM_desc_t *A, double *result,
-                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
+                                CHAM_desc_t *A, double *result,
+                                RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    CHAM_desc_t *VECNORMS_STEP1 = NULL;
-    CHAM_desc_t *VECNORMS_STEP2 = NULL;
-    CHAM_desc_t *RESULT         = NULL;
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
+    CHAM_desc_t *Wcol = NULL;
+    CHAM_desc_t *Welt = NULL;
+    double alpha = 0.0;
+    double beta  = 0.0;
 
-    int workm, workn;
-    int tempkm, tempkn;
-    int ldam;
+    int workn, workmt, worknt;
     int m, n;
 
     chamctxt = chameleon_context_self();
@@ -54,295 +392,45 @@ void chameleon_pzlange( cham_normtype_t norm, CHAM_desc_t *A, double *result,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     *result = 0.0;
+
+    workmt = chameleon_max( A->mt, A->p );
+    worknt = chameleon_max( A->nt, A->q );
+    workn  = chameleon_max( A->n,  A->q );
+
     switch ( norm ) {
-        /*
-         *  ChamOneNorm
-         */
     case ChamOneNorm:
-        /* Init workspace handle for the call to zlange but unused */
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        workm = chameleon_max( A->mt, A->p );
-        workn = A->n;
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, 1, A->nb, A->nb,
-                          workm, workn, 0, 0, workm, workn, A->p, A->q);
+        CHAMELEON_Desc_Create( &Wcol, NULL, ChamRealDouble, 1, A->nb, A->nb,
+                               workmt, worknt * A->nb, 0, 0, workmt, worknt * A->nb, A->p, A->q );
 
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP2), NULL, ChamRealDouble, 1, A->nb, A->nb,
-                          1,     workn, 0, 0, 1,     workn, A->p, A->q);
+        CHAMELEON_Desc_Create( &Welt, NULL, ChamRealDouble, 1, 1, 1,
+                               A->p, worknt, 0, 0, A->p, worknt, A->p, A->q );
 
-        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 1, 1,
-                          1, 1, 0, 0, 1, 1, 1, 1);
-
-        for(n = A->myrank % A->q; n < A->nt; n+=A->q) {
-            tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-
-            /* Zeroes my intermediate vectors */
-            for(m = (A->myrank / A->q); m < workm; m+=A->p) {
-                INSERT_TASK_dlaset(
-                    &options,
-                    ChamUpperLower, 1, tempkn,
-                    0., 0.,
-                    VECNORMS_STEP1(m, n), 1);
-            }
-
-            /* compute sums of absolute values on columns of each tile */
-            for(m = (A->myrank / A->q); m < A->mt; m+=A->p) {
-                tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-                ldam = BLKLDD(A, m);
-                INSERT_TASK_dzasum(
-                    &options,
-                    ChamColumnwise, ChamUpperLower, tempkm, tempkn,
-                    A(m, n), ldam, VECNORMS_STEP1(m, n));
-            }
-
-            /* Zeroes the second intermediate vector */
-            INSERT_TASK_dlaset(
-                &options,
-                ChamUpperLower, 1, tempkn,
-                0., 0.,
-                VECNORMS_STEP2(0, n), 1);
-
-            /* Compute vector sums between tiles in columns */
-            for(m = 0; m < A->mt; m++) {
-                INSERT_TASK_dgeadd(
-                    &options,
-                    ChamNoTrans, 1, tempkn, A->mb,
-                    1.0, VECNORMS_STEP1(m, n), 1,
-                    1.0, VECNORMS_STEP2(0, n), 1);
-            }
-
-            /*
-             * Compute max norm of each segment of the final vector in the
-             * previous workspace
-             */
-            INSERT_TASK_dlange(
-                &options,
-                ChamMaxNorm, 1, tempkn, A->nb,
-                VECNORMS_STEP2(0, n), 1,
-                VECNORMS_STEP1(0, n));
-        }
-
-        /* Initialize RESULT array */
-        INSERT_TASK_dlaset(
-            &options,
-            ChamUpperLower, 1, 1,
-            0., 0.,
-            RESULT(0,0), 1);
-
-        /* Compute max norm between tiles in the row */
-        if (A->myrank < A->q) {
-            for(n = 0; n < A->nt; n++) {
-                INSERT_TASK_dlange_max(
-                    &options,
-                    VECNORMS_STEP1(0, n),
-                    RESULT(0,0));
-            }
-        }
-
-        /* Scatter norm over processus */
-        for(m = 0; m < A->p; m++) {
-            for(n = 0; n < A->q; n++) {
-                INSERT_TASK_dlacpy(
-                    &options,
-                    ChamUpperLower, 1, 1, 1,
-                    RESULT(0,0), 1,
-                    VECNORMS_STEP1(m, n), 1 );
-            }
-        }
-        CHAMELEON_Desc_Flush( VECNORMS_STEP2, sequence );
-        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
-        CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(chamctxt, sequence);
-        CHAMELEON_Desc_Destroy( &(VECNORMS_STEP2) );
         break;
 
         /*
          *  ChamInfNorm
          */
     case ChamInfNorm:
-        /* Init workspace handle for the call to zlange */
         RUNTIME_options_ws_alloc( &options, A->mb, 0 );
 
-        workm = A->m;
-        workn = chameleon_max( A->nt, A->q );
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, A->mb, 1, A->mb,
-                          workm, workn, 0, 0, workm, workn, A->p, A->q);
+        CHAMELEON_Desc_Create( &Wcol, NULL, ChamRealDouble, A->mb, 1, A->mb,
+                               workmt * A->mb, worknt, 0, 0, workmt * A->mb, worknt, A->p, A->q );
 
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP2), NULL, ChamRealDouble, A->mb, 1, A->mb,
-                          workm, 1, 0, 0, workm, 1, A->p, A->q);
-
-        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 1, 1,
-                          A->p, A->q, 0, 0, A->p, A->q, A->p, A->q);
-
-        for(m = (A->myrank / A->q); m < A->mt; m+=A->p) {
-            tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-
-            /* Zeroes my intermediate vectors */
-            for(n = A->myrank % A->q; n < workn; n+=A->q) {
-                INSERT_TASK_dlaset(
-                    &options,
-                    ChamUpperLower, tempkm, 1,
-                    0., 0.,
-                    VECNORMS_STEP1(m, n), 1);
-            }
-
-            /* compute sums of absolute values on rows of each tile */
-            for(n = A->myrank % A->q; n < A->nt; n+=A->q) {
-                tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                INSERT_TASK_dzasum(
-                    &options,
-                    ChamRowwise, ChamUpperLower, tempkm, tempkn,
-                    A(m, n), ldam, VECNORMS_STEP1(m, n));
-            }
-
-            /* Zeroes the second intermediate vector */
-            INSERT_TASK_dlaset(
-                &options,
-                ChamUpperLower, tempkm, 1,
-                0., 0.,
-                VECNORMS_STEP2(m, 0), 1);
-
-            /* compute vector sums between tiles in rows locally on each rank */
-            for(n = A->myrank % A->q + A->q; n < A->nt; n+=A->q) {
-                INSERT_TASK_dgeadd(
-                    &options,
-                    ChamNoTrans, tempkm, 1, A->mb,
-                    1.0, VECNORMS_STEP1(m, n), tempkm,
-                    1.0, VECNORMS_STEP1(m, A->myrank % A->q), tempkm);
-            }
-
-            /* compute vector sums between tiles in rows between ranks */
-            for(n = 0; n < A->q; n++) {
-                INSERT_TASK_dgeadd(
-                    &options,
-                    ChamNoTrans, tempkm, 1, A->mb,
-                    1.0, VECNORMS_STEP1(m, n), tempkm,
-                    1.0, VECNORMS_STEP2(m, 0), tempkm);
-            }
-
-            /*
-             * Compute max norm of each segment of the final vector in the
-             * previous workspace
-             */
-            INSERT_TASK_dlange(
-                &options,
-                ChamMaxNorm, tempkm, 1, A->nb,
-                VECNORMS_STEP2(m, 0), tempkm,
-                VECNORMS_STEP1(m, 0));
-        }
-
-        /* Initialize RESULT array */
-        INSERT_TASK_dlaset(
-            &options,
-            ChamUpperLower, 1, 1,
-            0., 0.,
-            RESULT(A->myrank / A->q, A->myrank % A->q), 1);
-
-        /* compute max norm between tiles in the column locally on each rank */
-        if (A->myrank % A->q == 0) {
-            for(m = (A->myrank / A->q); m < A->mt; m+=A->p) {
-                INSERT_TASK_dlange_max(
-                    &options,
-                    VECNORMS_STEP1(m, 0),
-                    RESULT(A->myrank / A->q, A->myrank % A->q));
-            }
-        }
-
-        /* compute max norm between tiles in the column between ranks */
-        if (A->myrank % A->q == 0) {
-            for(m = 0; m < A->p; m++) {
-                INSERT_TASK_dlange_max(
-                    &options,
-                    RESULT(m,0),
-                    RESULT(0,0));
-            }
-        }
-
-        /* Scatter norm over processus */
-        for(m = 0; m < A->p; m++) {
-            for(n = 0; n < A->q; n++) {
-                INSERT_TASK_dlacpy(
-                    &options,
-                    ChamUpperLower, 1, 1, 1,
-                    RESULT(0,0), 1,
-                    VECNORMS_STEP1(m, n), 1 );
-            }
-        }
-        CHAMELEON_Desc_Flush( VECNORMS_STEP2, sequence );
-        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
-        CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(chamctxt, sequence);
-        CHAMELEON_Desc_Destroy( &(VECNORMS_STEP2) );
+        CHAMELEON_Desc_Create( &Welt, NULL, ChamRealDouble, 1, 1, 1,
+                               workmt, A->q, 0, 0, workmt, A->q, A->p, A->q );
         break;
 
         /*
          *  ChamFrobeniusNorm
          */
     case ChamFrobeniusNorm:
+        RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        workm = chameleon_max( A->mt, A->p );
-        workn = chameleon_max( A->nt, A->q );
-
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, 1, 2, 2,
-                          workm, 2*workn, 0, 0, workm, 2*workn, A->p, A->q);
-        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 2, 2,
-                          1, 2, 0, 0, 1, 2, 1, 1);
-
-        /* Compute local norm to each tile */
-        for(m = 0; m < A->mt; m++) {
-            tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            for(n = 0; n < A->nt; n++) {
-                INSERT_TASK_dlaset(
-                    &options,
-                    ChamUpperLower, 1, 2,
-                    1., 0.,
-                    VECNORMS_STEP1(m,n), 1);
-                tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                INSERT_TASK_zgessq(
-                    &options,
-                    tempkm, tempkn,
-                    A(m, n), ldam,
-                    VECNORMS_STEP1(m, n));
-            }
-        }
-
-        /* Initialize arrays */
-        INSERT_TASK_dlaset(
-            &options,
-            ChamUpperLower, 1, 2,
-            1., 0.,
-            RESULT(0,0), 1);
-
-        /* Compute accumulation of scl and ssq */
-        for(m = 0; m < A->mt; m++) {
-            for(n = 0; n < A->nt; n++) {
-                INSERT_TASK_dplssq(
-                    &options,
-                    VECNORMS_STEP1(m, n),
-                    RESULT(0,0));
-            }
-        }
-        /* Compute scl * sqrt(ssq) */
-        INSERT_TASK_dplssq2(
-            &options,
-            RESULT(0,0));
-
-        /* Copy max norm in tiles to dispatch on every nodes */
-        for(m = 0; m < A->p; m++) {
-            for(n = 0; n < A->q; n++) {
-                INSERT_TASK_dlacpy(
-                    &options,
-                    ChamUpperLower, 1, 1, 1,
-                    RESULT(0,0), 1,
-                    VECNORMS_STEP1(m, n), 1 );
-            }
-        }
-
-        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
-        CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(chamctxt, sequence);
+        alpha = 1.;
+        CHAMELEON_Desc_Create( &Welt, NULL, ChamRealDouble, 2, 1, 2,
+                               workmt*2, workn, 0, 0, workmt*2, workn, A->p, A->q );
         break;
 
         /*
@@ -350,68 +438,81 @@ void chameleon_pzlange( cham_normtype_t norm, CHAM_desc_t *A, double *result,
          */
     case ChamMaxNorm:
     default:
-        /* Init workspace handle for the call to zlange but unused */
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        workm = chameleon_max( A->mt, A->p );
-        workn = chameleon_max( A->nt, A->q );
+        CHAMELEON_Desc_Create( &Welt, NULL, ChamRealDouble, 1, 1, 1,
+                               workmt, workn, 0, 0, workmt, workn, A->p, A->q );
+    }
 
-        CHAMELEON_Desc_Create(&(VECNORMS_STEP1), NULL, ChamRealDouble, 1, 1, 1,
-                          workm, workn, 0, 0, workm, workn, A->p, A->q);
-        CHAMELEON_Desc_Create(&(RESULT), NULL, ChamRealDouble, 1, 1, 1,
-                          1, 1, 0, 0, 1, 1, 1, 1);
-
-        /* Compute local maximum to each tile */
-        for(m = 0; m < A->mt; m++) {
-            tempkm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            for(n = 0; n < A->nt; n++) {
-                tempkn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-                INSERT_TASK_zlange(
+    /* Initialize workspaces */
+    if ( (norm == ChamInfNorm) ||
+         (norm == ChamOneNorm) )
+    {
+        /* Initialize Wcol tile */
+        for(m = 0; m < Wcol->mt; m++) {
+            for(n = 0; n < Wcol->nt; n++) {
+                INSERT_TASK_dlaset(
                     &options,
-                    ChamMaxNorm, tempkm, tempkn, A->nb,
-                    A(m, n), ldam,
-                    VECNORMS_STEP1(m, n));
+                    ChamUpperLower, Wcol->mb, Wcol->nb,
+                    alpha, beta,
+                    Wcol(m,n), Wcol->mb );
             }
         }
-
-        /* Initialize RESULT array */
-        INSERT_TASK_dlaset(
-            &options,
-            ChamUpperLower, 1, 1,
-            0., 0.,
-            RESULT(0,0), 1);
-
-        /* Compute max norm between tiles */
-        for(m = 0; m < A->mt; m++) {
-            for(n = 0; n < A->nt; n++) {
-                INSERT_TASK_dlange_max(
-                    &options,
-                    VECNORMS_STEP1(m, n),
-                    RESULT(0,0));
-            }
+    }
+    for(m = 0; m < Welt->mt; m++) {
+        for(n = 0; n < Welt->nt; n++) {
+            INSERT_TASK_dlaset(
+                &options,
+                ChamUpperLower, Welt->mb, Welt->nb,
+                alpha, beta,
+                Welt(m,n), Welt->mb );
         }
+    }
 
-        /* Copy max norm in tiles to dispatch on every nodes */
-        for(m = 0; m < A->p; m++) {
-            for(n = 0; n < A->q; n++) {
+    switch ( norm ) {
+    case ChamOneNorm:
+        chameleon_pzlange_one( uplo, diag, A, Wcol, Welt, &options );
+        CHAMELEON_Desc_Flush( Wcol, sequence );
+        break;
+
+    case ChamInfNorm:
+        chameleon_pzlange_inf( uplo, diag, A, Wcol, Welt, &options );
+        CHAMELEON_Desc_Flush( Wcol, sequence );
+        break;
+
+    case ChamFrobeniusNorm:
+        chameleon_pzlange_frb( uplo, diag, A, Welt, &options );
+        break;
+
+    case ChamMaxNorm:
+    default:
+        chameleon_pzlange_max( uplo, diag, A, Welt, &options );
+    }
+
+    /**
+     * Broadcast the result
+     */
+    for(m = 0; m < A->p; m++) {
+        for(n = 0; n < A->q; n++) {
+            if ( (m != 0) && (n != 0) ) {
                 INSERT_TASK_dlacpy(
                     &options,
                     ChamUpperLower, 1, 1, 1,
-                    RESULT(0,0), 1,
-                    VECNORMS_STEP1(m, n), 1 );
+                    Welt(0,0), 1, Welt(m, n), 1);
             }
         }
-
-        CHAMELEON_Desc_Flush( VECNORMS_STEP1, sequence );
-        CHAMELEON_Desc_Flush( RESULT, sequence );
-        RUNTIME_sequence_wait(chamctxt, sequence);
     }
 
-    *result = *(double *)VECNORMS_STEP1->get_blkaddr(VECNORMS_STEP1, A->myrank / A->q, A->myrank % A->q );
+    CHAMELEON_Desc_Flush( Welt, sequence );
+    RUNTIME_sequence_wait(chamctxt, sequence);
 
-    CHAMELEON_Desc_Destroy( &(VECNORMS_STEP1) );
-    CHAMELEON_Desc_Destroy( &(RESULT) );
+    *result = *(double *)Welt->get_blkaddr(Welt, A->myrank / A->q, A->myrank % A->q );
+
+    if ( Wcol != NULL ) {
+        CHAMELEON_Desc_Destroy( &Wcol );
+    }
+    CHAMELEON_Desc_Destroy( &Welt );
+
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, chamctxt);
 }

@@ -323,7 +323,7 @@ int CHAMELEON_zlantr_Tile_Async( cham_normtype_t norm, cham_uplo_t uplo, cham_di
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzlantr( norm, uplo, diag, A, value, sequence, request );
+    chameleon_pzlange_generic( norm, uplo, diag, A, value, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }
