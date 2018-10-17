@@ -3,6 +3,10 @@
 #+LANGUAGE:  en
 #+OPTIONS: H:3 num:t \n:nil @:t ::t |:t _:nil ^:nil -:t f:t *:t <:t
 #+OPTIONS: TeX:t LaTeX:t skip:nil d:nil pri:nil tags:not-in-toc html-style:nil
+#+BEAMER_THEME: Rochester
+#+HTML_HEAD:   <link rel="stylesheet" title="Standard" href="css/worg.css" type="text/css" />
+#+HTML_HEAD:   <link rel="stylesheet" type="text/css" href="css/VisuGen.css" />
+#+HTML_HEAD:   <link rel="stylesheet" type="text/css" href="css/VisuRubriqueEncadre.css" />
 #+INCLUDE: "./version.org"
 #+AUTHOR: version {{{VERSION}}}
 * Version
@@ -15,7 +19,7 @@
   * King Abdullah University of Science and Technology
 * Copying
 
-  * Copyright \copy 2017 Inria
+  * Copyright \copy {{{UPDATED-YEAR}}} Inria
   * Copyright \copy 2014 The University of Tennessee
   * Copyright \copy 2014 King Abdullah University of Science and Technology
 

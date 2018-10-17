@@ -362,7 +362,7 @@
     exist default values for options.
 
     For all steps, the program solves a linear system $Ax=B$ The
-    matrix values are randomly generated but ensure that matrix \$A\$ is
+    matrix values are randomly generated but ensure that matrix $A$ is
     symmetric positive definite so that $A$ can be factorized in a
     $LL^T$ form using the Cholesky factorization.
 
@@ -746,7 +746,8 @@
      The new function to understand is *CHAMELEON_dbuild_Tile*, e.g.
      #+begin_example
      struct data_pl data_A={(double)N, 51, N};
-     CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A, Cham_build_callback_plgsy);
+     CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A,
+                           Cham_build_callback_plgsy);
      #+end_example
 
      The idea here is to let Chameleon fill the matrix data in a
