@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2015 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -17,8 +17,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _CUDA_BLAS_H_
-#define _CUDA_BLAS_H_
+#ifndef _cudablas_h_
+#define _cudablas_h_
 
 #include "chameleon/config.h"
 
@@ -102,4 +102,4 @@ extern int chameleon_cublas_constants[];
 
 END_C_DECLS
 
-#endif
+#endif /* _cudablas_h_ */

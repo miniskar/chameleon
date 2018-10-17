@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,8 +16,8 @@
  * @date 2014-10-29
  *
  */
-#ifndef LAPACK_TO_CHAMELEON_H
-#define LAPACK_TO_CHAMELEON_H
+#ifndef _lapack_to_chameleon_h_
+#define _lapack_to_chameleon_h_
 
 #if defined( _WIN32 ) || defined( _WIN64 )
 #define int64_t __int64
@@ -66,4 +66,4 @@ static int startswith(const char *s, const char *prefix) {
 /* define some tools to time the program */
 #include <chameleon/timer.h>
 
-#endif /* LAPACK_TO_CHAMELEON_H */
+#endif /* _lapack_to_chameleon_h_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @file codelet_map.c
+ * @file parsec/codelet_map.c
  *
  * @copyright 2018-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.

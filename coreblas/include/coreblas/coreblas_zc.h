@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -23,8 +23,8 @@
  * @precisions mixed zc -> ds
  *
  */
-#ifndef _CHAMELEON_CORE_ZCBLAS_H_
-#define _CHAMELEON_CORE_ZCBLAS_H_
+#ifndef _coreblas_zc_h_
+#define _coreblas_zc_h_
 
 /**
  *  Declarations of serial kernels - alphabetical order
@@ -36,4 +36,4 @@ void CORE_zlag2c(int m, int n,
                  const CHAMELEON_Complex64_t *A, int lda,
                  CHAMELEON_Complex32_t *B, int ldb, int *info);
 
-#endif
+#endif /* _coreblas_zc_h_ */

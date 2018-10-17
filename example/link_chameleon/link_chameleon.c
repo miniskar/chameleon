@@ -1,3 +1,21 @@
+/**
+ *
+ * @file link_chameleon.c
+ *
+ * @copyright 2009-2014 The University of Tennessee and The University of
+ *                      Tennessee Research Foundation. All rights reserved.
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon link_chameleon example
+ *
+ * @version 1.0.0
+ * @author Florent Pruvost
+ * @date 2014-10-29
+ *
+ */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

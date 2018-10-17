@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -18,8 +18,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef _CHAMELEON_DESCRIPTOR_H_
-#define _CHAMELEON_DESCRIPTOR_H_
+#ifndef _chameleon_descriptor_h_
+#define _chameleon_descriptor_h_
 
 #include <assert.h>
 #include "chameleon/config.h"
@@ -246,4 +246,4 @@ inline static int chameleon_desc_islocal( const CHAM_desc_t *A, int m, int n )
 }
 #endif
 
-#endif
+#endif /* _chameleon_descriptor_h_ */

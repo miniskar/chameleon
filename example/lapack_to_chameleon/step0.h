@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,8 +16,8 @@
  * @date 2014-10-29
  *
  */
-#ifndef STEP0_H
-#define STEP0_H
+#ifndef _step0_h_
+#define _step0_h_
 
 /* Common include for all steps of the tutorial */
 #include "lapack_to_chameleon.h"
@@ -242,4 +242,4 @@ static void CORE_dplrnt( int m, int n, double *A, int lda,
     }
 }
 
-#endif /* STEP0_H */
+#endif /* _step0_h_ */

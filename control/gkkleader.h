@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -19,8 +19,8 @@
  * and its fortran implementation.
  *
  */
-#ifndef GKKLEADERS_H
-#define GKKLEADERS_H
+#ifndef _gkkleader_h_
+#define _gkkleader_h_
 
 int  GKK_doublingtable(int x, int m, int emax, int *dt);
 int  GKK_modpow(int *dt, int e, int m);
@@ -39,4 +39,4 @@ void GKK_output_tables(int m, int n, int q, primedec_t *pr_q, int t,
 
 int  GKK_getLeaderNbr(int me, int ne, int *nleaders, int **leaders);
 
-#endif /* GKKLEADERS_H */
+#endif /* _gkkleader_h_ */

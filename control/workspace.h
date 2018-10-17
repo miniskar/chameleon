@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CHAMELEON_WORKSPACE_H_
-#define _CHAMELEON_WORKSPACE_H_
+#ifndef _chameleon_workspace_h_
+#define _chameleon_workspace_h_
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +34,4 @@ int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc
 }
 #endif
 
-#endif
+#endif /* _chameleon_workspace_h_ */

@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CORE_BLAS_H_
-#define _CORE_BLAS_H_
+#ifndef _coreblas_h_
+#define _coreblas_h_
 
 #include <stdio.h>
 #include <math.h>
@@ -85,4 +85,4 @@ int  get_coreblas_gemm3m_enabled( void );
 
 END_C_DECLS
 
-#endif
+#endif /* _coreblas_h_ */

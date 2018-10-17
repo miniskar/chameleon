@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -20,8 +20,8 @@
  * and its fortran implementation.
  *
  */
-#ifndef PRIMES_H
-#define PRIMES_H
+#ifndef _primes_h_
+#define _primes_h_
 
 #define IMBALANCE_THRESHOLD 10
 #define PWR_MAXSIZE   32
@@ -55,4 +55,4 @@ int     minloc(int n, int *T);
 int64_t maxval(int n, int *T);
 int64_t sum   (int n, int *T);
 
-#endif /* PRIMES_H */
+#endif /* _primes_h_ */

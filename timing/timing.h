@@ -4,14 +4,14 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2015 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  * @version 1.0.0
  *
  */
-#ifndef TIMING_H
-#define TIMING_H
+#ifndef _timing_h_
+#define _timing_h_
 
 typedef double chameleon_time_t;
 
@@ -240,4 +240,4 @@ enum dparam_timing {
     }                                           \
     *t_ = t;
 
-#endif /* TIMING_H */
+#endif /* _timing_h_ */

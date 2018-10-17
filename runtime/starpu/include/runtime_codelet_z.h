@@ -1,10 +1,10 @@
 /**
  *
- * @file runtime_codelet_z.h
+ * @file starpu/runtime_codelet_z.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -19,8 +19,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef _CODELETS_Z_H_
-#define _CODELETS_Z_H_
+#ifndef _runtime_codelet_z_h_
+#define _runtime_codelet_z_h_
 
 #include <stdio.h>
 #include "runtime_codelets.h"
@@ -134,4 +134,4 @@ ZCODELETS_HEADER(sytrf_nopiv)
 #endif
 ZCODELETS_HEADER(plgsy)
 
-#endif /* _CODELETS_Z_H_ */
+#endif /* _runtime_codelet_z_h_ */

@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,8 +13,8 @@
  * @precisions normal z -> c d s
  *
  */
-#ifndef TIMING_ZAUXILIARY_H
-#define TIMING_ZAUXILIARY_H
+#ifndef _timing_zauxiliary_h_
+#define _timing_zauxiliary_h_
 
 int    z_check_orthogonality   (int M, int N, int LDQ, CHAMELEON_Complex64_t *Q);
 int    z_check_QRfactorization (int M, int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA, CHAMELEON_Complex64_t *Q);
@@ -41,4 +41,4 @@ int zcheck_inverse(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2,
                          int LDA, cham_uplo_t uplo, double *rnorm, double *anorm, double *ainvnorm);
 
 
-#endif /* TIMING_ZAUXILIARY_H */
+#endif /* _timing_zauxiliary_h_ */

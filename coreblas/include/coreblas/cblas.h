@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,8 +16,8 @@
  * @date 2012-09-15
  *
  */
-#ifndef CBLAS_H
-#define CBLAS_H
+#ifndef _cblas_h_
+#define _cblas_h_
 #include <stddef.h>
 
 /*
@@ -594,4 +594,4 @@ void cblas_xerbla(int p, const char *rout, const char *form, ...);
 #endif
 
 
-#endif
+#endif /* _cblas_h_ */

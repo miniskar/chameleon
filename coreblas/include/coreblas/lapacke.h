@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -47,8 +47,8 @@
 * Generated November, 2011
 */
 
-#ifndef _LAPACKE_H_
-#define _LAPACKE_H_
+#ifndef _lapacke_h_
+#define _lapacke_h_
 
 /*
 *  Turn on HAVE_LAPACK_CONFIG_H to redefine C-LAPACK datatypes
@@ -16458,4 +16458,4 @@ void LAPACK_ilaver( const lapack_int* vers_major, const lapack_int* vers_minor,
 }
 #endif /* __cplusplus */
 
-#endif /* _LAPACKE_H_ */
+#endif /* _lapacke_h_ */

@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -22,14 +22,8 @@
  *  CHAMELEON internals of interest to CHAMELEON core developers, but not necessarily
  *  of interest to CHAMELEON community contributors.
  */
-#ifndef _CHAMELEON_GLOBAL_H_
-#define _CHAMELEON_GLOBAL_H_
-
-#if defined( _WIN32 ) || defined( _WIN64 )
-#include "control/chameleonwinthread.h"
-#else
-#include <pthread.h>
-#endif
+#ifndef _chameleon_global_h_
+#define _chameleon_global_h_
 
 /**
  *  Numerical operations
@@ -111,4 +105,4 @@
 #define CHAMELEON_FUNC_ZSYSV  75
 #define CHAMELEON_FUNC_CSYSV  76
 
-#endif
+#endif /* _chameleon_global_h_ */

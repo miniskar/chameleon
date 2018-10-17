@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,8 +16,8 @@
  * @date 2016-08-23
  *
  */
-#ifndef OOC_H
-#define OOC_H
+#ifndef _out_of_core_h_
+#define _out_of_core_h_
 
 #include <math.h>
 #include <stdio.h>
@@ -193,4 +193,4 @@ print_o_direct_wont_work(void) {
                     "multiples of 4096. Tip : chose 'n' and 'nb' as both multiples of 32.\n");
 }
 
-#endif /* OOC_H */
+#endif /* _out_of_core_h_ */

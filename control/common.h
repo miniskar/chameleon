@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2015 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -21,8 +21,8 @@
  *  CHAMELEON facilities of interest to both CHAMELEON core developer
  *  and also of interest to CHAMELEON community contributor.
  */
-#ifndef _CHAMELEON_COMMON_H_
-#define _CHAMELEON_COMMON_H_
+#ifndef _chameleon_common_h_
+#define _chameleon_common_h_
 
 
 #if defined( _WIN32 ) || defined( _WIN64 )
@@ -128,4 +128,4 @@ void chameleon_pclag2z(CHAM_context_t *chamctxt);
 }
 #endif
 
-#endif
+#endif /* _chameleon_common_h_ */

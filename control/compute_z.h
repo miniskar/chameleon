@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -22,6 +22,9 @@
  * @precisions normal z -> c d s
  *
  */
+#ifndef _compute_z_h_
+#define _compute_z_h_
+
 /**
  *  LAPACK/Tile Descriptor accesses
  */
@@ -236,3 +239,5 @@ chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM
     RUNTIME_desc_destroy( descAl );
     RUNTIME_desc_destroy( descAt );
 }
+
+#endif /* _compute_z_h_ */

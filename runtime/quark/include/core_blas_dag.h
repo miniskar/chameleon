@@ -1,10 +1,10 @@
 /**
  *
- * @file core_blas_dag.h
+ * @file quark/core_blas_dag.h
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -17,8 +17,8 @@
  * @date 2010-11-15
  *
  */
-#ifndef _CHAMELEON_CORE_BLAS_DAG_H_
-#define _CHAMELEON_CORE_BLAS_DAG_H_
+#ifndef _core_blas_dag_h_
+#define _core_blas_dag_h_
 
 #if defined(QUARK_DOT_DAG_ENABLE) /* || 1 */
 #define DAG_SET_PROPERTIES( _name, _color )                            \
@@ -83,4 +83,4 @@
 #define DAG_CORE_UNMLQ      DAG_SET_PROPERTIES( "UNMLQ"     , "cyan"    )
 #define DAG_CORE_UNMQR      DAG_SET_PROPERTIES( "UNMQR"     , "cyan"    )
 
-#endif /* _CHAMELEON_CORE_BLAS_DAG_H_ */
+#endif /* _core_blas_dag_h_ */

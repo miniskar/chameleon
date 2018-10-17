@@ -1,4 +1,17 @@
-
+!!!
+!
+! @file link_chameleon.f90
+!
+!  CHAMELEON Fortran 90 interfaces using Fortran 2003 ISO C bindings
+!  CHAMELEON is a software package provided by Univ. of Tennessee,
+!  Univ. of California Berkeley and Univ. of Colorado Denver
+!
+! @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+!                      Univ. Bordeaux. All rights reserved.
+!
+! @version 1.0.0
+! @author Florent Pruvost
+! @date 2011-09-15
 program fortran_example
     implicit none
     include 'chameleon_fortran.h'
