@@ -61,6 +61,14 @@ FIND_PROGRAM(EMACS_COMPILER emacs)
 FIND_PROGRAM(TEX_COMPILER tex)
 
 if(EMACS_COMPILER)
+
+    # css direcory is required for the html output
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/css
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory
+                               ${CMAKE_CURRENT_SOURCE_DIR}/css
+                               ${CMAKE_CURRENT_BINARY_DIR}/css
+                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/css)
+
     # Add target
     # ----------
     add_custom_command(OUTPUT  users_guide.html
@@ -72,6 +80,7 @@ if(EMACS_COMPILER)
                                --kill
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
                                ${CMAKE_CURRENT_BINARY_DIR}/version.org
+                               ${CMAKE_CURRENT_BINARY_DIR}/css
                       )
     add_custom_command(OUTPUT  users_guide.pdf
                        COMMAND ${EMACS_COMPILER}
