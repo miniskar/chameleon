@@ -158,7 +158,7 @@ int CORE_ztpmlqt( cham_side_t side, cham_trans_t trans,
     else {
         m1 = M;
         n1 = K;
-        ldwork = chameleon_max( n1, N );
+        ldwork = chameleon_max( K, chameleon_max( M, N ) );
     }
 
     /* TS case */

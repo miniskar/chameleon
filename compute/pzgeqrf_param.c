@@ -22,16 +22,21 @@
 #include <stdlib.h>
 #include "libhqr.h"
 
-#define A(m,n)  A, (m), (n)
-#define T(m,n)  T, (m), (n)
-#define D(m,n)  D, (m), (n)
+#define A(m,n) A, (m), (n)
+#define T(m,n) T, (m), (n)
+#define D(m,n) D, (m), (n)
 
 /**
  *  Parallel tile QR factorization (reduction Householder) - dynamic scheduling
+ *
+ * @param[in] genD
+ *         Indicate if the copies of the geqrt tiles must be done to speedup
+ *         computations in updates.
  */
-void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+void chameleon_pzgeqrf_param( int genD, int K,
+                              const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
-                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -40,11 +45,10 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     size_t ws_host = 0;
 
     int k, m, n, i, p;
-    int K, L, nbgeqrt;
+    int L, nbgeqrt;
     int ldap, ldam, lddm;
     int tempkmin, tempkn, tempnn, tempmm;
-    int ib;
-    int *tiles;
+    int ib, node, nbtiles, *tiles;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
@@ -75,23 +79,22 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
 
-    /* Initialisation of temporary tiles array */
-    tiles = (int*)calloc(qrtree->mt, sizeof(int));
-
     ws_worker *= sizeof(CHAMELEON_Complex64_t);
     ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
-    K = chameleon_min(A->mt, A->nt);
+    /* Initialisation of temporary tiles array */
+    tiles = (int*)calloc(qrtree->mt, sizeof(int));
 
-    /* The number of the factorization */
     for (k = 0; k < K; k++) {
         RUNTIME_iteration_push(chamctxt, k);
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
         /* The number of geqrt to apply */
         nbgeqrt = qrtree->getnbgeqrf(qrtree, k);
+
+        T = TS;
         for (i = 0; i < nbgeqrt; i++) {
             m = qrtree->getm(qrtree, k, i);
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
@@ -99,13 +102,12 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
             ldam = BLKLDD(A, m);
             lddm = BLKLDD(D, m);
 
-            T = TS;
-
             INSERT_TASK_zgeqrt(
                 &options,
                 tempmm, tempkn, ib, T->nb,
                 A(m, k), ldam,
                 T(m, k), T->mb);
+
             if ( genD ) {
                 INSERT_TASK_zlacpy(
                     &options,
@@ -120,6 +122,7 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                     D(m, k), lddm );
 #endif
             }
+
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                 INSERT_TASK_zunmqr(
@@ -135,9 +138,9 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
         }
 
         /* Setting the order of the tiles */
-        libhqr_walk_stepk( qrtree, k, tiles + (k+1) );
+        nbtiles = libhqr_walk_stepk( qrtree, k, tiles );
 
-        for (i = k+1; i < A->mt; i++) {
+        for (i = 0; i < nbtiles; i++) {
             m = tiles[i];
             p = qrtree->currpiv(qrtree, k, m);
 
@@ -145,7 +148,7 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
             ldap = BLKLDD(A, p);
             ldam = BLKLDD(A, m);
 
-            if (qrtree->gettype(qrtree, k, m) == 0) {
+            if ( qrtree->gettype(qrtree, k, m) == LIBHQR_KILLED_BY_TS ) {
                 /* TS kernel */
                 T = TS;
                 L = 0;
@@ -156,10 +159,9 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                 L = tempmm;
             }
 
-            RUNTIME_data_migrate( sequence, A(p, k),
-                                  A->get_rankof( A, m, k ) );
-            RUNTIME_data_migrate( sequence, A(m, k),
-                                  A->get_rankof( A, m, k ) );
+            node = A->get_rankof( A, m, k );
+            RUNTIME_data_migrate( sequence, A(p, k), node );
+            RUNTIME_data_migrate( sequence, A(m, k), node );
 
             INSERT_TASK_ztpqrt(
                 &options,
@@ -171,10 +173,9 @@ void chameleon_pzgeqrf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-                RUNTIME_data_migrate( sequence, A(p, n),
-                                      A->get_rankof( A, m, n ) );
-                RUNTIME_data_migrate( sequence, A(m, n),
-                                      A->get_rankof( A, m, n ) );
+                node = A->get_rankof( A, m, n );
+                RUNTIME_data_migrate( sequence, A(p, n), node );
+                RUNTIME_data_migrate( sequence, A(m, n), node );
 
                 INSERT_TASK_ztpmqrt(
                     &options,

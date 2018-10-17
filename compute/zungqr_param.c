@@ -75,11 +75,11 @@
  *
  */
 int CHAMELEON_zungqr_param( const libhqr_tree_t *qrtree,
-                        int M, int N, int K,
-                        CHAMELEON_Complex64_t *A, int LDA,
-                        CHAM_desc_t *descTS,
-                        CHAM_desc_t *descTT,
-                        CHAMELEON_Complex64_t *Q, int LDQ )
+                            int M, int N, int K,
+                            CHAMELEON_Complex64_t *A, int LDA,
+                            CHAM_desc_t *descTS,
+                            CHAM_desc_t *descTT,
+                            CHAMELEON_Complex64_t *Q, int LDQ )
 {
     int NB;
     int status;
@@ -253,6 +253,8 @@ int CHAMELEON_zungqr_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
+    int KT;
+
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
         chameleon_fatal_error("CHAMELEON_zungqr_param_Tile", "CHAMELEON not initialized");
@@ -301,6 +303,13 @@ int CHAMELEON_zungqr_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
      if (N <= 0)
      return CHAMELEON_SUCCESS;
      */
+    if ( A->m < A->n ) {
+        KT = A->mt;
+    }
+    else {
+        KT = A->nt;
+    }
+
 #if defined(CHAMELEON_COPY_DIAG)
     {
         int n = chameleon_min(A->m, A->n);
@@ -310,7 +319,7 @@ int CHAMELEON_zungqr_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
 #endif
 
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q, sequence, request );
-    chameleon_pzungqr_param( 1, qrtree, A, Q, TS, TT, Dptr, sequence, request );
+    chameleon_pzungqr_param( 1, KT, qrtree, A, Q, TS, TT, Dptr, sequence, request );
 
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );

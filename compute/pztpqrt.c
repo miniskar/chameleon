@@ -20,9 +20,9 @@
  */
 #include "control/common.h"
 
-#define A(m,n) A,  m,  n
-#define B(m,n) B,  m,  n
-#define T(m,n) T,  m,  n
+#define A(m,n) A, (m), (n)
+#define B(m,n) B, (m), (n)
+#define T(m,n) T, (m), (n)
 
 /**
  *  Parallel tile QR factorization - dynamic scheduling
@@ -53,15 +53,14 @@ void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
     ib = CHAMELEON_IB;
 
     /*
-     * ztsqrt  = A->nb * (ib+1)
+     * ztpqrt  = A->nb * (ib+1)
      * ztpmqrt = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
     /* Allocation of temporary (scratch) working space */
 #if defined(CHAMELEON_USE_CUDA)
-    /* Worker space
-     *
+    /*
      * ztpmqrt = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
@@ -81,7 +80,7 @@ void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
 
         for (m = 0; m < maxmt; m++) {
             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-            templm = m == maxmt-1 ? tempmm       : 0;
+            templm = ((L > 0) && (m == maxmt-1)) ? tempmm : 0;
             ldbm = BLKLDD(B, m);
             /* TT kernel */
             INSERT_TASK_ztpqrt(
