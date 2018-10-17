@@ -44,8 +44,9 @@ void chameleon_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
     int ldam, ldbm;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for(m = 0; m < SA->mt; m++) {

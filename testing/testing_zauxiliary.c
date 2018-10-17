@@ -152,15 +152,17 @@ int (*formatmap[6])(int, int, int, int, int, int) = {  map_CM, map_RM, map_CCRB,
 
 int main (int argc, char **argv)
 {
-    int ncores, ngpus;
+    int ncores, ngpus, nb, ib;
     int info = 0;
     char func[32];
 
     /* Check for number of arguments*/
-    if ( argc < 4) {
-        printf(" Proper Usage is : ./ztesting ncores ngpus FUNC ...\n"
+    if ( argc < 6 ) {
+        printf(" Proper Usage is : ./ztesting ncores ngpus nb ib FUNC ...\n"
                "   - ncores : number of cores\n"
                "   - ngpus  : number of GPUs\n"
+               "   - nb     : define the tile size\n"
+               "   - ib     : define the inner tile size\n"
                "   - FUNC   : name of function to test\n"
                "   - ... plus arguments depending on the testing function \n");
         exit(1);
@@ -168,7 +170,9 @@ int main (int argc, char **argv)
 
     sscanf( argv[1], "%d",   &ncores );
     sscanf( argv[2], "%d",   &ngpus  );
-    sscanf( argv[3], "%31s",  func   );
+    sscanf( argv[3], "%d",   &nb     );
+    sscanf( argv[4], "%d",   &ib     );
+    sscanf( argv[5], "%31s",  func   );
 
     /* Initialize CHAMELEON */
     /*if(nthreads_per_worker)
@@ -176,11 +180,11 @@ int main (int argc, char **argv)
      else*/
     CHAMELEON_Init( ncores, ngpus);
     CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
-    CHAMELEON_Set(CHAMELEON_TILE_SIZE,         32 );
-    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE,   5 );
+    CHAMELEON_Set(CHAMELEON_TILE_SIZE,        nb );
+    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, ib );
 
-    argc -= 4;
-    argv += 4;
+    argc -= 6;
+    argv += 6;
     info  = 0;
 
     /*

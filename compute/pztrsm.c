@@ -47,8 +47,9 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
     CHAMELEON_Complex64_t lalpha;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLeft / ChamUpper / ChamNoTrans

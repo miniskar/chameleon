@@ -45,8 +45,9 @@ void chameleon_pzgemm(cham_trans_t transA, cham_trans_t transB,
     CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (m = 0; m < C->mt; m++) {

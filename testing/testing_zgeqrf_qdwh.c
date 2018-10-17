@@ -42,19 +42,15 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
 {
     int hres = 0;
 
-    if ( argc != 4 ) {
-        USAGE("GEQRF_QDWH", "optid M NB LDA",
+    if ( argc != 2 ) {
+        USAGE("GEQRF_QDWH", "optid M",
               "   - optid: Take into account the fact that A2 is Id or not\n"
-              "   - M    : number of rows of the matrix A1 and A2\n"
-              "   - NB   : tile size\n"
-              "   - IB   : inner tile size\n");
+              "   - M    : number of rows of the matrix A1 and A2\n");
         return -1;
     }
 
     int optid = atoi(argv[0]) ? 1: 0;
     int M  = atoi(argv[1]);
-    int NB = atoi(argv[2]);
-    int IB = atoi(argv[3]);
     int MxM = M * M;
     int LDA = 2*M;
     double eps;
@@ -84,10 +80,6 @@ int testing_zgeqrf_qdwh(int argc, char **argv)
         printf("Out of Memory \n ");
         return -2;
     }
-
-    CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
-    CHAMELEON_Set(CHAMELEON_TILE_SIZE, NB);
-    CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, IB);
 
     CHAMELEON_Alloc_Workspace_zgels(M, M, &T1, 1, 1);
     CHAMELEON_Alloc_Workspace_zgels(M, M, &T2, 1, 1);

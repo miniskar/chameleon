@@ -46,8 +46,9 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     int ib, node, nbtiles, *tiles;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

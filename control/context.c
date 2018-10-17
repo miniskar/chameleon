@@ -27,6 +27,7 @@
 #include "control/auxiliary.h"
 #include "control/context.h"
 #include "chameleon/runtime.h"
+#include <stdlib.h>
 
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas.h"

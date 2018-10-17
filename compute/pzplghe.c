@@ -42,8 +42,9 @@ void chameleon_pzplghe( double bump, cham_uplo_t uplo, CHAM_desc_t *A,
     int tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (m = 0; m < A->mt; m++) {

@@ -38,8 +38,9 @@ void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
     int tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     for (m = 0; m < A->mt; m++) {

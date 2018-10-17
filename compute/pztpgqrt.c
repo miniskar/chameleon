@@ -40,8 +40,7 @@ void chameleon_pztpgqrt( int KT, int L,
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldvk, ldvm, lddk;
-    int ldqk, ldqm;
+    int ldvm, ldqk, ldqm;
     int tempkn, tempnn, tempmm, templm;
     int ib;
 
@@ -51,8 +50,9 @@ void chameleon_pztpgqrt( int KT, int L,
     int maxmtk;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;

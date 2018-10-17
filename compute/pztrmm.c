@@ -46,8 +46,9 @@ void chameleon_pztrmm(cham_side_t side, cham_uplo_t uplo,
     CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
     /*
      *  ChamLeft / ChamUpper / ChamNoTrans

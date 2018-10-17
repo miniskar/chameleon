@@ -387,8 +387,9 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
     int m, n;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if ( sequence->status != CHAMELEON_SUCCESS ) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     *result = 0.0;

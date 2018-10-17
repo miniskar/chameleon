@@ -53,8 +53,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
     int ib, node;
 
     chamctxt = chameleon_context_self();
-    if (sequence->status != CHAMELEON_SUCCESS)
+    if (sequence->status != CHAMELEON_SUCCESS) {
         return;
+    }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
