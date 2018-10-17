@@ -70,25 +70,17 @@ void chameleon_pzlaset(cham_uplo_t uplo,
        }
     }
     else if (uplo == ChamUpper) {
-       for (j = 1; j < A->nt; j++){
+       for (j = 0; j < A->nt; j++){
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           for (i = 0; i < chameleon_min(j, A->mt); i++){
+           for (i = 0; i < chameleon_min(j+1, A->mt); i++){
                tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
                ldai = BLKLDD(A, i);
                INSERT_TASK_zlaset(
                    &options,
-                   ChamUpperLower, tempim, tempjn, alpha, alpha,
+                   ChamUpperLower, tempim, tempjn,
+                   alpha,  (i == j) ? beta : alpha,
                    A(i, j), ldai);
            }
-       }
-       for (j = 0; j < minmn; j++){
-           tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
-           tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           ldaj = BLKLDD(A, j);
-           INSERT_TASK_zlaset(
-               &options,
-               ChamUpper, tempjm, tempjn, alpha, beta,
-               A(j, j), ldaj);
        }
     }
     else {
@@ -99,18 +91,10 @@ void chameleon_pzlaset(cham_uplo_t uplo,
                tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
                INSERT_TASK_zlaset(
                    &options,
-                   ChamUpperLower, tempim, tempjn, alpha, alpha,
+                   ChamUpperLower, tempim, tempjn,
+                   alpha, (i == j) ? beta : alpha,
                    A(i, j), ldai);
            }
-       }
-       for (j = 0; j < minmn; j++){
-           tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
-           tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           ldaj = BLKLDD(A, j);
-           INSERT_TASK_zlaset(
-               &options,
-               ChamUpperLower, tempjm, tempjn, alpha, beta,
-               A(j, j), ldaj);
        }
     }
     RUNTIME_options_finalize(&options, chamctxt);

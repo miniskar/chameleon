@@ -43,8 +43,7 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     int K, L;
     int ldak, ldqm, lddk;
     int tempkm, tempkmin, temppn, tempnn, tempmm;
-    int ib;
-    int *tiles;
+    int ib, node, nbtiles, *tiles;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
@@ -77,14 +76,13 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif
 
-    /* Initialisation of tiles */
-
-    tiles = (int*)calloc( qrtree->mt, sizeof(int));
-
     ws_worker *= sizeof(CHAMELEON_Complex64_t);
     ws_host   *= sizeof(CHAMELEON_Complex64_t);
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
+
+    /* Initialisation of tiles */
+    tiles = (int*)calloc( qrtree->mt, sizeof(int));
 
     K = chameleon_min(A->mt, A->nt);
 
@@ -96,15 +94,15 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
         lddk = BLKLDD(D, k);
 
         /* Setting the order of the tiles*/
-        libhqr_walk_stepk(qrtree, k, tiles + (k+1));
+        nbtiles = libhqr_walk_stepk( qrtree, k, tiles );
 
-        for (i = A->nt-1; i > k; i--) {
+        for (i = nbtiles-1; i >= 0; i--) {
             n = tiles[i];
             p = qrtree->currpiv(qrtree, k, n);
 
             tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
 
-            if(qrtree->gettype(qrtree, k, n) == 0){
+            if( qrtree->gettype(qrtree, k, n) == LIBHQR_KILLED_BY_TS ) {
                 /* TS kernel */
                 L = 0;
                 T = TS;
@@ -118,10 +116,9 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                 tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
                 ldqm = BLKLDD(Q, m);
 
-                RUNTIME_data_migrate( sequence, Q(m, p),
-                                      Q->get_rankof( Q, m, n ) );
-                RUNTIME_data_migrate( sequence, Q(m, n),
-                                      Q->get_rankof( Q, m, n ) );
+                node = Q->get_rankof( Q, m, n );
+                RUNTIME_data_migrate( sequence, Q(m, p), node );
+                RUNTIME_data_migrate( sequence, Q(m, n), node );
 
                 INSERT_TASK_ztpmlqt(
                     &options,

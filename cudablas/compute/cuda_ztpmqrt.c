@@ -47,7 +47,7 @@ CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
     else {
         m1 = M;
         n1 = K;
-        ldwork  = m1;
+        ldwork = chameleon_max( K, chameleon_max( M, N ) );
         ldworkc = IB;
         ws = ldwork * IB;
     }

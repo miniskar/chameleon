@@ -340,6 +340,7 @@ int CHAMELEON_ztpgqrt_Tile_Async( int L,
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
+    int KT;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -396,15 +397,16 @@ int CHAMELEON_ztpgqrt_Tile_Async( int L,
         chameleon_error("CHAMELEON_ztpgqrt_Tile", "Triangular part must be aligned with tiles");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
+
+    if (V1->m > V1->n) {
+        KT = V1->nt;
+    } else {
+        KT = V1->mt;
+    }
+
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        int minMT;
-        if (V1->m > V1->n) {
-            minMT = V1->nt;
-        } else {
-            minMT = V1->mt;
-        }
-        chameleon_zdesc_alloc_diag(D, V1->mb, V1->nb, minMT*V1->mb, V1->nb, 0, 0, minMT*V1->mb, V1->nb, V1->p, V1->q);
+        chameleon_zdesc_alloc(D, V1->mb, V1->nb, V1->m, KT*V1->nb, 0, 0, V1->m, KT*V1->nb, );
         Dptr = &D;
     }
 #endif
@@ -412,7 +414,8 @@ int CHAMELEON_ztpgqrt_Tile_Async( int L,
     /* if (chamctxt->householder == ChamFlatHouseholder) { */
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q1, sequence, request );
     chameleon_pzlaset( ChamUpperLower, 0., 0., Q2, sequence, request );
-    chameleon_pztpgqrt( 1, L, V1, T1, V2, T2, Q1, Q2, Dptr, sequence, request );
+    chameleon_pztpgqrt( KT, L, V2, T2, Q1, Q2, sequence, request );
+    chameleon_pzungqr( 1, V1, Q1, T1, Dptr, sequence, request );
 
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( V1, sequence );

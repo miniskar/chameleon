@@ -122,14 +122,14 @@ int CHAMELEON_zgeqrf_param( const libhqr_tree_t *qrtree, int M, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                     A, NB, NB, LDA, N, M, N, sequence, &request );
+                         A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zgeqrf_param_Tile_Async( qrtree, &descAt, descTS, descTT, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
     CHAMELEON_Desc_Flush( descTS, sequence );
     CHAMELEON_Desc_Flush( descTT, sequence );
 
@@ -248,6 +248,7 @@ int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
+    int KT;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -293,6 +294,14 @@ int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
      if (chameleon_min(M, N) == 0)
      return CHAMELEON_SUCCESS;
      */
+
+    if ( A->m < A->n ) {
+        KT = A->mt;
+    }
+    else {
+        KT = A->nt;
+    }
+
 #if defined(CHAMELEON_COPY_DIAG)
     {
         int n = chameleon_min(A->m, A->n);
@@ -301,7 +310,8 @@ int CHAMELEON_zgeqrf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
     }
 #endif
 
-    chameleon_pzgeqrf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
+    chameleon_pzgeqrf_param( 1, KT, qrtree, A,
+                             TS, TT, Dptr, sequence, request );
 
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );

@@ -20,8 +20,6 @@
  */
 #include "control/common.h"
 
-#define V1(m,n) V1,  m,  n
-#define T1(m,n) T1,  m,  n
 #define V2(m,n) V2,  m,  n
 #define T2(m,n) T2,  m,  n
 #define Q1(m,n) Q1,  m,  n
@@ -31,11 +29,9 @@
 /**
  *  Parallel tile QR factorization - dynamic scheduling
  */
-void chameleon_pztpgqrt( int genD, int L,
-                         CHAM_desc_t *V1, CHAM_desc_t *T1,
+void chameleon_pztpgqrt( int KT, int L,
                          CHAM_desc_t *V2, CHAM_desc_t *T2,
                          CHAM_desc_t *Q1, CHAM_desc_t *Q2,
-                         CHAM_desc_t *D,
                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
@@ -46,7 +42,7 @@ void chameleon_pztpgqrt( int genD, int L,
     int k, m, n;
     int ldvk, ldvm, lddk;
     int ldqk, ldqm;
-    int tempkm, tempkn, tempkk, tempnn, tempmm, templm;
+    int tempkn, tempnn, tempmm, templm;
     int ib;
 
     /* Dimension of the first column */
@@ -60,11 +56,6 @@ void chameleon_pztpgqrt( int genD, int L,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
-
-    if ( D == NULL ) {
-        D    = V1;
-        genD = 0;
-    }
 
     /*
      * ztpmqrt = Q1->nb * ib
@@ -85,21 +76,17 @@ void chameleon_pztpgqrt( int genD, int L,
 
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
-    for (k = V1->nt-1; k >= 0; k--) {
+    for (k = KT-1; k >= 0; k--) {
         RUNTIME_iteration_push(chamctxt, k);
 
-        tempkm = k == V1->mt-1 ? V1->m-k*V1->mb : V1->mb;
-        tempkk = k == V1->nt-1 ? V1->n-k*V1->nb : V1->nb;
         tempkn = k == Q1->nt-1 ? Q1->n-k*Q1->nb : Q1->nb;
-        ldvk = BLKLDD(V1, k);
-        lddk = BLKLDD(D,  k);
         ldqk = BLKLDD(Q1, k);
 
         /* Equivalent to the tsmqr step on Q1,Q2 */
         maxmtk = chameleon_min( Q2->mt, maxmt+k ) - 1;
         for (m = maxmtk; m > -1; m--) {
             tempmm = m == Q2->mt-1 ? Q2->m-m*Q2->mb : Q2->mb;
-            templm = m == maxmtk ? tempmm : 0;
+            templm = ((L > 0) && (m == maxmtk)) ? tempmm : 0;
             ldvm = BLKLDD(V2, m);
             ldqm = BLKLDD(Q2, m);
 
@@ -117,53 +104,9 @@ void chameleon_pztpgqrt( int genD, int L,
             }
         }
 
-        for (m = Q1->mt - 1; m > k; m--) {
-            tempmm = m == Q1->mt-1 ? Q1->m-m*Q1->mb : Q1->mb;
-            ldvm = BLKLDD(V1, m);
-            ldqm = BLKLDD(Q1, m);
-            for (n = k; n < Q1->nt; n++) {
-                tempnn = n == Q1->nt-1 ? Q1->n-n*Q1->nb : Q1->nb;
-                /* TS kernel */
-                INSERT_TASK_ztpmqrt(
-                    &options,
-                    ChamLeft, ChamNoTrans,
-                    tempmm, tempnn, tempkn, 0, ib, T1->nb,
-                    V1(m, k), ldvm,
-                    T1(m, k), T1->mb,
-                    Q1(k, n), ldqk,
-                    Q1(m, n), ldqm );
-            }
-        }
-
-        if ( genD ) {
-            INSERT_TASK_zlacpy(
-                &options,
-                ChamLower, tempkm, tempkk, V1->nb,
-                V1(k, k), ldvk,
-                D(k), lddk );
-#if defined(CHAMELEON_USE_CUDA)
-            INSERT_TASK_zlaset(
-                &options,
-                ChamUpper, tempkm, tempkk,
-                0., 1.,
-                D(k), lddk );
-#endif
-        }
-        for (n = k; n < Q1->nt; n++) {
-            tempnn = n == Q1->nt-1 ? Q1->n-n*Q1->nb : Q1->nb;
-            INSERT_TASK_zunmqr(
-                &options,
-                ChamLeft, ChamNoTrans,
-                tempkm, tempnn, tempkk, ib, T1->nb,
-                D(k),     lddk,
-                T1(k, k), T1->mb,
-                Q1(k, n), ldqk);
-        }
-
         RUNTIME_iteration_pop(chamctxt);
     }
 
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, chamctxt);
-    (void)D;
 }

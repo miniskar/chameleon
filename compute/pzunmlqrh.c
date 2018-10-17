@@ -49,7 +49,7 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
     int K, N, RD, lastRD;
     int ldak, lddk, ldbN, ldbm, ldbNRD;
     int tempNn, tempkm, tempnn, tempmm, tempNRDn, tempkmin;
-    int ib;
+    int ib, node;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
@@ -135,10 +135,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                            RUNTIME_data_migrate( sequence, B(N, n),
-                                                  B->get_rankof( B, m, n ) );
-                            RUNTIME_data_migrate( sequence, B(m, n),
-                                                  B->get_rankof( B, m, n ) );
+                            node = B->get_rankof( B, m, n );
+                            RUNTIME_data_migrate( sequence, B(N, n), node );
+                            RUNTIME_data_migrate( sequence, B(m, n), node );
 
                             /* TS kernel */
                             INSERT_TASK_ztpmlqt(
@@ -161,10 +160,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                            RUNTIME_data_migrate( sequence, B(N, n),
-                                                  B->get_rankof( B, N+RD, n ) );
-                            RUNTIME_data_migrate( sequence, B(N+RD, n),
-                                                  B->get_rankof( B, N+RD, n ) );
+                            node = B->get_rankof( B, N+RD, n );
+                            RUNTIME_data_migrate( sequence, B(N, n),    node );
+                            RUNTIME_data_migrate( sequence, B(N+RD, n), node );
 
                             /* TT kernel */
                             INSERT_TASK_ztpmlqt(
@@ -210,10 +208,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                            RUNTIME_data_migrate( sequence, B(N, n),
-                                                  B->get_rankof( B, N+RD, n ) );
-                            RUNTIME_data_migrate( sequence, B(N+RD, n),
-                                                  B->get_rankof( B, N+RD, n ) );
+                            node = B->get_rankof( B, N+RD, n );
+                            RUNTIME_data_migrate( sequence, B(N, n),    node );
+                            RUNTIME_data_migrate( sequence, B(N+RD, n), node );
 
                             /* TT kernel */
                             INSERT_TASK_ztpmlqt(
@@ -239,10 +236,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
-                            RUNTIME_data_migrate( sequence, B(N, n),
-                                                  B->get_rankof( B, m, n ) );
-                            RUNTIME_data_migrate( sequence, B(m, n),
-                                                  B->get_rankof( B, m, n ) );
+                            node = B->get_rankof( B, m, n );
+                            RUNTIME_data_migrate( sequence, B(N, n), node );
+                            RUNTIME_data_migrate( sequence, B(m, n), node );
 
                             /* TS kernel */
                             INSERT_TASK_ztpmlqt(
@@ -314,10 +310,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             ldbm   = BLKLDD(B, m);
                             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
 
-                            RUNTIME_data_migrate( sequence, B(m, N),
-                                                  B->get_rankof( B, m, N+RD ) );
-                            RUNTIME_data_migrate( sequence, B(m, N+RD),
-                                                  B->get_rankof( B, m, N+RD ) );
+                            node = B->get_rankof( B, m, N+RD );
+                            RUNTIME_data_migrate( sequence, B(m, N),    node );
+                            RUNTIME_data_migrate( sequence, B(m, N+RD), node );
 
                             /* TT kernel */
                             INSERT_TASK_ztpmlqt(
@@ -342,10 +337,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
                             ldbm = BLKLDD(B, m);
 
-                            RUNTIME_data_migrate( sequence, B(m, N),
-                                                  B->get_rankof( B, m, n ) );
-                            RUNTIME_data_migrate( sequence, B(m, m),
-                                                  B->get_rankof( B, m, n ) );
+                            node = B->get_rankof( B, m, n );
+                            RUNTIME_data_migrate( sequence, B(m, N), node );
+                            RUNTIME_data_migrate( sequence, B(m, m), node );
 
                             /* TS kernel */
                             INSERT_TASK_ztpmlqt(
@@ -444,10 +438,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
                             ldbm = BLKLDD(B, m);
 
-                            RUNTIME_data_migrate( sequence, B(m, N),
-                                                  B->get_rankof( B, m, n ) );
-                            RUNTIME_data_migrate( sequence, B(m, n),
-                                                  B->get_rankof( B, m, n ) );
+                            node = B->get_rankof( B, m, n );
+                            RUNTIME_data_migrate( sequence, B(m, N), node );
+                            RUNTIME_data_migrate( sequence, B(m, n), node );
 
                             /* TS kernel */
                             INSERT_TASK_ztpmlqt(
@@ -470,10 +463,9 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
                             ldbm   = BLKLDD(B, m);
 
-                            RUNTIME_data_migrate( sequence, B(m, N),
-                                                  B->get_rankof( B, m, N+RD ) );
-                            RUNTIME_data_migrate( sequence, B(m, N+RD),
-                                                  B->get_rankof( B, m, N+RD ) );
+                            node = B->get_rankof( B, m, N+RD );
+                            RUNTIME_data_migrate( sequence, B(m, N),    node );
+                            RUNTIME_data_migrate( sequence, B(m, N+RD), node );
 
                             /* TT kernel */
                             INSERT_TASK_ztpmlqt(
