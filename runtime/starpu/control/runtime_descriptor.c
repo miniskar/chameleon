@@ -175,18 +175,22 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
 #endif
 
     if (desc->ooc) {
-        int     lastmm   = desc->lm - (desc->lmt-1) * desc->mb;
-        int     lastnn   = desc->ln - (desc->lnt-1) * desc->nb;
-        int64_t eltsze   = CHAMELEON_Element_Size(desc->dtyp);
-        int     pagesize = getpagesize();
+        char   *backend = getenv("STARPU_DISK_SWAP_BACKEND");
 
-        if ( ((desc->mb * desc->nb * eltsze) % pagesize != 0) ||
-             ((lastmm   * desc->nb * eltsze) % pagesize != 0) ||
-             ((desc->mb * lastnn   * eltsze) % pagesize != 0) ||
-             ((lastmm   * lastnn   * eltsze) % pagesize != 0) )
-        {
-            chameleon_error("RUNTIME_desc_create", "Matrix and tile size not suitable for out-of-core: all tiles have to be multiples of 4096. Tip : choose 'n' and 'nb' as both multiples of 32.");
-            return;
+        if (backend && strcmp(backend, "unistd_o_direct") == 0) {
+            int     lastmm   = desc->lm - (desc->lmt-1) * desc->mb;
+            int     lastnn   = desc->ln - (desc->lnt-1) * desc->nb;
+            int64_t eltsze   = CHAMELEON_Element_Size(desc->dtyp);
+            int     pagesize = getpagesize();
+
+            if ( ((desc->mb * desc->nb * eltsze) % pagesize != 0) ||
+                 ((lastmm   * desc->nb * eltsze) % pagesize != 0) ||
+                 ((desc->mb * lastnn   * eltsze) % pagesize != 0) ||
+                 ((lastmm   * lastnn   * eltsze) % pagesize != 0) )
+            {
+                chameleon_error("RUNTIME_desc_create", "Matrix and tile size not suitable for out-of-core: all tiles have to be multiples of the system page size. Tip : choose 'n' and 'nb' as both multiples of 32.");
+                return;
+            }
         }
     }
 
