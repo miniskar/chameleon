@@ -113,7 +113,7 @@ test_starpu_branches:
 test_starpu_master:
   <<: *test_script
   variables:
-    TESTS_RESTRICTION: "-R \"test_shm_|test_mpi_\""
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
     VERSION: starpu
   dependencies:
     - build_starpu
@@ -187,7 +187,7 @@ test_quark_branches:
 test_quark_master:
   <<: *test_script
   variables:
-    TESTS_RESTRICTION: "-R \"test_shm_|test_mpi_\""
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
     VERSION: quark
   dependencies:
     - build_quark
@@ -223,7 +223,7 @@ test_parsec_branches:
 test_parsec_master:
   <<: *test_script
   variables:
-    TESTS_RESTRICTION: "-R \"test_shm_|test_mpi_\""
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
     VERSION: parsec
   dependencies:
     - build_parsec

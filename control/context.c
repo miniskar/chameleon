@@ -67,11 +67,11 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->ncudas             = 0;
     chamctxt->nthreads_per_worker= 1;
 
-    chamctxt->warnings_enabled     = CHAMELEON_TRUE;
-    chamctxt->autotuning_enabled   = CHAMELEON_TRUE;
-    chamctxt->parallel_enabled     = CHAMELEON_FALSE;
-    chamctxt->profiling_enabled    = CHAMELEON_FALSE;
-    chamctxt->progress_enabled     = CHAMELEON_FALSE;
+    chamctxt->warnings_enabled   = CHAMELEON_TRUE;
+    chamctxt->autotuning_enabled = CHAMELEON_TRUE;
+    chamctxt->parallel_enabled   = CHAMELEON_FALSE;
+    chamctxt->profiling_enabled  = CHAMELEON_FALSE;
+    chamctxt->progress_enabled   = CHAMELEON_FALSE;
 
     chamctxt->householder        = ChamFlatHouseholder;
     chamctxt->translation        = ChamOutOfPlace;
@@ -260,7 +260,7 @@ int CHAMELEON_Disable(int option)
  *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Set(int param, int value)
+int CHAMELEON_Set( int param, int value )
 {
     CHAM_context_t *chamctxt;
 
