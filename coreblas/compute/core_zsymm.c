@@ -26,9 +26,68 @@
 #include "coreblas.h"
 
 /**
+ *******************************************************************************
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
  *
+ *  Performs one of the matrix-matrix operations
+ *
+ *     \f[ C = \alpha \times A \times B + \beta \times C \f]
+ *  or
+ *     \f[ C = \alpha \times B \times A + \beta \times C \f]
+ *
+ *  where alpha and beta are scalars, A is a symmetric matrix and B and
+ *  C are m-by-n matrices.
+ *
+ *******************************************************************************
+ *
+ * @param[in] side
+ *          Specifies whether the symmetric matrix A appears on the
+ *          left or right in the operation as follows:
+ *          - ChamLeft:  \f[ C = \alpha \times A \times B + \beta \times C \f]
+ *          - ChamRight: \f[ C = \alpha \times B \times A + \beta \times C \f]
+ *
+ * @param[in] uplo
+ *          Specifies whether the upper or lower triangular part of
+ *          the symmetric matrix A is to be referenced as follows:
+ *          - ChamLower:     Only the lower triangular part of the
+ *                             symmetric matrix A is to be referenced.
+ *          - ChamUpper:     Only the upper triangular part of the
+ *                             symmetric matrix A is to be referenced.
+ *
+ * @param[in] M
+ *          The number of rows of the matrix C. m >= 0.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix C. n >= 0.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] A
+ *          A is an lda-by-ka matrix, where ka is m when side = ChamLeft,
+ *          and is n otherwise. Only the uplo triangular part is referenced.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the array A. lda >= max(1,ka).
+ *
+ * @param[in] B
+ *          B is an ldb-by-n matrix, where the leading m-by-n part of
+ *          the array B must contain the matrix B.
+ *
+ * @param[in] LDB
+ *          The leading dimension of the array B. ldb >= max(1,m).
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in,out] C
+ *          C is an ldc-by-n matrix.
+ *          On exit, the array is overwritten by the m-by-n updated matrix.
+ *
+ * @param[in] LDC
+ *          The leading dimension of the array C. ldc >= max(1,m).
+ * 
  */
 void CORE_zsymm(cham_side_t side, cham_uplo_t uplo,
                 int M, int N,

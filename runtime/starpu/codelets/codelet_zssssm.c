@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zssssm applies the LU factorization update from a complex
  *  matrix formed by a lower triangular IB-by-K tile L1 on top of a

@@ -21,7 +21,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  */
 static inline void CORE_zhe2ge_quark(Quark *quark)

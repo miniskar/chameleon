@@ -27,7 +27,7 @@
 /**
  ******************************************************************************
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  INSERT_TASK_zgeadd adds two general matrices together as in PBLAS pzgeadd.
  *

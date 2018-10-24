@@ -38,7 +38,7 @@ PROJECT_NUMBER         = @CHAMELEON_VERSION_NUMBER@
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/out-dev
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/out
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -580,22 +580,17 @@ WARN_LOGFILE           =
 # documented source files. You may enter file names like "myfile.cpp" or
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
-#                          @CMAKE_CURRENT_SOURCE_DIR@/../../testing                 \
-#                          @CMAKE_CURRENT_BINARY_DIR@/../../testing                 \
-#                          @CMAKE_CURRENT_SOURCE_DIR@/../../timing                  \
-#                          @CMAKE_CURRENT_BINARY_DIR@/../../timing
 
 INPUT                  =  @CMAKE_CURRENT_SOURCE_DIR@/main.dox                     \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../include                \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../compute                \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../coreblas               \
-                          @CMAKE_CURRENT_SOURCE_DIR@/../../control                \
-                          @CMAKE_CURRENT_SOURCE_DIR@/../../runtime/starpu         \
-                          @CMAKE_CURRENT_SOURCE_DIR@/../../simucore
+                          @CMAKE_CURRENT_SOURCE_DIR@/../../cudablas               \
+                          @CMAKE_CURRENT_SOURCE_DIR@/../../control
+#                         @CMAKE_CURRENT_SOURCE_DIR@/../../runtime
 #                          @CMAKE_CURRENT_BINARY_DIR@/../../include                \
 #                          @CMAKE_CURRENT_BINARY_DIR@/../../compute                \
 #                          @CMAKE_CURRENT_BINARY_DIR@/../../coreblas/              \
-#                          @CMAKE_CURRENT_BINARY_DIR@/../../runtime/starpu
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is

@@ -58,7 +58,7 @@ void CORE_ztsmqr_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_ztsmqr overwrites the general complex M1-by-N1 tile A1 and
  *  M2-by-N2 tile A2 with

@@ -21,7 +21,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  */
 static inline int

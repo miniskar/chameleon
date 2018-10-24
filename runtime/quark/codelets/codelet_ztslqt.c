@@ -47,7 +47,7 @@ void CORE_ztslqt_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_ztslqt computes a LQ factorization of a rectangular matrix
  *  formed by coupling side-by-side a complex M-by-M

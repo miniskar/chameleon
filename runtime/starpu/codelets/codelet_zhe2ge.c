@@ -20,7 +20,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  */
 void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,

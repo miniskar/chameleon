@@ -48,7 +48,7 @@ void CORE_zgessm_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zgessm applies the factors L computed by CORE_zgetrf_incpiv to
  *  a complex M-by-N tile A.

@@ -53,7 +53,7 @@ void CORE_zunmlq_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zunmlq overwrites the general complex M-by-N tile C with
  *

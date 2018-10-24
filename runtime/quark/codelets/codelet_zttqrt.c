@@ -47,7 +47,7 @@ void CORE_zttqrt_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zttqrt computes a QR factorization of a rectangular matrix
  *  formed by coupling a complex N-by-N upper triangular tile A1

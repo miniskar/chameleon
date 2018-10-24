@@ -3,18 +3,26 @@
 
 This document aims at describing Chameleon's API and internal functions.
 
-@section sec_auxiliary Auxiliary and control routines
-- @ref Auxiliary
-- @ref Control
-- @ref Descriptor
-- @ref Options
-- @ref Sequences
-- @ref Tile
-- @ref Workspace
+To get information about the Chameleon project, installation guide and usage examples please refer to the user's guide.
+
+Chameleon user's API is mostly composed of linear algebra routines of the form **CHAMELEON_name[_Tile[_Async]]** 
+where *name* follows the [LAPACK naming scheme](http://www.netlib.org/lapack/lug/node24.html) that can
+be used with the Chameleon library. These routines are described individually in the section \ref sec_linalg. 
+
+In addition to the algorithmic routines Chameleon provides a set of functions to control the overall process, see \ref sec_auxiliary
 
 @section sec_linalg Linear algebra routines
-- @ref CHAMELEON_Complex64_t "LAPACK matrix layout"
-- @ref CHAMELEON_Complex64_t_Tile "Tile matrix layout"
-- @ref CHAMELEON_Complex64_t_Tile_Async "Tile matrix layout, asynchronous interface"
+- @ref CHAMELEON_Complex64_t "LAPACK matrix layout" : the simplest Chameleon interface which is equivalent to CBLAS/LAPACKE
+- @ref CHAMELEON_Complex64_t_Tile "Tile matrix layout" : the interface to be use with **Descriptors**, the Chameleon specific structure to handle the data as a set of tiles, see \ref Descriptor and \ref Tile
+- @ref CHAMELEON_Complex64_t_Tile_Async "Tile matrix layout, asynchronous interface" : same as the tile interface but without waiting for the termination of tasks, see \ref Sequences
+
+@section sec_auxiliary Auxiliary and control routines
+- @ref Control : to initialize/finalize Chameleon, functions that must be called to use any routines, pause/resume task executions, etc
+- @ref Options : to set/get some parameters such as the number of CPUs and GPUs to use
+- @ref Descriptor : to handle the data structure used with the **Tile** interface
+- @ref Tile : to convert (copy) LAPACK type data into *Descriptor* one and conversely
+- @ref Sequences : to handle asynchronous tasks execution, to be used with the **Tile_Async** interface
+- @ref Workspace : to handle specific workspace to be used with some of the algorithms
+- @ref Auxiliary : to get some extra information such as the version, the data byte size, the mpi rank
 
 */

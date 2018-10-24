@@ -51,7 +51,7 @@ void CORE_zgetrf_incpiv_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zgetrf_incpiv computes an LU factorization of a general M-by-N tile A
  *  using partial pivoting with row interchanges.
