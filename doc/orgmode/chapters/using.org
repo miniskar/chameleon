@@ -290,6 +290,18 @@
     (simple and double precision) on /mirage/ and /sirocco/ machines are
     available for now.  Database of models is subject to change.
 
+*** Use out of core support with StarPU
+    <<sec:ooc>>
+
+    If the matrix can not fit in the main memory, StarPU can automatically evict
+    tiles to the disk. The following variables need to be set:
+    * *STARPU_DISK_SWAP* environment variable to a place where to store
+    evicted tiles, for example: ~STARPU_DISK_SWAP=/tmp~
+    * *STARPU_DISK_SWAP_BACKEND* environment variable to the I/O method,
+    for example: ~STARPU_DISK_SWAP_BACKEND=unistd_o_direct~
+    * *STARPU_LIMIT_CPU_MEM* environment variable to the amount of memory
+    that can be used in MBytes, for example: ~STARPU_LIMIT_CPU_MEM=1000~
+
 ** Chameleon API
 
    Chameleon provides routines to solve dense general systems of

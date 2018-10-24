@@ -97,11 +97,11 @@ static int nbdesc = 0;
  *
  */
 CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                  int lm, int ln, int i, int j,
-                                  int m,  int n,  int p, int q,
-                                  void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                                  int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                  int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
+                                     int lm, int ln, int i, int j,
+                                     int m,  int n,  int p, int q,
+                                     void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                                     int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                                     int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t desc;
@@ -195,22 +195,22 @@ CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bs
  *  Internal static descriptor initializer
  */
 CHAM_desc_t chameleon_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                             int lm, int ln, int i, int j,
-                             int m,  int n,  int p, int q)
+                                int lm, int ln, int i, int j,
+                                int m,  int n,  int p, int q)
 {
     return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d);
+                                    chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d);
 }
 
 /**
  *  Internal static descriptor initializer for a block diagonal matrix
  */
 CHAM_desc_t chameleon_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                  int lm, int ln, int i, int j,
-                                  int m,  int n,  int p, int q)
+                                     int lm, int ln, int i, int j,
+                                     int m,  int n,  int p, int q)
 {
     return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d_diag);
+                                    chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d_diag);
 }
 
 /**
@@ -394,7 +394,7 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
  *
  */
 int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                      int lm, int ln, int i, int j, int m, int n, int p, int q)
+                          int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -508,10 +508,10 @@ int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
  *
  */
 int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                           int lm, int ln, int i, int j, int m, int n, int p, int q,
-                           void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                           int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                           int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
+                               int lm, int ln, int i, int j, int m, int n, int p, int q,
+                               void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                               int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                               int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -533,7 +533,7 @@ int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t 
     }
 
     *desc = chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                 get_blkaddr, get_blkldd, get_rankof);
+                                     get_blkaddr, get_blkldd, get_rankof);
 
     /* if the user gives a pointer to the overall data (tiles) we can use it */
     desc->use_mat = (mat == NULL) ? 0 : 1;
@@ -605,8 +605,8 @@ int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t 
  *
  */
 int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                               int lm, int ln, int i, int j, int m, int n, int p, int q,
-                               int (*get_rankof)( const CHAM_desc_t*, int, int ))
+                                   int lm, int ln, int i, int j, int m, int n, int p, int q,
+                                   int (*get_rankof)( const CHAM_desc_t*, int, int ))
 {
 #if !defined (CHAMELEON_SCHED_STARPU)
     (void)descptr; (void)dtyp; (void)mb; (void)nb; (void)bsiz;
@@ -614,7 +614,7 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
     (void)get_rankof;
 
     chameleon_error("CHAMELEON_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
-    return CHAMELEON_ERR_NOT_INITIALIZED;
+    return CHAMELEON_ERR_NOT_SUPPORTED;
 #else
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -627,14 +627,15 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
         chameleon_error("CHAMELEON_Desc_Create_OOC_User", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+
     /* Allocate memory and initialize the descriptor */
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    if (desc == NULL) {
+    if ( desc == NULL ) {
         chameleon_error("CHAMELEON_Desc_Create_OOC_User", "malloc() failed");
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
-    *desc = chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                 chameleon_getaddr_null, NULL, get_rankof);
+    *desc = chameleon_desc_init_user( dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
+                                      chameleon_getaddr_null, NULL, get_rankof );
 
     /* memory of the matrix is completely handled by runtime */
     desc->use_mat      = 0;
@@ -701,11 +702,11 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
  *
  */
 int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                          int lm, int ln, int i, int j, int m, int n, int p, int q)
+                              int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
     return CHAMELEON_Desc_Create_OOC_User( descptr, dtyp, mb, nb, bsiz,
-                                       lm, ln, i, j, m, n, p, q,
-                                       chameleon_getrankof_2d );
+                                           lm, ln, i, j, m, n, p, q,
+                                           chameleon_getrankof_2d );
 }
 
 /**
@@ -722,8 +723,7 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
@@ -763,8 +763,7 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc) {
@@ -787,8 +786,7 @@ int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc) {
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
@@ -800,7 +798,9 @@ int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
  *
  * @ingroup Descriptor
  *
- *  CHAMELEON_Desc_Flush - Flushes the data in the sequence when they won't be reused. This calls cleans up the distributed communication caches, and transfer the data back to the CPU.
+ *  CHAMELEON_Desc_Flush - Flushes the data in the sequence when they won't be
+ *  reused. This calls cleans up the distributed communication caches, and
+ *  transfer the data back to the CPU.
  *
  ******************************************************************************
  *
@@ -809,12 +809,11 @@ int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Desc_Flush( CHAM_desc_t     *desc,
-                      RUNTIME_sequence_t *sequence )
+                          RUNTIME_sequence_t *sequence )
 {
     RUNTIME_desc_flush( desc, sequence );
     return CHAMELEON_SUCCESS;
@@ -837,11 +836,6 @@ int CHAMELEON_Desc_Flush( CHAM_desc_t     *desc,
  *
  * @param[in] user_tag_sep
  *          The new value for tag_sep.
- *
- ******************************************************************************
- *
- * @return
- *          \retval none
  *
  */
 void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
