@@ -50,7 +50,7 @@ CORE_ztradd_parsec( parsec_execution_stream_t *context,
 /**
  ******************************************************************************
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  INSERT_TASK_ztradd adds two trapezoidal matrices together as in PBLAS pztradd.
  *

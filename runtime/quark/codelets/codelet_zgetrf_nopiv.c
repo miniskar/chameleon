@@ -45,7 +45,7 @@ void CORE_zgetrf_nopiv_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zgetrf_nopiv computes an LU factorization of a general diagonal
  *  dominant M-by-N matrix A witout pivoting.

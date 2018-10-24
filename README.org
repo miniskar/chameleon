@@ -50,7 +50,11 @@ dedicated to dense linear algebra.
 
 * Documentation
 ** User guide
-   The user guide is available directly in the sources as emacs
+
+   Please refer to the [[https://solverstack.gitlabpages.inria.fr/chameleon/users_guide.html][User guide]] to learn how to install and use
+   Chameleon.
+
+   The user guide is also available directly in the sources as emacs
    orgmode files, see :
    1) [[file:doc/orgmode/chapters/introduction.org][Introduction]] : description of the scientific context
    2) [[file:doc/orgmode/chapters/installing.org][Installing]] :
@@ -69,11 +73,15 @@ dedicated to dense linear algebra.
    cmake .. -DCHAMELEON_ENABLE_DOC=ON
    make doc
    #+end_src
+   see the ~doc/orgmode~ directory.
 
 ** Source code documentation (doxygen)
-   There is no up-to-date documentation of Chameleon.  We would like to
-   provide a doxygen documentation hosted on [[https://about.gitlab.com/2016/04/07/gitlab-pages-setup/][gitlab]] in the
-   future. Please refer to the section 2.1 of [[file:READMEDEV.org][READMEDEV]] to get
+
+   Please refer to the [[https://solverstack.gitlabpages.inria.fr/chameleon/index.html][doxygen documentation]] to get more precise
+   information about the API, the public and internal functions
+   prototypes and the data structures.
+
+   Please refer to the section 2.1 of [[file:READMEDEV.org][READMEDEV]] to get
    information about the documentation generation.
 
 ** For developers

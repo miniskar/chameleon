@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  */
 void INSERT_TASK_zsyr2k(const RUNTIME_option_t *options,

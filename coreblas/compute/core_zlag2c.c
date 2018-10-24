@@ -25,8 +25,35 @@
 #include "coreblas.h"
 
 /**
+ *******************************************************************************
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
+ *
+ *  Converts m-by-n matrix A from double complex to single complex precision.
+ *
+ *******************************************************************************
+ *
+ * @param[in] M
+ *          The number of rows of the matrix A.
+ *          m >= 0.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix A.
+ *          n >= 0.
+ *
+ * @param[in] A
+ *          The lda-by-n matrix in double complex precision to convert.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *          lda >= max(1,m).
+ *
+ * @param[out] B
+ *          On exit, the converted LDB-by-n matrix in single complex precision.
+ *
+ * @param[in] LDB
+ *          The leading dimension of the matrix As.
+ *          ldas >= max(1,m).
  *
  */
 void CORE_zlag2c(int m, int n,
@@ -40,8 +67,35 @@ void CORE_zlag2c(int m, int n,
 /**/
 
 /**
+ *******************************************************************************
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
+ *
+ *  Converts m-by-n matrix A from single complex to double complex precision.
+ *
+ *******************************************************************************
+ *
+ * @param[in] m
+ *          The number of rows of the matrix As.
+ *          m >= 0.
+ *
+ * @param[in] n
+ *          The number of columns of the matrix As.
+ *          n >= 0.
+ *
+ * @param[in] As
+ *          The ldas-by-n matrix in single complex precision to convert.
+ *
+ * @param[in] ldas
+ *          The leading dimension of the matrix As.
+ *          ldas >= max(1,m).
+ *
+ * @param[out] A
+ *          On exit, the converted lda-by-n matrix in double complex precision.
+ *
+ * @param[in] lda
+ *          The leading dimension of the matrix A.
+ *          lda >= max(1,m).
  *
  */
 void CORE_clag2z(int m, int n,

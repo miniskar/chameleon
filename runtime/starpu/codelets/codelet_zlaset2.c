@@ -28,7 +28,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zlaset2 - Sets the elements of the matrix A to alpha.
  *  Not LAPACK compliant! Read below.

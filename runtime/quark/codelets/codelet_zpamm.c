@@ -54,7 +54,7 @@ CORE_zpamm_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  ZPAMM  performs one of the matrix-matrix operations
  *

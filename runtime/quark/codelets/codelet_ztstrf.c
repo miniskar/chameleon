@@ -60,7 +60,7 @@ void CORE_ztstrf_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_ztstrf computes an LU factorization of a complex matrix formed
  *  by an upper triangular NB-by-N tile U on top of a M-by-N tile A

@@ -26,8 +26,60 @@
 #include "coreblas.h"
 
 /**
+ *******************************************************************************
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
+ *
+ *  Performs one of the symmetric rank k operations
+ *
+ *    \f[ C = \alpha A \times A^T + \beta C, \f]
+ *    or
+ *    \f[ C = \alpha A^T \times A + \beta C, \f]
+ *
+ *  where alpha and beta are scalars, C is an n-by-n symmetric
+ *  matrix, and A is an n-by-k matrix in the first case and a k-by-n
+ *  matrix in the second case.
+ *
+ *******************************************************************************
+ *
+ * @param[in] uplo
+ *          - ChamUpper: Upper triangle of C is stored;
+ *          - ChamLower: Lower triangle of C is stored.
+ *
+ * @param[in] trans
+ *          - ChamNoTrans: \f[ C = \alpha A \times A^T + \beta C; \f]
+ *          - ChamTrans:   \f[ C = \alpha A^T \times A + \beta C. \f]
+ *
+ * @param[in] N
+ *          The order of the matrix C. n >= 0.
+ *
+ * @param[in] K
+ *          If trans = ChamNoTrans, number of columns of the A matrix;
+ *          if trans = ChamTrans, number of rows of the A matrix.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] A
+ *          A is an lda-by-ka matrix.
+ *          If trans = ChamNoTrans, ka = k;
+ *          if trans = ChamTrans,   ka = n.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the array A.
+ *          If trans = ChamNoTrans, lda >= max(1, n);
+ *          if trans = ChamTrans,   lda >= max(1, k).
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in,out] C
+ *          C is an ldc-by-n matrix.
+ *          On exit, the uplo part of the matrix is overwritten
+ *          by the uplo part of the updated matrix.
+ *
+ * @param[in] LDC
+ *          The leading dimension of the array C. ldc >= max(1, n).
  *
  */
 void CORE_zsyrk(cham_uplo_t uplo, cham_trans_t trans,

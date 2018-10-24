@@ -42,7 +42,7 @@ void CORE_zlaset_quark(Quark *quark)
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zlaset - Sets the elements of the matrix A on the diagonal
  *  to beta and on the off-diagonals to alpha

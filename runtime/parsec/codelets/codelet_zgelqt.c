@@ -22,7 +22,7 @@
 
 /**
  *
- * @ingroup CORE_CHAMELEON_Complex64_t
+ * @ingroup INSERT_TASK_Complex64_t
  *
  *  CORE_zgelqt - computes a LQ factorization of a complex M-by-N tile A: A = L * Q.
  *
