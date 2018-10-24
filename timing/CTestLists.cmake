@@ -68,7 +68,10 @@ if (NOT CHAMELEON_SIMULATION)
         string(TOUPPER ${prec} PREC)
         if (CHAMELEON_PREC_${PREC})
           foreach(test ${TESTLIST})
-            add_test(time_ooc_${cat}_${prec}${test} STARPU_DISK_SWAP=/tmp STARPU_LIMIT_CPU_MEM=1 ${MPI_CMD_${cat}} ./time_${prec}${test}_tile ${TEST_CMD_${cat}} --ooc --check)
+            add_test(time_ooc_${cat}_${prec}${test} ${MPI_CMD_${cat}} ./time_${prec}${test}_tile ${TEST_CMD_${cat}} --ooc --check)
+            set_tests_properties(time_ooc_${cat}_${prec}${test} PROPERTIES
+              ENVIRONMENT "STARPU_DISK_SWAP=/tmp;STARPU_LIMIT_CPU_MEM=1"
+              )
           endforeach()
         endif()
       endforeach()
@@ -76,7 +79,10 @@ if (NOT CHAMELEON_SIMULATION)
         string(TOUPPER ${prec} PREC)
         if (CHAMELEON_PREC_${PREC})
           foreach(test ${TESTLIST_ZC})
-            add_test(time_ooc_${cat}_${prec}${test} STARPU_DISK_SWAP=/tmp STARPU_LIMIT_CPU_MEM=1 ${MPI_CMD_${cat}} ./time_${prec}${test}_tile ${TEST_CMD_${cat}} --ooc --check)
+            add_test(time_ooc_${cat}_${prec}${test} ${MPI_CMD_${cat}} ./time_${prec}${test}_tile ${TEST_CMD_${cat}} --ooc --check)
+            set_tests_properties(time_ooc_${cat}_${prec}${test} PROPERTIES
+              ENVIRONMENT "STARPU_DISK_SWAP=/tmp;STARPU_LIMIT_CPU_MEM=1"
+              )
           endforeach()
         endif()
       endforeach()
