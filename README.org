@@ -77,7 +77,7 @@ dedicated to dense linear algebra.
 
 ** Source code documentation (doxygen)
 
-   Please refer to the [[https://solverstack.gitlabpages.inria.fr/chameleon/index.html][doxygen documentation]] to get more precise
+   Please refer to the [[https://solverstack.gitlabpages.inria.fr/chameleon/doxygen/index.html][doxygen documentation]] to get more precise
    information about the API, the public and internal functions
    prototypes and the data structures.
 
