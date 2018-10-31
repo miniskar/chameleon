@@ -312,7 +312,8 @@ pages:
     - cd build
     - cmake .. -DCHAMELEON_ENABLE_DOC=ON
     - make doc -j5
-    - mv doc/doxygen/out/html/ ../public/
-    - cp -r doc/orgmode/* ../public/
+    - mv doc/orgmode/ ../public/
+    - ln -s ../public/users_guide.html ../public/index.html
+    - mv doc/doxygen/out/html/ ../public/doxygen/
   only:
     - master@solverstack/chameleon

@@ -3,11 +3,11 @@
 
 This document aims at describing Chameleon's API and internal functions.
 
-To get information about the Chameleon project, installation guide and usage examples please refer to the user's guide.
+To get information about the Chameleon project, installation guide and usage examples please refer to the [user's guide](https://solverstack.gitlabpages.inria.fr/chameleon/users_guide.html).
 
-Chameleon user's API is mostly composed of linear algebra routines of the form **CHAMELEON_name[_Tile[_Async]]** 
+Chameleon user's API is mostly composed of linear algebra routines of the form **CHAMELEON_name[_Tile[_Async]]**
 where *name* follows the [LAPACK naming scheme](http://www.netlib.org/lapack/lug/node24.html) that can
-be used with the Chameleon library. These routines are described individually in the section \ref sec_linalg. 
+be used with the Chameleon library. These routines are described individually in the section \ref sec_linalg.
 
 In addition to the algorithmic routines Chameleon provides a set of functions to control the overall process, see \ref sec_auxiliary
 
