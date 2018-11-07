@@ -18,7 +18,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2011-06-14
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
@@ -139,7 +139,8 @@
  */
 /* This kernel is never traced so return type on previous line for convert2eztrace.pl script */
 int
-CORE_zparfb(cham_side_t side, cham_trans_t trans, cham_dir_t direct, cham_store_t storev,
+CORE_zparfb(cham_side_t side, cham_trans_t trans,
+            cham_dir_t direct, cham_store_t storev,
             int M1, int N1, int M2, int N2, int K, int L,
                   CHAMELEON_Complex64_t *A1, int LDA1,
                   CHAMELEON_Complex64_t *A2, int LDA2,

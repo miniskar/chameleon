@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2016-12-15
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
@@ -24,9 +24,11 @@
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
  *
- * CORE_ztpmlqt applies a complex orthogonal matrix Q obtained from a
- * "triangular-pentagonal" complex block reflector H to a general complex matrix
- * C, which consists of two blocks A and B.
+ * @brief Applies a complex orthogonal matrix Q.
+ *
+ * The matrix Q is obtained from a "triangular-pentagonal" complex block
+ * reflector H to a general complex matrix C, which consists of two blocks A and
+ * B.
  *
  *******************************************************************************
  *
@@ -128,9 +130,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
