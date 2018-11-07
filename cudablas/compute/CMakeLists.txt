@@ -19,7 +19,7 @@
 #
 # @version 1.0.0
 #  @author Florent Pruvost
-#  @date 2015-09-16
+#  @date 2018-11-09
 #
 ###
 
@@ -38,11 +38,13 @@ set(ZSRC
     cuda_zsymm.c
     cuda_zsyr2k.c
     cuda_zsyrk.c
+    cuda_ztpmlqt.c
     cuda_ztpmqrt.c
     cuda_ztrmm.c
     cuda_ztrsm.c
     cuda_ztsmlq.c
     cuda_ztsmqr.c
+    cuda_zttmlq.c
     cuda_zttmqr.c
     cuda_zunmlqt.c
     cuda_zunmqrt.c

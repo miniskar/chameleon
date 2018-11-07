@@ -1,6 +1,6 @@
 /**
  *
- * @file cuda_ztpmqrt.c
+ * @file cuda_ztpmlqt.c
  *
  * @copyright 2009-2016 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,10 +9,10 @@
  *
  ***
  *
- * @brief Chameleon cuda_ztpmqrt GPU kernel
+ * @brief Chameleon cuda_ztpmlqt GPU kernel
  *
  * @version 1.0.0
- * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2018-11-09
  * @precisions normal z -> c d s
  *
@@ -106,18 +106,17 @@
  *  H(1), H(2), ..., H(K); V is composed of a rectangular block V1 and a
  *  trapezoidal block V2:
  *
- *        V = [V1]
- *            [V2].
+ *        V = [V1] [V2].
  *
  *  The size of the trapezoidal block V2 is determined by the parameter L,
- *  where 0 <= L <= K; V2 is upper trapezoidal, consisting of the first L
- *  rows of a K-by-K upper triangular matrix.  If L=K, V2 is upper triangular;
+ *  where 0 <= L <= K; V2 is lower trapezoidal, consisting of the first L
+ *  rows of a K-by-K upper triangular matrix.  If L=K, V2 is lower triangular;
  *  if L=0, there is no trapezoidal block, hence V = V1 is rectangular.
  *
- *  If side = ChamLeft:  C = [A]  where A is K-by-N,  B is M-by-N and V is M-by-K.
+ *  If side = ChamLeft:  C = [A]  where A is K-by-N,  B is M-by-N and V is K-by-M.
  *                            [B]
  *
- *  If side = ChamRight: C = [A B]  where A is M-by-K, B is M-by-N and V is N-by-K.
+ *  If side = ChamRight: C = [A B]  where A is M-by-K, B is M-by-N and V is K-by-N.
  *
  *  The complex orthogonal matrix Q is formed from V and T.
  *
@@ -136,7 +135,7 @@
  *
  */
 int
-CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
+CUDA_ztpmlqt( cham_side_t side, cham_trans_t trans,
               int M, int N, int K, int L, int IB,
               const cuDoubleComplex *V, int LDV,
               const cuDoubleComplex *T, int LDT,
@@ -164,20 +163,20 @@ CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
 
     /* TS case */
     if (L == 0) {
-        CUDA_ztsmqr( side, trans, m1, n1, M, N, K, IB,
+        CUDA_ztsmlq( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
                      WORK, lwork,
                      CUBLAS_STREAM_VALUE );
     }
     /* TT case */
-    else  if( L == M ) {
-        CUDA_zttmqr( side, trans, m1, n1, M, N, K, IB,
+    else  if( L == N ) {
+        CUDA_zttmlq( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
                      WORK, lwork,
                      CUBLAS_STREAM_VALUE );
     }
     else {
-        cudablas_error(-6, "TPMQRT not available on GPU for general cases yet\n" );
+        cudablas_error(-6, "TPMLQT not available on GPU for general cases yet\n" );
         return -6;
     }
 

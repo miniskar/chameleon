@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @author Florent Pruvost
- * @date 2015-09-16
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
@@ -120,40 +120,32 @@
  *         The leading dimension of the array T. LDT >= K.
  *
  * @param[in,out] WORK
- *         Workspace of dimension LDWORK-by-N1 if side == ChamLeft, LDWORK-by-K
- *         otherwise.
+ *         Workspace of dimension at least:
+ *            - K * (M2 + N2).
+ *         If L > 0, it is recommended to extend it to
+ *            - K * (2 * M2 + N2 ) if side == ChamLeft.
+ *            - K * (M2 + 2 * N2 ) if side == ChamRight.
  *
- * @param[in] LDWORK
- *         The leading dimension of the array WORK: LDWORK >= K, if side ==
- *         ChamLeft, LDWORK >= M1 otehrwise.
- *
- * @param[in,out] WORKC
- *         Optionnal additional workspace to replace the TRMM operation by a GEMM kernel.
- *         This workspace is of dimension LDWORK-by-K if side == ChamLeft, LDWORK-by-N2
- *         otherwise.
- *
- * @param[in] LDWORKC
- *         The leading dimension of the array WORKC: LDWORKC >= M2, if side ==
- *         ChamLeft, LDWORK >= K otehrwise.
+ * @param[in] LWORK
+ *         The dimension of the array WORK. If LWORK < 0, returns immediately
+ *         the recommended workspace size.
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval  <0 if -i, the i-th argument had an illegal value
+ * @retval  The recommended LWORK value, if LWORK == -1 on entry.
  */
 int
-CUDA_zparfb(cham_side_t side, cham_trans_t trans,
-            cham_dir_t direct, cham_store_t storev,
-            int M1, int N1, int M2, int N2, int K, int L,
-                  cuDoubleComplex *A1, int LDA1,
-                  cuDoubleComplex *A2, int LDA2,
-            const cuDoubleComplex *V, int LDV,
-            const cuDoubleComplex *T, int LDT,
-                  cuDoubleComplex *WORK, int LDWORK,
-                  cuDoubleComplex *WORKC, int LDWORKC,
-            CUBLAS_STREAM_PARAM )
+CUDA_zparfb( cham_side_t side, cham_trans_t trans,
+             cham_dir_t direct, cham_store_t storev,
+             int M1, int N1, int M2, int N2, int K, int L,
+                   cuDoubleComplex *A1, int LDA1,
+                   cuDoubleComplex *A2, int LDA2,
+             const cuDoubleComplex *V, int LDV,
+             const cuDoubleComplex *T, int LDT,
+                   cuDoubleComplex *WORK, int LWORK,
+             CUBLAS_STREAM_PARAM )
 {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     cuDoubleComplex zzero = make_cuDoubleComplex(0.0, 0.0);
@@ -165,9 +157,13 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
     double mzone = -1.0;
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
+    cuDoubleComplex *workW, *workC, *workV;
+    int ldW, ldC, ldV;
     int j;
     cham_trans_t transW;
     cham_trans_t transA2;
+    int wssize = 0;
+    int wrsize = 0;
 
     CUBLAS_GET_STREAM;
 
@@ -201,19 +197,30 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
     if (K < 0) {
         return -9;
     }
-    if ( ((LDWORK < K ) && (side == ChamLeft )) ||
-         ((LDWORK < M1) && (side == ChamRight)) ) {
+
+    if (direct == ChamDirForward) {
+        wssize = K * (M2 + N2);
+        wrsize = wssize;
+        if ( L > 0 ) {
+            wrsize +=  (side == ChamLeft) ? M2 * K : K * N2;
+        }
+    }
+
+    if ( LWORK < 0 ) {
+        return wrsize;
+    }
+    else if ( LWORK < wssize ) {
+        cudablas_error(20, "Illegal value of LWORK");
         return -20;
     }
 
-    /* Quick return */
-    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0))
+    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
     if (direct == ChamDirForward) {
 
         if (side == ChamLeft) {
-
             /*
              * Column or Rowwise / Forward / Left
              * ----------------------------------
@@ -223,75 +230,115 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
              */
 
             /*
+             * Store in WORK (N1 == N2):
+             *    - Workspace W for the copy of A1 + V' * A2 (K  x N1)
+             *    - Workspace C for the copy of V * T        (M2 x K )
+             *    - Workspace V for the copy of V            (M2 x K )
+             */
+            workW = WORK;
+            ldW = K;
+
+            workC = workW + K * N1;
+            ldC = M2;
+
+            if ( L == 0 ) {
+                workV = (cuDoubleComplex*)V;
+                ldV   = LDV;
+            }
+            else {
+                if ( LWORK < wrsize ) {
+                    workC = NULL;
+                    workV = workW + K * N1;
+                }
+                else {
+                    workV = workC + M2 * K;
+                }
+                ldV = M2;
+
+                /*
+                 * Backup V, and put 0 in the lower part
+                 */
+                cudaMemcpy2DAsync( workV, ldV * sizeof(cuDoubleComplex),
+                                   V,     LDV * sizeof(cuDoubleComplex),
+                                   M2 * sizeof(cuDoubleComplex), K,
+                                   cudaMemcpyDeviceToDevice, stream );
+
+                for(j = 1; j < K; j++) {
+                    cudaMemsetAsync( workV + (j-1) * ldV + M2 - L + j,
+                                     0.,
+                                     (L - j) * sizeof(cuDoubleComplex),
+                                     stream );
+                }
+            }
+
+            /*
              * W = A1 + V' * A2:
              *      W = A1
              *      W = W + V' * A2
              *
              */
-            cudaMemcpy2DAsync( WORK, LDWORK * sizeof(cuDoubleComplex),
-                               A1,   LDA1   * sizeof(cuDoubleComplex),
+            cudaMemcpy2DAsync( workW, ldW  * sizeof(cuDoubleComplex),
+                               A1,    LDA1 * sizeof(cuDoubleComplex),
                                K * sizeof(cuDoubleComplex), N1,
                                cudaMemcpyDeviceToDevice, stream );
 
             transW  = storev == ChamColumnwise ? ChamConjTrans : ChamNoTrans;
             transA2 = storev == ChamColumnwise ? ChamNoTrans : ChamConjTrans;
 
-            cublasZgemm(CUBLAS_HANDLE
-                        chameleon_cublas_const(transW), chameleon_cublas_const(ChamNoTrans),
-                        K, N1, M2,
-                        CUBLAS_SADDR(zone),
-                        V     /* K*M2  */, LDV,
-                        A2    /* M2*N1 */, LDA2,
-                        CUBLAS_SADDR(zone),
-                        WORK  /* K*N1  */, LDWORK);
+            cublasZgemm( CUBLAS_HANDLE
+                         chameleon_cublas_const(transW), chameleon_cublas_const(ChamNoTrans),
+                         K, N1, M2,
+                         CUBLAS_SADDR(zone), workV /* M2*K  */, ldV,
+                                             A2    /* M2*N2 */, LDA2,
+                         CUBLAS_SADDR(zone), workW /* K *N2 */, ldW );
 
-            if (WORKC == NULL) {
+            if ( workC == NULL ) {
                 /* W = op(T) * W */
                 CUDA_ztrmm( ChamLeft, ChamUpper, trans, ChamNonUnit,
                             K, N2,
-                            CUBLAS_SADDR(zone), T,    LDT,
-                                                WORK, LDWORK,
+                            &zone, T,     LDT,
+                                   workW, ldW,
                             CUBLAS_STREAM_VALUE );
 
                 /* A1 = A1 - W = A1 - op(T) * W */
                 for(j = 0; j < N1; j++) {
-                    cublasZaxpy(CUBLAS_HANDLE
-                                K, CUBLAS_SADDR(mzone),
-                                (WORK + LDWORK*j), 1,
-                                (A1 + LDA1*j),     1);
+                    cublasZaxpy( CUBLAS_HANDLE
+                                 K, CUBLAS_SADDR(mzone),
+                                 workW + ldW  * j, 1,
+                                 A1    + LDA1 * j, 1 );
                 }
 
                 /* A2 = A2 - op(V) * W  */
-                cublasZgemm(CUBLAS_HANDLE
-                            chameleon_cublas_const(transA2), chameleon_cublas_const(ChamNoTrans),
-                            M2, N2, K,
-                            CUBLAS_SADDR(mzone), V    /* M2*K  */, LDV,
-                                                 WORK /* K*N2  */, LDWORK,
-                            CUBLAS_SADDR(zone),  A2   /* m2*N2 */, LDA2);
+                cublasZgemm( CUBLAS_HANDLE
+                             chameleon_cublas_const(transA2), chameleon_cublas_const(ChamNoTrans),
+                             M2, N2, K,
+                             CUBLAS_SADDR(mzone), V     /* M2 * K  */, LDV,
+                                                  workW /* K  * N2 */, ldW,
+                             CUBLAS_SADDR(zone),  A2    /* M2 * N2 */, LDA2 );
 
             } else {
                 /* Wc = V * op(T) */
                 cublasZgemm( CUBLAS_HANDLE
                              chameleon_cublas_const(transA2), chameleon_cublas_const(trans),
                              M2, K, K,
-                             CUBLAS_SADDR(zone),  V, LDV,
-                                                  T, LDT,
-                             CUBLAS_SADDR(zzero), WORKC, LDWORKC );
+                             CUBLAS_SADDR(zone),  workV, ldV,
+                                                  T,     LDT,
+                             CUBLAS_SADDR(zzero), workC, ldC );
 
                 /* A1 = A1 - opt(T) * W */
                 cublasZgemm( CUBLAS_HANDLE
                              chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
                              K, N1, K,
-                             CUBLAS_SADDR(mzone), T,    LDT,
-                                                  WORK, LDWORK,
-                             CUBLAS_SADDR(zone),  A1,   LDA1 );
+                             CUBLAS_SADDR(mzone), T,     LDT,
+                                                  workW, ldW,
+                             CUBLAS_SADDR(zone),  A1,    LDA1 );
 
                 /* A2 = A2 - Wc * W */
                 cublasZgemm( CUBLAS_HANDLE
                              chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
                              M2, N2, K,
-                             CUBLAS_SADDR(mzone), WORKC, LDWORKC,
-                                                  WORK,  LDWORK,
+                             CUBLAS_SADDR(mzone), workC, ldC,
+                                                  workW, ldW,
                              CUBLAS_SADDR(zone),  A2,    LDA2 );
             }
         }
@@ -305,13 +352,55 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
              */
 
             /*
+             * Store in WORK (M1 == M2):
+             *    - Workspace W for the copy of A1 + A2 * V' (M1 x K )
+             *    - Workspace C for the copy of V * T        (K  x N2)
+             *    - Workspace V for the copy of V            (K  x N2)
+             */
+            workW = WORK;
+            ldW = M1;
+
+            workC = workW + M1 * K;
+            ldC = K;
+
+            if ( L == 0 ) {
+                workV = (cuDoubleComplex*)V;
+                ldV   = LDV;
+            }
+            else {
+                if ( LWORK < wrsize ) {
+                    workC = NULL;
+                    workV = workW + M2 * K;
+                }
+                else {
+                    workV = workC + K * N2;
+                }
+                ldV = K;
+
+                /*
+                 * Backup V, and put 0 in the upper part
+                 */
+                cudaMemcpy2DAsync( workV, ldV * sizeof(cuDoubleComplex),
+                                   V,     LDV * sizeof(cuDoubleComplex),
+                                   K * sizeof(cuDoubleComplex), N2,
+                                   cudaMemcpyDeviceToDevice, stream );
+
+                for(j = 1; j < K; j++) {
+                    cudaMemsetAsync( workV + ldV + N2 - L + j,
+                                     0.,
+                                     j * sizeof(cuDoubleComplex),
+                                     stream );
+                }
+            }
+
+            /*
              * W = A1 + A2 * V':
              *      W = A1
              *      W = W + A2 * V'
              *
              */
-            cudaMemcpy2DAsync( WORK, LDWORK * sizeof(cuDoubleComplex),
-                               A1,   LDA1   * sizeof(cuDoubleComplex),
+            cudaMemcpy2DAsync( workW, ldW  * sizeof(cuDoubleComplex),
+                               A1,    LDA1 * sizeof(cuDoubleComplex),
                                M1 * sizeof(cuDoubleComplex), K,
                                cudaMemcpyDeviceToDevice, stream );
 
@@ -321,40 +410,40 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
             cublasZgemm(CUBLAS_HANDLE
                         chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transW),
                         M1, K, N2,
-                        CUBLAS_SADDR(zone), A2   /* M1*N2 */, LDA2,
-                                            V    /* N2*K  */, LDV,
-                        CUBLAS_SADDR(zone), WORK /* M1*K  */, LDWORK);
+                        CUBLAS_SADDR(zone), A2    /* M1*N2 */, LDA2,
+                                            workV /* K *N2 */, ldV,
+                        CUBLAS_SADDR(zone), workW /* M1*K  */, ldW);
 
-            if (WORKC == NULL) {
+            if ( workC == NULL ) {
                 /* W = W * op(T) */
                 CUDA_ztrmm( ChamRight, ChamUpper, trans, ChamNonUnit,
                             M2, K,
-                            CUBLAS_SADDR(zone), T,    LDT,
-                                                WORK, LDWORK,
+                            &zone, T,     LDT,
+                                   workW, ldW,
                             CUBLAS_STREAM_VALUE );
 
                 /* A1 = A1 - W = A1 - W * op(T) */
                 for(j = 0; j < K; j++) {
-                    cublasZaxpy(CUBLAS_HANDLE
-                                M1, CUBLAS_SADDR(mzone),
-                                (WORK + LDWORK*j), 1,
-                                (A1 + LDA1*j), 1);
+                    cublasZaxpy( CUBLAS_HANDLE
+                                 M1, CUBLAS_SADDR(mzone),
+                                 workW + ldW  * j, 1,
+                                 A1    + LDA1 * j, 1 );
                 }
 
                 /* A2 = A2 - W * op(V)  */
                 cublasZgemm(CUBLAS_HANDLE
                             chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transA2),
                             M2, N2, K,
-                            CUBLAS_SADDR(mzone), WORK /* M2*K  */, LDWORK,
-                                                 V    /* K*N2  */, LDV,
-                            CUBLAS_SADDR(zone),  A2   /* M2*N2 */, LDA2);
+                            CUBLAS_SADDR(mzone), workW /* M2*K  */, ldW,
+                                                 V     /* K *N2 */, LDV,
+                            CUBLAS_SADDR(zone),  A2    /* M2*N2 */, LDA2);
 
             } else {
                 /* A1 = A1 - W * opt(T) */
                 cublasZgemm( CUBLAS_HANDLE
                              chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(trans),
                              M1, K, K,
-                             CUBLAS_SADDR(mzone), WORK, LDWORK,
+                             CUBLAS_SADDR(mzone), workW, ldW,
                                                   T,    LDT,
                              CUBLAS_SADDR(zone),  A1,   LDA1 );
 
@@ -363,15 +452,15 @@ CUDA_zparfb(cham_side_t side, cham_trans_t trans,
                              chameleon_cublas_const(trans), chameleon_cublas_const(transA2),
                              K, N2, K,
                              CUBLAS_SADDR(zone),  T,     LDT,
-                                                  V,     LDV,
-                             CUBLAS_SADDR(zzero), WORKC, LDWORKC );
+                                                  workV, ldV,
+                             CUBLAS_SADDR(zzero), workC, ldC );
 
                 /* A2 = A2 - W * Wc */
                 cublasZgemm( CUBLAS_HANDLE
                              chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
                              M2, N2, K,
-                             CUBLAS_SADDR(mzone), WORK,  LDWORK,
-                                                  WORKC, LDWORKC,
+                             CUBLAS_SADDR(mzone), workW, ldW,
+                                                  workC, ldC,
                              CUBLAS_SADDR(zone),  A2,    LDA2 );
             }
         }

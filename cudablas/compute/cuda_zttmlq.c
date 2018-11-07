@@ -1,6 +1,6 @@
 /**
  *
- * @file cuda_ztsmqr.c
+ * @file cuda_zttmlq.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon cuda_ztsmqr GPU kernel
+ * @brief Chameleon cuda_zttmlq GPU kernel
  *
  * @version 1.0.0
  * @author Florent Pruvost
@@ -20,25 +20,27 @@
  */
 #include "cudablas.h"
 
-int CUDA_ztsmqr(
-    cham_side_t side, cham_trans_t trans,
-    int M1, int N1,
-    int M2, int N2,
-    int K, int IB,
-    cuDoubleComplex *A1,    int LDA1,
-    cuDoubleComplex *A2,    int LDA2,
-    const cuDoubleComplex *V,     int LDV,
-    const cuDoubleComplex *T,     int LDT,
-    cuDoubleComplex *WORK,  int LWORK,
-    CUBLAS_STREAM_PARAM)
+int CUDA_zttmlq(
+        cham_side_t side, cham_trans_t trans,
+        int M1, int N1,
+        int M2, int N2,
+        int K, int IB,
+              cuDoubleComplex *A1,    int LDA1,
+              cuDoubleComplex *A2,    int LDA2,
+        const cuDoubleComplex *V,     int LDV,
+        const cuDoubleComplex *T,     int LDT,
+              cuDoubleComplex *WORK,  int LWORK,
+        CUBLAS_STREAM_PARAM)
 {
     int i, i1, i3;
-    int NQ, NW;
-    int kb;
+    int NW;
+    int kb, l;
     int ic = 0;
     int jc = 0;
-    int mi = M1;
-    int ni = N1;
+    int mi1 = M1;
+    int mi2 = M2;
+    int ni1 = N1;
+    int ni2 = N2;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -47,12 +49,10 @@ int CUDA_ztsmqr(
 
     /* NQ is the order of Q */
     if (side == ChamLeft) {
-        NQ = M2;
         NW = IB;
     }
     else {
-        NQ = N2;
-        NW = M1;
+        NW = N1;
     }
 
     if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
@@ -86,7 +86,7 @@ int CUDA_ztsmqr(
     if (LDA2 < chameleon_max(1,M2)){
         return -12;
     }
-    if (LDV < chameleon_max(1,NQ)){
+    if (LDV < chameleon_max(1,K)){
         return -14;
     }
     if (LDT < chameleon_max(1,IB)){
@@ -98,8 +98,8 @@ int CUDA_ztsmqr(
         return CHAMELEON_SUCCESS;
     }
 
-    if ( ((side == ChamLeft ) && (trans != ChamNoTrans))  ||
-         ((side == ChamRight) && (trans == ChamNoTrans)) )
+    if ( ((side == ChamLeft ) && (trans == ChamNoTrans)) ||
+         ((side == ChamRight) && (trans != ChamNoTrans)) )
     {
         i1 = 0;
         i3 = IB;
@@ -109,34 +109,40 @@ int CUDA_ztsmqr(
         i3 = -IB;
     }
 
+    /* Transpose */
+    if (trans == ChamNoTrans) {
+        trans = ChamConjTrans;
+    }
+    else {
+        trans = ChamNoTrans;
+    }
+
     for (i = i1; (i > -1) && (i < K); i+=i3) {
         kb = chameleon_min(IB, K-i);
 
         if (side == ChamLeft) {
-            /*
-             * H or H' is applied to C(i:m,1:n)
-             */
-            mi = M1 - i;
-            ic = i;
+            mi1 = kb;
+            mi2 = chameleon_min(i+kb, M2);
+            l   = chameleon_min(kb, chameleon_max(0, M2-i));
+            ic  = i;
         }
         else {
-            /*
-             * H or H' is applied to C(1:m,i:n)
-             */
-            ni = N1 - i;
-            jc = i;
+            ni1 = kb;
+            ni2 = chameleon_min(i+kb, N2);
+            l   = chameleon_min(kb, chameleon_max(0, N2-i));
+            jc  = i;
         }
 
         /*
-         * Apply H or H' (NOTE: CORE_zparfb used to be CORE_ztsrfb)
+         * Apply H or H' (NOTE: CORE_zparfb used to be CORE_zttrfb)
          */
         CUDA_zparfb(
-            side, trans, ChamDirForward, ChamColumnwise,
-            mi, ni, M2, N2, kb, 0,
-            A1 + LDA1*jc+ic, LDA1,
+            side, trans, ChamDirForward, ChamRowwise,
+            mi1, ni1, mi2, ni2, kb, l,
+            A1 + LDA1 * jc + ic, LDA1,
             A2, LDA2,
-            V + LDV*i, LDV,
-            T + LDT*i, LDT,
+            V + i,       LDV,
+            T + LDT * i, LDT,
             WORK, LWORK, CUBLAS_STREAM_VALUE );
     }
     return CHAMELEON_SUCCESS;
