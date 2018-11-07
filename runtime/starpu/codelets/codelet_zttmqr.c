@@ -19,7 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-07
  * @precisions normal z -> c d s
  *
  */
@@ -167,6 +167,7 @@ void INSERT_TASK_zttmqr(const RUNTIME_option_t *options,
         /* max( ib*nb, 2*ib*nb ) */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &ldwork,            sizeof(int),
+        STARPU_VALUE,    &(options->ws_wsize), sizeof(size_t),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_USE_MPI)
@@ -200,6 +201,7 @@ static void cl_zttmqr_cpu_func(void *descr[], void *cl_arg)
     int ldt;
     CHAMELEON_Complex64_t *WORK;
     int ldwork;
+    size_t lwork;
 
     A1   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     A2   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
@@ -208,10 +210,12 @@ static void cl_zttmqr_cpu_func(void *descr[], void *cl_arg)
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
 
     starpu_codelet_unpack_args(cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib,
-                               &lda1, &lda2, &ldv, &ldt, &ldwork);
+                               &lda1, &lda2, &ldv, &ldt, &ldwork, &lwork );
 
     CORE_zttmqr(side, trans, m1, n1, m2, n2, k, ib,
                 A1, lda1, A2, lda2, V, ldv, T, ldt, WORK, ldwork);
+
+    (void)lwork;
 }
 
 #if defined(CHAMELEON_USE_CUDA)
@@ -233,9 +237,9 @@ static void cl_zttmqr_cuda_func(void *descr[], void *cl_arg)
     int ldv;
     cuDoubleComplex *T;
     int ldt;
-    cuDoubleComplex *W, *WC;
+    cuDoubleComplex *W;
     int ldwork;
-    int ldworkc;
+    size_t lwork;
 
     A1 = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     A2 = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
@@ -243,22 +247,21 @@ static void cl_zttmqr_cuda_func(void *descr[], void *cl_arg)
     T  = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]);
     W  = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 2*ib*nb */
 
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib,
-                               &lda1, &lda2, &ldv, &ldt, &ldwork);
-
-    WC = W + ib * (side == ChamLeft ? m1 : n1);
-    ldworkc = (side == ChamLeft) ? m2 : ib;
+    starpu_codelet_unpack_args( cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib,
+                                &lda1, &lda2, &ldv, &ldt, &ldwork, &lwork );
 
     RUNTIME_getStream(stream);
 
     CUDA_zttmqr(
             side, trans, m1, n1, m2, n2, k, ib,
             A1, lda1, A2, lda2, V, ldv, T, ldt,
-            W, ldwork, WC, ldworkc, stream );
+            W, lwork, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
 #endif
+
+    (void)ldwork;
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */

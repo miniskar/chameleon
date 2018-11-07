@@ -11,7 +11,7 @@
  *
  * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2016-12-15
+ * @date 2018-11-07
  * @precisions normal z -> s d c
  *
  */
@@ -37,6 +37,7 @@ static void cl_ztpmqrt_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t *B;
     int ldb;
     CHAMELEON_Complex64_t *WORK;
+    size_t lwork;
 
     V    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
@@ -45,10 +46,12 @@ static void cl_ztpmqrt_cpu_func(void *descr[], void *cl_arg)
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb );
+                                &ldv, &ldt, &lda, &ldb, &lwork );
 
     CORE_ztpmqrt( side, trans, M, N, K, L, ib,
                   V, ldv, T, ldt, A, lda, B, ldb, WORK );
+
+    (void)lwork;
 }
 
 
@@ -71,22 +74,23 @@ static void cl_ztpmqrt_cuda_func(void *descr[], void *cl_arg)
     cuDoubleComplex *B;
     int ldb;
     cuDoubleComplex *W;
+    size_t lwork;
 
     V = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     T = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
     A = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
     B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]);
-    W = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 2*ib*nb */
+    W = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 3*ib*nb */
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb );
+                                &ldv, &ldt, &lda, &ldb, &lwork );
 
     RUNTIME_getStream(stream);
 
     CUDA_ztpmqrt(
             side, trans, M, N, K, L, ib,
             V, ldv, T, ldt, A, lda, B, ldb,
-            W, stream );
+            W, lwork, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -102,12 +106,12 @@ CODELETS(ztpmqrt, 5, cl_ztpmqrt_cpu_func, cl_ztpmqrt_cuda_func, STARPU_CUDA_ASYN
 
 void
 INSERT_TASK_ztpmqrt( const RUNTIME_option_t *options,
-                    cham_side_t side, cham_trans_t trans,
-                    int M, int N, int K, int L, int ib, int nb,
-                    const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                    const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                    const CHAM_desc_t *A, int Am, int An, int lda,
-                    const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                     cham_side_t side, cham_trans_t trans,
+                     int M, int N, int K, int L, int ib, int nb,
+                     const CHAM_desc_t *V, int Vm, int Vn, int ldv,
+                     const CHAM_desc_t *T, int Tm, int Tn, int ldt,
+                     const CHAM_desc_t *A, int Am, int An, int lda,
+                     const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     struct starpu_codelet *codelet = &cl_ztpmqrt;
     void (*callback)(void*) = options->profiling ? cl_ztpmqrt_callback : NULL;
@@ -136,6 +140,7 @@ INSERT_TASK_ztpmqrt( const RUNTIME_option_t *options,
         STARPU_VALUE, &lda,   sizeof(int),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE, &ldb,   sizeof(int),
+        STARPU_VALUE, &(options->ws_wsize), sizeof(size_t),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
