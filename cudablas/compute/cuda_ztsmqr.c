@@ -33,7 +33,7 @@ int CUDA_ztsmqr(
     CUBLAS_STREAM_PARAM)
 {
     int i, i1, i3;
-    int NQ, NW;
+    int NQ;
     int kb;
     int ic = 0;
     int jc = 0;
@@ -48,11 +48,9 @@ int CUDA_ztsmqr(
     /* NQ is the order of Q */
     if (side == ChamLeft) {
         NQ = M2;
-        NW = IB;
     }
     else {
         NQ = N2;
-        NW = M1;
     }
 
     if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {

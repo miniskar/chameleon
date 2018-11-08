@@ -33,7 +33,6 @@ int CUDA_zttmlq(
         CUBLAS_STREAM_PARAM)
 {
     int i, i1, i3;
-    int NW;
     int kb, l;
     int ic = 0;
     int jc = 0;
@@ -45,14 +44,6 @@ int CUDA_zttmlq(
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
         return -1;
-    }
-
-    /* NQ is the order of Q */
-    if (side == ChamLeft) {
-        NW = IB;
-    }
-    else {
-        NW = N1;
     }
 
     if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {

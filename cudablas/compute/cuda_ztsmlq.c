@@ -33,7 +33,6 @@ int CUDA_ztsmlq(
     CUBLAS_STREAM_PARAM)
 {
     int i, i1, i3;
-    int NW;
     int kb;
     int ic = 0;
     int jc = 0;
@@ -43,14 +42,6 @@ int CUDA_ztsmlq(
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
         return -1;
-    }
-
-    /* NW is the minimum dimension of WORK */
-    if (side == ChamLeft) {
-        NW = IB;
-    }
-    else {
-        NW = N1;
     }
 
     if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
