@@ -199,7 +199,7 @@ void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
     case TASK_GEQRT:  cl_zgeqrt_restore_where(); break;
     case TASK_TPQRT:  cl_ztpqrt_restore_where(); break;
     case TASK_UNMQR:  cl_zunmqr_restore_where(); break;
-    case TASK_TPMQR:  cl_ztpmqrt_restore_where(); break;
+    case TASK_TPMQRT: cl_ztpmqrt_restore_where(); break;
 
     /* LQ */
    case TASK_GELQT:  cl_zgelqt_restore_where(); break;

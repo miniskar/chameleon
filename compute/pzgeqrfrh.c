@@ -74,7 +74,7 @@ void chameleon_pzgeqrfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
     /* Worker space
      *
      * zunmqr  =     A->nb * ib
-     * ztpmqrr = 3 * A->nb * ib
+     * ztpmqrt = 3 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 3 );
 #endif
