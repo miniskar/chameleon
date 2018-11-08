@@ -106,13 +106,13 @@ void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
     case TASK_GEQRT:  cl_zgeqrt_restrict_where( where ); break;
     case TASK_TPQRT:  cl_ztpqrt_restrict_where( where ); break;
     case TASK_UNMQR:  cl_zunmqr_restrict_where( where ); break;
-    case TASK_TPMQRT:  cl_ztpmqrt_restrict_where( where ); break;
+    case TASK_TPMQRT: cl_ztpmqrt_restrict_where( where ); break;
 
     /* LQ */
    case TASK_GELQT:  cl_zgelqt_restrict_where( where ); break;
    case TASK_TPLQT:  cl_ztplqt_restrict_where( where ); break;
    case TASK_UNMLQ:  cl_zunmlq_restrict_where( where ); break;
-   case TASK_TPMLQT:  cl_ztpmlqt_restrict_where( where ); break;
+   case TASK_TPMLQT: cl_ztpmlqt_restrict_where( where ); break;
 
     default:
       return;
@@ -205,7 +205,7 @@ void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
    case TASK_GELQT:  cl_zgelqt_restore_where(); break;
    case TASK_TPLQT:  cl_ztplqt_restore_where(); break;
    case TASK_UNMLQ:  cl_zunmlq_restore_where(); break;
-   case TASK_TPMLQR: cl_ztpmlqp_restore_where(); break;
+   case TASK_TPMLQT: cl_ztpmlqt_restore_where(); break;
 
     default:
       return;

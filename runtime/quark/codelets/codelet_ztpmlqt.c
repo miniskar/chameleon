@@ -57,7 +57,7 @@ void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
                          const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
-    DAG_CORE_TPMLQRT;
+    DAG_CORE_TPMLQT;
 
     int shapeV = ( L == 0 ) ? 0 : (QUARK_REGION_L | QUARK_REGION_D);
 
