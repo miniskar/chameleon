@@ -14,7 +14,7 @@
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
- * @date 2011-06-01
+ * @date 2018-11-08
  *
  */
 #ifndef _chameleon_tasks_h_
@@ -54,16 +54,12 @@ typedef enum chameleon_tasktype_e {
   TASK_ORMQR,
   TASK_POTRF,
   TASK_SSSSM,
+  TASK_TPLQT,
+  TASK_TPMLQT,
+  TASK_TPMQRT,
+  TASK_TPQRT,
   TASK_TRTRI,
-  TASK_TSLQT,
-  TASK_TSMLQ,
-  TASK_TSMQR,
-  TASK_TSQRT,
   TASK_TSTRF,
-  TASK_TTLQT,
-  TASK_TTMLQ,
-  TASK_TTMQR,
-  TASK_TTQRT,
   TASK_UNMLQ,
   TASK_UNMQR,
 
@@ -85,6 +81,15 @@ typedef enum chameleon_tasktype_e {
 
   TASK_NBKERNELS
 } cham_tasktype_t;
+
+#define TASK_TSLQT TASK_TPLQT
+#define TASK_TSMLQ TASK_TPMLQT
+#define TASK_TSMQR TASK_TPMQRT
+#define TASK_TSQRT TASK_TPQRT
+#define TASK_TTLQT TASK_TPLQT
+#define TASK_TTMLQ TASK_TPMLQT
+#define TASK_TTMQR TASK_TPMQRT
+#define TASK_TTQRT TASK_TPQRT
 
 typedef int (*cham_unary_operator_t)( const CHAM_desc_t *desc,
                                       cham_uplo_t uplo, int m, int n,

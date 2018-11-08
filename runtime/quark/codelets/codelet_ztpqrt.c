@@ -13,7 +13,7 @@
  *
  * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2016-12-15
+ * @date 2018-11-08
  * @precisions normal z -> s d c
  *
  */
@@ -50,7 +50,7 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
-    DAG_CORE_TSQRT;
+    DAG_CORE_TPQRT;
 
     int shapeB = ( L == 0 ) ? 0 : (QUARK_REGION_U | QUARK_REGION_D);
 

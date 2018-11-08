@@ -19,7 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2018-11-09
+ * @date 2018-11-08
  * @precisions normal z -> s d c
  *
  */
@@ -67,7 +67,7 @@ void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D
     /*
      * zgelqt  = A->nb * (ib+1)
      * zunmlq  = A->nb * ib
-     * ztslqt  = A->nb * (ib+1)
+     * ztplqt  = A->nb * (ib+1)
      * ztpmlqt = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);

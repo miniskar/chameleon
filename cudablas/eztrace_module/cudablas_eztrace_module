@@ -273,6 +273,30 @@ int CUDA_ctsmqr(
             void *WORK,  void* LDWORK,
             void *WORKC, void* LDWORKC,
         void* stream);
+int CUDA_cttmlq(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        void *A1, void* LDA1,
+        void *A2, void* LDA2,
+        void *V, void* LDV,
+        void *T, void* LDT,
+              void *WORK,  void* LDWORK,
+              void *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_cttmqr(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        void *A1, void* LDA1,
+        void *A2, void* LDA2,
+        void *V, void* LDV,
+        void *T, void* LDT,
+            void *WORK,  void* LDWORK,
+            void *WORKC, void* LDWORKC,
+        void* stream);
 int CUDA_ctsqrt(
         void* m, void* n, void* nb,
         void *da1, void* ldda1,
@@ -528,6 +552,30 @@ int CUDA_dtsmqr(
             double *WORK,  void* LDWORK,
             double *WORKC, void* LDWORKC,
         void* stream);
+int CUDA_dttmlq(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        double *A1, void* LDA1,
+        double *A2, void* LDA2,
+        const double *V, void* LDV,
+        const double *T, void* LDT,
+              double *WORK,  void* LDWORK,
+              double *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_dttmqr(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        double *A1, void* LDA1,
+        double *A2, void* LDA2,
+        const double *V, void* LDV,
+        const double *T, void* LDT,
+            double *WORK,  void* LDWORK,
+            double *WORKC, void* LDWORKC,
+        void* stream);
 int CUDA_dtsqrt(
         void* m, void* n, void* nb,
         double *da1, void* ldda1,
@@ -772,6 +820,30 @@ int CUDA_stsmlq(
               float *WORKC, void* LDWORKC,
         void* stream);
 int CUDA_stsmqr(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        float *A1, void* LDA1,
+        float *A2, void* LDA2,
+        const float *V, void* LDV,
+        const float *T, void* LDT,
+            float *WORK,  void* LDWORK,
+            float *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_sttmlq(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        float *A1, void* LDA1,
+        float *A2, void* LDA2,
+        const float *V, void* LDV,
+        const float *T, void* LDT,
+              float *WORK,  void* LDWORK,
+              float *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_sttmqr(
         void* side, void* trans,
         void* M1, void* N1,
         void* M2, void* N2,
@@ -1079,6 +1151,30 @@ int CUDA_ztsmlq(
               void *WORKC, void* LDWORKC,
         void* stream);
 int CUDA_ztsmqr(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        void *A1, void* LDA1,
+        void *A2, void* LDA2,
+        void *V, void* LDV,
+        void *T, void* LDT,
+            void *WORK,  void* LDWORK,
+            void *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_zttmlq(
+        void* side, void* trans,
+        void* M1, void* N1,
+        void* M2, void* N2,
+        void* K, void* IB,
+        void *A1, void* LDA1,
+        void *A2, void* LDA2,
+        void *V, void* LDV,
+        void *T, void* LDT,
+              void *WORK,  void* LDWORK,
+              void *WORKC, void* LDWORKC,
+        void* stream);
+int CUDA_zttmqr(
         void* side, void* trans,
         void* M1, void* N1,
         void* M2, void* N2,
