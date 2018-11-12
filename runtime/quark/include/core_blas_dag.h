@@ -14,7 +14,7 @@
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-08
  *
  */
 #ifndef _core_blas_dag_h_
@@ -71,16 +71,21 @@
 #define DAG_CORE_TRSM       DAG_SET_PROPERTIES( "TRSM"      , "cyan"    )
 #define DAG_CORE_TRSSQ      DAG_SET_PROPERTIES( "TRSSQ"     , "white"   )
 #define DAG_CORE_TRTRI      DAG_SET_PROPERTIES( "TRTRI"     , "white"   )
-#define DAG_CORE_TSLQT      DAG_SET_PROPERTIES( "TSLQT"     , "red"     )
-#define DAG_CORE_TSMLQ      DAG_SET_PROPERTIES( "TSMLQ"     , "yellow"  )
-#define DAG_CORE_TSMQR      DAG_SET_PROPERTIES( "TSMQR"     , "yellow"  )
-#define DAG_CORE_TSQRT      DAG_SET_PROPERTIES( "TSQRT"     , "red"     )
+#define DAG_CORE_TPLQT      DAG_SET_PROPERTIES( "TPLQT"     , "red"     )
+#define DAG_CORE_TPMLQT     DAG_SET_PROPERTIES( "TPMLQT"    , "yellow"  )
+#define DAG_CORE_TPMQRT     DAG_SET_PROPERTIES( "TPMQRT"    , "yellow"  )
+#define DAG_CORE_TPQRT      DAG_SET_PROPERTIES( "TPQRT"     , "red"     )
 #define DAG_CORE_TSTRF      DAG_SET_PROPERTIES( "TSTRF"     , "red"     )
-#define DAG_CORE_TTLQT      DAG_SET_PROPERTIES( "TTLQT"     , "pink"    )
-#define DAG_CORE_TTMLQ      DAG_SET_PROPERTIES( "TTMLQ"     , "magenta" )
-#define DAG_CORE_TTMQR      DAG_SET_PROPERTIES( "TTMQR"     , "magenta" )
-#define DAG_CORE_TTQRT      DAG_SET_PROPERTIES( "TTQRT"     , "pink"    )
 #define DAG_CORE_UNMLQ      DAG_SET_PROPERTIES( "UNMLQ"     , "cyan"    )
 #define DAG_CORE_UNMQR      DAG_SET_PROPERTIES( "UNMQR"     , "cyan"    )
+
+#define DAG_CORE_TSLQT      DAG_CORE_TPLQT
+#define DAG_CORE_TSMLQ      DAG_CORE_TPMLQT
+#define DAG_CORE_TSMQR      DAG_CORE_TPMQRT
+#define DAG_CORE_TSQRT      DAG_CORE_TPQRT
+#define DAG_CORE_TTLQT      DAG_CORE_TPLQT
+#define DAG_CORE_TTMLQ      DAG_CORE_TPMLQT
+#define DAG_CORE_TTMQR      DAG_CORE_TPMQRT
+#define DAG_CORE_TTQRT      DAG_CORE_TPQRT
 
 #endif /* _core_blas_dag_h_ */

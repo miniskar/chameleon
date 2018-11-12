@@ -15,21 +15,21 @@
  *
  * @version 1.0.0
  * @author Florent Pruvost
- * @date 2015-09-16
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
 #include "cudablas.h"
 
 int
-CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
-            cham_dir_t direct, cham_store_t storev,
-            int M, int N, int K,
-            const cuDoubleComplex *V, int LDV,
-            const cuDoubleComplex *T, int LDT,
-                  cuDoubleComplex *C, int LDC,
-                  cuDoubleComplex *WORK, int LDWORK,
-            CUBLAS_STREAM_PARAM )
+CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
+             cham_dir_t direct, cham_store_t storev,
+             int M, int N, int K,
+             const cuDoubleComplex *V, int LDV,
+             const cuDoubleComplex *T, int LDT,
+                   cuDoubleComplex *C, int LDC,
+                   cuDoubleComplex *WORK, int LDWORK,
+             CUBLAS_STREAM_PARAM )
 {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     cuDoubleComplex zzero = make_cuDoubleComplex(0.0, 0.0);
@@ -67,20 +67,25 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
     }
 
     /* Quick return */
-    if ((M == 0) || (N == 0) || (K == 0))
+    if ((M == 0) || (N == 0) || (K == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
     // opposite of trans
-    if (trans == ChamNoTrans)
+    if (trans == ChamNoTrans) {
         transT = ChamConjTrans;
-    else
+    }
+    else {
         transT = ChamNoTrans;
+    }
 
     // whether T is upper or lower triangular
-    if (direct == ChamDirForward)
+    if (direct == ChamDirForward) {
         uplo = ChamUpper;
-    else
+    }
+    else {
         uplo = ChamLower;
+    }
 
     if (storev == ChamColumnwise) {
         notransV = ChamNoTrans;
@@ -106,8 +111,8 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
         // W = W T^H = C^H V T^H
         CUDA_ztrmm( ChamRight, uplo, transT, ChamNonUnit,
                     N, K,
-                    CUBLAS_SADDR(zone), T,    LDT,
-                                        WORK, LDWORK,
+                    &zone, T,    LDT,
+                           WORK, LDWORK,
                     CUBLAS_STREAM_VALUE );
 
         // C = C - V W^H = C - V T V^H C = (I - V T V^H) C = H C
@@ -133,8 +138,8 @@ CUDA_zlarfb(cham_side_t side, cham_trans_t trans,
         // W = W T = C V T
         CUDA_ztrmm( ChamRight, uplo, trans, ChamNonUnit,
                     M, K,
-                    CUBLAS_SADDR(zone), T,    LDT,
-                                        WORK, LDWORK,
+                    &zone, T,    LDT,
+                           WORK, LDWORK,
                     CUBLAS_STREAM_VALUE );
 
         // C = C - W V^H = C - C V T V^H = C (I - V T V^H) = C H

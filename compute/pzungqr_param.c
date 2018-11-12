@@ -14,7 +14,7 @@
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2017-05-17
+ * @date 2018-11-09
  * @precisions normal z -> s d c
  *
  */
@@ -60,17 +60,17 @@ void chameleon_pzungqr_param( int genD, int K,
     }
 
     /*
-     * zunmqr = A->nb * ib
-     * ztpmqr = A->nb * ib
+     * zunmqr  = A->nb * ib
+     * ztpmqrt = A->nb * ib
      */
     ws_worker = A->nb * ib;
 
     /* Allocation of temporary (scratch) working space */
 #if defined(CHAMELEON_USE_CUDA)
     /*
-     * ztpmqrt = 2 * A->nb * ib
+     * ztpmqrt = 3 * A->nb * ib
      */
-    ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
+    ws_worker = chameleon_max( ws_worker, ib * A->nb * 3 );
 #endif
 
     ws_worker *= sizeof(CHAMELEON_Complex64_t);

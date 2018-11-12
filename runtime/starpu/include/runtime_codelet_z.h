@@ -15,7 +15,7 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2011-06-01
+ * @date 2018-11-08
  * @precisions normal z -> c d s
  *
  */
@@ -78,17 +78,9 @@ ZCODELETS_HEADER(tplqt)
 ZCODELETS_HEADER(tpqrt)
 ZCODELETS_HEADER(tpmlqt)
 ZCODELETS_HEADER(tpmqrt)
-ZCODELETS_HEADER(tslqt)
-ZCODELETS_HEADER(tsmlq)
-ZCODELETS_HEADER(tsmqr)
 ZCODELETS_HEADER(tsmlq_hetra1)
 ZCODELETS_HEADER(tsmqr_hetra1)
-ZCODELETS_HEADER(tsqrt)
 ZCODELETS_HEADER(tstrf)
-ZCODELETS_HEADER(ttlqt)
-ZCODELETS_HEADER(ttmlq)
-ZCODELETS_HEADER(ttmqr)
-ZCODELETS_HEADER(ttqrt)
 ZCODELETS_HEADER(unmlq)
 ZCODELETS_HEADER(unmqr)
 

@@ -15,7 +15,7 @@
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Azzam Haidar
- * @date 2010-11-15
+ * @date 2018-11-07
  * @precisions normal z -> c d s
  *
  */
@@ -106,8 +106,8 @@ static void cl_ztsmlq_hetra1_cpu_func(void *descr[], void *cl_arg)
     T     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
     WORK  = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
 
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k,
-                               &ib, &nb, &lda1, &lda2, &ldv, &ldt, &ldwork);
+    starpu_codelet_unpack_args( cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k,
+                                &ib, &nb, &lda1, &lda2, &ldv, &ldt, &ldwork);
     CORE_ztsmlq_hetra1(side, trans, m1, n1, m2, n2, k,
                        ib, A1, lda1, A2, lda2, V, ldv, T, ldt, WORK, ldwork);
 }

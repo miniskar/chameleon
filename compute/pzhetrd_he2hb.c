@@ -14,7 +14,7 @@
  * @version 1.0.0
  * @author Hatem Ltaief
  * @author Azzam Haidar
- * @date 2010-11-15
+ * @date 2018-11-09
  * @precisions normal z -> s d c
  *
  */
@@ -74,9 +74,9 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
 #if defined(CHAMELEON_USE_CUDA)
     /* Worker space
      *
-     * zunmqr = A->nb * ib
+     * zunmqr =     A->nb * ib
      * ztsmqr = 2 * A->nb * ib
-     * zherfb = A->nb * ib
+     * zherfb =     A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif

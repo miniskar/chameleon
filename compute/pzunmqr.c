@@ -20,7 +20,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-09
  * @precisions normal z -> s d c
  *
  */
@@ -70,16 +70,16 @@ void chameleon_pzunmqr( int genD, cham_side_t side, cham_trans_t trans,
     }
 
     /*
-     * zunmqr = A->nb * ib
-     * ztsmqr = A->nb * ib
+     * zunmqr  = A->nb * ib
+     * ztpmqrt = A->nb * ib
      */
     ws_worker = A->nb * ib;
 
 #if defined(CHAMELEON_USE_CUDA)
     /* Worker space
      *
-     * zunmqr = A->nb * ib
-     * ztsmqr = 2 * A->nb * ib
+     * zunmqr  =     A->nb * ib
+     * ztpmqrt = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif

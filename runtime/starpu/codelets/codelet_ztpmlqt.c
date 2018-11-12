@@ -11,7 +11,7 @@
  *
  * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2016-12-15
+ * @date 2018-11-07
  * @precisions normal z -> s d c
  *
  */
@@ -37,6 +37,7 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t *B;
     int ldb;
     CHAMELEON_Complex64_t *WORK;
+    size_t lwork;
 
     V    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
@@ -45,13 +46,15 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb );
+                                &ldv, &ldt, &lda, &ldb, &lwork );
 
     CORE_ztpmlqt( side, trans, M, N, K, L, ib,
                   V, ldv, T, ldt, A, lda, B, ldb, WORK );
+
+    (void)lwork;
 }
 
-#if defined(CHAMELEON_USE_CUDA) && 0
+#if defined(CHAMELEON_USE_CUDA)
 static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 {
     cham_side_t side;
@@ -70,6 +73,7 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
     cuDoubleComplex *B;
     int ldb;
     cuDoubleComplex *W;
+    size_t lwork;
 
     V = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     T = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
@@ -78,14 +82,14 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
     W = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 2*ib*nb */
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb );
+                                &ldv, &ldt, &lda, &ldb, &lwork );
 
     RUNTIME_getStream(stream);
 
     CUDA_ztpmlqt(
             side, trans, M, N, K, L, ib,
             V, ldv, T, ldt, A, lda, B, ldb,
-            W, stream );
+            W, lwork, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -97,8 +101,7 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztpmlqt, 5, cl_ztpmlqt_cpu_func)
-//CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYNC)
 
 void
 INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
@@ -136,6 +139,7 @@ INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
         STARPU_VALUE, &lda,   sizeof(int),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE, &ldb,   sizeof(int),
+        STARPU_VALUE, &(options->ws_wsize), sizeof(size_t),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,

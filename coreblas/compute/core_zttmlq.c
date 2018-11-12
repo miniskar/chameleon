@@ -19,7 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
@@ -127,9 +127,9 @@ int CORE_zttmlq(cham_side_t side, cham_trans_t trans,
                 const CHAMELEON_Complex64_t *T, int LDT,
                 CHAMELEON_Complex64_t *WORK, int LDWORK)
 {
-    int i, i1, i3, l;
+    int i, i1, i3;
     int NW;
-    int kb;
+    int kb, l;
     int ic = 0;
     int jc = 0;
     int mi1 = M1;
@@ -205,11 +205,13 @@ int CORE_zttmlq(cham_side_t side, cham_trans_t trans,
     }
 
     /* Quick return */
-    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0))
+    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
-    if (((side == ChamLeft) && (trans == ChamNoTrans))
-        || ((side == ChamRight) && (trans != ChamNoTrans))) {
+    if ( ((side == ChamLeft ) && (trans == ChamNoTrans)) ||
+         ((side == ChamRight) && (trans != ChamNoTrans)) )
+    {
         i1 = 0;
         i3 = IB;
     }
@@ -248,13 +250,11 @@ int CORE_zttmlq(cham_side_t side, cham_trans_t trans,
         CORE_zparfb(
             side, trans, ChamDirForward, ChamRowwise,
             mi1, ni1, mi2, ni2, kb, l,
-            &A1[LDA1*jc+ic], LDA1,
+            A1 + LDA1 * jc + ic, LDA1,
             A2, LDA2,
-            &V[i], LDV,
-            &T[LDT*i], LDT,
+            V + i, LDV,
+            T + LDT * i, LDT,
             WORK, LDWORK);
     }
     return CHAMELEON_SUCCESS;
 }
-
-

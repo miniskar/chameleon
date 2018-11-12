@@ -21,7 +21,7 @@
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
-#  @date 2012-07-13
+#  @date 2018-11-07
 #
 ###
 
@@ -86,17 +86,9 @@ set(CODELETS_ZSRC
     codelets/codelet_ztrasm.c
     codelets/codelet_ztrssq.c
     codelets/codelet_ztrtri.c
-    codelets/codelet_ztslqt.c
-    codelets/codelet_ztsmlq.c
-    codelets/codelet_ztsmqr.c
     codelets/codelet_ztsmlq_hetra1.c
     codelets/codelet_ztsmqr_hetra1.c
-    codelets/codelet_ztsqrt.c
     codelets/codelet_ztstrf.c
-    codelets/codelet_zttlqt.c
-    codelets/codelet_zttmlq.c
-    codelets/codelet_zttmqr.c
-    codelets/codelet_zttqrt.c
     codelets/codelet_zunmlq.c
     codelets/codelet_zunmqr.c
     ##################

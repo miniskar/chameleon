@@ -19,7 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-08
  * @precisions normal z -> s d c
  *
  */
@@ -65,10 +65,10 @@ void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D
     }
 
     /*
-     * zgelqt = A->nb * (ib+1)
-     * zunmlq = A->nb * ib
-     * ztslqt = A->nb * (ib+1)
-     * ztsmlq = A->nb * ib
+     * zgelqt  = A->nb * (ib+1)
+     * zunmlq  = A->nb * ib
+     * ztplqt  = A->nb * (ib+1)
+     * ztpmlqt = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
@@ -76,8 +76,8 @@ void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D
 #if defined(CHAMELEON_USE_CUDA)
     /* Worker space
      *
-     * zunmqr = A->nb * ib
-     * ztsmqr = 2 * A->nb * ib
+     * zunmlq  =     A->nb * ib
+     * ztpmlqt = 2 * A->nb * ib
      */
     ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
 #endif

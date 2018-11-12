@@ -15,7 +15,7 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2011-06-01
+ * @date 2018-11-08
  * @precisions normal z -> s d c
  *
  */
@@ -58,23 +58,15 @@ void RUNTIME_zlocality_allrestrict( uint32_t where )
 
     /* QR */
     cl_zgeqrt_restrict_where( where );
-    cl_ztsqrt_restrict_where( where );
+    cl_ztpqrt_restrict_where( where );
     cl_zunmqr_restrict_where( where );
-    cl_ztsmqr_restrict_where( where );
-
-    /* QR-RH */
-/*     cl_zttqrt_restrict_where( where ); */
-/*     cl_zttmqr_restrict_where( where ); */
+    cl_ztpmqrt_restrict_where( where );
 
     /* LQ */
    cl_zgelqt_restrict_where( where );
-   cl_ztslqt_restrict_where( where );
+   cl_ztplqt_restrict_where( where );
    cl_zunmlq_restrict_where( where );
-   cl_ztsmlq_restrict_where( where );
-
-    /* LQ-RH */
-/*     cl_zttlqt_restrict_where( where ); */
-/*     cl_zttmlq_restrict_where( where ); */
+   cl_ztpmlqt_restrict_where( where );
 
 }
 
@@ -112,23 +104,15 @@ void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 
     /* QR */
     case TASK_GEQRT:  cl_zgeqrt_restrict_where( where ); break;
+    case TASK_TPQRT:  cl_ztpqrt_restrict_where( where ); break;
     case TASK_UNMQR:  cl_zunmqr_restrict_where( where ); break;
-    case TASK_TSMQR:  cl_ztsmqr_restrict_where( where ); break;
-    case TASK_TSQRT:  cl_ztsqrt_restrict_where( where ); break;
-
-    /* QR-RH */
-/*     case TASK_TTMQR:  cl_zttmqr_restrict_where( where ); break; */
-/*     case TASK_TTQRT:  cl_zttqrt_restrict_where( where ); break; */
+    case TASK_TPMQRT: cl_ztpmqrt_restrict_where( where ); break;
 
     /* LQ */
    case TASK_GELQT:  cl_zgelqt_restrict_where( where ); break;
+   case TASK_TPLQT:  cl_ztplqt_restrict_where( where ); break;
    case TASK_UNMLQ:  cl_zunmlq_restrict_where( where ); break;
-   case TASK_TSMLQ:  cl_ztsmlq_restrict_where( where ); break;
-   case TASK_TSLQT:  cl_ztslqt_restrict_where( where ); break;
-
-    /* LQ-RH */
-/*     case TASK_TTMLQ:  cl_zttmlq_restrict_where( where ); break; */
-/*     case TASK_TTLQT:  cl_zttlqt_restrict_where( where ); break; */
+   case TASK_TPMLQT: cl_ztpmlqt_restrict_where( where ); break;
 
     default:
       return;
@@ -167,23 +151,15 @@ void RUNTIME_zlocality_allrestore( )
 
     /* QR */
     cl_zgeqrt_restore_where();
-    cl_ztsqrt_restore_where();
+    cl_ztpqrt_restore_where();
     cl_zunmqr_restore_where();
-    cl_ztsmqr_restore_where();
-
-    /* QR-RH */
-/*     cl_zttqrt_restore_where(); */
-/*     cl_zttmqr_restore_where(); */
+    cl_ztpmqrt_restore_where();
 
     /* LQ */
    cl_zgelqt_restore_where();
-   cl_ztslqt_restore_where();
+   cl_ztplqt_restore_where();
    cl_zunmlq_restore_where();
-   cl_ztsmlq_restore_where();
-
-    /* LQ-RH */
-/*     cl_zttlqt_restore_where(); */
-/*     cl_zttmlq_restore_where(); */
+   cl_ztpmlqt_restore_where();
 
 }
 
@@ -221,23 +197,15 @@ void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
 
     /* QR */
     case TASK_GEQRT:  cl_zgeqrt_restore_where(); break;
+    case TASK_TPQRT:  cl_ztpqrt_restore_where(); break;
     case TASK_UNMQR:  cl_zunmqr_restore_where(); break;
-    case TASK_TSMQR:  cl_ztsmqr_restore_where(); break;
-    case TASK_TSQRT:  cl_ztsqrt_restore_where(); break;
-
-    /* QR-RH */
-/*     case TASK_TTMQR:  cl_zttmqr_restore_where(); break; */
-/*     case TASK_TTQRT:  cl_zttqrt_restore_where(); break; */
+    case TASK_TPMQRT: cl_ztpmqrt_restore_where(); break;
 
     /* LQ */
    case TASK_GELQT:  cl_zgelqt_restore_where(); break;
+   case TASK_TPLQT:  cl_ztplqt_restore_where(); break;
    case TASK_UNMLQ:  cl_zunmlq_restore_where(); break;
-   case TASK_TSMLQ:  cl_ztsmlq_restore_where(); break;
-   case TASK_TSLQT:  cl_ztslqt_restore_where(); break;
-
-    /* LQ-RH */
-/*     case TASK_TTMLQ:  cl_zttmlq_restore_where(); break; */
-/*     case TASK_TTLQT:  cl_zttlqt_restore_where(); break; */
+   case TASK_TPMLQT: cl_ztpmlqt_restore_where(); break;
 
     default:
       return;

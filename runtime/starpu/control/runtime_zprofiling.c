@@ -15,7 +15,7 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2011-06-01
+ * @date 2018-11-08
  * @precisions normal z -> s d c
  *
  */
@@ -43,21 +43,18 @@ void RUNTIME_zdisplay_allprofile()
     profiling_display_zgelqt_info();
     profiling_display_zgeqrt_info();
     profiling_display_zgessm_info();
-    profiling_display_zgetrf_info();
     profiling_display_zgetrf_incpiv_info();
+    profiling_display_zgetrf_info();
     profiling_display_zgetrf_nopiv_info();
     profiling_display_zlauum_info();
     profiling_display_zpotrf_info();
     profiling_display_zssssm_info();
+    profiling_display_ztplqt_info();
+    profiling_display_ztpmlqt_info();
+    profiling_display_ztpmqrt_info();
+    profiling_display_ztpqrt_info();
     profiling_display_ztrtri_info();
-    profiling_display_ztslqt_info();
-    profiling_display_ztsmqr_info();
-    profiling_display_ztsqrt_info();
     profiling_display_ztstrf_info();
-    profiling_display_zttlqt_info();
-    profiling_display_zttmlq_info();
-    profiling_display_zttmqr_info();
-    profiling_display_zttqrt_info();
     profiling_display_zunmlq_info();
     profiling_display_zunmqr_info();
 
@@ -78,7 +75,7 @@ void RUNTIME_zdisplay_oneprofile( cham_tasktype_t kernel )
     case TASK_SYMM:         profiling_display_zsymm_info();         break;
     case TASK_SYR2K:        profiling_display_zsyr2k_info();        break;
     case TASK_SYRK:         profiling_display_zsyrk_info();         break;
-    case TASK_TRMM:         profiling_display_ztrmm_info();         break; 
+    case TASK_TRMM:         profiling_display_ztrmm_info();         break;
     case TASK_TRSM:         profiling_display_ztrsm_info();         break;
 
         /* Lapack */
@@ -92,14 +89,13 @@ void RUNTIME_zdisplay_oneprofile( cham_tasktype_t kernel )
     case TASK_POTRF:        profiling_display_zpotrf_info();        break;
     case TASK_SSSSM:        profiling_display_zssssm_info();        break;
     case TASK_TRTRI:        profiling_display_ztrtri_info();        break;
-    case TASK_TSLQT:        profiling_display_ztslqt_info();        break;
-    case TASK_TSMQR:        profiling_display_ztsmqr_info();        break;
-    case TASK_TSQRT:        profiling_display_ztsqrt_info();        break;
     case TASK_TSTRF:        profiling_display_ztstrf_info();        break;
-    case TASK_TTLQT:        profiling_display_zttlqt_info();        break;
-    case TASK_TTMLQ:        profiling_display_zttmlq_info();        break;
-    case TASK_TTMQR:        profiling_display_zttmqr_info();        break;
-    case TASK_TTQRT:        profiling_display_zttqrt_info();        break;
+
+    case TASK_TPLQT:        profiling_display_ztplqt_info();        break;
+    case TASK_TPMLQT:       profiling_display_ztpmlqt_info();        break;
+    case TASK_TPMQRT:       profiling_display_ztpmqrt_info();        break;
+    case TASK_TPQRT:        profiling_display_ztpqrt_info();        break;
+
     case TASK_UNMLQ:        profiling_display_zunmlq_info();        break;
     case TASK_UNMQR:        profiling_display_zunmqr_info();        break;
 

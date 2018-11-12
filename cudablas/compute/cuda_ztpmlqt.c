@@ -1,6 +1,6 @@
 /**
  *
- * @file core_ztpmlqt.c
+ * @file cuda_ztpmlqt.c
  *
  * @copyright 2009-2016 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon core_ztpmlqt CPU kernel
+ * @brief Chameleon cuda_ztpmlqt GPU kernel
  *
  * @version 1.0.0
  * @author Mathieu Faverge
@@ -17,7 +17,7 @@
  * @precisions normal z -> c d s
  *
  */
-#include "coreblas.h"
+#include "cudablas.h"
 
 /**
  *******************************************************************************
@@ -134,49 +134,49 @@
  * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-
-int CORE_ztpmlqt( cham_side_t side, cham_trans_t trans,
-                  int M, int N, int K, int L, int IB,
-                  const CHAMELEON_Complex64_t *V, int LDV,
-                  const CHAMELEON_Complex64_t *T, int LDT,
-                  CHAMELEON_Complex64_t *A, int LDA,
-                  CHAMELEON_Complex64_t *B, int LDB,
-                  CHAMELEON_Complex64_t *WORK )
+int
+CUDA_ztpmlqt( cham_side_t side, cham_trans_t trans,
+              int M, int N, int K, int L, int IB,
+              const cuDoubleComplex *V, int LDV,
+              const cuDoubleComplex *T, int LDT,
+                    cuDoubleComplex *A, int LDA,
+                    cuDoubleComplex *B, int LDB,
+                    cuDoubleComplex *WORK, int lwork,
+              CUBLAS_STREAM_PARAM )
 {
-    int m1, n1, ldwork;
+    int m1, n1;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
-        coreblas_error(1, "Illegal value of side");
+        cudablas_error(1, "Illegal value of side");
         return -1;
     }
 
     if ( side == ChamLeft ) {
         m1 = K;
         n1 = N;
-        ldwork = IB;
     }
     else {
         m1 = M;
         n1 = K;
-        ldwork = chameleon_max( K, chameleon_max( M, N ) );
     }
 
     /* TS case */
     if (L == 0) {
-        CORE_ztsmlq( side, trans, m1, n1, M, N, K, IB,
+        CUDA_ztsmlq( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
-                     WORK, ldwork );
+                     WORK, lwork,
+                     CUBLAS_STREAM_VALUE );
     }
     /* TT case */
-    else if( L == N ) {
-        CORE_zttmlq( side, trans, m1, n1, M, N, K, IB,
+    else  if( L == N ) {
+        CUDA_zttmlq( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
-                     WORK, ldwork );
+                     WORK, lwork,
+                     CUBLAS_STREAM_VALUE );
     }
     else {
-        //LAPACKE_ztpmlqt_work( LAPACK_COL_MAJOR, M, N, K, L, IB, V, LDV, T, LDT, A, LDA, B, LDB, WORK );
-        coreblas_error( 6, "Illegal value of L (only 0 or M handled for now)");
+        cudablas_error(-6, "TPMLQT not available on GPU for general cases yet\n" );
         return -6;
     }
 

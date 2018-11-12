@@ -20,7 +20,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2018-11-09
  * @precisions normal z -> s d c
  *
  */
@@ -62,10 +62,10 @@ void chameleon_pzgeqrfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
     }
 
     /*
-     * zgeqrt = A->nb * (ib+1)
-     * zunmqr = A->nb * ib
-     * ztpqrt = A->nb * (ib+1)
-     * ztpmqr = A->nb * ib
+     * zgeqrt  = A->nb * (ib+1)
+     * zunmqr  = A->nb * ib
+     * ztpqrt  = A->nb * (ib+1)
+     * ztpmqrt = A->nb * ib
      */
     ws_worker = A->nb * (ib+1);
 
@@ -73,10 +73,10 @@ void chameleon_pzgeqrfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
 #if defined(CHAMELEON_USE_CUDA)
     /* Worker space
      *
-     * zunmqr = A->nb * ib
-     * ztpmqr = 2 * A->nb * ib
+     * zunmqr  =     A->nb * ib
+     * ztpmqrt = 3 * A->nb * ib
      */
-    ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
+    ws_worker = chameleon_max( ws_worker, ib * A->nb * 3 );
 #endif
 
     ws_worker *= sizeof(CHAMELEON_Complex64_t);

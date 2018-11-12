@@ -13,27 +13,27 @@
  *
  * @version 1.0.0
  * @author Florent Pruvost
- * @date 2015-09-16
+ * @author Mathieu Faverge
+ * @date 2018-11-09
  * @precisions normal z -> c d s
  *
  */
 #include "cudablas.h"
 
 int CUDA_ztsmqr(
-        cham_side_t side, cham_trans_t trans,
-        int M1, int N1,
-        int M2, int N2,
-        int K, int IB,
-              cuDoubleComplex *A1,    int LDA1,
-              cuDoubleComplex *A2,    int LDA2,
-        const cuDoubleComplex *V,     int LDV,
-        const cuDoubleComplex *T,     int LDT,
-              cuDoubleComplex *WORK,  int LDWORK,
-              cuDoubleComplex *WORKC, int LDWORKC,
-        CUBLAS_STREAM_PARAM)
+    cham_side_t side, cham_trans_t trans,
+    int M1, int N1,
+    int M2, int N2,
+    int K, int IB,
+    cuDoubleComplex *A1,    int LDA1,
+    cuDoubleComplex *A2,    int LDA2,
+    const cuDoubleComplex *V,     int LDV,
+    const cuDoubleComplex *T,     int LDT,
+    cuDoubleComplex *WORK,  int LWORK,
+    CUBLAS_STREAM_PARAM)
 {
     int i, i1, i3;
-    int NQ, NW;
+    int NQ;
     int kb;
     int ic = 0;
     int jc = 0;
@@ -48,11 +48,9 @@ int CUDA_ztsmqr(
     /* NQ is the order of Q */
     if (side == ChamLeft) {
         NQ = M2;
-        NW = IB;
     }
     else {
         NQ = N2;
-        NW = M1;
     }
 
     if ((trans != ChamNoTrans) && (trans != ChamConjTrans)) {
@@ -92,25 +90,24 @@ int CUDA_ztsmqr(
     if (LDT < chameleon_max(1,IB)){
         return -16;
     }
-    if (LDWORK < chameleon_max(1,NW)){
-        return -18;
-    }
 
     /* Quick return */
-    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0))
+    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
-    if (((side == ChamLeft)  && (trans != ChamNoTrans))
-        || ((side == ChamRight) && (trans == ChamNoTrans))) {
+    if ( ((side == ChamLeft ) && (trans != ChamNoTrans))  ||
+         ((side == ChamRight) && (trans == ChamNoTrans)) )
+    {
         i1 = 0;
         i3 = IB;
     }
     else {
-        i1 = ((K-1) / IB)*IB;
+        i1 = ( ( K-1 ) / IB )*IB;
         i3 = -IB;
     }
 
-    for(i = i1; (i > -1) && (i < K); i += i3) {
+    for (i = i1; (i > -1) && (i < K); i+=i3) {
         kb = chameleon_min(IB, K-i);
 
         if (side == ChamLeft) {
@@ -127,17 +124,18 @@ int CUDA_ztsmqr(
             ni = N1 - i;
             jc = i;
         }
+
         /*
          * Apply H or H' (NOTE: CORE_zparfb used to be CORE_ztsrfb)
          */
         CUDA_zparfb(
-                side, trans, ChamDirForward, ChamColumnwise,
-                mi, ni, M2, N2, kb, 0,
-                A1 + LDA1*jc+ic, LDA1,
-                A2, LDA2,
-                V + LDV*i, LDV,
-                T + LDT*i, LDT,
-                WORK, LDWORK, WORKC, LDWORKC, CUBLAS_STREAM_VALUE );
+            side, trans, ChamDirForward, ChamColumnwise,
+            mi, ni, M2, N2, kb, 0,
+            A1 + LDA1*jc+ic, LDA1,
+            A2, LDA2,
+            V + LDV*i, LDV,
+            T + LDT*i, LDT,
+            WORK, LWORK, CUBLAS_STREAM_VALUE );
     }
     return CHAMELEON_SUCCESS;
 }
