@@ -13,6 +13,7 @@ before_script:
 
 .build_script_template: &build_script
   stage: build
+  tags: ["large"]
   script:
     - echo BUILD_OPTIONS $BUILD_OPTIONS
     - echo VERSION $VERSION
@@ -30,6 +31,7 @@ before_script:
 
 .test_script_template: &test_script
   stage: test
+  tags: ["large"]
   script:
     - echo TESTS_RESTRICTION $TESTS_RESTRICTION
     - echo VERSION $VERSION
@@ -258,6 +260,7 @@ coverage:
 
 coverity:
   stage: analyse
+  tags: ["large"]
   dependencies: []
   artifacts:
     name: chameleon_coverity
@@ -280,6 +283,7 @@ coverity:
 
 sonarqube:
   stage: analyse
+  tags: ["large"]
   dependencies:
     - test_starpu_master
     - test_starpu_simgrid_master
