@@ -751,8 +751,9 @@ main(int argc, char *argv[]) {
     int return_code;
 
     /* Initialize CHAMELEON */
+    /* NOTE: do *NOT* add a ';' at the end of this call, as it may be a #pragma omp parallel */
     CHAMELEON_INIT( iparam[IPARAM_THRDNBR],
-                iparam[IPARAM_NCUDAS] );
+                iparam[IPARAM_NCUDAS] )
 
     {
         return_code = CHAMELEON_Main(iparam, argv[0], start, stop, step);
