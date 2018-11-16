@@ -137,12 +137,18 @@ int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
 
 #if defined(CHAMELEON_SCHED_OPENMP)
 #define CHAMELEON_INIT(nworkers, ncudas)\
-  CHAMELEON_Init(nworkers, ncudas);\
-  _Pragma("omp parallel")\
-  _Pragma("omp master")
+    CHAMELEON_Init(nworkers, ncudas);\
+    _Pragma("omp parallel")\
+    _Pragma("omp master")\
+    {
+#define CHAMELEON_FINALIZE()\
+    }\
+    CHAMELEON_Finalize();
 #else
 #define CHAMELEON_INIT(nworkers, ncudas)\
   CHAMELEON_Init(nworkers, ncudas);
+#define CHAMELEON_FINALIZE()\
+  CHAMELEON_Finalize();
 #endif
 
 END_C_DECLS

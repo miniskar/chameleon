@@ -35,6 +35,6 @@ void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0])
     CORE_zplrnt( m, n, ptrA, lda, bigM, m0, n0, seed );
 }

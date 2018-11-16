@@ -50,6 +50,12 @@
  *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
+#ifdef CHAMELEON_Init
+#undef CHAMELEON_Init
+#endif
+#ifdef CHAMELEON_Finalize
+#undef CHAMELEON_Finalize
+#endif
 int CHAMELEON_Init(int cores, int gpus)
 {
     return CHAMELEON_InitPar(cores, gpus, -1);

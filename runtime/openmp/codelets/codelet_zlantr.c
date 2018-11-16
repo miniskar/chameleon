@@ -32,7 +32,7 @@ void INSERT_TASK_zlantr(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrB = RTBLKADDR(B, double, Bm, Bn);
-    double *work = options->ws_host;
+    double *work = options->ws_worker;
 #pragma omp task firstprivate(norm, uplo, diag, M, N, ptrA, LDA, work, ptrB) depend(in:ptrA[0]) depend(inout:ptrB[0])
     CORE_zlantr(norm, uplo, diag, M, N, ptrA, LDA, work, ptrB);
 }

@@ -50,23 +50,18 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
         options->ws_worker = malloc(worker_size* sizeof(char));
         options->ws_wsize = worker_size;
     }
-    if (host_size > 0) {
-        // TODO used for scratch, maybe we can do better than malloc
-        options->ws_host = malloc(host_size * sizeof(char));
-        options->ws_hsize = host_size;
-    }
+    // FIXME: handle ws_host if needed for omp target
     return CHAMELEON_SUCCESS;
 }
 
 int RUNTIME_options_ws_free( RUNTIME_option_t *options )
 {
     if (options->ws_wsize) {
+        // This one is not trivial: the free should be submitted as a task which depends
+        // on existing task using scratch, but we don't have a dependency for this, so we sync.
+#pragma omp taskwait
         free(options->ws_worker);
         options->ws_wsize = 0;
-    }
-    if (options->ws_hsize) {
-        free(options->ws_host);
-        options->ws_hsize = 0;
     }
     return CHAMELEON_SUCCESS;
 }

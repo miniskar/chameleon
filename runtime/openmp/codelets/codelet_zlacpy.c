@@ -40,7 +40,7 @@ void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A + displA, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B + displB, CHAMELEON_Complex64_t, Bm, Bn);
-#pragma omp task firstprivate(uplo, m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0:Am*An]) depend(inout:ptrB[0:Bm*Bn])
+#pragma omp task firstprivate(uplo, m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0]) depend(inout:ptrB[0])
     CORE_zlacpy(uplo, m, n, ptrA, lda, ptrB, ldb);
 }
 

@@ -69,6 +69,6 @@ void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
                        const CHAM_desc_t *A, int Am, int An, int LDA)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(uplo, M, N, alpha, beta, ptrA, LDA) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(uplo, M, N, alpha, beta, ptrA, LDA) depend(inout:ptrA[0])
     CORE_zlaset(uplo, M, N, alpha, beta, ptrA, LDA);
 }
