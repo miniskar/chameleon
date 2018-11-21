@@ -897,20 +897,14 @@ if( CHAMELEON_SCHED_QUARK )
 endif()
 
 if( CHAMELEON_SCHED_OPENMP )
-
-    # create list of components in order to make a single call to find_package(starpu...)
-    set(OPENMP_COMPONENT_LIST "HWLOC")
-    if(CHAMELEON_USE_CUDA)
-        list(APPEND OPENMP_COMPONENT_LIST "CUDA")
-    endif()
-
-    find_package(OpenMP COMPONENTS ${OPENMP_COMPONENT_LIST})
+    find_package(OpenMP REQUIRED)
 
     if ( OPENMP_FOUND )
         message("-- ${Blue}Add definition CHAMELEON_SCHED_OPENMP"
         " - Activate OpenMP in Chameleon${ColourReset}")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+        set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
         # TODO: check for compiler support for "_Pragma"
     else ( OPENMP_FOUND )
       message(FATAL_ERROR "Something went wrong when finding OpenMP")

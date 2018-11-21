@@ -728,6 +728,7 @@ CHAMELEON_Main(int *iparam, char *prog_name, int start, int stop, int step) {
         if (status != CHAMELEON_SUCCESS) return status;
         success += status;
     }
+    return success;
 }
 
 int
