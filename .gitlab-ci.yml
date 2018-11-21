@@ -93,6 +93,18 @@ build_parsec:
     BUILD_OPTIONS: "-DCHAMELEON_SCHED=PARSEC"
     VERSION: parsec
 
+build_openmp:
+  <<: *build_script
+  artifacts:
+    name: build_openmp
+    expire_in: 48 hours
+    paths:
+      - build
+      - chameleon_openmp.log
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED_OPENMP=ON"
+    VERSION: openmp
+
 test_starpu_branches:
   <<: *test_script
   variables:
@@ -239,6 +251,42 @@ test_parsec_master:
   only:
     - master@solverstack/chameleon
 
+test_openmp_branches:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
+    VERSION: openmp
+  dependencies:
+    - build_openmp
+  artifacts:
+    name: test_openmp
+    expire_in: 48 hours
+    paths:
+      - build
+      - chameleon_openmp.log
+      - chameleon_openmp.lcov
+  only:
+    - branches
+  except:
+    - master
+
+test_openmp_master:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
+    VERSION: openmp
+  dependencies:
+    - build_openmp
+  artifacts:
+    name: test_openmp
+    expire_in: 48 hours
+    paths:
+      - build
+      - chameleon_openmp.log
+      - chameleon_openmp.lcov
+  only:
+    - master@solverstack/chameleon
+
 coverage:
   stage: analyse
   dependencies:
@@ -246,11 +294,13 @@ coverage:
     - test_starpu_simgrid_branches
     - test_quark_branches
     - test_parsec_branches
+    - test_openmp_branches
   script:
       - lcov -a chameleon_starpu.lcov
              -a chameleon_starpu_simgrid.lcov
              -a chameleon_quark.lcov
              -a chameleon_parsec.lcov
+             -a chameleon_openmp.lcov
              -o chameleon.lcov
       - lcov --summary chameleon.lcov
   only:
@@ -289,6 +339,7 @@ sonarqube:
     - test_starpu_simgrid_master
     - test_quark_master
     - test_parsec_master
+    - test_openmp_master
   artifacts:
     name: chameleon_analysis
     expire_in: 1 week
