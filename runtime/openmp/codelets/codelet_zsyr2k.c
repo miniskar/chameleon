@@ -43,8 +43,8 @@ void INSERT_TASK_zsyr2k(const RUNTIME_option_t *options,
     (void)nb;
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
-    CHAMELEON_Complex64_t *ptrC = RTBLKADDR(B, CHAMELEON_Complex64_t, Cm, Cn);
-#pragma omp task firstprivate(uplo, trans, n, k, alpha, ptrA, lda, ptrB, ldb, beta, ptrC, ldc) depend(in:ptrA[0:Am*An], ptrB[0:Bm*Bn]) depend(in:ptrC[0:Cm*Cn])
+    CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
+#pragma omp task firstprivate(uplo, trans, n, k, alpha, ptrA, lda, ptrB, ldb, beta, ptrC, ldc) depend(in:ptrA[0], ptrB[0]) depend(in:ptrC[0])
     CORE_zsyr2k(uplo, trans,
                  n, k, alpha, ptrA, lda, ptrB, ldb, beta, ptrC, ldc);
 }
