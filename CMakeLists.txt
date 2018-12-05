@@ -25,7 +25,7 @@
 #  @date 2012-07-13
 #
 ###
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.3)
 project(CHAMELEON Fortran C CXX)
 
 # directly make an error if in-source build
@@ -108,50 +108,31 @@ option(CHAMELEON_USE_MIGRATE
 # -----------------------------
 
 # Create a list of possible runtime
-set(CHAMELEON_SCHED_list "PARSEC" "STARPU" "QUARK")
+set(CHAMELEON_SCHED_list PARSEC STARPU QUARK
+  CACHE INTERNAL "List of available runtimes" )
 
-# Initially PaRSEC runtime is enabled
-option(CHAMELEON_SCHED_PARSEC
-    "Enable PaRSEC scheduler as the default runtime
-    (Conflict with other CHAMELEON_SCHED_* options)" OFF)
-option(CHAMELEON_SCHED_STARPU
+set( CHAMELEON_SCHED_PARSEC OFF CACHE INTERNAL
+  "Enable PaRSEC scheduler as the default runtime
+    (Conflict with other CHAMELEON_SCHED_* options)")
+set(CHAMELEON_SCHED_STARPU OFF CACHE INTERNAL
     "Enable StarPU scheduler as the default runtime
-    (Conflict with other CHAMELEON_SCHED_* options)" OFF)
-option(CHAMELEON_SCHED_QUARK
-    "Enable Quark scheduler as the default runtime
-    (Conflict with other CHAMELEON_SCHED_* options)" OFF)
+    (Conflict with other CHAMELEON_SCHED_* options)")
+set(CHAMELEON_SCHED_QUARK OFF CACHE INTERNAL
+  "Enable Quark scheduler as the default runtime
+    (Conflict with other CHAMELEON_SCHED_* options)")
 
-# For now, we are able to compile only one runtime at a time, so we disable combinations of runtimes
-if (CHAMELEON_SCHED_QUARK)
-    set(CHAMELEON_SCHED_STARPU OFF)
-    set(CHAMELEON_SCHED_PARSEC OFF)
-elseif (CHAMELEON_SCHED_STARPU)
-    set(CHAMELEON_SCHED_QUARK OFF)
-    set(CHAMELEON_SCHED_PARSEC OFF)
-elseif (CHAMELEON_SCHED_PARSEC)
-    set(CHAMELEON_SCHED_QUARK OFF)
-    set(CHAMELEON_SCHED_STARPU OFF)
+set( CHAMELEON_SCHED STARPU
+  CACHE STRING "Choose the chameleon internal runtime from ${CHAMELEON_SCHED_list}")
+set_property(CACHE CHAMELEON_SCHED PROPERTY STRINGS ${CHAMELEON_SCHED_list})
+
+if ( NOT ${CHAMELEON_SCHED} IN_LIST CHAMELEON_SCHED_list )
+  message(FATAL_ERROR "CHAMELEON_SCHED must be one of ${CHAMELEON_SCHED_list} (${CHAMELEON_SCHED} is incorrect)" )
 endif()
+
+set( CHAMELEON_SCHED_${CHAMELEON_SCHED} ON )
+
 # Set default to StarPU if nothing specific is required by the user
-if ( NOT CHAMELEON_SCHED_STARPU AND NOT CHAMELEON_SCHED_PARSEC AND NOT CHAMELEON_SCHED_QUARK )
-    set(CHAMELEON_SCHED_STARPU ON)
-endif()
-if (CHAMELEON_SCHED_STARPU)
-    message("-- ${BoldGreen}CHAMELEON_SCHED_STARPU is set to ON: CHAMELEON uses StarPU runtime\n"
-            "   To use CHAMELEON with Quark  runtime: set CHAMELEON_SCHED_QUARK  to ON\n"
-            "   To use CHAMELEON with PaRSEC runtime: set CHAMELEON_SCHED_PARSEC to ON\n"
-            "   (CHAMELEON_SCHED_STARPU will be disabled)${ColourReset}")
-elseif(CHAMELEON_SCHED_QUARK)
-    message("-- ${BoldGreen}CHAMELEON_SCHED_QUARK is set to ON: CHAMELEON uses Quark runtime\n"
-            "   To use CHAMELEON with StarPU runtime: set CHAMELEON_SCHED_STARPU to ON\n"
-            "   To use CHAMELEON with PaRSEC runtime: set CHAMELEON_SCHED_PARSEC to ON\n"
-            "   (CHAMELEON_SCHED_QUARK will be disabled)${ColourReset}")
-elseif(CHAMELEON_SCHED_PARSEC)
-    message("-- ${BoldGreen}CHAMELEON_SCHED_PARSEC is set to ON: CHAMELEON uses PaRSEC runtime\n"
-            "   To use CHAMELEON with StarPU runtime: set CHAMELEON_SCHED_STARPU to ON\n"
-            "   To use CHAMELEON with Quark  runtime: set CHAMELEON_SCHED_QUARK  to ON\n"
-            "   (CHAMELEON_SCHED_PARSEC will be disabled)${ColourReset}")
-endif()
+message("-- ${BoldGreen}CHAMELEON_SCHED is set to use ${CHAMELEON_SCHED} runtime" )
 
 # Check that one, and only one, SCHED option is set to ON
 # count number of runtime sets to ON
