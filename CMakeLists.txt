@@ -157,7 +157,6 @@ if ( CHAMELEON_SCHED_PARSEC OR CHAMELEON_SCHED_STARPU )
      set(CHAMELEON_ENABLE_MPI ON FORCE)
 endif()
 
-# FIXME: with OpenMP-target we should enable CUDA too
 # Use intermediate variable since cmake_dependent_option doesn't have OR conditions
 set(CHAMELEON_ENABLE_CUDA OFF CACHE INTERNAL "Tells if CUDA might be supported by the runtime")
 if ( CHAMELEON_SCHED_PARSEC OR CHAMELEON_SCHED_STARPU )

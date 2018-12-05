@@ -102,7 +102,7 @@ build_openmp:
       - build
       - chameleon_openmp.log
   variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED_OPENMP=ON -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED_OPENMP=ON"
     VERSION: openmp
 
 test_starpu_branches:
