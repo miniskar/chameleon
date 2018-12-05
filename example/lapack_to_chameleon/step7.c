@@ -58,7 +58,6 @@ int main(int argc, char *argv[]) {
     RUNTIME_sequence_t *sequence = NULL;
     /* CHAMELEON request uniquely identifies each asynchronous function call */
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
-    int status;
 
     /* initialize some parameters with default values */
     int iparam[IPARAM_SIZEOF];
@@ -88,9 +87,9 @@ int main(int argc, char *argv[]) {
     NGPU = iparam[IPARAM_NCUDAS];
 
      /* Initialize CHAMELEON with main parameters */
-    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
-        fprintf(stderr, "Error initializing CHAMELEON library\n");
-        return EXIT_FAILURE;
+    int rc = CHAMELEON_Init( NCPU, NGPU );
+    if (rc != CHAMELEON_SUCCESS) {
+        goto finalize;
     }
 
     /* set some specific parameters related to CHAMELEON: blocks size and inner-blocking size */
@@ -175,10 +174,10 @@ int main(int argc, char *argv[]) {
      * have been terminated */
     CHAMELEON_Sequence_Wait(sequence);
 
-    status = sequence->status;
-    if ( status != 0 ) {
-        fprintf(stderr, "Error in computation (%d)\n", status);
-        return EXIT_FAILURE;
+    rc = sequence->status;
+    if ( rc != CHAMELEON_SUCCESS ) {
+        fprintf(stderr, "Error in computation (%d)\n", rc);
+        goto finalize;
     }
     CHAMELEON_Sequence_Destroy(sequence);
 
@@ -233,6 +232,12 @@ int main(int argc, char *argv[]) {
     CHAMELEON_Desc_Destroy( &descX );
     CHAMELEON_Desc_Destroy( &descAC );
 
+finalize:
+    /*
+     * Required semicolon to have at least one inst
+     * before the end of OpenMP block.
+     */
+    ;
     /* Finalize CHAMELEON */
     CHAMELEON_Finalize();
 

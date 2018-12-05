@@ -58,11 +58,6 @@
 #include <starpu.h>
 #endif /* defined(CHAMELEON_SCHED_STARPU) */
 
-#if defined(CHAMELEON_SCHED_OPENMP)
-#include <omp.h>
-#endif /* defined(CHAMELEON_SCHED_OPENMP) */
-
-
 #if defined(CHAMELEON_HAVE_GETOPT_H)
 #include <getopt.h>
 #endif /* defined(CHAMELEON_HAVE_GETOPT_H) */
@@ -623,7 +618,7 @@ parse_arguments(int *_argc, char ***_argv, int *iparam, int *start, int *stop, i
 // regions must not have instructions jumping outside the region (eg: returns)
 
 int
-CHAMELEON_Main(int *iparam, char *prog_name, int start, int stop, int step) {
+timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
 
     int status;
     int i, m, n, mx, nx;
@@ -752,13 +747,13 @@ main(int argc, char *argv[]) {
     int return_code;
 
     /* Initialize CHAMELEON */
-    CHAMELEON_INIT( iparam[IPARAM_THRDNBR],
+    CHAMELEON_Init( iparam[IPARAM_THRDNBR],
                     iparam[IPARAM_NCUDAS] );
     // NOTE: OpenMP needs this, as Chameleon's init/finalize add '{'/'}',
     // and 'return' is not allowed in parallel regions.
-    return_code = CHAMELEON_Main(iparam, argv[0], start, stop, step);
+    return_code = timing_main(iparam, argv[0], start, stop, step);
 
-    CHAMELEON_FINALIZE();
+    CHAMELEON_Finalize();
     return return_code;
 }
 

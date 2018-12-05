@@ -80,9 +80,9 @@ BEGIN_C_DECLS
 /* Auxiliary */
 int CHAMELEON_Version           (int *ver_major, int *ver_minor, int *ver_micro);
 int CHAMELEON_My_Mpi_Rank       (void);
-int CHAMELEON_Init              (int nworkers, int ncudas);
-int CHAMELEON_InitPar           (int nworkers, int ncudas, int nthreads_per_worker);
-int CHAMELEON_Finalize          (void);
+int __chameleon_init            (int nworkers, int ncudas);
+int __chameleon_initpar         (int nworkers, int ncudas, int nthreads_per_worker);
+int __chameleon_finalize        (void);
 int CHAMELEON_Pause             (void);
 int CHAMELEON_Resume            (void);
 int CHAMELEON_Distributed_start (void);
@@ -135,20 +135,46 @@ int CHAMELEON_Sequence_Create  (RUNTIME_sequence_t **sequence);
 int CHAMELEON_Sequence_Destroy (RUNTIME_sequence_t *sequence);
 int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
 
+/**
+ *
+ * @ingroup Control
+ *
+ * @brief Initialize CHAMELEON.
+ *
+ ******************************************************************************
+ *
+ * @param[in] cores
+ *          Number of cores to use.
+ *
+ * @param[in] gpus
+ *          Number of cuda devices to use.
+ *
+ ******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ *
+ */
 #if defined(CHAMELEON_SCHED_OPENMP)
-#define CHAMELEON_INIT(nworkers, ncudas)\
-    CHAMELEON_Init(nworkers, ncudas);\
+#define CHAMELEON_Init(nworkers, ncudas)\
+    __chameleon_init(nworkers, ncudas);\
     _Pragma("omp parallel")\
     _Pragma("omp master")\
     {
-#define CHAMELEON_FINALIZE()\
+#define CHAMELEON_InitPar(nworkers, ncudas, nthreads_per_worker)\
+    __chameleon_initpar(nworkers, ncudas, nthreads_per_worker);\
+    _Pragma("omp parallel")\
+    _Pragma("omp master")\
+    {
+#define CHAMELEON_Finalize()\
     }\
-    CHAMELEON_Finalize();
+    __chameleon_finalize();
 #else
-#define CHAMELEON_INIT(nworkers, ncudas)\
-  CHAMELEON_Init(nworkers, ncudas);
-#define CHAMELEON_FINALIZE()\
-  CHAMELEON_Finalize();
+#define CHAMELEON_Init(nworkers, ncudas)\
+  __chameleon_init(nworkers, ncudas);
+#define CHAMELEON_InitPar(nworkers, ncudas, nthreads_per_worker)\
+  __chameleon_initpar(nworkers, ncudas, nthreads_per_worker);
+#define CHAMELEON_Finalize()\
+  __chameleon_finalize();
 #endif
 
 END_C_DECLS
