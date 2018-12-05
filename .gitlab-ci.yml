@@ -78,7 +78,7 @@ build_quark:
       - build
       - chameleon_quark.log
   variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED_QUARK=ON"
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED=QUARK"
     VERSION: quark
 
 build_parsec:
@@ -90,7 +90,7 @@ build_parsec:
       - build
       - chameleon_parsec.log
   variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED_PARSEC=ON"
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED=PARSEC"
     VERSION: parsec
 
 test_starpu_branches:

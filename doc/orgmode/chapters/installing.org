@@ -359,12 +359,8 @@ we encourage users to use [[sec:spack][Spack]].
      LAPACKE - QUARK - SIMGRID - STARPU - TMG.
 
 **** Chameleon specific options
-     * *CHAMELEON_SCHED_STARPU=ON|OFF* (default ON): to link with
-       StarPU library (runtime system)
-     * *CHAMELEON_SCHED_PARSEC=ON|OFF* (default OFF): to link with
-       PARSEC library (runtime system)
-     * *CHAMELEON_SCHED_QUARK=ON|OFF* (default OFF): to link with QUARK
-       library (runtime system)
+     * *CHAMELEON_SCHED=STARPU|PARSEC|QUARK* (default STARPU): to link
+       respectively with StarPU, PaRSEC, or Quark library (runtime system)
      * *CHAMELEON_USE_MPI=ON|OFF* (default OFF): to link with MPI
        library (message passing implementation for use of multiple
        nodes with distributed memory), can only be used with StarPU
