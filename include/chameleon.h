@@ -56,11 +56,11 @@
  */
 int CHAMELEON_map_Tile( cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
-                        cham_unary_operator_t operator,
+                        cham_unary_operator_t op_fct,
                         void                 *op_args );
 int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
                               CHAM_desc_t          *A,
-                              cham_unary_operator_t operator,
+                              cham_unary_operator_t op_fct,
                               void                 *op_args,
                               RUNTIME_sequence_t   *sequence,
                               RUNTIME_request_t    *request );
