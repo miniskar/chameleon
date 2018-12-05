@@ -141,12 +141,13 @@ Test(int64_t n, int *iparam) {
         return 0;
     }
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0)
-        printf( "%10d %7d %7d %7d %7d ", iparam[IPARAM_THRDNBR], iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_NB], iparam[IPARAM_K] );
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
+        printf( "%10d %7d %7d %7d %7d ", iparam[IPARAM_THRDNBR],
+                iparam[IPARAM_M], iparam[IPARAM_N],
+                iparam[IPARAM_NB], iparam[IPARAM_K] );
+    }
     fflush( stdout );
 
-    // FIXME: use posix_memalign, or hwloc allocation with first touch, to avoid
-    // re-using existing allocated bloc, which prevent first-touch
     t = (double*)malloc(niter*sizeof(double));
     memset(t, 0, niter*sizeof(double));
 
@@ -425,7 +426,7 @@ print_header(char *prog_name, int * iparam) {
             iparam[IPARAM_IB],
             eps );
 
-    printf( "#  Threads       M       N      BS  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
+    printf( "#  Threads       M       N      NB  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
             bound_header, iparam[IPARAM_INVERSE] ? inverse_header : check_header);
     return;
 }

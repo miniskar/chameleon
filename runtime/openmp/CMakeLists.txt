@@ -34,17 +34,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
 # --------------------------
 set(RUNTIME_HDRS
   include/chameleon_openmp.h
-  #include/runtime_codelet_profile.h
-  #include/runtime_codelets.h
-  #include/runtime_profiling.h
-  #include/runtime_workspace.h
   )
-
-# Add generated headers
-# ---------------------
-#foreach( hdr_file ${RUNTIME_HDRS_GENERATED} )
-  #list(APPEND RUNTIME_HDRS ${CMAKE_CURRENT_BINARY_DIR}/${hdr_file})
-#endforeach()
 
 # Force generation of headers
 # ---------------------------

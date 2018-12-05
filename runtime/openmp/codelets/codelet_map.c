@@ -1,13 +1,13 @@
 /**
  *
- * @file quark/codelet_map.c
+ * @file openmp/codelet_map.c
  *
  * @copyright 2018-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon map Quark codelet
+ * @brief Chameleon map OpenMP codelet
  *
  * @version 1.0.0
  * @author Mathieu Faverge

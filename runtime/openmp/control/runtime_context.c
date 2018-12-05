@@ -27,7 +27,6 @@
 void RUNTIME_context_create( CHAM_context_t *chamctxt )
 {
     chamctxt->scheduler = RUNTIME_SCHED_OPENMP;
-    /* Will require the static initialization if we want to use it in this code */
     return;
 }
 

@@ -29,7 +29,7 @@ if ( CHAMELEON_USE_CUDA )
   set( CHAMELEON_COPY_DIAG ON )
 else()
   option(CHAMELEON_COPY_DIAG
-    "This options enables the duplication of the diagonal tiles in some algorithm to avoid anti-dependencies on lower/upper triangular parts (Might be useful to StarPU)" ON)
+    "This options enables the duplication of the diagonal tiles in some algorithm to avoid anti-dependencies on lower/upper triangular parts (Might be useful to StarPU and OpenMP)" ON)
 endif()
 
 if ( CHAMELEON_SCHED_QUARK )

@@ -46,23 +46,19 @@ void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *chamctx
 int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, size_t host_size )
 {
     if (worker_size > 0) {
-        // NOTE: we set the size, but instead of doing a malloc shared by multiple workers,
-        // we just create a VLA in the relevant codelets, within the task's body.
-        // This way we ensure the "scratch" is thread local and not shared by multiple threads.
-        options->ws_worker = NULL;
+        /*
+         * NOTE: we set the size, but instead of doing a malloc shared by multiple workers,
+         * we just create a VLA in the relevant codelets, within the task's body.
+         * This way we ensure the "scratch" is thread local and not shared by multiple threads.
+         */
         options->ws_wsize = worker_size;
     }
-    // FIXME: handle ws_host if needed for omp target
     return CHAMELEON_SUCCESS;
 }
 
 int RUNTIME_options_ws_free( RUNTIME_option_t *options )
 {
     if (options->ws_wsize) {
-        // This one is not trivial: the free should be submitted as a task which depends
-        // on existing task using scratch, but we don't have a dependency for this, so we sync.
-#pragma omp taskwait
-        free(options->ws_worker);
         options->ws_wsize = 0;
     }
     return CHAMELEON_SUCCESS;
