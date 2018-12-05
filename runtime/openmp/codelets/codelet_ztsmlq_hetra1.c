@@ -39,9 +39,11 @@ void INSERT_TASK_ztsmlq_hetra1(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA2 = RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrV = RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn);
-    CHAMELEON_Complex64_t *work = options->ws_worker;
     int ldwork = side == ChamLeft ? ib : nb;
-#pragma omp task firstprivate(side, trans, m1, n1, m2, n2, k, ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, work, ldwork) depend(inout:ptrA1[0], ptrA2[0]) depend(in:ptrT[0], ptrV[0])
-    CORE_ztsmlq_hetra1(side, trans, m1, n1, m2, n2, k,
-                       ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, work, ldwork);
+#pragma omp task firstprivate(side, trans, m1, n1, m2, n2, k, ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, ldwork) depend(inout:ptrA1[0], ptrA2[0]) depend(in:ptrT[0], ptrV[0])
+    {
+      CHAMELEON_Complex64_t work[options->ws_wsize];
+      CORE_ztsmlq_hetra1(side, trans, m1, n1, m2, n2, k,
+                         ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, work, ldwork);
+    }
 }

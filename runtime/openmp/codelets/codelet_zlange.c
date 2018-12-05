@@ -33,9 +33,11 @@ void INSERT_TASK_zlange(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrB = RTBLKADDR(B, double, Bm, Bn);
-    double *work = options->ws_worker;
-#pragma omp task firstprivate(M, N, ptrA, LDA, ptrB, options, work) depend(in:ptrA[0:Am*An]) depend(inout:ptrB[0:Bm*Bn])
-    CORE_zlange( norm, M, N, ptrA, LDA, work, ptrB);
+#pragma omp task firstprivate(M, N, ptrA, LDA, ptrB, options) depend(in:ptrA[0]) depend(inout:ptrB[0])
+    {
+      double work[options->ws_wsize];
+      CORE_zlange( norm, M, N, ptrA, LDA, work, ptrB);
+    }
 }
 
 void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,

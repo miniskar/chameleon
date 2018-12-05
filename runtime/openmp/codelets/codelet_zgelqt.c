@@ -97,8 +97,10 @@ void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
-    CHAMELEON_Complex64_t *TAU = options->ws_worker;
-    CHAMELEON_Complex64_t *work = TAU + chameleon_max( m, n );
-#pragma omp task firstprivate(m, n, ib, ptrA, lda, ptrT, ldt, work, TAU) depend(inout:ptrA[0]) depend(inout:ptrT[0])
-    CORE_zgelqt(m, n, ib, ptrA, lda, ptrT, ldt, TAU, work);
+#pragma omp task firstprivate(m, n, ib, ptrA, lda, ptrT, ldt) depend(inout:ptrA[0]) depend(inout:ptrT[0])
+    {
+      CHAMELEON_Complex64_t TAU[options->ws_wsize];
+      CHAMELEON_Complex64_t *work = TAU + chameleon_max( m, n );
+      CORE_zgelqt(m, n, ib, ptrA, lda, ptrT, ldt, TAU, work);
+    }
 }

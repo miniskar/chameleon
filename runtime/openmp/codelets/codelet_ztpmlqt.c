@@ -30,8 +30,10 @@ INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrV = RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn);
-    CHAMELEON_Complex64_t *work = options->ws_worker;
-#pragma omp task firstprivate(side, trans, M, N, K, L, ib, ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, work) depend(in:ptrV[0], ptrT[0]) depend(inout:ptrA[0], ptrB[0])
-    CORE_ztpmlqt( side, trans, M, N, K, L, ib,
-                  ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, work );
+#pragma omp task firstprivate(side, trans, M, N, K, L, ib, ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb) depend(in:ptrV[0], ptrT[0]) depend(inout:ptrA[0], ptrB[0])
+    {
+      CHAMELEON_Complex64_t work[options->ws_wsize];
+      CORE_ztpmlqt( side, trans, M, N, K, L, ib,
+                    ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, work );
+    }
 }

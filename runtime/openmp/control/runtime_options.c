@@ -46,8 +46,10 @@ void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *chamctx
 int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, size_t host_size )
 {
     if (worker_size > 0) {
-        // TODO used for scratch, maybe we can do better than malloc
-        options->ws_worker = malloc(worker_size* sizeof(char));
+        // NOTE: we set the size, but instead of doing a malloc shared by multiple workers,
+        // we just create a VLA in the relevant codelets, within the task's body.
+        // This way we ensure the "scratch" is thread local and not shared by multiple threads.
+        options->ws_worker = NULL;
         options->ws_wsize = worker_size;
     }
     // FIXME: handle ws_host if needed for omp target

@@ -32,8 +32,10 @@ void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-    double *work = options->ws_worker;
     double *normA = RTBLKADDR(B, double, Bm, Bn);
-#pragma omp task firstprivate(norm, uplo, N, ptrA, LDA, work, normA) depend(in:ptrA[0:Am*An]) depend(inout:normA[0:Bm*Bn])
-    CORE_zlanhe( norm, uplo, N, ptrA, LDA, work, normA);
+#pragma omp task firstprivate(norm, uplo, N, ptrA, LDA, normA) depend(in:ptrA[0]) depend(inout:normA[0])
+    {
+      double work[options->ws_wsize];
+      CORE_zlanhe( norm, uplo, N, ptrA, LDA, work, normA);
+    }
 }
