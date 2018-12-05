@@ -1,6 +1,6 @@
 /**
  *
- * @file codelet_zher2k.c
+ * @file openmp/codelet_zher2k.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
