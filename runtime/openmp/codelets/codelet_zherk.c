@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -41,7 +41,7 @@ void INSERT_TASK_zherk(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
-#pragma omp task firstprivate(uplo, trans, n, k, alpha, ptrA, lda, beta, ptrC, ldc) depend(in:ptrA[0:Am*An]) depend(inout:ptrC[0:Cm*Cn])
+#pragma omp task firstprivate(uplo, trans, n, k, alpha, ptrA, lda, beta, ptrC, ldc) depend(in:ptrA[0]) depend(inout:ptrC[0])
     CORE_zherk(uplo, trans,
         n, k,
         alpha, ptrA, lda,

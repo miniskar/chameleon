@@ -35,9 +35,10 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
-#pragma omp task firstprivate(uplo, n, k, ib, nb, ptrA, lda, ptrT, ldt) depend(in:ptrA[0], ptrT[0]) depend(inout:ptrC[0])
+    int ws_size = options->ws_wsize;
+#pragma omp task firstprivate(ws_size, uplo, n, k, ib, nb, ptrA, lda, ptrT, ldt) depend(in:ptrA[0], ptrT[0]) depend(inout:ptrC[0])
     {
-      CHAMELEON_Complex64_t work[options->ws_wsize];
+      CHAMELEON_Complex64_t work[ws_size];
       CORE_zherfb(uplo, n, k, ib, nb, ptrA, lda, ptrT, ldt, ptrC, ldc, work, nb);
     }
 }

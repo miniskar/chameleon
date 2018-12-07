@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -32,9 +32,10 @@ void INSERT_TASK_zlantr(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrB = RTBLKADDR(B, double, Bm, Bn);
-#pragma omp task firstprivate(norm, uplo, diag, M, N, ptrA, LDA, ptrB) depend(in:ptrA[0]) depend(inout:ptrB[0])
+    int ws_wsize = options->ws_wsize;
+#pragma omp task firstprivate(ws_wsize, norm, uplo, diag, M, N, ptrA, LDA, ptrB) depend(in:ptrA[0]) depend(inout:ptrB[0])
     {
-      double work[options->ws_wsize];
+      double work[ws_wsize];
       CORE_zlantr(norm, uplo, diag, M, N, ptrA, LDA, work, ptrB);
     }
 }

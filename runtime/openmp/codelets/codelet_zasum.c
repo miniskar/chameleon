@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -31,7 +31,7 @@ void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An );
     double *ptrB = RTBLKADDR( B, double, Bm, Bn );
-#pragma omp task firstprivate(storev, uplo, M, N, lda, ptrA, ptrB) depend(in:ptrA[0:Am*An]) depend(inout:ptrB[0:Bm*Bn])
+#pragma omp task firstprivate(storev, uplo, M, N, lda, ptrA, ptrB) depend(in:ptrA[0]) depend(inout:ptrB[0])
     CORE_dzasum(storev, uplo, M, N, ptrA, lda, ptrB);
 }
 

@@ -30,10 +30,11 @@ INSERT_TASK_ztpmqrt( const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrV = RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn);
-#pragma omp task firstprivate(side, trans, M, N, K, L, ib, ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb) depend(in:ptrV[0], ptrT[0]) depend(inout:ptrA[0], ptrB[0])
+    int ws_size = options->ws_wsize;
+#pragma omp task firstprivate(ws_size, side, trans, M, N, K, L, ib, nb, ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb) depend(in:ptrV[0], ptrT[0]) depend(inout:ptrA[0], ptrB[0])
     {
-      CHAMELEON_Complex64_t tmp[options->ws_wsize];
-    CORE_ztpmqrt( side, trans, M, N, K, L, ib,
-                  ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, tmp );
+        CHAMELEON_Complex64_t tmp[ws_size];
+        CORE_ztpmqrt( side, trans, M, N, K, L, ib,
+                      ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, tmp );
     }
 }

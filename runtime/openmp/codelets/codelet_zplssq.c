@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -60,14 +60,16 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
                         const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
-    double *scl = RTBLKADDR(SCLSSQ, double, SCLSSQm, SCLSSQn);
     double *scalesum = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-
-    if( scl[0] < scalesum[0] ) {
-        scl[1] = scalesum[1] + (scl[1]     * (( scl[0] / scalesum[0] ) * ( scl[0] / scalesum[0] )));
-        scl[0] = scalesum[0];
-    } else {
-        scl[1] = scl[1]     + (scalesum[1] * (( scalesum[0] / scl[0] ) * ( scalesum[0] / scl[0] )));
+    double *scl = RTBLKADDR(SCLSSQ, double, SCLSSQm, SCLSSQn);
+#pragma omp task depend(in: scalesum[0]) depend(inout: scl[0])
+    {
+        if( scl[0] < scalesum[0] ) {
+            scl[1] = scalesum[1] + (scl[1]     * (( scl[0] / scalesum[0] ) * ( scl[0] / scalesum[0] )));
+            scl[0] = scalesum[0];
+        } else {
+            scl[1] = scl[1]     + (scalesum[1] * (( scalesum[0] / scl[0] ) * ( scalesum[0] / scl[0] )));
+        }
     }
 }
 
@@ -76,5 +78,8 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *res = RTBLKADDR(RESULT, CHAMELEON_Complex64_t, RESULTm, RESULTn);
 
-    res[0] = res[0] * sqrt( res[1] );
+#pragma omp task depend(inout: res[0])
+    {
+        res[0] = res[0] * sqrt( res[1] );
+    }
 }

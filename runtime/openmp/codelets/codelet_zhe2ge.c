@@ -32,6 +32,6 @@ void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An );
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn );
-#pragma omp task firstprivate(uplo, m, n, ptrA, lda, ptrB, ldb) depend(in: ptrA[0:Am*An]) depend(inout:ptrB[0:Bm*Bn])
+#pragma omp task firstprivate(uplo, m, n, ptrA, lda, ptrB, ldb) depend(in: ptrA[0]) depend(inout:ptrB[0])
     CORE_zhe2ge(uplo, m, n, ptrA, lda, ptrB, ldb);
 }

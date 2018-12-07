@@ -40,9 +40,10 @@ void INSERT_TASK_ztsmqr_hetra1(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrV = RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn);
     int ldwork = side == ChamLeft ? ib : nb;
-#pragma omp task firstprivate(side, trans, m1, n1, m2, n2, k, ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, ldwork) depend(inout:ptrA1[0], ptrA2[0]) depend(in:ptrT[0], ptrV[0])
+    int ws_size = options->ws_wsize;
+#pragma omp task firstprivate(ws_size, side, trans, m1, n1, m2, n2, k, ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, ldwork) depend(inout:ptrA1[0], ptrA2[0]) depend(in:ptrT[0], ptrV[0])
     {
-      CHAMELEON_Complex64_t work[options->ws_wsize];
+      CHAMELEON_Complex64_t work[ws_size];
       CORE_ztsmqr_hetra1(side, trans, m1, n1, m2, n2, k,
                          ib, ptrA1, lda1, ptrA2, lda2, ptrV, ldv, ptrT, ldt, work, ldwork);
     }

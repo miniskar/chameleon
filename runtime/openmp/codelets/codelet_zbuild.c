@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -42,6 +42,6 @@ void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
   void (*callback)(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) ;
   callback = user_build_callback;
 
-#pragma omp task firstprivate(row_min, row_max, col_min, col_max, ptrA, lda, user_data) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(row_min, row_max, col_min, col_max, ptrA, lda, user_data) depend(inout:ptrA[0])
   callback(row_min, row_max, col_min, col_max, ptrA, lda, user_data);
 }

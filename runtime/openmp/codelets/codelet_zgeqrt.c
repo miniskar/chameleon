@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -98,9 +98,10 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
-#pragma omp task firstprivate(m, n, ib, ptrA, lda, ptrT, ldt) depend(inout:ptrA[0]) depend(inout:ptrT[0])
+    int ws_size = options->ws_wsize;
+#pragma omp task firstprivate(ws_size, m, n, ib, ptrA, lda, ptrT, ldt) depend(inout:ptrA[0]) depend(inout:ptrT[0])
     {
-      CHAMELEON_Complex64_t TAU[options->ws_wsize];
+      CHAMELEON_Complex64_t TAU[ws_size];
       CHAMELEON_Complex64_t *work = TAU + chameleon_max(m, n);
       CORE_zgeqrt(m, n, ib, ptrA, lda, ptrT, ldt, TAU, work);
     }

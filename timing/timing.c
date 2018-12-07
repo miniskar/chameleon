@@ -750,8 +750,10 @@ main(int argc, char *argv[]) {
     /* Initialize CHAMELEON */
     CHAMELEON_Init( iparam[IPARAM_THRDNBR],
                     iparam[IPARAM_NCUDAS] );
-    // NOTE: OpenMP needs this, as Chameleon's init/finalize add '{'/'}',
-    // and 'return' is not allowed in parallel regions.
+    /*
+     * NOTE: OpenMP needs this, as Chameleon's init/finalize add '{'/'}',
+     * and 'return' is not allowed in parallel regions.
+     */
     return_code = timing_main(iparam, argv[0], start, stop, step);
 
     CHAMELEON_Finalize();

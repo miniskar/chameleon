@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -121,9 +121,10 @@ void INSERT_TASK_zunmqr(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
-#pragma omp task firstprivate(side, trans, m, n, k, ib, nb, ptrA, lda, ptrT, ldt, ptrC, ldc) depend(in:ptrA[0], ptrT[0]) depend(inout:ptrC[0])
+    int ws_size = options->ws_wsize;
+#pragma omp task firstprivate(ws_size, side, trans, m, n, k, ib, nb, ptrA, lda, ptrT, ldt, ptrC, ldc) depend(in:ptrA[0], ptrT[0]) depend(inout:ptrC[0])
     {
-      CHAMELEON_Complex64_t tmp[options->ws_wsize];
+      CHAMELEON_Complex64_t tmp[ws_size];
       CORE_zunmqr(side, trans, m, n, k, ib,
           ptrA, lda, ptrT, ldt, ptrC, ldc, tmp, nb);
     }

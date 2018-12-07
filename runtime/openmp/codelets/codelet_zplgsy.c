@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -35,6 +35,6 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(bump, m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(bump, m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0])
     CORE_zplgsy( bump, m, n, ptrA, lda, bigM, m0, n0, seed );
 }
