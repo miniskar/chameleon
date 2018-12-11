@@ -30,6 +30,7 @@ typedef enum runtime_id_e {
     RUNTIME_SCHED_QUARK,  /**< Quark runtime  */
     RUNTIME_SCHED_PARSEC, /**< PaRSEC runtime */
     RUNTIME_SCHED_STARPU, /**< StarPU runtime */
+    RUNTIME_SCHED_OPENMP, /**< OpenMP runtime */
 } RUNTIME_id_t;
 
 /**

@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
     print_header( argv[0], iparam);
 
     /* Initialize CHAMELEON with main parameters */
-    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
-        fprintf(stderr, "Error initializing CHAMELEON library\n");
-        return EXIT_FAILURE;
+    int rc = CHAMELEON_Init( NCPU, NGPU );
+    if (rc != CHAMELEON_SUCCESS) {
+        goto finalize;
     }
 
     /*
@@ -170,8 +170,14 @@ int main(int argc, char *argv[]) {
     free(B);
     free(X);
 
+finalize:
+    /*
+     * Required semicolon to have at least one inst
+     * before the end of OpenMP block.
+     */
+    ;
     /* Finalize CHAMELEON */
     CHAMELEON_Finalize();
 
-    return EXIT_SUCCESS;
+    return rc;
 }

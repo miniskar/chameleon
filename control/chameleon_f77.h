@@ -30,8 +30,8 @@
 #define CHAMELEON_WS_FNAME(lcname, UCNAME) CHAMELEON_GLOBAL(chameleon_alloc_workspace_##lcname, CHAMELEON_ALLOC_WORKSPACE_##UCNAME)
 #define CHAMELEON_WST_FNAME(lcname, UCNAME) CHAMELEON_GLOBAL(chameleon_alloc_workspace_##lcname##_tile, CHAMELEON_ALLOC_WORKSPACE_##UCNAME##_TILE)
 
-#define CHAMELEON_INIT CHAMELEON_GLOBAL(chameleon_init, CHAMELEON_INIT)
-#define CHAMELEON_FINALIZE CHAMELEON_GLOBAL(chameleon_finalize, CHAMELEON_FINALIZE)
+#define __CHAMELEON_INIT CHAMELEON_GLOBAL(__chameleon_init, __CHAMELEON_INIT)
+#define __CHAMELEON_FINALIZE CHAMELEON_GLOBAL(__chameleon_finalize, __CHAMELEON_FINALIZE)
 #define CHAMELEON_ENABLE CHAMELEON_GLOBAL(chameleon_enable, CHAMELEON_ENABLE)
 #define CHAMELEON_DISABLE CHAMELEON_GLOBAL(chameleon_disable, CHAMELEON_DISABLE)
 #define CHAMELEON_SET CHAMELEON_GLOBAL(chameleon_set, CHAMELEON_SET)
@@ -45,5 +45,21 @@
 #define CHAMELEON_DESC_DESTROY CHAMELEON_GLOBAL(chameleon_desc_destroy, CHAMELEON_DESC_DESTROY)
 #define CHAMELEON_LAPACK_TO_TILE CHAMELEON_GLOBAL(chameleon_lapack_to_tile, CHAMELEON_LAPACK_TO_TILE)
 #define CHAMELEON_TILE_TO_LAPACK CHAMELEON_GLOBAL(chameleon_tile_to_lapack, CHAMELEON_TILE_TO_LAPACK)
+
+#if defined(CHAMELEON_SCHED_OPENMP)
+#define CHAMELEON_INIT(nworkers, ncudas)\
+    CALL __CHAMELEON_INIT(nworkers, ncudas)\
+    !$omp parallel\
+    !$omp master
+#define CHAMELEON_FINALIZE()\
+    !$omp end master\
+    !$omp end parallel\
+    CALL __CHAMELEON_FINALIZE()
+#else
+#define CHAMELEON_INIT(nworkers, ncudas)\
+    CALL __CHAMELEON_INIT(nworkers, ncudas)
+#define CHAMELEON_FINALIZE()\
+    CALL __CHAMELEON_FINALIZE()
+#endif
 
 #endif /* _chameleon_f77_h_ */

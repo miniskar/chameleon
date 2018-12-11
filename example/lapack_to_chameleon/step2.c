@@ -74,9 +74,9 @@ int main(int argc, char *argv[]) {
     print_header( argv[0], iparam);
 
     /* Initialize CHAMELEON with main parameters */
-    if ( CHAMELEON_Init( NCPU, NGPU ) != CHAMELEON_SUCCESS ) {
-        fprintf(stderr, "Error initializing CHAMELEON library\n");
-        return EXIT_FAILURE;
+    int rc = CHAMELEON_Init( NCPU, NGPU );
+    if (rc != CHAMELEON_SUCCESS) {
+        goto finalize;
     }
 
     /* Question chameleon to get the block (tile) size (number of columns) */
@@ -220,8 +220,14 @@ int main(int argc, char *argv[]) {
     CHAMELEON_Desc_Destroy( &descX );
     CHAMELEON_Desc_Destroy( &descAC );
 
+finalize:
+    /*
+     * Required semicolon to have at least one inst
+     * before the end of OpenMP block.
+     */
+    ;
     /* Finalize CHAMELEON */
     CHAMELEON_Finalize();
 
-    return EXIT_SUCCESS;
+    return rc;
 }

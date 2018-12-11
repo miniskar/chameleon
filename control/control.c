@@ -34,7 +34,7 @@
  *
  * @ingroup Control
  *
- *  CHAMELEON_Init - Initialize CHAMELEON.
+ * @brief Initialize CHAMELEON.
  *
  ******************************************************************************
  *
@@ -46,20 +46,19 @@
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Init(int cores, int gpus)
+int __chameleon_init(int cores, int gpus)
 {
-    return CHAMELEON_InitPar(cores, gpus, -1);
+   return __chameleon_initpar(cores, gpus, -1);
 }
 
 /**
  *
  * @ingroup Control
  *
- *  CHAMELEON_InitPar - Initialize CHAMELEON.
+ * @brief Initialize CHAMELEON.
  *
  ******************************************************************************
  *
@@ -74,11 +73,10 @@ int CHAMELEON_Init(int cores, int gpus)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
+int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
 {
     CHAM_context_t *chamctxt;
 
@@ -119,15 +117,14 @@ int CHAMELEON_InitPar(int ncpus, int ncudas, int nthreads_per_worker)
  *
  * @ingroup Control
  *
- *  CHAMELEON_Finalize - Finalize CHAMELEON.
+ * @brief Finalize CHAMELEON.
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Finalize(void)
+int __chameleon_finalize(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {

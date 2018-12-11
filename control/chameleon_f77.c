@@ -30,11 +30,11 @@ extern "C" {
     /**
      *  FORTRAN API - auxiliary function prototypes
      */
-    void CHAMELEON_INIT(int *CORES, int *NGPUS, int *INFO)
-    {   *INFO = CHAMELEON_Init(*CORES, *NGPUS); }
+    void __CHAMELEON_INIT(int *CORES, int *NGPUS, int *INFO)
+    {   *INFO = __chameleon_init(*CORES, *NGPUS); }
 
-    void CHAMELEON_FINALIZE(int *INFO)
-    {   *INFO = CHAMELEON_Finalize(); }
+    void __CHAMELEON_FINALIZE(int *INFO)
+    {   *INFO = __chameleon_finalize(); }
 
     void CHAMELEON_ENABLE(int *lever, int *INFO)
     {   *INFO = CHAMELEON_Enable(*lever); }

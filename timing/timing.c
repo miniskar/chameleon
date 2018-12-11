@@ -58,7 +58,6 @@
 #include <starpu.h>
 #endif /* defined(CHAMELEON_SCHED_STARPU) */
 
-
 #if defined(CHAMELEON_HAVE_GETOPT_H)
 #include <getopt.h>
 #endif /* defined(CHAMELEON_HAVE_GETOPT_H) */
@@ -142,8 +141,11 @@ Test(int64_t n, int *iparam) {
         return 0;
     }
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0)
-        printf( "%7d %7d %7d ", iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_K] );
+    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
+        printf( "%10d %7d %7d %7d %7d ", iparam[IPARAM_THRDNBR],
+                iparam[IPARAM_M], iparam[IPARAM_N],
+                iparam[IPARAM_NB], iparam[IPARAM_K] );
+    }
     fflush( stdout );
 
     t = (double*)malloc(niter*sizeof(double));
@@ -424,7 +426,7 @@ print_header(char *prog_name, int * iparam) {
             iparam[IPARAM_IB],
             eps );
 
-    printf( "#     M       N  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
+    printf( "#  Threads       M       N      NB  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
             bound_header, iparam[IPARAM_INVERSE] ? inverse_header : check_header);
     return;
 }
@@ -613,37 +615,22 @@ parse_arguments(int *_argc, char ***_argv, int *iparam, int *start, int *stop, i
     } while(-1 != c);
 }
 
+// NOTE: this function is here to cope with the fact that OpenMP parallel
+// regions must not have instructions jumping outside the region (eg: returns)
+
 int
-main(int argc, char *argv[]) {
-    int i, m, n, mx, nx;
+timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
+
     int status;
+    int i, m, n, mx, nx;
     int nbnode = 1;
-    int start =  500;
-    int stop  = 5000;
-    int step  =  500;
-    int iparam[IPARAM_SIZEOF];
     int success = 0;
-
-    set_iparam_default(iparam);
-
-    parse_arguments(&argc, &argv, iparam, &start, &stop, &step);
-
-#if !defined(CHAMELEON_USE_CUDA)
-    if (iparam[IPARAM_NCUDAS] != 0){
-    	fprintf(stderr, "ERROR: CHAMELEON_USE_CUDA is not defined. "
-    			"The number of CUDA devices must be set to 0 (--gpus=0).\n");
-    	return EXIT_FAILURE;
-    }
-#endif
 
     n  = iparam[IPARAM_N];
     m  = iparam[IPARAM_M];
     mx = iparam[IPARAM_MX];
     nx = iparam[IPARAM_NX];
 
-    /* Initialize CHAMELEON */
-    CHAMELEON_Init( iparam[IPARAM_THRDNBR],
-                iparam[IPARAM_NCUDAS] );
 
     /* Get the number of threads set by the runtime */
     iparam[IPARAM_THRDNBR] = CHAMELEON_GetThreadNbr();
@@ -697,7 +684,7 @@ main(int argc, char *argv[]) {
     CHAMELEON_Set(CHAMELEON_TRANSLATION_MODE, iparam[IPARAM_INPLACE]);
 
     if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
-        print_header( argv[0], iparam);
+        print_header( prog_name, iparam);
     }
 
     if (step < 1) step = 1;
@@ -737,7 +724,39 @@ main(int argc, char *argv[]) {
         if (status != CHAMELEON_SUCCESS) return status;
         success += status;
     }
-    CHAMELEON_Finalize();
     return success;
+}
+
+int
+main(int argc, char *argv[]) {
+    int start =  500;
+    int stop  = 5000;
+    int step  =  500;
+    int iparam[IPARAM_SIZEOF];
+
+    set_iparam_default(iparam);
+
+    parse_arguments(&argc, &argv, iparam, &start, &stop, &step);
+
+#if !defined(CHAMELEON_USE_CUDA)
+    if (iparam[IPARAM_NCUDAS] != 0){
+        fprintf(stderr, "ERROR: CHAMELEON_USE_CUDA is not defined. "
+                "The number of CUDA devices must be set to 0 (--gpus=0).\n");
+        return EXIT_FAILURE;
+    }
+#endif
+    int return_code;
+
+    /* Initialize CHAMELEON */
+    CHAMELEON_Init( iparam[IPARAM_THRDNBR],
+                    iparam[IPARAM_NCUDAS] );
+    /*
+     * NOTE: OpenMP needs this, as Chameleon's init/finalize add '{'/'}',
+     * and 'return' is not allowed in parallel regions.
+     */
+    return_code = timing_main(iparam, argv[0], start, stop, step);
+
+    CHAMELEON_Finalize();
+    return return_code;
 }
 

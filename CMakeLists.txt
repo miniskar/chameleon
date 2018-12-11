@@ -108,7 +108,7 @@ option(CHAMELEON_USE_MIGRATE
 # -----------------------------
 
 # Create a list of possible runtime
-set(CHAMELEON_SCHED_list PARSEC STARPU QUARK
+set(CHAMELEON_SCHED_list PARSEC STARPU QUARK OPENMP
   CACHE INTERNAL "List of available runtimes" )
 
 set( CHAMELEON_SCHED_PARSEC OFF CACHE INTERNAL
@@ -119,6 +119,9 @@ set(CHAMELEON_SCHED_STARPU OFF CACHE INTERNAL
     (Conflict with other CHAMELEON_SCHED_* options)")
 set(CHAMELEON_SCHED_QUARK OFF CACHE INTERNAL
   "Enable Quark scheduler as the default runtime
+    (Conflict with other CHAMELEON_SCHED_* options)")
+set(CHAMELEON_SCHED_OPENMP OFF CACHE INTERNAL
+  "Enable OpenMP scheduler as the default runtime
     (Conflict with other CHAMELEON_SCHED_* options)")
 
 set( CHAMELEON_SCHED STARPU
@@ -892,6 +895,22 @@ if( CHAMELEON_SCHED_QUARK )
 
 endif()
 
+if( CHAMELEON_SCHED_OPENMP )
+    find_package(OpenMP REQUIRED)
+
+    if ( OPENMP_FOUND )
+        message("-- ${Blue}Add definition CHAMELEON_SCHED_OPENMP"
+        " - Activate OpenMP in Chameleon${ColourReset}")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+        # TODO: check for compiler support for "_Pragma"
+    else ( OPENMP_FOUND )
+      message(FATAL_ERROR "Something went wrong when finding OpenMP")
+    endif ( OPENMP_FOUND )
+
+endif( CHAMELEON_SCHED_OPENMP )
+
 # getopt
 check_include_files(getopt.h CHAMELEON_HAVE_GETOPT_H)
 if (CHAMELEON_HAVE_GETOPT_H)
@@ -936,6 +955,9 @@ if (CHAMELEON_SCHED_PARSEC)
 endif()
 if (CHAMELEON_SCHED_STARPU)
   list(APPEND CHAMELEON_LIBRARIES chameleon_starpu)
+endif()
+if (CHAMELEON_SCHED_OPENMP)
+  list(APPEND CHAMELEON_LIBRARIES chameleon_openmp)
 endif()
 list(APPEND CHAMELEON_LIBRARIES hqr)
 set(CHAMELEON_LIBRARIES_DEP ${CHAMELEON_LIBRARIES} ${CHAMELEON_DEP})
