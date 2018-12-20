@@ -26,34 +26,6 @@
 #define _compute_z_h_
 
 /**
- *  LAPACK/Tile Descriptor accesses
- */
-#define ChamDescInput  1
-#define ChamDescOutput 2
-#define ChamDescInout  (ChamDescInput | ChamDescOutput)
-
-/**
- *  Macro for matrix conversion / Lapack interface
- */
-#define chameleon_zdesc_alloc_diag( descA, mb, nb, lm, ln, i, j, m, n, p, q) \
-    descA = chameleon_desc_init_diag(                                   \
-        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                     \
-        (m), (n), (i), (j), (m), (n), p, q);                            \
-    chameleon_desc_mat_alloc( &(descA) );                               \
-    RUNTIME_desc_create( &(descA) );
-
-#define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
-    descA = chameleon_desc_init(                                        \
-        ChamComplexDouble, (mb), (nb), ((mb)*(nb)),                     \
-        (m), (n), (i), (j), (m), (n), 1, 1);                            \
-    if ( chameleon_desc_mat_alloc( &(descA) ) ) {                       \
-        chameleon_error( __func__, "chameleon_desc_mat_alloc() failed"); \
-        {free;};                                                        \
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;                          \
-    }                                                                   \
-    RUNTIME_desc_create( &(descA) );
-
-/**
  *  Declarations of internal sequential functions
  */
 int chameleon_zshift(CHAM_context_t *chamctxt, int m, int n, CHAMELEON_Complex64_t *A,
@@ -148,6 +120,41 @@ void chameleon_pzungqr_param( int genD, int K, const libhqr_tree_t *qrtree,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 
 
+
+/**
+ *  LAPACK/Tile Descriptor accesses
+ */
+#define ChamDescInput  1
+#define ChamDescOutput 2
+#define ChamDescInout  (ChamDescInput | ChamDescOutput)
+
+/**
+ *  Macro for matrix conversion / Lapack interface
+ */
+static inline int
+chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int q ) {
+    int diag_m = chameleon_min( m, n );
+    return chameleon_desc_init( descA, CHAMELEON_MAT_ALLOC_GLOBAL,
+                                ChamComplexDouble, nb, nb, nb*nb,
+                                diag_m, nb, 0, 0, diag_m, nb, p, q,
+                                chameleon_getaddr_diag,
+                                chameleon_getblkldd_ccrb,
+                                chameleon_getrankof_2d_diag );
+}
+
+#define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
+    {                                                                   \
+        int rc;                                                         \
+        rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_GLOBAL, \
+                                  ChamComplexDouble, (mb), (nb), ((mb)*(nb)), \
+                                  (m), (n), (i), (j), (m), (n), 1, 1,   \
+                                  NULL, NULL, NULL );                   \
+        if ( rc != CHAMELEON_SUCCESS ) {                                \
+            {free;}                                                     \
+            return rc;                                                  \
+        }                                                               \
+    }
+
 /**
  * @brief Internal function to convert the lapack format to tile format in
  * LAPACK interface calls
@@ -160,35 +167,28 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
                      RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
 {
     /* Initialize the Lapack descriptor */
-    *descAl = chameleon_desc_init_user( ChamComplexDouble, mb, nb, (mb)*(nb),
-                                        lm, ln, 0, 0, m, n, 1, 1,
-                                        chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
-    descAl->mat = A;
+    chameleon_desc_init( descAl, A, ChamComplexDouble, mb, nb, (mb)*(nb),
+                         lm, ln, 0, 0, m, n, 1, 1,
+                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
     descAl->styp = ChamCM;
 
-    /* Initialize the tile descriptor */
-    *descAt = chameleon_desc_init( ChamComplexDouble, mb, nb, (mb)*(nb),
-                                   lm, ln, 0, 0, m, n, 1, 1 );
-
     if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
-        if ( chameleon_desc_mat_alloc( descAt ) ) {
-            chameleon_error( "chameleon_zlap2tile", "chameleon_desc_mat_alloc() failed");
-            return CHAMELEON_ERR_OUT_OF_RESOURCES;
-        }
-
-        RUNTIME_desc_create( descAl );
-        RUNTIME_desc_create( descAt );
+        /* Initialize the tile descriptor */
+        chameleon_desc_init( descAt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, mb, nb, (mb)*(nb),
+                             lm, ln, 0, 0, m, n, 1, 1,
+                             chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL );
 
         if ( mode & ChamDescInput ) {
             chameleon_pzlacpy( uplo, descAl, descAt, seq, req );
         }
     }
     else {
-        chameleon_fatal_error( "chameleon_zlap2tile", "INPLACE translation not supported yet");
-        descAt->mat = A;
+        /* Initialize the tile descriptor */
+        chameleon_desc_init( descAt, A, ChamComplexDouble, mb, nb, (mb)*(nb),
+                             lm, ln, 0, 0, m, n, 1, 1,
+                             chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL );
 
-        RUNTIME_desc_create( descAl );
-        RUNTIME_desc_create( descAt );
+        chameleon_fatal_error( "chameleon_zlap2tile", "INPLACE translation not supported yet");
 
         if ( mode & ChamDescInput ) {
             /* CHAMELEON_zgecfi_Async( lm, ln, A, ChamCM, mb, nb, */
@@ -235,11 +235,8 @@ chameleon_ztile2lap( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t 
 static inline void
 chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t *descAt )
 {
-    if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
-        chameleon_desc_mat_free( descAt );
-    }
-    RUNTIME_desc_destroy( descAl );
-    RUNTIME_desc_destroy( descAt );
+    chameleon_desc_destroy( descAl );
+    chameleon_desc_destroy( descAt );
 }
 
 #endif /* _compute_z_h_ */

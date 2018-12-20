@@ -23,9 +23,9 @@
 
 #define A(m, n) A,  m,  n
 #define T(m, n) T,  m,  n
-#define D(k) D, (k)-1, 0
+#define D(k) &D, (k)-1, 0
 
-#define AT(k) AT, k, 0
+#define AT(k) &AT, k, 0
 
 #if defined(CHAMELEON_COPY_DIAG)
 #define E(m, n) E, m, 0
@@ -42,8 +42,8 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
-    CHAM_desc_t *D  = NULL;
-    CHAM_desc_t *AT = NULL;
+    CHAM_desc_t D;
+    CHAM_desc_t AT;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
@@ -87,15 +87,12 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     /* Copy of the diagonal tiles to keep the general version of the tile all along the computation */
-    D = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    chameleon_zdesc_alloc_diag(*D, A->mb, A->nb, chameleon_min(A->m, A->n) - A->mb, A->nb, 0, 0, chameleon_min(A->m, A->n) - A->mb, A->nb, A->p, A->q);
+    chameleon_zdesc_alloc_diag( &D, A->mb, A->m, A->n, A->p, A->q );
 
-    AT = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    *AT = chameleon_desc_init(
-        ChamComplexDouble, A->mb, A->nb, (A->mb*A->nb),
-        chameleon_min(A->mt, A->nt) * A->mb, A->nb, 0, 0, chameleon_min(A->mt, A->nt) * A->mb, A->nb, 1, 1);
-    chameleon_desc_mat_alloc( AT );
-    RUNTIME_desc_create( AT );
+    chameleon_desc_init( &AT, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, A->mb, A->nb, (A->mb*A->nb),
+                         chameleon_min(A->mt, A->nt) * A->mb, A->nb, 0, 0,
+                         chameleon_min(A->mt, A->nt) * A->mb, A->nb, 1, 1,
+                         NULL, NULL, NULL );
 
     /* Let's extract the diagonal in a temporary copy that contains A and A' */
     for (k = 1; k < A->nt; k++){
@@ -437,8 +434,8 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     RUNTIME_options_finalize(&options, chamctxt);
 
     CHAMELEON_Sequence_Wait(sequence);
-    CHAMELEON_Desc_Destroy( &D );
-    CHAMELEON_Desc_Destroy( &AT );
+    chameleon_desc_destroy( &D );
+    chameleon_desc_destroy( &AT );
 
     (void)E;
 }

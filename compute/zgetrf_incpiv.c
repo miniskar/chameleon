@@ -298,8 +298,7 @@ int CHAMELEON_zgetrf_incpiv_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *L, int *IPI
         CHAMELEON_Desc_Flush( L, sequence );
         CHAMELEON_Desc_Flush( Dptr, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

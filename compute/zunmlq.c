@@ -381,8 +381,7 @@ int CHAMELEON_zunmlq_Tile_Async( cham_side_t side, cham_trans_t trans,
         CHAMELEON_Desc_Flush( T, sequence );
         CHAMELEON_Desc_Flush( Dptr, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

@@ -209,6 +209,13 @@ typedef enum chameleon_translation_e {
 } cham_translation_t;
 
 /**
+ * @brief Constant to describe how to initialize the mat pointer in descriptors
+ */
+#define CHAMELEON_MAT_ALLOC_GLOBAL NULL
+#define CHAMELEON_MAT_ALLOC_TILE   ((void*)-1)
+#define CHAMELEON_MAT_OOC          ((void*)-2)
+
+/**
  *  CHAMELEON constants - success & error codes
  */
 #define CHAMELEON_SUCCESS                 0
