@@ -432,8 +432,7 @@ int CHAMELEON_zgels_Tile_Async( cham_trans_t trans, CHAM_desc_t *A,
         CHAMELEON_Desc_Flush( B, sequence );
         CHAMELEON_Desc_Flush( Dptr, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

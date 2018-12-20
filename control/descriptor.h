@@ -37,6 +37,7 @@ inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int
 inline static void* chameleon_getaddr_cm    (const CHAM_desc_t *A, int m, int n);
 inline static void* chameleon_getaddr_ccrb  (const CHAM_desc_t *A, int m, int n);
 inline static void* chameleon_getaddr_null  (const CHAM_desc_t *A, int m, int n);
+inline static void* chameleon_getaddr_diag  (const CHAM_desc_t *A, int m, int n);
 inline static int   chameleon_getblkldd_cm  (const CHAM_desc_t *A, int m);
 inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 
@@ -46,21 +47,16 @@ inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 inline static int   chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
 inline static int   chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
 
-CHAM_desc_t chameleon_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                             int lm, int ln, int i, int j, int m, int n, int p, int q);
-CHAM_desc_t chameleon_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                  int lm, int ln, int i, int j, int m, int n, int p, int q);
-CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                  int lm, int ln, int i, int j,
-                                  int m,  int n,  int p, int q,
-                                  void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                                  int (*get_blkldd)( const CHAM_desc_t*, int ),
-                                  int (*get_rankof)( const CHAM_desc_t*, int, int ));
-CHAM_desc_t* chameleon_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n);
-
-int chameleon_desc_check    (const CHAM_desc_t *desc);
-int chameleon_desc_mat_alloc(CHAM_desc_t *desc);
-int chameleon_desc_mat_free (CHAM_desc_t *desc);
+int          chameleon_desc_init     ( CHAM_desc_t *desc, void *mat,
+                                       cham_flttype_t dtyp, int mb, int nb, int bsiz,
+                                       int lm, int ln, int i, int j,
+                                       int m,  int n,  int p, int q,
+                                       void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                                       int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                                       int   (*get_rankof) ( const CHAM_desc_t*, int, int ) );
+CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
+void         chameleon_desc_destroy  ( CHAM_desc_t *desc );
+int          chameleon_desc_check    ( const CHAM_desc_t *desc );
 
 #define BLKLDD(A, k) A->get_blkldd( A, k )
 
@@ -118,6 +114,15 @@ inline static void *chameleon_getaddr_cm(const CHAM_desc_t *A, int m, int n)
 
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
+ */
+inline static void *chameleon_getaddr_diag( const CHAM_desc_t *A, int m, int n )
+{
+    assert( m == n );
+    return chameleon_getaddr_ccrb( A, m, 0 );
+}
+
+/**
+ *  Internal function to return address of block (m,n) with m,n = block indices
  *  This version lets the runtime allocate on-demand.
  */
 inline static void *chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
@@ -170,7 +175,6 @@ inline static int chameleon_getblkldd_cm(const CHAM_desc_t *A, int m) {
     return A->llm;
 }
 
-
 /**
  *  Internal function to return MPI rank of element A(m,n) with m,n = block indices
  */
@@ -187,7 +191,7 @@ inline static int chameleon_getrankof_2d(const CHAM_desc_t *A, int m, int n)
 inline static int chameleon_getrankof_2d_diag(const CHAM_desc_t *A, int m, int n)
 {
     int mm = m + A->i / A->mb;
-    assert( n == 0 );
+    assert( m == n );
     return (mm % A->p) * A->q + (mm % A->q);
 }
 

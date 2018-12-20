@@ -77,8 +77,8 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
 
     /* Create the B descriptor to handle the Lapack format matrix */
     CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
-                            LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+                                LDA, A->n, 0, 0, A->m, A->n, 1, 1,
+                                chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
     /* Start the computation */
     chameleon_sequence_create( chamctxt, &sequence );
@@ -154,8 +154,8 @@ int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int 
 
     /* Create the B descriptor to handle the Lapack format matrix */
     CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
-                            LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+                                LDA, A->n, 0, 0, A->m, A->n, 1, 1,
+                                chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
     /* Start the computation */
     chameleon_sequence_create( chamctxt, &sequence );

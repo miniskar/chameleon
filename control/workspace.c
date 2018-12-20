@@ -74,32 +74,7 @@ int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM
     lm = IB * MT;
     ln = NB * NT;
 
-    /* Allocate and initialize descriptor */
-    *desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    if (*desc == NULL) {
-        chameleon_error("chameleon_alloc_ibnb_tile", "malloc() failed");
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-    **desc = chameleon_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q);
-
-    /* Allocate matrix */
-    if (chameleon_desc_mat_alloc(*desc)) {
-        chameleon_error("chameleon_alloc_ibnb_tile", "malloc() failed");
-        free(*desc);
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-
-    RUNTIME_desc_create( *desc );
-
-    /* Check that everything is ok */
-    status = chameleon_desc_check(*desc);
-    if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("chameleon_alloc_ibnb_tile", "invalid descriptor");
-        free(*desc);
-        return status;
-    }
-
-    return CHAMELEON_SUCCESS;
+    return CHAMELEON_Desc_Create( desc, NULL, type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
 }
 
 /**
@@ -144,18 +119,7 @@ int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc
     /* TODO: Fix the distribution for IPIV */
     *IPIV = (int*)malloc( size );
 
-    *desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    **desc = chameleon_desc_init(type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
-
-    if ( chameleon_desc_mat_alloc(*desc) ) {
-        chameleon_error("chameleon_alloc_ipiv", "malloc() failed");
-        free(*desc);
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-
-    RUNTIME_desc_create( *desc );
-
-    return CHAMELEON_SUCCESS;
+    return CHAMELEON_Desc_Create( desc, NULL, type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
 }
 
 /**
@@ -193,8 +157,7 @@ int CHAMELEON_Dealloc_Workspace(CHAM_desc_t **desc)
         chameleon_error("CHAMELEON_Dealloc_Worspace", "attempting to deallocate a NULL pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    chameleon_desc_mat_free( *desc );
-    RUNTIME_desc_destroy( *desc );
+    chameleon_desc_destroy( *desc );
 
     free(*desc);
     *desc = NULL;

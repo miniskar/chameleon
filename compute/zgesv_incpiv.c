@@ -331,8 +331,7 @@ int CHAMELEON_zgesv_incpiv_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV
         CHAMELEON_Desc_Flush( Dptr, sequence );
         CHAMELEON_Desc_Flush( B, sequence );
         chameleon_sequence_wait( chamctxt, sequence );
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

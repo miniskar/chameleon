@@ -392,8 +392,7 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     NB = descA.mb;
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        chameleon_zdesc_alloc_diag( D, A->mb, A->nb, chameleon_min(A->m, A->n), A->nb,
-                                    0, 0, chameleon_min(A->m, A->n), A->nb, A->p, A->q );
+        chameleon_zdesc_alloc_diag( &D, A->mb, A->m, A->n, A->p, A->q );
         Dptr = &D;
     }
 #endif
@@ -404,12 +403,12 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     LDAB = NB+1;
 
     /* Allocate band structure */
-    chameleon_zdesc_alloc_diag( descAB,
-                                LDAB, NB, /* mb, nb */
-                                LDAB, N,  /* lm, ln */
-                                0, 0,     /* i, j */
-                                LDAB, N,  /* m, n */
-                                1, 1 );
+    chameleon_zdesc_alloc( descAB,
+                           LDAB, NB, /* mb, nb */
+                           LDAB, N,  /* lm, ln */
+                           0, 0,     /* i, j */
+                           LDAB, N,  /* m, n */
+                            );
 
     /* Copy data into band structure */
     chameleon_pztile2band( uplo, A, &descAB,
@@ -432,10 +431,9 @@ int CHAMELEON_zhetrd_Tile_Async( cham_job_t jobz,
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
     if (Dptr != NULL) {
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
-    chameleon_desc_mat_free( &descAB );
+    chameleon_desc_destroy( &descAB );
     (void)D;
     return CHAMELEON_SUCCESS;
 }

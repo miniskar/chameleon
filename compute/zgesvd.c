@@ -471,7 +471,7 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
 
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, A->n, 0, 0, A->m, A->n, );
+        chameleon_zdesc_alloc_diag( &D, A->mb, A->m, A->n, A->p, A->q );
         Dptr = &D;
     }
 #endif
@@ -480,12 +480,12 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
                              sequence, request );
 
     /* Allocate band structure */
-    chameleon_zdesc_alloc_diag( descAB,
-                                LDAB, NB,
-                                LDAB, MINMN,
-                                0, 0,
-                                LDAB, MINMN,
-                                1, 1 );
+    chameleon_zdesc_alloc( descAB,
+                           LDAB, NB, /* mb, nb */
+                           LDAB, N,  /* lm, ln */
+                           0, 0,     /* i, j */
+                           LDAB, N,  /* m, n */
+                            );
 
     /* Convert matrix to band form */
     chameleon_pztile2band( uplo,
@@ -559,7 +559,7 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     chameleon_sequence_wait( chamctxt, sequence );
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
-    chameleon_desc_mat_free( &descAB );
+    chameleon_desc_destroy( &descAB );
 
     subA = NULL;
     subT = NULL;
@@ -640,8 +640,7 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
 
     free(E);
     if ( Dptr ) {
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

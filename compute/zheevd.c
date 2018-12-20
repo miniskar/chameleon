@@ -534,9 +534,8 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     free(Q2);
     free(V);
     free(E);
-    if (Dptr != NULL) {
-        RUNTIME_desc_destroy( Dptr );
-        chameleon_desc_mat_free( Dptr );
+    if ( Dptr != NULL ) {
+        chameleon_desc_destroy( Dptr );
     }
     (void)D;
     return CHAMELEON_SUCCESS;

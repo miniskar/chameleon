@@ -32,11 +32,48 @@
 static int nbdesc = 0;
 
 /**
+ *
+ */
+int chameleon_desc_mat_alloc( CHAM_desc_t *desc )
+{
+    size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
+        * (size_t)CHAMELEON_Element_Size(desc->dtyp);
+    if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
+        chameleon_error("chameleon_desc_mat_alloc", "malloc() failed");
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
+    }
+
+    /* The matrix has already been registered by the Runtime alloc */
+    desc->register_mat = 0;
+
+    return CHAMELEON_SUCCESS;
+}
+
+/**
+ *
+ */
+int chameleon_desc_mat_free( CHAM_desc_t *desc )
+{
+    if ( (desc->mat       != NULL) &&
+         (desc->use_mat   == 1   ) &&
+         (desc->alloc_mat == 1   ) )
+    {
+        size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
+            * (size_t)CHAMELEON_Element_Size(desc->dtyp);
+
+        RUNTIME_free(desc->mat, size);
+        desc->mat = NULL;
+    }
+
+    return CHAMELEON_SUCCESS;
+}
+
+/**
  ******************************************************************************
  *
  * @ingroup Descriptor
  *
- * chameleon_desc_init_user - Internal function to create tiled matrix descriptor
+ * @brief Internal function to create tiled matrix descriptor
  * with generic function for data distribution and storage format.
  *
  ******************************************************************************
@@ -96,121 +133,132 @@ static int nbdesc = 0;
  * @return  The descriptor with the matrix description parameters set.
  *
  */
-CHAM_desc_t chameleon_desc_init_user(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                     int lm, int ln, int i, int j,
-                                     int m,  int n,  int p, int q,
-                                     void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                                     int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                     int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
+int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
+                         cham_flttype_t dtyp, int mb, int nb, int bsiz,
+                         int lm, int ln, int i, int j,
+                         int m,  int n,  int p, int q,
+                         void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                         int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                         int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
 {
     CHAM_context_t *chamctxt;
-    CHAM_desc_t desc;
+    int rc = CHAMELEON_SUCCESS;
 
-    memset( &desc, 0, sizeof(CHAM_desc_t) );
+    memset( desc, 0, sizeof(CHAM_desc_t) );
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
         chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
-        return desc;
+        return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
     // If one of the function get_* is NULL, we switch back to the default, like in chameleon_desc_init()
-    desc.get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
-    desc.get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
-    desc.get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
+    desc->get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
+    desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
+    desc->get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
     // Matrix properties
-    desc.dtyp = dtyp;
+    desc->dtyp = dtyp;
     // Should be given as parameter to follow get_blkaddr (unused)
-    desc.styp = ChamCCRB;
-    desc.mb   = mb;
-    desc.nb   = nb;
-    desc.bsiz = bsiz;
+    desc->styp = ChamCCRB;
+    desc->mb   = mb;
+    desc->nb   = nb;
+    desc->bsiz = bsiz;
     // Large matrix parameters
-    desc.lm = lm;
-    desc.ln = ln;
+    desc->lm = lm;
+    desc->ln = ln;
     // Large matrix derived parameters
-    desc.lmt = (lm%mb==0) ? (lm/mb) : (lm/mb+1);
-    desc.lnt = (ln%nb==0) ? (ln/nb) : (ln/nb+1);
+    desc->lmt = (lm%mb==0) ? (lm/mb) : (lm/mb+1);
+    desc->lnt = (ln%nb==0) ? (ln/nb) : (ln/nb+1);
     // Submatrix parameters
-    desc.i = i;
-    desc.j = j;
-    desc.m = m;
-    desc.n = n;
+    desc->i = i;
+    desc->j = j;
+    desc->m = m;
+    desc->n = n;
     // Submatrix derived parameters
-    desc.mt = (m == 0) ? 0 : (i+m-1)/mb - i/mb + 1;
-    desc.nt = (n == 0) ? 0 : (j+n-1)/nb - j/nb + 1;
+    desc->mt = (m == 0) ? 0 : (i+m-1)/mb - i/mb + 1;
+    desc->nt = (n == 0) ? 0 : (j+n-1)/nb - j/nb + 1;
 
-    desc.id = nbdesc; nbdesc++;
-    desc.occurences = 0;
-    desc.use_mat      = 1;
-    desc.alloc_mat    = 1;
-    desc.register_mat = (chamctxt->ncudas > 0) ? 1 : 0;
-    desc.ooc          = 0;
+    desc->id = nbdesc;
+    nbdesc++;
+    desc->occurences = 0;
 
-    desc.myrank = RUNTIME_comm_rank( chamctxt );
+    desc->myrank = RUNTIME_comm_rank( chamctxt );
 
     // Grid size
-    desc.p = p;
-    desc.q = q;
+    desc->p = p;
+    desc->q = q;
 
     // Local dimensions in tiles
-    if ( desc.myrank < (p*q) ) {
-        desc.llmt = (desc.lmt + p - 1) / p;
-        desc.llnt = (desc.lnt + q - 1) / q;
+    if ( desc->myrank < (p*q) ) {
+        desc->llmt = (desc->lmt + p - 1) / p;
+        desc->llnt = (desc->lnt + q - 1) / q;
 
         // Local dimensions
-        if ( ((desc.lmt-1) % p) == (desc.myrank / q) ) {
-            desc.llm  = ( desc.llmt - 1 ) * mb + ((lm%mb==0) ? mb : (lm%mb));
+        if ( ((desc->lmt-1) % p) == (desc->myrank / q) ) {
+            desc->llm  = ( desc->llmt - 1 ) * mb + ((lm%mb==0) ? mb : (lm%mb));
         } else {
-            desc.llm  =  desc.llmt * mb;
+            desc->llm  =  desc->llmt * mb;
         }
 
-        if ( ((desc.lnt-1) % q) == (desc.myrank % q) ) {
-            desc.lln  = ( desc.llnt - 1 ) * nb + ((ln%nb==0) ? nb : (ln%nb));
+        if ( ((desc->lnt-1) % q) == (desc->myrank % q) ) {
+            desc->lln  = ( desc->llnt - 1 ) * nb + ((ln%nb==0) ? nb : (ln%nb));
         } else {
-            desc.lln  =  desc.llnt * nb;
+            desc->lln  =  desc->llnt * nb;
         }
 
-        desc.llm1 = (desc.llm/mb);
-        desc.lln1 = (desc.lln/nb);
+        desc->llm1 = (desc->llm/mb);
+        desc->lln1 = (desc->lln/nb);
     } else {
-        desc.llmt = 0;
-        desc.llnt = 0;
-        desc.llm  = 0;
-        desc.lln  = 0;
-        desc.llm1 = 0;
-        desc.lln1 = 0;
+        desc->llmt = 0;
+        desc->llnt = 0;
+        desc->llm  = 0;
+        desc->lln  = 0;
+        desc->llm1 = 0;
+        desc->lln1 = 0;
     }
 
+    /* memory of the matrix is handled by the user */
+    desc->alloc_mat    = 0;
+    /* if the user gives a pointer to the overall data (tiles) we can use it */
+    desc->use_mat      = 0;
+    /* users data can have multiple forms: let him register tiles */
+    desc->register_mat = 0;
+    /* The matrix is alocated tile by tile with out of core */
+    desc->ooc = 0;
+
     // Matrix address
-    desc.mat = NULL;
-    desc.A21 = (size_t)(desc.llm - desc.llm%mb)*(size_t)(desc.lln - desc.lln%nb);
-    desc.A12 = (size_t)(           desc.llm%mb)*(size_t)(desc.lln - desc.lln%nb) + desc.A21;
-    desc.A22 = (size_t)(desc.llm - desc.llm%mb)*(size_t)(           desc.lln%nb) + desc.A12;
+    if ( mat == CHAMELEON_MAT_ALLOC_GLOBAL ) {
+        rc = chameleon_desc_mat_alloc( desc );
 
-    return desc;
-}
+        desc->alloc_mat = 1;
+        desc->use_mat   = 1;
+    }
+    else if ( mat == CHAMELEON_MAT_ALLOC_TILE ) {
+        //chameleon_error( "chameleon_desc_init", "CHAMELEON_MAT_ALLOC_TILE is not available yet" );
+        //desc->mat = NULL;
+        rc = chameleon_desc_mat_alloc( desc );
+        desc->use_mat   = 1;
 
-/**
- *  Internal static descriptor initializer
- */
-CHAM_desc_t chameleon_desc_init(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                int lm, int ln, int i, int j,
-                                int m,  int n,  int p, int q)
-{
-    return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                    chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d);
-}
+        desc->alloc_mat = 1;
+    }
+    else if ( mat == CHAMELEON_MAT_OOC ) {
+        desc->mat = NULL;
+        desc->ooc = 1;
+    }
+    else {
+        /* memory of the matrix is handled by users */
+        desc->mat     = mat;
+        desc->use_mat = 1;
+    }
 
-/**
- *  Internal static descriptor initializer for a block diagonal matrix
- */
-CHAM_desc_t chameleon_desc_init_diag(cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                                     int lm, int ln, int i, int j,
-                                     int m,  int n,  int p, int q)
-{
-    return chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                    chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, chameleon_getrankof_2d_diag);
+    desc->A21 = (size_t)(desc->llm - desc->llm%mb)*(size_t)(desc->lln - desc->lln%nb);
+    desc->A12 = (size_t)(            desc->llm%mb)*(size_t)(desc->lln - desc->lln%nb) + desc->A21;
+    desc->A22 = (size_t)(desc->llm - desc->llm%mb)*(size_t)(            desc->lln%nb) + desc->A12;
+
+    /* Create runtime specific structure like registering data */
+    RUNTIME_desc_create( desc );
+
+    return rc;
 }
 
 /**
@@ -246,6 +294,12 @@ CHAM_desc_t* chameleon_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, i
     descB->occurences++;
 
     return descB;
+}
+
+void chameleon_desc_destroy( CHAM_desc_t *desc )
+{
+    RUNTIME_desc_destroy( desc );
+    chameleon_desc_mat_free( desc );
 }
 
 /**
@@ -291,42 +345,6 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
     if (desc->i+desc->m > desc->lm || desc->j+desc->n > desc->ln) {
         chameleon_error("chameleon_desc_check", "submatrix out of scope");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
-    }
-    return CHAMELEON_SUCCESS;
-}
-
-/**
- *
- */
-int chameleon_desc_mat_alloc( CHAM_desc_t *desc )
-{
-    size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-        * (size_t)CHAMELEON_Element_Size(desc->dtyp);
-    if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
-        chameleon_error("chameleon_desc_mat_alloc", "malloc() failed");
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-
-    /* The matrix has already been registered by the Runtime alloc */
-    desc->register_mat = 0;
-
-    return CHAMELEON_SUCCESS;
-}
-
-/**
- *
- */
-int chameleon_desc_mat_free( CHAM_desc_t *desc )
-{
-    if ( (desc->mat       != NULL) &&
-         (desc->use_mat   == 1   ) &&
-         (desc->alloc_mat == 1   ) )
-    {
-        size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-            * (size_t)CHAMELEON_Element_Size(desc->dtyp);
-
-        RUNTIME_free(desc->mat, size);
-        desc->mat = NULL;
     }
     return CHAMELEON_SUCCESS;
 }
@@ -393,63 +411,12 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
  *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                          int lm, int ln, int i, int j, int m, int n, int p, int q)
+int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
+                           int lm, int ln, int i, int j, int m, int n, int p, int q )
 {
-    CHAM_context_t *chamctxt;
-    CHAM_desc_t *desc;
-    int status;
-
-    *descptr = NULL;
-
-    chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
-        return CHAMELEON_ERR_NOT_INITIALIZED;
-    }
-
-    /* Allocate memory and initialize the descriptor */
-    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    if (desc == NULL) {
-        chameleon_error("CHAMELEON_Desc_Create", "malloc() failed");
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-    *desc = chameleon_desc_init(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q);
-
-    if (mat == NULL) {
-
-        size_t size = (size_t)(desc->llm) * (size_t)(desc->lln)
-            * (size_t)CHAMELEON_Element_Size(desc->dtyp);
-
-        if ((desc->mat = RUNTIME_malloc(size)) == NULL) {
-            chameleon_error("CHAMELEON_Desc_Create", "malloc() failed");
-            free(desc);
-            return CHAMELEON_ERR_OUT_OF_RESOURCES;
-        }
-        desc->use_mat      = 1;
-        desc->alloc_mat    = 1;
-        desc->register_mat = 0;
-
-    } else {
-        desc->mat = mat;
-        /* memory of the matrix is handled by users */
-        desc->alloc_mat    = 0;
-        desc->use_mat      = 1;
-        desc->register_mat = 0;
-    }
-
-    /* Create scheduler structure like registering data */
-    RUNTIME_desc_create( desc );
-
-    status = chameleon_desc_check( desc );
-    if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_Desc_Create", "invalid descriptor");
-        CHAMELEON_Desc_Destroy( &desc );
-        return status;
-    }
-
-    *descptr = desc;
-    return CHAMELEON_SUCCESS;
+    return CHAMELEON_Desc_Create_User( descptr, mat, dtyp, mb, nb, bsiz,
+                                       lm, ln, i, j, m, n, p, q,
+                                       NULL, NULL, NULL );
 }
 
 /**
@@ -507,11 +474,11 @@ int CHAMELEON_Desc_Create(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
  *          \retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                               int lm, int ln, int i, int j, int m, int n, int p, int q,
-                               void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                               int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                               int   (*get_rankof) ( const CHAM_desc_t*, int, int ))
+int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
+                                int lm, int ln, int i, int j, int m, int n, int p, int q,
+                                void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                                int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                                int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -532,22 +499,9 @@ int CHAMELEON_Desc_Create_User(CHAM_desc_t **descptr, void *mat, cham_flttype_t 
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
 
-    *desc = chameleon_desc_init_user(dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                     get_blkaddr, get_blkldd, get_rankof);
-
-    /* if the user gives a pointer to the overall data (tiles) we can use it */
-    desc->use_mat = (mat == NULL) ? 0 : 1;
-
-    /* memory of the matrix is handled by the user */
-    desc->alloc_mat = 0;
-
-    /* users data can have multiple forms: let him register tiles */
-    desc->register_mat = 0;
-
-    desc->mat = mat;
-
-    /* Create runtime specific structure like registering data */
-    RUNTIME_desc_create( desc );
+    chameleon_desc_init( desc, mat, dtyp, mb, nb, bsiz,
+                         lm, ln, i, j, m, n, p, q,
+                         get_blkaddr, get_blkldd, get_rankof );
 
     status = chameleon_desc_check( desc );
     if (status != CHAMELEON_SUCCESS) {
@@ -616,47 +570,11 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
     chameleon_error("CHAMELEON_Desc_Create_OOC_User", "Only StarPU supports on-demand tile allocation");
     return CHAMELEON_ERR_NOT_SUPPORTED;
 #else
-    CHAM_context_t *chamctxt;
-    CHAM_desc_t *desc;
-    int status;
-
-    *descptr = NULL;
-
-    chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "CHAMELEON not initialized");
-        return CHAMELEON_ERR_NOT_INITIALIZED;
-    }
-
-    /* Allocate memory and initialize the descriptor */
-    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    if ( desc == NULL ) {
-        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "malloc() failed");
-        return CHAMELEON_ERR_OUT_OF_RESOURCES;
-    }
-    *desc = chameleon_desc_init_user( dtyp, mb, nb, bsiz, lm, ln, i, j, m, n, p, q,
-                                      chameleon_getaddr_null, NULL, get_rankof );
-
-    /* memory of the matrix is completely handled by runtime */
-    desc->use_mat      = 0;
-    desc->alloc_mat    = 0;
-    desc->register_mat = 0;
-
-    desc->mat = NULL;
-    desc->ooc = 1;
-
-    /* Create scheduler structure like registering data */
-    RUNTIME_desc_create( desc );
-
-    status = chameleon_desc_check( desc );
-    if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_Desc_Create_OOC_User", "invalid descriptor");
-        CHAMELEON_Desc_Destroy( &desc );
-        return status;
-    }
-
-    *descptr = desc;
-    return CHAMELEON_SUCCESS;
+    int rc;
+    rc = CHAMELEON_Desc_Create_User( descptr, CHAMELEON_MAT_OOC, dtyp, mb, nb, bsiz,
+                                     lm, ln, i, j, m, n, p, q,
+                                     chameleon_getaddr_null, NULL, get_rankof );
+    return rc;
 #endif
 }
 
@@ -704,9 +622,9 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
 int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                               int lm, int ln, int i, int j, int m, int n, int p, int q)
 {
-    return CHAMELEON_Desc_Create_OOC_User( descptr, dtyp, mb, nb, bsiz,
-                                           lm, ln, i, j, m, n, p, q,
-                                           chameleon_getrankof_2d );
+    return CHAMELEON_Desc_Create_User( descptr, CHAMELEON_MAT_OOC, dtyp, mb, nb, bsiz,
+                                       lm, ln, i, j, m, n, p, q,
+                                       chameleon_getaddr_null, NULL, NULL );
 }
 
 /**
@@ -741,8 +659,7 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
         return CHAMELEON_ERR_UNALLOCATED;
     }
 
-    RUNTIME_desc_destroy( *desc );
-    chameleon_desc_mat_free( *desc );
+    chameleon_desc_destroy( *desc );
     free(*desc);
     *desc = NULL;
     return CHAMELEON_SUCCESS;
