@@ -141,11 +141,8 @@ Test(int64_t n, int *iparam) {
         return 0;
     }
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
-        printf( "%10d %7d %7d %7d %7d ", iparam[IPARAM_THRDNBR],
-                iparam[IPARAM_M], iparam[IPARAM_N],
-                iparam[IPARAM_NB], iparam[IPARAM_K] );
-    }
+    if ( CHAMELEON_My_Mpi_Rank() == 0)
+        printf( "%7d %7d %7d ", iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_K] );
     fflush( stdout );
 
     t = (double*)malloc(niter*sizeof(double));
@@ -426,7 +423,7 @@ print_header(char *prog_name, int * iparam) {
             iparam[IPARAM_IB],
             eps );
 
-    printf( "#  Threads       M       N      NB  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
+    printf( "#     M       N  K/NRHS   seconds   Gflop/s Deviation%s%s\n",
             bound_header, iparam[IPARAM_INVERSE] ? inverse_header : check_header);
     return;
 }
