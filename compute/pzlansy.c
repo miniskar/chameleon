@@ -353,7 +353,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
 
         alpha = 1.;
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 2, 1, 2,
-                             workmt*2, workn, 0, 0, workmt*2, workn, A->p, A->q,
+                             workmt*2, worknt, 0, 0, workmt*2, worknt, A->p, A->q,
                              NULL, NULL, NULL );
         break;
 
@@ -365,7 +365,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, 1, 1,
-                             workmt, workn, 0, 0, workmt, workn, A->p, A->q,
+                             workmt, worknt, 0, 0, workmt, worknt, A->p, A->q,
                              NULL, NULL, NULL );
     }
 
