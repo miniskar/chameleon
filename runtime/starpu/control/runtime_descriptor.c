@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -470,7 +470,13 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
                                      BLKLDD(A, m),
                                      tempmm, tempnn, eltsze );
 
-#ifdef HAVE_STARPU_DATA_SET_COORDINATES
+#if defined(HAVE_STARPU_DATA_SET_OOC_FLAG)
+        if ( A->ooc == 0 ) {
+            starpu_data_set_ooc_flag( *ptrtile, 0 );
+        }
+#endif
+
+#if defined(HAVE_STARPU_DATA_SET_COORDINATES)
         starpu_data_set_coordinates( *ptrtile, 2, m, n );
 #endif
 
