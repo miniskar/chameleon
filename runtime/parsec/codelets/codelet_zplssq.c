@@ -56,17 +56,20 @@ static inline int
 CORE_zplssq_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
-    double *SCALESUMSQ;
-    double *SCLSSQ;
+    double *SCLSSQ_IN;
+    double *SCLSSQ_OUT;
 
     parsec_dtd_unpack_args(
-        this_task, &SCALESUMSQ, &SCLSSQ );
+        this_task, &SCLSSQ_IN, &SCLSSQ_OUT );
 
-    if( SCLSSQ[0] < SCALESUMSQ[0] ) {
-        SCLSSQ[1] = SCALESUMSQ[1] + (SCLSSQ[1]     * (( SCLSSQ[0] / SCALESUMSQ[0] ) * ( SCLSSQ[0] / SCALESUMSQ[0] )));
-        SCLSSQ[0] = SCALESUMSQ[0];
+    assert( SCLSSQ_OUT[0] >= 0. );
+    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
+        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
+        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
     } else {
-        SCLSSQ[1] = SCLSSQ[1]     + (SCALESUMSQ[1] * (( SCALESUMSQ[0] / SCLSSQ[0] ) * ( SCALESUMSQ[0] / SCLSSQ[0] )));
+        if ( SCLSSQ_OUT[0] > 0 ) {
+            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
+        }
     }
 
     (void)context;

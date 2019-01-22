@@ -120,13 +120,13 @@ static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
+    const CHAMELEON_Complex64_t *A;
     int LDA;
     CHAMELEON_Complex64_t beta;
     CHAMELEON_Complex64_t *B;
     int LDB;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &LDA, &beta, &LDB);
     CORE_zgeadd(trans, M, N, alpha, A, LDA, beta, B, LDB);

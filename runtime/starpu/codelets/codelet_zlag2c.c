@@ -85,24 +85,25 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_clag2z;
     void (*callback)(void*) = options->profiling ? cl_clag2z_callback : NULL;
 
-    if ( chameleon_desc_islocal( A, Am, An ) ||
-         chameleon_desc_islocal( B, Bm, Bn ) )
-    {
-        starpu_insert_task(
-            starpu_mpi_codelet(codelet),
-            STARPU_VALUE,    &m,                 sizeof(int),
-            STARPU_VALUE,    &n,                 sizeof(int),
-            STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),
-            STARPU_VALUE,    &lda,               sizeof(int),
-            STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-            STARPU_VALUE,    &ldb,               sizeof(int),
-            STARPU_PRIORITY,  options->priority,
-            STARPU_CALLBACK,  callback,
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R( A, Am, An );
+    CHAMELEON_ACCESS_W( B, Bm, Bn );
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &m,                 sizeof(int),
+        STARPU_VALUE,    &n,                 sizeof(int),
+        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),
+        STARPU_VALUE,    &lda,               sizeof(int),
+        STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        STARPU_VALUE,    &ldb,               sizeof(int),
+        STARPU_PRIORITY,  options->priority,
+        STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-            STARPU_NAME, "clag2z",
+        STARPU_NAME, "clag2z",
 #endif
-            0);
-    }
+        0);
 }
 
 
