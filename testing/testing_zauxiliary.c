@@ -182,6 +182,7 @@ int main (int argc, char **argv)
     CHAMELEON_Disable(CHAMELEON_AUTOTUNING);
     CHAMELEON_Set(CHAMELEON_TILE_SIZE,        nb );
     CHAMELEON_Set(CHAMELEON_INNER_BLOCK_SIZE, ib );
+    CHAMELEON_user_tag_size( 64, 54 );
 
     argc -= 6;
     argv += 6;

@@ -66,8 +66,8 @@ static void cl_ztrasm_cpu_func(void *descr[], void *cl_arg)
     int lda;
     double *work;
 
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    work = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &diag, &M, &N, &lda);
     CORE_ztrasm(storev, uplo, diag, M, N, A, lda, work);
 }

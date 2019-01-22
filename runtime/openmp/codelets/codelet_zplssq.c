@@ -57,18 +57,18 @@
  *
  */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+                         const CHAM_desc_t *IN,  int INm,  int INn,
+                         const CHAM_desc_t *OUT, int OUTm, int OUTn )
 {
-    double *scalesum = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-    double *scl = RTBLKADDR(SCLSSQ, double, SCLSSQm, SCLSSQn);
-#pragma omp task depend(in: scalesum[0]) depend(inout: scl[0])
+    double *sclssq_in  = RTBLKADDR(IN,  double, INm,  INn );
+    double *sclssq_out = RTBLKADDR(OUT, double, OUTm, OUTn);
+#pragma omp task depend(in: sclssq_in[0]) depend(inout: sclssq_out[0])
     {
-        if( scl[0] < scalesum[0] ) {
-            scl[1] = scalesum[1] + (scl[1]     * (( scl[0] / scalesum[0] ) * ( scl[0] / scalesum[0] )));
-            scl[0] = scalesum[0];
+        if( sclssq_out[0] < sclssq_in[0] ) {
+            sclssq_out[1] = sclssq_in[1]  + (sclssq_out[1] * (( sclssq_out[0] / sclssq_in[0] ) * ( sclssq_out[0] / sclssq_in[0] )));
+            sclssq_out[0] = sclssq_in[0];
         } else {
-            scl[1] = scl[1]     + (scalesum[1] * (( scalesum[0] / scl[0] ) * ( scalesum[0] / scl[0] )));
+            sclssq_out[1] = sclssq_out[1] + (sclssq_in[1]  * (( sclssq_in[0] / sclssq_out[0] ) * ( sclssq_in[0] / sclssq_out[0] )));
         }
     }
 }

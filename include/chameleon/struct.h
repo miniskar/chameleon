@@ -109,8 +109,6 @@ typedef struct chameleon_context_s {
     int                my_mpi_rank;
     int                mpi_comm_size;
 #endif
-    int                world_size;
-    int                group_size;
 
     /* Boolean flags */
     cham_bool_t        warnings_enabled;

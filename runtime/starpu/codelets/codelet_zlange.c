@@ -70,7 +70,7 @@ static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
     work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
     starpu_codelet_unpack_args(cl_arg, &norm, &M, &N, &LDA);
-    CORE_zlange( norm, M, N, A, LDA, work, normA);
+    CORE_zlange( norm, M, N, A, LDA, work, normA );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -86,34 +86,35 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zlange_max;
     void (*callback)(void*) = options->profiling ? cl_zlange_callback : NULL;
 
-    if ( chameleon_desc_islocal( A, Am, An ) ||
-         chameleon_desc_islocal( B, Bm, Bn ) )
-    {
-        starpu_insert_task(
-            starpu_mpi_codelet(codelet),
-            STARPU_R,        RTBLKADDR(A, double, Am, An),
-            STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
-            STARPU_PRIORITY, options->priority,
-            STARPU_CALLBACK, callback,
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(  A, Am, An );
+    CHAMELEON_ACCESS_RW( B, Bm, Bn );
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_R,        RTBLKADDR(A, double, Am, An),
+        STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
+        STARPU_PRIORITY, options->priority,
+        STARPU_CALLBACK, callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-            STARPU_NAME, "zlange_max",
+        STARPU_NAME, "zlange_max",
 #endif
-            0);
-    }
+        0);
 }
 
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlange_max_cpu_func(void *descr[], void *cl_arg)
 {
     double *A;
-    double *normA;
+    double *B;
 
-    A     = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-    if ( *A > *normA )
-        *normA = *A;
-
+    if ( *A > *B ) {
+        *B = *A;
+    }
     (void)cl_arg;
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */

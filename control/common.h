@@ -77,11 +77,8 @@
  *  Global shortcuts
  */
 #define CHAMELEON_RANK        chameleon_rank(chamctxt)
-#define CHAMELEON_SIZE        chamctxt->world_size
-#define CHAMELEON_GRPSIZE     chamctxt->group_size
 #define CHAMELEON_NB          chamctxt->nb
 #define CHAMELEON_IB          chamctxt->ib
-#define CHAMELEON_SCHEDULING  chamctxt->scheduling
 #define CHAMELEON_RHBLK       chamctxt->rhblock
 #define CHAMELEON_TRANSLATION chamctxt->translation
 #define CHAMELEON_PARALLEL    chamctxt->parallel_enabled

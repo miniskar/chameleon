@@ -26,16 +26,19 @@
 
 void CORE_zplssq_quark(Quark *quark)
 {
-    double *SCALESUMSQ;
-    double *SCLSSQ;
+    double *SCLSSQ_IN;
+    double *SCLSSQ_OUT;
 
-    quark_unpack_args_2( quark, SCALESUMSQ, SCLSSQ );
+    quark_unpack_args_2( quark, SCLSSQ_IN, SCLSSQ_OUT );
 
-    if( SCLSSQ[0] < SCALESUMSQ[0] ) {
-        SCLSSQ[1] = SCALESUMSQ[1] + (SCLSSQ[1]     * (( SCLSSQ[0] / SCALESUMSQ[0] ) * ( SCLSSQ[0] / SCALESUMSQ[0] )));
-        SCLSSQ[0] = SCALESUMSQ[0];
+    assert( SCLSSQ_OUT[0] >= 0. );
+    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
+        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
+        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
     } else {
-        SCLSSQ[1] = SCLSSQ[1]     + (SCALESUMSQ[1] * (( SCALESUMSQ[0] / SCLSSQ[0] ) * ( SCALESUMSQ[0] / SCLSSQ[0] )));
+        if ( SCLSSQ_OUT[0] > 0 ) {
+            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
+        }
     }
 }
 

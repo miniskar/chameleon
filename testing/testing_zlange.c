@@ -51,10 +51,8 @@ int testing_zlange(int argc, char **argv)
 
     /* Allocate Data */
     CHAMELEON_Complex64_t *A    = (CHAMELEON_Complex64_t *)malloc(LDAxN*sizeof(CHAMELEON_Complex64_t));
-    double            *work = (double*) malloc(max(M,N)*sizeof(double));
+    double                *work = (double*) malloc(max(M,N)*sizeof(double));
     double normcham, normlapack, result;
-
-    RUNTIME_comm_set_tag_sizes( 31, 16 );
 
     eps = LAPACKE_dlamch_work('e');
 

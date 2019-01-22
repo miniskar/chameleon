@@ -55,21 +55,21 @@
  *
  */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+                        const CHAM_desc_t *SCLSSQ_IN,  int SCLSSQ_INm,  int SCLSSQ_INn,
+                        const CHAM_desc_t *SCLSSQ_OUT, int SCLSSQ_OUTm, int SCLSSQ_OUTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(SCALESUMSQ, SCALESUMSQm, SCALESUMSQn);
-    CHAMELEON_ACCESS_RW(SCLSSQ, SCLSSQm, SCLSSQn);
+    CHAMELEON_ACCESS_R(  SCLSSQ_IN,  SCLSSQ_INm,  SCLSSQ_INn  );
+    CHAMELEON_ACCESS_RW( SCLSSQ_OUT, SCLSSQ_OUTm, SCLSSQ_OUTn );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_R,  RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn),
-        STARPU_RW, RTBLKADDR(SCLSSQ,     double, SCLSSQm,     SCLSSQn),
+        STARPU_R,  RTBLKADDR( SCLSSQ_IN,  double, SCLSSQ_INm,  SCLSSQ_INn  ),
+        STARPU_RW, RTBLKADDR( SCLSSQ_OUT, double, SCLSSQ_OUTm, SCLSSQ_OUTn ),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
@@ -82,17 +82,20 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
 {
-    double *SCALESUMSQ;
-    double *SCLSSQ;
+    double *SCLSSQ_IN;
+    double *SCLSSQ_OUT;
 
-    SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    SCLSSQ     = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    SCLSSQ_IN  = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
+    SCLSSQ_OUT = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-    if( SCLSSQ[0] < SCALESUMSQ[0] ) {
-        SCLSSQ[1] = SCALESUMSQ[1] + (SCLSSQ[1]     * (( SCLSSQ[0] / SCALESUMSQ[0] ) * ( SCLSSQ[0] / SCALESUMSQ[0] )));
-        SCLSSQ[0] = SCALESUMSQ[0];
+    assert( SCLSSQ_OUT[0] >= 0. );
+    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
+        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
+        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
     } else {
-        SCLSSQ[1] = SCLSSQ[1]     + (SCALESUMSQ[1] * (( SCALESUMSQ[0] / SCLSSQ[0] ) * ( SCALESUMSQ[0] / SCLSSQ[0] )));
+        if ( SCLSSQ_OUT[0] > 0 ) {
+            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
+        }
     }
 
     (void)cl_arg;
@@ -110,17 +113,19 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
 
-    if ( chameleon_desc_islocal( RESULT, RESULTm, RESULTn ) ) {
-        starpu_insert_task(
-            starpu_mpi_codelet(codelet),
-            STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
-            STARPU_PRIORITY,    options->priority,
-            STARPU_CALLBACK,    callback,
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW( RESULT, RESULTm, RESULTn );
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
+        STARPU_PRIORITY,    options->priority,
+        STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-            STARPU_NAME, "zplssq2",
+        STARPU_NAME, "zplssq2",
 #endif
-            0);
-    }
+        0);
 }
 
 

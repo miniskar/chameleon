@@ -315,7 +315,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
     double alpha = 0.0;
     double beta  = 0.0;
 
-    int workn, workmt, worknt;
+    int workmt, worknt;
     int m, n, wcol_init = 0;
 
     chamctxt = chameleon_context_self();
@@ -328,7 +328,6 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
 
     workmt = chameleon_max( A->mt, A->p );
     worknt = chameleon_max( A->nt, A->q );
-    workn  = chameleon_max( A->n,  A->q );
 
     switch ( norm ) {
     case ChamOneNorm:
@@ -415,7 +414,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
      */
     for(m = 0; m < A->p; m++) {
         for(n = 0; n < A->q; n++) {
-            if ( (m != 0) && (n != 0) ) {
+            if ( (m != 0) || (n != 0) ) {
                 INSERT_TASK_dlacpy(
                     &options,
                     ChamUpperLower, 1, 1, 1,

@@ -32,17 +32,17 @@
  *
  */
 void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int m, int n, int nb,
-                        int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                         cham_uplo_t uplo, int m, int n, int nb,
+                         int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                         int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlacpy;
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_W(B, Bm, Bn);
+    CHAMELEON_ACCESS_R( A, Am, An );
+    CHAMELEON_ACCESS_W( B, Bm, Bn );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
@@ -65,13 +65,13 @@ void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
 }
 
 void INSERT_TASK_zlacpy(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                        cham_uplo_t uplo, int m, int n, int nb,
+                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *B, int Bm, int Bn, int ldb)
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                        0, A, Am, An, lda,
-                        0, B, Bm, Bn, ldb );
+                         0, A, Am, An, lda,
+                         0, B, Bm, Bn, ldb );
 }
 
 #if !defined(CHAMELEON_SIMULATION)
