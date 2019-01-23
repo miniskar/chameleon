@@ -84,7 +84,7 @@ chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
          * Step 2:
          *  For each i, W(i, n) = reduce( W(0..P-1, n) )
          */
-        for(m = 1; m < P; n++) {
+        for(m = 1; m < P; m++) {
             INSERT_TASK_dgeadd(
                 options,
                 ChamNoTrans, 1, tempnn, A->nb,
