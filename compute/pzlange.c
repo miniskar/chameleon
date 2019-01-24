@@ -517,7 +517,11 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
         }
     }
 
+    if ( wcol_init ) {
+        CHAMELEON_Desc_Flush( &Wcol, sequence );
+    }
     CHAMELEON_Desc_Flush( &Welt, sequence );
+    CHAMELEON_Desc_Flush( A, sequence );
     RUNTIME_sequence_wait(chamctxt, sequence);
 
     *result = *((double *)Welt.get_blkaddr( &Welt, A->myrank / A->q, A->myrank % A->q ));

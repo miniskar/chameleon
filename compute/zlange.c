@@ -188,7 +188,7 @@ double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
  * @sa CHAMELEON_slange_Tile
  *
  */
-double CHAMELEON_zlange_Tile(cham_normtype_t norm, CHAM_desc_t *A )
+double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;

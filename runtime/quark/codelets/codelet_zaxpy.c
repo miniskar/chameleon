@@ -37,7 +37,7 @@ void CORE_zaxpy_quark(Quark *quark)
 }
 
 void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
-                      int M, CHAMELEON_Complex64_t *alpha,
+                      int M, CHAMELEON_Complex64_t alpha,
                       const CHAM_desc_t *A, int Am, int An, int incA,
                       const CHAM_desc_t *B, int Bm, int Bn, int incB)
 {
@@ -45,10 +45,10 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
     DAG_CORE_AXPY;
     QUARK_Insert_Task(opt->quark, CORE_zaxpy_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                        &M,         VALUE,
-        sizeof(CHAMELEON_Complex64_t),          alpha,      VALUE,
-        sizeof(CHAMELEON_Complex64_t)*M,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+        sizeof(CHAMELEON_Complex64_t),      &alpha,     VALUE,
+        sizeof(CHAMELEON_Complex64_t)*M,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(int),                        &incA,      VALUE,
-        sizeof(CHAMELEON_Complex64_t)*M,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), INOUT,
+        sizeof(CHAMELEON_Complex64_t)*M,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), INOUT,
         sizeof(int),                        &incB,      VALUE,
         0);
 }

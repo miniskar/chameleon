@@ -36,7 +36,7 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
     starpu_insert_task(
             starpu_mpi_codelet(codelet),
             STARPU_VALUE,    &M,                           sizeof(int),
-            STARPU_VALUE,    alpha,                       sizeof(CHAMELEON_Complex64_t),
+            STARPU_VALUE,    &alpha,                       sizeof(CHAMELEON_Complex64_t),
             STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
             STARPU_VALUE,    &incA,                        sizeof(int),
             STARPU_RW,       RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),

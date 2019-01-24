@@ -34,6 +34,10 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,
                          const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *B, int Bm, int Bn );
+void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
+                        int M, CHAMELEON_Complex64_t alpha,
+                        const CHAM_desc_t *A, int Am, int An, int incA,
+                        const CHAM_desc_t *B, int Bm, int Bn, int incB );
 void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
                          cham_trans_t trans, int m, int n, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
