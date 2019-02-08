@@ -24,10 +24,10 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void INSERT_TASK_zlange(const RUNTIME_option_t *options,
-                       cham_normtype_t norm, int M, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An, int LDA,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlange( const RUNTIME_option_t *options,
+                         cham_normtype_t norm, int M, int N, int NB,
+                         const CHAM_desc_t *A, int Am, int An, int LDA,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)NB;
     struct starpu_codelet *codelet = &cl_zlange;

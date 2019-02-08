@@ -25,7 +25,7 @@
 #include "./timing.c"
 
 static int
-RunTest(int *iparam, double *dparam, chameleon_time_t *t_) 
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     CHAM_desc_t *descT;
     PASTE_CODE_IPARAM_LOCALS( iparam );
@@ -46,7 +46,6 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 
     /* Allocate Workspace */
     CHAMELEON_Alloc_Workspace_zgels_Tile(M, N, &descT, P, Q);
-    memset(descT->mat, 0, (descT->llm*descT->lln)*sizeof(ChamComplexDouble));
 
     /* Save A and B for check */
     if (check == 1){

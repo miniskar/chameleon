@@ -483,6 +483,8 @@ INSERT_TASK_ztsmlq( const RUNTIME_option_t *options,
                     const CHAM_desc_t *V, int Vm, int Vn, int ldv,
                     const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
+    (void)m1;
+    (void)n1;
     return INSERT_TASK_ztpmlqt( options, side, trans, m2, n2, k, 0, ib, nb,
                                 V, Vm, Vn, ldv, T, Tm, Tn, ldt,
                                 A1, A1m, A1n, lda1, A2, A2m, A2n, lda2 );
@@ -497,6 +499,8 @@ INSERT_TASK_ztsmqr( const RUNTIME_option_t *options,
                     const CHAM_desc_t *V, int Vm, int Vn, int ldv,
                     const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
+    (void)m1;
+    (void)n1;
     return INSERT_TASK_ztpmqrt( options, side, trans, m2, n2, k, 0, ib, nb,
                                 V, Vm, Vn, ldv, T, Tm, Tn, ldt,
                                 A1, A1m, A1n, lda1, A2, A2m, A2n, lda2 );
@@ -511,6 +515,8 @@ INSERT_TASK_zttmlq( const RUNTIME_option_t *options,
                     const CHAM_desc_t *V, int Vm, int Vn, int ldv,
                     const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
+    (void)m1;
+    (void)n1;
     return INSERT_TASK_ztpmlqt( options, side, trans, m2, n2, k, n2, ib, nb,
                                 V, Vm, Vn, ldv, T, Tm, Tn, ldt,
                                 A1, A1m, A1n, lda1, A2, A2m, A2n, lda2 );
@@ -525,6 +531,8 @@ INSERT_TASK_zttmqr( const RUNTIME_option_t *options,
                     const CHAM_desc_t *V, int Vm, int Vn, int ldv,
                     const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
+    (void)m1;
+    (void)n1;
     return INSERT_TASK_ztpmqrt( options, side, trans, m2, n2, k, m2, ib, nb,
                                 V, Vm, Vn, ldv, T, Tm, Tn, ldt,
                                 A1, A1m, A1n, lda1, A2, A2m, A2n, lda2 );

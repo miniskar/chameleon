@@ -26,6 +26,37 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zgeqrt_cpu_func(void *descr[], void *cl_arg)
+{
+    CHAMELEON_starpu_ws_t *h_work;
+    int m;
+    int n;
+    int ib;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    CHAMELEON_Complex64_t *T;
+    int ldt;
+    CHAMELEON_Complex64_t *TAU, *WORK;
+
+    A   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    TAU = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]); /* max(m,n) + n * ib */
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldt, &h_work);
+
+    WORK = TAU + chameleon_max( m, n );
+
+    CORE_zlaset( ChamUpperLower, ib, n, 0., 0., T, ldt );
+    CORE_zgeqrt(m, n, ib, A, lda, T, ldt, TAU, WORK);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -88,7 +119,6 @@
  *          \retval <0 if -i, the i-th argument had an illegal value
  *
  */
-
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
                        const CHAM_desc_t *A, int Am, int An, int lda,
@@ -124,33 +154,3 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zgeqrt_cpu_func(void *descr[], void *cl_arg)
-{
-    CHAMELEON_starpu_ws_t *h_work;
-    int m;
-    int n;
-    int ib;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *T;
-    int ldt;
-    CHAMELEON_Complex64_t *TAU, *WORK;
-
-    A   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    TAU = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]); /* max(m,n) + n * ib */
-
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldt, &h_work);
-
-    WORK = TAU + chameleon_max( m, n );
-    CORE_zgeqrt(m, n, ib, A, lda, T, ldt, TAU, WORK);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)

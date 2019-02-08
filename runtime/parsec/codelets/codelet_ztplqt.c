@@ -40,6 +40,7 @@ CORE_ztplqt_parsec( parsec_execution_stream_t *context,
     parsec_dtd_unpack_args(
         this_task, &M, &N, &L, &ib, &A, &lda, &B, &ldb, &T, &ldt, &WORK );
 
+    CORE_zlaset( ChamUpperLower, ib, M, 0., 0., T, ldt );
     CORE_ztplqt( M, N, L, ib,
                  A, lda, B, ldb, T, ldt, WORK );
 

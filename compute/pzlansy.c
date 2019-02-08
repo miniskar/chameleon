@@ -81,11 +81,10 @@ chameleon_pzlansy_inf( cham_uplo_t uplo, CHAM_desc_t *A,
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
 
         for(n = Q; n < NT; n++) {
-            INSERT_TASK_dgeadd(
-                options,
-                ChamNoTrans, tempmm, 1, A->nb,
-                1.0, W( Wcol, m, n  ), tempmm,
-                1.0, W( Wcol, m, n%Q), tempmm );
+            INSERT_TASK_daxpy(
+                options, tempmm, 1.,
+                W( Wcol, m, n   ), 1,
+                W( Wcol, m, n%Q ), 1 );
         }
 
         /**
@@ -93,11 +92,10 @@ chameleon_pzlansy_inf( cham_uplo_t uplo, CHAM_desc_t *A,
          *  For each j, W(m, j) = reduce( Wcol(m, 0..Q-1) )
          */
         for(n = 1; n < Q; n++) {
-            INSERT_TASK_dgeadd(
-                options,
-                ChamNoTrans, tempmm, 1, A->mb,
-                1.0, W( Wcol, m, n), tempmm,
-                1.0, W( Wcol, m, 0), tempmm );
+            INSERT_TASK_daxpy(
+                options, tempmm, 1.,
+                W( Wcol, m, n ), 1,
+                W( Wcol, m, 0 ), 1 );
         }
 
         INSERT_TASK_dlange(
@@ -334,11 +332,14 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
     case ChamInfNorm:
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, A->mb, 1, A->mb,
+        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, A->mb, 1, A->mb,
                              workmt * A->mb, worknt, 0, 0, workmt * A->mb, worknt, A->p, A->q,
                              NULL, NULL, NULL );
         wcol_init = 1;
 
+        /*
+         * Use the global allocator for Welt, otherwise flush may free the data before the result is read.
+         */
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, 1, 1,
                              workmt, A->q, 0, 0, workmt, A->q, A->p, A->q,
                              NULL, NULL, NULL );

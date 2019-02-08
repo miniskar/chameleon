@@ -266,7 +266,7 @@ int CHAMELEON_zlaset_Tile_Async( cham_uplo_t uplo,
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if (A->nb != A->mb) {
+    if ( (alpha != beta) && (A->nb != A->mb) ) {
         chameleon_error("CHAMELEON_zlaset_Tile_Async", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }

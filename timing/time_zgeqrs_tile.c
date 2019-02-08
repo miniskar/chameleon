@@ -48,7 +48,6 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 
     /* Allocate Workspace */
     CHAMELEON_Alloc_Workspace_zgels_Tile(M, N, &descT, P, Q);
-    memset(descT->mat, 0, (descT->llm*descT->lln)*sizeof(ChamComplexDouble));
 
     /* CHAMELEON ZGEQRF */
     CHAMELEON_zgeqrf_Tile( descA, descT );

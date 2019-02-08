@@ -31,9 +31,13 @@ INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     int ws_size = options->ws_wsize;
-#pragma omp task firstprivate(ws_size, M, N, L, ib, ptrA, lda, ptrB, ldb, ptrT, ldt) depend(inout:ptrA[0], ptrB[0], ptrT[0])
+
+#pragma omp task firstprivate(ws_size, M, N, L, ib, ptrA, lda, ptrB, ldb, ptrT, ldt) depend(inout:ptrA[0], ptrB[0]) depend(out:ptrT[0])
     {
       CHAMELEON_Complex64_t work[ws_size];
+
+      CORE_zlaset( ChamUpperLower, ib, M, 0., 0., ptrT, ldt);
+
       CORE_ztplqt( M, N, L, ib,
                    ptrA, lda, ptrB, ldb, ptrT, ldt, work );
     }

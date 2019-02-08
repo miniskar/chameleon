@@ -26,7 +26,7 @@
 #include "timing_zauxiliary.h"
 
 static int
-RunTest(int *iparam, double *dparam, chameleon_time_t *t_) 
+RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 {
     CHAM_desc_t *T;
     PASTE_CODE_IPARAM_LOCALS( iparam );
@@ -47,7 +47,6 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     CHAMELEON_zplrnt( M, NRHS, x, LDB, 5673 );
 
     CHAMELEON_Alloc_Workspace_zgels(M, N, &T, P, Q);
-    memset(T->mat, 0, (T->llm*T->lln)*sizeof(ChamComplexDouble));
 
     /* Save A and b  */
     if (check) {
@@ -58,13 +57,13 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
     START_TIMING();
     CHAMELEON_zgels( ChamNoTrans, M, N, NRHS, A, LDA, T, x, LDB );
     STOP_TIMING();
-    
+
     /* Check the solution */
     if (check)
     {
         dparam[IPARAM_RES] = z_check_solution(M, N, NRHS, Acpy, LDA, b, x, LDB,
-                                              &(dparam[IPARAM_ANORM]), 
-                                              &(dparam[IPARAM_BNORM]), 
+                                              &(dparam[IPARAM_ANORM]),
+                                              &(dparam[IPARAM_BNORM]),
                                               &(dparam[IPARAM_XNORM]));
         free(Acpy); free(b);
     }

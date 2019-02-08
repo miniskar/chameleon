@@ -134,7 +134,7 @@ void chameleon_pzungqr_param( int genD, int K, const libhqr_tree_t *qrtree,
 static inline int
 chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int q ) {
     int diag_m = chameleon_min( m, n );
-    return chameleon_desc_init( descA, CHAMELEON_MAT_ALLOC_GLOBAL,
+    return chameleon_desc_init( descA, CHAMELEON_MAT_ALLOC_TILE,
                                 ChamComplexDouble, nb, nb, nb*nb,
                                 diag_m, nb, 0, 0, diag_m, nb, p, q,
                                 chameleon_getaddr_diag,
@@ -145,7 +145,7 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
 #define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
     {                                                                   \
         int rc;                                                         \
-        rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_GLOBAL, \
+        rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_TILE, \
                                   ChamComplexDouble, (mb), (nb), ((mb)*(nb)), \
                                   (m), (n), (i), (j), (m), (n), 1, 1,   \
                                   NULL, NULL, NULL );                   \
@@ -174,7 +174,7 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
 
     if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
         /* Initialize the tile descriptor */
-        chameleon_desc_init( descAt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, mb, nb, (mb)*(nb),
+        chameleon_desc_init( descAt, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, mb, nb, (mb)*(nb),
                              lm, ln, 0, 0, m, n, 1, 1,
                              chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL );
 
@@ -235,6 +235,7 @@ chameleon_ztile2lap( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t 
 static inline void
 chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t *descAt )
 {
+    (void)chamctxt;
     chameleon_desc_destroy( descAl );
     chameleon_desc_destroy( descAt );
 }

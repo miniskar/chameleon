@@ -35,7 +35,7 @@ void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
                       cham_trans_t transA, cham_trans_t transB,
                       int m, int n, int k, int nb,
                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                                               const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                                                   const CHAM_desc_t *B, int Bm, int Bn, int ldb,
                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn, int ldc)
 {
     (void)nb;

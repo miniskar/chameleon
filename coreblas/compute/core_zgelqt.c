@@ -67,7 +67,7 @@
  *         The leading dimension of the array A.  LDA >= max(1,M).
  *
  * @param[out] T
- *         The IB-by-N triangular factor T of the block reflector.
+ *         The IB-by-M triangular factor T of the block reflector.
  *         T is upper triangular by block (economic storage);
  *         The rest of the array is not referenced.
  *

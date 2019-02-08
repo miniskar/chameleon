@@ -226,26 +226,32 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
     /* The matrix is alocated tile by tile with out of core */
     desc->ooc = 0;
 
-    // Matrix address
-    if ( mat == CHAMELEON_MAT_ALLOC_GLOBAL ) {
-        rc = chameleon_desc_mat_alloc( desc );
+    switch ( (intptr_t)mat ) {
+    case (intptr_t)CHAMELEON_MAT_ALLOC_TILE:
+        if ( chamctxt->scheduler == RUNTIME_SCHED_STARPU ) {
+            /* Let's use the allocation on the fly as in OOC */
+            desc->get_blkaddr = chameleon_getaddr_null;
+            desc->mat = NULL;
+            break;
+        }
+        /* Otherwise we switch back to the full allocation */
 
+    case (intptr_t)CHAMELEON_MAT_ALLOC_GLOBAL:
+        rc = chameleon_desc_mat_alloc( desc );
         desc->alloc_mat = 1;
         desc->use_mat   = 1;
-    }
-    else if ( mat == CHAMELEON_MAT_ALLOC_TILE ) {
-        //chameleon_error( "chameleon_desc_init", "CHAMELEON_MAT_ALLOC_TILE is not available yet" );
-        //desc->mat = NULL;
-        rc = chameleon_desc_mat_alloc( desc );
-        desc->use_mat   = 1;
+        break;
 
-        desc->alloc_mat = 1;
-    }
-    else if ( mat == CHAMELEON_MAT_OOC ) {
+    case (intptr_t)CHAMELEON_MAT_OOC:
+        if ( chamctxt->scheduler != RUNTIME_SCHED_STARPU ) {
+            chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON Out-of-Core descriptors are supported only with StarPU");
+            return CHAMELEON_ERR_NOT_SUPPORTED;
+        }
         desc->mat = NULL;
         desc->ooc = 1;
-    }
-    else {
+        break;
+
+    default:
         /* memory of the matrix is handled by users */
         desc->mat     = mat;
         desc->use_mat = 1;

@@ -72,11 +72,10 @@ chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
             }
 
             if ( m >= P ) {
-                INSERT_TASK_dgeadd(
-                    options,
-                    ChamNoTrans, 1, tempnn, A->nb,
-                    1.0, W( Wcol, m,   n ), 1,
-                    1.0, W( Wcol, m%P, n ), 1 );
+                INSERT_TASK_daxpy(
+                    options, tempnn, 1.,
+                    W( Wcol, m,   n ), 1,
+                    W( Wcol, m%P, n ), 1 );
             }
         }
 
@@ -85,11 +84,10 @@ chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
          *  For each i, W(i, n) = reduce( W(0..P-1, n) )
          */
         for(m = 1; m < P; m++) {
-            INSERT_TASK_dgeadd(
-                options,
-                ChamNoTrans, 1, tempnn, A->nb,
-                1.0, W( Wcol, m, n ), 1,
-                1.0, W( Wcol, 0, n ), 1 );
+            INSERT_TASK_daxpy(
+                options, tempnn, 1.,
+                W( Wcol, m, n ), 1,
+                W( Wcol, 0, n ), 1 );
         }
 
         INSERT_TASK_dlange(
@@ -165,11 +163,10 @@ chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
             }
 
             if ( n >= Q ) {
-                INSERT_TASK_dgeadd(
-                    options,
-                    ChamNoTrans, tempmm, 1, A->mb,
-                    1.0, W( Wcol, m, n  ), tempmm,
-                    1.0, W( Wcol, m, n%Q), tempmm );
+                INSERT_TASK_daxpy(
+                    options, tempmm, 1.,
+                    W( Wcol, m, n   ), 1,
+                    W( Wcol, m, n%Q ), 1 );
             }
         }
 
@@ -178,11 +175,10 @@ chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
          *  For each j, W(m, j) = reduce( Wcol(m, 0..Q-1) )
          */
         for(n = 1; n < Q; n++) {
-            INSERT_TASK_dgeadd(
-                options,
-                ChamNoTrans, tempmm, 1, A->mb,
-                1.0, W( Wcol, m, n), tempmm,
-                1.0, W( Wcol, m, 0), tempmm );
+            INSERT_TASK_daxpy(
+                options, tempmm, 1.,
+                W( Wcol, m, n ), 1,
+                W( Wcol, m, 0 ), 1 );
         }
 
         INSERT_TASK_dlange(
@@ -407,11 +403,14 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
     case ChamOneNorm:
         RUNTIME_options_ws_alloc( &options, 1, 0 );
 
-        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, A->nb, A->nb,
+        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, 1, A->nb, A->nb,
                              workmt, worknt * A->nb, 0, 0, workmt, worknt * A->nb, A->p, A->q,
                              NULL, NULL, NULL );
         wcol_init = 1;
 
+        /*
+         * Use the global allocator for Welt, otherwise flush may free the data before the result is read.
+         */
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, 1, 1,
                              A->p, worknt, 0, 0, A->p, worknt, A->p, A->q,
                              NULL, NULL, NULL );
@@ -424,7 +423,7 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
     case ChamInfNorm:
         RUNTIME_options_ws_alloc( &options, A->mb, 0 );
 
-        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, A->mb, 1, A->mb,
+        chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, A->mb, 1, A->mb,
                              workmt * A->mb, worknt, 0, 0, workmt * A->mb, worknt, A->p, A->q,
                              NULL, NULL, NULL );
         wcol_init = 1;
@@ -522,7 +521,7 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
     }
     CHAMELEON_Desc_Flush( &Welt, sequence );
     CHAMELEON_Desc_Flush( A, sequence );
-    RUNTIME_sequence_wait(chamctxt, sequence);
+    RUNTIME_sequence_wait( chamctxt, sequence );
 
     *result = *((double *)Welt.get_blkaddr( &Welt, A->myrank / A->q, A->myrank % A->q ));
 

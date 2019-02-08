@@ -238,7 +238,7 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
             for (m = 0; m < lmt; m++)
             {
                 if (*handle != NULL) {
-                    starpu_data_unregister(*handle);
+                    starpu_data_unregister_submit(*handle);
                 }
                 handle++;
             }
