@@ -103,7 +103,6 @@ int testing_zgels(int argc, char **argv)
     }
 
     CHAMELEON_Alloc_Workspace_zgels(M, N, &T, 1, 1);
-    memset(T->mat, 0, (T->llm*T->lln)*sizeof(CHAMELEON_Complex64_t));
     eps = LAPACKE_dlamch_work('e');
 
     /*----------------------------------------------------------

@@ -74,7 +74,8 @@ int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM
     lm = IB * MT;
     ln = NB * NT;
 
-    return CHAMELEON_Desc_Create( desc, NULL, type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
+    return CHAMELEON_Desc_Create( desc, CHAMELEON_MAT_ALLOC_TILE, type, IB, NB, IB*NB,
+                                  lm, ln, 0, 0, lm, ln, p, q );
 }
 
 /**
@@ -119,7 +120,8 @@ int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc
     /* TODO: Fix the distribution for IPIV */
     *IPIV = (int*)malloc( size );
 
-    return CHAMELEON_Desc_Create( desc, NULL, type, IB, NB, IB*NB, lm, ln, 0, 0, lm, ln, p, q );
+    return CHAMELEON_Desc_Create( desc, CHAMELEON_MAT_ALLOC_TILE, type, IB, NB, IB*NB,
+                                  lm, ln, 0, 0, lm, ln, p, q );
 }
 
 /**

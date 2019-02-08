@@ -99,6 +99,7 @@ CORE_zgeqrt_parsec ( parsec_execution_stream_t *context,
     parsec_dtd_unpack_args(
         this_task, &m, &n, &ib, &A, &lda, &T, &ldt, &TAU, &WORK );
 
+    CORE_zlaset( ChamUpperLower, ib, n, 0., 0., T, ldt );
     CORE_zgeqrt( m, n, ib, A, lda, T, ldt, TAU, WORK );
 
     (void)context;

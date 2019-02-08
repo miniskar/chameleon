@@ -467,6 +467,12 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     RUNTIME_data_flush( sequence, T(n, k) );
                 }
 
+                /* Restore the original location of the tiles */
+                for (m = 0; m < B->mt; m++) {
+                    RUNTIME_data_migrate( sequence, B(m, k),
+                                          B->get_rankof( B, m, k ) );
+                }
+
                 RUNTIME_iteration_pop(chamctxt);
             }
         }

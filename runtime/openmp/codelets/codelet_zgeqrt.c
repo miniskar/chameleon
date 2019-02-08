@@ -99,10 +99,13 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
     int ws_size = options->ws_wsize;
-#pragma omp task firstprivate(ws_size, m, n, ib, ptrA, lda, ptrT, ldt) depend(inout:ptrA[0]) depend(inout:ptrT[0])
+
+#pragma omp task firstprivate(ws_size, m, n, ib, ptrA, lda, ptrT, ldt) depend(inout:ptrA[0]) depend(out:ptrT[0])
     {
       CHAMELEON_Complex64_t TAU[ws_size];
       CHAMELEON_Complex64_t *work = TAU + chameleon_max(m, n);
-      CORE_zgeqrt(m, n, ib, ptrA, lda, ptrT, ldt, TAU, work);
+
+      CORE_zlaset( ChamUpperLower, ib, n, 0., 0., ptrT, ldt );
+      CORE_zgeqrt( m, n, ib, ptrA, lda, ptrT, ldt, TAU, work );
     }
 }

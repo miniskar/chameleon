@@ -39,6 +39,7 @@ CORE_ztplqt_quark( Quark *quark )
     quark_unpack_args_11( quark, M, N, L, ib,
                           A, lda, B, ldb, T, ldt, WORK );
 
+    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldt );
     CORE_ztplqt( M, N, L, ib,
                  A, lda, B, ldb, T, ldt, WORK );
 }

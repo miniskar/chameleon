@@ -58,9 +58,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 
     /* Allocate Workspace */
     CHAMELEON_Alloc_Workspace_zgels(M, N, &TS, P, Q);
-    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(ChamComplexDouble));
     CHAMELEON_Alloc_Workspace_zgels(M, N, &TT, P, Q);
-    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(ChamComplexDouble));
 
     /* Initialize matrix */
     matrix.mt = TS->mt;

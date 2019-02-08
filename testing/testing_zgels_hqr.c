@@ -99,8 +99,6 @@ int testing_zgels_hqr(int argc, char **argv)
 
     CHAMELEON_Alloc_Workspace_zgels(M, N, &TS, 1, 1);
     CHAMELEON_Alloc_Workspace_zgels(M, N, &TT, 1, 1);
-    memset(TS->mat, 0, (TS->llm*TS->lln)*sizeof(CHAMELEON_Complex64_t));
-    memset(TT->mat, 0, (TT->llm*TT->lln)*sizeof(CHAMELEON_Complex64_t));
 
     eps = LAPACKE_dlamch_work( 'e' );
 

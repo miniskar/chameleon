@@ -44,7 +44,6 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
 
     /* Allocate Workspace */
     CHAMELEON_Alloc_Workspace_zgels(M, N, &T, P, Q);
-    memset(T->mat, 0, (T->llm*T->lln)*sizeof(ChamComplexDouble));
 
     /* Save AT in lapack layout for check */
     PASTE_CODE_ALLOCATE_COPY( Acpy, check, CHAMELEON_Complex64_t, A, LDA, N );

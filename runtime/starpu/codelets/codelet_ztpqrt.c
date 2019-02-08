@@ -43,6 +43,7 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
     starpu_codelet_unpack_args( cl_arg, &M, &N, &L, &ib,
                                 &lda, &ldb, &ldt );
 
+    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldt );
     CORE_ztpqrt( M, N, L, ib,
                  A, lda, B, ldb, T, ldt, WORK );
 }

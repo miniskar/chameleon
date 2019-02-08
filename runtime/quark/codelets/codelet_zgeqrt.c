@@ -40,6 +40,7 @@ void CORE_zgeqrt_quark(Quark *quark)
     CHAMELEON_Complex64_t *WORK;
 
     quark_unpack_args_9(quark, m, n, ib, A, lda, T, ldt, TAU, WORK);
+    CORE_zlaset( ChamUpperLower, ib, n, 0., 0., T, ldt );
     CORE_zgeqrt(m, n, ib, A, lda, T, ldt, TAU, WORK);
 }
 
