@@ -18,6 +18,29 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int M;
+    int N;
+    const CHAMELEON_Complex64_t *A;
+    int LDA;
+    CHAMELEON_Complex64_t *B;
+    int LDB;
+
+    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &LDA, &LDB);
+    CORE_zhe2ge(uplo, M, N, A, LDA, B, LDB);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zhe2ge, 2, cl_zhe2ge_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -54,26 +77,3 @@ void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int M;
-    int N;
-    const CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
-
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &LDA, &LDB);
-    CORE_zhe2ge(uplo, M, N, A, LDA, B, LDB);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zhe2ge, 2, cl_zhe2ge_cpu_func)

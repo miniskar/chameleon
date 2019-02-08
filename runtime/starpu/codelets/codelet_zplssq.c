@@ -23,11 +23,39 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
+{
+    double *SCLSSQ_IN;
+    double *SCLSSQ_OUT;
+
+    SCLSSQ_IN  = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
+    SCLSSQ_OUT = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+
+    assert( SCLSSQ_OUT[0] >= 0. );
+    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
+        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
+        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
+    } else {
+        if ( SCLSSQ_OUT[0] > 0 ) {
+            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
+        }
+    }
+
+    (void)cl_arg;
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
+ * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -78,25 +106,14 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
         0);
 }
 
-
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
+static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
 {
-    double *SCLSSQ_IN;
-    double *SCLSSQ_OUT;
+    double *RESULT;
 
-    SCLSSQ_IN  = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    SCLSSQ_OUT = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    RESULT = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
 
-    assert( SCLSSQ_OUT[0] >= 0. );
-    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
-        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
-        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
-    } else {
-        if ( SCLSSQ_OUT[0] > 0 ) {
-            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
-        }
-    }
+    RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
 
     (void)cl_arg;
 }
@@ -105,10 +122,10 @@ static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
+CODELETS_CPU(zplssq2, 1, cl_zplssq2_cpu_func)
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
+                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
@@ -127,22 +144,3 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
-{
-    double *RESULT;
-
-    RESULT = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-
-    RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
-
-    (void)cl_arg;
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zplssq2, 1, cl_zplssq2_cpu_func)

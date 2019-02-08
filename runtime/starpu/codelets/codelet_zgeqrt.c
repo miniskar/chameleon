@@ -114,9 +114,8 @@ CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ *          @retval CHAMELEON_SUCCESS successful exit
+ *          @retval <0 if -i, the i-th argument had an illegal value
  *
  */
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,

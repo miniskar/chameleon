@@ -91,9 +91,8 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
@@ -109,10 +108,8 @@ void INSERT_TASK_zssssm(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA2 = RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n);
     CHAMELEON_Complex64_t *ptrL1 = RTBLKADDR(L1, CHAMELEON_Complex64_t, L1m, L1n);
     CHAMELEON_Complex64_t *ptrL2 = RTBLKADDR(L2, CHAMELEON_Complex64_t, L2m, L2n);
-#pragma omp task firstprivate(m1, n1, m2, n2, k, ib, ptrA1, ptrA2, ptrL1, ptrL2, lda1, lda2, ldl1, ldl2, IPIV)\
-    depend(inout:ptrA1[0])\
-    depend(inout:ptrA2[0])\
-    depend(in:ptrL1[0])\
-    depend(in:ptrL2[0])
+
+#pragma omp task firstprivate(m1, n1, m2, n2, k, ib, ptrA1, ptrA2, ptrL1, ptrL2, lda1, lda2, ldl1, ldl2, IPIV) \
+    depend(inout:ptrA1[0], ptrA2[0]) depend(in:ptrL1[0], ptrL2[0])
     CORE_zssssm(m1, n1, m2, n2, k, ib, ptrA1, lda1, ptrA2, lda2, ptrL1, ldl1, ptrL2, ldl2, IPIV);
 }

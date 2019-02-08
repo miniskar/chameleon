@@ -86,8 +86,7 @@ int chameleon_sequence_wait(CHAM_context_t *chamctxt, RUNTIME_sequence_t *sequen
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Sequence_Create(RUNTIME_sequence_t **sequence)
@@ -117,8 +116,7 @@ int CHAMELEON_Sequence_Create(RUNTIME_sequence_t **sequence)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Sequence_Destroy(RUNTIME_sequence_t *sequence)
@@ -152,8 +150,7 @@ int CHAMELEON_Sequence_Destroy(RUNTIME_sequence_t *sequence)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Sequence_Wait(RUNTIME_sequence_t *sequence)
@@ -190,8 +187,7 @@ int CHAMELEON_Sequence_Wait(RUNTIME_sequence_t *sequence)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Sequence_Flush(RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)

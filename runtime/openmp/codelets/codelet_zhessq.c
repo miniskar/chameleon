@@ -31,6 +31,6 @@ void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrScaleSum = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrScaleSum) depend(in:ptrScaleSum[0:SCALESUMSQm*SCALESUMSQn]) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrScaleSum) depend(in:ptrScaleSum[0]) depend(inout:ptrA[0])
     CORE_zhessq( uplo, n, ptrA, lda, &ptrScaleSum[0], &ptrScaleSum[1] );
 }

@@ -26,16 +26,40 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlatro_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    cham_trans_t trans;
+    int M;
+    int N;
+    const CHAMELEON_Complex64_t *A;
+    int LDA;
+    CHAMELEON_Complex64_t *B;
+    int LDB;
+
+    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &LDA, &LDB);
+    CORE_zlatro(uplo, trans, M, N, A, LDA, B, LDB);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlatro, 2, cl_zlatro_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
  */
-void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_trans_t trans,
-                       int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, cham_trans_t trans,
+                         int m, int n, int mb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     struct starpu_codelet *codelet = &cl_zlatro;
     void (*callback)(void*) = NULL;
@@ -63,27 +87,3 @@ void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
         0);
     (void)mb;
 }
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlatro_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    cham_trans_t trans;
-    int M;
-    int N;
-    const CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
-
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &LDA, &LDB);
-    CORE_zlatro(uplo, trans, M, N, A, LDA, B, LDB);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlatro, 2, cl_zlatro_cpu_func)

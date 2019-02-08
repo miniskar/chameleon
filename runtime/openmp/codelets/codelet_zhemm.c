@@ -43,7 +43,7 @@ void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
     CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
-#pragma omp task firstprivate(side, uplo, m, n, alpha, ptrA, lda, ptrB, ldb, beta, ptrC, ldc) depend(in:ptrA[0:Am*An], ptrB[0:Bm*Bn]) depend(inout:ptrC[0:Cm*Cn])
+#pragma omp task firstprivate(side, uplo, m, n, alpha, ptrA, lda, ptrB, ldb, beta, ptrC, ldc) depend(in:ptrA[0], ptrB[0]) depend(inout:ptrC[0])
     CORE_zhemm(side, uplo,
         m, n,
         alpha, ptrA, lda,

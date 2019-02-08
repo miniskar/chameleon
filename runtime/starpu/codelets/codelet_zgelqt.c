@@ -112,9 +112,8 @@ CODELETS_CPU(zgelqt, 3, cl_zgelqt_cpu_func)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ *          @retval CHAMELEON_SUCCESS successful exit
+ *          @retval <0 if -i, the i-th argument had an illegal value
  *
  */
 void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,

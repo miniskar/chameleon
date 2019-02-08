@@ -78,8 +78,7 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval the norm described above.
+ * @retval the norm described above.
  *
  *******************************************************************************
  *
@@ -202,8 +201,7 @@ double CHAMELEON_zlantr(cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

@@ -114,8 +114,7 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
@@ -283,8 +282,7 @@ int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

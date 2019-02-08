@@ -66,8 +66,7 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval the norm described above.
+ * @retval the norm described above.
  *
  *******************************************************************************
  *
@@ -176,8 +175,7 @@ double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

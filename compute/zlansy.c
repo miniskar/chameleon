@@ -66,8 +66,7 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval the norm described above.
+ * @retval the norm described above.
  *
  *******************************************************************************
  *
@@ -180,8 +179,7 @@ double CHAMELEON_zlansy(cham_normtype_t norm, cham_uplo_t uplo, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

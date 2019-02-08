@@ -24,6 +24,30 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlanhe_cpu_func(void *descr[], void *cl_arg)
+{
+    double *normA;
+    cham_normtype_t norm;
+    cham_uplo_t uplo;
+    int N;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+    double *work;
+
+    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
+    starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &N, &LDA);
+    CORE_zlanhe( norm, uplo, N, A, LDA, work, normA);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlanhe, 3, cl_zlanhe_cpu_func)
+
 void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
                        cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
                        const CHAM_desc_t *A, int Am, int An, int LDA,
@@ -55,27 +79,3 @@ void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
 
     (void)NB;
 }
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlanhe_cpu_func(void *descr[], void *cl_arg)
-{
-    double *normA;
-    cham_normtype_t norm;
-    cham_uplo_t uplo;
-    int N;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-    double *work;
-
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &N, &LDA);
-    CORE_zlanhe( norm, uplo, N, A, LDA, work, normA);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlanhe, 3, cl_zlanhe_cpu_func)

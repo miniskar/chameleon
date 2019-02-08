@@ -62,9 +62,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -180,8 +179,7 @@ int CHAMELEON_zungqr( int M, int N, int K,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

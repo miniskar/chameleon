@@ -54,12 +54,11 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(ztpqrt, 4, cl_ztpqrt_cpu_func)
 
-void
-INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
-                   int M, int N, int L, int ib, int nb,
-                   const CHAM_desc_t *A, int Am, int An, int lda,
-                   const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                   const CHAM_desc_t *T, int Tm, int Tn, int ldt )
+void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
+                         int M, int N, int L, int ib, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
     struct starpu_codelet *codelet = &cl_ztpqrt;
     void (*callback)(void*) = options->profiling ? cl_ztpqrt_callback : NULL;

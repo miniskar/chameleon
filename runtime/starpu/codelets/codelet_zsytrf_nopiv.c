@@ -26,10 +26,31 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
-                             cham_uplo_t uplo, int n, int nb,
-                             const CHAM_desc_t *A, int Am, int An, int lda,
-                             int iinfo)
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int n;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    int iinfo;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo);
+    CORE_zsytf2_nopiv(uplo, n, A, lda);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zsytrf_nopiv, 1, cl_zsytrf_nopiv_cpu_func)
+
+void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
+                              cham_uplo_t uplo, int n, int nb,
+                               const CHAM_desc_t *A, int Am, int An, int lda,
+                               int iinfo )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsytrf_nopiv;
@@ -54,25 +75,3 @@ void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    int iinfo;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo);
-    CORE_zsytf2_nopiv(uplo, n, A, lda);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zsytrf_nopiv, 1, cl_zsytrf_nopiv_cpu_func)

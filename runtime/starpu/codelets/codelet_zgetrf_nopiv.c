@@ -23,6 +23,38 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+/*
+ * Codelet CPU
+ */
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zgetrf_nopiv_cpu_func(void *descr[], void *cl_arg)
+{
+    int m;
+    int n;
+    int ib;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    int iinfo;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
+    int info = 0;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &iinfo, &sequence, &request);
+    CORE_zgetrf_nopiv(m, n, ib, A, lda, &info);
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zgetrf_nopiv, 1, cl_zgetrf_nopiv_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -61,10 +93,9 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
- *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
  *              singular, and division by zero will occur if it is used
  *              to solve a system of equations.
@@ -101,35 +132,3 @@ void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-/*
- * Codelet CPU
- */
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zgetrf_nopiv_cpu_func(void *descr[], void *cl_arg)
-{
-    int m;
-    int n;
-    int ib;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    int iinfo;
-    RUNTIME_sequence_t *sequence;
-    RUNTIME_request_t *request;
-    int info = 0;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &iinfo, &sequence, &request);
-    CORE_zgetrf_nopiv(m, n, ib, A, lda, &info);
-
-    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
-        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
-    }
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zgetrf_nopiv, 1, cl_zgetrf_nopiv_cpu_func)

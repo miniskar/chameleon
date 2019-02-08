@@ -28,13 +28,11 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/*   INSERT_TASK_zplghe - Generate a tile for random hermitian (positive definite if bump is large enough) matrix. */
-
 void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
-                        double bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int bigM, int m0, int n0, unsigned long long int seed )
+                         double bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(bump, m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(bump, m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0])
     CORE_zplghe( bump, m, n, ptrA, lda, bigM, m0, n0, seed );
 }

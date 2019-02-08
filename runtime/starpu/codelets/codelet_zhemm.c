@@ -26,51 +26,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
-void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
-                      cham_side_t side, cham_uplo_t uplo,
-                      int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
-{
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_zhemm;
-    void (*callback)(void*) = options->profiling ? cl_zhemm_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_R(B, Bm, Bn);
-    CHAMELEON_ACCESS_RW(C, Cm, Cn);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &side,                sizeof(int),
-        STARPU_VALUE,    &uplo,                sizeof(int),
-        STARPU_VALUE,       &m,                        sizeof(int),
-        STARPU_VALUE,       &n,                        sizeof(int),
-        STARPU_VALUE,   &alpha,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,               RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,     &lda,                        sizeof(int),
-        STARPU_R,               RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,     &ldb,                        sizeof(int),
-        STARPU_VALUE,    &beta,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_RW,               RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_VALUE,     &ldc,                        sizeof(int),
-        STARPU_PRIORITY,    options->priority,
-        STARPU_CALLBACK,    callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zhemm",
-#endif
-        0);
-}
-
-
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zhemm_cpu_func(void *descr[], void *cl_arg)
 {
@@ -142,3 +97,47 @@ static void cl_zhemm_cuda_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 CODELETS(zhemm, 3, cl_zhemm_cpu_func, cl_zhemm_cuda_func, STARPU_CUDA_ASYNC)
+
+/**
+ *
+ * @ingroup INSERT_TASK_Complex64_t
+ *
+ */
+void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
+                      cham_side_t side, cham_uplo_t uplo,
+                      int m, int n, int nb,
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                      const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+{
+    (void)nb;
+    struct starpu_codelet *codelet = &cl_zhemm;
+    void (*callback)(void*) = options->profiling ? cl_zhemm_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_R(B, Bm, Bn);
+    CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &side,                sizeof(int),
+        STARPU_VALUE,    &uplo,                sizeof(int),
+        STARPU_VALUE,       &m,                        sizeof(int),
+        STARPU_VALUE,       &n,                        sizeof(int),
+        STARPU_VALUE,   &alpha,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_R,               RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,     &lda,                        sizeof(int),
+        STARPU_R,               RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        STARPU_VALUE,     &ldb,                        sizeof(int),
+        STARPU_VALUE,    &beta,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_RW,               RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_VALUE,     &ldc,                        sizeof(int),
+        STARPU_PRIORITY,    options->priority,
+        STARPU_CALLBACK,    callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zhemm",
+#endif
+        0);
+}

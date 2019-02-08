@@ -26,47 +26,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
-void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
-                      cham_uplo_t uplo, cham_trans_t trans,
-                      int n, int k, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
-{
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_zsyrk;
-    void (*callback)(void*) = options->profiling ? cl_zsyrk_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_RW(C, Cm, Cn);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE,      &uplo,                sizeof(int),
-        STARPU_VALUE,     &trans,                sizeof(int),
-        STARPU_VALUE,         &n,                        sizeof(int),
-        STARPU_VALUE,         &k,                        sizeof(int),
-        STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,       &lda,                        sizeof(int),
-        STARPU_VALUE,      &beta,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_RW,                 RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_VALUE,       &ldc,                        sizeof(int),
-        STARPU_PRIORITY,    options->priority,
-        STARPU_CALLBACK,    callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zsyrk",
-#endif
-        0);
-}
-
-
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zsyrk_cpu_func(void *descr[], void *cl_arg)
 {
@@ -130,3 +89,43 @@ static void cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 CODELETS(zsyrk, 2, cl_zsyrk_cpu_func, cl_zsyrk_cuda_func, STARPU_CUDA_ASYNC)
+
+/**
+ *
+ * @ingroup INSERT_TASK_Complex64_t
+ *
+ */
+void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
+                      cham_uplo_t uplo, cham_trans_t trans,
+                      int n, int k, int nb,
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+{
+    (void)nb;
+    struct starpu_codelet *codelet = &cl_zsyrk;
+    void (*callback)(void*) = options->profiling ? cl_zsyrk_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,      &uplo,                sizeof(int),
+        STARPU_VALUE,     &trans,                sizeof(int),
+        STARPU_VALUE,         &n,                        sizeof(int),
+        STARPU_VALUE,         &k,                        sizeof(int),
+        STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,       &lda,                        sizeof(int),
+        STARPU_VALUE,      &beta,         sizeof(CHAMELEON_Complex64_t),
+        STARPU_RW,                 RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_VALUE,       &ldc,                        sizeof(int),
+        STARPU_PRIORITY,    options->priority,
+        STARPU_CALLBACK,    callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zsyrk",
+#endif
+        0);
+}

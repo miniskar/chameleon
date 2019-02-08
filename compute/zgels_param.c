@@ -92,9 +92,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -250,8 +249,7 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
  *
  *******************************************************************************
  *
- * @return
- *          \return CHAMELEON_SUCCESS successful exit
+ * @return CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

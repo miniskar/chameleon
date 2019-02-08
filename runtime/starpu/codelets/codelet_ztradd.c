@@ -22,12 +22,39 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    cham_trans_t trans;
+    int M;
+    int N;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+    CHAMELEON_Complex64_t beta;
+    CHAMELEON_Complex64_t *B;
+    int LDB;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &alpha, &LDA, &beta, &LDB);
+    CORE_ztradd(uplo, trans, M, N, alpha, A, LDA, beta, B, LDB);
+    return;
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(ztradd, 2, cl_ztradd_cpu_func)
+
 /**
  ******************************************************************************
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_ztradd adds two trapezoidal matrices together as in PBLAS pzgeadd.
+ * @brief Adds two trapezoidal matrices together as in PBLAS pzgeadd.
  *
  *       B <- alpha * op(A)  + beta * B,
  *
@@ -77,15 +104,14 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ *          @retval CHAMELEON_SUCCESS successful exit
+ *          @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void INSERT_TASK_ztradd(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     struct starpu_codelet *codelet = &cl_ztradd;
     void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
@@ -116,31 +142,3 @@ void INSERT_TASK_ztradd(const RUNTIME_option_t *options,
 
     (void)nb;
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    cham_trans_t trans;
-    int M;
-    int N;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &alpha, &LDA, &beta, &LDB);
-    CORE_ztradd(uplo, trans, M, N, alpha, A, LDA, beta, B, LDB);
-    return;
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(ztradd, 2, cl_ztradd_cpu_func)

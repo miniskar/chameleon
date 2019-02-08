@@ -180,8 +180,7 @@ int CHAMELEON_zlacpy( cham_uplo_t uplo, int M, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

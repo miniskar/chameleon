@@ -26,7 +26,31 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/*   INSERT_TASK_zplgsy - Generate a tile for random symmetric (positive definite if 'bump' is large enough) matrix. */
+/*   cl_zplgsy_cpu_func - Generate a tile for random symmetric (positive definite if 'bump' is large enough) matrix. */
+
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
+{
+    CHAMELEON_Complex64_t bump;
+    int m;
+    int n;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    int bigM;
+    int m0;
+    int n0;
+    unsigned long long int seed;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    starpu_codelet_unpack_args(cl_arg, &bump, &m, &n, &lda, &bigM, &m0, &n0, &seed );
+    CORE_zplgsy( bump, m, n, A, lda, bigM, m0, n0, seed );
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zplgsy, 1, cl_zplgsy_cpu_func)
 
 void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
@@ -58,29 +82,3 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-/*   cl_zplgsy_cpu_func - Generate a tile for random symmetric (positive definite if 'bump' is large enough) matrix. */
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
-{
-    CHAMELEON_Complex64_t bump;
-    int m;
-    int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    int bigM;
-    int m0;
-    int n0;
-    unsigned long long int seed;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &bump, &m, &n, &lda, &bigM, &m0, &n0, &seed );
-    CORE_zplgsy( bump, m, n, A, lda, bigM, m0, n0, seed );
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zplgsy, 1, cl_zplgsy_cpu_func)

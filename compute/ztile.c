@@ -45,8 +45,7 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *
@@ -122,8 +121,7 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

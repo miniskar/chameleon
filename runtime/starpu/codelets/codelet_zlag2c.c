@@ -24,6 +24,28 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
+{
+    int m;
+    int n;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    CHAMELEON_Complex32_t *B;
+    int ldb;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &ldb);
+    CORE_zlag2c( m, n, A, lda, B, ldb);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlag2c, 1, cl_zlag2c_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -60,21 +82,26 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
 }
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
+static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
 {
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
+    CHAMELEON_Complex32_t *A;
     int lda;
-    CHAMELEON_Complex32_t *B;
+    CHAMELEON_Complex64_t *B;
     int ldb;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &ldb);
-    CORE_zlag2c( m, n, A, lda, B, ldb);
+    CORE_clag2z( m, n, A, lda, B, ldb);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(clag2z, 2, cl_clag2z_cpu_func)
 
 void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
                        int m, int n, int nb,
@@ -105,30 +132,3 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
-{
-    int m;
-    int n;
-    CHAMELEON_Complex32_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *B;
-    int ldb;
-
-    A = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &ldb);
-    CORE_clag2z( m, n, A, lda, B, ldb);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlag2c, 1, cl_zlag2c_cpu_func)
-/*
- * Codelet definition
- */
-CODELETS_CPU(clag2z, 2, cl_clag2z_cpu_func)

@@ -43,10 +43,10 @@ static inline void CORE_zlacpy_quark(Quark *quark)
     CORE_zlacpy(uplo, M, N, A + displA, LDA, B + displB, LDB);
 }
 
-void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int m, int n, int nb,
-                        int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo, int m, int n, int nb,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;
@@ -63,12 +63,12 @@ void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
         0);
 }
 
-void INSERT_TASK_zlacpy(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                        0, A, Am, An, lda,
-                        0, B, Bm, Bn, ldb );
+                         0, A, Am, An, lda,
+                         0, B, Bm, Bn, ldb );
 }

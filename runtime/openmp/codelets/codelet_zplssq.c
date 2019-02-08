@@ -29,7 +29,7 @@
  *
  * @ingroup CORE_CHAMELEON_Complex64_t
  *
- *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
+ * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -74,7 +74,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 }
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
+                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     CHAMELEON_Complex64_t *res = RTBLKADDR(RESULT, CHAMELEON_Complex64_t, RESULTm, RESULTn);
 

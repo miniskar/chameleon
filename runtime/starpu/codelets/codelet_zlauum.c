@@ -26,14 +26,33 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlauum_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int N;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &N, &LDA);
+    CORE_zlauum(uplo, N, A, LDA);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlauum, 1, cl_zlauum_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
  */
-void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda)
+void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlauum;
@@ -56,23 +75,3 @@ void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlauum_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int N;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &N, &LDA);
-    CORE_zlauum(uplo, N, A, LDA);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlauum, 1, cl_zlauum_cpu_func)

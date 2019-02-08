@@ -25,6 +25,27 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlaset_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int M;
+    int N;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t beta;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &beta, &LDA);
+    CORE_zlaset(uplo, M, N, alpha, beta, A, LDA);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlaset, 1, cl_zlaset_cpu_func)
 
 /**
  *
@@ -90,26 +111,3 @@ void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlaset_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int M;
-    int N;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &beta, &LDA);
-    CORE_zlaset(uplo, M, N, alpha, beta, A, LDA);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlaset, 1, cl_zlaset_cpu_func)

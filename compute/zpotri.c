@@ -53,10 +53,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if i, the (i,i) element of the factor U or L is
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if i, the (i,i) element of the factor U or L is
  *                zero, and the inverse could not be computed.
  *
  *******************************************************************************
@@ -162,9 +161,8 @@ int CHAMELEON_zpotri( cham_uplo_t uplo, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval >0 if i, the leading minor of order i of A is not
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval >0 if i, the leading minor of order i of A is not
  *               positive definite, so the factorization could not be
  *               completed, and the solution has not been computed.
  *

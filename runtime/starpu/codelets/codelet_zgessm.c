@@ -26,6 +26,32 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
+{
+    int m;
+    int n;
+    int k;
+    int ib;
+    int *IPIV;
+    int ldl;
+    CHAMELEON_Complex64_t *D;
+    int ldd;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+
+    D = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV, &ldl, &ldd, &lda);
+    CORE_zgessm(m, n, k, ib, IPIV, D, ldd, A, lda);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zgessm, 3, cl_zgessm_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -66,18 +92,17 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
-void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
-                       int m, int n, int k, int ib, int nb,
-                       int *IPIV,
-                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
-                       const CHAM_desc_t *D, int Dm, int Dn, int ldd,
-                       const CHAM_desc_t *A, int Am, int An, int lda)
+void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
+                         int m, int n, int k, int ib, int nb,
+                         int *IPIV,
+                         const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                         const CHAM_desc_t *D, int Dm, int Dn, int ldd,
+                         const CHAM_desc_t *A, int Am, int An, int lda )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgessm;
@@ -109,30 +134,3 @@ void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
-{
-    int m;
-    int n;
-    int k;
-    int ib;
-    int *IPIV;
-    int ldl;
-    CHAMELEON_Complex64_t *D;
-    int ldd;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-
-    D = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV, &ldl, &ldd, &lda);
-    CORE_zgessm(m, n, k, ib, IPIV, D, ldd, A, lda);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zgessm, 3, cl_zgessm_cpu_func)

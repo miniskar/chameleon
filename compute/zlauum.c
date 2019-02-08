@@ -58,9 +58,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -165,8 +164,7 @@ int CHAMELEON_zlauum( cham_uplo_t uplo, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

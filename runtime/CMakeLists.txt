@@ -28,7 +28,6 @@
 # List of codelets required by all runtimes
 # -----------------------------------------
 set(CODELETS_ZSRC
-    codelets/codelet_ztile_zero.c
     codelets/codelet_zasum.c
     ##################
     # BLAS 1

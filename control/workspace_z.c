@@ -45,8 +45,7 @@
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeev(int N, CHAM_desc_t **descT, int p, int q) {
@@ -70,8 +69,7 @@ int CHAMELEON_Alloc_Workspace_zgeev(int N, CHAM_desc_t **descT, int p, int q) {
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgehrd(int N, CHAM_desc_t **descT, int p, int q) {
@@ -97,8 +95,7 @@ int CHAMELEON_Alloc_Workspace_zgehrd(int N, CHAM_desc_t **descT, int p, int q) {
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgebrd(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -125,8 +122,7 @@ int CHAMELEON_Alloc_Workspace_zgebrd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgels(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -159,8 +155,7 @@ int CHAMELEON_Alloc_Workspace_zgels(int M, int N, CHAM_desc_t **descT, int p, in
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgels_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -193,8 +188,7 @@ int CHAMELEON_Alloc_Workspace_zgels_Tile(int M, int N, CHAM_desc_t **descT, int 
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeqrf(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -227,8 +221,7 @@ int CHAMELEON_Alloc_Workspace_zgeqrf(int M, int N, CHAM_desc_t **descT, int p, i
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgeqrf_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -261,8 +254,7 @@ int CHAMELEON_Alloc_Workspace_zgeqrf_Tile(int M, int N, CHAM_desc_t **descT, int
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgelqf(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -294,8 +286,7 @@ int CHAMELEON_Alloc_Workspace_zgelqf(int M, int N, CHAM_desc_t **descT, int p, i
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgelqf_Tile(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -324,8 +315,7 @@ int CHAMELEON_Alloc_Workspace_zgelqf_Tile(int M, int N, CHAM_desc_t **descT, int
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv(int N, CHAM_desc_t **descL, int **IPIV, int p, int q) {
@@ -354,8 +344,7 @@ int CHAMELEON_Alloc_Workspace_zgesv_incpiv(int N, CHAM_desc_t **descL, int **IPI
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv_Tile(int N, CHAM_desc_t **descL, int **IPIV, int p, int q)
@@ -388,8 +377,7 @@ int CHAMELEON_Alloc_Workspace_zgesv_incpiv_Tile(int N, CHAM_desc_t **descL, int 
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgesvd(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -421,8 +409,7 @@ int CHAMELEON_Alloc_Workspace_zgesvd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  ******************************************************************************
  *
@@ -456,8 +443,7 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv(int M, int N, CHAM_desc_t **descL, i
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int **IPIV, int p, int q) {
@@ -488,8 +474,7 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zheev(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -520,8 +505,7 @@ int CHAMELEON_Alloc_Workspace_zheev(int M, int N, CHAM_desc_t **descT, int p, in
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zheevd(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -552,8 +536,7 @@ int CHAMELEON_Alloc_Workspace_zheevd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zhegv(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -584,8 +567,7 @@ int CHAMELEON_Alloc_Workspace_zhegv(int M, int N, CHAM_desc_t **descT, int p, in
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zhegvd(int M, int N, CHAM_desc_t **descT, int p, int q) {
@@ -616,8 +598,7 @@ int CHAMELEON_Alloc_Workspace_zhegvd(int M, int N, CHAM_desc_t **descT, int p, i
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Alloc_Workspace_zhetrd(int M, int N, CHAM_desc_t **descT, int p, int q) {

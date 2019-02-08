@@ -20,10 +20,32 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
-                      int M, CHAMELEON_Complex64_t alpha,
-                      const CHAM_desc_t *A, int Am, int An, int incA,
-                      const CHAM_desc_t *B, int Bm, int Bn, int incB)
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zaxpy_cpu_func(void *descr[], void *cl_arg)
+{
+    int M;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
+    int incA;
+    CHAMELEON_Complex64_t *B;
+    int incB;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &M, &alpha, &incA, &incB);
+    CORE_zaxpy(M, alpha, A, incA, B, incB);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zaxpy, 2, cl_zaxpy_cpu_func)
+
+void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
+                        int M, CHAMELEON_Complex64_t alpha,
+                        const CHAM_desc_t *A, int Am, int An, int incA,
+                        const CHAM_desc_t *B, int Bm, int Bn, int incB )
 {
     struct starpu_codelet *codelet = &cl_zaxpy;
     void (*callback)(void*) = options->profiling ? cl_zaxpy_callback : NULL;
@@ -48,26 +70,3 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
 #endif
             0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zaxpy_cpu_func(void *descr[], void *cl_arg)
-{
-    int M;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int incA;
-    CHAMELEON_Complex64_t *B;
-    int incB;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &M, &alpha, &incA, &incB);
-    CORE_zaxpy(M, alpha, A, incA, B, incB);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zaxpy, 2, cl_zaxpy_cpu_func)

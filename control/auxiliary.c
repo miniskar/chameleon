@@ -139,8 +139,7 @@ int chameleon_tune(cham_tasktype_t func, int M, int N, int NRHS)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Version(int *ver_major, int *ver_minor, int *ver_micro)
@@ -180,8 +179,7 @@ int CHAMELEON_Version(int *ver_major, int *ver_minor, int *ver_micro)
  *
  ******************************************************************************
  *
- * @return
- *          \retval Element size in bytes
+ * @retval Element size in bytes
  *
  */
 int CHAMELEON_Element_Size(int type)
@@ -209,8 +207,7 @@ int CHAMELEON_Element_Size(int type)
  *
  ******************************************************************************
  *
- * @return
- *          \retval MPI rank
+ * @retval MPI rank
  *
  */
 int CHAMELEON_My_Mpi_Rank(void)

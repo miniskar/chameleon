@@ -75,10 +75,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if i, the leading minor of order i of A is not positive definite, so the
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if i, the leading minor of order i of A is not positive definite, so the
  *               factorization could not be completed, and the solution has not been computed.
  *
  *******************************************************************************
@@ -206,9 +205,8 @@ int CHAMELEON_zposv( cham_uplo_t uplo, int N, int NRHS,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval >0 if i, the leading minor of order i of A is not positive definite, so the
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval >0 if i, the leading minor of order i of A is not positive definite, so the
  *               factorization could not be completed, and the solution has not been computed.
  *
  *******************************************************************************

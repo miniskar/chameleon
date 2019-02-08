@@ -38,23 +38,13 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
                         int M, CHAMELEON_Complex64_t alpha,
                         const CHAM_desc_t *A, int Am, int An, int incA,
                         const CHAM_desc_t *B, int Bm, int Bn, int incB );
+void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         void *user_data, void* user_build_callback );
 void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
                          cham_trans_t trans, int m, int n, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                          CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb );
-void INSERT_TASK_zlascal( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo,
-                          int m, int n, int nb,
-                          CHAMELEON_Complex64_t alpha,
-                          const CHAM_desc_t *A, int Am, int An, int lda );
-void INSERT_TASK_zbrdalg( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo,
-                          int N, int NB,
-                          const CHAM_desc_t *A,
-                          const CHAM_desc_t *C, int Cm, int Cn,
-                          const CHAM_desc_t *S, int Sm, int Sn,
-                          int i, int j, int m, int grsiz, int BAND,
-                          int *PCOL, int *ACOL, int *MCOL );
 void INSERT_TASK_zgelqt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -65,39 +55,6 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zgemm2( const RUNTIME_option_t *options,
-                         cham_trans_t transA, cham_trans_t transB,
-                         int m, int n, int k, int nb,
-                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zgemm_f2( const RUNTIME_option_t *options,
-                           cham_trans_t transA, cham_trans_t transB,
-                           int m, int n, int k, int nb,
-                           CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                           const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                           CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc,
-                           const CHAM_desc_t *fake1, int fake1m, int fake1n, int szefake1, int flag1,
-                           const CHAM_desc_t *fake2, int fake2m, int fake2n, int szefake2, int flag2 );
-void INSERT_TASK_zgemm_p2( const RUNTIME_option_t *options,
-                           cham_trans_t transA, cham_trans_t transB,
-                           int m, int n, int k, int nb,
-                           CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                           const CHAMELEON_Complex64_t **B, int ldb,
-                           CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zgemm_p2f1( const RUNTIME_option_t *options,
-                             cham_trans_t transA, cham_trans_t transB,
-                             int m, int n, int k, int nb,
-                             CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                             const CHAMELEON_Complex64_t **B, int ldb,
-                             CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc,
-                             const CHAM_desc_t *fake1, int fake1m, int fake1n, int szefake1, int flag1 );
-void INSERT_TASK_zgemm_p3( const RUNTIME_option_t *options,
-                           cham_trans_t transA, cham_trans_t transB,
-                           int m, int n, int k, int nb,
-                           CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                           const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                           CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t **C, int ldc );
 void INSERT_TASK_zgeqrt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -126,28 +83,6 @@ void INSERT_TASK_zgetrf_incpiv( const RUNTIME_option_t *options,
 void INSERT_TASK_zgetrf_nopiv( const RUNTIME_option_t *options,
                                int m, int n, int ib, int nb,
                                const CHAM_desc_t *A, int Am, int An, int lda, int iinfo );
-void INSERT_TASK_zgetrf_reclap( const RUNTIME_option_t *options,
-                                int m, int n, int nb,
-                                const CHAM_desc_t *A, int Am, int An, int lda,
-                                int *IPIV,
-
-                                cham_bool_t check_info, int iinfo,
-                                int nbthread );
-void INSERT_TASK_zgetrf_rectil( const RUNTIME_option_t *options,
-                                const CHAM_desc_t A, const CHAM_desc_t *Amn, int Amnm, int Amnn, int size,
-                                int *IPIV,
-
-                                cham_bool_t check_info, int iinfo,
-                                int nbthread );
-void INSERT_TASK_zgetrip( const RUNTIME_option_t *options,
-                          int m, int n, const CHAM_desc_t *A, int Am, int An, int szeA );
-void INSERT_TASK_zgetrip_f1( const RUNTIME_option_t *options,
-                             int m, int n, const CHAM_desc_t *A, int Am, int An, int szeA,
-                             const CHAM_desc_t *fake, int fakem, int faken, int szeF, int paramF );
-void INSERT_TASK_zgetrip_f2( const RUNTIME_option_t *options,
-                             int m, int n, const CHAM_desc_t *A, int Am, int An, int szeA,
-                             const CHAM_desc_t *fake1, int fake1m, int fake1n, int szeF1, int paramF1,
-                             const CHAM_desc_t *fake2, int fake2m, int fake2n, int szeF2, int paramF2 );
 void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
                          cham_uplo_t uplo,
                          int m, int n, int mb,
@@ -159,16 +94,6 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zhegst( const RUNTIME_option_t *options,
-                         int itype, cham_uplo_t uplo, int N,
-                         const CHAM_desc_t *A, int Am, int An, int LDA,
-                         const CHAM_desc_t *B, int Bm, int Bn, int LDB,
-                         int iinfo );
-void INSERT_TASK_zherk( const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, cham_trans_t trans,
-                        int n, int k, int nb,
-                        double alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                        double beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
 void INSERT_TASK_zher2k( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans,
                          int n, int k, int nb,
@@ -181,6 +106,15 @@ void INSERT_TASK_zherfb( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *T, int Tm, int Tn, int ldt,
                          const CHAM_desc_t *C, int Cm, int Cn, int ldc );
+void INSERT_TASK_zherk( const RUNTIME_option_t *options,
+                        cham_uplo_t uplo, cham_trans_t trans,
+                        int n, int k, int nb,
+                        double alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                        double beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
+void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int n,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn );
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int m, int n, int mb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -196,10 +130,6 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
 void INSERT_TASK_zlange_max( const RUNTIME_option_t *options,
                              const CHAM_desc_t *A, int Am, int An,
                              const CHAM_desc_t *B, int Bm, int Bn );
-void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int n,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn );
 void INSERT_TASK_zlanhe( const RUNTIME_option_t *options,
                          cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
                          const CHAM_desc_t *A, int Am, int An, int LDA,
@@ -213,31 +143,18 @@ void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
                          int M, int N, int NB,
                          const CHAM_desc_t *A, int Am, int An, int LDA,
                          const CHAM_desc_t *B, int Bm, int Bn );
+void INSERT_TASK_zlascal( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo,
+                          int m, int n, int nb,
+                          CHAMELEON_Complex64_t alpha,
+                          const CHAM_desc_t *A, int Am, int An, int lda );
 void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha,
-                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *tileA, int tileAm, int tileAn, int ldtilea );
+                         cham_uplo_t uplo, int n1, int n2,
+                         CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                         const CHAM_desc_t *tileA, int tileAm, int tileAn, int ldtilea );
 void INSERT_TASK_zlaset2( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha,
                           const CHAM_desc_t *tileA, int tileAm, int tileAn, int ldtilea );
-void INSERT_TASK_zlaswp( const RUNTIME_option_t *options,
-                         int n, const CHAM_desc_t *A, int Am, int An, int lda,
-                         int i1,  int i2, int *ipiv, int inc );
-void INSERT_TASK_zlaswp_f2( const RUNTIME_option_t *options,
-                            int n, const CHAM_desc_t *A, int Am, int An, int lda,
-                            int i1,  int i2, int *ipiv, int inc,
-                            const CHAM_desc_t *fake1, int fake1m, int fake1n, int szefake1, int flag1,
-                            const CHAM_desc_t *fake2, int fake2m, int fake2n, int szefake2, int flag2 );
-void INSERT_TASK_zlaswp_ontile( const RUNTIME_option_t *options,
-                                const CHAM_desc_t descA, const CHAM_desc_t *A, int Am, int An,
-                                int i1,  int i2, int *ipiv, int inc, CHAMELEON_Complex64_t *fakepanel );
-void INSERT_TASK_zlaswp_ontile_f2( const RUNTIME_option_t *options,
-                                   const CHAM_desc_t descA, const CHAM_desc_t *A, int Am, int An,
-                                   int i1,  int i2, int *ipiv, int inc,
-                                   const CHAM_desc_t *fake1, int fake1m, int fake1n, int szefake1, int flag1,
-                                   const CHAM_desc_t *fake2, int fake2m, int fake2n, int szefake2, int flag2 );
-void INSERT_TASK_zlaswpc_ontile( const RUNTIME_option_t *options,
-                                 const CHAM_desc_t descA, const CHAM_desc_t *A, int Am, int An,
-                                 int i1,  int i2, int *ipiv, int inc, CHAMELEON_Complex64_t *fakepanel );
 void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int mb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -254,17 +171,15 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
                          int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
                          int bigM, int m0, int n0, unsigned long long int seed );
+void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                         const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn );
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn );
 void INSERT_TASK_zpotrf( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int n, int nb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
-
                          int iinfo );
-void INSERT_TASK_zshift( const RUNTIME_option_t *options,
-                         int s, int m, int n, int L,
-                         CHAMELEON_Complex64_t *A );
-void INSERT_TASK_zshiftw( const RUNTIME_option_t *options,
-                          int s, int cl, int m, int n, int L,
-                          const CHAM_desc_t *A, int Am, int An, CHAMELEON_Complex64_t *W );
 void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
                          int m1, int n1, int m2, int n2, int k, int ib, int nb,
                          const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
@@ -278,17 +193,17 @@ void INSERT_TASK_zsymm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, cham_trans_t trans,
-                        int n, int k, int nb,
-                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                        CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
 void INSERT_TASK_zsyr2k( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans,
                          int n, int k, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *B, int Bm, int Bn, int LDB,
                          CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
+void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
+                        cham_uplo_t uplo, cham_trans_t trans,
+                        int n, int k, int nb,
+                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                        CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc );
 void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int n,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -297,13 +212,6 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
                                cham_uplo_t uplo, int n, int nb,
                                const CHAM_desc_t *A, int Am, int An, int lda,
                                int iinfo );
-void INSERT_TASK_zswpab( const RUNTIME_option_t *options,
-                         int i, int n1, int n2,
-                         const CHAM_desc_t *A, int Am, int An, int szeA );
-void INSERT_TASK_zswptr_ontile( const RUNTIME_option_t *options,
-                                const CHAM_desc_t descA, const CHAM_desc_t *Aij, int Aijm, int Aijn,
-                                int i1,  int i2, int *ipiv, int inc,
-                                const CHAM_desc_t *Akk, int Akkm, int Akkn, int ldak );
 void INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
                          int m, int n, int l, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An, int lda,
@@ -328,14 +236,6 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *B, int Bm, int Bn, int ldb,
                          const CHAM_desc_t *T, int Tm, int Tn, int ldt );
-void INSERT_TASK_ztrdalg( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo,
-                          int N, int NB,
-                          const CHAM_desc_t *A,
-                          const CHAM_desc_t *C, int Cm, int Cn,
-                          const CHAM_desc_t *S, int Sm, int Sn,
-                          int i, int j, int m, int grsiz, int BAND,
-                          int *PCOL, int *ACOL, int *MCOL );
 void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
@@ -349,11 +249,6 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
                         int m, int n, int nb,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *B, int Bm, int Bn, int ldb );
-void INSERT_TASK_ztrmm_p2( const RUNTIME_option_t *options,
-                           cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
-                           int m, int n, int nb,
-                           CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                           CHAMELEON_Complex64_t **B, int ldb );
 void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
                         cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
                         int m, int n, int nb,
@@ -390,18 +285,6 @@ void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
                          const CHAM_desc_t *L, int Lm, int Ln, int ldl,
                          int *IPIV,
                          cham_bool_t check_info, int iinfo );
-void INSERT_TASK_zpamm( const RUNTIME_option_t *options,
-                        int op, cham_side_t side, cham_store_t storev,
-                        int m, int n, int k, int l,
-                        const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
-                        const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
-                        const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                        const CHAM_desc_t *W, int Wm, int Wn, int ldw );
-void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                         const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn );
-void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
-                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn );
 void INSERT_TASK_zunmlq( const RUNTIME_option_t *options,
                          cham_side_t side, cham_trans_t trans,
                          int m, int n, int ib,  int nb, int k,
@@ -414,10 +297,6 @@ void INSERT_TASK_zunmqr( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *T, int Tm, int Tn, int ldt,
                          const CHAM_desc_t *C, int Cm, int Cn, int ldc );
-void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         void *user_data, void* user_build_callback );
-
 
 /**
  * Keep these insert_task for retro-compatibility

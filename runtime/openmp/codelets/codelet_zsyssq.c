@@ -29,6 +29,6 @@ void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrSCALESUMSQ = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrSCALESUMSQ) depend(in:ptrA[0:Am*An]) depend(inout:ptrSCALESUMSQ[0])
+#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrSCALESUMSQ) depend(in:ptrA[0]) depend(inout:ptrSCALESUMSQ[0])
     CORE_zsyssq( uplo, n, ptrA, lda, &ptrSCALESUMSQ[0], &ptrSCALESUMSQ[1] );
 }

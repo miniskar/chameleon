@@ -46,7 +46,7 @@ void CORE_zplssq_quark(Quark *quark)
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
+ * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -74,8 +74,8 @@ void CORE_zplssq_quark(Quark *quark)
  *
  */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                         const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq_quark, (Quark_Task_Flags*)opt,
@@ -94,7 +94,7 @@ void CORE_zplssq2_quark(Quark *quark)
 }
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
+                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq2_quark, (Quark_Task_Flags*)opt,

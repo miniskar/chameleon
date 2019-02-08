@@ -46,7 +46,7 @@ void CORE_ztradd_quark(Quark *quark)
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_ztradd adds two trapezoidal matrices together as in PBLAS pzgeadd.
+ * @brief Adds two trapezoidal matrices together as in PBLAS pzgeadd.
  *
  *       B <- alpha * op(A)  + beta * B,
  *
@@ -96,15 +96,14 @@ void CORE_ztradd_quark(Quark *quark)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void INSERT_TASK_ztradd(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GEADD;

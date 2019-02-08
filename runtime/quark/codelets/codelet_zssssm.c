@@ -115,9 +115,8 @@ void CORE_zssssm_quark(Quark *quark)
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 void INSERT_TASK_zssssm(const RUNTIME_option_t *options,
