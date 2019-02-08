@@ -154,8 +154,7 @@ int __chameleon_finalize(void)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Pause(void)
@@ -178,8 +177,7 @@ int CHAMELEON_Pause(void)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Resume(void)
@@ -201,8 +199,7 @@ int CHAMELEON_Resume(void)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Distributed_start(void)
@@ -224,8 +221,7 @@ int CHAMELEON_Distributed_start(void)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Distributed_stop(void)
@@ -294,8 +290,7 @@ int CHAMELEON_Comm_rank()
  *
  ******************************************************************************
  *
- * @return
- *          \retval The number of CPU workers started
+ * @retval The number of CPU workers started
  *
  */
 int CHAMELEON_GetThreadNbr( )

@@ -1172,12 +1172,6 @@ int  CORE_zlatro(int uplo, int trans,
                  void *A, int LDA,
                        void *B, int LDB);
 void CORE_zlauum(int uplo, int N, void *A, int LDA);
-int CORE_zpamm(int op, int side, int storev,
-               int M, int N, int K, int L,
-               void *A1, int LDA1,
-                     void *A2, int LDA2,
-               void *V, int LDV,
-                     void *W, int LDW);
 int  CORE_zparfb(int side, int trans, int direct, int storev,
                  int M1, int N1, int M2, int N2, int K, int L,
                        void *A1, int LDA1,

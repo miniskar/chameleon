@@ -73,10 +73,9 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
- *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
  *              singular, and division by zero will occur if it is used
  *              to solve a system of equations.
@@ -92,6 +91,6 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     int info = 0;
-#pragma omp task firstprivate(m, n, ib, ptrA, lda, IPIV, info) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(m, n, ib, ptrA, lda, IPIV, info) depend(out:IPIV[0]) depend(inout:ptrA[0])
     CORE_zgetrf_incpiv(m, n, ib, ptrA, lda, IPIV, &info);
 }

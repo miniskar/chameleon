@@ -103,14 +103,13 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
  */
 CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYNC)
 
-void
-INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
-                    cham_side_t side, cham_trans_t trans,
-                    int M, int N, int K, int L, int ib, int nb,
-                    const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                    const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                    const CHAM_desc_t *A, int Am, int An, int lda,
-                    const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
+                          cham_side_t side, cham_trans_t trans,
+                          int M, int N, int K, int L, int ib, int nb,
+                          const CHAM_desc_t *V, int Vm, int Vn, int ldv,
+                          const CHAM_desc_t *T, int Tm, int Tn, int ldt,
+                          const CHAM_desc_t *A, int Am, int An, int lda,
+                          const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     struct starpu_codelet *codelet = &cl_ztpmlqt;
     void (*callback)(void*) = options->profiling ? cl_ztpmlqt_callback : NULL;

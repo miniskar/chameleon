@@ -21,11 +21,35 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
+static inline int
+CORE_zplssq_parsec( parsec_execution_stream_t *context,
+                    parsec_task_t             *this_task )
+{
+    double *SCLSSQ_IN;
+    double *SCLSSQ_OUT;
+
+    parsec_dtd_unpack_args(
+        this_task, &SCLSSQ_IN, &SCLSSQ_OUT );
+
+    assert( SCLSSQ_OUT[0] >= 0. );
+    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
+        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
+        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
+    } else {
+        if ( SCLSSQ_OUT[0] > 0 ) {
+            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
+        }
+    }
+
+    (void)context;
+    return PARSEC_HOOK_RETURN_DONE;
+}
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_zplssq returns: scl * sqrt(ssq)
+ * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
  *
  * with scl and ssq such that
  *
@@ -52,33 +76,9 @@
  *          On exit, result contains scl * sqrt( ssq )
  *
  */
-static inline int
-CORE_zplssq_parsec( parsec_execution_stream_t *context,
-                    parsec_task_t             *this_task )
-{
-    double *SCLSSQ_IN;
-    double *SCLSSQ_OUT;
-
-    parsec_dtd_unpack_args(
-        this_task, &SCLSSQ_IN, &SCLSSQ_OUT );
-
-    assert( SCLSSQ_OUT[0] >= 0. );
-    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
-        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
-        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
-    } else {
-        if ( SCLSSQ_OUT[0] > 0 ) {
-            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
-        }
-    }
-
-    (void)context;
-    return PARSEC_HOOK_RETURN_DONE;
-}
-
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
-                        const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
+                         const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -91,7 +91,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 
 static inline int
 CORE_zplssq2_parsec( parsec_execution_stream_t *context,
-                    parsec_task_t             *this_task )
+                     parsec_task_t             *this_task )
 {
     double *RESULT;
 
@@ -105,7 +105,7 @@ CORE_zplssq2_parsec( parsec_execution_stream_t *context,
 }
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
+                          const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 

@@ -26,15 +26,40 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int M;
+    int N;
+    int displA;
+    int displB;
+    const CHAMELEON_Complex64_t *A;
+    int LDA;
+    CHAMELEON_Complex64_t *B;
+    int LDB;
+
+    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &displA, &LDA, &displB, &LDB);
+    CORE_zlacpy(uplo, M, N, A + displA, LDA, B + displB, LDB);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlacpy, 2, cl_zlacpy_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
  */
-void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int m, int n, int nb,
-                         int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                         int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo, int m, int n, int nb,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlacpy;
@@ -64,37 +89,12 @@ void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
         0);
 }
 
-void INSERT_TASK_zlacpy(const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int m, int n, int nb,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
-                        const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
                          0, A, Am, An, lda,
                          0, B, Bm, Bn, ldb );
 }
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int M;
-    int N;
-    int displA;
-    int displB;
-    const CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
-
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &displA, &LDA, &displB, &LDB);
-    CORE_zlacpy(uplo, M, N, A + displA, LDA, B + displB, LDB);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlacpy, 2, cl_zlacpy_cpu_func)

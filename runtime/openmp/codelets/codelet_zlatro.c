@@ -33,14 +33,14 @@
  * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_trans_t trans,
-                       int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, cham_trans_t trans,
+                         int m, int n, int mb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
-#pragma omp task firstprivate(uplo, trans, m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0:Am*An]) depend(inout:ptrB[0:Bm*Bn])
+#pragma omp task firstprivate(uplo, trans, m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0]) depend(inout:ptrB[0])
     CORE_zlatro(uplo, trans, m, n, ptrA, lda, ptrB, ldb);
 }

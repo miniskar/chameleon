@@ -34,11 +34,6 @@
 #endif
 
 /*
- * Management functions
- */
-ZCODELETS_HEADER(tile_zero)
-
-/*
  * BLAS 1 functions
  */
 ZCODELETS_HEADER(axpy)

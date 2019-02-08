@@ -24,6 +24,30 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
+{
+    double *normA;
+    cham_normtype_t norm;
+    int M;
+    int N;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+    double *work;
+
+    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
+    starpu_codelet_unpack_args(cl_arg, &norm, &M, &N, &LDA);
+    CORE_zlange( norm, M, N, A, LDA, work, normA );
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlange, 3, cl_zlange_cpu_func)
+
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
                          cham_normtype_t norm, int M, int N, int NB,
                          const CHAM_desc_t *A, int Am, int An, int LDA,
@@ -56,28 +80,25 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
 }
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
+static void cl_zlange_max_cpu_func(void *descr[], void *cl_arg)
 {
-    double *normA;
-    cham_normtype_t norm;
-    int M;
-    int N;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-    double *work;
+    double *A;
+    double *B;
 
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &norm, &M, &N, &LDA);
-    CORE_zlange( norm, M, N, A, LDA, work, normA );
+    A = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
+    B = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+
+    if ( *A > *B ) {
+        *B = *A;
+    }
+    (void)cl_arg;
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlange, 3, cl_zlange_cpu_func)
+CODELETS_CPU(zlange_max, 2, cl_zlange_max_cpu_func)
 
 void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
                            const CHAM_desc_t *A, int Am, int An,
@@ -102,24 +123,3 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlange_max_cpu_func(void *descr[], void *cl_arg)
-{
-    double *A;
-    double *B;
-
-    A = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-
-    if ( *A > *B ) {
-        *B = *A;
-    }
-    (void)cl_arg;
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlange_max, 2, cl_zlange_max_cpu_func)

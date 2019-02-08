@@ -26,44 +26,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
-void INSERT_TASK_ztrtri(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_diag_t diag,
-                       int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       int iinfo)
-{
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_ztrtri;
-    void (*callback)(void*) = options->profiling ? cl_ztrtri_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(A, Am, An);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &uplo,              sizeof(int),
-        STARPU_VALUE,    &diag,              sizeof(int),
-        STARPU_VALUE,    &n,                 sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
-        STARPU_VALUE,    &iinfo,             sizeof(int),
-        STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
-        STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "ztrtri",
-#endif
-        0);
-}
-
-
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_ztrtri_cpu_func(void *descr[], void *cl_arg)
 {
@@ -92,3 +54,40 @@ static void cl_ztrtri_cpu_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 CODELETS_CPU(ztrtri, 1, cl_ztrtri_cpu_func)
+
+/**
+ *
+ * @ingroup INSERT_TASK_Complex64_t
+ *
+ */
+void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, cham_diag_t diag,
+                         int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         int iinfo )
+{
+    (void)nb;
+    struct starpu_codelet *codelet = &cl_ztrtri;
+    void (*callback)(void*) = options->profiling ? cl_ztrtri_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &uplo,              sizeof(int),
+        STARPU_VALUE,    &diag,              sizeof(int),
+        STARPU_VALUE,    &n,                 sizeof(int),
+        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,    &lda,               sizeof(int),
+        STARPU_VALUE,    &iinfo,             sizeof(int),
+        STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
+        STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
+        STARPU_PRIORITY,  options->priority,
+        STARPU_CALLBACK,  callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "ztrtri",
+#endif
+        0);
+}

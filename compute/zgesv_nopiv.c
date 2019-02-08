@@ -66,10 +66,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
  *               but the factor U is exactly singular, so the solution could not be computed.
  *
  *******************************************************************************
@@ -179,9 +178,8 @@ int CHAMELEON_zgesv_nopiv( int N, int NRHS,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
  *               but the factor U is exactly singular, so the solution could not be computed.
  *
  *******************************************************************************

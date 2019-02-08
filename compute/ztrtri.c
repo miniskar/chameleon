@@ -61,10 +61,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if i, A(i,i) is exactly zero.  The triangular
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if i, A(i,i) is exactly zero.  The triangular
  *               matrix is singular and its inverse can not be computed.
  *
  *******************************************************************************
@@ -182,9 +181,8 @@ int CHAMELEON_ztrtri( cham_uplo_t uplo, cham_diag_t diag, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval >0 if i, A(i,i) is exactly zero.  The triangular
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval >0 if i, A(i,i) is exactly zero.  The triangular
  *               matrix is singular and its inverse can not be computed.
  *
  *******************************************************************************

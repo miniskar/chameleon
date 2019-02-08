@@ -22,10 +22,31 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zsyssq_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int n;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    double *SCALESUMSQ;
+
+    A          = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda);
+    CORE_zsyssq( uplo, n, A, lda, &SCALESUMSQ[0], &SCALESUMSQ[1] );
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zsyssq, 2, cl_zsyssq_cpu_func)
+
 void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int n,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
+                         cham_uplo_t uplo, int n,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     struct starpu_codelet *codelet = &cl_zsyssq;
     void (*callback)(void*) = options->profiling ? cl_zgessq_callback : NULL;
@@ -49,25 +70,3 @@ void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zsyssq_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    double *SCALESUMSQ;
-
-    A          = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda);
-    CORE_zsyssq( uplo, n, A, lda, &SCALESUMSQ[0], &SCALESUMSQ[1] );
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zsyssq, 2, cl_zsyssq_cpu_func)

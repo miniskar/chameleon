@@ -20,12 +20,12 @@
 
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
-void
-INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
-                   int M, int N, int L, int ib, int nb,
-                   const CHAM_desc_t *A, int Am, int An, int lda,
-                   const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                   const CHAM_desc_t *T, int Tm, int Tn, int ldt )
+
+void INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
+                         int M, int N, int L, int ib, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldt )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
@@ -36,8 +36,7 @@ INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
     {
       CHAMELEON_Complex64_t work[ws_size];
 
-      CORE_zlaset( ChamUpperLower, ib, M, 0., 0., ptrT, ldt);
-
+      CORE_zlaset( ChamUpperLower, ib, M, 0., 0., ptrT, ldt );
       CORE_ztplqt( M, N, L, ib,
                    ptrA, lda, ptrB, ldb, ptrT, ldt, work );
     }

@@ -26,39 +26,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/*   INSERT_TASK_zplghe - Generate a tile for random hermitian (positive definite if bump is large enough) matrix. */
-
-void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
-                        double bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int bigM, int m0, int n0, unsigned long long int seed )
-{
-
-    struct starpu_codelet *codelet = &cl_zplghe;
-    void (*callback)(void*) = options->profiling ? cl_zplghe_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_W(A, Am, An);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE, &bump,                   sizeof(double),
-        STARPU_VALUE,    &m,                      sizeof(int),
-        STARPU_VALUE,    &n,                      sizeof(int),
-        STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,  &lda,                      sizeof(int),
-        STARPU_VALUE, &bigM,                      sizeof(int),
-        STARPU_VALUE,   &m0,                      sizeof(int),
-        STARPU_VALUE,   &n0,                      sizeof(int),
-        STARPU_VALUE, &seed,   sizeof(unsigned long long int),
-        STARPU_PRIORITY,    options->priority,
-        STARPU_CALLBACK,    callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zplghe",
-#endif
-        0);
-}
-
 /*   cl_zplghe_cpu_func - Generate a tile for random hermitian (positive definite if bump is large enough) matrix. */
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -84,3 +51,33 @@ static void cl_zplghe_cpu_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 CODELETS_CPU(zplghe, 1, cl_zplghe_cpu_func)
+
+void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
+                         double bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                         int bigM, int m0, int n0, unsigned long long int seed )
+{
+    struct starpu_codelet *codelet = &cl_zplghe;
+    void (*callback)(void*) = options->profiling ? cl_zplghe_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_W(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE, &bump,                   sizeof(double),
+        STARPU_VALUE,    &m,                      sizeof(int),
+        STARPU_VALUE,    &n,                      sizeof(int),
+        STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,  &lda,                      sizeof(int),
+        STARPU_VALUE, &bigM,                      sizeof(int),
+        STARPU_VALUE,   &m0,                      sizeof(int),
+        STARPU_VALUE,   &n0,                      sizeof(int),
+        STARPU_VALUE, &seed,   sizeof(unsigned long long int),
+        STARPU_PRIORITY,    options->priority,
+        STARPU_CALLBACK,    callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zplghe",
+#endif
+        0);
+}

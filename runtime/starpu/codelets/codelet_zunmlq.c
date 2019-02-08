@@ -27,6 +27,75 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zunmlq_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_side_t side;
+    cham_trans_t trans;
+    int m;
+    int n;
+    int k;
+    int ib;
+    const CHAMELEON_Complex64_t *A;
+    int lda;
+    const CHAMELEON_Complex64_t *T;
+    int ldt;
+    CHAMELEON_Complex64_t *C;
+    int ldc;
+    CHAMELEON_Complex64_t *WORK;
+    int ldwork;
+
+    A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+
+    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
+                               &lda, &ldt, &ldc, &ldwork);
+
+    CORE_zunmlq(side, trans, m, n, k, ib,
+                A, lda, T, ldt, C, ldc, WORK, ldwork);
+}
+
+#if defined(CHAMELEON_USE_CUDA)
+static void cl_zunmlq_cuda_func(void *descr[], void *cl_arg)
+{
+    cham_side_t side;
+    cham_trans_t trans;
+    int m;
+    int n;
+    int k;
+    int ib;
+    const cuDoubleComplex *A, *T;
+    cuDoubleComplex *C, *WORK;
+    int lda, ldt, ldc, ldwork;
+
+    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
+                               &lda, &ldt, &ldc, &ldwork);
+
+    A    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
+    T    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
+    C    = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+
+    RUNTIME_getStream(stream);
+
+    CUDA_zunmlqt(
+            side, trans, m, n, k, ib,
+            A, lda, T, ldt, C, ldc, WORK, ldwork, stream );
+
+#ifndef STARPU_CUDA_ASYNC
+    cudaStreamSynchronize( stream );
+#endif
+}
+#endif /* defined(CHAMELEON_USE_CUDA) */
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS(zunmlq, 4, cl_zunmlq_cpu_func, cl_zunmlq_cuda_func, STARPU_CUDA_ASYNC)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -105,18 +174,16 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ *          @retval CHAMELEON_SUCCESS successful exit
+ *          @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-
-void INSERT_TASK_zunmlq(const RUNTIME_option_t *options,
-                       cham_side_t side, cham_trans_t trans,
-                       int m, int n, int k, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+void INSERT_TASK_zunmlq( const RUNTIME_option_t *options,
+                         cham_side_t side, cham_trans_t trans,
+                         int m, int n, int k, int ib, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldt,
+                         const CHAM_desc_t *C, int Cm, int Cn, int ldc )
 {
     struct starpu_codelet *codelet = &cl_zunmlq;
     void (*callback)(void*) = options->profiling ? cl_zunmlq_callback : NULL;
@@ -151,73 +218,3 @@ void INSERT_TASK_zunmlq(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zunmlq_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_side_t side;
-    cham_trans_t trans;
-    int m;
-    int n;
-    int k;
-    int ib;
-    const CHAMELEON_Complex64_t *A;
-    int lda;
-    const CHAMELEON_Complex64_t *T;
-    int ldt;
-    CHAMELEON_Complex64_t *C;
-    int ldc;
-    CHAMELEON_Complex64_t *WORK;
-    int ldwork;
-
-    A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
-
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
-                               &lda, &ldt, &ldc, &ldwork);
-
-    CORE_zunmlq(side, trans, m, n, k, ib,
-                A, lda, T, ldt, C, ldc, WORK, ldwork);
-}
-
-#if defined(CHAMELEON_USE_CUDA)
-static void cl_zunmlq_cuda_func(void *descr[], void *cl_arg)
-{
-    cham_side_t side;
-    cham_trans_t trans;
-    int m;
-    int n;
-    int k;
-    int ib;
-    const cuDoubleComplex *A, *T;
-    cuDoubleComplex *C, *WORK;
-    int lda, ldt, ldc, ldwork;
-
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
-                               &lda, &ldt, &ldc, &ldwork);
-
-    A    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
-
-    RUNTIME_getStream(stream);
-
-    CUDA_zunmlqt(
-            side, trans, m, n, k, ib,
-            A, lda, T, ldt, C, ldc, WORK, ldwork, stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
-}
-#endif /* defined(CHAMELEON_USE_CUDA) */
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS(zunmlq, 4, cl_zunmlq_cpu_func, cl_zunmlq_cuda_func, STARPU_CUDA_ASYNC)

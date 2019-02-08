@@ -22,10 +22,33 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
-                       cham_store_t storev, cham_uplo_t uplo, int M, int N,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_store_t storev;
+    cham_uplo_t uplo;
+    int M;
+    int N;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    double *work;
+
+    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    work = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N, &lda);
+    CORE_dzasum(storev, uplo, M, N, A, lda, work);
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zasum, 2, cl_dzasum_cpu_func)
+
+void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
+                         cham_store_t storev, cham_uplo_t uplo, int M, int N,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_zasum;
     void (*callback)(void*) = options->profiling ? cl_zasum_callback : NULL;
@@ -51,27 +74,3 @@ void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_store_t storev;
-    cham_uplo_t uplo;
-    int M;
-    int N;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    double *work;
-
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N, &lda);
-    CORE_dzasum(storev, uplo, M, N, A, lda, work);
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zasum, 2, cl_dzasum_cpu_func)

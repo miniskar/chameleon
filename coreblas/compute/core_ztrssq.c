@@ -82,9 +82,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval -k, the k-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval -k, the k-th argument had an illegal value
  *
  */
 

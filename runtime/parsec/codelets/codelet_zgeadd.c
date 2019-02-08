@@ -52,7 +52,7 @@ CORE_zgeadd_parsec( parsec_execution_stream_t *context,
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
- *  INSERT_TASK_zgeadd adds two general matrices together as in PBLAS pzgeadd.
+ * @brief Adds two general matrices together as in PBLAS pzgeadd.
  *
  *       B <- alpha * op(A)  + beta * B,
  *
@@ -96,15 +96,14 @@ CORE_zgeadd_parsec( parsec_execution_stream_t *context,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-void INSERT_TASK_zgeadd(const RUNTIME_option_t *options,
-                       cham_trans_t trans, int m, int n, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
+                         cham_trans_t trans, int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 

@@ -44,8 +44,7 @@
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Lapack_to_Tile(void *Af77, int LDA, CHAM_desc_t *A)
@@ -86,8 +85,7 @@ int CHAMELEON_Lapack_to_Tile(void *Af77, int LDA, CHAM_desc_t *A)
  *
  ******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Tile_to_Lapack(CHAM_desc_t *A, void *Af77, int LDA)

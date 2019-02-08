@@ -22,6 +22,28 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
+{
+    cham_uplo_t uplo;
+    int M;
+    int N;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t *A;
+    int LDA;
+
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &LDA);
+    CORE_zlascal(uplo, M, N, alpha, A, LDA);
+    return;
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zlascal, 1, cl_zlascal_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -49,12 +71,10 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ *          @retval CHAMELEON_SUCCESS successful exit
+ *          @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-
 void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int nb,
@@ -84,26 +104,3 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
-{
-    cham_uplo_t uplo;
-    int M;
-    int N;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &LDA);
-    CORE_zlascal(uplo, M, N, alpha, A, LDA);
-    return;
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(zlascal, 1, cl_zlascal_cpu_func)

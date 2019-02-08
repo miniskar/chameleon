@@ -22,38 +22,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-void INSERT_TASK_ztrasm(const RUNTIME_option_t *options,
-                       cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag, int M, int N,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn)
-{
-    struct starpu_codelet *codelet = &cl_ztrasm;
-    void (*callback)(void*) = options->profiling ? cl_ztrasm_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_RW(B, Bm, Bn);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &storev,                    sizeof(int),
-        STARPU_VALUE,    &uplo,                      sizeof(int),
-        STARPU_VALUE,    &diag,                      sizeof(int),
-        STARPU_VALUE,    &M,                         sizeof(int),
-        STARPU_VALUE,    &N,                         sizeof(int),
-        STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
-        STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
-        STARPU_PRIORITY, options->priority,
-        STARPU_CALLBACK, callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-            STARPU_NAME, "ztrasm",
-#endif
-        0);
-}
-
-
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_ztrasm_cpu_func(void *descr[], void *cl_arg)
 {
@@ -77,3 +45,34 @@ static void cl_ztrasm_cpu_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 CODELETS_CPU(ztrasm, 2, cl_ztrasm_cpu_func)
+
+void INSERT_TASK_ztrasm( const RUNTIME_option_t *options,
+                         cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag, int M, int N,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn )
+{
+    struct starpu_codelet *codelet = &cl_ztrasm;
+    void (*callback)(void*) = options->profiling ? cl_ztrasm_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &storev,                    sizeof(int),
+        STARPU_VALUE,    &uplo,                      sizeof(int),
+        STARPU_VALUE,    &diag,                      sizeof(int),
+        STARPU_VALUE,    &M,                         sizeof(int),
+        STARPU_VALUE,    &N,                         sizeof(int),
+        STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,    &lda,                       sizeof(int),
+        STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
+        STARPU_PRIORITY, options->priority,
+        STARPU_CALLBACK, callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "ztrasm",
+#endif
+        0);
+}

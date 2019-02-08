@@ -34,6 +34,6 @@ void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     int info = 0;
-#pragma omp task firstprivate(m, n, ptrA, lda, IPIV, info) depend(inout:ptrA[0])
+#pragma omp task firstprivate(m, n, ptrA, lda, IPIV, info) depend(out:IPIV[0]) depend(inout:ptrA[0])
     CORE_zgetrf( m, n, ptrA, lda, IPIV, &info );
 }

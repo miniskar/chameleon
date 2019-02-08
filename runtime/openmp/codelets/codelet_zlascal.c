@@ -51,9 +51,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
 
@@ -64,6 +63,6 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         const CHAM_desc_t *A, int Am, int An, int lda)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(uplo, m, n, alpha, ptrA, lda) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(uplo, m, n, alpha, ptrA, lda) depend(inout:ptrA[0])
     CORE_zlascal(uplo, m, n, alpha, ptrA, lda);
 }

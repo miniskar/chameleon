@@ -89,9 +89,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -244,8 +243,7 @@ int CHAMELEON_zgels( cham_trans_t trans, int M, int N, int NRHS,
  *
  *******************************************************************************
  *
- * @return
- *          \return CHAMELEON_SUCCESS successful exit
+ * @return CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

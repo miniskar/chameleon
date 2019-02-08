@@ -28,11 +28,9 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/*   INSERT_TASK_zplrnt - Generate a tile for random matrix. */
-
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
-                        int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int bigM, int m0, int n0, unsigned long long int seed )
+                         int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
 #pragma omp task firstprivate(m, n, ptrA, lda, bigM, m0, n0, seed) depend(inout:ptrA[0])

@@ -24,95 +24,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-/**
- ******************************************************************************
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  INSERT_TASK_zgeadd adds two general matrices together as in PBLAS pzgeadd.
- *
- *       B <- alpha * op(A)  + beta * B,
- *
- * where op(X) = X, X', or conj(X')
- *
- *******************************************************************************
- *
- * @param[in] trans
- *          Specifies whether the matrix A is non-transposed, transposed, or
- *          conjugate transposed
- *          = ChamNoTrans:   op(A) = A
- *          = ChamTrans:     op(A) = A'
- *          = ChamConjTrans: op(A) = conj(A')
- *
- * @param[in] M
- *          Number of rows of the matrices op(A) and B.
- *
- * @param[in] N
- *          Number of columns of the matrices op(A) and B.
- *
- * @param[in] alpha
- *          Scalar factor of A.
- *
- * @param[in] A
- *          Matrix of size LDA-by-N, if trans = ChamNoTrans, LDA-by-M
- *          otherwise.
- *
- * @param[in] LDA
- *          Leading dimension of the array A. LDA >= max(1,k), with k=M, if
- *          trans = ChamNoTrans, and k=N otherwise.
- *
- * @param[in] beta
- *          Scalar factor of B.
- *
- * @param[in,out] B
- *          Matrix of size LDB-by-N.
- *          On exit, B = alpha * op(A) + beta * B
- *
- * @param[in] LDB
- *          Leading dimension of the array B. LDB >= max(1,M)
- *
- *******************************************************************************
- *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *
- */
-void INSERT_TASK_zgeadd(const RUNTIME_option_t *options,
-                       cham_trans_t trans, int m, int n, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb)
-{
-    struct starpu_codelet *codelet = &cl_zgeadd;
-    void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
-
-    CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_RW(B, Bm, Bn);
-    CHAMELEON_END_ACCESS_DECLARATION;
-
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &trans,              sizeof(int),
-        STARPU_VALUE,    &m,                  sizeof(int),
-        STARPU_VALUE,    &n,                  sizeof(int),
-        STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                sizeof(int),
-        STARPU_VALUE,    &beta,               sizeof(CHAMELEON_Complex64_t),
-        STARPU_RW,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,    &ldb,                sizeof(int),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgeadd",
-#endif
-        0);
-
-    (void)nb;
-}
-
-
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
 {
@@ -176,3 +87,90 @@ CODELETS(zgeadd, 2, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
 #else
 CODELETS_CPU(zgeadd, 2, cl_zgeadd_cpu_func)
 #endif
+
+/**
+ ******************************************************************************
+ *
+ * @ingroup INSERT_TASK_Complex64_t
+ *
+ * @brief Adds two general matrices together as in PBLAS pzgeadd.
+ *
+ *       B <- alpha * op(A)  + beta * B,
+ *
+ * where op(X) = X, X', or conj(X')
+ *
+ *******************************************************************************
+ *
+ * @param[in] trans
+ *          Specifies whether the matrix A is non-transposed, transposed, or
+ *          conjugate transposed
+ *          = ChamNoTrans:   op(A) = A
+ *          = ChamTrans:     op(A) = A'
+ *          = ChamConjTrans: op(A) = conj(A')
+ *
+ * @param[in] M
+ *          Number of rows of the matrices op(A) and B.
+ *
+ * @param[in] N
+ *          Number of columns of the matrices op(A) and B.
+ *
+ * @param[in] alpha
+ *          Scalar factor of A.
+ *
+ * @param[in] A
+ *          Matrix of size LDA-by-N, if trans = ChamNoTrans, LDA-by-M
+ *          otherwise.
+ *
+ * @param[in] LDA
+ *          Leading dimension of the array A. LDA >= max(1,k), with k=M, if
+ *          trans = ChamNoTrans, and k=N otherwise.
+ *
+ * @param[in] beta
+ *          Scalar factor of B.
+ *
+ * @param[in,out] B
+ *          Matrix of size LDB-by-N.
+ *          On exit, B = alpha * op(A) + beta * B
+ *
+ * @param[in] LDB
+ *          Leading dimension of the array B. LDB >= max(1,M)
+ *
+ *******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ *
+ */
+void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
+                         cham_trans_t trans, int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+{
+    struct starpu_codelet *codelet = &cl_zgeadd;
+    void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    starpu_insert_task(
+        starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &trans,              sizeof(int),
+        STARPU_VALUE,    &m,                  sizeof(int),
+        STARPU_VALUE,    &n,                  sizeof(int),
+        STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
+        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,    &lda,                sizeof(int),
+        STARPU_VALUE,    &beta,               sizeof(CHAMELEON_Complex64_t),
+        STARPU_RW,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        STARPU_VALUE,    &ldb,                sizeof(int),
+        STARPU_PRIORITY,  options->priority,
+        STARPU_CALLBACK,  callback,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zgeadd",
+#endif
+        0);
+
+    (void)nb;
+}

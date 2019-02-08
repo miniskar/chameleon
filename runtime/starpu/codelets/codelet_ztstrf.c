@@ -26,6 +26,51 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
+{
+    CHAMELEON_starpu_ws_t *d_work;
+    int m;
+    int n;
+    int ib;
+    int nb;
+    CHAMELEON_Complex64_t *U;
+    int ldu;
+    CHAMELEON_Complex64_t *A;
+    int lda;
+    CHAMELEON_Complex64_t *L;
+    int ldl;
+    int *IPIV;
+    CHAMELEON_Complex64_t *WORK;
+    int ldwork;
+    cham_bool_t check_info;
+    int iinfo;
+    RUNTIME_sequence_t *sequence;
+    RUNTIME_request_t *request;
+    int info = 0;
+
+    U = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    L = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
+    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb, &ldu, &lda, &ldl,
+                               &IPIV, &d_work, &ldwork, &check_info, &iinfo,
+                               &sequence, &request);
+
+    CORE_ztstrf(m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info);
+
+    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
+    }
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
+
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
@@ -83,23 +128,21 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
- *         \retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
  *              has been completed, but the factor U is exactly
  *              singular, and division by zero will occur if it is used
  *              to solve a system of equations.
  *
  */
-
-void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
-                       int m, int n, int ib, int nb,
-                       const CHAM_desc_t *U, int Um, int Un, int ldu,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
-                       int *IPIV,
-                       cham_bool_t check_info, int iinfo)
+void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
+                         int m, int n, int ib, int nb,
+                         const CHAM_desc_t *U, int Um, int Un, int ldu,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                         int *IPIV,
+                         cham_bool_t check_info, int iinfo )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_ztstrf;
@@ -139,50 +182,3 @@ void INSERT_TASK_ztstrf(const RUNTIME_option_t *options,
 #endif
         0);
 }
-
-
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
-{
-    CHAMELEON_starpu_ws_t *d_work;
-    int m;
-    int n;
-    int ib;
-    int nb;
-    CHAMELEON_Complex64_t *U;
-    int ldu;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *L;
-    int ldl;
-    int *IPIV;
-    CHAMELEON_Complex64_t *WORK;
-    int ldwork;
-    cham_bool_t check_info;
-    int iinfo;
-    RUNTIME_sequence_t *sequence;
-    RUNTIME_request_t *request;
-    int info = 0;
-
-    U = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    L = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb, &ldu, &lda, &ldl,
-                               &IPIV, &d_work, &ldwork, &check_info, &iinfo,
-                               &sequence, &request);
-
-    CORE_ztstrf(m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info);
-
-    if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
-        RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
-    }
-}
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-/*
- * Codelet definition
- */
-CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
-

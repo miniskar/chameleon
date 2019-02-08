@@ -68,9 +68,8 @@
  *
  *******************************************************************************
  *
- * @return
- *         \retval CHAMELEON_SUCCESS successful exit
- *         \retval <0 if INFO = -k, the k-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if INFO = -k, the k-th argument had an illegal value
  *
  */
 
@@ -83,6 +82,6 @@ void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
 {
     CHAMELEON_Complex64_t *ptrD = RTBLKADDR(D, CHAMELEON_Complex64_t, Dm, Dn);
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(m, n, k, ib, IPIV, ptrD, ldd, ptrA, lda) depend(in:ptrD[0:Dm*Dn]) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(m, n, k, ib, IPIV, ptrD, ldd, ptrA, lda) depend(in:ptrD[0]) depend(inout:ptrA[0])
     CORE_zgessm(m, n, k, ib, IPIV, ptrD, ldd, ptrA, lda);
 }

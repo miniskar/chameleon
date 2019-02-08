@@ -56,10 +56,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
  *               but the factor U is exactly singular, and division by zero will occur
  *               if it is used to solve a system of equations.
  *
@@ -166,9 +165,8 @@ int CHAMELEON_zgetrf_incpiv( int M, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
  *               but the factor U is exactly singular, and division by zero will occur
  *               if it is used to solve a system of equations.
  *

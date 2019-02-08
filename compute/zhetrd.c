@@ -92,10 +92,9 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if INFO = i, the algorithm failed to converge; i
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if INFO = i, the algorithm failed to converge; i
  *               off-diagonal elements of an intermediate tridiagonal
  *               form did not converge to zero.
  *
@@ -245,10 +244,9 @@ int CHAMELEON_zhetrd( cham_job_t jobz, cham_uplo_t uplo, int N,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
- *          \retval >0 if INFO = i, the algorithm failed to converge; i
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
+ * @retval >0 if INFO = i, the algorithm failed to converge; i
  *               off-diagonal elements of an intermediate tridiagonal
  *               form did not converge to zero.
  *

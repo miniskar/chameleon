@@ -123,8 +123,7 @@ int chameleon_context_destroy(){
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Enable(int option)
@@ -192,8 +191,7 @@ int CHAMELEON_Enable(int option)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Disable(int option)
@@ -256,8 +254,7 @@ int CHAMELEON_Disable(int option)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Set( int param, int value )
@@ -350,8 +347,7 @@ int CHAMELEON_Set( int param, int value )
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  */
 int CHAMELEON_Get(int param, int *value)

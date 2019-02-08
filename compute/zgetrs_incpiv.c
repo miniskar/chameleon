@@ -69,9 +69,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \return <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @return <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -194,8 +193,7 @@ int CHAMELEON_zgetrs_incpiv( cham_trans_t trans, int N, int NRHS,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

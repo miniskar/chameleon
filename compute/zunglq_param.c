@@ -60,9 +60,8 @@
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval CHAMELEON_SUCCESS <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -180,8 +179,7 @@ int CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
+ * @retval CHAMELEON_SUCCESS successful exit
  *
  *******************************************************************************
  *

@@ -33,10 +33,10 @@
  * @ingroup CORE_CHAMELEON_Complex64_t
  *
  */
-void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int m, int n, int nb,
-                        int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                        int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo, int m, int n, int nb,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A + displA, CHAMELEON_Complex64_t, Am, An);
     CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B + displB, CHAMELEON_Complex64_t, Bm, Bn);
@@ -44,12 +44,12 @@ void INSERT_TASK_zlacpyx(const RUNTIME_option_t *options,
     CORE_zlacpy(uplo, m, n, ptrA, lda, ptrB, ldb);
 }
 
-void INSERT_TASK_zlacpy(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                        0, A, Am, An, lda,
-                        0, B, Bm, Bn, ldb );
+                         0, A, Am, An, lda,
+                         0, B, Bm, Bn, ldb );
 }

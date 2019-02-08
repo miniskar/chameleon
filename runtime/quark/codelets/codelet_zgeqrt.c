@@ -101,9 +101,8 @@ void CORE_zgeqrt_quark(Quark *quark)
  *
  *******************************************************************************
  *
- * @return
- *          \retval CHAMELEON_SUCCESS successful exit
- *          \retval <0 if -i, the i-th argument had an illegal value
+ * @retval CHAMELEON_SUCCESS successful exit
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,

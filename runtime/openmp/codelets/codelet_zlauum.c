@@ -38,6 +38,6 @@ void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
                        const CHAM_desc_t *A, int Am, int An, int lda)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(uplo, n, ptrA, lda) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(uplo, n, ptrA, lda) depend(inout:ptrA[0])
     CORE_zlauum(uplo, n, ptrA, lda);
 }

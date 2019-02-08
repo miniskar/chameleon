@@ -32,6 +32,6 @@ void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
                              int iinfo)
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-#pragma omp task firstprivate(uplo, n, ptrA, lda) depend(inout:ptrA[0:Am*An])
+#pragma omp task firstprivate(uplo, n, ptrA, lda) depend(inout:ptrA[0])
     CORE_zsytf2_nopiv(uplo, n, ptrA, lda);
 }
