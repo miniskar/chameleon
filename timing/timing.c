@@ -730,19 +730,11 @@ main(int argc, char *argv[]) {
     int stop  = 5000;
     int step  =  500;
     int iparam[IPARAM_SIZEOF];
+    int return_code;
 
     set_iparam_default(iparam);
 
     parse_arguments(&argc, &argv, iparam, &start, &stop, &step);
-
-#if !defined(CHAMELEON_USE_CUDA)
-    if (iparam[IPARAM_NCUDAS] != 0){
-        fprintf(stderr, "ERROR: CHAMELEON_USE_CUDA is not defined. "
-                "The number of CUDA devices must be set to 0 (--gpus=0).\n");
-        return EXIT_FAILURE;
-    }
-#endif
-    int return_code;
 
     /* Initialize CHAMELEON */
     CHAMELEON_Init( iparam[IPARAM_THRDNBR],
