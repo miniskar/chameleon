@@ -103,6 +103,13 @@ int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
 #  endif
 #endif
 
+#if !defined(CHAMELEON_USE_CUDA)
+    if ( ncudas != 0 ) {
+        chameleon_warning("CHAMELEON_Init", "CHAMELEON_USE_CUDA is not defined, ncudas is forced to 0");
+        ncudas = 0;
+    }
+#endif
+
     RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
 
 #if defined(CHAMELEON_USE_MPI)
