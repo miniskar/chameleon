@@ -1015,10 +1015,8 @@ add_subdirectory(runtime)
 enable_testing()
 include(CTest)
 
-# Necessary to compile executables (temporary)
-# should use SystemDetection.cmake module?
-string(REGEX MATCH ".*ifort$" _match_ifort ${CMAKE_Fortran_COMPILER})
-if(_match_ifort)
+# Necessary to compile C executables linked with ifort
+if(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
     message(STATUS "Add -nofor_main to the Fortran linker (Intel compiler)")
     set(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -nofor_main")
 endif(_match_ifort)
