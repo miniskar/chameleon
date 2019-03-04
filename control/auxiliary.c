@@ -51,10 +51,12 @@ void chameleon_warning(const char *func_name, const char *msg_text)
     CHAM_context_t *chamctxt;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL)
+    if (chamctxt == NULL) {
         chameleon_fatal_error("chameleon_warning", "CHAMELEON not initialized");
-    if (chamctxt->warnings_enabled)
+    }
+    if (chamctxt->warnings_enabled) {
         fprintf(stderr, "CHAMELEON WARNING: %s(): %s\n", func_name, msg_text);
+    }
 }
 
 /**

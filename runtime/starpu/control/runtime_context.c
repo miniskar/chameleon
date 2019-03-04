@@ -69,18 +69,21 @@ void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 /**
  *
  */
-void RUNTIME_enable( int lever )
+void RUNTIME_enable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
-        case CHAMELEON_PROFILING_MODE:
-            starpu_profiling_status_set(STARPU_PROFILING_ENABLE);
-            break;
-        case CHAMELEON_BOUND:
-            starpu_bound_start(0, 0);
-            break;
-        default:
-            return;
+    case CHAMELEON_DAG:
+        fprintf(stderr, "StarPU is providing DAG generation through tracing support (CHAMELEON_PROFILING_MODE)\n");
+        break;
+    case CHAMELEON_PROFILING_MODE:
+        starpu_profiling_status_set(STARPU_PROFILING_ENABLE);
+        break;
+    case CHAMELEON_BOUND:
+        starpu_bound_start(0, 0);
+        break;
+    default:
+        return;
     }
     return;
 }
@@ -88,18 +91,21 @@ void RUNTIME_enable( int lever )
 /**
  *
  */
-void RUNTIME_disable( int lever )
+void RUNTIME_disable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
-        case CHAMELEON_PROFILING_MODE:
-            starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
-            break;
-        case CHAMELEON_BOUND:
-            starpu_bound_stop();
-            break;
-        default:
-            return;
+    case CHAMELEON_DAG:
+        fprintf(stderr, "StarPU is providing DAG generation through tracing support (CHAMELEON_PROFILING_MODE)\n");
+        break;
+    case CHAMELEON_PROFILING_MODE:
+        starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
+        break;
+    case CHAMELEON_BOUND:
+        starpu_bound_stop();
+        break;
+    default:
+        return;
     }
     return;
 }

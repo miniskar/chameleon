@@ -168,7 +168,7 @@ int CHAMELEON_Enable(int option)
     }
 
     /* Enable at the lower level if required */
-    RUNTIME_enable( option );
+    RUNTIME_enable( chamctxt->schedopt, option );
 
     return CHAMELEON_SUCCESS;
 }
@@ -231,7 +231,7 @@ int CHAMELEON_Disable(int option)
     }
 
     /* Disable at the lower level if required */
-    RUNTIME_disable( option );
+    RUNTIME_disable( chamctxt->schedopt, option );
 
     return CHAMELEON_SUCCESS;
 }

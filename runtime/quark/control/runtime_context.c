@@ -42,18 +42,22 @@ void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 /**
  *
  */
-void RUNTIME_enable( int lever )
+void RUNTIME_enable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
-        case CHAMELEON_PROFILING_MODE:
-            fprintf(stderr, "Profiling is not available with Quark\n");
-            break;
-        case CHAMELEON_BOUND:
-            fprintf(stderr, "Bound computation is not available with Quark\n");
-            break;
-        default:
-            return;
+    case CHAMELEON_DAG:
+        QUARK_Barrier( runtime_ctxt );
+        QUARK_DOT_DAG_Enable( runtime_ctxt, 1 );
+        break;
+    case CHAMELEON_PROFILING_MODE:
+        fprintf(stderr, "Profiling is not available with Quark\n");
+        break;
+    case CHAMELEON_BOUND:
+        fprintf(stderr, "Bound computation is not available with Quark\n");
+        break;
+    default:
+        return;
     }
     return;
 }
@@ -61,18 +65,22 @@ void RUNTIME_enable( int lever )
 /**
  *
  */
-void RUNTIME_disable( int lever )
+void RUNTIME_disable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
-        case CHAMELEON_PROFILING_MODE:
-            fprintf(stderr, "Profiling is not available with Quark\n");
-            break;
-        case CHAMELEON_BOUND:
-            fprintf(stderr, "Bound computation is not available with Quark\n");
-            break;
-        default:
-            return;
+    case CHAMELEON_DAG:
+        QUARK_Barrier( runtime_ctxt );
+        QUARK_DOT_DAG_Enable( runtime_ctxt, 0 );
+        break;
+    case CHAMELEON_PROFILING_MODE:
+        fprintf(stderr, "Profiling is not available with Quark\n");
+        break;
+    case CHAMELEON_BOUND:
+        fprintf(stderr, "Bound computation is not available with Quark\n");
+        break;
+    default:
+        return;
     }
     return;
 }
