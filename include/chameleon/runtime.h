@@ -58,21 +58,27 @@ RUNTIME_context_destroy( CHAM_context_t *ctxt );
  * @brief Enable a global option of the runtime.
  * @warning Should be called only by CHAMELEON_Enable()
  *
+ * @param[in] runtime_ctxt
+ *            Pointer to the runtime data structure
+ *
  * @param[in] option
  *            @arg CHAMELEON_PROFILING_MODE: start the profiling mode of the runtime.
  */
 void
-RUNTIME_enable( int option );
+RUNTIME_enable( void *runtime_ctxt, int option );
 
 /**
  * @brief Disable a global option of the runtime.
  * @warning Should be called only by CHAMELEON_Disable()
  *
+ * @param[in] runtime_ctxt
+ *            Pointer to the runtime data structure
+ *
  * @param[in] option
  *            @arg CHAMELEON_PROFILING_MODE: stop the profiling mode of the runtime.
  */
 void
-RUNTIME_disable( int option );
+RUNTIME_disable( void *runtime_ctxt, int option );
 
 /**
  * @}
