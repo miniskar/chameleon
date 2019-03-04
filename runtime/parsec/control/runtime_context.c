@@ -42,11 +42,18 @@ void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 /**
  *
  */
-void RUNTIME_enable(int lever)
+void RUNTIME_enable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
+    case CHAMELEON_DAG:
+        fprintf(stderr, "DAG is not available with PaRSEC\n");
+        break;
     case CHAMELEON_PROFILING_MODE:
+        parsec_profiling_start();
+        break;
+    case CHAMELEON_BOUND:
+        fprintf(stderr, "Bound computation is not available with Quark\n");
         break;
     default:
         return;
@@ -57,11 +64,18 @@ void RUNTIME_enable(int lever)
 /**
  *
  */
-void RUNTIME_disable(int lever)
+void RUNTIME_disable( void *runtime_ctxt, int lever )
 {
     switch (lever)
     {
+    case CHAMELEON_DAG:
+        fprintf(stderr, "DAG is not available with PaRSEC\n");
+        break;
     case CHAMELEON_PROFILING_MODE:
+        parsec_profiling_stop();
+        break;
+    case CHAMELEON_BOUND:
+        fprintf(stderr, "Bound computation is not available with PaRSEC\n");
         break;
     default:
         return;
