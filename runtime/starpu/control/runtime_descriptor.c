@@ -11,11 +11,11 @@
  *
  * @brief Chameleon StarPU descriptor routines
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2015-05-22
  *
  */
 #include <stdlib.h>

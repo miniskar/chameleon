@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zbuild PaRSEC codelet
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Reazul Hoque
  * @author Guillaume Sylvand
- * @date 2016-09-05
+ * @date 2016-09-08
  * @precisions normal z -> c d s
  *
  */

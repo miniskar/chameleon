@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,9 +13,9 @@
  *
  * Code originated from MAGMA
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Florent Pruvost
- * @date 2018-11-09
+ * @date 2016-12-04
  * @precisions normal z -> c d s
  *
  */

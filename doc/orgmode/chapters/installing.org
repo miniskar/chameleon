@@ -34,10 +34,10 @@ we encourage users to use [[sec:spack][Spack]].
    - python: to generate files in the different precisions
    - external libraries: this depends on the configuration, by default
      the required libraries are
-     - runtimes:  [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]] or [[http://icl.utk.edu/parsec/][PaRSEC]] or [[http://icl.cs.utk.edu/quark/][QUARK]]
-     - kernels : CBLAS, LAPACKE. These are C interfaces to Fortran
-       kernels BLAS and LAPACK. There exist several providers that can
-       be used with Chameleon (Intel MKL, Netlib, OpenBlas)
+     - runtimes: [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]] or [[http://icl.utk.edu/parsec/][PaRSEC]] or [[http://icl.cs.utk.edu/quark/][QUARK]] or [[https://www.openmp.org/][OpenMP]]
+     - kernels : CBLAS, LAPACKE (with TMG). These are C interfaces to
+       Fortran kernels BLAS and LAPACK. There exist several providers
+       that can be used with Chameleon (Intel MKL, Netlib, OpenBlas)
 
    Optional libraries:
    - cuda: [[https://developer.nvidia.com/cuda-downloads][cuda]], [[http://docs.nvidia.com/cuda/cublas/][cublas]] (comes with cuda)
@@ -100,7 +100,16 @@ we encourage users to use [[sec:spack][Spack]].
    sudo make install
 
    #+end_src
-
+*** Known issues
+    1) we need the lapacke interface to tmg routines and symbol like
+       ~LAPACKE_dlatms_work~ should be defined in the lapacke
+       library. The Debian packages /libopenblas-dev/ and /liblapacke-dev/
+       (version 3.7.1) do not provide the tmg interface. Please update
+       your distribution or install the lapacke interface library in
+       another way, by yourself from source or with [[https://gitlab.inria.fr/solverstack/spack-repo][Spack]], ...
+    2) sometimes parallel make with -j can fails due to undefined
+       dependencies between some targets. Try to invoke the make
+       command several times if so.
 *** Some details about dependencies
 **** BLAS implementation
      [[http://www.netlib.org/blas/][BLAS]] (Basic Linear Algebra Subprograms), are a de facto standard
@@ -150,7 +159,10 @@ we encourage users to use [[sec:spack][Spack]].
      convenient.
 
      *Caution about the compatibility:* Chameleon has been mainly tested
-     with the reference LAPACKE from NETLIB, OpenBLAS and Intel MKL.
+     with the reference LAPACKE from NETLIB, OpenBLAS and Intel
+     MKL. In addition the LAPACKE library *must* be configured to
+     provide the interface with the TMG routines and symbols like
+     ~LAPACKE_dlatms_work~ should be defined.
 
 **** libtmg
      [[http://www.netlib.org/lapack/][libtmg]] is a component of the LAPACK library, containing routines
@@ -351,7 +363,7 @@ we encourage users to use [[sec:spack][Spack]].
          *SIMGRID*, *TMG*
 
      Libraries detected with an official cmake module (see module files
-     in CMAKE_ROOT/Modules/): CUDA - MPI - Threads.
+     in CMAKE_ROOT/Modules/): CUDA - MPI - OpenMP - Threads.
 
      Libraries detected with our cmake modules (see module files in
      cmake_modules/morse_cmake/modules/find/ directory of Chameleon
@@ -359,8 +371,9 @@ we encourage users to use [[sec:spack][Spack]].
      LAPACKE - QUARK - SIMGRID - STARPU - TMG.
 
 **** Chameleon specific options
-     * *CHAMELEON_SCHED=STARPU|PARSEC|QUARK* (default STARPU): to link
-       respectively with StarPU, PaRSEC, or Quark library (runtime system)
+     * *CHAMELEON_SCHED=STARPU|PARSEC|QUARK|OPENMP* (default STARPU): to
+       link respectively with StarPU, PaRSEC, Quark, OpenMP library
+       (runtime system)
      * *CHAMELEON_USE_MPI=ON|OFF* (default OFF): to link with MPI
        library (message passing implementation for use of multiple
        nodes with distributed memory), can only be used with StarPU
@@ -394,6 +407,8 @@ we encourage users to use [[sec:spack][Spack]].
        architecture. This feature should be used to make experiments
        on the scheduler behaviors and performances not to produce
        solutions of linear systems.
+     * *CHAMELEON_USE_MIGRATE=ON|OFF* (default OFF): enables the data
+       migration in QR algorithms
 
 *** Dependencies detection
     <<sec:depdet>>
@@ -441,3 +456,110 @@ we encourage users to use [[sec:spack][Spack]].
        - update your *PKG_CONFIG_PATH* to the paths where to find .pc
          files of installed external libraries like hwloc, starpu, some
          blas/lapack, etc
+
+** Linking an external application with Chameleon libraries
+   Compilation and link with Chameleon libraries have been tested with
+   the GNU compiler suite ~gcc/gfortran~ and the Intel compiler suite
+   ~icc/ifort~.
+
+*** Flags required
+    The compiler, linker flags that are necessary to build an
+    application using Chameleon are given through the [[https://www.freedesktop.org/wiki/Software/pkg-config/][pkg-config]]
+    mechanism.
+    #+begin_src
+    export PKG_CONFIG_PATH=/home/jdoe/install/chameleon/lib/pkgconfig:$PKG_CONFIG_PATH
+    pkg-config --cflags chameleon
+    pkg-config --libs chameleon
+    pkg-config --libs --static chameleon
+    #+end_src
+    The .pc files required are located in the sub-directory
+    ~lib/pkgconfig~ of your Chameleon install directory.
+*** Static linking in C
+    Lets imagine you have a file ~main.c~ that you want to link with
+    Chameleon static libraries.  Lets consider
+    ~/home/yourname/install/chameleon~ is the install directory
+    of Chameleon containing sub-directories ~include/~ and
+    ~lib/~.  Here could be your compilation command with gcc
+    compiler:
+    #+begin_src
+    gcc -I/home/yourname/install/chameleon/include -o main.o -c main.c
+    #+end_src
+    Now if you want to link your application with Chameleon static libraries, you
+    could do:
+    #+begin_src
+    gcc main.o -o main                                         \
+    /home/yourname/install/chameleon/lib/libchameleon.a        \
+    /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
+    /home/yourname/install/chameleon/lib/libcoreblas.a         \
+    -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+    -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+    #+end_src
+    As you can see in this example, we also link with some dynamic
+    libraries *starpu-1.2*, *Intel MKL* libraries (for
+    BLAS/LAPACK/CBLAS/LAPACKE), *pthread*, *m* (math) and *rt*. These
+    libraries will depend on the configuration of your Chameleon
+    build.  You can find these dependencies in .pc files we generate
+    during compilation and that are installed in the sub-directory
+    ~lib/pkgconfig~ of your Chameleon install directory.  Note also that
+    you could need to specify where to find these libraries with *-L*
+    option of your compiler/linker.
+
+    Before to run your program, make sure that all shared libraries
+    paths your executable depends on are known.  Enter ~ldd main~
+    to check.  If some shared libraries paths are missing append them
+    in the LD_LIBRARY_PATH (for Linux systems) environment
+    variable (DYLD_LIBRARY_PATH on Mac).
+
+*** Dynamic linking in C
+    For dynamic linking (need to build Chameleon with CMake option
+    BUILD_SHARED_LIBS=ON) it is similar to static compilation/link but
+    instead of specifying path to your static libraries you indicate
+    the path to dynamic libraries with *-L* option and you give
+    the name of libraries with *-l* option like this:
+    #+begin_src
+    gcc main.o -o main \
+    -L/home/yourname/install/chameleon/lib \
+    -lchameleon -lchameleon_starpu -lcoreblas \
+    -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+    -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+    #+end_src
+    Note that an update of your environment variable LD_LIBRARY_PATH
+    (DYLD_LIBRARY_PATH on Mac) with the path of the libraries could be
+    required before executing
+    #+begin_src
+    export LD_LIBRARY_PATH=path/to/libs:path/to/chameleon/lib
+    #+end_src
+
+# # *** Build a Fortran program with Chameleon                         :noexport:
+# #
+# #     Chameleon provides a Fortran interface to user functions. Example:
+# #     #+begin_src
+# #     call chameleon_version(major, minor, patch) !or
+# #     call CHAMELEON_VERSION(major, minor, patch)
+# #     #+end_src
+# #
+# #     Build and link are very similar to the C case.
+# #
+# #     Compilation example:
+# #     #+begin_src
+# #     gfortran -o main.o -c main.f90
+# #     #+end_src
+# #
+# #     Static linking example:
+# #     #+begin_src
+# #     gfortran main.o -o main                                    \
+# #     /home/yourname/install/chameleon/lib/libchameleon.a        \
+# #     /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
+# #     /home/yourname/install/chameleon/lib/libcoreblas.a         \
+# #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+# #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+# #     #+end_src
+# #
+# #     Dynamic linking example:
+# #     #+begin_src
+# #     gfortran main.o -o main                          \
+# #     -L/home/yourname/install/chameleon/lib           \
+# #     -lchameleon -lchameleon_starpu -lcoreblas        \
+# #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+# #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+# #     #+end_src

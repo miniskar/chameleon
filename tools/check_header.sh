@@ -6,7 +6,7 @@
 #
 #  @version 6.0.0
 #  @author Mathieu Faverge
-#  @date 2017-06-24
+#  @date 2018-10-12
 #
 # This script check that basic informations is present and correct in
 # headers of source files.
@@ -53,10 +53,10 @@ check_header_copyright()
     filename=$1
     basename=`basename $filename`
 
-    toto=`grep -E " @copyright [0-9]{4}-2018 Bordeaux INP" $filename`
+    toto=`grep -E " @copyright [0-9]{4}-2019 Bordeaux INP" $filename`
     if [ $? -ne 0 ]
     then
-        toto=`grep -E " @copyright 2018      Bordeaux INP" $filename`
+        toto=`grep -E " @copyright 2019      Bordeaux INP" $filename`
     fi
 
     if [ $? -ne 0 ]

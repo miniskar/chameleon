@@ -44,12 +44,12 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.0.0
+# @version 0.9.2
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
-#  @date 2012-07-13
+#  @date 2016-08-17
 #
 ###
 for i in $(find . -name "*.c" -or -name "*.h" -not -path "*svn*" -not -name "chameleon_fortran.h")

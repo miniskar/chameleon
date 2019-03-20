@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon global coreblas variables and functions
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Jakub Kurzak
  * @author Piotr Luszczek
- * @date 2010-11-15
+ * @date 2014-11-16
  *
  */
 static int coreblas_gemm3m_enabled = 0;

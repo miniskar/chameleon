@@ -4,20 +4,20 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgetrf_nopiv StarPU codelet
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Omar Zenati
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Philippe Virouleau
- * @date 2018-06-20
+ * @date 2018-06-15
  * @precisions normal z -> c d s
  *
  */

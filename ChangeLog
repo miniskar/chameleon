@@ -1,6 +1,6 @@
-chameleon-1.0.0
+chameleon-0.9.2
 ------------------------------------------------------------------------
-
+- chameleon is now hosted on gitlab: https://gitlab.inria.fr/solverstack/chameleon
 - MAGMA kernels are no longer supported in Chameleon
 - Add SVD/EVD drivers based on parallel first stage, and sequential LAPACK second stage and solve
 - Add First stage algorithm fo r the SVD/EVD solvers

@@ -2,16 +2,16 @@
  *
  * @file quark/codelet_map.c
  *
- * @copyright 2018-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2018-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon map Quark codelet
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Mathieu Faverge
- * @date 2018-09-24
+ * @date 2018-09-25
  *
  */
 #include "chameleon_quark.h"
