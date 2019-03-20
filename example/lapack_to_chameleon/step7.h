@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon step7 example header
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Florent Pruvost
  * @author Guillaume Sylvand
- * @date 2016-09-05
+ * @date 2018-07-12
  *
  */
 #ifndef _step7_h_

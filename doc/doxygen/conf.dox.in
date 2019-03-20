@@ -31,7 +31,7 @@ PROJECT_NAME           = CHAMELEON
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = @CHAMELEON_VERSION_NUMBER@
+PROJECT_NUMBER         = @CHAMELEON_VERSION_MAJOR@.@CHAMELEON_VERSION_MINOR@.@CHAMELEON_VERSION_MICRO@
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -584,9 +584,9 @@ WARN_LOGFILE           =
 INPUT                  =  @CMAKE_CURRENT_SOURCE_DIR@/main.dox                     \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../include                \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../compute                \
-                          @CMAKE_CURRENT_SOURCE_DIR@/../../coreblas               \
-                          @CMAKE_CURRENT_SOURCE_DIR@/../../cudablas               \
                           @CMAKE_CURRENT_SOURCE_DIR@/../../control
+#                          @CMAKE_CURRENT_SOURCE_DIR@/../../coreblas               \
+#                          @CMAKE_CURRENT_SOURCE_DIR@/../../cudablas               \
 #                         @CMAKE_CURRENT_SOURCE_DIR@/../../runtime
 #                          @CMAKE_CURRENT_BINARY_DIR@/../../include                \
 #                          @CMAKE_CURRENT_BINARY_DIR@/../../compute                \
@@ -633,7 +633,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = 
+EXCLUDE_PATTERNS       =
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -888,17 +888,17 @@ DOCSET_FEEDNAME        = "Doxygen generated docs"
 # reverse domain-name style string, e.g. com.mycompany.MyDocSet. Doxygen
 # will append .docset to the name.
 
-DOCSET_BUNDLE_ID       = edu.utk.cs.icl.plasma
+DOCSET_BUNDLE_ID       = fr.inria.chameleon
 
 # When GENERATE_PUBLISHER_ID tag specifies a string that should uniquely identify
 # the documentation publisher. This should be a reverse domain-name style
 # string, e.g. com.mycompany.MyDocSet.documentation.
 
-DOCSET_PUBLISHER_ID    = edu.utk.cs.icl.plasma
+DOCSET_PUBLISHER_ID    = fr.inria.chameleon
 
 # The GENERATE_PUBLISHER_NAME tag identifies the documentation publisher.
 
-DOCSET_PUBLISHER_NAME  = University of Tennesse, Innovative Computing Laboratory 
+DOCSET_PUBLISHER_NAME  = Bordeaux INP, CNRS (LaBRI UMR 5800), Inria, Univ. Bordeaux, ICL, KAUST.
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files
 # will be generated that can be used as input for tools like the

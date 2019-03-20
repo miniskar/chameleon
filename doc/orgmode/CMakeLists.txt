@@ -14,7 +14,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.0.0
+# @version 0.9.2
 #  @author Florent Pruvost
 #  @date 2017-08-25
 #
@@ -62,7 +62,7 @@ FIND_PROGRAM(TEX_COMPILER tex)
 
 if(EMACS_COMPILER)
 
-    # css direcory is required for the html output
+    # css directory is required for the html output
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/css
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
                                ${CMAKE_CURRENT_SOURCE_DIR}/css
@@ -80,8 +80,7 @@ if(EMACS_COMPILER)
                                --kill
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
                                ${CMAKE_CURRENT_BINARY_DIR}/version.org
-                               ${CMAKE_CURRENT_BINARY_DIR}/css
-                      )
+                               ${CMAKE_CURRENT_BINARY_DIR}/css)
     add_custom_command(OUTPUT  users_guide.pdf
                        COMMAND ${EMACS_COMPILER}
                        ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
@@ -90,8 +89,8 @@ if(EMACS_COMPILER)
                                org-latex-export-to-pdf
                                --kill
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
-                               ${CMAKE_CURRENT_BINARY_DIR}/version.org
-                      )
+                               ${CMAKE_CURRENT_BINARY_DIR}/version.org)
+
     add_custom_target(doc-html-users_guide ALL DEPENDS users_guide.html)
     add_custom_target(doc-pdf-users_guide ALL DEPENDS users_guide.pdf)
 

@@ -4,16 +4,16 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon StarPU workspace header
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Cedric Augonnet
- * @date 2011-06-01
+ * @date 2015-05-22
  *
  */
 #ifndef _runtime_workspace_h_

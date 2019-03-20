@@ -4,22 +4,22 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon core_ztstrf CPU kernel
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 1.0.0
+ *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2010-11-15
+ * @date 2014-11-16
  * @precisions normal z -> c d s
  *
  */

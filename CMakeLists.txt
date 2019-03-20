@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -17,12 +17,12 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.0.0
+# @version 0.9.2
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
-#  @date 2012-07-13
+#  @date 2014-11-16
 #
 ###
 cmake_minimum_required(VERSION 3.3)
@@ -36,9 +36,9 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 # set project version number
-set(CHAMELEON_VERSION_MAJOR 1)
-set(CHAMELEON_VERSION_MINOR 0)
-set(CHAMELEON_VERSION_MICRO 0)
+set(CHAMELEON_VERSION_MAJOR 0)
+set(CHAMELEON_VERSION_MINOR 9)
+set(CHAMELEON_VERSION_MICRO 2)
 
 set(CHAMELEON_CMAKE_DIR "" CACHE PATH "Directory of CHAMELEON CMake modules, can be external to the project")
 
@@ -916,6 +916,7 @@ if( CHAMELEON_SCHED_OPENMP )
 endif( CHAMELEON_SCHED_OPENMP )
 
 # getopt
+unset(CMAKE_REQUIRED_LIBRARIES)
 check_include_files(getopt.h CHAMELEON_HAVE_GETOPT_H)
 if (CHAMELEON_HAVE_GETOPT_H)
   check_function_exists(getopt_long CHAMELEON_HAVE_GETOPT_LONG)
@@ -1019,7 +1020,7 @@ include(CTest)
 if(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
     message(STATUS "Add -nofor_main to the Fortran linker (Intel compiler)")
     set(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -nofor_main")
-endif(_match_ifort)
+endif()
 
 # Testing executables
 if(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
@@ -1091,7 +1092,7 @@ set(CPACK_PACKAGE_VENDOR "Inria")
 set(CPACK_PACKAGE_CONTACT "morse-devel@lists.gforge.inria.fr")
 set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.org)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE.txt)
-set(CPACK_SOURCE_IGNORE_FILES "plasma-conversion;build;.cproject;.settings;.dir-locals.el;.project;.pydevproject;.svn;.git;.gitmodules;.gitlab-ci.yml")
+set(CPACK_SOURCE_IGNORE_FILES "/plasma-conversion/;/build*;.cproject;.settings;.dir-locals.el;.project;.pydevproject;/.git*")
 include(CPack)
 
 ###############################################################################

@@ -12,10 +12,10 @@
 ./tools/find_sources.sh
 
 # Generate coverage xml output
-lcov -a $PWD/chameleon_starpu.lcov
-     -a $PWD/chameleon_starpu_simgrid.lcov
-     -a $PWD/chameleon_quark.lcov
-     -a $PWD/chameleon_parsec.lcov
+lcov -a $PWD/chameleon_starpu.lcov \
+     -a $PWD/chameleon_starpu_simgrid.lcov \
+     -a $PWD/chameleon_quark.lcov \
+     -a $PWD/chameleon_parsec.lcov \
      -o $PWD/chameleon.lcov
 lcov --summary chameleon.lcov
 lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
@@ -26,38 +26,34 @@ export UNDEFINITIONS="-UCHAMELEON_USE_OPENCL -UWIN32 -UWIN64 -U_MSC_EXTENSIONS -
 # run cppcheck analysis
 cppcheck -v -f --language=c --platform=unix64 --enable=all --xml --xml-version=2 --suppress=missingInclude ${UNDEFINITIONS} --file-list=./filelist.txt 2> chameleon_cppcheck.xml
 
-# run rats analysis
-rats -w 3 --xml  `cat filelist.txt` > chameleon_rats.xml
-
 # create the sonarqube config file
 cat > sonar-project.properties << EOF
 sonar.host.url=https://sonarqube.bordeaux.inria.fr/sonarqube
 sonar.login=$SONARQUBE_LOGIN
 
-sonar.links.homepage=https://gitlab.inria.fr/solverstack/chameleon
-sonar.links.scm=https://gitlab.inria.fr/solverstack/chameleon.git
-sonar.links.ci=https://gitlab.inria.fr/solverstack/chameleon/pipelines
-sonar.links.issue=https://gitlab.inria.fr/solverstack/chameleon/issues
+sonar.links.homepage=$CI_PROJECT_URL
+sonar.links.scm=$CI_REPOSITORY_URL
+sonar.links.ci=https://gitlab.inria.fr/$CI_PROJECT_NAMESPACE/chameleon/pipelines
+sonar.links.issue=https://gitlab.inria.fr/$CI_PROJECT_NAMESPACE/chameleon/issues
 
-sonar.projectKey=hiepacs:chameleon:gitlab:master
+sonar.projectKey=hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE:$CI_COMMIT_REF_NAME
 sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and distributed architectures
-sonar.projectVersion=master
+sonar.projectVersion=0.9
 
 sonar.language=c
-sonar.sources=build, compute, control, coreblas, example, include, runtime, testing, timing
-sonar.inclusions=`cat filelist.txt | xargs echo | sed 's/ /, /g'`
-sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,include,coreblas/include,runtime/parsec/include,runtime/quark/include,runtime/starpu/include,build,build/control,build/coreblas,build/coreblas/include,build/include,build/runtime/parsec/include,build/runtime/quark/include,build/runtime/starpu/include,hqr/include,$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
+sonar.sources=build-openmp, build-parsec, build-quark, build-starpu, build-starpu_simgrid, compute, control, coreblas, example, include, runtime, testing, timing
+sonar.inclusions=`cat filelist.txt | sed ':a;N;$!ba;s/\n/, /g'`
+sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
 sonar.sourceEncoding=UTF-8
 sonar.c.errorRecoveryEnabled=true
 sonar.c.compiler.charset=UTF-8
 sonar.c.compiler.parser=GCC
 sonar.c.compiler.regex=^(.*):(\\\d+):\\\d+: warning: (.*)\\\[(.*)\\\]$
-sonar.c.compiler.reportPath=chameleon_starpu.log, chameleon_starpu_simgrid.log, chameleon_quark.log, chameleon_parsec.log
+sonar.c.compiler.reportPath=chameleon_build.log
 sonar.c.coverage.reportPath=chameleon_coverage.xml
 sonar.c.cppcheck.reportPath=chameleon_cppcheck.xml
-sonar.c.rats.reportPath=chameleon_rats.xml
-sonar.c.clangsa.reportPath=build/analyzer_reports/*/*.plist
-sonar.c.jsonCompilationDatabase=build/compile_commands.json
+sonar.c.clangsa.reportPath=build-openmp/analyzer_reports/*/*.plist, build-parsec/analyzer_reports/*/*.plist, build-quark/analyzer_reports/*/*.plist, build-starpu/analyzer_reports/*/*.plist, build-starpu_simgrid/analyzer_reports/*/*.plist
+sonar.c.jsonCompilationDatabase=build-openmp/compile_commands.json, build-parsec/compile_commands.json, build-quark/compile_commands.json, build-starpu/compile_commands.json, build-starpu_simgrid/compile_commands.json
 EOF
 
 # run sonar analysis + publish on sonarqube-dev

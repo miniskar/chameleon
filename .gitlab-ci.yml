@@ -9,7 +9,7 @@ stages:
 before_script:
   - git submodule update --init --recursive
   - source .gitlab-ci-env.sh $SIMU
-  - mkdir -p build
+  - mkdir -p build-$VERSION
 
 .build_script_template: &build_script
   stage: build
@@ -17,15 +17,15 @@ before_script:
   script:
     - echo BUILD_OPTIONS $BUILD_OPTIONS
     - echo VERSION $VERSION
-    - (cd build &&
-       scan-build -plist --intercept-first --analyze-headers -o analyzer_reports
+    - (cd build-$VERSION &&
+       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
        cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS &&
-       scan-build -plist --intercept-first --analyze-headers -o analyzer_reports
+       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
        ctest --no-compress-output -V -j 5
              -D ExperimentalBuild
              -D ExperimentalSubmit
              | tee ../chameleon_${VERSION}.log)
-    - (cd build &&
+    - (cd build-$VERSION &&
        make install | tee -a ../chameleon_${VERSION}.log &&
        rm install/ -r)
 
@@ -35,14 +35,50 @@ before_script:
   script:
     - echo TESTS_RESTRICTION $TESTS_RESTRICTION
     - echo VERSION $VERSION
-    - (cd build &&
+    - (cd build-$VERSION &&
        eval "ctest --no-compress-output -V
              $TESTS_RESTRICTION
              -D ExperimentalTest
              -D ExperimentalCoverage
              -D ExperimentalSubmit
              | tee -a ../chameleon_${VERSION}.log")
-    - lcov --directory build --capture --output-file ./chameleon_${VERSION}.lcov
+    - lcov --directory build-$VERSION --capture --output-file ./chameleon_${VERSION}.lcov
+
+build_openmp:
+  <<: *build_script
+  artifacts:
+    name: build_openmp
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_openmp.log
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED=OPENMP"
+    VERSION: openmp
+
+build_parsec:
+  <<: *build_script
+  artifacts:
+    name: build_parsec
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_parsec.log
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED=PARSEC"
+    VERSION: parsec
+
+build_quark:
+  <<: *build_script
+  artifacts:
+    name: build_quark
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_quark.log
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_SCHED=QUARK"
+    VERSION: quark
 
 build_starpu:
   <<: *build_script
@@ -50,7 +86,7 @@ build_starpu:
     name: build_starpu
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu.log
   variables:
     BUILD_OPTIONS: "-DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON"
@@ -62,48 +98,126 @@ build_starpu_simgrid:
     name: build_starpu_simgrid
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu_simgrid.log
   variables:
     SIMU: simu
     BUILD_OPTIONS: "-DCHAMELEON_SIMULATION=ON -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=OFF"
     VERSION: starpu_simgrid
 
-build_quark:
-  <<: *build_script
-  artifacts:
-    name: build_quark
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_quark.log
+test_openmp_branches:
+  <<: *test_script
   variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED=QUARK"
-    VERSION: quark
-
-build_parsec:
-  <<: *build_script
-  artifacts:
-    name: build_parsec
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_parsec.log
-  variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED=PARSEC"
-    VERSION: parsec
-
-build_openmp:
-  <<: *build_script
-  artifacts:
-    name: build_openmp
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_openmp.log
-  variables:
-    BUILD_OPTIONS: "-DCHAMELEON_SCHED=OPENMP"
+    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
     VERSION: openmp
+  dependencies:
+    - build_openmp
+  artifacts:
+    name: test_openmp
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_openmp.log
+      - chameleon_openmp.lcov
+  only:
+    - branches
+  except:
+    - master
+    - /^ci-.*$/
+
+test_openmp_master:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
+    VERSION: openmp
+  dependencies:
+    - build_openmp
+  artifacts:
+    name: test_openmp
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_openmp.log
+      - chameleon_openmp.lcov
+  only:
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+
+test_parsec_branches:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
+    VERSION: parsec
+  dependencies:
+    - build_parsec
+  artifacts:
+    name: test_parsec
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_parsec.log
+      - chameleon_parsec.lcov
+  only:
+    - branches
+  except:
+    - master
+    - /^ci-.*$/
+
+test_parsec_master:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
+    VERSION: parsec
+  dependencies:
+    - build_parsec
+  artifacts:
+    name: test_parsec
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_parsec.log
+      - chameleon_parsec.lcov
+  only:
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+
+test_quark_branches:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
+    VERSION: quark
+  dependencies:
+    - build_quark
+  artifacts:
+    name: test_quark
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_quark.log
+      - chameleon_quark.lcov
+  only:
+    - branches
+  except:
+    - master
+    - /^ci-.*$/
+
+test_quark_master:
+  <<: *test_script
+  variables:
+    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
+    VERSION: quark
+  dependencies:
+    - build_quark
+  artifacts:
+    name: test_quark
+    expire_in: 48 hours
+    paths:
+      - build-$VERSION
+      - chameleon_quark.log
+      - chameleon_quark.lcov
+  only:
+    - master@solverstack/chameleon
+    - /^ci-.*$/
 
 test_starpu_branches:
   <<: *test_script
@@ -116,13 +230,14 @@ test_starpu_branches:
     name: test_starpu
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu.log
       - chameleon_starpu.lcov
   only:
     - branches
   except:
     - master
+    - /^ci-.*$/
 
 test_starpu_master:
   <<: *test_script
@@ -135,11 +250,12 @@ test_starpu_master:
     name: test_starpu
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu.log
       - chameleon_starpu.lcov
   only:
     - master@solverstack/chameleon
+    - /^ci-.*$/
 
 test_starpu_simgrid_branches:
   <<: *test_script
@@ -153,13 +269,14 @@ test_starpu_simgrid_branches:
     name: test_starpu_simgrid
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu_simgrid.log
       - chameleon_starpu_simgrid.lcov
   only:
     - branches
   except:
     - master
+    - /^ci-.*$/
 
 test_starpu_simgrid_master:
   <<: *test_script
@@ -173,119 +290,12 @@ test_starpu_simgrid_master:
     name: test_starpu_simgrid
     expire_in: 48 hours
     paths:
-      - build
+      - build-$VERSION
       - chameleon_starpu_simgrid.log
       - chameleon_starpu_simgrid.lcov
   only:
     - master@solverstack/chameleon
-
-test_quark_branches:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
-    VERSION: quark
-  dependencies:
-    - build_quark
-  artifacts:
-    name: test_quark
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_quark.log
-      - chameleon_quark.lcov
-  only:
-    - branches
-  except:
-    - master
-
-test_quark_master:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
-    VERSION: quark
-  dependencies:
-    - build_quark
-  artifacts:
-    name: test_quark
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_quark.log
-      - chameleon_quark.lcov
-  only:
-    - master@solverstack/chameleon
-
-test_parsec_branches:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
-    VERSION: parsec
-  dependencies:
-    - build_parsec
-  artifacts:
-    name: test_parsec
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_parsec.log
-      - chameleon_parsec.lcov
-  only:
-    - branches
-  except:
-    - master
-
-test_parsec_master:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
-    VERSION: parsec
-  dependencies:
-    - build_parsec
-  artifacts:
-    name: test_parsec
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_parsec.log
-      - chameleon_parsec.lcov
-  only:
-    - master@solverstack/chameleon
-
-test_openmp_branches:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"test_shm_s|test_mpi_s\""
-    VERSION: openmp
-  dependencies:
-    - build_openmp
-  artifacts:
-    name: test_openmp
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_openmp.log
-      - chameleon_openmp.lcov
-  only:
-    - branches
-  except:
-    - master
-
-test_openmp_master:
-  <<: *test_script
-  variables:
-    TESTS_RESTRICTION: "-R \"_shm_|_mpi_\""
-    VERSION: openmp
-  dependencies:
-    - build_openmp
-  artifacts:
-    name: test_openmp
-    expire_in: 48 hours
-    paths:
-      - build
-      - chameleon_openmp.log
-      - chameleon_openmp.lcov
-  only:
-    - master@solverstack/chameleon
+    - /^ci-.*$/
 
 coverage:
   stage: analyse
@@ -307,8 +317,9 @@ coverage:
     - branches
   except:
     - master
+    - /^ci-.*$/
 
-coverity:
+.coverity:
   stage: analyse
   tags: ["large"]
   dependencies: []
@@ -317,8 +328,10 @@ coverity:
     expire_in: 1 week
     paths:
       - chameleon.tgz
+  variables:
+    VERSION: coverity
   script:
-    - (cd build &&
+    - (cd build-$VERSION &&
        cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON &&
        cov-build --dir ../cov-int make -j 4)
     - tar czvf chameleon.tgz cov-int
@@ -349,11 +362,14 @@ sonarqube:
       - chameleon_cppcheck.xml
       - chameleon_rats.xml
       - sonar.log
+  variables:
+    VERSION: sonarqube
   script:
     - cat *.log > chameleon_build.log
     - ./tools/analysis.sh
   only:
     - master@solverstack/chameleon
+    - /^ci-.*$/
 
 pages:
   stage: deploy
@@ -363,8 +379,10 @@ pages:
     expire_in: 1 week
     paths:
       - public
+  variables:
+    VERSION: pages
   script:
-    - cd build
+    - cd build-$VERSION
     - cmake .. -DCHAMELEON_ENABLE_DOC=ON
     - make doc -j5
     - mv doc/orgmode/ ../public/
@@ -372,3 +390,19 @@ pages:
     - mv doc/doxygen/out/html/ ../public/doxygen/
   only:
     - master@solverstack/chameleon
+    - /^ci-.*$/
+
+release:
+  stage: deploy
+  dependencies: []
+  artifacts:
+    name: chameleon_release
+    expire_in: 1 week
+    paths:
+      - build-$VERSION/*.tar.gz
+  variables:
+    VERSION: release
+  only:
+    - /^release-.*$/
+  script:
+    - ./tools/release.sh

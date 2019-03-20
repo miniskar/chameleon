@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2016 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2016-2018 KAUST. All rights reserved.
  *
@@ -12,9 +12,9 @@
  *
  * @brief Chameleon computational routines
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Mathieu Faverge
- * @date 2018-11-09
+ * @date 2016-12-21
  * @precisions normal z -> s d c
  *
  */

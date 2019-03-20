@@ -45,11 +45,11 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver. 
 # 
-#  @version 1.0.0
+#  @version 0.9.2
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
-#  @date 2012-07-13
+#  @date 2016-08-17
 #   
 ###
 
@@ -688,7 +688,7 @@ subs = {
     ( 'u', 'provided by Univ. of Tennessee,',                           'provided by Inria Bordeaux - Sud-Ouest, LaBRI,'                                 ),
     ( 'u', 'Univ. of California Berkeley and Univ. of Colorado Denver', 'University of Bordeaux, Bordeaux INP'                                          ),
     ( 'u', '@version 2.6.0\n \* @author', 
-           '@version 2.6.0\n * @comment This file has been automatically generated\n *          from Plasma 2.6.0 for CHAMELEON 1.0.0\n * @author'           ),
+           '@version 2.6.0\n * @comment This file has been automatically generated\n *          from Plasma 2.6.0 for CHAMELEON 0.9.2\n * @author'           ),
     ( 'u', '/([\*]+)/\n/([\*]+)/',                                                        ''                                                             ),
     ( 'u', '/([\*]+)/\n/',                                                                '\n/'                                                          ),
     ( 'u', '/([\*]+)/([a-zA-Z]+)',                                                        '\\2'                                                          ),

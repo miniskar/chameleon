@@ -1,7 +1,7 @@
 #!/bin/sh
 set -x
 
-SRCDIR_TO_ANALYZE="build compute control coreblas example include runtime testing timing"
+SRCDIR_TO_ANALYZE="build-openmp build-parsec build-quark build-starpu build-starpu_simgrid compute control coreblas example include runtime testing timing"
 
 echo $PWD
 rm -f filelist.txt
@@ -14,7 +14,7 @@ done
 sed -i '/CMakeFiles/d' filelist.txt
 
 # Remove installed files
-sed -i '/build\/install.*/d' filelist.txt
+sed -i '/build.*\/install.*/d' filelist.txt
 
 # Remove original files used for precision generation
 for file in `git grep "@precisions" | awk -F ":" '{ print $1 }'`

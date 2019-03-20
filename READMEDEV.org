@@ -60,14 +60,14 @@ developers must follow and that should be read by contributors.
   Chameleon library started as an extension of the PLASMA library so
   that code naming and writting conventions should follow [[https://bitbucket.org/icl/plasma][PLASMA]] ones.
 
-* Packaging
+* Releasing
 
    A Chameleon's release is a source package, of the form
    chameleon-major.minor.patch.tar.gz, which:
    1) has been properly tested,
-   2) contains a generated documentation corresponding to the released version,
-   3) has an up-to-date ChangeLog file,
-   4) is published on internet.
+   2) has an up-to-date ChangeLog file,
+   3) is published on internet as a GitLab release plus an associated
+      git tag.
 
 ** Test Chameleon before packaging
 
@@ -76,29 +76,29 @@ developers must follow and that should be read by contributors.
    org-mode file) to be used on PlaFRIM plus some specific ctest
    tests.
 
-** Source tarball generation
+** Release generation and publication
 
-   This step requires to generate the [[sec:doc][documentation]].
+   Releases are published on GitLab automatically through the gitlab-ci
+   job /release/.
 
-   #+begin_src sh
-   export CHAMELEON_ROOT=/path/to/chameleon/sources/to/be/released
-   cmake $CHAMELEON_ROOT -DCHAMELEON_ENABLE_DOC=ON
-   make doc
-   cp doc/orgmode/users_guide.pdf $CHAMELEON_ROOT
-   make package_source
-   #+end_src
+   To create a release the workflow is:
+   1) ensure chameleon is ready for this release, /i.e./
+      - all required features are well integrated
+      - all tests succeed
+      - the ChangeLog file is up-to-date
+      - the version number is up-to-date in all source files
+   2) create and push a branch /release-major.minor.patch/,
+      major.minor.patch being the version number for the release
+   3) the gitlab-ci job should produce a new release and tag according
+      to the version number
+      - releases: https://gitlab.inria.fr/solverstack/chameleon/releases
+      - tags: https://gitlab.inria.fr/solverstack/chameleon/tags
+   4) delete the branch
 
-   A tarball chameleon-major.minor.patch.tar.gz should be generated
-   and contains the users_guide documentation.
+* CDash tests dashboard
+  To see details about the tests performed during the [[https://gitlab.inria.fr/solverstack/chameleon/pipelines][pipelines]] visit
+  [[https://my.cdash.org/index.php?project=Chameleon][CDash]].
 
-** Publish the release on internet
-
-   A git tag must be first created, for example
-   #+begin_src sh
-   git tag -a v1.0.0 -m 'Version 1.0.0'
-   git push --tags
-   #+end_src
-
-   Then in the Chameleon *Tags* tab,
-   https://gitlab.inria.fr/solverstack/chameleon/tags, edit the
-   release notes and attach the tarball previously generated.
+* Static and dynamic analysis
+  To see details about the analysis job performed during the
+  [[https://gitlab.inria.fr/solverstack/chameleon/pipelines][pipelines]] visit [[https://sonarqube.bordeaux.inria.fr/sonarqube/dashboard?id=hiepacs%3Achameleon%3Agitlab%3Asolverstack%3Amaster][Sonarqube]].

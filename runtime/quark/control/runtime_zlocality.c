@@ -4,16 +4,16 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2018 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon Quark CHAMELEON_Complex64_t kernel locality management
  *
- * @version 1.0.0
+ * @version 0.9.2
  * @author Vijay Joshi
- * @date 2011-10-29
+ * @date 2015-05-22
  * @precisions normal z -> s d c
  *
  */
