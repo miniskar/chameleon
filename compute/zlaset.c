@@ -69,10 +69,10 @@
  * @sa CHAMELEON_dlaset
  * @sa CHAMELEON_slaset
  *
- */
+ ******************************************************************************/
 int CHAMELEON_zlaset( cham_uplo_t uplo, int M, int N,
-                  CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                  CHAMELEON_Complex64_t *A, int LDA )
+                      CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                      CHAMELEON_Complex64_t *A, int LDA )
 {
     int NB;
     int status;
@@ -124,14 +124,14 @@ int CHAMELEON_zlaset( cham_uplo_t uplo, int M, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, uplo,
-                     A, NB, NB, LDA, N, M, N, sequence, &request );
+                         A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zlaset_Tile_Async( uplo, alpha, beta, &descAt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, uplo, sequence, &request );
+                         ChamDescInout, uplo, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -177,10 +177,10 @@ int CHAMELEON_zlaset( cham_uplo_t uplo, int M, int N,
  * @sa CHAMELEON_dlaset_Tile
  * @sa CHAMELEON_slaset_Tile
  *
- */
+ ******************************************************************************/
 int CHAMELEON_zlaset_Tile( cham_uplo_t uplo,
-                       CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                       CHAM_desc_t *A )
+                           CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                           CHAM_desc_t *A )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -230,11 +230,11 @@ int CHAMELEON_zlaset_Tile( cham_uplo_t uplo,
  * @sa CHAMELEON_dlaset_Tile_Async
  * @sa CHAMELEON_slaset_Tile_Async
  *
- */
+ ******************************************************************************/
 int CHAMELEON_zlaset_Tile_Async( cham_uplo_t uplo,
-                             CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                             CHAM_desc_t *A,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                                 CHAM_desc_t *A,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
 
