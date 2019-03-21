@@ -1,7 +1,7 @@
 #!/bin/sh
 set -x
 
-SRCDIR_TO_ANALYZE="build-openmp build-parsec build-quark build-starpu build-starpu_simgrid compute control coreblas example include runtime testing timing"
+SRCDIR_TO_ANALYZE="build-openmp/runtime/openmp build-parsec/runtime/parsec build-quark/runtime/quark build-starpu compute control coreblas example include runtime testing timing"
 
 echo $PWD
 rm -f filelist.txt

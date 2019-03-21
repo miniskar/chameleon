@@ -17,7 +17,7 @@ function gen_changelog()
         #echo $line
     done
 
-    changelog="$changelog\nWARNING: Download the source archive by clicking on the link __Download release__ above, please do not consider the link Source code to get all submodules.\n"
+    changelog="${changelog}\nWARNING: Download the source archive by clicking on the link __Download release__ above, please do not consider the link Source code to get all submodules.\n"
 }
 
 release=""
@@ -50,6 +50,7 @@ MYURL=`eval $GETURL | jq .url | sed "s#\"##g"`
 
 # extract the change log from ChangeLog
 gen_changelog
+echo $changelog
 
 # Try to remove the release if it already exists
 curl --request DELETE --header "PRIVATE-TOKEN: $RELEASE_TOKEN" https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/releases/v$RELEASE_NAME

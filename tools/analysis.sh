@@ -33,15 +33,15 @@ sonar.login=$SONARQUBE_LOGIN
 
 sonar.links.homepage=$CI_PROJECT_URL
 sonar.links.scm=$CI_REPOSITORY_URL
-sonar.links.ci=https://gitlab.inria.fr/$CI_PROJECT_NAMESPACE/chameleon/pipelines
-sonar.links.issue=https://gitlab.inria.fr/$CI_PROJECT_NAMESPACE/chameleon/issues
+sonar.links.ci=$CI_PROJECT_URL/pipelines
+sonar.links.issue=$CI_PROJECT_URL/issues
 
 sonar.projectKey=hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE:$CI_COMMIT_REF_NAME
 sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and distributed architectures
 sonar.projectVersion=0.9
 
 sonar.language=c
-sonar.sources=build-openmp, build-parsec, build-quark, build-starpu, build-starpu_simgrid, compute, control, coreblas, example, include, runtime, testing, timing
+sonar.sources=build-openmp/runtime/openmp, build-parsec/runtime/parsec, build-quark/runtime/quark, build-starpu, compute, control, coreblas, example, include, runtime, testing, timing
 sonar.inclusions=`cat filelist.txt | sed ':a;N;$!ba;s/\n/, /g'`
 sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
 sonar.sourceEncoding=UTF-8
