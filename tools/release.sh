@@ -44,10 +44,10 @@ gen_changelog
 echo $changelog
 
 # generate the archive
-mkdir -p build-release
-cd build-release
-cmake ..
-make package_source
+wget https://raw.githubusercontent.com/Kentzo/git-archive-all/master/git_archive_all.py
+mv git_archive_all.py git-archive-all
+chmod +x git-archive-all
+./git-archive-all --force-submodules chameleon-$RELEASE_NAME.tar.gz
 
 # upload the source archive
 GETURL=`echo curl --request POST --header \"PRIVATE-TOKEN: $RELEASE_TOKEN\" --form \"file=\@chameleon-$RELEASE_NAME.tar.gz\" https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/uploads`
@@ -62,6 +62,6 @@ COMMAND=`echo curl --header \"Content-Type: application/json\" --header \"PRIVAT
             \"tag_name\": \"v$RELEASE_NAME\", \
             \"ref\": \"$CI_COMMIT_REF_NAME\", \
             \"description\": \"$changelog\", \
-            \"assets\": { \"links\": [{ \"name\": \"Download release\", \"url\": \"$CI_PROJECT_URL/$MYURL\" }] } }\' \
+            \"assets\": { \"links\": [{ \"name\": \"Download release\", \"url\": \"$CI_PROJECT_URL$MYURL\" }] } }\' \
   --request POST https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/releases`
 eval $COMMAND
