@@ -399,7 +399,7 @@ release:
     name: chameleon_release
     expire_in: 1 week
     paths:
-      - build-$VERSION/*.tar.gz
+      - chameleon-*.tar.gz
   variables:
     VERSION: release
   only:
