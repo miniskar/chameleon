@@ -29,7 +29,7 @@ int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
     parsec_context_t  *parsec        = (parsec_context_t *)(chamctxt->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = parsec_dtd_taskpool_new();
 
-    parsec_enqueue( parsec, (parsec_taskpool_t *)parsec_dtd_tp );
+    parsec_context_add_taskpool( parsec, (parsec_taskpool_t *)parsec_dtd_tp );
     sequence->schedopt = parsec_dtd_tp;
 
     parsec_context_start(parsec);
@@ -47,7 +47,6 @@ int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *)(sequence->schedopt);
 
     assert( parsec_dtd_tp );
-    parsec_dtd_taskpool_wait( parsec, parsec_dtd_tp );
     parsec_taskpool_free( parsec_dtd_tp );
 
     sequence->schedopt = NULL;

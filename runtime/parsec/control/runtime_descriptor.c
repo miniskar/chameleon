@@ -225,7 +225,7 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
     data_collection->data_of_key = chameleon_parsec_data_of_key;
     data_collection->vpid_of     = chameleon_parsec_vpid_of;
     data_collection->vpid_of_key = chameleon_parsec_vpid_of_key;
-#if defined(parsec_PROF_TRACE)
+#if defined(PARSEC_PROF_TRACE)
     {
         int rc;
         data_collection->key_to_string = chameleon_parsec_key_to_string;
@@ -356,7 +356,7 @@ void RUNTIME_flush()
 {
 }
 
-void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+void RUNTIME_desc_flush( const CHAM_desc_t        *desc,
                          const RUNTIME_sequence_t *sequence )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(sequence->schedopt);
