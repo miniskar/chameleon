@@ -27,7 +27,7 @@
  *
  *  CORE_zherfb overwrites the symmetric complex N-by-N tile C with
  *
- *    Q**T*C*Q
+ *    Q^T*C*Q
  *
  *  where Q is a complex unitary matrix defined as the product of k
  *  elementary reflectors
@@ -72,7 +72,7 @@
  *
  * @param[in,out] C
  *         On entry, the symmetric N-by-N tile C.
- *         On exit, C is overwritten by Q**T*C*Q.
+ *         On exit, C is overwritten by Q^T*C*Q.
  *
  * @param[in] ldc
  *         The leading dimension of the array C. LDC >= max(1,M).

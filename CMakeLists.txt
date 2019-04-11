@@ -97,7 +97,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 # Define precision supported by CHAMELEON
 # -----------------------------------------
-set( RP_CHAMELEON_DICTIONNARY ${CHAMELEON_CMAKE_MODULE_PATH}/precision_generator/subs.py )
+set( RP_CHAMELEON_DICTIONNARY ${CMAKE_SOURCE_DIR}/cmake_modules/local_subs.py )
 set( RP_CHAMELEON_PRECISIONS  "s;d;c;z" )
 include(RulesPrecisions)
 
@@ -586,7 +586,7 @@ endif(NOT CHAMELEON_SIMULATION)
 # -------------------------------
 if( CHAMELEON_SCHED_STARPU )
 
-    set(CHAMELEON_STARPU_VERSION "1.1" CACHE STRING "oldest STARPU version desired")
+    set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "oldest STARPU version desired")
 
     # create list of components in order to make a single call to find_package(starpu...)
     if(NOT CHAMELEON_SIMULATION)

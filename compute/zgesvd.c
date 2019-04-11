@@ -44,7 +44,7 @@
  *  are returned in descending order.  The first min(m,n) columns of
  *  U and V are the left and right singular vectors of A.
  *
- *  Note that the routine returns V**T, not V.
+ *  Note that the routine returns V^T, not V.
  *******************************************************************************
  *
  * @param[in] jobu
@@ -62,16 +62,16 @@
  *                        NOT SUPPORTTED YET
  *
  * @param[in] jobvt
- *          Specifies options for computing all or part of the matrix V**H.
+ *          Specifies options for computing all or part of the matrix V^H.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack): all N rows of V**H are returned
+ *          = ChamVec   = 'A'(lapack): all N rows of V^H are returned
  *                        in the array VT;
- *          = ChamNoVec = 'N': no rows of V**H (no right singular vectors)
+ *          = ChamNoVec = 'N': no rows of V^H (no right singular vectors)
  *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) rows of V**H (the right
+ *          = ChamSVec  = 'S': the first min(m,n) rows of V^H (the right
  *                        singular vectors) are returned in the array VT;
  *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) rows of V**H (the right
+ *          = ChamOVec  = 'O': the first min(m,n) rows of V^H (the right
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
@@ -90,7 +90,7 @@
  *                          columns of U (the left singular vectors,
  *                          stored columnwise);
  *          if JOBVT = 'O', A is overwritten with the first min(m,n)
- *                          rows of V**H (the right singular vectors,
+ *                          rows of V^H (the right singular vectors,
  *                          stored rowwise);
  *          if JOBU .ne. 'O' and JOBVT .ne. 'O', the contents of A
  *                          are destroyed.
@@ -118,9 +118,9 @@
  *
  * @param[out] VT
  *         If JOBVT = 'A', VT contains the N-by-N unitary matrix
- *         V**H;
+ *         V^H;
  *         if JOBVT = 'S', VT contains the first min(m,n) rows of
- *         V**H (the right singular vectors, stored rowwise);
+ *         V^H (the right singular vectors, stored rowwise);
  *         if JOBVT = 'N' or 'O', VT is not referenced.
  *
  * @param[in] LDVT
@@ -259,16 +259,16 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  *                        NOT SUPPORTTED YET
  *
  * @param[in] jobvt
- *          Specifies options for computing all or part of the matrix V**H.
+ *          Specifies options for computing all or part of the matrix V^H.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack): all N rows of V**H are returned
+ *          = ChamVec   = 'A'(lapack): all N rows of V^H are returned
  *                        in the array VT;
- *          = ChamNoVec = 'N': no rows of V**H (no right singular vectors)
+ *          = ChamNoVec = 'N': no rows of V^H (no right singular vectors)
  *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) rows of V**H (the right
+ *          = ChamSVec  = 'S': the first min(m,n) rows of V^H (the right
  *                        singular vectors) are returned in the array VT;
  *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) rows of V**H (the right
+ *          = ChamOVec  = 'O': the first min(m,n) rows of V^H (the right
  *                        singular vectors) are overwritten on the array A;
  *                        NOT SUPPORTTED YET
  *
@@ -281,7 +281,7 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  *                          columns of U (the left singular vectors,
  *                          stored columnwise);
  *          if JOBVT = 'O', A is overwritten with the first min(m,n)
- *                          rows of V**H (the right singular vectors,
+ *                          rows of V^H (the right singular vectors,
  *                          stored rowwise);
  *          if JOBU .ne. 'O' and JOBVT .ne. 'O', the contents of A
  *                          are destroyed.
@@ -306,9 +306,9 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  *
  * @param[out] VT
  *         If JOBVT = 'A', VT contains the N-by-N unitary matrix
- *         V**H;
+ *         V^H;
  *         if JOBVT = 'S', VT contains the first min(m,n) rows of
- *         V**H (the right singular vectors, stored rowwise);
+ *         V^H (the right singular vectors, stored rowwise);
  *         if JOBVT = 'N' or 'O', VT is not referenced.
  *
  * @param[in] LDVT

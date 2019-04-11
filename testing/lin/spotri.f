@@ -53,7 +53,7 @@
 *  =======
 *
 *  SPOTRI computes the inverse of a real symmetric positive definite
-*  matrix A using the Cholesky factorization A = U**T*U or A = L*L**T
+*  matrix A using the Cholesky factorization A = U^T*U or A = L*L^T
 *  computed by SPOTRF.
 *
 *  Arguments
@@ -68,7 +68,7 @@
 *
 *  A       (input/output) REAL array, dimension (LDA,N)
 *          On entry, the triangular factor U or L from the Cholesky
-*          factorization A = U**T*U or A = L*L**T, as computed by
+*          factorization A = U^T*U or A = L*L^T, as computed by
 *          SPOTRF.
 *          On exit, the upper or lower triangle of the (symmetric)
 *          inverse of A, overwriting the input factor U or L.

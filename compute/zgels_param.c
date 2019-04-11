@@ -48,7 +48,7 @@
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
- *          = ChamConjTrans: the linear system involves A**H.
+ *          = ChamConjTrans: the linear system involves A^H.
  *          Currently only ChamNoTrans is supported.
  *
  * @param[in] M
@@ -221,7 +221,7 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
- *          = ChamConjTrans: the linear system involves A**H.
+ *          = ChamConjTrans: the linear system involves A^H.
  *          Currently only ChamNoTrans is supported.
  *
  * @param[in,out] A

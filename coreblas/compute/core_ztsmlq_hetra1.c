@@ -38,12 +38,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg ChamLeft  : apply Q or Q**H from the Left;
- *         @arg ChamRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q^H from the Left;
+ *         @arg ChamRight : apply Q or Q^H from the Right.
  *
  * @param[in] trans
  *         @arg ChamNoTrans   :  No transpose, apply Q;
- *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q^H.
  *
  * @param[in] m1
  *         The number of rows of the tile A1. m1 >= 0.

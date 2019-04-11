@@ -59,7 +59,7 @@
 *
 *  SPOCON estimates the reciprocal of the condition number (in the 
 *  1-norm) of a real symmetric positive definite matrix using the
-*  Cholesky factorization A = U**T*U or A = L*L**T computed by SPOTRF.
+*  Cholesky factorization A = U^T*U or A = L*L^T computed by SPOTRF.
 *
 *  An estimate is obtained for norm(inv(A)), and the reciprocal of the
 *  condition number is computed as RCOND = 1 / (ANORM * norm(inv(A))).
@@ -76,7 +76,7 @@
 *
 *  A       (input) REAL array, dimension (LDA,N)
 *          The triangular factor U or L from the Cholesky factorization
-*          A = U**T*U or A = L*L**T, as computed by SPOTRF.
+*          A = U^T*U or A = L*L^T, as computed by SPOTRF.
 *
 *  LDA     (input) INTEGER
 *          The leading dimension of the array A.  LDA >= max(1,N).

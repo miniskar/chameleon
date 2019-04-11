@@ -36,7 +36,7 @@
  *
  *  where  op( A ) is one of
  *
- *     op( A ) = A   or   op( A ) = A**T   or   op( A ) = A**H,
+ *     op( A ) = A   or   op( A ) = A^T   or   op( A ) = A^H,
  *
  *  alpha and beta are scalars, x and y are vectors and A is a
  *  pentagonal matrix (see further details).
@@ -52,8 +52,8 @@
  * @param[in] trans
  *
  *         @arg ChamNoTrans   :  y := alpha*A*x    + beta*y.
- *         @arg ChamTrans     :  y := alpha*A**T*x + beta*y.
- *         @arg ChamConjTrans :  y := alpha*A**H*x + beta*y.
+ *         @arg ChamTrans     :  y := alpha*A^T*x + beta*y.
+ *         @arg ChamConjTrans :  y := alpha*A^H*x + beta*y.
  *
  * @param[in] M
  *         Number of rows of the matrix A.

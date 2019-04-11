@@ -46,12 +46,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg ChamLeft  : apply Q or Q**H from the Left;
- *         @arg ChamRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q^H from the Left;
+ *         @arg ChamRight : apply Q or Q^H from the Right.
  *
  * @param[in] trans
  *         @arg ChamNoTrans   : No transpose, apply Q;
- *         @arg ChamConjTrans : ConjTranspose, apply Q**H.
+ *         @arg ChamConjTrans : ConjTranspose, apply Q^H.
  *
  * @param[in] direct
  *         Indicates how H is formed from a product of elementary

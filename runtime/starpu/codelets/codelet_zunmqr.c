@@ -103,7 +103,7 @@ CODELETS(zunmqr, 4, cl_zunmqr_cpu_func, cl_zunmqr_cuda_func, STARPU_CUDA_ASYNC)
  *
  *                    SIDE = 'L'     SIDE = 'R'
  *    TRANS = 'N':      Q * C          C * Q
- *    TRANS = 'C':      Q**H * C       C * Q**H
+ *    TRANS = 'C':      Q^H * C       C * Q^H
  *
  *  where Q is a complex unitary matrix defined as the product of k
  *  elementary reflectors
@@ -116,12 +116,12 @@ CODELETS(zunmqr, 4, cl_zunmqr_cpu_func, cl_zunmqr_cuda_func, STARPU_CUDA_ASYNC)
  *******************************************************************************
  *
  * @param[in] side
- *         @arg ChamLeft  : apply Q or Q**H from the Left;
- *         @arg ChamRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q^H from the Left;
+ *         @arg ChamRight : apply Q or Q^H from the Right.
  *
  * @param[in] trans
  *         @arg ChamNoTrans   :  No transpose, apply Q;
- *         @arg ChamConjTrans :  Transpose, apply Q**H.
+ *         @arg ChamConjTrans :  Transpose, apply Q^H.
  *
  * @param[in] M
  *         The number of rows of the tile C.  M >= 0.
@@ -159,7 +159,7 @@ CODELETS(zunmqr, 4, cl_zunmqr_cpu_func, cl_zunmqr_cuda_func, STARPU_CUDA_ASYNC)
  *
  * @param[in,out] C
  *         On entry, the M-by-N tile C.
- *         On exit, C is overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
+ *         On exit, C is overwritten by Q*C or Q^T*C or C*Q^T or C*Q.
  *
  * @param[in] LDC
  *         The leading dimension of the array C. LDC >= max(1,M).

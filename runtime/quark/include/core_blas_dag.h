@@ -78,6 +78,8 @@
 #define DAG_CORE_TSTRF      DAG_SET_PROPERTIES( "TSTRF"     , "red"     )
 #define DAG_CORE_UNMLQ      DAG_SET_PROPERTIES( "UNMLQ"     , "cyan"    )
 #define DAG_CORE_UNMQR      DAG_SET_PROPERTIES( "UNMQR"     , "cyan"    )
+#define DAG_CORE_ORMLQ      DAG_SET_PROPERTIES( "ORMLQ"     , "cyan"    )
+#define DAG_CORE_ORMQR      DAG_SET_PROPERTIES( "ORMQR"     , "cyan"    )
 
 #define DAG_CORE_TSLQT      DAG_CORE_TPLQT
 #define DAG_CORE_TSMLQ      DAG_CORE_TPMLQT

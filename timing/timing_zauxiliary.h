@@ -39,8 +39,8 @@ double z_check_solution(int M, int N, int NRHS,
                       CHAMELEON_Complex64_t *B1, CHAMELEON_Complex64_t *B2, int LDB,
                       double *anorm, double *bnorm, double *xnorm);
 
-int zcheck_inverse(int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2,
-                         int LDA, cham_uplo_t uplo, double *rnorm, double *anorm, double *ainvnorm);
+int z_check_inverse( int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2,
+                     int LDA, cham_uplo_t uplo, double *rnorm, double *anorm, double *ainvnorm );
 
 
 #endif /* _timing_zauxiliary_h_ */

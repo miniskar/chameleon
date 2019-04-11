@@ -92,7 +92,7 @@
 *
 *  AF      (input) COMPLEX*16 array, dimension (LDAF,N)
 *          The triangular factor U or L from the Cholesky factorization
-*          A = U**H*U or A = L*L**H, as computed by ZPOTRF.
+*          A = U^H*U or A = L*L^H, as computed by ZPOTRF.
 *
 *  LDAF    (input) INTEGER
 *          The leading dimension of the array AF.  LDAF >= max(1,N).

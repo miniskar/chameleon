@@ -35,10 +35,6 @@ int chameleon_zshift(CHAM_context_t *chamctxt, int m, int n, CHAMELEON_Complex64
 /**
  *  Declarations of parallel functions (dynamic scheduling) - alphabetical order
  */
-void chameleon_pzbarrier_pnl2tl(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzbarrier_row2tl(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzbarrier_tl2pnl(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-void chameleon_pzbarrier_tl2row(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgebrd_gb2bd(cham_uplo_t uplo, CHAM_desc_t *A, double *D, double *E, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
