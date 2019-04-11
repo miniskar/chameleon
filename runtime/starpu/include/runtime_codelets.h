@@ -112,11 +112,6 @@
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #endif
 
-#define SCODELETS_HEADER(name)                CODELETS_HEADER(s##name)
-#define DCODELETS_HEADER(name)                CODELETS_HEADER(d##name)
-#define CCODELETS_HEADER(name)                CODELETS_HEADER(c##name)
-#define ZCODELETS_HEADER(name)                CODELETS_HEADER(z##name)
-
 CODELETS_HEADER(map);
 
 #endif /* _runtime_codelets_h_ */

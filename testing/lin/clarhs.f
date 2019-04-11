@@ -58,7 +58,7 @@
 *  CLARHS chooses a set of NRHS random solution vectors and sets
 *  up the right hand sides for the linear system
 *     op( A ) * X = B,
-*  where op( A ) may be A, A**T (transpose of A), or A**H (conjugate
+*  where op( A ) may be A, A^T (transpose of A), or A^H (conjugate
 *  transpose of A).
 *
 *  Arguments
@@ -102,8 +102,8 @@
 *          Used only if A is nonsymmetric; specifies the operation
 *          applied to the matrix A.
 *          = 'N':  B := A    * X
-*          = 'T':  B := A**T * X
-*          = 'C':  B := A**H * X
+*          = 'T':  B := A^T * X
+*          = 'C':  B := A^H * X
 *
 *  M       (input) INTEGER
 *          The number of rows of the matrix A.  M >= 0.

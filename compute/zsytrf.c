@@ -50,7 +50,7 @@
  *          triangular part of the matrix A, and the strictly upper triangular part of A is not
  *          referenced.
  *          On exit, if return value = 0, the factor U or L from the Cholesky factorization
- *          A = U**H*U or A = L*L**H.
+ *          A = U^H*U or A = L*L^H.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,N).
@@ -164,7 +164,7 @@ int CHAMELEON_zsytrf( cham_uplo_t uplo, int N,
  *          triangular part of the matrix A, and the strictly upper triangular part of A is not
  *          referenced.
  *          On exit, if return value = 0, the factor U or L from the Cholesky factorization
- *          A = U**T*U or A = L*L**T.
+ *          A = U^T*U or A = L*L^T.
  *
  *******************************************************************************
  *

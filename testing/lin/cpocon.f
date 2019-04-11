@@ -59,7 +59,7 @@
 *
 *  CPOCON estimates the reciprocal of the condition number (in the
 *  1-norm) of a complex Hermitian positive definite matrix using the
-*  Cholesky factorization A = U**H*U or A = L*L**H computed by CPOTRF.
+*  Cholesky factorization A = U^H*U or A = L*L^H computed by CPOTRF.
 *
 *  An estimate is obtained for norm(inv(A)), and the reciprocal of the
 *  condition number is computed as RCOND = 1 / (ANORM * norm(inv(A))).
@@ -76,7 +76,7 @@
 *
 *  A       (input) COMPLEX array, dimension (LDA,N)
 *          The triangular factor U or L from the Cholesky factorization
-*          A = U**H*U or A = L*L**H, as computed by CPOTRF.
+*          A = U^H*U or A = L*L^H, as computed by CPOTRF.
 *
 *  LDA     (input) INTEGER
 *          The leading dimension of the array A.  LDA >= max(1,N).

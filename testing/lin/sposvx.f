@@ -61,7 +61,7 @@
 *  Purpose
 *  =======
 *
-*  SPOSVX uses the Cholesky factorization A = U**T*U or A = L*L**T to
+*  SPOSVX uses the Cholesky factorization A = U^T*U or A = L*L^T to
 *  compute the solution to a real system of linear equations
 *     A * X = B,
 *  where A is an N-by-N symmetric positive definite matrix and X and B
@@ -84,8 +84,8 @@
 *
 *  2. If FACT = 'N' or 'E', the Cholesky decomposition is used to
 *     factor the matrix A (after equilibration if FACT = 'E') as
-*        A = U**T* U,  if UPLO = 'U', or
-*        A = L * L**T,  if UPLO = 'L',
+*        A = U^T* U,  if UPLO = 'U', or
+*        A = L * L^T,  if UPLO = 'L',
 *     where U is an upper triangular matrix and L is a lower triangular
 *     matrix.
 *
@@ -156,18 +156,18 @@
 *  AF      (input or output) REAL array, dimension (LDAF,N)
 *          If FACT = 'F', then AF is an input argument and on entry
 *          contains the triangular factor U or L from the Cholesky
-*          factorization A = U**T*U or A = L*L**T, in the same storage
+*          factorization A = U^T*U or A = L*L^T, in the same storage
 *          format as A.  If EQUED .ne. 'N', then AF is the factored form
 *          of the equilibrated matrix diag(S)*A*diag(S).
 *
 *          If FACT = 'N', then AF is an output argument and on exit
 *          returns the triangular factor U or L from the Cholesky
-*          factorization A = U**T*U or A = L*L**T of the original
+*          factorization A = U^T*U or A = L*L^T of the original
 *          matrix A.
 *
 *          If FACT = 'E', then AF is an output argument and on exit
 *          returns the triangular factor U or L from the Cholesky
-*          factorization A = U**T*U or A = L*L**T of the equilibrated
+*          factorization A = U^T*U or A = L*L^T of the equilibrated
 *          matrix A (see the description of A for the form of the
 *          equilibrated matrix).
 *

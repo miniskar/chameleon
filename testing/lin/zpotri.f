@@ -53,7 +53,7 @@
 *  =======
 *
 *  ZPOTRI computes the inverse of a complex Hermitian positive definite
-*  matrix A using the Cholesky factorization A = U**H*U or A = L*L**H
+*  matrix A using the Cholesky factorization A = U^H*U or A = L*L^H
 *  computed by ZPOTRF.
 *
 *  Arguments
@@ -68,7 +68,7 @@
 *
 *  A       (input/output) COMPLEX*16 array, dimension (LDA,N)
 *          On entry, the triangular factor U or L from the Cholesky
-*          factorization A = U**H*U or A = L*L**H, as computed by
+*          factorization A = U^H*U or A = L*L^H, as computed by
 *          ZPOTRF.
 *          On exit, the upper or lower triangle of the (Hermitian)
 *          inverse of A, overwriting the input factor U or L.

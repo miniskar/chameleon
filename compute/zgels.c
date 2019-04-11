@@ -48,7 +48,7 @@
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
- *          = ChamConjTrans: the linear system involves A**H.
+ *          = ChamConjTrans: the linear system involves A^H.
  *          Currently only ChamNoTrans is supported.
  *
  * @param[in] M
@@ -218,7 +218,7 @@ int CHAMELEON_zgels( cham_trans_t trans, int M, int N, int NRHS,
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
- *          = ChamConjTrans: the linear system involves A**H.
+ *          = ChamConjTrans: the linear system involves A^H.
  *          Currently only ChamNoTrans is supported.
  *
  * @param[in,out] A

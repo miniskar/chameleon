@@ -59,7 +59,7 @@
 *
 *  ZPOCON estimates the reciprocal of the condition number (in the
 *  1-norm) of a complex Hermitian positive definite matrix using the
-*  Cholesky factorization A = U**H*U or A = L*L**H computed by ZPOTRF.
+*  Cholesky factorization A = U^H*U or A = L*L^H computed by ZPOTRF.
 *
 *  An estimate is obtained for norm(inv(A)), and the reciprocal of the
 *  condition number is computed as RCOND = 1 / (ANORM * norm(inv(A))).
@@ -76,7 +76,7 @@
 *
 *  A       (input) COMPLEX*16 array, dimension (LDA,N)
 *          The triangular factor U or L from the Cholesky factorization
-*          A = U**H*U or A = L*L**H, as computed by ZPOTRF.
+*          A = U^H*U or A = L*L^H, as computed by ZPOTRF.
 *
 *  LDA     (input) INTEGER
 *          The leading dimension of the array A.  LDA >= max(1,N).

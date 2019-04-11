@@ -33,7 +33,7 @@
  *
  *  CHAMELEON_zsytrs - Solves a system of linear equations A * X = B with a complex
  *  symmetric  matrix A using the Cholesky factorization
- *  A = U**H*U or A = L*L**H computed by CHAMELEON_zsytrf.
+ *  A = U^H*U or A = L*L^H computed by CHAMELEON_zsytrf.
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@
  *          The number of right hand sides, i.e., the number of columns of the matrix B. NRHS >= 0.
  *
  * @param[in] A
- *          The triangular factor U or L from the Cholesky factorization A = U**T*U or A = L*L**T,
+ *          The triangular factor U or L from the Cholesky factorization A = U^T*U or A = L*L^T,
  *          computed by CHAMELEON_zsytrf.
  *
  * @param[in] LDA
@@ -172,7 +172,7 @@ int CHAMELEON_zsytrs( cham_uplo_t uplo, int N, int NRHS,
  *          = ChamLower: Lower triangle of A is stored.
  *
  * @param[in] A
- *          The triangular factor U or L from the Cholesky factorization A = U**T*U or A = L*L**T,
+ *          The triangular factor U or L from the Cholesky factorization A = U^T*U or A = L*L^T,
  *          computed by CHAMELEON_zsytrf.
  *
  * @param[in,out] B

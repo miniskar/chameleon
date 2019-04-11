@@ -1,6 +1,6 @@
 /**
  *
- * @file starpu/codelet_zasum.c
+ * @file starpu/codelet_dzasum.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon zasum StarPU codelet
+ * @brief Chameleon dzasum StarPU codelet
  *
  * @version 0.9.2
  * @comment This file has been automatically generated
@@ -43,15 +43,15 @@ static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zasum, 2, cl_dzasum_cpu_func)
+CODELETS_CPU(dzasum, 2, cl_dzasum_cpu_func)
 
 void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,
                          const CHAM_desc_t *A, int Am, int An, int lda,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
-    struct starpu_codelet *codelet = &cl_zasum;
-    void (*callback)(void*) = options->profiling ? cl_zasum_callback : NULL;
+    struct starpu_codelet *codelet = &cl_dzasum;
+    void (*callback)(void*) = options->profiling ? cl_dzasum_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
@@ -70,7 +70,7 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zasum",
+        STARPU_NAME, "dzasum",
 #endif
         0);
 }

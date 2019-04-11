@@ -55,7 +55,7 @@
 *
 *  CLAGSY generates a complex symmetric matrix A, by pre- and post-
 *  multiplying a real diagonal matrix D with a random unitary matrix:
-*  A = U*D*U**T. The semi-bandwidth may then be reduced to k by
+*  A = U*D*U^T. The semi-bandwidth may then be reduced to k by
 *  additional unitary transformations.
 *
 *  Arguments

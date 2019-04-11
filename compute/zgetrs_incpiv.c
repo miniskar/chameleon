@@ -37,8 +37,8 @@
  * @param[in] trans
  *          Intended to specify the the form of the system of equations:
  *          = ChamNoTrans:   A * X = B     (No transpose)
- *          = ChamTrans:     A**T * X = B  (Transpose)
- *          = ChamConjTrans: A**H * X = B  (Conjugate transpose)
+ *          = ChamTrans:     A^T * X = B  (Transpose)
+ *          = ChamConjTrans: A^H * X = B  (Conjugate transpose)
  *          Currently only ChamNoTrans is supported.
  *
  * @param[in] N

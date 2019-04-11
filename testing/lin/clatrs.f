@@ -57,10 +57,10 @@
 *
 *  CLATRS solves one of the triangular systems
 *
-*     A * x = s*b,  A**T * x = s*b,  or  A**H * x = s*b,
+*     A * x = s*b,  A^T * x = s*b,  or  A^H * x = s*b,
 *
 *  with scaling to prevent overflow.  Here A is an upper or lower
-*  triangular matrix, A**T denotes the transpose of A, A**H denotes the
+*  triangular matrix, A^T denotes the transpose of A, A^H denotes the
 *  conjugate transpose of A, x and b are n-element vectors, and s is a
 *  scaling factor, usually less than or equal to 1, chosen so that the
 *  components of x will be less than the overflow threshold.  If the
@@ -79,8 +79,8 @@
 *  TRANS   (input) CHARACTER*1
 *          Specifies the operation applied to A.
 *          = 'N':  Solve A * x = s*b     (No transpose)
-*          = 'T':  Solve A**T * x = s*b  (Transpose)
-*          = 'C':  Solve A**H * x = s*b  (Conjugate transpose)
+*          = 'T':  Solve A^T * x = s*b  (Transpose)
+*          = 'C':  Solve A^H * x = s*b  (Conjugate transpose)
 *
 *  DIAG    (input) CHARACTER*1
 *          Specifies whether or not the matrix A is unit triangular.
@@ -115,7 +115,7 @@
 *
 *  SCALE   (output) REAL
 *          The scaling factor s for the triangular system
-*             A * x = s*b,  A**T * x = s*b,  or  A**H * x = s*b.
+*             A * x = s*b,  A^T * x = s*b,  or  A^H * x = s*b.
 *          If SCALE = 0, the matrix A is singular or badly scaled, and
 *          the vector x is an exact or approximate solution to A*x = 0.
 *
@@ -181,8 +181,8 @@
 *  prevent overflow, but if the bound overflows, x is set to 0, x(j) to
 *  1, and scale to 0, and a non-trivial solution to A*x = 0 is found.
 *
-*  Similarly, a row-wise scheme is used to solve A**T *x = b  or
-*  A**H *x = b.  The basic algorithm for A upper triangular is
+*  Similarly, a row-wise scheme is used to solve A^T *x = b  or
+*  A^H *x = b.  The basic algorithm for A upper triangular is
 *
 *       for j = 1, ..., n
 *            x(j) := ( b(j) - A[1:j-1,j]' * x[1:j-1] ) / A(j,j)
@@ -412,7 +412,7 @@
 *
       ELSE
 *
-*        Compute the growth in A**T * x = b  or  A**H * x = b.
+*        Compute the growth in A^T * x = b  or  A^H * x = b.
 *
          IF( UPPER ) THEN
             JFIRST = 1
@@ -632,7 +632,7 @@
 *
          ELSE IF( LSAME( TRANS, 'T' ) ) THEN
 *
-*           Solve A**T * x = b
+*           Solve A^T * x = b
 *
             DO 150 J = JFIRST, JLAST, JINC
 *
@@ -744,7 +744,7 @@
                      ELSE
 *
 *                       A(j,j) = 0:  Set x(1:n) = 0, x(j) = 1, and
-*                       scale = 0 and compute a solution to A**T *x = 0.
+*                       scale = 0 and compute a solution to A^T *x = 0.
 *
                         DO 140 I = 1, N
                            X( I ) = ZERO
@@ -766,7 +766,7 @@
 *
          ELSE
 *
-*           Solve A**H * x = b
+*           Solve A^H * x = b
 *
             DO 190 J = JFIRST, JLAST, JINC
 *
@@ -880,7 +880,7 @@
                      ELSE
 *
 *                       A(j,j) = 0:  Set x(1:n) = 0, x(j) = 1, and
-*                       scale = 0 and compute a solution to A**H *x = 0.
+*                       scale = 0 and compute a solution to A^H *x = 0.
 *
                         DO 180 I = 1, N
                            X( I ) = ZERO

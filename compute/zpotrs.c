@@ -31,7 +31,7 @@
  *
  *  CHAMELEON_zpotrs - Solves a system of linear equations A * X = B with a symmetric positive
  *  definite (or Hermitian positive definite in the complex case) matrix A using the Cholesky
- *  factorization A = U**H*U or A = L*L**H computed by CHAMELEON_zpotrf.
+ *  factorization A = U^H*U or A = L*L^H computed by CHAMELEON_zpotrf.
  *
  *******************************************************************************
  *
@@ -46,7 +46,7 @@
  *          The number of right hand sides, i.e., the number of columns of the matrix B. NRHS >= 0.
  *
  * @param[in] A
- *          The triangular factor U or L from the Cholesky factorization A = U**H*U or A = L*L**H,
+ *          The triangular factor U or L from the Cholesky factorization A = U^H*U or A = L*L^H,
  *          computed by CHAMELEON_zpotrf.
  *
  * @param[in] LDA
@@ -173,7 +173,7 @@ int CHAMELEON_zpotrs( cham_uplo_t uplo, int N, int NRHS,
  *          = ChamLower: Lower triangle of A is stored.
  *
  * @param[in] A
- *          The triangular factor U or L from the Cholesky factorization A = U**H*U or A = L*L**H,
+ *          The triangular factor U or L from the Cholesky factorization A = U^H*U or A = L*L^H,
  *          computed by CHAMELEON_zpotrf.
  *
  * @param[in,out] B

@@ -59,7 +59,7 @@
 *  Purpose
 *  =======
 *
-*  CPOSVX uses the Cholesky factorization A = U**H*U or A = L*L**H to
+*  CPOSVX uses the Cholesky factorization A = U^H*U or A = L*L^H to
 *  compute the solution to a complex system of linear equations
 *     A * X = B,
 *  where A is an N-by-N Hermitian positive definite matrix and X and B
@@ -82,8 +82,8 @@
 *
 *  2. If FACT = 'N' or 'E', the Cholesky decomposition is used to
 *     factor the matrix A (after equilibration if FACT = 'E') as
-*        A = U**H* U,  if UPLO = 'U', or
-*        A = L * L**H,  if UPLO = 'L',
+*        A = U^H* U,  if UPLO = 'U', or
+*        A = L * L^H,  if UPLO = 'L',
 *     where U is an upper triangular matrix and L is a lower triangular
 *     matrix.
 *
@@ -154,18 +154,18 @@
 *  AF      (input or output) COMPLEX array, dimension (LDAF,N)
 *          If FACT = 'F', then AF is an input argument and on entry
 *          contains the triangular factor U or L from the Cholesky
-*          factorization A = U**H*U or A = L*L**H, in the same storage
+*          factorization A = U^H*U or A = L*L^H, in the same storage
 *          format as A.  If EQUED .ne. 'N', then AF is the factored form
 *          of the equilibrated matrix diag(S)*A*diag(S).
 *
 *          If FACT = 'N', then AF is an output argument and on exit
 *          returns the triangular factor U or L from the Cholesky
-*          factorization A = U**H*U or A = L*L**H of the original
+*          factorization A = U^H*U or A = L*L^H of the original
 *          matrix A.
 *
 *          If FACT = 'E', then AF is an output argument and on exit
 *          returns the triangular factor U or L from the Cholesky
-*          factorization A = U**H*U or A = L*L**H of the equilibrated
+*          factorization A = U^H*U or A = L*L^H of the equilibrated
 *          matrix A (see the description of A for the form of the
 *          equilibrated matrix).
 *

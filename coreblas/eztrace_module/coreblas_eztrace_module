@@ -7,18 +7,6 @@ ID 7770
 
 void CORE_scasum(int storev, int uplo, int M, int N,
                  void *A, int lda, float *work);
-void CORE_cbrdalg(int uplo, int N, int NB,
-                  void *pA, void *C, void *S,
-                  int i, int j, int m, int grsiz);
-int CORE_cgbelr(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_cgbrce(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_cgblrx(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
 int CORE_cgeadd(int M, int N, void *alpha,
                 void *A, int LDA,
                       void *B, int LDB);
@@ -64,30 +52,6 @@ int  CORE_cgetrf_reclap(int M, int N,
 int  CORE_cgetrf_rectil(void *A, int *IPIV, int *info);
 void CORE_cgetrip(int m, int n, void *A,
                   void *work);
-int CORE_chbelr(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_chblrx(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_chbrce(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-void CORE_chbtype1cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
-void CORE_chbtype2cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
-void CORE_chbtype3cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
 void CORE_chegst(int itype, int uplo, int N,
                  void *A, int LDA,
                  void *B, int LDB, int *INFO);
@@ -230,13 +194,6 @@ int  CORE_csyssq(int uplo, int N,
                  void *A, int LDA,
                  float *scale, float *sumsq);
 int CORE_csytf2_nopiv(int uplo, int n, void *A, int lda);
-void CORE_cswpab(int i, int n1, int n2,
-                 void *A, void *work);
-int  CORE_cswptr_ontile(void *descA, int i1, int i2, const int *ipiv, int inc,
-                        void *Akk, int ldak);
-void CORE_ctrdalg(int uplo, int N, int NB,
-                  void *pA, void *V, void *TAU,
-                  int i, int j, int m, int grsiz);
 void CORE_ctrmm(int side, int uplo,
                 int transA, int diag,
                 int M, int N,
@@ -352,18 +309,6 @@ int  CORE_cunmqr(int side, int trans,
 
 void CORE_dasum(int storev, int uplo, int M, int N,
                  const double *A, int lda, double *work);
-void CORE_dbrdalg(int uplo, int N, int NB,
-                  void *pA, double *C, double *S,
-                  int i, int j, int m, int grsiz);
-int CORE_dgbelr(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
-int CORE_dgbrce(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
-int CORE_dgblrx(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
 int CORE_dgeadd(int M, int N, double alpha,
                 const double *A, int LDA,
                       double *B, int LDB);
@@ -409,30 +354,6 @@ int  CORE_dgetrf_reclap(int M, int N,
 int  CORE_dgetrf_rectil(void *A, int *IPIV, int *info);
 void CORE_dgetrip(int m, int n, double *A,
                   double *work);
-int CORE_dhbelr(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
-int CORE_dhblrx(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
-int CORE_dhbrce(int uplo, int N,
-                void **A, double *V, double *TAU,
-                int st, int ed, int eltsize);
-void CORE_dhbtype1cb(int N, int NB,
-                     double *A, int LDA,
-                     double *V, double *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     double *WORK);
-void CORE_dhbtype2cb(int N, int NB,
-                     double *A, int LDA,
-                     double *V, double *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     double *WORK);
-void CORE_dhbtype3cb(int N, int NB,
-                     double *A, int LDA,
-                     const double *V, const double *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     double *WORK);
 void CORE_dsygst(int itype, int uplo, int N,
                  double *A, int LDA,
                  double *B, int LDB, int *INFO);
@@ -553,13 +474,6 @@ int  CORE_dssssm(int M1, int N1, int M2, int N2, int K, int IB,
                  const double *L2, int LDL2,
                  const int *IPIV);
 int CORE_dsytf2_nopiv(int uplo, int n, double *A, int lda);
-void CORE_dswpab(int i, int n1, int n2,
-                 double *A, double *work);
-int  CORE_dswptr_ontile(void *descA, int i1, int i2, const int *ipiv, int inc,
-                        const double *Akk, int ldak);
-void CORE_dtrdalg(int uplo, int N, int NB,
-                  void *pA, double *V, double *TAU,
-                  int i, int j, int m, int grsiz);
 void CORE_dtrmm(int side, int uplo,
                 int transA, int diag,
                 int M, int N,
@@ -682,18 +596,6 @@ void CORE_dlag2s(int m, int n,
 
 void CORE_sasum(int storev, int uplo, int M, int N,
                  const float *A, int lda, float *work);
-void CORE_sbrdalg(int uplo, int N, int NB,
-                  void *pA, float *C, float *S,
-                  int i, int j, int m, int grsiz);
-int CORE_sgbelr(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
-int CORE_sgbrce(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
-int CORE_sgblrx(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
 int CORE_sgeadd(int M, int N, float alpha,
                 const float *A, int LDA,
                       float *B, int LDB);
@@ -739,30 +641,6 @@ int  CORE_sgetrf_reclap(int M, int N,
 int  CORE_sgetrf_rectil(void *A, int *IPIV, int *info);
 void CORE_sgetrip(int m, int n, float *A,
                   float *work);
-int CORE_shbelr(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
-int CORE_shblrx(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
-int CORE_shbrce(int uplo, int N,
-                void **A, float *V, float *TAU,
-                int st, int ed, int eltsize);
-void CORE_shbtype1cb(int N, int NB,
-                     float *A, int LDA,
-                     float *V, float *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     float *WORK);
-void CORE_shbtype2cb(int N, int NB,
-                     float *A, int LDA,
-                     float *V, float *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     float *WORK);
-void CORE_shbtype3cb(int N, int NB,
-                     float *A, int LDA,
-                     const float *V, const float *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     float *WORK);
 void CORE_ssygst(int itype, int uplo, int N,
                  float *A, int LDA,
                  float *B, int LDB, int *INFO);
@@ -883,13 +761,6 @@ int  CORE_sssssm(int M1, int N1, int M2, int N2, int K, int IB,
                  const float *L2, int LDL2,
                  const int *IPIV);
 int CORE_ssytf2_nopiv(int uplo, int n, float *A, int lda);
-void CORE_sswpab(int i, int n1, int n2,
-                 float *A, float *work);
-int  CORE_sswptr_ontile(void *descA, int i1, int i2, const int *ipiv, int inc,
-                        const float *Akk, int ldak);
-void CORE_strdalg(int uplo, int N, int NB,
-                  void *pA, float *V, float *TAU,
-                  int i, int j, int m, int grsiz);
 void CORE_strmm(int side, int uplo,
                 int transA, int diag,
                 int M, int N,
@@ -1005,18 +876,6 @@ int  CORE_sormqr(int side, int trans,
 
 void CORE_dzasum(int storev, int uplo, int M, int N,
                  void *A, int lda, double *work);
-void CORE_zbrdalg(int uplo, int N, int NB,
-                  void *pA, void *C, void *S,
-                  int i, int j, int m, int grsiz);
-int CORE_zgbelr(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_zgbrce(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_zgblrx(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
 int CORE_zgeadd(int M, int N, void *alpha,
                 void *A, int LDA,
                       void *B, int LDB);
@@ -1062,30 +921,6 @@ int  CORE_zgetrf_reclap(int M, int N,
 int  CORE_zgetrf_rectil(void *A, int *IPIV, int *info);
 void CORE_zgetrip(int m, int n, void *A,
                   void *work);
-int CORE_zhbelr(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_zhblrx(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-int CORE_zhbrce(int uplo, int N,
-                void **A, void *V, void *TAU,
-                int st, int ed, int eltsize);
-void CORE_zhbtype1cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
-void CORE_zhbtype2cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
-void CORE_zhbtype3cb(int N, int NB,
-                     void *A, int LDA,
-                     void *V, void *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     void *WORK);
 void CORE_zhegst(int itype, int uplo, int N,
                  void *A, int LDA,
                  void *B, int LDB, int *INFO);
@@ -1222,13 +1057,6 @@ int  CORE_zsyssq(int uplo, int N,
                  void *A, int LDA,
                  double *scale, double *sumsq);
 int CORE_zsytf2_nopiv(int uplo, int n, void *A, int lda);
-void CORE_zswpab(int i, int n1, int n2,
-                 void *A, void *work);
-int  CORE_zswptr_ontile(void *descA, int i1, int i2, const int *ipiv, int inc,
-                        void *Akk, int ldak);
-void CORE_ztrdalg(int uplo, int N, int NB,
-                  void *pA, void *V, void *TAU,
-                  int i, int j, int m, int grsiz);
 void CORE_ztrmm(int side, int uplo,
                 int transA, int diag,
                 int M, int N,

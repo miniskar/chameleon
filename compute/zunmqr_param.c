@@ -29,7 +29,7 @@
  *
  *                  SIDE = 'L'     SIDE = 'R'
  *  TRANS = 'N':      Q * C          C * Q
- *  TRANS = 'C':      Q**H * C       C * Q**H
+ *  TRANS = 'C':      Q^H * C       C * Q^H
  *
  *  where Q is a complex unitary matrix defined as the product of k
  *  elementary reflectors
@@ -46,13 +46,13 @@
  *
  * @param[in] side
  *          Intended usage:
- *          = ChamLeft:  apply Q or Q**H from the left;
- *          = ChamRight: apply Q or Q**H from the right.
+ *          = ChamLeft:  apply Q or Q^H from the left;
+ *          = ChamRight: apply Q or Q^H from the right.
  *
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   no transpose, apply Q;
- *          = ChamConjTrans: conjugate transpose, apply Q**H.
+ *          = ChamConjTrans: conjugate transpose, apply Q^H.
  *
  * @param[in] M
  *          The number of rows of the matrix C. M >= 0.
@@ -82,7 +82,7 @@
  *
  * @param[in,out] C
  *          On entry, the M-by-N matrix C.
- *          On exit, C is overwritten by Q*C or Q**H*C.
+ *          On exit, C is overwritten by Q*C or Q^H*C.
  *
  * @param[in] LDC
  *          The leading dimension of the array C. LDC >= max(1,M).
@@ -215,14 +215,14 @@ int CHAMELEON_zunmqr_param( const libhqr_tree_t *qrtree,
  *
  * @param[in] side
  *          Intended usage:
- *          = ChamLeft:  apply Q or Q**H from the left;
- *          = ChamRight: apply Q or Q**H from the right.
+ *          = ChamLeft:  apply Q or Q^H from the left;
+ *          = ChamRight: apply Q or Q^H from the right.
  *          Currently only ChamLeft is supported.
  *
  * @param[in] trans
  *          Intended usage:
  *          = ChamNoTrans:   no transpose, apply Q;
- *          = ChamConjTrans: conjugate transpose, apply Q**H.
+ *          = ChamConjTrans: conjugate transpose, apply Q^H.
  *          Currently only ChamConjTrans is supported.
  *
  * @param[in] A
@@ -234,7 +234,7 @@ int CHAMELEON_zunmqr_param( const libhqr_tree_t *qrtree,
  *
  * @param[in,out] C
  *          On entry, the M-by-N matrix C.
- *          On exit, C is overwritten by Q*C or Q**H*C.
+ *          On exit, C is overwritten by Q*C or Q^H*C.
  *
  *******************************************************************************
  *

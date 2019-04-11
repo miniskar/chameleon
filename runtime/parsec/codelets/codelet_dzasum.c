@@ -1,6 +1,6 @@
 /**
  *
- * @file parsec/codelet_zasum.c
+ * @file parsec/codelet_dzasum.c
  *
  * @copyright 2009-2015 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon zasum PaRSEC codelet
+ * @brief Chameleon dzasum PaRSEC codelet
  *
  * @version 0.9.2
  * @author Reazul Hoque
@@ -50,7 +50,7 @@ void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
     parsec_dtd_taskpool_insert_task(
-        PARSEC_dtd_taskpool, CORE_dzasum_parsec, options->priority, "zasum",
+        PARSEC_dtd_taskpool, CORE_dzasum_parsec, options->priority, "dzasum",
         sizeof(int),    &storev,                           VALUE,
         sizeof(int),    &uplo,                             VALUE,
         sizeof(int),           &M,                                VALUE,

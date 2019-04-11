@@ -22,7 +22,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-CHAMELEON_CL_CB(zasum,         starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
+CHAMELEON_CL_CB(dzasum,         starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zaxpy,         starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[1]), 0,                                      M)
 CHAMELEON_CL_CB(zgeadd,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zlascal,       starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)

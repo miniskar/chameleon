@@ -52,7 +52,7 @@ static inline int CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t
  *
  *  where  op( V ) is one of
  *
- *     op( V ) = V   or   op( V ) = V**T   or   op( V ) = V**H,
+ *     op( V ) = V   or   op( V ) = V^T   or   op( V ) = V^H,
  *
  *  A1, A2 and W are general matrices, and V is:
  *

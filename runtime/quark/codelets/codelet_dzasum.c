@@ -1,6 +1,6 @@
 /**
  *
- * @file quark/codelet_zasum.c
+ * @file quark/codelet_dzasum.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon zasum Quark codelet
+ * @brief Chameleon dzasum Quark codelet
  *
  * @version 0.9.2
  * @comment This file has been automatically generated

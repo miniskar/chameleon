@@ -29,7 +29,7 @@
  * @ingroup CHAMELEON_Complex64_t
  *
  *  CHAMELEON_zpotri - Computes the inverse of a complex Hermitian positive definite
- *  matrix A using the Cholesky factorization A = U**H*U or A = L*L**H
+ *  matrix A using the Cholesky factorization A = U^H*U or A = L*L^H
  *  computed by CHAMELEON_zpotrf.
  *
  *******************************************************************************
@@ -43,7 +43,7 @@
  *
  * @param[in,out] A
  *          On entry, the triangular factor U or L from the Cholesky
- *          factorization A = U**H*U or A = L*L**H, as computed by
+ *          factorization A = U^H*U or A = L*L^H, as computed by
  *          CHAMELEON_zpotrf.
  *          On exit, the upper or lower triangle of the (Hermitian)
  *          inverse of A, overwriting the input factor U or L.
@@ -140,7 +140,7 @@ int CHAMELEON_zpotri( cham_uplo_t uplo, int N,
  *
  *  CHAMELEON_zpotri_Tile - Computes the inverse of a complex Hermitian
  *  positive definite matrix A using the Cholesky factorization
- *  A = U**H*U or A = L*L**H computed by CHAMELEON_zpotrf.
+ *  A = U^H*U or A = L*L^H computed by CHAMELEON_zpotrf.
  *  Tile equivalent of CHAMELEON_zpotri().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
@@ -154,7 +154,7 @@ int CHAMELEON_zpotri( cham_uplo_t uplo, int N,
  *
  * @param[in] A
  *          On entry, the triangular factor U or L from the Cholesky
- *          factorization A = U**H*U or A = L*L**H, as computed by
+ *          factorization A = U^H*U or A = L*L^H, as computed by
  *          CHAMELEON_zpotrf.
  *          On exit, the upper or lower triangle of the (Hermitian)
  *          inverse of A, overwriting the input factor U or L.
@@ -206,8 +206,8 @@ int CHAMELEON_zpotri_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
  * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
  *  CHAMELEON_zpotri_Tile_Async - Computes the inverse of a complex Hermitian
- *  positive definite matrix A using the Cholesky factorization A = U**H*U
- *  or A = L*L**H computed by CHAMELEON_zpotrf.
+ *  positive definite matrix A using the Cholesky factorization A = U^H*U
+ *  or A = L*L^H computed by CHAMELEON_zpotrf.
  *  Non-blocking equivalent of CHAMELEON_zpotri_Tile().
  *  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.

@@ -33,12 +33,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg ChamLeft  : apply Q or Q**H from the Left;
- *         @arg ChamRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q^H from the Left;
+ *         @arg ChamRight : apply Q or Q^H from the Right.
  *
  * @param[in] trans
  *         @arg ChamNoTrans   :  No transpose, apply Q;
- *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q^H.
  *
  * @param[in] M
  *         The number of rows of the tile B. M >= 0.
@@ -78,7 +78,7 @@
  *         or (LDA,K) if SIDE = ChamRight
  *         On entry, the K-by-N or M-by-K matrix A.
  *         On exit, A is overwritten by the corresponding block of
- *         Q*C or Q**H*C or C*Q or C*Q**H.  See Further Details.
+ *         Q*C or Q^H*C or C*Q or C*Q^H.  See Further Details.
  *
  * @param[in] LDA
  *         The leading dimension of the array A. LDA >= max(1,M).
@@ -88,7 +88,7 @@
  * @param[in,out] B
  *         On entry, the M-by-N tile B.
  *         On exit, B is overwritten by the corresponding block of
- *         Q*C or Q**H*C or C*Q or C*Q**H.  See Further Details.
+ *         Q*C or Q^H*C or C*Q or C*Q^H.  See Further Details.
  *
  * @param[in] LDB
  *         The leading dimension of the tile B. LDB >= max(1,M).
@@ -122,11 +122,11 @@
  *
  *  If trans='N' and side='L', C is on exit replaced with Q * C.
  *
- *  If trans='C' and side='L', C is on exit replaced with Q**H * C.
+ *  If trans='C' and side='L', C is on exit replaced with Q^H * C.
  *
  *  If trans='N' and side='R', C is on exit replaced with C * Q.
  *
- *  If trans='C' and side='R', C is on exit replaced with C * Q**H.
+ *  If trans='C' and side='R', C is on exit replaced with C * Q^H.
  *
  *******************************************************************************
  *

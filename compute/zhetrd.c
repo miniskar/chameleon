@@ -34,7 +34,7 @@
  *  tridiagonal form S using a two-stage approach
  *  First stage: reduction to band tridiagonal form (unitary Q1);
  *  Second stage: reduction from band to tridiagonal form (unitary
- *  Q2).  Let Q = Q1 * Q2 be the global unitary transformation; Q**H *
+ *  Q2).  Let Q = Q1 * Q2 be the global unitary transformation; Q^H *
  *  A * Q = S.
  *
  *******************************************************************************
@@ -190,7 +190,7 @@ int CHAMELEON_zhetrd( cham_job_t jobz, cham_uplo_t uplo, int N,
  *  First stage: reduction to band tridiagonal form (unitary Q1);
  *  Second stage: reduction from band to tridiagonal form (unitary Q2).
  *  Let Q = Q1 * Q2 be the global unitary transformation;
- *  Q**H * A * Q = S.
+ *  Q^H * A * Q = S.
  *  Tile equivalent of CHAMELEON_zhetrd().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.

@@ -38,7 +38,7 @@
  *    TRANS = 'N':         Q * | A1 |     | A1 A2 | * Q
  *                             | A2 |
  *
- *    TRANS = 'C':      Q**H * | A1 |     | A1 A2 | * Q**H
+ *    TRANS = 'C':      Q^H * | A1 |     | A1 A2 | * Q^H
  *                             | A2 |
  *
  *  where Q is a complex unitary matrix defined as the product of k
@@ -51,12 +51,12 @@
  *******************************************************************************
  *
  * @param[in] side
- *         @arg ChamLeft  : apply Q or Q**H from the Left;
- *         @arg ChamRight : apply Q or Q**H from the Right.
+ *         @arg ChamLeft  : apply Q or Q^H from the Left;
+ *         @arg ChamRight : apply Q or Q^H from the Right.
  *
  * @param[in] trans
  *         @arg ChamNoTrans   :  No transpose, apply Q;
- *         @arg ChamConjTrans :  ConjTranspose, apply Q**H.
+ *         @arg ChamConjTrans :  ConjTranspose, apply Q^H.
  *
  * @param[in] M1
  *         The number of rows of the tile A1. M1 >= 0.
@@ -243,7 +243,7 @@ int CORE_ztsmqr(cham_side_t side, cham_trans_t trans,
             jc = i;
         }
         /*
-         * Apply H or H' (NOTE: CORE_zparfb used to be CORE_ztsrfb)
+         * Apply H or H'
          */
         CORE_zparfb(
             side, trans, ChamDirForward, ChamColumnwise,

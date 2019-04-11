@@ -32,18 +32,6 @@
  */
 void CORE_dzasum(cham_store_t storev, cham_uplo_t uplo, int M, int N,
                  const CHAMELEON_Complex64_t *A, int lda, double *work);
-void CORE_zbrdalg(cham_uplo_t uplo, int N, int NB,
-                  const CHAM_desc_t *pA, CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *S,
-                  int i, int j, int m, int grsiz);
-int CORE_zgbelr(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
-int CORE_zgbrce(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
-int CORE_zgblrx(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
 int CORE_zaxpy(int M, CHAMELEON_Complex64_t alpha,
                const CHAMELEON_Complex64_t *A, int incA,
                      CHAMELEON_Complex64_t *B, int incB);
@@ -99,30 +87,6 @@ void CORE_zgetrip(int m, int n, CHAMELEON_Complex64_t *A,
 void CORE_zhe2ge(cham_uplo_t uplo, int M, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
                  CHAMELEON_Complex64_t *B, int LDB);
-int CORE_zhbelr(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
-int CORE_zhblrx(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
-int CORE_zhbrce(cham_uplo_t uplo, int N,
-                CHAM_desc_t *A, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                int st, int ed, int eltsize);
-void CORE_zhbtype1cb(int N, int NB,
-                     CHAMELEON_Complex64_t *A, int LDA,
-                     CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     CHAMELEON_Complex64_t *WORK);
-void CORE_zhbtype2cb(int N, int NB,
-                     CHAMELEON_Complex64_t *A, int LDA,
-                     CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     CHAMELEON_Complex64_t *WORK);
-void CORE_zhbtype3cb(int N, int NB,
-                     CHAMELEON_Complex64_t *A, int LDA,
-                     const CHAMELEON_Complex64_t *V, const CHAMELEON_Complex64_t *TAU,
-                     int st, int ed, int sweep, int Vblksiz, int WANTZ,
-                     CHAMELEON_Complex64_t *WORK);
 void CORE_zhegst(int itype, cham_uplo_t uplo, int N,
                  CHAMELEON_Complex64_t *A, int LDA,
                  CHAMELEON_Complex64_t *B, int LDB, int *INFO);
@@ -261,10 +225,6 @@ int  CORE_zsyssq(cham_uplo_t uplo, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
                  double *scale, double *sumsq);
 int CORE_zsytf2_nopiv(cham_uplo_t uplo, int n, CHAMELEON_Complex64_t *A, int lda);
-void CORE_zswpab(int i, int n1, int n2,
-                 CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *work);
-int  CORE_zswptr_ontile(CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc,
-                        const CHAMELEON_Complex64_t *Akk, int ldak);
 int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
                       CHAMELEON_Complex64_t alpha,
                 const CHAMELEON_Complex64_t *A, int LDA,
@@ -273,9 +233,6 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
 void CORE_ztrasm(cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag,
                  int M, int N,
                  const CHAMELEON_Complex64_t *A, int lda, double *work);
-void CORE_ztrdalg(cham_uplo_t uplo, int N, int NB,
-                  const CHAM_desc_t *pA, CHAMELEON_Complex64_t *V, CHAMELEON_Complex64_t *TAU,
-                  int i, int j, int m, int grsiz);
 void CORE_ztrmm(cham_side_t side, cham_uplo_t uplo,
                 cham_trans_t transA, cham_diag_t diag,
                 int M, int N,
