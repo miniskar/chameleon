@@ -23,12 +23,12 @@
 #include "chameleon/tasks_z.h"
 
 void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int n,
+                        cham_store_t storev, cham_uplo_t uplo, int n,
                         const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrSCALESUMSQ = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrSCALESUMSQ) depend(in:ptrA[0]) depend(inout:ptrSCALESUMSQ[0])
-    CORE_zsyssq( uplo, n, ptrA, lda, &ptrSCALESUMSQ[0], &ptrSCALESUMSQ[1] );
+#pragma omp task firstprivate(storev, uplo, n, ptrA, lda, ptrSCALESUMSQ) depend(in:ptrA[0]) depend(inout:ptrSCALESUMSQ[0])
+    CORE_zsyssq( storev, uplo, n, ptrA, lda, ptrSCALESUMSQ );
 }

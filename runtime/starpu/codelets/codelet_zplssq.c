@@ -26,21 +26,17 @@
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
 {
+    cham_store_t storev;
+    int M;
+    int N;
     double *SCLSSQ_IN;
     double *SCLSSQ_OUT;
 
+    starpu_codelet_unpack_args(cl_arg, &storev, &M, &N);
     SCLSSQ_IN  = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
     SCLSSQ_OUT = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-    assert( SCLSSQ_OUT[0] >= 0. );
-    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
-        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
-        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
-    } else {
-        if ( SCLSSQ_OUT[0] > 0 ) {
-            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
-        }
-    }
+    CORE_zplssq(storev, M, N, SCLSSQ_IN, SCLSSQ_OUT);
 
     (void)cl_arg;
 }
@@ -51,40 +47,10 @@ static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
- *
- * with scl and ssq such that
- *
- *    ( scl**2 )*ssq = sum( A( 2*i )**2 * A( 2*i+1 ) )
- *                      i
- *
- * The values of A(2*i+1) are assumed to be at least unity.
- * The values of A(2*i) are assumed to be non-negative and scl is
- *
- *    scl = max( A( 2*i ) ),
- *           i
- *
- * The routine makes only one pass through the matrix A.
- *
- *******************************************************************************
- *
- *  @param[in] M
- *          The number of couple (scale, sumsq) in the matrix A.
- *
- *  @param[in] A
- *          The 2-by-M matrix.
- *
- *  @param[out] result
- *          On exit, result contains scl * sqrt( ssq )
- *
- */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *SCLSSQ_IN,  int SCLSSQ_INm,  int SCLSSQ_INn,
-                        const CHAM_desc_t *SCLSSQ_OUT, int SCLSSQ_OUTm, int SCLSSQ_OUTn )
+                         cham_store_t storev, int M, int N,
+                         const CHAM_desc_t *SCLSSQ_IN,  int SCLSSQ_INm,  int SCLSSQ_INn,
+                         const CHAM_desc_t *SCLSSQ_OUT, int SCLSSQ_OUTm, int SCLSSQ_OUTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
@@ -96,6 +62,9 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &storev,            sizeof(int),
+        STARPU_VALUE,    &M,                 sizeof(int),
+        STARPU_VALUE,    &N,                 sizeof(int),
         STARPU_R,  RTBLKADDR( SCLSSQ_IN,  double, SCLSSQ_INm,  SCLSSQ_INn  ),
         STARPU_RW, RTBLKADDR( SCLSSQ_OUT, double, SCLSSQ_OUTm, SCLSSQ_OUTn ),
         STARPU_PRIORITY,    options->priority,
@@ -109,11 +78,13 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
 {
+    int N;
     double *RESULT;
 
+    starpu_codelet_unpack_args(cl_arg, &N);
     RESULT = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
 
-    RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
+    CORE_zplssq2(N, RESULT);
 
     (void)cl_arg;
 }
@@ -124,7 +95,7 @@ static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zplssq2, 1, cl_zplssq2_cpu_func)
 
-void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq2;
@@ -136,6 +107,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
+        STARPU_VALUE,    &N,                 sizeof(int),
         STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,

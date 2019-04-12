@@ -26,58 +26,23 @@ static inline int
 CORE_zplssq_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
+    cham_store_t storev;
+    int M;
+    int N;
     double *SCLSSQ_IN;
     double *SCLSSQ_OUT;
 
     parsec_dtd_unpack_args(
-        this_task, &SCLSSQ_IN, &SCLSSQ_OUT );
+        this_task, &storev, &M, &N, &SCLSSQ_IN, &SCLSSQ_OUT );
 
-    assert( SCLSSQ_OUT[0] >= 0. );
-    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
-        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
-        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
-    } else {
-        if ( SCLSSQ_OUT[0] > 0 ) {
-            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
-        }
-    }
+    CORE_zplssq(storev, M, N, SCLSSQ_IN, SCLSSQ_OUT);
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
- *
- * with scl and ssq such that
- *
- *    ( scl**2 )*ssq = sum( A( 2*i )**2 * A( 2*i+1 ) )
- *                      i
- *
- * The values of A(2*i+1) are assumed to be at least unity.
- * The values of A(2*i) are assumed to be non-negative and scl is
- *
- *    scl = max( A( 2*i ) ),
- *           i
- *
- * The routine makes only one pass through the matrix A.
- *
- *******************************************************************************
- *
- *  @param[in] M
- *          The number of couple (scale, sumsq) in the matrix A.
- *
- *  @param[in] A
- *          The 2-by-M matrix.
- *
- *  @param[out] result
- *          On exit, result contains scl * sqrt( ssq )
- *
- */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                         cham_store_t storev, int M, int N,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
                          const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
@@ -85,6 +50,9 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zplssq_parsec, options->priority, "plssq",
+        sizeof(int),           &storev,                           VALUE,
+        sizeof(int),           &M,                                VALUE,
+        sizeof(int),           &N,                                VALUE,
         PASSED_BY_REF,         RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ),    INPUT,
         PASSED_BY_REF,         RTBLKADDR( SCLSSQ, double, SCLSSQm, SCLSSQn ),                INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
@@ -94,24 +62,26 @@ static inline int
 CORE_zplssq2_parsec( parsec_execution_stream_t *context,
                      parsec_task_t             *this_task )
 {
+    int N;
     double *RESULT;
 
     parsec_dtd_unpack_args(
-        this_task, &RESULT );
+        this_task, &N, &RESULT );
 
-    RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
+    CORE_zplssq2(N, RESULT);
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zplssq2_parsec, options->priority, "plssq2",
+        sizeof(int),           &N,                                VALUE,
         PASSED_BY_REF,         RTBLKADDR( RESULT, double, RESULTm, RESULTn ),     INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

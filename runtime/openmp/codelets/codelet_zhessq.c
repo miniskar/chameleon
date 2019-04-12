@@ -22,15 +22,13 @@
  */
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
 
 void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
-                        cham_uplo_t uplo, int n,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
-                        const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
+                         cham_store_t storev, cham_uplo_t uplo, int n,
+                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
-    CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-    double *ptrScaleSum = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-#pragma omp task firstprivate(uplo, n, ptrA, lda, ptrScaleSum) depend(in:ptrScaleSum[0]) depend(inout:ptrA[0])
-    CORE_zhessq( uplo, n, ptrA, lda, &ptrScaleSum[0], &ptrScaleSum[1] );
+    INSERT_TASK_zsyssq( options, storev, uplo, n,
+                        A, Am, An, lda,
+                        SCALESUMSQ, SCALESUMSQm, SCALESUMSQn );
 }

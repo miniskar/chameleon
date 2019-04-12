@@ -15,23 +15,98 @@
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
+ * @author Florent Pruvost
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
  */
 #include <math.h>
 #include "coreblas/lapacke.h"
+#include "coreblas/sumsq_update.h"
 #include "coreblas.h"
 
-#define UPDATE( __nb, __value )                                         \
-    if (__value != 0. ){                                                \
-        if ( *scale < __value ) {                                       \
-            *sumsq = __nb + (*sumsq) * ( *scale / __value ) * ( *scale / __value ); \
-            *scale = __value;                                           \
-        } else {                                                        \
-            *sumsq = *sumsq + __nb * ( __value / *scale ) *  ( __value / *scale ); \
-        }                                                               \
+/**
+ * @brief Subcase storev == ChamColumnwise of CORE_zgessq()
+ */
+static inline int
+CORE_zgessq_col( int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 double *sclssq )
+{
+    int i, j;
+    double tmp;
+    double *ptr, *tmpScale, *tmpSumsq;
+
+    for(j=0; j<N; j++) {
+        ptr = (double*) ( A + j * LDA );
+        tmpScale = sclssq+2*j;
+        tmpSumsq = sclssq+2*j+1;
+        for(i=0; i<M; i++, ptr++) {
+            tmp = fabs(*ptr);
+            sumsq_update( 1., tmpScale, tmpSumsq, &tmp );
+#if defined(PRECISION_z) || defined(PRECISION_c)
+            ptr++;
+            tmp = fabs(*ptr);
+            sumsq_update( 1., tmpScale, tmpSumsq, &tmp );
+#endif
+        }
     }
+    return CHAMELEON_SUCCESS;
+}
+/**
+ * @brief Subcase storev == ChamRowwise of CORE_zgessq()
+ */
+static inline int
+CORE_zgessq_row( int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 double *sclssq )
+{
+    int i, j;
+    double tmp;
+    double *ptr, *tmpScale, *tmpSumsq;
+
+    for(j=0; j<N; j++) {
+        ptr = (double*) ( A + j * LDA );
+        tmpScale = sclssq;
+        tmpSumsq = sclssq+1;
+        for(i=0; i<M; i++, ptr++, tmpScale+=2, tmpSumsq+=2) {
+            tmp = fabs(*ptr);
+            sumsq_update( 1., tmpScale, tmpSumsq, &tmp );
+#if defined(PRECISION_z) || defined(PRECISION_c)
+            ptr++;
+            tmp = fabs(*ptr);
+            sumsq_update( 1., tmpScale, tmpSumsq, &tmp );
+#endif
+        }
+    }
+    return CHAMELEON_SUCCESS;
+}
+/**
+ * @brief Subcase storev == ChamEltwise of CORE_zgessq()
+ */
+static inline int
+CORE_zgessq_elt( int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 double *sclssq )
+{
+    int i, j;
+    double tmp;
+    double *ptr;
+
+    for(j=0; j<N; j++) {
+        ptr = (double*) ( A + j * LDA );
+        for(i=0; i<M; i++, ptr++) {
+            tmp = fabs(*ptr);
+            sumsq_update( 1., sclssq, sclssq+1, &tmp );
+#if defined(PRECISION_z) || defined(PRECISION_c)
+            ptr++;
+            tmp = fabs(*ptr);
+            sumsq_update( 1., sclssq, sclssq+1, &tmp );
+#endif
+        }
+    }
+    return CHAMELEON_SUCCESS;
+}
 
 /**
  *
@@ -60,6 +135,12 @@
  *
  *******************************************************************************
  *
+ * @param[in] storev
+ *          Specifies whether the sums are made per column or row.
+ *          = ChamColumnwise: Computes the sum of squares on each column
+ *          = ChamRowwise:    Computes the sum of squares on each row
+ *          = ChamEltwise:    Computes the sum of squares on all the matrix
+ *
  *  @param[in] M
  *          The number of rows in the tile A.
  *
@@ -72,13 +153,16 @@
  *  @param[in] LDA
  *          The leading dimension of the tile A. LDA >= max(1,M).
  *
- *  @param[in,out] scale
- *          On entry, the value  scale  in the equation above.
- *          On exit, scale is overwritten with the value scl.
- *
- *  @param[in,out] sumsq
- *          On entry, the value  sumsq  in the equation above.
- *          On exit, SUMSQ is overwritten with the value ssq.
+ *  @param[in,out] sclssq
+ *          Dimension:  (2,K)
+ *          if storev == ChamColumnwise, K = N
+ *          if storev == ChamRowwise,    K = M
+ *          if storev == ChamEltwise,    K = 1
+ *          On entry, sclssq contains K couples (sclssq[2*i], sclssq[2*i+1])
+ *          which corresponds to (scale, sumsq) in the equation below
+ *          ( scl**2 )*ssq = sum( A( i, j )**2 ) + ( scale**2 )*sumsq,
+ *          respectively for the columns, the rows and the full matrix
+ *          On exit, each couple is overwritten with the final result (scl, ssq).
  *
  *******************************************************************************
  *
@@ -86,26 +170,18 @@
  * @retval -k, the k-th argument had an illegal value
  *
  */
-int CORE_zgessq(int M, int N,
-                const CHAMELEON_Complex64_t *A, int LDA,
-                double *scale, double *sumsq)
+int CORE_zgessq( cham_store_t storev, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 double *sclssq )
 {
-    int i, j;
-    double tmp;
-    double *ptr;
-
-    for(j=0; j<N; j++) {
-        ptr = (double*) ( A + j * LDA );
-        for(i=0; i<M; i++, ptr++) {
-            tmp = fabs(*ptr);
-            UPDATE( 1., tmp );
-
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            ptr++;
-            tmp = fabs(*ptr);
-            UPDATE( 1., tmp );
-#endif
-        }
+    if (storev == ChamColumnwise) {
+        CORE_zgessq_col( M, N, A, LDA, sclssq );
+    }
+    else if (storev == ChamRowwise) {
+        CORE_zgessq_row( M, N, A, LDA, sclssq );
+    }
+    else {
+        CORE_zgessq_elt( M, N, A, LDA, sclssq );
     }
     return CHAMELEON_SUCCESS;
 }

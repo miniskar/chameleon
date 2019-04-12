@@ -151,6 +151,7 @@ typedef enum chameleon_dir_e {
 typedef enum chameleon_store_e {
     ChamColumnwise = 401, /**< Column wise storage  */
     ChamRowwise    = 402, /**< Row wise storage     */
+    ChamEltwise    = 403, /**< Element by element storage */
 } cham_store_t;
 
 

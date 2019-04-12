@@ -26,20 +26,15 @@
 
 void CORE_zplssq_quark(Quark *quark)
 {
+    cham_store_t storev;
+    int M;
+    int N;
     double *SCLSSQ_IN;
     double *SCLSSQ_OUT;
 
-    quark_unpack_args_2( quark, SCLSSQ_IN, SCLSSQ_OUT );
+    quark_unpack_args_5( quark, storev, M, N, SCLSSQ_IN, SCLSSQ_OUT );
 
-    assert( SCLSSQ_OUT[0] >= 0. );
-    if( SCLSSQ_OUT[0] < SCLSSQ_IN[0] ) {
-        SCLSSQ_OUT[1] = SCLSSQ_IN[1]  + (SCLSSQ_OUT[1] * (( SCLSSQ_OUT[0] / SCLSSQ_IN[0] ) * ( SCLSSQ_OUT[0] / SCLSSQ_IN[0] )));
-        SCLSSQ_OUT[0] = SCLSSQ_IN[0];
-    } else {
-        if ( SCLSSQ_OUT[0] > 0 ) {
-            SCLSSQ_OUT[1] = SCLSSQ_OUT[1] + (SCLSSQ_IN[1]  * (( SCLSSQ_IN[0] / SCLSSQ_OUT[0] ) * ( SCLSSQ_IN[0] / SCLSSQ_OUT[0] )));
-        }
-    }
+    CORE_zplssq(storev, M, N, SCLSSQ_IN, SCLSSQ_OUT);
 }
 
 /**
@@ -74,30 +69,48 @@ void CORE_zplssq_quark(Quark *quark)
  *
  */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                         cham_store_t storev, int M, int N,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
                          const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
+    int sizein = M*N;
+    int sizeout;
+
+    if ( storev == ChamColumnwise ) {
+        sizeout = 2*N;
+    } else if ( storev == ChamRowwise ) {
+        sizeout = 2*M;
+    } else {
+        sizeout = 2;
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq_quark, (Quark_Task_Flags*)opt,
-        sizeof(double)*2, RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INPUT,
-        sizeof(double)*2, RTBLKADDR(SCLSSQ,     double, SCLSSQm,     SCLSSQn),     INOUT,
+        sizeof(int),            &storev,    VALUE,
+        sizeof(int),            &M,         VALUE,
+        sizeof(int),            &N,         VALUE,
+        sizeof(double)*sizein,  RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INPUT,
+        sizeof(double)*sizeout, RTBLKADDR(SCLSSQ,     double, SCLSSQm,     SCLSSQn),     INOUT,
         0);
 }
 
 
 void CORE_zplssq2_quark(Quark *quark)
 {
+    int N;
     double *RESULT;
 
-    quark_unpack_args_1( quark, RESULT );
-    RESULT[0] = RESULT[0] * sqrt( RESULT[1] );
+    quark_unpack_args_2( quark, N, RESULT );
+
+    CORE_zplssq2(N, RESULT);
 }
 
-void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zplssq2_quark, (Quark_Task_Flags*)opt,
-        sizeof(double)*2, RTBLKADDR(RESULT, double, RESULTm, RESULTn), INOUT,
+        sizeof(int),        &N,         VALUE,
+        sizeof(double)*2*N, RTBLKADDR(RESULT, double, RESULTm, RESULTn), INOUT,
         0);
 }

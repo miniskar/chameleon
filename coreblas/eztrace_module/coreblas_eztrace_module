@@ -32,9 +32,9 @@ int  CORE_cgessm(int M, int N, int K, int IB,
                  const int *IPIV,
                  void *L, int LDL,
                  void *A, int LDA);
-int  CORE_cgessq(int M, int N,
+int  CORE_cgessq(cham_store_t storev, int M, int N,
                  void *A, int LDA,
-                 float *scale, float *sumsq);
+                 float *sclssq);
 int CORE_cgetf2_nopiv(int M, int N,
                   void *A, int LDA);
 int  CORE_cgetrf(int M, int N,
@@ -70,9 +70,9 @@ void CORE_cher2k(int uplo, int trans,
                  void *alpha, void *A, int LDA,
                                            void *B, int LDB,
                  float beta,                    void *C, int LDC);
-int  CORE_chessq(int uplo, int N,
+int  CORE_chessq(cham_store_t storev, int uplo, int N,
                  void *A, int LDA,
-                 float *scale, float *sumsq);
+                 float *sclssq);
 
 int  CORE_cherfb(int uplo, int N, int K, int IB, int NB,
                  void *A,    int LDA,
@@ -190,9 +190,9 @@ void CORE_csyr2k(int uplo, int trans,
                  void *alpha, void *A, int LDA,
                                            void *B, int LDB,
                  void *beta,        void *C, int LDC);
-int  CORE_csyssq(int uplo, int N,
+int  CORE_csyssq(cham_store_t storev, int uplo, int N,
                  void *A, int LDA,
-                 float *scale, float *sumsq);
+                 float *sclssq);
 int CORE_csytf2_nopiv(int uplo, int n, void *A, int lda);
 void CORE_ctrmm(int side, int uplo,
                 int transA, int diag,
@@ -334,9 +334,9 @@ int  CORE_dgessm(int M, int N, int K, int IB,
                  const int *IPIV,
                  const double *L, int LDL,
                  double *A, int LDA);
-int  CORE_dgessq(int M, int N,
+int  CORE_dgessq(cham_store_t storev, int M, int N,
                  const double *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int CORE_dgetf2_nopiv(int M, int N,
                   double *A, int LDA);
 int  CORE_dgetrf(int M, int N,
@@ -372,9 +372,9 @@ void CORE_dsyr2k(int uplo, int trans,
                  double alpha, const double *A, int LDA,
                                            const double *B, int LDB,
                  double beta,                    double *C, int LDC);
-int  CORE_dsyssq(int uplo, int N,
+int  CORE_dsyssq(cham_store_t storev, int uplo, int N,
                  const double *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 
 int  CORE_dsyrfb(int uplo, int N, int K, int IB, int NB,
                  const double *A,    int LDA,
@@ -621,9 +621,9 @@ int  CORE_sgessm(int M, int N, int K, int IB,
                  const int *IPIV,
                  const float *L, int LDL,
                  float *A, int LDA);
-int  CORE_sgessq(int M, int N,
+int  CORE_sgessq(cham_store_t storev, int M, int N,
                  const float *A, int LDA,
-                 float *scale, float *sumsq);
+                 float *sclssq);
 int CORE_sgetf2_nopiv(int M, int N,
                   float *A, int LDA);
 int  CORE_sgetrf(int M, int N,
@@ -659,9 +659,9 @@ void CORE_ssyr2k(int uplo, int trans,
                  float alpha, const float *A, int LDA,
                                            const float *B, int LDB,
                  float beta,                    float *C, int LDC);
-int  CORE_ssyssq(int uplo, int N,
+int  CORE_ssyssq(cham_store_t storev, int uplo, int N,
                  const float *A, int LDA,
-                 float *scale, float *sumsq);
+                 float *sclssq);
 
 int  CORE_ssyrfb(int uplo, int N, int K, int IB, int NB,
                  const float *A,    int LDA,
@@ -901,9 +901,9 @@ int  CORE_zgessm(int M, int N, int K, int IB,
                  const int *IPIV,
                  void *L, int LDL,
                  void *A, int LDA);
-int  CORE_zgessq(int M, int N,
+int  CORE_zgessq(cham_store_t storev, int M, int N,
                  void *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int CORE_zgetf2_nopiv(int M, int N,
                   void *A, int LDA);
 int  CORE_zgetrf(int M, int N,
@@ -939,9 +939,9 @@ void CORE_zher2k(int uplo, int trans,
                  void *alpha, void *A, int LDA,
                                            void *B, int LDB,
                  double beta,                    void *C, int LDC);
-int  CORE_zhessq(int uplo, int N,
+int  CORE_zhessq(cham_store_t storev, int uplo, int N,
                  void *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 
 int  CORE_zherfb(int uplo, int N, int K, int IB, int NB,
                  void *A,    int LDA,
@@ -1028,6 +1028,9 @@ void CORE_zplgsy(void *bump, int m, int n, void *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
 void CORE_zplrnt(int m, int n, void *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
+int CORE_zplssq( cham_store_t storev, int M, int N,
+                 double *sclssqin, double *sclssqout );
+int CORE_zplssq2( int N, double *sclssq );
 void CORE_zpotrf(int uplo, int N, void *A, int LDA, int *INFO);
 void CORE_zshift(int s, int m, int n, int L,
                  void *A);
@@ -1053,9 +1056,9 @@ void CORE_zsyr2k(int uplo, int trans,
                  void *alpha, void *A, int LDA,
                                            void *B, int LDB,
                  void *beta,        void *C, int LDC);
-int  CORE_zsyssq(int uplo, int N,
+int  CORE_zsyssq(cham_store_t storev, int uplo, int N,
                  void *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int CORE_zsytf2_nopiv(int uplo, int n, void *A, int lda);
 void CORE_ztrmm(int side, int uplo,
                 int transA, int diag,

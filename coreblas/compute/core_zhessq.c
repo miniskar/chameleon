@@ -19,19 +19,7 @@
  * @precisions normal z -> c
  *
  */
-#include <math.h>
-#include "coreblas/lapacke.h"
 #include "coreblas.h"
-
-#define UPDATE( __nb, __value )                                         \
-    if (__value != 0. ){                                                \
-        if ( *scale < __value ) {                                       \
-            *sumsq = __nb + (*sumsq) * ( *scale / __value ) * ( *scale / __value ); \
-            *scale = __value;                                           \
-        } else {                                                        \
-            *sumsq = *sumsq + __nb * ( __value / *scale ) *  ( __value / *scale ); \
-        }                                                               \
-    }
 
 /**
  *
@@ -56,18 +44,24 @@
  * SCALE and SUMSQ are overwritten by scl and ssq respectively.
  *
  * The routine makes only one pass through the tile triangular part of the
- * hermitian tile A defined by uplo.
+ * symmetric tile A defined by uplo.
  * See also LAPACK zlassq.f
  *
  *******************************************************************************
  *
+ * @param[in] storev
+ *          Specifies whether the sums are made per column or row.
+ *          = ChamColumnwise: Computes the sum of squares on each column
+ *          = ChamRowwise:    Computes the sum of squares on each row
+ *          = ChamEltwise:    Computes the sum of squares on all the matrix
+ *
  *  @param[in] uplo
  *          Specifies whether the upper or lower triangular part of
- *          the hermitian matrix A is to be referenced as follows:
+ *          the symmetric matrix A is to be referenced as follows:
  *          = ChamLower:     Only the lower triangular part of the
- *                             hermitian matrix A is to be referenced.
+ *                             symmetric matrix A is to be referenced.
  *          = ChamUpper:     Only the upper triangular part of the
- *                             hermitian matrix A is to be referenced.
+ *                             symmetric matrix A is to be referenced.
  *
  *  @param[in] N
  *          The number of columns and rows in the tile A.
@@ -78,13 +72,16 @@
  *  @param[in] LDA
  *          The leading dimension of the tile A. LDA >= max(1,N).
  *
- *  @param[in,out] scale
- *          On entry, the value  scale  in the equation above.
- *          On exit, scale is overwritten with the value scl.
- *
- *  @param[in,out] sumsq
- *          On entry, the value  sumsq  in the equation above.
- *          On exit, SUMSQ is overwritten with the value ssq.
+ *  @param[in,out] sclssq
+ *          Dimension:  (2,K)
+ *          if storev == ChamColumnwise, K = N
+ *          if storev == ChamRowwise,    K = N
+ *          if storev == ChamEltwise,    K = 1
+ *          On entry, sclssq contains K couples (sclssq[2*i], sclssq[2*i+1])
+ *          which corresponds to (scale, sumsq) in the equation below
+ *          ( scl**2 )*ssq = sum( A( i, j )**2 ) + ( scale**2 )*sumsq,
+ *          respectively for the columns, the rows and the full matrix
+ *          On exit, each couple is overwritten with the final result (scl, ssq).
  *
  *******************************************************************************
  *
@@ -92,65 +89,9 @@
  * @retval -k, the k-th argument had an illegal value
  *
  */
-
-int CORE_zhessq(cham_uplo_t uplo, int N,
-                const CHAMELEON_Complex64_t *A, int LDA,
-                double *scale, double *sumsq)
+int CORE_zhessq( cham_store_t storev, cham_uplo_t uplo, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 double *sclssq )
 {
-    int i, j;
-    double tmp;
-    double *ptr;
-
-    if ( uplo == ChamUpper ) {
-        for(j=0; j<N; j++) {
-            ptr = (double*) ( A + j * LDA );
-
-            for(i=0; i<j; i++, ptr++) {
-
-                tmp = fabs(*ptr);
-                UPDATE( 2., tmp );
-
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                ptr++;
-                tmp = fabs(*ptr);
-                UPDATE( 2., tmp );
-#endif
-            }
-
-            /* Diagonal */
-            tmp = fabs(*ptr);
-            UPDATE( 1., tmp );
-
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            ptr++;
-#endif
-        }
-    } else {
-
-        for(j=0; j<N; j++) {
-            ptr = (double*) ( A + j * LDA + j);
-
-            /* Diagonal */
-            tmp = fabs(*ptr);
-            UPDATE( 1., tmp );
-            ptr++;
-
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            ptr++;
-#endif
-
-            for(i=j+1; i<N; i++, ptr++) {
-
-                tmp = fabs(*ptr);
-                UPDATE( 2., tmp );
-
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                ptr++;
-                tmp = fabs(*ptr);
-                UPDATE( 2., tmp );
-#endif
-            }
-        }
-    }
-    return CHAMELEON_SUCCESS;
+    return CORE_zsyssq( storev, uplo, N, A, LDA, sclssq );
 }

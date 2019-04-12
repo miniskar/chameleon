@@ -64,9 +64,9 @@ int  CORE_zgessm(int M, int N, int K, int IB,
                  const int *IPIV,
                  const CHAMELEON_Complex64_t *L, int LDL,
                  CHAMELEON_Complex64_t *A, int LDA);
-int  CORE_zgessq(int M, int N,
+int  CORE_zgessq(cham_store_t storev, int M, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int CORE_zgetf2_nopiv(int M, int N,
                   CHAMELEON_Complex64_t *A, int LDA);
 int  CORE_zgetrf(int M, int N,
@@ -104,9 +104,9 @@ void CORE_zher2k(cham_uplo_t uplo, cham_trans_t trans,
                  CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
                                            const CHAMELEON_Complex64_t *B, int LDB,
                  double beta,                    CHAMELEON_Complex64_t *C, int LDC);
-int  CORE_zhessq(cham_uplo_t uplo, int N,
+int  CORE_zhessq(cham_store_t storev, cham_uplo_t uplo, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int  CORE_zherfb(cham_uplo_t uplo, int N, int K, int IB, int NB,
                  const CHAMELEON_Complex64_t *A,    int LDA,
                  const CHAMELEON_Complex64_t *T,    int LDT,
@@ -196,6 +196,9 @@ void CORE_zplgsy(CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_t
                  int bigM, int m0, int n0, unsigned long long int seed );
 void CORE_zplrnt(int m, int n, CHAMELEON_Complex64_t *A, int lda,
                  int bigM, int m0, int n0, unsigned long long int seed );
+int CORE_zplssq( cham_store_t storev, int M, int N,
+                 double *sclssqin, double *sclssqout );
+int CORE_zplssq2( int N, double *sclssq );
 void CORE_zpotrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, int *INFO);
 void CORE_zshift(int s, int m, int n, int L,
                  CHAMELEON_Complex64_t *A);
@@ -221,9 +224,9 @@ void CORE_zsyr2k(cham_uplo_t uplo, cham_trans_t trans,
                  CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
                                            const CHAMELEON_Complex64_t *B, int LDB,
                  CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
-int  CORE_zsyssq(cham_uplo_t uplo, int N,
+int  CORE_zsyssq(cham_store_t storev, cham_uplo_t uplo, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
-                 double *scale, double *sumsq);
+                 double *sclssq);
 int CORE_zsytf2_nopiv(cham_uplo_t uplo, int n, CHAMELEON_Complex64_t *A, int lda);
 int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
                       CHAMELEON_Complex64_t alpha,

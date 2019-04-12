@@ -25,6 +25,7 @@ static inline int
 CORE_zgessq_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
+    cham_store_t storev;
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
@@ -32,16 +33,16 @@ CORE_zgessq_parsec( parsec_execution_stream_t *context,
     double *SCALESUMSQ;
 
     parsec_dtd_unpack_args(
-        this_task, &m, &n, &A, &lda, &SCALESUMSQ );
+        this_task, &storev, &m, &n, &A, &lda, &SCALESUMSQ );
 
-    CORE_zgessq( m, n, A, lda, SCALESUMSQ, SCALESUMSQ+1 );
+    CORE_zgessq( storev, m, n, A, lda, SCALESUMSQ );
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
-                        int m, int n,
+                        cham_store_t storev, int m, int n,
                         const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
@@ -49,10 +50,11 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgessq_parsec, options->priority, "gessq",
-        sizeof(int),    &m,            VALUE,
-        sizeof(int),    &n,            VALUE,
+        sizeof(cham_store_t), &storev,       VALUE,
+        sizeof(int),          &m,            VALUE,
+        sizeof(int),          &n,            VALUE,
         PASSED_BY_REF,   RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),    &lda,          VALUE,
+        sizeof(int),          &lda,          VALUE,
         PASSED_BY_REF,   RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ), INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

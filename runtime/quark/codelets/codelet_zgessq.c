@@ -25,27 +25,29 @@
 
 void CORE_zgessq_quark(Quark *quark)
 {
+    cham_store_t storev;
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
     int lda;
     double *SCALESUMSQ;
 
-    quark_unpack_args_5( quark, m, n, A, lda, SCALESUMSQ );
-    CORE_zgessq( m, n, A, lda, &SCALESUMSQ[0], &SCALESUMSQ[1]);
+    quark_unpack_args_6( quark, storev, m, n, A, lda, SCALESUMSQ );
+    CORE_zgessq( storev, m, n, A, lda, SCALESUMSQ );
 }
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
-                        int m, int n,
+                        cham_store_t storev, int m, int n,
                         const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     QUARK_Insert_Task(opt->quark, CORE_zgessq_quark, (Quark_Task_Flags*)opt,
-                      sizeof(int),                     &m,    VALUE,
-                      sizeof(int),                     &n,    VALUE,
+                      sizeof(cham_store_t),            &storev, VALUE,
+                      sizeof(int),                     &m,      VALUE,
+                      sizeof(int),                     &n,      VALUE,
                       sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
-                      sizeof(int),                     &lda,  VALUE,
+                      sizeof(int),                     &lda,    VALUE,
                       sizeof(double)*2,                RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
                       0);
 }
