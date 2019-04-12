@@ -1,5 +1,6 @@
 * To contribute to the project, you need to do it through merge request
-** Create a fork
+** Regular / Inria contributors
+*** Create a fork
    First you need to fork the repository into your own account. You can
    do that simply by clicking the fork button on the gitlab interface.
 
@@ -23,7 +24,7 @@
    git push -u origin master
    #+end_src
 
-** Create a "Feature" branch in your fork
+*** Create a "Feature" branch in your fork
 
    To add a new feature, fix a bug, and so on, you need to create a
    new branch from the last state of the master branch
@@ -38,7 +39,7 @@
    git push origin your_branch_name
    #+end_src
 
-** Merge request
+*** Merge request
    Once your branch is online, on the gitlab interface, go to the
    branches webpage, select the branch you want to push as a merge
    request, and push the button !!!
@@ -52,7 +53,7 @@
    please add "fix issue #xx" in the comment of the pull request to
    automatically close the issue when the PR is merged.
 
-** Rebase on top of 'master'
+*** Rebase on top of 'master'
    In some cases your "feature" branch you want to merge into "master"
    has a long life span so that your branch and the master branch
    could make some conflicts. To avoid having to handle the possible
@@ -71,6 +72,21 @@
    #+end_src
 
    Then push the button *merge request*.
+
+** Occasional / external contributors
+*** Create a gitlab account
+Whereas [[https://gitlab.inria.fr/solverstack/chameleon][Chameleon]] is a public project and does not require an authentication
+to access it, a gitlab account is necessary to contribute. If you do not
+already have one, this is the first step to do. Note that Inria members can
+login directly with their Inria login in the *iLDAP* tab of the [[https://gitlab.inria.fr/users/sign_in][sign_in]] page.
+External users need to first [[https://gitlab-account.inria.fr/][register]] and can then login in the *Standard*
+tab of the [[https://gitlab.inria.fr/users/sign_in][sign_in]] page.
+*** Post an issue
+Create a new issue (see [[https://gitlab.inria.fr/solverstack/chameleon/issues][issues]]) presenting your contribution proposal (feature,
+fix, ...). The Chameleon team will set up a contribution branch for you. You can
+attach a patch to the issue, which we will use in this case to initiate the
+branch. In any case, we will then provide you with further instructions to work
+on the branch and eventually perform your merge request.
 
 * Configure a runner to test your branch
   To be effectively merged, your branch must be tested through the
