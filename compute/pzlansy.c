@@ -241,21 +241,21 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
             if ( n == m ) {
                 if ( trans == ChamConjTrans) {
                     INSERT_TASK_zhessq(
-                        options, uplo, tempmm,
+                        options, ChamEltwise, uplo, tempmm,
                         A(m, n), ldam, W( Welt, m, n) );
                 }
                 else {
                     INSERT_TASK_zsyssq(
-                        options, uplo, tempmm,
+                        options, ChamEltwise, uplo, tempmm,
                         A(m, n), ldam, W( Welt, m, n) );
                 }
             }
             else {
                 INSERT_TASK_zgessq(
-                    options, tempmm, tempnn,
+                    options, ChamEltwise, tempmm, tempnn,
                     A(m, n), ldam, W( Welt, m, n) );
                 INSERT_TASK_zgessq(
-                    options, tempmm, tempnn,
+                    options, ChamEltwise, tempmm, tempnn,
                     A(m, n), ldam, W( Welt, n, m) );
             }
         }
@@ -264,7 +264,7 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
     for(m = 0; m < MT; m++) {
         for(n = Q; n < NT; n++) {
             INSERT_TASK_dplssq(
-                options, W( Welt, m, n), W( Welt, m, n%Q) );
+                options, ChamEltwise, 1, 1, W( Welt, m, n), W( Welt, m, n%Q) );
         }
 
         /**
@@ -273,7 +273,7 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
          */
         for(n = 1; n < Q; n++) {
             INSERT_TASK_dplssq(
-                options, W( Welt, m, n), W( Welt, m, 0) );
+                options, ChamEltwise, 1, 1, W( Welt, m, n), W( Welt, m, 0) );
         }
     }
 
@@ -283,7 +283,7 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
      */
     for(m = P; m < MT; m++) {
         INSERT_TASK_dplssq(
-            options, W( Welt, m, 0), W( Welt, m%P, 0) );
+            options, ChamEltwise, 1, 1, W( Welt, m, 0), W( Welt, m%P, 0) );
     }
 
     /**
@@ -292,11 +292,11 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
      */
     for(m = 1; m < P; m++) {
         INSERT_TASK_dplssq(
-            options, W( Welt, m, 0), W( Welt, 0, 0) );
+            options, ChamEltwise, 1, 1, W( Welt, m, 0), W( Welt, 0, 0) );
     }
 
     INSERT_TASK_dplssq2(
-        options, W( Welt, 0, 0) );
+        options, 1, W( Welt, 0, 0) );
 }
 
 /**

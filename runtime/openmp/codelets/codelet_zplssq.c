@@ -25,61 +25,22 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup CORE_CHAMELEON_Complex64_t
- *
- * @brief Compute sum( a_ij ^ 2 ) = scl * sqrt(ssq)
- *
- * with scl and ssq such that
- *
- *    ( scl**2 )*ssq = sum( A( 2*i )**2 * A( 2*i+1 ) )
- *                      i
- *
- * The values of A(2*i+1) are assumed to be at least unity.
- * The values of A(2*i) are assumed to be non-negative and scl is
- *
- *    scl = max( A( 2*i ) ),
- *           i
- *
- * The routine makes only one pass through the matrix A.
- *
- *******************************************************************************
- *
- *  @param[in] M
- *          The number of couple (scale, sumsq) in the matrix A.
- *
- *  @param[in] A
- *          The 2-by-M matrix.
- *
- *  @param[out] result
- *          On exit, result contains scl * sqrt( ssq )
- *
- */
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
+                         cham_store_t storev, int M, int N,
                          const CHAM_desc_t *IN,  int INm,  int INn,
                          const CHAM_desc_t *OUT, int OUTm, int OUTn )
 {
     double *sclssq_in  = RTBLKADDR(IN,  double, INm,  INn );
     double *sclssq_out = RTBLKADDR(OUT, double, OUTm, OUTn);
-#pragma omp task depend(in: sclssq_in[0]) depend(inout: sclssq_out[0])
-    {
-        if( sclssq_out[0] < sclssq_in[0] ) {
-            sclssq_out[1] = sclssq_in[1]  + (sclssq_out[1] * (( sclssq_out[0] / sclssq_in[0] ) * ( sclssq_out[0] / sclssq_in[0] )));
-            sclssq_out[0] = sclssq_in[0];
-        } else {
-            sclssq_out[1] = sclssq_out[1] + (sclssq_in[1]  * (( sclssq_in[0] / sclssq_out[0] ) * ( sclssq_in[0] / sclssq_out[0] )));
-        }
-    }
+#pragma omp task firstprivate(storev, M, N) depend(in: sclssq_in[0]) depend(inout: sclssq_out[0])
+    CORE_zplssq(storev, M, N, sclssq_in, sclssq_out);
 }
 
-void INSERT_TASK_zplssq2( const RUNTIME_option_t *options,
+void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
-    CHAMELEON_Complex64_t *res = RTBLKADDR(RESULT, CHAMELEON_Complex64_t, RESULTm, RESULTn);
+    CHAMELEON_Complex64_t *res = RTBLKADDR(RESULT, double, RESULTm, RESULTn);
 
-#pragma omp task depend(inout: res[0])
-    {
-        res[0] = res[0] * sqrt( res[1] );
-    }
+#pragma omp task firstprivate(N) depend(inout: res[0])
+    CORE_zplssq2(N, res);
 }

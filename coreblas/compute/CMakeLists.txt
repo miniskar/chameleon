@@ -66,6 +66,7 @@ set(ZSRC
     core_zplghe.c
     core_zplgsy.c
     core_zplrnt.c
+    core_zplssq.c
     core_zpotrf.c
     core_zssssm.c
     core_zsymm.c

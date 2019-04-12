@@ -25,12 +25,12 @@
 #include "coreblas/coreblas_z.h"
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
-                        int m, int n,
+                        cham_store_t storev, int m, int n,
                         const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
     double *ptrScaleSum = RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn);
-#pragma omp task firstprivate(m, n, ptrA, lda, ptrScaleSum) depend(in:ptrA[0]) depend(inout:ptrScaleSum[0])
-    CORE_zgessq( m, n, ptrA, lda, &ptrScaleSum[0], &ptrScaleSum[1] );
+#pragma omp task firstprivate(storev, m, n, ptrA, lda, ptrScaleSum) depend(in:ptrA[0]) depend(inout:ptrScaleSum[0])
+    CORE_zgessq( storev, m, n, ptrA, lda, ptrScaleSum );
 }
