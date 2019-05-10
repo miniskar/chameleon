@@ -41,7 +41,7 @@ CORE_zplssq_col( int M, int N,
 
     for(j=0; j<N; j++) {
         for(i=0; i<M; i++) {
-            sumsq_update_2( 1., tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
+            sumsq_update_2( tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
             tmpScaleIn+=2;
             tmpSumsqIn+=2;
         }
@@ -68,7 +68,7 @@ CORE_zplssq_row( int M, int N,
         tmpScaleOut = sclssqout;
         tmpSumsqOut = sclssqout+1;
         for(i=0; i<M; i++) {
-            sumsq_update_2( 1., tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
+            sumsq_update_2( tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
             tmpScaleIn+=2;
             tmpSumsqIn+=2;
             tmpScaleOut+=2;
@@ -95,7 +95,7 @@ CORE_zplssq_elt( int M, int N,
 
     for(j=0; j<N; j++) {
         for(i=0; i<M; i++) {
-            sumsq_update_2( 1., tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
+            sumsq_update_2( tmpScaleIn, tmpSumsqIn, tmpScaleOut, tmpSumsqOut );
             tmpScaleIn+=2;
             tmpSumsqIn+=2;
         }
@@ -147,6 +147,24 @@ int CORE_zplssq( cham_store_t storev, int M, int N,
                  double *sclssqin,
                  double *sclssqout )
 {
+    int i;
+    int K;
+
+    /* initialize pairs scale, sumsquare if not already done */
+    if ( storev == ChamColumnwise ) {
+        K = N;
+    } else if ( storev == ChamRowwise ) {
+        K = M;
+    } else {
+        K = 1;
+    }
+    for (i=0; i<2*K; i+=2) {
+        if ( ( sclssqout[i] == -1. ) && ( sclssqout[i+1] == -1. ) ) {
+            sclssqout[i] = 1.;
+            sclssqout[i+1] = 0.;
+        }
+    }
+
     if (storev == ChamColumnwise) {
         CORE_zplssq_col( M, N, sclssqin, sclssqout );
     }
@@ -173,7 +191,7 @@ int CORE_zplssq( cham_store_t storev, int M, int N,
  *  @param[in,out] sclssq
  *          The 2*N matrix on which to compute scl*sqrt(ssq)
  *          On entry contains all couple (scl,ssq) in (sclssq[i],sclssq[i+1])
- *          On exist returns sclssq[i]=sclssq[i]*sqrt(sclssq[i+1])
+ *          On exist returns scl*sqrt(ssq) stored in sclssq[2*i], i = 0, ..., N-1
  *          so that the result is stored in the first line.
  *
  *******************************************************************************
@@ -186,8 +204,8 @@ int CORE_zplssq2( int N,
                   double *sclssq )
 {
     int i;
-    for (i=0; i<N; i+=2) {
-        sclssq[i] *= sqrt ( sclssq[i+1] );
+    for (i=0; i<2*N; i+=2) {
+        sclssq[i] = sclssq[i]*sqrt(sclssq[i+1]);
     }
     return CHAMELEON_SUCCESS;
 }

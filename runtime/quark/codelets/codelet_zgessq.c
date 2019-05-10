@@ -41,13 +41,24 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
                         const CHAM_desc_t *A, int Am, int An, int lda,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
+    int sizessq;
+
+    if ( storev == ChamColumnwise ) {
+        sizessq = 2*n;
+    } else if ( storev == ChamRowwise ) {
+        sizessq = 2*m;
+    } else {
+        sizessq = 2;
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    DAG_CORE_GESSQ;
     QUARK_Insert_Task(opt->quark, CORE_zgessq_quark, (Quark_Task_Flags*)opt,
                       sizeof(cham_store_t),            &storev, VALUE,
                       sizeof(int),                     &m,      VALUE,
                       sizeof(int),                     &n,      VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+                      sizeof(CHAMELEON_Complex64_t)*m*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
                       sizeof(int),                     &lda,    VALUE,
-                      sizeof(double)*2,                RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
+                      sizeof(double)*sizessq,          RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
                       0);
 }

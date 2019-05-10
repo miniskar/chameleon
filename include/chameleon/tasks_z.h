@@ -418,4 +418,15 @@ INSERT_TASK_zttmqr( const RUNTIME_option_t *options,
                                 A1, A1m, A1n, lda1, A2, A2m, A2n, lda2 );
 }
 
+/**
+ * Gram prototype
+ */
+void INSERT_TASK_zgram( const RUNTIME_option_t *options,
+                        cham_uplo_t uplo,
+                        int m, int n, int mt, int nt,
+                        const CHAM_desc_t *Di, int Dim, int Din, int lddi,
+                        const CHAM_desc_t *Dj, int Djm, int Djn, int lddj,
+                        const CHAM_desc_t *D, int Dm, int Dn,
+                        CHAM_desc_t *A, int Am, int An, int lda);
+
 #endif /* _chameleon_tasks_z_h_ */

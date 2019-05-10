@@ -79,7 +79,7 @@ sumsq_update( int nb, float *scale, float *sumsq, const float *value )
  *******************************************************************************
  *
  * @brief Update the couple (scale, sumsq) by adding another couple when
- * computing the Froebnius norm.
+ * computing the Froebenius norm.
  *
  * The frobenius norm is equal to scale * sqrt( sumsq ), this method allows to
  * avoid overflow in the sum square computation.
@@ -100,7 +100,7 @@ sumsq_update( int nb, float *scale, float *sumsq, const float *value )
  *******************************************************************************/
 static inline void
 #if defined(PRECISION_d) || defined(PRECISION_z)
-sumsq_update_2( int nb, const double *scalein, const double *sumsqin, double *scaleout, double *sumsqout )
+sumsq_update_2( const double *scalein, const double *sumsqin, double *scaleout, double *sumsqout )
 {
     if (*scaleout >= 0.) {
         if ( (*scaleout) < (*scalein) ) {
@@ -114,7 +114,7 @@ sumsq_update_2( int nb, const double *scalein, const double *sumsqin, double *sc
     }
 }
 #elif defined(PRECISION_s) || defined(PRECISION_c)
-sumsq_update_2( int nb, const float *scalein, const float *sumsqin, float *scaleout, float *sumsqout )
+sumsq_update_2( const float *scalein, const float *sumsqin, float *scaleout, float *sumsqout )
 {
     if (*scaleout >= 0.) {
         if ( (*scaleout) < (*scalein) ) {

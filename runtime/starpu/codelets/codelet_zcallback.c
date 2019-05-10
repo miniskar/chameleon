@@ -22,7 +22,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-CHAMELEON_CL_CB(dzasum,         starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
+CHAMELEON_CL_CB(dzasum,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zaxpy,         starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[1]), 0,                                      M)
 CHAMELEON_CL_CB(zgeadd,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zlascal,       starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                      M*N)
@@ -34,6 +34,7 @@ CHAMELEON_CL_CB(zgessq,        starpu_matrix_get_nx(task->handles[0]), starpu_ma
 CHAMELEON_CL_CB(zgetrf,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), (2./3.)*M*N*K)
 CHAMELEON_CL_CB(zgetrf_incpiv, starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), (2./3.)*M*N*K)
 CHAMELEON_CL_CB(zgetrf_nopiv,  starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_nx(task->handles[0]), (2./3.)*M*N*K)
+CHAMELEON_CL_CB(zgram,         starpu_matrix_get_nx(task->handles[3]), starpu_matrix_get_ny(task->handles[3]), 0,                                                M*N)
 CHAMELEON_CL_CB(zhe2ge,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                       (1./2.0)*M*N)
 CHAMELEON_CL_CB(zherfb,        starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0,                                         2. *M* M*M)
 #if defined(PRECISION_z) || defined(PRECISION_c)

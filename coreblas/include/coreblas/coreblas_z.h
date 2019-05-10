@@ -360,4 +360,13 @@ int  CORE_zunmqr(cham_side_t side, cham_trans_t trans,
                  CHAMELEON_Complex64_t *C, int LDC,
                  CHAMELEON_Complex64_t *WORK, int LDWORK);
 
+/**
+ * Gram prototypes
+ */
+int CORE_zgram( cham_uplo_t uplo, int M, int N, int Mt, int Nt,
+                const double *Di, int LDDI,
+                const double *Dj, int LDDJ,
+                const double *D,
+                double *A, int LDA );
+
 #endif /* _coreblas_z_h_ */

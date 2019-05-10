@@ -73,7 +73,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn,
                          const CHAM_desc_t *SCLSSQ,     int SCLSSQm,     int SCLSSQn )
 {
-    int sizein = M*N;
+    int sizein = 2*M*N;
     int sizeout;
 
     if ( storev == ChamColumnwise ) {
@@ -85,6 +85,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
     }
 
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    DAG_CORE_PLSSQ;
     QUARK_Insert_Task(opt->quark, CORE_zplssq_quark, (Quark_Task_Flags*)opt,
         sizeof(int),            &storev,    VALUE,
         sizeof(int),            &M,         VALUE,
@@ -109,6 +110,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    DAG_CORE_PLSSQ2;
     QUARK_Insert_Task(opt->quark, CORE_zplssq2_quark, (Quark_Task_Flags*)opt,
         sizeof(int),        &N,         VALUE,
         sizeof(double)*2*N, RTBLKADDR(RESULT, double, RESULTm, RESULTn), INOUT,

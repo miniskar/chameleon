@@ -174,6 +174,24 @@ int CORE_zgessq( cham_store_t storev, int M, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
                  double *sclssq )
 {
+    int i;
+    int K;
+
+    /* initialize pairs scale, sumsquare if not already done */
+    if ( storev == ChamColumnwise ) {
+        K = N;
+    } else if ( storev == ChamRowwise ) {
+        K = M;
+    } else {
+        K = 1;
+    }
+    for (i=0; i<2*K; i+=2) {
+        if ( ( sclssq[i] == -1. ) && ( sclssq[i+1] == -1. ) ) {
+            sclssq[i] = 1.;
+            sclssq[i+1] = 0.;
+        }
+    }
+
     if (storev == ChamColumnwise) {
         CORE_zgessq_col( M, N, A, LDA, sclssq );
     }

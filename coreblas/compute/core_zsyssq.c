@@ -244,6 +244,20 @@ int CORE_zsyssq( cham_store_t storev, cham_uplo_t uplo, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
                  double *sclssq )
 {
+    int i;
+    int K = N;
+
+    /* Initialize pairs scale, sumsquare if not already done */
+    if ( storev == ChamEltwise ) {
+        K = 1;
+    }
+    for (i=0; i<2*K; i+=2) {
+        if ( ( sclssq[i] == -1. ) && ( sclssq[i+1] == -1. ) ) {
+            sclssq[i] = 1.;
+            sclssq[i+1] = 0.;
+        }
+    }
+
     if ( uplo == ChamUpper ) {
         if ( storev == ChamEltwise ) {
             CORE_zsyssq_up_elt( N, A, LDA, sclssq );

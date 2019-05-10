@@ -35,7 +35,7 @@ int   ISEED[4] = {0,0,0,1};   /* initial seed for zlarnv() */
 
 cham_storage_t  format[6] = { ChamCM, ChamRM, ChamCCRB, ChamCRRB, ChamRCRB, ChamRRRB };
 cham_side_t     side[2]   = { ChamLeft,    ChamRight };
-cham_uplo_t     uplo[2]   = { ChamUpper,   ChamLower };
+cham_uplo_t     uplo[3]   = { ChamUpper,   ChamLower, ChamUpperLower };
 cham_diag_t     diag[2]   = { ChamNonUnit, ChamUnit  };
 cham_trans_t    trans[3]  = { ChamNoTrans, ChamTrans, ChamConjTrans };
 int             itype[3]  = { 1, 2, 3 };
@@ -44,7 +44,7 @@ cham_normtype_t norm[4]   = { ChamMaxNorm, ChamOneNorm, ChamInfNorm, ChamFrobeni
 
 char *formatstr[6]= { "CM", "RM", "CCRB", "CRRB", "RCRB", "RRRB"};
 char *sidestr[2]  = { "Left ", "Right" };
-char *uplostr[2]  = { "Upper", "Lower" };
+char *uplostr[3]  = { "Upper", "Lower", "UpperLower" };
 char *diagstr[2]  = { "NonUnit", "Unit   " };
 char *transstr[3] = { "N", "T", "H" };
 char *itypestr[3]  = { "inv(U')xAxinv(U) or inv(L)xAxinv(L')", "UxAxU' or L'xAxL", "UxAxU' or L'xAxL" };
@@ -312,6 +312,14 @@ int main (int argc, char **argv)
     else if ( strcmp(func, "GEQRF_QDWH") == 0 ) {
         info += testing_zgeqrf_qdwh( argc, argv );
     }
+    /*
+     * Gram Matrix
+     */
+#if defined(PRECISION_d) || defined(PRECISION_s)
+    else if ( strcmp(func, "GRAM") == 0 ) {
+        info += testing_zgram( argc, argv );
+    }
+#endif
     else {
         fprintf(stderr, "Function unknown\n");
     }
