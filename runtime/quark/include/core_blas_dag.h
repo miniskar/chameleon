@@ -90,4 +90,12 @@
 #define DAG_CORE_TTMQR      DAG_CORE_TPMQRT
 #define DAG_CORE_TTQRT      DAG_CORE_TPQRT
 
+#define DAG_CORE_GESSQ      DAG_SET_PROPERTIES( "GESSQ"    , "white"    )
+#define DAG_CORE_HESSQ      DAG_SET_PROPERTIES( "HESSQ"    , "white"    )
+#define DAG_CORE_SYSSQ      DAG_SET_PROPERTIES( "SYSSQ"    , "white"    )
+#define DAG_CORE_TRSSQ      DAG_SET_PROPERTIES( "TRSSQ"    , "white"    )
+#define DAG_CORE_PLSSQ      DAG_SET_PROPERTIES( "PLSSQ"    , "white"    )
+#define DAG_CORE_PLSSQ2     DAG_SET_PROPERTIES( "PLSSQ2"   , "white"    )
+#define DAG_CORE_GRAM       DAG_SET_PROPERTIES( "GRAM"     , "orange"   )
+
 #endif /* _core_blas_dag_h_ */

@@ -49,7 +49,7 @@ extern int ISEED[4];
 
 extern cham_storage_t  format[6];
 extern cham_trans_t    trans[3];
-extern cham_uplo_t     uplo[2];
+extern cham_uplo_t     uplo[3];
 extern cham_side_t     side[2];
 extern cham_diag_t     diag[2];
 extern int             itype[3];
@@ -58,7 +58,7 @@ extern cham_normtype_t norm[4];
 
 extern char *formatstr[6];
 extern char *transstr[3];
-extern char *uplostr[2];
+extern char *uplostr[3];
 extern char *sidestr[2];
 extern char *diagstr[2];
 extern char *itypestr[3];
@@ -114,5 +114,7 @@ int testing_zcposv(int argc, char **argv);
 int testing_zcgesv(int argc, char **argv);
 int testing_zcungesv(int argc, char **argv);
 #endif
+
+int testing_zgram(int argc, char **argv);
 
 #endif /* _testing_zauxiliary_h_ */

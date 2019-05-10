@@ -53,8 +53,8 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
         sizeof(int),           &storev,                           VALUE,
         sizeof(int),           &M,                                VALUE,
         sizeof(int),           &N,                                VALUE,
-        PASSED_BY_REF,         RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ),    INPUT,
-        PASSED_BY_REF,         RTBLKADDR( SCLSSQ, double, SCLSSQm, SCLSSQn ),                INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ), chameleon_parsec_get_arena_index( SCALESUMSQ) | INPUT,
+        PASSED_BY_REF,         RTBLKADDR( SCLSSQ, double, SCLSSQm, SCLSSQn ), chameleon_parsec_get_arena_index( SCLSSQ) | INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }
 
@@ -82,6 +82,6 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zplssq2_parsec, options->priority, "plssq2",
         sizeof(int),           &N,                                VALUE,
-        PASSED_BY_REF,         RTBLKADDR( RESULT, double, RESULTm, RESULTn ),     INOUT | AFFINITY,
+        PASSED_BY_REF,         RTBLKADDR( RESULT, double, RESULTm, RESULTn ), chameleon_parsec_get_arena_index( RESULT) | INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

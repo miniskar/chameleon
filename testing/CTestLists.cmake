@@ -66,3 +66,11 @@ endforeach()
 #        add_test(test_mpi_${prec}lange mpirun -np 4 ./${prec}testing 1 0 LANGE 600 500 600 --p=2)
 #    endforeach()
 #endif()
+
+# Specific algorithms
+# Gram
+foreach(cat  ${TEST_CATEGORIES})
+  foreach(prec s;d)
+    add_test(test_${cat}_${prec}gram ./${prec}${TEST_CMD_${cat}} GRAM 117 213 )
+  endforeach()
+endforeach()

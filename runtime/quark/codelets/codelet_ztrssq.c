@@ -44,6 +44,7 @@ void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    DAG_CORE_TRSSQ;
     QUARK_Insert_Task(opt->quark, CORE_ztrssq_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &uplo, VALUE,
         sizeof(int),              &diag, VALUE,

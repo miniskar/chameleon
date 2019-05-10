@@ -112,6 +112,7 @@ CODELETS_HEADER(dzasum)
  */
 CODELETS_HEADER(zplrnt)
 CODELETS_HEADER(zbuild)
+CODELETS_HEADER(zgram)
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
 CODELETS_HEADER(zhessq)

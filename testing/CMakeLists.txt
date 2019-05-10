@@ -94,6 +94,7 @@ set(ZSRC
     #testing_zhegv.c
     #testing_zhegvd.c
     testing_zgeqrf_qdwh.c
+    testing_dgram.c
     )
 
 # Add include and link directories

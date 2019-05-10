@@ -94,6 +94,10 @@ set(CODELETS_ZSRC
     # BUILD
     ##################
     codelets/codelet_zbuild.c
+    ##################
+    # GRAM
+    ##################
+    codelets/codelet_zgram.c
     )
 
 set(CODELETS_SRC

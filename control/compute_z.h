@@ -115,7 +115,10 @@ void chameleon_pzungqr_param( int genD, int K, const libhqr_tree_t *qrtree,
                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 
-
+/**
+ * Gram function prototypes
+ */
+void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 /**
  *  LAPACK/Tile Descriptor accesses

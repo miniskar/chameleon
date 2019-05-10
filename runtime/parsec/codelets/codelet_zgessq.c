@@ -55,6 +55,6 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
         sizeof(int),          &n,            VALUE,
         PASSED_BY_REF,   RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int),          &lda,          VALUE,
-        PASSED_BY_REF,   RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ), INOUT | AFFINITY,
+        PASSED_BY_REF,   RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ), chameleon_parsec_get_arena_index( SCALESUMSQ ) | INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

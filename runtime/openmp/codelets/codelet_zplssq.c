@@ -39,7 +39,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )
 {
-    CHAMELEON_Complex64_t *res = RTBLKADDR(RESULT, double, RESULTm, RESULTn);
+    double *res = RTBLKADDR(RESULT, double, RESULTm, RESULTn);
 
 #pragma omp task firstprivate(N) depend(inout: res[0])
     CORE_zplssq2(N, res);

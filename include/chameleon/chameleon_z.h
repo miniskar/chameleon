@@ -331,6 +331,13 @@ int CHAMELEON_zbuild(cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, i
 int CHAMELEON_zbuild_Tile(cham_uplo_t uplo,  CHAM_desc_t *A, void *user_data, void* user_build_callback );
 int CHAMELEON_zbuild_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback, RUNTIME_sequence_t *sequence, RUNTIME_request_t  *request);
 
+/**
+ * Gram function prototypes
+ */
+int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA );
+int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A );
+int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+
 END_C_DECLS
 
 #endif /* _chameleon_z_h_ */
