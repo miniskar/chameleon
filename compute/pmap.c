@@ -21,7 +21,7 @@
  *  chameleon_pmap - Generate a random matrix by tiles.
  */
 void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
-                     cham_unary_operator_t operator, void *op_args,
+                     cham_unary_operator_t op_fct, void *op_args,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
@@ -40,12 +40,12 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
                 INSERT_TASK_map(
                     &options,
                     ChamUpperLower, A(m, n),
-                    operator, op_args );
+                    op_fct, op_args );
             }
             INSERT_TASK_map(
                 &options,
                 uplo, A(n, n),
-                operator, op_args );
+                op_fct, op_args );
         }
         break;
 
@@ -54,12 +54,12 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
             INSERT_TASK_map(
                 &options,
                 uplo, A(n, n),
-                operator, op_args );
+                op_fct, op_args );
             for (m = n+1; m < A->mt; m++) {
                 INSERT_TASK_map(
                     &options,
                     ChamUpperLower, A(m, n),
-                    operator, op_args );
+                    op_fct, op_args );
             }
         }
         break;
@@ -71,7 +71,7 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
                 INSERT_TASK_map(
                     &options,
                     uplo, A(m, n),
-                    operator, op_args );
+                    op_fct, op_args );
             }
         }
     }

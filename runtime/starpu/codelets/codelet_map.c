@@ -27,12 +27,12 @@ static void cl_map_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     void *data;
-    cham_unary_operator_t operator;
+    cham_unary_operator_t op_fct;
     void *op_args;
 
     data = (void *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &desc, &uplo, &m, &n, &operator, &op_args );
-    operator( desc, uplo, m, n, data, op_args );
+    starpu_codelet_unpack_args(cl_arg, &desc, &uplo, &m, &n, &op_fct, &op_args );
+    op_fct( desc, uplo, m, n, data, op_args );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -43,7 +43,7 @@ CODELETS_CPU(map, 1, cl_map_cpu_func)
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
                       cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
-                      cham_unary_operator_t operator, void *op_args )
+                      cham_unary_operator_t op_fct, void *op_args )
 {
 
     struct starpu_codelet *codelet = &cl_map;
@@ -60,8 +60,8 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         STARPU_VALUE,    &Am,                     sizeof(int),
         STARPU_VALUE,    &An,                     sizeof(int),
         STARPU_RW,        RTBLKADDR(A, void, Am, An),
-        STARPU_VALUE,    &operator,                sizeof(cham_unary_operator_t),
-        STARPU_VALUE,    &op_args,                 sizeof(void*),
+        STARPU_VALUE,    &op_fct,                 sizeof(cham_unary_operator_t),
+        STARPU_VALUE,    &op_args,                sizeof(void*),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)

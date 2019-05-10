@@ -26,12 +26,12 @@ CORE_map_parsec( parsec_execution_stream_t *context,
     int m;
     int n;
     void *data;
-    cham_unary_operator_t operator;
+    cham_unary_operator_t op_fct;
     void *op_args;
 
     parsec_dtd_unpack_args(
-        this_task, &desc, &uplo, &m, &n, &data, &operator, &op_args );
-    operator( desc, uplo, m, n, data, op_args );
+        this_task, &desc, &uplo, &m, &n, &data, &op_fct, &op_args );
+    op_fct( desc, uplo, m, n, data, op_args );
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
@@ -39,7 +39,7 @@ CORE_map_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
                       cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
-                      cham_unary_operator_t operator, void *op_args )
+                      cham_unary_operator_t op_fct, void *op_args )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
@@ -50,7 +50,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
         PASSED_BY_REF, RTBLKADDR(A, void, Am, An), chameleon_parsec_get_arena_index( A ) | INOUT,
-        sizeof(cham_unary_operator_t),    &operator, VALUE,
-        sizeof(void*),                    &op_args,  VALUE,
+        sizeof(cham_unary_operator_t),    &op_fct,  VALUE,
+        sizeof(void*),                    &op_args, VALUE,
         PARSEC_DTD_ARG_END );
 }
