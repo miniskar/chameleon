@@ -35,7 +35,7 @@
  * @param[in,out] A
  *          On exit, the operator has been applied on each tile of the matrix A.
  *
- * @param[in] operator
+ * @param[in] op_fct
  *          The operator function to apply on each tile of the matrix.
  *
  * @param[in,out] op_args
@@ -53,7 +53,7 @@
  */
 int CHAMELEON_map_Tile( cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
-                        cham_unary_operator_t operator,
+                        cham_unary_operator_t op_fct,
                         void                 *op_args )
 {
     CHAM_context_t     *chamctxt;
@@ -68,7 +68,7 @@ int CHAMELEON_map_Tile( cham_uplo_t           uplo,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_map_Tile_Async( uplo, A, operator, op_args, sequence, &request );
+    CHAMELEON_map_Tile_Async( uplo, A, op_fct, op_args, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
 
@@ -107,7 +107,7 @@ int CHAMELEON_map_Tile( cham_uplo_t           uplo,
  */
 int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
                               CHAM_desc_t          *A,
-                              cham_unary_operator_t operator,
+                              cham_unary_operator_t op_fct,
                               void                 *op_args,
                               RUNTIME_sequence_t   *sequence,
                               RUNTIME_request_t    *request )
@@ -146,7 +146,7 @@ int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pmap( uplo, A, operator, op_args, sequence, request );
+    chameleon_pmap( uplo, A, op_fct, op_args, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }
