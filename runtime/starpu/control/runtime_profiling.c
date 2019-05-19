@@ -56,7 +56,7 @@ void RUNTIME_iteration_pop( CHAM_context_t *chamctxt )
 
 void RUNTIME_start_profiling(){
 #if defined(HAVE_STARPU_FXT_PROFILING)
-	starpu_fxt_start_profiling();
+    starpu_fxt_start_profiling();
 #else
     fprintf(stderr, "Profiling throught FxT has not been enabled in StarPU runtime (configure StarPU with --with-fxt)\n");
 #endif
@@ -64,7 +64,7 @@ void RUNTIME_start_profiling(){
 
 void RUNTIME_stop_profiling(){
 #if defined(HAVE_STARPU_FXT_PROFILING)
-	starpu_fxt_stop_profiling();
+    starpu_fxt_stop_profiling();
 #else
     fprintf(stderr, "Profiling throught FxT has not been enabled in StarPU runtime (configure StarPU with --with-fxt)\n");
 #endif

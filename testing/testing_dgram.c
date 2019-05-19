@@ -212,7 +212,6 @@ static int compute_gram_sequential(cham_uplo_t uplo,
                                    int LDA)
 {
     int m, n;
-    double eps;
     double squareij, mean_dij, mhalf;
 
     double *work = (double *)malloc(N * sizeof(double));

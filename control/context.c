@@ -62,6 +62,7 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->nb                 = 128;
     chamctxt->ib                 = 32;
     chamctxt->rhblock            = 4;
+    chamctxt->lookahead          = 3;
 
     chamctxt->nworkers           = 1;
     chamctxt->ncudas             = 0;
@@ -72,10 +73,10 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->parallel_enabled   = CHAMELEON_FALSE;
     chamctxt->profiling_enabled  = CHAMELEON_FALSE;
     chamctxt->progress_enabled   = CHAMELEON_FALSE;
+    chamctxt->generic_enabled    = CHAMELEON_FALSE;
 
     chamctxt->householder        = ChamFlatHouseholder;
     chamctxt->translation        = ChamOutOfPlace;
-
 
     /* Initialize scheduler */
     RUNTIME_context_create(chamctxt);
@@ -120,6 +121,7 @@ int chameleon_context_destroy(){
  *          @arg CHAMELEON_PROFILING_MODE  activate profiling of kernels
  *          @arg CHAMELEON_PROGRESS  activate progress indicator
  *          @arg CHAMELEON_GEMM3M  Use z/cgemm3m for complexe matrix-matrix products
+ *          @arg CHAMELEON_GENERIC  enable/disable GEMM3M  Use z/cgemm3m for complexe matrix-matrix products
  *
  *******************************************************************************
  *
@@ -160,6 +162,9 @@ int CHAMELEON_Enable(int option)
         /* case CHAMELEON_PARALLEL: */
         /*     chamctxt->parallel_enabled = CHAMELEON_TRUE; */
         /*     break; */
+        case CHAMELEON_GENERIC:
+            chamctxt->generic_enabled = CHAMELEON_TRUE;
+            break;
         default:
             chameleon_error("CHAMELEON_Enable", "illegal parameter value");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
@@ -225,6 +230,9 @@ int CHAMELEON_Disable(int option)
         case CHAMELEON_PARALLEL_MODE:
             chamctxt->parallel_enabled = CHAMELEON_FALSE;
             break;
+        case CHAMELEON_GENERIC:
+            chamctxt->generic_enabled = CHAMELEON_FALSE;
+            break;
         default:
             chameleon_error("CHAMELEON_Disable", "illegal parameter value");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
@@ -248,6 +256,7 @@ int CHAMELEON_Disable(int option)
  *          Feature to be enabled:
  *          @arg CHAMELEON_TILE_SIZE:        size matrix tile,
  *          @arg CHAMELEON_INNER_BLOCK_SIZE: size of tile inner block,
+ *          @arg CHAMELEON_LOOKAHEAD:        depth of the look ahead in algorithms
  *
  * @param[in] value
  *          Value of the parameter.
@@ -321,6 +330,13 @@ int CHAMELEON_Set( int param, int value )
             }
             chamctxt->translation = value;
             break;
+        case CHAMELEON_LOOKAHEAD:
+            if (value < 1) {
+                chameleon_error("CHAMELEON_Set", "illegal value of CHAMELEON_LOOKAHEAD");
+                return CHAMELEON_ERR_ILLEGAL_VALUE;
+            }
+            chamctxt->lookahead = value;
+            break;
         default:
             chameleon_error("CHAMELEON_Set", "unknown parameter");
             return CHAMELEON_ERR_ILLEGAL_VALUE;
@@ -341,6 +357,7 @@ int CHAMELEON_Set( int param, int value )
  *          Feature to be enabled:
  *          @arg CHAMELEON_TILE_SIZE:        size matrix tile,
  *          @arg CHAMELEON_INNER_BLOCK_SIZE: size of tile inner block,
+ *          @arg CHAMELEON_LOOKAHEAD:        depth of the look ahead in algorithms
  *
  * @param[out] value
  *          Value of the parameter.
@@ -374,6 +391,9 @@ int CHAMELEON_Get(int param, int *value)
             return CHAMELEON_SUCCESS;
         case CHAMELEON_TRANSLATION_MODE:
             *value = chamctxt->translation;
+            return CHAMELEON_SUCCESS;
+        case CHAMELEON_LOOKAHEAD:
+            *value = chamctxt->lookahead;
             return CHAMELEON_SUCCESS;
         default:
             chameleon_error("CHAMELEON_Get", "unknown parameter");

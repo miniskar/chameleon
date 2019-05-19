@@ -116,6 +116,7 @@ typedef struct chameleon_context_s {
     cham_bool_t        parallel_enabled;
     cham_bool_t        profiling_enabled;
     cham_bool_t        progress_enabled;
+    cham_bool_t        generic_enabled;
 
     cham_householder_t householder;        // "domino" (flat) or tree-based (reduction) Householder
     cham_translation_t translation;        // In place or Out of place layout conversion
@@ -123,6 +124,7 @@ typedef struct chameleon_context_s {
     int                nb;
     int                ib;
     int                rhblock;            // block size for tree-based (reduction) Householder
+    int                lookahead;          // depth of the look ahead in algorithms
     void              *schedopt;           // structure for runtimes
     int                mpi_outer_init;     // MPI has been initialized outside our functions
 } CHAM_context_t;

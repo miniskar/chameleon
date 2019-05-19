@@ -103,6 +103,8 @@ set(ZSRC_LAP_INT
 set(ZSRC_TIL_INT
   # BLAS 3
   time_zgemm_tile.c
+  time_zhemm_tile.c
+  time_zsymm_tile.c
   # LAPACK
   time_zgels_tile.c
   time_zgeqrf_hqr_tile.c

@@ -182,6 +182,7 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_BOUND           7
 #define CHAMELEON_PROGRESS        8
 #define CHAMELEON_GEMM3M          9
+#define CHAMELEON_GENERIC        10
 
 /**
  *  CHAMELEON constants - configuration parameters
@@ -192,6 +193,7 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_HOUSEHOLDER_MODE  5
 #define CHAMELEON_HOUSEHOLDER_SIZE  6
 #define CHAMELEON_TRANSLATION_MODE  7
+#define CHAMELEON_LOOKAHEAD         8
 
 /**
  * @brief QR/LQ factorization trees
