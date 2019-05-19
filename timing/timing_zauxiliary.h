@@ -28,6 +28,21 @@ double z_check_gemm(cham_trans_t transA, cham_trans_t transB, int M, int N, int 
                    CHAMELEON_Complex64_t *Cref, int LDC,
                    double *Cinitnorm, double *Cchamnorm, double *Clapacknorm );
 
+#if defined(PRECISION_z) || defined(PRECISION_c)
+double z_check_hemm( cham_side_t side, cham_uplo_t uplo, int M, int N,
+                     CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                                  const CHAMELEON_Complex64_t *B, int LDB,
+                     CHAMELEON_Complex64_t beta,  const CHAMELEON_Complex64_t *Ccham,
+                                                        CHAMELEON_Complex64_t *Cref, int LDC,
+                     double *Cinitnorm, double *Cchamnorm, double *Clapacknorm );
+#endif
+double z_check_symm( cham_side_t side, cham_uplo_t uplo, int M, int N,
+                     CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                                  const CHAMELEON_Complex64_t *B, int LDB,
+                     CHAMELEON_Complex64_t beta,  const CHAMELEON_Complex64_t *Ccham,
+                                                        CHAMELEON_Complex64_t *Cref, int LDC,
+                     double *Cinitnorm, double *Cchamnorm, double *Clapacknorm );
+
 double z_check_trsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
            int M, int NRHS, CHAMELEON_Complex64_t alpha,
            CHAMELEON_Complex64_t *A, int LDA,

@@ -69,6 +69,27 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
 }
 
 /**
+ *  Internal function to return MPI rank of element A(m,n) with m,n = block indices
+ */
+int chameleon_getrankof_2d( const CHAM_desc_t *A, int m, int n )
+{
+    int mm = m + A->i / A->mb;
+    int nn = n + A->j / A->nb;
+    return (mm % A->p) * A->q + (nn % A->q);
+}
+
+/**
+ *  Internal function to return MPI rank of element DIAG(m,0) with m,n = block indices
+ */
+int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
+{
+    int mm = m + A->i / A->mb;
+    assert( m == n );
+    return (mm % A->p) * A->q + (mm % A->q);
+}
+
+
+/**
  ******************************************************************************
  *
  * @ingroup Descriptor

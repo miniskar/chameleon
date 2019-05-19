@@ -85,6 +85,8 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
     default:
         return;
     }
+
+    (void)runtime_ctxt;
     return;
 }
 
@@ -107,5 +109,7 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
     default:
         return;
     }
+
+    (void)runtime_ctxt;
     return;
 }

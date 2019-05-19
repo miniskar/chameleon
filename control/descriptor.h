@@ -44,8 +44,8 @@ inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 /**
  *  Data distributions
  */
-inline static int   chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
-inline static int   chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
+int          chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
+int          chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
 
 int          chameleon_desc_init     ( CHAM_desc_t *desc, void *mat,
                                        cham_flttype_t dtyp, int mb, int nb, int bsiz,
@@ -174,27 +174,6 @@ inline static int chameleon_getblkldd_cm(const CHAM_desc_t *A, int m) {
     (void)m;
     return A->llm;
 }
-
-/**
- *  Internal function to return MPI rank of element A(m,n) with m,n = block indices
- */
-inline static int chameleon_getrankof_2d(const CHAM_desc_t *A, int m, int n)
-{
-    int mm = m + A->i / A->mb;
-    int nn = n + A->j / A->nb;
-    return (mm % A->p) * A->q + (nn % A->q);
-}
-
-/**
- *  Internal function to return MPI rank of element DIAG(m,0) with m,n = block indices
- */
-inline static int chameleon_getrankof_2d_diag(const CHAM_desc_t *A, int m, int n)
-{
-    int mm = m + A->i / A->mb;
-    assert( m == n );
-    return (mm % A->p) * A->q + (mm % A->q);
-}
-
 
 /**
  * Detect if the tile is local or not
