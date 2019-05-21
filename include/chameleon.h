@@ -51,6 +51,15 @@
  */
 #include "chameleon/tasks.h"
 
+#include "chameleon/chameleon_z.h"
+#include "chameleon/chameleon_c.h"
+#include "chameleon/chameleon_d.h"
+#include "chameleon/chameleon_s.h"
+#include "chameleon/chameleon_zc.h"
+#include "chameleon/chameleon_ds.h"
+
+BEGIN_C_DECLS
+
 /* ****************************************************************************
  * CHAMELEON functionnalities
  */
@@ -65,17 +74,9 @@ int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
                               RUNTIME_sequence_t   *sequence,
                               RUNTIME_request_t    *request );
 
-#include "chameleon/chameleon_z.h"
-#include "chameleon/chameleon_c.h"
-#include "chameleon/chameleon_d.h"
-#include "chameleon/chameleon_s.h"
-#include "chameleon/chameleon_zc.h"
-#include "chameleon/chameleon_ds.h"
-
 /* ****************************************************************************
  * CHAMELEON Functions
  */
-BEGIN_C_DECLS
 
 /* Auxiliary */
 int CHAMELEON_Version           (int *ver_major, int *ver_minor, int *ver_micro);
