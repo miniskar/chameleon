@@ -234,7 +234,7 @@ int testing_zgels_hqr(int argc, char **argv)
         }
         else {
             printf("***************************************************\n");
-            printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
+            printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");     hres++;
             printf("***************************************************\n");
         }
     }
@@ -305,6 +305,8 @@ int testing_zgels_hqr(int argc, char **argv)
         }
     }
     else {
+        hres++;
+
         if (M >= N) {
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZUNMQR + ZTRSM ... FAILED !\n");

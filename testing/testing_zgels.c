@@ -197,8 +197,9 @@ int testing_zgels(int argc, char **argv)
             printf("***************************************************\n");
         }
         else{
+            hres++;
             printf("***************************************************\n");
-            printf(" - TESTING ZGEQRF + ZGEQRS ... FAILED !\n");
+            printf(" - TESTING ZGEQRF + ZGEQRS ... FAILED !\n");     hres++;
             printf("***************************************************\n");
         }
     }
@@ -229,7 +230,7 @@ int testing_zgels(int argc, char **argv)
        }
        else {
           printf("***************************************************\n");
-          printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
+          printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");    hres++;
           printf("***************************************************\n");
         }
     }
@@ -305,6 +306,8 @@ int testing_zgels(int argc, char **argv)
         }
     }
     else {
+        hres++;
+
         if (M >= N) {
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZUNMQR + ZTRSM ... FAILED !\n");
