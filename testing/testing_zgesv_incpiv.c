@@ -158,7 +158,7 @@ int testing_zgesv_incpiv(int argc, char **argv)
     }
     else{
         printf("***************************************************\n");
-        printf(" - TESTING INCPIV ZGETRF + ZGETRS ... FAILED !\n");    hres++;
+        printf(" - TESTING INCPIV ZGETRF + ZGETRS ... FAILED !\n");
         printf("***************************************************\n");
     }
 
@@ -203,7 +203,7 @@ int testing_zgesv_incpiv(int argc, char **argv)
     }
     else{
         printf("**************************************************\n");
-        printf(" - TESTING INCPIV ZGETRF + ZTRSMPL + ZTRSM ... FAILED !\n");    hres++;
+        printf(" - TESTING INCPIV ZGETRF + ZTRSMPL + ZTRSM ... FAILED !\n");
         printf("**************************************************\n");
     }
 

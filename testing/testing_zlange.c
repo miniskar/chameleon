@@ -145,7 +145,7 @@ int testing_zlange(int argc, char **argv)
                 }
                 else {
                     printf(" - TESTING ZLANTR (%s, %s, %s)... FAILED !\n",
-                           normstr[n], uplostr[u], diagstr[d]);    hres++;
+                           normstr[n], uplostr[u], diagstr[d]);
                 }
                 printf("***************************************************\n");
             }
@@ -184,7 +184,7 @@ int testing_zlange(int argc, char **argv)
                 printf(" ---- TESTING ZLANSY (%s, %s)......... PASSED !\n", normstr[n], uplostr[u]);
             }
             else {
-                printf(" - TESTING ZLANSY (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);    hres++;
+                printf(" - TESTING ZLANSY (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);
             }
             printf("***************************************************\n");
         }
@@ -229,7 +229,7 @@ int testing_zlange(int argc, char **argv)
                 printf(" ---- TESTING ZLANHE (%s, %s)......... PASSED !\n", normstr[n], uplostr[u]);
             }
             else {
-                printf(" - TESTING ZLANHE (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);     hres++;
+                printf(" - TESTING ZLANHE (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);
             }
             printf("***************************************************\n");
         }
