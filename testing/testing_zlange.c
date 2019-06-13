@@ -16,6 +16,7 @@
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -102,7 +103,8 @@ int testing_zlange(int argc, char **argv)
             printf(" ---- TESTING ZLANGE (%s)............... PASSED !\n", normstr[n]);
         }
         else {
-            printf(" - TESTING ZLANGE (%s)... FAILED !\n", normstr[n]);    hres++;
+            hres++;
+            printf(" - TESTING ZLANGE (%s)... FAILED !\n", normstr[n]);
         }
         printf("***************************************************\n");
 
@@ -144,6 +146,7 @@ int testing_zlange(int argc, char **argv)
                            normstr[n], uplostr[u], diagstr[d]);
                 }
                 else {
+                    hres++;
                     printf(" - TESTING ZLANTR (%s, %s, %s)... FAILED !\n",
                            normstr[n], uplostr[u], diagstr[d]);
                 }
@@ -184,6 +187,7 @@ int testing_zlange(int argc, char **argv)
                 printf(" ---- TESTING ZLANSY (%s, %s)......... PASSED !\n", normstr[n], uplostr[u]);
             }
             else {
+                hres++;
                 printf(" - TESTING ZLANSY (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);
             }
             printf("***************************************************\n");
@@ -229,6 +233,7 @@ int testing_zlange(int argc, char **argv)
                 printf(" ---- TESTING ZLANHE (%s, %s)......... PASSED !\n", normstr[n], uplostr[u]);
             }
             else {
+                hres++;
                 printf(" - TESTING ZLANHE (%s, %s)... FAILED !\n", normstr[n], uplostr[u]);
             }
             printf("***************************************************\n");
