@@ -28,7 +28,7 @@ cppcheck -v -f --language=c --platform=unix64 --enable=all --xml --xml-version=2
 
 # create the sonarqube config file
 cat > sonar-project.properties << EOF
-sonar.host.url=https://sonarqube.bordeaux.inria.fr/sonarqube
+sonar.host.url=https://sonarqube.inria.fr/sonarqube
 sonar.login=$SONARQUBE_LOGIN
 
 sonar.links.homepage=$CI_PROJECT_URL
