@@ -15,6 +15,7 @@
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -29,13 +30,15 @@ static void cl_zgessq_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     double *SCALESUMSQ;
 
     A          = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
     SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &storev, &m, &n, &lda);
-    CORE_zgessq( storev, m, n, A, lda, SCALESUMSQ );
+    starpu_codelet_unpack_args(cl_arg, &storev, &m, &n);
+    CORE_zgessq( storev, m, n, A, ldA, SCALESUMSQ );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -46,7 +49,7 @@ CODELETS_CPU(zgessq, 2, cl_zgessq_cpu_func)
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
                          cham_store_t storev, int m, int n,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     struct starpu_codelet *codelet = &cl_zgessq;
@@ -63,7 +66,6 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                          sizeof(int),
         STARPU_VALUE,    &n,                          sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                        sizeof(int),
         STARPU_RW,       RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
@@ -71,4 +73,5 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
         STARPU_NAME, "zgessq",
 #endif
         0);
+    (void)ldA;
 }

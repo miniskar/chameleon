@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -37,18 +38,21 @@ static void cl_ztrmm_cpu_func(void *descr[], void *cl_arg)
     int N;
     CHAMELEON_Complex64_t alpha;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int LDB;
+    int ldB;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha, &LDA, &LDB);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+
+    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha);
     CORE_ztrmm(side, uplo,
         transA, diag,
         M, N,
-        alpha, A, LDA,
-        B, LDB);
+        alpha, A, ldA,
+        B, ldB);
 }
 
 #ifdef CHAMELEON_USE_CUDA
@@ -62,13 +66,15 @@ static void cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
     int N;
     cuDoubleComplex alpha;
     const cuDoubleComplex *A;
-    int LDA;
+    int ldA;
     cuDoubleComplex *B;
-    int LDB;
+    int ldB;
 
     A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha, &LDA, &LDB);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha);
 
     RUNTIME_getStream(stream);
 
@@ -76,8 +82,8 @@ static void cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
         side, uplo,
         transA, diag,
         M, N,
-        &alpha, A, LDA,
-        B, LDB,
+        &alpha, A, ldA,
+        B, ldB,
         stream);
 
 #ifndef STARPU_CUDA_ASYNC
@@ -103,8 +109,8 @@ CODELETS(ztrmm, 2, cl_ztrmm_cpu_func, cl_ztrmm_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
                       cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
                       int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
+                      const CHAM_desc_t *B, int Bm, int Bn, int ldB)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_ztrmm;
@@ -125,13 +131,13 @@ void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
         STARPU_VALUE,         &n,                        sizeof(int),
         STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
         STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,       &lda,                        sizeof(int),
         STARPU_RW,                 RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,       &ldb,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "ztrmm",
 #endif
         0);
+    (void)ldB;
+    (void)ldA;
 }

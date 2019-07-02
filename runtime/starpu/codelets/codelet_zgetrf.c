@@ -17,6 +17,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -30,7 +31,7 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
@@ -39,9 +40,10 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &IPIV, &check_info, &iinfo, &sequence, &request);
-    CORE_zgetrf( m, n, A, lda, IPIV, &info );
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &IPIV, &check_info, &iinfo, &sequence, &request);
+    CORE_zgetrf( m, n, A, ldA, IPIV, &info );
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -56,7 +58,7 @@ CODELETS_CPU(zgetrf, 1, cl_zgetrf_cpu_func)
 
 void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
                          int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
                          int *IPIV,
                          cham_bool_t check_info, int iinfo )
 {
@@ -73,7 +75,6 @@ void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
         STARPU_VALUE,             &m,                        sizeof(int),
         STARPU_VALUE,             &n,                        sizeof(int),
         STARPU_RW,                     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,           &lda,                        sizeof(int),
         STARPU_VALUE,                  &IPIV,                      sizeof(int*),
         STARPU_VALUE,    &check_info,                sizeof(cham_bool_t),
         STARPU_VALUE,         &iinfo,                        sizeof(int),
@@ -85,4 +86,5 @@ void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
         STARPU_NAME, "zgetrf",
 #endif
         0);
+    (void)ldA;
 }

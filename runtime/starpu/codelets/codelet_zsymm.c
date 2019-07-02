@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -35,22 +36,25 @@ static void cl_zsymm_cpu_func(void *descr[], void *cl_arg)
     int N;
     CHAMELEON_Complex64_t alpha;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int LDB;
+    int ldB;
     CHAMELEON_Complex64_t beta;
     CHAMELEON_Complex64_t *C;
-    int LDC;
+    int ldC;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     C = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &LDA, &LDB, &beta, &LDC);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &beta);
     CORE_zsymm(side, uplo,
         M, N,
-        alpha, A, LDA,
-        B, LDB,
-        beta, C, LDC);
+        alpha, A, ldA,
+        B, ldB,
+        beta, C, ldC);
 }
 
 #ifdef CHAMELEON_USE_CUDA
@@ -62,26 +66,29 @@ static void cl_zsymm_cuda_func(void *descr[], void *cl_arg)
     int N;
     cuDoubleComplex alpha;
     const cuDoubleComplex *A;
-    int LDA;
+    int ldA;
     const cuDoubleComplex *B;
-    int LDB;
+    int ldB;
     cuDoubleComplex beta;
     cuDoubleComplex *C;
-    int LDC;
+    int ldC;
 
     A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
     C = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &LDA, &LDB, &beta, &LDC);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &beta);
 
     RUNTIME_getStream(stream);
 
     CUDA_zsymm(
         side, uplo,
         M, N,
-        &alpha, A, LDA,
-        B, LDB,
-        &beta, C, LDC,
+        &alpha, A, ldA,
+        B, ldB,
+        &beta, C, ldC,
         stream);
 
 #ifndef STARPU_CUDA_ASYNC
@@ -106,9 +113,9 @@ CODELETS(zsymm, 3, cl_zsymm_cpu_func, cl_zsymm_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
                       cham_side_t side, cham_uplo_t uplo,
                       int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
+                      const CHAM_desc_t *B, int Bm, int Bn, int ldB,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldC)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsymm;
@@ -128,16 +135,16 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
         STARPU_VALUE,       &n,                        sizeof(int),
         STARPU_VALUE,   &alpha,         sizeof(CHAMELEON_Complex64_t),
         STARPU_R,               RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,     &lda,                        sizeof(int),
         STARPU_R,               RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,     &ldb,                        sizeof(int),
         STARPU_VALUE,    &beta,         sizeof(CHAMELEON_Complex64_t),
         STARPU_RW,               RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_VALUE,     &ldc,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zsymm",
 #endif
         0);
+    (void)ldC;
+    (void)ldB;
+    (void)ldA;
 }

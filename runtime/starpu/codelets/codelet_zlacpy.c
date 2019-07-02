@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -35,14 +36,18 @@ static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
     int displA;
     int displB;
     const CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int LDB;
+    int ldB;
 
     A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &displA, &LDA, &displB, &LDB);
-    CORE_zlacpy(uplo, M, N, A + displA, LDA, B + displB, LDB);
+
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &displA, &displB);
+    CORE_zlacpy(uplo, M, N, A + displA, ldA, B + displB, ldB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -58,8 +63,8 @@ CODELETS_CPU(zlacpy, 2, cl_zlacpy_cpu_func)
  */
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                          int displA, const CHAM_desc_t *A, int Am, int An, int ldA,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldB )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlacpy;
@@ -77,24 +82,24 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         STARPU_VALUE,   &n,                   sizeof(int),
         STARPU_VALUE,   &displA,              sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,   &lda,                 sizeof(int),
         STARPU_VALUE,   &displB,              sizeof(int),
         STARPU_W,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,   &ldb,                 sizeof(int),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlacpy",
 #endif
         0);
+    (void)ldA;
+    (void)ldA;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldB )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An, lda,
-                         0, B, Bm, Bn, ldb );
+                         0, A, Am, An, ldA,
+                         0, B, Bm, Bn, ldB );
 }

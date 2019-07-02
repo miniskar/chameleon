@@ -19,6 +19,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Marc Sergent
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c
  *
@@ -32,13 +33,13 @@ static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     int iinfo;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo);
-    CORE_zsytf2_nopiv(uplo, n, A, lda);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &iinfo);
+    CORE_zsytf2_nopiv(uplo, n, A, ldA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -49,7 +50,7 @@ CODELETS_CPU(zsytrf_nopiv, 1, cl_zsytrf_nopiv_cpu_func)
 
 void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
                               cham_uplo_t uplo, int n, int nb,
-                               const CHAM_desc_t *A, int Am, int An, int lda,
+                               const CHAM_desc_t *A, int Am, int An, int ldA,
                                int iinfo )
 {
     (void)nb;
@@ -65,7 +66,6 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
         STARPU_VALUE,    &uplo,                      sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         /* STARPU_SCRATCH,   options->ws_worker, */
         STARPU_PRIORITY,  options->priority,
@@ -74,4 +74,5 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
         STARPU_NAME, "zsytrf_nopiv",
 #endif
         0);
+    (void)ldA;
 }

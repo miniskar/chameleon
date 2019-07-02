@@ -17,6 +17,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions mixed zc -> ds
  *
@@ -30,14 +31,18 @@ static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex32_t *B;
-    int ldb;
+    int ldB;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &ldb);
-    CORE_zlag2c( m, n, A, lda, B, ldb);
+
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n);
+    CORE_zlag2c( m, n, A, ldA, B, ldB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -53,8 +58,8 @@ CODELETS_CPU(zlag2c, 1, cl_zlag2c_cpu_func)
  */
 void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An, int ldA,
+                       const CHAM_desc_t *B, int Bm, int Bn, int ldB)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlag2c;
@@ -70,15 +75,17 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn),
-        STARPU_VALUE,    &ldb,               sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlag2c",
 #endif
         0);
+    (void)ldB;
+    (void)ldA;
+    (void)ldB;
+    (void)ldA;
 }
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -87,14 +94,18 @@ static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     CHAMELEON_Complex32_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int ldb;
+    int ldB;
 
     A = (CHAMELEON_Complex32_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &ldb);
-    CORE_clag2z( m, n, A, lda, B, ldb);
+
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n);
+    CORE_clag2z( m, n, A, ldA, B, ldB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -105,8 +116,8 @@ CODELETS_CPU(clag2z, 2, cl_clag2z_cpu_func)
 
 void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An, int ldA,
+                       const CHAM_desc_t *B, int Bm, int Bn, int ldB)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_clag2z;
@@ -122,13 +133,15 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,    &ldb,               sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "clag2z",
 #endif
         0);
+    (void)ldB;
+    (void)ldA;
+    (void)ldB;
+    (void)ldA;
 }
