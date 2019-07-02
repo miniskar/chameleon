@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -32,15 +33,17 @@ static void cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     int bigM;
     int m0;
     int n0;
     unsigned long long int seed;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &lda, &bigM, &m0, &n0, &seed );
-    CORE_zplrnt( m, n, A, lda, bigM, m0, n0, seed );
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &bigM, &m0, &n0, &seed );
+    CORE_zplrnt( m, n, A, ldA, bigM, m0, n0, seed );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -50,7 +53,7 @@ static void cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(zplrnt, 1, cl_zplrnt_cpu_func)
 
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
-                         int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                         int m, int n, const CHAM_desc_t *A, int Am, int An, int ldA,
                          int bigM, int m0, int n0, unsigned long long int seed )
 {
 
@@ -66,7 +69,6 @@ void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                      sizeof(int),
         STARPU_VALUE,    &n,                      sizeof(int),
         STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,  &lda,                      sizeof(int),
         STARPU_VALUE, &bigM,                      sizeof(int),
         STARPU_VALUE,   &m0,                      sizeof(int),
         STARPU_VALUE,   &n0,                      sizeof(int),
@@ -77,4 +79,5 @@ void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
         STARPU_NAME, "zplrnt",
 #endif
         0);
+    (void)ldA;
 }

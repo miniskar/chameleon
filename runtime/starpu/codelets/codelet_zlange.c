@@ -17,6 +17,7 @@
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -32,14 +33,17 @@ static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     double *work;
 
     A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &norm, &M, &N, &LDA);
-    CORE_zlange( norm, M, N, A, LDA, work, normA );
+
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &norm, &M, &N);
+    CORE_zlange( norm, M, N, A, ldA, work, normA );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -50,7 +54,7 @@ CODELETS_CPU(zlange, 3, cl_zlange_cpu_func)
 
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
                          cham_normtype_t norm, int M, int N, int NB,
-                         const CHAM_desc_t *A, int Am, int An, int LDA,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)NB;
@@ -68,7 +72,6 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &LDA,               sizeof(int),
         STARPU_SCRATCH,  options->ws_worker,
         STARPU_W,        RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY, options->priority,
@@ -77,6 +80,7 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
         STARPU_NAME, "zlange",
 #endif
         0);
+    (void)ldA;
 }
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -122,4 +126,5 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
         STARPU_NAME, "zlange_max",
 #endif
         0);
+
 }

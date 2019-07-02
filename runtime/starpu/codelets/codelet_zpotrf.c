@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -32,16 +33,17 @@ static void cl_zpotrf_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int n;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     int iinfo;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &lda, &iinfo, &sequence, &request);
-    CORE_zpotrf(uplo, n, A, lda, &info);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &iinfo, &sequence, &request);
+    CORE_zpotrf(uplo, n, A, ldA, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -61,7 +63,7 @@ CODELETS_CPU(zpotrf, 1, cl_zpotrf_cpu_func)
  */
 void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An, int ldA,
                        int iinfo)
 {
     (void)nb;
@@ -77,7 +79,6 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
         STARPU_VALUE,    &uplo,                      sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
         STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
@@ -88,4 +89,5 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
         STARPU_NAME, "zpotrf",
 #endif
         0);
+    (void)ldA;
 }

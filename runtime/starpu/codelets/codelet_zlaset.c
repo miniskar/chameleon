@@ -18,6 +18,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -34,11 +35,13 @@ static void cl_zlaset_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t alpha;
     CHAMELEON_Complex64_t beta;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &beta, &LDA);
-    CORE_zlaset(uplo, M, N, alpha, beta, A, LDA);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha, &beta);
+    CORE_zlaset(uplo, M, N, alpha, beta, A, ldA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -78,14 +81,14 @@ CODELETS_CPU(zlaset, 1, cl_zlaset_cpu_func)
  *         On entry, the M-by-N tile A.
  *         On exit, A has been set accordingly.
  *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
+ * @param[in] ldA
+ *         The leading dimension of the array A.  ldA >= max(1,M).
  *
  */
 void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int M, int N,
                        CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                       const CHAM_desc_t *A, int Am, int An, int LDA)
+                       const CHAM_desc_t *A, int Am, int An, int ldA)
 {
 
     struct starpu_codelet *codelet = &cl_zlaset;
@@ -103,11 +106,11 @@ void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
         STARPU_VALUE, &alpha,         sizeof(CHAMELEON_Complex64_t),
         STARPU_VALUE,  &beta,         sizeof(CHAMELEON_Complex64_t),
         STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,   &LDA,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlaset",
 #endif
         0);
+    (void)ldA;
 }

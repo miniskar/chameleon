@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -36,21 +37,25 @@ static void cl_zssssm_cpu_func(void *descr[], void *cl_arg)
     int k;
     int ib;
     CHAMELEON_Complex64_t *A1;
-    int lda1;
+    int ldA1;
     CHAMELEON_Complex64_t *A2;
-    int lda2;
+    int ldA2;
     CHAMELEON_Complex64_t *L1;
-    int ldl1;
+    int ldL1;
     CHAMELEON_Complex64_t *L2;
-    int ldl2;
+    int ldL2;
     int *IPIV;
 
     A1 = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     A2 = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     L1 = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     L2 = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-    starpu_codelet_unpack_args(cl_arg, &m1, &n1, &m2, &n2, &k, &ib, &lda1, &lda2, &ldl1, &ldl2, &IPIV);
-    CORE_zssssm(m1, n1, m2, n2, k, ib, A1, lda1, A2, lda2, L1, ldl1, L2, ldl2, IPIV);
+    ldA1 = STARPU_MATRIX_GET_LD( descr[0] );
+    ldA2 = STARPU_MATRIX_GET_LD( descr[1] );
+    ldL1 = STARPU_MATRIX_GET_LD( descr[2] );
+    ldL2 = STARPU_MATRIX_GET_LD( descr[3] );
+    starpu_codelet_unpack_args(cl_arg, &m1, &n1, &m2, &n2, &k, &ib, &IPIV);
+    CORE_zssssm(m1, n1, m2, n2, k, ib, A1, ldA1, A2, ldA2, L1, ldL1, L2, ldL2, IPIV);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -95,28 +100,28 @@ CODELETS_CPU(zssssm, 4, cl_zssssm_cpu_func)
  *         On entry, the M1-by-N1 tile A1.
  *         On exit, A1 is updated by the application of L (L1 L2).
  *
- * @param[in] LDA1
- *         The leading dimension of the array A1.  LDA1 >= max(1,M1).
+ * @param[in] ldA1
+ *         The leading dimension of the array A1.  ldA1 >= max(1,M1).
  *
  * @param[in,out] A2
  *         On entry, the M2-by-N2 tile A2.
  *         On exit, A2 is updated by the application of L (L1 L2).
  *
- * @param[in] LDA2
- *         The leading dimension of the array A2.  LDA2 >= max(1,M2).
+ * @param[in] ldA2
+ *         The leading dimension of the array A2.  ldA2 >= max(1,M2).
  *
  * @param[in] L1
  *         The IB-by-K lower triangular tile as returned by
  *         CORE_ztstrf.
  *
- * @param[in] LDL1
- *         The leading dimension of the array L1.  LDL1 >= max(1,IB).
+ * @param[in] ldL1
+ *         The leading dimension of the array L1.  ldL1 >= max(1,IB).
  *
  * @param[in] L2
  *         The M2-by-K tile as returned by CORE_ztstrf.
  *
- * @param[in] LDL2
- *         The leading dimension of the array L2.  LDL2 >= max(1,M2).
+ * @param[in] ldL2
+ *         The leading dimension of the array L2.  ldL2 >= max(1,M2).
  *
  * @param[in] IPIV
  *         The pivot indices array of size K as returned by
@@ -130,10 +135,10 @@ CODELETS_CPU(zssssm, 4, cl_zssssm_cpu_func)
  */
 void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
                          int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                         const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
-                         const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
-                         const CHAM_desc_t *L1, int L1m, int L1n, int ldl1,
-                         const CHAM_desc_t *L2, int L2m, int L2n, int ldl2,
+                         const CHAM_desc_t *A1, int A1m, int A1n, int ldA1,
+                         const CHAM_desc_t *A2, int A2m, int A2n, int ldA2,
+                         const CHAM_desc_t *L1, int L1m, int L1n, int ldL1,
+                         const CHAM_desc_t *L2, int L2m, int L2n, int ldL2,
                          const int *IPIV )
 {
     (void)nb;
@@ -156,13 +161,9 @@ void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
         STARPU_VALUE,     &k,                        sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_RW,            RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
-        STARPU_VALUE,  &lda1,                        sizeof(int),
         STARPU_RW,            RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
-        STARPU_VALUE,  &lda2,                        sizeof(int),
         STARPU_R,             RTBLKADDR(L1, CHAMELEON_Complex64_t, L1m, L1n),
-        STARPU_VALUE,  &ldl1,                        sizeof(int),
         STARPU_R,             RTBLKADDR(L2, CHAMELEON_Complex64_t, L2m, L2n),
-        STARPU_VALUE,  &ldl2,                        sizeof(int),
         STARPU_VALUE,          &IPIV,                      sizeof(int*),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,

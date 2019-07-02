@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -34,7 +35,7 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     int n;
     int ib;
     CHAMELEON_Complex64_t *A;
-    int lda, ldl;
+    int ldA, ldL;
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
@@ -43,9 +44,11 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldL = STARPU_MATRIX_GET_LD( descr[1] );
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldl, &IPIV, &check_info, &iinfo, &h_work, &sequence, &request);
-    CORE_zgetrf_incpiv(m, n, ib, A, lda, IPIV, &info);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &IPIV, &check_info, &iinfo, &h_work, &sequence, &request);
+    CORE_zgetrf_incpiv(m, n, ib, A, ldA, IPIV, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -91,8 +94,8 @@ CODELETS_CPU(zgetrf_incpiv, 3, cl_zgetrf_incpiv_cpu_func)
  *         On exit, the factors L and U from the factorization
  *         A = P*L*U; the unit diagonal elements of L are not stored.
  *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
+ * @param[in] ldA
+ *         The leading dimension of the array A.  ldA >= max(1,M).
  *
  * @param[out] IPIV
  *         The pivot indices; for 1 <= i <= min(M,N), row i of the
@@ -114,8 +117,8 @@ CODELETS_CPU(zgetrf_incpiv, 3, cl_zgetrf_incpiv_cpu_func)
 
 void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
                               int m, int n, int ib, int nb,
-                              const CHAM_desc_t *A, int Am, int An, int lda,
-                              const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                              const CHAM_desc_t *A, int Am, int An, int ldA,
+                              const CHAM_desc_t *L, int Lm, int Ln, int ldL,
                               int *IPIV,
                               cham_bool_t check_info, int iinfo)
 {
@@ -136,9 +139,7 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_W,         RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),
-        STARPU_VALUE,    &ldl,               sizeof(int),
         STARPU_VALUE,    &IPIV,              sizeof(int*),
         STARPU_VALUE,    &check_info,        sizeof(cham_bool_t),
         STARPU_VALUE,    &iinfo,             sizeof(int),
@@ -152,4 +153,6 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         STARPU_NAME, "zgetrf_incpiv",
 #endif
         0);
+    (void)ldL;
+    (void)ldA;
 }

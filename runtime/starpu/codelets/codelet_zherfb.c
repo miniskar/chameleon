@@ -13,6 +13,7 @@
  *
  * @version 0.9.2
  * @author Hatem Ltaief
+ * @author Lucas Barros de Assis
  * @date 2016-12-09
  * @precisions normal z -> c d s
  *
@@ -29,22 +30,26 @@ static void cl_zherfb_cpu_func(void *descr[], void *cl_arg)
     int ib;
     int nb;
     const CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     const CHAMELEON_Complex64_t *T;
-    int ldt;
+    int ldT;
     CHAMELEON_Complex64_t *C;
-    int ldc;
+    int ldC;
     CHAMELEON_Complex64_t *WORK;
-    int ldwork;
+    int ldWORK;
 
     A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &lda, &ldt, &ldc, &ldwork);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
 
-    CORE_zherfb(uplo, n, k, ib, nb, A, lda, T, ldt, C, ldc, WORK, ldwork);
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &ldWORK);
+
+    CORE_zherfb(uplo, n, k, ib, nb, A, ldA, T, ldT, C, ldC, WORK, ldWORK);
 }
 
 #if defined(CHAMELEON_USE_CUDA)
@@ -56,13 +61,13 @@ static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
     int ib;
     int nb;
     const cuDoubleComplex *A;
-    int lda;
+    int ldA;
     const cuDoubleComplex *T;
-    int ldt;
+    int ldT;
     cuDoubleComplex *C;
-    int ldc;
+    int ldC;
     cuDoubleComplex *WORK;
-    int ldwork;
+    int ldWORK;
 
     RUNTIME_getStream(stream);
 
@@ -71,9 +76,13 @@ static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
     C    = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &lda, &ldt, &ldc, &ldwork);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
 
-    CUDA_zherfb( uplo, n, k, ib, nb, A, lda, T, ldt, C, ldc, WORK, ldwork, stream );
+    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &ldWORK);
+
+    CUDA_zherfb( uplo, n, k, ib, nb, A, ldA, T, ldT, C, ldC, WORK, ldWORK, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -95,9 +104,9 @@ CODELETS(zherfb, 4, cl_zherfb_cpu_func, cl_zherfb_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int n, int k, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                       const CHAM_desc_t *A, int Am, int An, int ldA,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldT,
+                       const CHAM_desc_t *C, int Cm, int Cn, int ldC)
 {
     struct starpu_codelet *codelet = &cl_zherfb;
     void (*callback)(void*) = options->profiling ? cl_zherfb_callback : NULL;
@@ -116,11 +125,8 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_VALUE,    &nb,                sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_VALUE,    &ldt,               sizeof(int),
         STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_VALUE,    &ldc,               sizeof(int),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &nb,                sizeof(int),
         STARPU_PRIORITY,  options->priority,
@@ -129,4 +135,7 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
         STARPU_NAME, "zherfb",
 #endif
         0);
+    (void)ldC;
+    (void)ldT;
+    (void)ldA;
 }

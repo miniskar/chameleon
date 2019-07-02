@@ -16,6 +16,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -33,16 +34,17 @@ static void cl_zgetrf_nopiv_cpu_func(void *descr[], void *cl_arg)
     int n;
     int ib;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     int iinfo;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
     int info = 0;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &iinfo, &sequence, &request);
-    CORE_zgetrf_nopiv(m, n, ib, A, lda, &info);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &iinfo, &sequence, &request);
+    CORE_zgetrf_nopiv(m, n, ib, A, ldA, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -88,8 +90,8 @@ CODELETS_CPU(zgetrf_nopiv, 1, cl_zgetrf_nopiv_cpu_func)
  *          On exit, the factors L and U from the factorization
  *          A = P*L*U; the unit diagonal elements of L are not stored.
  *
- *  @param[in] LDA
- *          The leading dimension of the array A.  LDA >= max(1,M).
+ *  @param[in] ldA
+ *          The leading dimension of the array A.  ldA >= max(1,M).
  *
  *******************************************************************************
  *
@@ -104,7 +106,7 @@ CODELETS_CPU(zgetrf_nopiv, 1, cl_zgetrf_nopiv_cpu_func)
 
 void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
                               int m, int n, int ib, int nb,
-                              const CHAM_desc_t *A, int Am, int An, int lda,
+                              const CHAM_desc_t *A, int Am, int An, int ldA,
                               int iinfo)
 {
     (void)nb;
@@ -121,7 +123,6 @@ void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
         STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),
@@ -131,4 +132,5 @@ void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
         STARPU_NAME, "zgetrf_nopiv",
 #endif
         0);
+    (void)ldA;
 }

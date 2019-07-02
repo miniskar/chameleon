@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -34,21 +35,23 @@ static void cl_zgeqrt_cpu_func(void *descr[], void *cl_arg)
     int n;
     int ib;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex64_t *T;
-    int ldt;
+    int ldT;
     CHAMELEON_Complex64_t *TAU, *WORK;
 
     A   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     T   = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     TAU = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]); /* max(m,n) + n * ib */
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &lda, &ldt, &h_work);
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &h_work);
 
     WORK = TAU + chameleon_max( m, n );
 
-    CORE_zlaset( ChamUpperLower, ib, n, 0., 0., T, ldt );
-    CORE_zgeqrt(m, n, ib, A, lda, T, ldt, TAU, WORK);
+    CORE_zlaset( ChamUpperLower, ib, n, 0., 0., T, ldT );
+    CORE_zgeqrt(m, n, ib, A, ldA, T, ldT, TAU, WORK);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -95,16 +98,16 @@ CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)
  *         with the array TAU, represent the unitary tile Q as a
  *         product of elementary reflectors (see Further Details).
  *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
+ * @param[in] ldA
+ *         The leading dimension of the array A.  ldA >= max(1,M).
  *
  * @param[out] T
  *         The IB-by-N triangular factor T of the block reflector.
  *         T is upper triangular by block (economic storage);
  *         The rest of the array is not referenced.
  *
- * @param[in] LDT
- *         The leading dimension of the array T. LDT >= IB.
+ * @param[in] ldT
+ *         The leading dimension of the array T. ldT >= IB.
  *
  * @param[out] TAU
  *         The scalar factors of the elementary reflectors (see Further
@@ -120,8 +123,8 @@ CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)
  */
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A, int Am, int An, int ldA,
+                       const CHAM_desc_t *T, int Tm, int Tn, int ldT)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgeqrt;
@@ -139,9 +142,7 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_W,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_VALUE,    &ldt,               sizeof(int),
         /* max( nb * (ib+1), ib * (ib+nb) ) */
         STARPU_SCRATCH,   options->ws_worker,
         /* ib * (m+3*ib) + max(m,n) */
@@ -152,4 +153,6 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
         STARPU_NAME, "zgeqrt",
 #endif
         0);
+    (void)ldT;
+    (void)ldA;
 }

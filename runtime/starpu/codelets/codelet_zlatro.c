@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2016-12-09
  * @precisions normal z -> c d s
  *
@@ -34,14 +35,17 @@ static void cl_zlatro_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     const CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int LDB;
+    int ldB;
 
     A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &LDA, &LDB);
-    CORE_zlatro(uplo, trans, M, N, A, LDA, B, LDB);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N);
+    CORE_zlatro(uplo, trans, M, N, A, ldA, B, ldB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -58,8 +62,8 @@ CODELETS_CPU(zlatro, 2, cl_zlatro_cpu_func)
 void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans,
                          int m, int n, int mb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldB )
 {
     struct starpu_codelet *codelet = &cl_zlatro;
     void (*callback)(void*) = NULL;
@@ -76,14 +80,14 @@ void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
         STARPU_VALUE,   &m,       sizeof(int),
         STARPU_VALUE,   &n,       sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,   &lda,     sizeof(int),
         STARPU_W,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,   &ldb,     sizeof(int),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlatro",
 #endif
         0);
+    (void)ldA;
+    (void)ldB;
     (void)mb;
 }

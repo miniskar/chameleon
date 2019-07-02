@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -36,24 +37,26 @@ static void cl_zunmqr_cpu_func(void *descr[], void *cl_arg)
     int k;
     int ib;
     const CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     const CHAMELEON_Complex64_t *T;
-    int ldt;
+    int ldT;
     CHAMELEON_Complex64_t *C;
-    int ldc;
+    int ldC;
     CHAMELEON_Complex64_t *WORK;
-    int ldwork;
+int ldWORK;
 
     A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
 
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
-                               &lda, &ldt, &ldc, &ldwork);
+    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib, &ldWORK);
 
     CORE_zunmqr(side, trans, m, n, k, ib,
-                A, lda, T, ldt, C, ldc, WORK, ldwork);
+                A, ldA, T, ldT, C, ldC, WORK, ldWORK);
 }
 
 #if defined(CHAMELEON_USE_CUDA)
@@ -67,21 +70,23 @@ static void cl_zunmqr_cuda_func(void *descr[], void *cl_arg)
     int ib;
     const cuDoubleComplex *A, *T;
     cuDoubleComplex *C, *WORK;
-    int lda, ldt, ldc, ldwork;
+    int ldA, ldT, ldC, ldWORK;
 
-    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib,
-                               &lda, &ldt, &ldc, &ldwork);
+    starpu_codelet_unpack_args(cl_arg, &side, &trans, &m, &n, &k, &ib, &ldWORK);
 
     A    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     T    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
     C    = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[2] );
 
     RUNTIME_getStream(stream);
 
     CUDA_zunmqrt(
             side, trans, m, n, k, ib,
-            A, lda, T, ldt, C, ldc, WORK, ldwork, stream );
+            A, ldA, T, ldT, C, ldC, WORK, ldWORK, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -139,38 +144,38 @@ CODELETS(zunmqr, 4, cl_zunmqr_cpu_func, cl_zunmqr_cuda_func, STARPU_CUDA_ASYNC)
  *         The inner-blocking size.  IB >= 0.
  *
  * @param[in] A
- *         Dimension:  (LDA,K)
+ *         Dimension:  (ldA,K)
  *         The i-th column must contain the vector which defines the
  *         elementary reflector H(i), for i = 1,2,...,k, as returned by
  *         CORE_zgeqrt in the first k columns of its array argument A.
  *
- * @param[in] LDA
+ * @param[in] ldA
  *         The leading dimension of the array A.
- *         If SIDE = ChamLeft,  LDA >= max(1,M);
- *         if SIDE = ChamRight, LDA >= max(1,N).
+ *         If SIDE = ChamLeft,  ldA >= max(1,M);
+ *         if SIDE = ChamRight, ldA >= max(1,N).
  *
  * @param[in] T
  *         The IB-by-K triangular factor T of the block reflector.
  *         T is upper triangular by block (economic storage);
  *         The rest of the array is not referenced.
  *
- * @param[in] LDT
- *         The leading dimension of the array T. LDT >= IB.
+ * @param[in] ldT
+ *         The leading dimension of the array T. ldT >= IB.
  *
  * @param[in,out] C
  *         On entry, the M-by-N tile C.
  *         On exit, C is overwritten by Q*C or Q^T*C or C*Q^T or C*Q.
  *
- * @param[in] LDC
- *         The leading dimension of the array C. LDC >= max(1,M).
+ * @param[in] ldC
+ *         The leading dimension of the array C. ldC >= max(1,M).
  *
  * @param[in,out] WORK
- *         On exit, if INFO = 0, WORK(1) returns the optimal LDWORK.
+ *         On exit, if INFO = 0, WORK(1) returns the optimal ldWORK.
  *
- * @param[in] LDWORK
+ * @param[in] ldWORK
  *         The dimension of the array WORK.
- *         If SIDE = ChamLeft,  LDWORK >= max(1,N);
- *         if SIDE = ChamRight, LDWORK >= max(1,M).
+ *         If SIDE = ChamLeft,  ldWORK >= max(1,N);
+ *         if SIDE = ChamRight, ldWORK >= max(1,M).
  *
  *******************************************************************************
  *
@@ -181,9 +186,9 @@ CODELETS(zunmqr, 4, cl_zunmqr_cpu_func, cl_zunmqr_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zunmqr( const RUNTIME_option_t *options,
                          cham_side_t side, cham_trans_t trans,
                          int m, int n, int k, int ib, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                         const CHAM_desc_t *C, int Cm, int Cn, int ldc )
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldT,
+                         const CHAM_desc_t *C, int Cm, int Cn, int ldC )
 {
     struct starpu_codelet *codelet = &cl_zunmqr;
     void (*callback)(void*) = options->profiling ? cl_zunmqr_callback : NULL;
@@ -203,11 +208,8 @@ void INSERT_TASK_zunmqr( const RUNTIME_option_t *options,
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_VALUE,    &ldt,               sizeof(int),
         STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_VALUE,    &ldc,               sizeof(int),
         /* ib * nb */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &nb,                sizeof(int),
@@ -217,4 +219,7 @@ void INSERT_TASK_zunmqr( const RUNTIME_option_t *options,
         STARPU_NAME, "zunmqr",
 #endif
         0);
+
+    (void)ldT;
+    (void)ldA;
 }

@@ -11,6 +11,7 @@
  *
  * @version 0.9.2
  * @author Mathieu Faverge
+ * @author Lucas Barros de Assis
  * @date 2018-01-31
  * @precisions normal z -> s d c
  *
@@ -29,13 +30,13 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
     int L;
     int ib;
     const CHAMELEON_Complex64_t *V;
-    int ldv;
+    int ldV;
     const CHAMELEON_Complex64_t *T;
-    int ldt;
+    int ldT;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int ldb;
+    int ldB;
     CHAMELEON_Complex64_t *WORK;
     size_t lwork;
 
@@ -44,12 +45,14 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
     A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     B    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
-
-    starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb, &lwork );
+    ldV = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldA = STARPU_MATRIX_GET_LD( descr[2] );
+    ldB = STARPU_MATRIX_GET_LD( descr[3] );
+    starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib, &lwork );
 
     CORE_ztpmlqt( side, trans, M, N, K, L, ib,
-                  V, ldv, T, ldt, A, lda, B, ldb, WORK );
+                  V, ldV, T, ldT, A, ldA, B, ldB, WORK );
 
     (void)lwork;
 }
@@ -65,13 +68,13 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
     int L;
     int ib;
     const cuDoubleComplex *V;
-    int ldv;
+    int ldV;
     const cuDoubleComplex *T;
-    int ldt;
+    int ldT;
     cuDoubleComplex *A;
-    int lda;
+    int ldA;
     cuDoubleComplex *B;
-    int ldb;
+    int ldB;
     cuDoubleComplex *W;
     size_t lwork;
 
@@ -80,15 +83,18 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
     A = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
     B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]);
     W = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 2*ib*nb */
+    ldV = STARPU_MATRIX_GET_LD( descr[0] );
+    ldT = STARPU_MATRIX_GET_LD( descr[1] );
+    ldA = STARPU_MATRIX_GET_LD( descr[2] );
+    ldB = STARPU_MATRIX_GET_LD( descr[3] );
 
-    starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib,
-                                &ldv, &ldt, &lda, &ldb, &lwork );
+    starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib, &lwork );
 
     RUNTIME_getStream(stream);
 
     CUDA_ztpmlqt(
             side, trans, M, N, K, L, ib,
-            V, ldv, T, ldt, A, lda, B, ldb,
+            V, ldV, T, ldT, A, ldA, B, ldB,
             W, lwork, stream );
 
 #ifndef STARPU_CUDA_ASYNC
@@ -106,10 +112,10 @@ CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYN
 void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
                           cham_side_t side, cham_trans_t trans,
                           int M, int N, int K, int L, int ib, int nb,
-                          const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                          const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                          const CHAM_desc_t *A, int Am, int An, int lda,
-                          const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                          const CHAM_desc_t *V, int Vm, int Vn, int ldV,
+                          const CHAM_desc_t *T, int Tm, int Tn, int ldT,
+                          const CHAM_desc_t *A, int Am, int An, int ldA,
+                          const CHAM_desc_t *B, int Bm, int Bn, int ldB )
 {
     struct starpu_codelet *codelet = &cl_ztpmlqt;
     void (*callback)(void*) = options->profiling ? cl_ztpmlqt_callback : NULL;
@@ -131,13 +137,9 @@ void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
         STARPU_VALUE, &L,     sizeof(int),
         STARPU_VALUE, &ib,     sizeof(int),
         STARPU_R,      RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),
-        STARPU_VALUE, &ldv,   sizeof(int),
         STARPU_R,      RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_VALUE, &ldt,   sizeof(int),
         STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE, &lda,   sizeof(int),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE, &ldb,   sizeof(int),
         STARPU_VALUE, &(options->ws_wsize), sizeof(size_t),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
@@ -150,6 +152,9 @@ void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
         STARPU_NAME, (( L == 0 ) ? "ztsmlq" : "ztpmlqt"),
 #endif
         0);
+    (void)ldA;
+    (void)ldT;
+    (void)ldV;
 
     (void)ib; (void)nb;
 }
