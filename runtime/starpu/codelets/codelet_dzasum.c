@@ -15,6 +15,7 @@
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -30,13 +31,15 @@ static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     double *work;
 
     A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     work = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N, &lda);
-    CORE_dzasum(storev, uplo, M, N, A, lda, work);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N);
+    CORE_dzasum(storev, uplo, M, N, A, ldA, work);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -47,7 +50,7 @@ CODELETS_CPU(dzasum, 2, cl_dzasum_cpu_func)
 
 void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_dzasum;
@@ -65,7 +68,6 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
         STARPU_VALUE,         &M,                        sizeof(int),
         STARPU_VALUE,         &N,                        sizeof(int),
         STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,       &lda,                        sizeof(int),
         STARPU_RW,        RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
@@ -73,4 +75,5 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
         STARPU_NAME, "dzasum",
 #endif
         0);
+    (void)ldA;
 }

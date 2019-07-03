@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -32,11 +33,13 @@ static void cl_zlauum_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int N;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &N, &LDA);
-    CORE_zlauum(uplo, N, A, LDA);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &N);
+    CORE_zlauum(uplo, N, A, ldA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -52,7 +55,7 @@ CODELETS_CPU(zlauum, 1, cl_zlauum_cpu_func)
  */
 void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda )
+                         const CHAM_desc_t *A, int Am, int An, int ldA )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlauum;
@@ -67,11 +70,12 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
         STARPU_VALUE,    &uplo,              sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,               sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlauum",
 #endif
         0);
+
+    (void)ldA;
 }

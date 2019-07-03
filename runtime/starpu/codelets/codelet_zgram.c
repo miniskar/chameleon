@@ -12,6 +12,7 @@
  * @version 0.9.2
  * @author Mathieu Faverge
  * @author Florent Pruvost
+ * @author Lucas Barros de Assis
  * @date 2019-04-16
  * @precisions normal z -> c d s
  *
@@ -25,24 +26,29 @@ static void cl_zgram_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int m, n, mt, nt;
     double *Di;
-    int lddi;
+    int ldDI;
     double *Dj;
-    int lddj;
+    int ldDJ;
     double *D;
     double *A;
-    int lda;
+    int ldA;
 
     Di = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
     Dj = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     D  = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
     A  = (double *)STARPU_MATRIX_GET_PTR(descr[3]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &m, &n, &mt, &nt, &lddi, &lddj, &lda);
+
+    ldDI = STARPU_MATRIX_GET_LD( descr[0] );
+    ldDJ = STARPU_MATRIX_GET_LD( descr[1] );
+    ldA = STARPU_MATRIX_GET_LD( descr[3] );
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &m, &n, &mt, &nt);
     CORE_zgram( uplo,
                 m, n, mt, nt,
-                Di, lddi,
-                Dj, lddj,
+                Di, ldDI,
+                Dj, ldDJ,
                 D,
-                A, lda);
+                A, ldA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -54,10 +60,10 @@ CODELETS_CPU(zgram, 4, cl_zgram_cpu_func)
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int mt, int nt,
-                        const CHAM_desc_t *Di, int Dim, int Din, int lddi,
-                        const CHAM_desc_t *Dj, int Djm, int Djn, int lddj,
+                        const CHAM_desc_t *Di, int Dim, int Din, int ldDI,
+                        const CHAM_desc_t *Dj, int Djm, int Djn, int ldDJ,
                         const CHAM_desc_t *D, int Dm, int Dn,
-                        CHAM_desc_t *A, int Am, int An, int lda)
+                        CHAM_desc_t *A, int Am, int An, int ldA)
 {
   struct starpu_codelet *codelet = &cl_zgram;
   void (*callback)(void*) = options->profiling ? cl_zgram_callback : NULL;
@@ -77,16 +83,16 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
         STARPU_VALUE,    &mt,                        sizeof(int),
         STARPU_VALUE,    &nt,                        sizeof(int),
         STARPU_R,        RTBLKADDR(Di, double, Dim, Din),
-        STARPU_VALUE,    &lddi,                      sizeof(int),
         STARPU_R,        RTBLKADDR(Dj, double, Djm, Djn),
-        STARPU_VALUE,    &lddj,                      sizeof(int),
         STARPU_R,        RTBLKADDR(D, double, Dm, Dn),
         STARPU_RW,       RTBLKADDR(A, double, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zgram",
 #endif
         0);
+    (void)ldA;
+    (void)ldDJ;
+    (void)ldDI;
 }

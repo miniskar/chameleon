@@ -29,14 +29,16 @@ static void cl_zlantr_cpu_func(void *descr[], void *cl_arg)
     cham_normtype_t norm, uplo, diag;
     int M, N;
     CHAMELEON_Complex64_t *A;
-    int LDA;
+    int ldA;
     double *work;
 
     A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
     normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &diag, &M, &N, &LDA);
-    CORE_zlantr( norm, uplo, diag, M, N, A, LDA, work, normA);
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+
+    starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &diag, &M, &N);
+    CORE_zlantr( norm, uplo, diag, M, N, A, ldA, work, normA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -48,7 +50,7 @@ CODELETS_CPU(zlantr, 3, cl_zlantr_cpu_func)
 void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
                          cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
                          int M, int N, int NB,
-                         const CHAM_desc_t *A, int Am, int An, int LDA,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_zlantr;
@@ -67,7 +69,6 @@ void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &LDA,               sizeof(int),
         STARPU_SCRATCH,  options->ws_worker,
         STARPU_W,        RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY, options->priority,
@@ -76,6 +77,7 @@ void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
         STARPU_NAME, "zlantr",
 #endif
         0);
+    (void)ldA;
 
     (void)NB;
 }

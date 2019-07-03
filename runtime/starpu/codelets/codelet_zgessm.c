@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -34,16 +35,21 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
     int k;
     int ib;
     int *IPIV;
-    int ldl;
+    int ldL;
     CHAMELEON_Complex64_t *D;
-    int ldd;
+    int ldD;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
 
     D = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV, &ldl, &ldd, &lda);
-    CORE_zgessm(m, n, k, ib, IPIV, D, ldd, A, lda);
+
+    ldL = STARPU_MATRIX_GET_LD( descr[0] );
+    ldD = STARPU_MATRIX_GET_LD( descr[1] );
+    ldA = STARPU_MATRIX_GET_LD( descr[2] );
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV);
+    CORE_zgessm(m, n, k, ib, IPIV, D, ldD, A, ldA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -80,15 +86,15 @@ CODELETS_CPU(zgessm, 3, cl_zgessm_cpu_func)
  * @param[in] L
  *         The M-by-K lower triangular tile.
  *
- * @param[in] LDL
- *         The leading dimension of the array L.  LDL >= max(1,M).
+ * @param[in] ldL
+ *         The leading dimension of the array L.  ldL >= max(1,M).
  *
  * @param[in,out] A
  *         On entry, the M-by-N tile A.
  *         On exit, updated by the application of L.
  *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
+ * @param[in] ldA
+ *         The leading dimension of the array A.  ldA >= max(1,M).
  *
  *******************************************************************************
  *
@@ -100,9 +106,9 @@ CODELETS_CPU(zgessm, 3, cl_zgessm_cpu_func)
 void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
                          int m, int n, int k, int ib, int nb,
                          int *IPIV,
-                         const CHAM_desc_t *L, int Lm, int Ln, int ldl,
-                         const CHAM_desc_t *D, int Dm, int Dn, int ldd,
-                         const CHAM_desc_t *A, int Am, int An, int lda )
+                         const CHAM_desc_t *L, int Lm, int Ln, int ldL,
+                         const CHAM_desc_t *D, int Dm, int Dn, int ldD,
+                         const CHAM_desc_t *A, int Am, int An, int ldA )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgessm;
@@ -122,15 +128,14 @@ void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_VALUE,          &IPIV,                      sizeof(int*),
         STARPU_R,             RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),
-        STARPU_VALUE,   &ldl,                        sizeof(int),
         STARPU_R,             RTBLKADDR(D, CHAMELEON_Complex64_t, Dm, Dn),
-        STARPU_VALUE,   &ldd,                        sizeof(int),
         STARPU_RW,            RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,   &lda,                        sizeof(int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zgessm",
 #endif
         0);
+    (void)ldD;
+    (void)ldL;
 }

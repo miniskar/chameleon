@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -149,8 +150,9 @@ int testing_zgels(int argc, char **argv)
         printf("***************************************************\n");
     }
     else {
+        hres++;
         printf("************************************************\n");
-        printf(" - TESTING ZGELS ... FAILED !\n");    hres++;
+        printf(" - TESTING ZGELS ... FAILED !\n");
         printf("************************************************\n");
     }
 
@@ -197,6 +199,7 @@ int testing_zgels(int argc, char **argv)
             printf("***************************************************\n");
         }
         else{
+            hres++;
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZGEQRS ... FAILED !\n");
             printf("***************************************************\n");
@@ -223,15 +226,16 @@ int testing_zgels(int argc, char **argv)
        info_solution = check_solution(M, N, NRHS, A1, LDA, B1, B2, LDB, eps);
 
        if ( (info_solution == 0) & (info_factorization == 0) & (info_ortho == 0) ) {
-          printf("***************************************************\n");
-          printf(" ---- TESTING ZGELQF + ZGELQS ............ PASSED !\n");
-          printf("***************************************************\n");
+           printf("***************************************************\n");
+           printf(" ---- TESTING ZGELQF + ZGELQS ............ PASSED !\n");
+           printf("***************************************************\n");
        }
        else {
-          printf("***************************************************\n");
-          printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
-          printf("***************************************************\n");
-        }
+           hres++;
+           printf("***************************************************\n");
+           printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
+           printf("***************************************************\n");
+       }
     }
 
     /*----------------------------------------------------------
@@ -305,6 +309,8 @@ int testing_zgels(int argc, char **argv)
         }
     }
     else {
+        hres++;
+
         if (M >= N) {
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZUNMQR + ZTRSM ... FAILED !\n");

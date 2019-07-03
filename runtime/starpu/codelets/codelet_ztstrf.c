@@ -19,6 +19,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -35,14 +36,14 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
     int ib;
     int nb;
     CHAMELEON_Complex64_t *U;
-    int ldu;
+    int ldU;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex64_t *L;
-    int ldl;
+    int ldL;
     int *IPIV;
     CHAMELEON_Complex64_t *WORK;
-    int ldwork;
+    int ldWORK;
     cham_bool_t check_info;
     int iinfo;
     RUNTIME_sequence_t *sequence;
@@ -53,12 +54,14 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     L = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb, &ldu, &lda, &ldl,
-                               &IPIV, &d_work, &ldwork, &check_info, &iinfo,
+    ldU = STARPU_MATRIX_GET_LD( descr[0] );
+    ldA = STARPU_MATRIX_GET_LD( descr[1] );
+    ldL = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb,
+                               &IPIV, &d_work, &ldWORK, &check_info, &iinfo,
                                &sequence, &request);
 
-    CORE_ztstrf(m, n, ib, nb, U, ldu, A, lda, L, ldl, IPIV, WORK, ldwork, &info);
+    CORE_ztstrf(m, n, ib, nb, U, ldU, A, ldA, L, ldL, IPIV, WORK, ldWORK, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -98,22 +101,22 @@ CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
  *         On entry, the NB-by-N upper triangular tile.
  *         On exit, the new factor U from the factorization
  *
- * @param[in] LDU
- *         The leading dimension of the array U.  LDU >= max(1,NB).
+ * @param[in] ldU
+ *         The leading dimension of the array U.  ldU >= max(1,NB).
  *
  * @param[in,out] A
  *         On entry, the M-by-N tile to be factored.
  *         On exit, the factor L from the factorization
  *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
+ * @param[in] ldA
+ *         The leading dimension of the array A.  ldA >= max(1,M).
  *
  * @param[in,out] L
  *         On entry, the IB-by-N lower triangular tile.
  *         On exit, the interchanged rows form the tile A in case of pivoting.
  *
- * @param[in] LDL
- *         The leading dimension of the array L.  LDL >= max(1,IB).
+ * @param[in] ldL
+ *         The leading dimension of the array L.  ldL >= max(1,IB).
  *
  * @param[out] IPIV
  *         The pivot indices; for 1 <= i <= min(M,N), row i of the
@@ -121,7 +124,7 @@ CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
  *
  * @param[in,out] WORK
  *
- * @param[in] LDWORK
+ * @param[in] ldWORK
  *         The dimension of the array WORK.
  *
  * @param[out] INFO
@@ -138,9 +141,9 @@ CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
  */
 void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
-                         const CHAM_desc_t *U, int Um, int Un, int ldu,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *L, int Lm, int Ln, int ldl,
+                         const CHAM_desc_t *U, int Um, int Un, int ldU,
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *L, int Lm, int Ln, int ldL,
                          int *IPIV,
                          cham_bool_t check_info, int iinfo )
 {
@@ -162,11 +165,8 @@ void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_VALUE,    &nb,                        sizeof(int),
         STARPU_RW,        RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
-        STARPU_VALUE,    &ldu,                       sizeof(int),
         STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &lda,                       sizeof(int),
         STARPU_W,         RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),
-        STARPU_VALUE,    &ldl,                       sizeof(int),
         STARPU_VALUE,    &IPIV,                      sizeof(int*),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &d_work,                    sizeof(CHAMELEON_starpu_ws_t *),
@@ -181,4 +181,7 @@ void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
         STARPU_NAME, "ztstrf",
 #endif
         0);
+    (void)ldL;
+    (void)ldA;
+    (void)ldU;
 }

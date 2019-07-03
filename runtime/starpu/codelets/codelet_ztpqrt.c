@@ -28,24 +28,25 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
     int L;
     int ib;
     CHAMELEON_Complex64_t *A;
-    int lda;
+    int ldA;
     CHAMELEON_Complex64_t *B;
-    int ldb;
+    int ldB;
     CHAMELEON_Complex64_t *T;
-    int ldt;
+    int ldT;
     CHAMELEON_Complex64_t *WORK;
 
     A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     B    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     T    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
     WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    ldT = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args( cl_arg, &M, &N, &L, &ib );
 
-    starpu_codelet_unpack_args( cl_arg, &M, &N, &L, &ib,
-                                &lda, &ldb, &ldt );
-
-    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldt );
+    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldT );
     CORE_ztpqrt( M, N, L, ib,
-                 A, lda, B, ldb, T, ldt, WORK );
+                 A, ldA, B, ldB, T, ldT, WORK );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -56,9 +57,9 @@ CODELETS_CPU(ztpqrt, 4, cl_ztpqrt_cpu_func)
 
 void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          int M, int N, int L, int ib, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                         const CHAM_desc_t *T, int Tm, int Tn, int ldt )
+                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *B, int Bm, int Bn, int ldB,
+                         const CHAM_desc_t *T, int Tm, int Tn, int ldT )
 {
     struct starpu_codelet *codelet = &cl_ztpqrt;
     void (*callback)(void*) = options->profiling ? cl_ztpqrt_callback : NULL;
@@ -76,11 +77,8 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
         STARPU_VALUE, &L,     sizeof(int),
         STARPU_VALUE, &ib,    sizeof(int),
         STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE, &lda,   sizeof(int),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE, &ldb,   sizeof(int),
         STARPU_W,      RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_VALUE, &ldt,   sizeof(int),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
@@ -92,6 +90,8 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
         STARPU_NAME, "ztpqrt",
 #endif
         0);
+    (void)ldB;
+    (void)ldA;
 
     (void)ib; (void)nb;
 }

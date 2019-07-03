@@ -14,6 +14,7 @@
  * @version 0.9.2
  * @author Mathieu Faverge
  * @author Boucherie Raphael
+ * @author Lucas Barros de Assis
  * @date 2017-05-22
  * @precisions normal z -> c d s
  *
@@ -153,8 +154,9 @@ int testing_zgels_systolic(int argc, char **argv)
         printf("***************************************************\n");
     }
     else {
+        hres++;
         printf("************************************************\n");
-        printf(" - TESTING ZGELS_SYSTOLIC ... FAILED !\n");    hres++;
+        printf(" - TESTING ZGELS_SYSTOLIC ... FAILED !\n");
         printf("************************************************\n");
     }
 
@@ -196,6 +198,7 @@ int testing_zgels_systolic(int argc, char **argv)
             printf("***************************************************\n");
         }
         else{
+            hres++;
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZGEQRS ... FAILED !\n");
             printf("***************************************************\n");
@@ -229,6 +232,7 @@ int testing_zgels_systolic(int argc, char **argv)
             printf("***************************************************\n");
         }
         else {
+            hres++;
             printf("***************************************************\n");
             printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
             printf("***************************************************\n");
@@ -303,6 +307,8 @@ int testing_zgels_systolic(int argc, char **argv)
         }
     }
     else {
+        hres++;
+
         if (M >= N) {
             printf("***************************************************\n");
             printf(" - TESTING ZGEQRF + ZUNMQR + ZTRSM ... FAILED !\n");

@@ -18,6 +18,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2014-11-16
  * @precisions normal z -> c d s
  *
@@ -114,8 +115,9 @@ int testing_zgesv_incpiv(int argc, char **argv)
         printf("***************************************************\n");
     }
     else{
+        hres++;
         printf("************************************************\n");
-        printf(" - TESTING INCPIV ZGESV ... FAILED !\n");    hres++;
+        printf(" - TESTING INCPIV ZGESV ... FAILED !\n");
         printf("************************************************\n");
     }
 
@@ -157,6 +159,7 @@ int testing_zgesv_incpiv(int argc, char **argv)
         printf("***************************************************\n");
     }
     else{
+        hres++;
         printf("***************************************************\n");
         printf(" - TESTING INCPIV ZGETRF + ZGETRS ... FAILED !\n");
         printf("***************************************************\n");
@@ -202,6 +205,7 @@ int testing_zgesv_incpiv(int argc, char **argv)
         printf("***************************************************\n");
     }
     else{
+        hres++;
         printf("**************************************************\n");
         printf(" - TESTING INCPIV ZGETRF + ZTRSMPL + ZTRSM ... FAILED !\n");
         printf("**************************************************\n");
