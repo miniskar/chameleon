@@ -70,7 +70,7 @@ static void cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
     A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
     C = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
     ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldA = STARPU_MATRIX_GET_LD( descr[1] );
+    ldC = STARPU_MATRIX_GET_LD( descr[1] );
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &n, &k, &alpha, &beta);
 
     RUNTIME_getStream(stream);
