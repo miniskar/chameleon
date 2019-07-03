@@ -35,7 +35,6 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
     int k;
     int ib;
     int *IPIV;
-    int ldL;
     CHAMELEON_Complex64_t *D;
     int ldD;
     CHAMELEON_Complex64_t *A;
@@ -44,7 +43,6 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
     D = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
 
-    ldL = STARPU_MATRIX_GET_LD( descr[0] );
     ldD = STARPU_MATRIX_GET_LD( descr[1] );
     ldA = STARPU_MATRIX_GET_LD( descr[2] );
 

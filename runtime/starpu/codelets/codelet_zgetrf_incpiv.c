@@ -35,7 +35,7 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     int n;
     int ib;
     CHAMELEON_Complex64_t *A;
-    int ldA, ldL;
+    int ldA;
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
@@ -45,7 +45,6 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
 
     A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
     ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldL = STARPU_MATRIX_GET_LD( descr[1] );
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &IPIV, &check_info, &iinfo, &h_work, &sequence, &request);
     CORE_zgetrf_incpiv(m, n, ib, A, ldA, IPIV, &info);
