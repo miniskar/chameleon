@@ -122,6 +122,8 @@ static inline int chameleon_min( int a, int b ) {
     if ( a < b ) return a; else return b;
 }
 
+typedef double cham_fixdbl_t;
+
 END_C_DECLS
 
 #endif /* _chameleon_types_h_ */

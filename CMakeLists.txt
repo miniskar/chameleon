@@ -1030,6 +1030,7 @@ endif(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
 # Testing executables
 if(CHAMELEON_ENABLE_TESTING AND NOT CHAMELEON_SIMULATION)
   add_subdirectory(testing)
+  add_subdirectory(new-testing)
 endif(CHAMELEON_ENABLE_TESTING AND NOT CHAMELEON_SIMULATION)
 
 # Timing executables

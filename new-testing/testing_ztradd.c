@@ -1,0 +1,168 @@
+/**
+ *
+ * @file testing_ztradd.c
+ *
+ * @copyright 2019-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon ztradd testing
+ *
+ * @version 0.9.2
+ * @author Lucas Barros de Assis
+ * @date 2019-08-06
+ * @precisions normal z -> c d s
+ *
+ */
+#include <chameleon.h>
+#include "testing_zauxiliary.h"
+#include "testing_zcheck.h"
+#include "flops.h"
+
+static cham_fixdbl_t
+flops_ztradd( cham_uplo_t uplo, int M, int N )
+{
+    cham_fixdbl_t flops = 0.;
+    int    minMN = chameleon_min( M, N );
+    switch ( uplo ) {
+        case ChamUpper:
+            flops = ( minMN * ( minMN + 1 ) / 2 ) + M * chameleon_max( 0, N - M );
+            break;
+        case ChamLower:
+            flops = ( minMN * ( minMN + 1 ) / 2 ) + N * chameleon_max( 0, M - N );
+            break;
+        case ChamUpperLower:
+        default:
+            flops = M * N;
+    }
+
+#if defined( PRECISION_z ) || defined( PRECISION_c )
+    /* 2 multiplications and 1 addition per element */
+    flops *= ( 2. * 6. + 2. );
+#else
+    flops *= ( 2. + 1. );
+#endif
+
+    return flops;
+}
+
+int
+testing_ztradd( run_arg_list_t *args, int check )
+{
+    static int   run_id = 0;
+    int          hres   = 0;
+    int          Am, An;
+    CHAM_desc_t *descA, *descB;
+
+    /* Reads arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    int          P     = parameters_getvalue_int( "P" );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t  uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          M     = run_arg_get_int( args, "M", N );
+    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
+    int          LDB   = run_arg_get_int( args, "LDB", M );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    CHAMELEON_Complex64_t beta  = testing_zalea();
+    int                   seedA = run_arg_get_int( args, "seedA", random() );
+    int                   seedB = run_arg_get_int( args, "seedB", random() );
+    int                   Q     = parameters_compute_q( P );
+    cham_fixdbl_t t, gflops;
+    cham_fixdbl_t flops = flops_ztradd( uplo, M, N );
+
+    alpha = run_arg_get_Complex64( args, "alpha", alpha );
+    beta  = run_arg_get_Complex64( args, "beta", beta );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    if ( trans != ChamNoTrans ) {
+        Am = N;
+        An = M;
+    }
+    else {
+        Am = M;
+        An = N;
+    }
+
+    /* Creates the matrices */
+    CHAMELEON_Desc_Create(
+        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
+    CHAMELEON_Desc_Create(
+        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+
+    /* Fills the matrix with random values */
+    switch ( uplo ) {
+        case ChamUpper:
+        case ChamLower:
+            if ( trans == ChamNoTrans ) {
+                CHAMELEON_zplgsy_Tile( 0., uplo, descA, seedA );
+            }
+            else {
+                cham_uplo_t uplo_inv = ( uplo == ChamUpper ) ? ChamLower : ChamUpper;
+                CHAMELEON_zplgsy_Tile( 0., uplo_inv, descA, seedA );
+            }
+            CHAMELEON_zplgsy_Tile( 0., uplo, descB, seedB );
+            break;
+        case ChamUpperLower:
+        default:
+            CHAMELEON_zplrnt_Tile( descA, seedA );
+            CHAMELEON_zplrnt_Tile( descB, seedB );
+            break;
+    }
+
+    /* Calculates the sum */
+    START_TIMING( t );
+    hres = CHAMELEON_ztradd_Tile( uplo, trans, alpha, descA, beta, descB );
+    STOP_TIMING( t );
+    gflops = flops * 1.e-9 / t;
+    run_arg_add_fixdbl( args, "time", t );
+    run_arg_add_fixdbl( args, "gflops", gflops );
+
+    /* Checks the solution */
+    if ( check ) {
+        CHAM_desc_t *descB0 = CHAMELEON_Desc_Copy( descB, NULL );
+
+        if ( uplo == ChamUpperLower ) {
+            CHAMELEON_zplrnt_Tile( descB0, seedB );
+        }
+        else {
+            CHAMELEON_zplgsy_Tile( 0., uplo, descB0, seedB );
+        }
+        hres += check_zsum( uplo, trans, alpha, descA, beta, descB0, descB );
+
+        CHAMELEON_Desc_Destroy( &descB0 );
+    }
+
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
+
+    run_id++;
+    return hres;
+}
+
+testing_t   test_ztradd;
+const char *ztradd_params[] = { "nb",  "trans", "uplo", "m",     "n",     "lda",
+                                "ldb", "alpha", "beta", "seedA", "seedB", NULL };
+const char *ztradd_output[] = { NULL };
+const char *ztradd_outchk[] = { "RETURN", NULL };
+
+/**
+ * @brief Testing registration function
+ */
+void testing_ztradd_init( void ) __attribute__( ( constructor ) );
+void
+testing_ztradd_init( void )
+{
+    test_ztradd.name        = "ztradd";
+    test_ztradd.helper      = "ztradd";
+    test_ztradd.params      = ztradd_params;
+    test_ztradd.output      = ztradd_output;
+    test_ztradd.outchk      = ztradd_outchk;
+    test_ztradd.params_list = "nb;P;trans;uplo;m;n;lda;ldb;alpha;beta;seedA;seedB";
+    test_ztradd.fptr        = testing_ztradd;
+    test_ztradd.next        = NULL;
+
+    testing_register( &test_ztradd );
+}

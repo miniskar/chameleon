@@ -152,7 +152,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/chameleon_testing.py
   DESTINATION bin/testing )
 
 #-------- Tests ---------
-include(CTestLists.cmake)
+#include(CTestLists.cmake)
 
 ###
 ### END CMakeLists.txt

@@ -187,7 +187,7 @@ foreach(_timing ${TIMINGS})
 endforeach()
 
 #-------- Tests ---------
-include(CTestLists.cmake)
+#include(CTestLists.cmake)
 
 ###
 ### END CMakeLists.txt
