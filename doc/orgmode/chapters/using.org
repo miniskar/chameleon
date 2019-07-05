@@ -219,14 +219,14 @@
        and tile layouts. It is the standard interface of Chameleon and
        it should achieved better performance than the previous
        simplest interface. The data are given through a specific
-       structure called a descriptor, see [[sec:tuteo_step2][Step2]].
+       structure called a descriptor, see [[sec:tuto_step2][Step2]].
      * *CHAMELEON_name_Tile_Async*: similar to the tile interface, it avoids
        synchonization barrier normally called between *Tile* routines.
        At the end of an *Async* function, completion of tasks is not
        guaranteed and data are not necessarily up-to-date.  To ensure
        that tasks have been all executed, a synchronization function
        has to be called after the sequence of *Async* functions, see
-       [[tuto_step4][Step4]].
+       [[sec:tuto_step4][Step4]].
 
    CHAMELEON routine calls have to be preceded from
    #+begin_src
@@ -394,7 +394,7 @@
        (1-D array column-major) if *CHAMELEON_Desc_Create* is used to create
        the descriptor. The *CHAMELEON_Desc_Create_User* function can be used
        if you have data organized differently. This is discussed in
-       the next paragraph [[sec_tuto_step3][Step3]].  Giving a *NULL* pointer means you let
+       the next paragraph [[sec:tuto_step3][Step3]].  Giving a *NULL* pointer means you let
        the function allocate memory space.  This requires to copy your
        data in the memory allocated by the *Desc_Create.  This can be
        done with
