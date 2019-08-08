@@ -619,12 +619,13 @@ int
 timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
 
     int status;
-    int i, m, n, mx, nx;
+    int i, m, n, k, mx, nx;
     int nbnode = 1;
     int success = 0;
 
     n  = iparam[IPARAM_N];
     m  = iparam[IPARAM_M];
+    k  = iparam[IPARAM_K];
     mx = iparam[IPARAM_MX];
     nx = iparam[IPARAM_NX];
 
@@ -703,6 +704,9 @@ timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
                 if ( m == -1 ) {
                     iparam[IPARAM_M] = i;
                 }
+                if ( k == -1 ) {
+                    iparam[IPARAM_K] = i;
+                }
                 iparam[IPARAM_N] = i;
             }
             status = Test( iparam[IPARAM_N], iparam );
@@ -715,6 +719,9 @@ timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
     else {
         if ( m == -1 ) {
             iparam[IPARAM_M] = n;
+        }
+        if ( k == -1 ) {
+            iparam[IPARAM_K] = n;
         }
         iparam[IPARAM_N] = n;
         status = Test( iparam[IPARAM_N], iparam );
