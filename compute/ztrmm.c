@@ -57,7 +57,8 @@
  *          The order of the matrix A. N >= 0.
  *
  * @param[in] NRHS
- *          The number of right hand sides, i.e., the number of columns of the matrix B. NRHS >= 0.
+ *          The number of right hand sides, i.e., the number of columns of the matrix B if side = ChamLeft or
+ *          the number of rows of the matrix B if side = ChamRight. NRHS >= 0.
  *
  * @param[in] alpha
  *          alpha specifies the scalar alpha.
@@ -75,7 +76,8 @@
  *
  * @param[in,out] B
  *          On entry, the N-by-NRHS right hand side matrix B.
- *          On exit, if return value = 0, the N-by-NRHS solution matrix X.
+ *          On exit, if return value = 0, the N-by-NRHS solution matrix X if side = ChamLeft
+ *          or the NRHS-by-N matrix X if side = ChamRight.
  *
  * @param[in] LDB
  *          The leading dimension of the array B. LDB >= max(1,N).
