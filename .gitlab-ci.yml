@@ -1,5 +1,3 @@
-image: hpclib/hiepacs
-
 stages:
   - build
   - test
@@ -12,6 +10,7 @@ before_script:
   - mkdir -p build-$VERSION
 
 .build_script_template: &build_script
+  image: hpclib/hiepacs
   stage: build
   tags: ["large"]
   script:
@@ -28,8 +27,11 @@ before_script:
     - (cd build-$VERSION &&
        make install | tee -a ../chameleon_${VERSION}.log &&
        rm install/ -r)
+  except:
+    - schedules
 
 .test_script_template: &test_script
+  image: hpclib/hiepacs
   stage: test
   tags: ["large"]
   script:
@@ -43,6 +45,8 @@ before_script:
              -D ExperimentalSubmit
              | tee -a ../chameleon_${VERSION}.log")
     - lcov --directory build-$VERSION --capture --output-file ./chameleon_${VERSION}.lcov
+  except:
+    - schedules
 
 build_openmp:
   <<: *build_script
@@ -124,6 +128,7 @@ test_openmp_branches:
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 test_openmp_master:
   <<: *test_script
@@ -162,6 +167,7 @@ test_parsec_branches:
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 test_parsec_master:
   <<: *test_script
@@ -200,6 +206,7 @@ test_quark_branches:
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 test_quark_master:
   <<: *test_script
@@ -238,6 +245,7 @@ test_starpu_branches:
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 test_starpu_master:
   <<: *test_script
@@ -277,6 +285,7 @@ test_starpu_simgrid_branches:
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 test_starpu_simgrid_master:
   <<: *test_script
@@ -296,8 +305,22 @@ test_starpu_simgrid_master:
   only:
     - master@solverstack/chameleon
     - /^ci-.*$/
+  except:
+    - schedules
+
+bench_plafrim:
+  stage: test
+  tags: ['plafrim']
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_USE_MPI=ON -DCMAKE_BUILD_TYPE=Release"
+    VERSION: miriel
+  script:
+    - (cd tools/bench/plafrim/miriel && ./run.sh)
+  only:
+    - schedules
 
 coverage:
+  image: hpclib/hiepacs
   stage: analyse
   dependencies:
     - test_starpu_branches
@@ -313,13 +336,13 @@ coverage:
              -a chameleon_openmp.lcov
              -o chameleon.lcov
       - lcov --summary chameleon.lcov
-  only:
-    - branches
   except:
     - master
     - /^ci-.*$/
+    - schedules
 
 .coverity:
+  image: hpclib/hiepacs
   stage: analyse
   tags: ["large"]
   dependencies: []
@@ -343,8 +366,11 @@ coverage:
            https://scan.coverity.com/builds?project=Chameleon
   only:
     - master@solverstack/chameleon
+  except:
+    - schedules
 
 sonarqube:
+  image: hpclib/hiepacs
   stage: analyse
   tags: ["large"]
   dependencies:
@@ -370,8 +396,11 @@ sonarqube:
   only:
     - master@solverstack/chameleon
     - /^ci-.*$/
+  except:
+    - schedules
 
 pages:
+  image: hpclib/hiepacs
   stage: deploy
   dependencies: []
   artifacts:
@@ -391,8 +420,11 @@ pages:
   only:
     - master@solverstack/chameleon
     - /^ci-.*$/
+  except:
+    - schedules
 
 release:
+  image: hpclib/hiepacs
   stage: deploy
   dependencies: []
   artifacts:
@@ -402,7 +434,9 @@ release:
       - chameleon-*.tar.gz
   variables:
     VERSION: release
-  only:
-    - /^release-.*$/
   script:
     - ./tools/release.sh
+  only:
+    - /^release-.*$/
+  except:
+    - schedules
