@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jube>
+    <!-- Regex pattern -->
+    <patternset name="chameleon">
+        <pattern name="NMPI"    type="int"># Nb mpi: *(\d+)</pattern>
+        <pattern name="P"       type="int"># PxQ: *(\d+)x\d+</pattern>
+        <pattern name="Q"       type="int"># PxQ: *\d+x(\d+)</pattern>
+        <pattern name="NTHREAD" type="int"># Nb threads: *(\d+)</pattern>
+        <pattern name="NGPU"    type="int"># Nb GPUs: *(\d+)</pattern>
+        <pattern name="M"       type="int">^ *(\d+) *\d+ *\d+ *\d+\.?\d+ *\d+\.?\d+ \+\- *\d+\.?\d+ *</pattern>
+        <pattern name="N"       type="int">^ *\d+ *(\d+) *\d+ *\d+\.?\d+ *\d+\.?\d+ \+\- *\d+\.?\d+ *</pattern>
+        <pattern name="K"       type="int">^ *\d+ *\d+ *(\d+) *\d+\.?\d+ *\d+\.?\d+ \+\- *\d+\.?\d+ *</pattern>
+        <pattern name="CPUTIME" type="float">^ *\d+ *\d+ *\d+ *(\d+\.?\d+) *\d+\.?\d+ \+\- *\d+\.?\d+ *</pattern>
+        <pattern name="GFLOPS"  type="float">^ *\d+ *\d+ *\d+ *\d+\.?\d+ *(\d+\.?\d+) \+\- *\d+\.?\d+ *</pattern>
+        <pattern name="STDDEV"  type="float">^ *\d+ *\d+ *\d+ *\d+\.?\d+ *\d+\.?\d+ \+\- *(\d+\.?\d+) *</pattern>
+    </patternset>
+</jube>
