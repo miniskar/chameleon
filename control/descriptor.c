@@ -113,7 +113,7 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  *          Number of columns in a tile.
  *
  * @param[in] bsiz
- *          Size in bytes including padding.
+ *          Size in number of elements of each tile, including internal padding.
  *
  * @param[in] lm
  *          Number of rows of the entire matrix.
@@ -134,10 +134,10 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  *          Number of columns of the submatrix.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
  *          A function which return the address of the data corresponding to
@@ -406,7 +406,7 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
  *          Number of columns in a tile.
  *
  * @param[in] bsiz
- *          Size in bytes including padding.
+ *          Size in number of elements of each tile, including internal padding.
  *
  * @param[in] lm
  *          Number of rows of the entire matrix.
@@ -427,10 +427,10 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
  *          Number of columns of the submatrix.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -469,20 +469,38 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp
  *          @arg ChamComplexFloat:  single precision complex (C),
  *          @arg ChamComplexDouble: double precision complex (Z).
  *
- * @param[in] nb
- *          Number of rows and columns in a tile.
+ * @param[in] mb
+ *          Number of rows in a tile.
  *
- * @param[in] m
+ * @param[in] nb
+ *          Number of columns in a tile.
+ *
+ * @param[in] bsiz
+ *          Size in number of elements of each tile, including internal padding.
+ *
+ * @param[in] lm
  *          Number of rows of the entire matrix.
  *
- * @param[in] n
+ * @param[in] ln
  *          Number of columns of the entire matrix.
  *
+ * @param[in] i
+ *          Row index to the beginning of the submatrix.
+ *
+ * @param[in] j
+ *          Column indes to the beginning of the submatrix.
+ *
+ * @param[in] m
+ *          Number of rows of the submatrix.
+ *
+ * @param[in] n
+ *          Number of columns of the submatrix.
+ *
  * @param[in] p
- *          2d-block cyclic partitioning, number of tiles in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2d-block cyclic partitioning, number of tiles in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
  *          A function which return the address of the data corresponding to
@@ -559,20 +577,38 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
  *          @arg ChamComplexFloat:  single precision complex (C),
  *          @arg ChamComplexDouble: double precision complex (Z).
  *
- * @param[in] nb
- *          Number of rows and columns in a tile.
+ * @param[in] mb
+ *          Number of rows in a tile.
  *
- * @param[in] m
+ * @param[in] nb
+ *          Number of columns in a tile.
+ *
+ * @param[in] bsiz
+ *          Size in number of elements of each tile, including internal padding.
+ *
+ * @param[in] lm
  *          Number of rows of the entire matrix.
  *
- * @param[in] n
+ * @param[in] ln
  *          Number of columns of the entire matrix.
  *
+ * @param[in] i
+ *          Row index to the beginning of the submatrix.
+ *
+ * @param[in] j
+ *          Column indes to the beginning of the submatrix.
+ *
+ * @param[in] m
+ *          Number of rows of the submatrix.
+ *
+ * @param[in] n
+ *          Number of columns of the submatrix.
+ *
  * @param[in] p
- *          2d-block cyclic partitioning, number of tiles in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2d-block cyclic partitioning, number of tiles in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
  *          A function that return the MPI rank of the tile A(m,n).
@@ -622,20 +658,38 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
  *          @arg ChamComplexFloat:  single precision complex (C),
  *          @arg ChamComplexDouble: double precision complex (Z).
  *
- * @param[in] nb
- *          Number of rows and columns in a tile.
+ * @param[in] mb
+ *          Number of rows in a tile.
  *
- * @param[in] m
+ * @param[in] nb
+ *          Number of columns in a tile.
+ *
+ * @param[in] bsiz
+ *          Size in number of elements of each tile, including internal padding.
+ *
+ * @param[in] lm
  *          Number of rows of the entire matrix.
  *
- * @param[in] n
+ * @param[in] ln
  *          Number of columns of the entire matrix.
  *
+ * @param[in] i
+ *          Row index to the beginning of the submatrix.
+ *
+ * @param[in] j
+ *          Column indes to the beginning of the submatrix.
+ *
+ * @param[in] m
+ *          Number of rows of the submatrix.
+ *
+ * @param[in] n
+ *          Number of columns of the submatrix.
+ *
  * @param[in] p
- *          2d-block cyclic partitioning, number of tiles in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2d-block cyclic partitioning, number of tiles in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *

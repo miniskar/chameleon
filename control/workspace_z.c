@@ -148,10 +148,10 @@ int CHAMELEON_Alloc_Workspace_zgels(int M, int N, CHAM_desc_t **descT, int p, in
  *          T factors required by the tile QR or the tile LQ factorization.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -181,10 +181,10 @@ int CHAMELEON_Alloc_Workspace_zgels_Tile(int M, int N, CHAM_desc_t **descT, int 
  *          required by the tile QR factorization.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -214,10 +214,10 @@ int CHAMELEON_Alloc_Workspace_zgeqrf(int M, int N, CHAM_desc_t **descT, int p, i
  *          T factors required by the tile QR or the tile LQ factorization.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -247,10 +247,10 @@ int CHAMELEON_Alloc_Workspace_zgeqrf_Tile(int M, int N, CHAM_desc_t **descT, int
  *          factorization.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -279,10 +279,10 @@ int CHAMELEON_Alloc_Workspace_zgelqf(int M, int N, CHAM_desc_t **descT, int p, i
  *          T factors required by the tile QR or the tile LQ factorization.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  ******************************************************************************
  *
@@ -370,10 +370,10 @@ int CHAMELEON_Alloc_Workspace_zgesv_incpiv_Tile(int N, CHAM_desc_t **descL, int 
  *          On exit, workspace handle for storage of the extra T factors required by the tile BRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
@@ -467,10 +467,10 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int
  *          On exit, workspace handle for storage of the extra T factors required by the tile TRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
@@ -498,10 +498,10 @@ int CHAMELEON_Alloc_Workspace_zheev(int M, int N, CHAM_desc_t **descT, int p, in
  *          On exit, workspace handle for storage of the extra T factors required by the tile TRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
@@ -529,10 +529,10 @@ int CHAMELEON_Alloc_Workspace_zheevd(int M, int N, CHAM_desc_t **descT, int p, i
  *          On exit, workspace handle for storage of the extra T factors required by the tile TRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
@@ -560,10 +560,10 @@ int CHAMELEON_Alloc_Workspace_zhegv(int M, int N, CHAM_desc_t **descT, int p, in
  *          On exit, workspace handle for storage of the extra T factors required by the tile TRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
@@ -591,10 +591,10 @@ int CHAMELEON_Alloc_Workspace_zhegvd(int M, int N, CHAM_desc_t **descT, int p, i
  *          On exit, workspace handle for storage of the extra T factors required by the tile TRD.
  *
  * @param[in] p
- *          2D-block cyclic distribution in rows.
+ *          Number of processes rows for the 2D block-cyclic distribution.
  *
  * @param[in] q
- *          2D-block cyclic distribution in columns.
+ *          Number of processes columns for the 2D block-cyclic distribution.
  *
  *******************************************************************************
  *
