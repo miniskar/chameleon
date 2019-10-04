@@ -11,11 +11,11 @@
  *
  * @brief Chameleon step7 example header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2024-03-14
  *
  */
 #ifndef _step7_h_
@@ -74,19 +74,42 @@ static void init_iparam(int iparam[IPARAM_SIZEOF]){
  * and store it at the adresse 'buffer' with leading dimension 'ld'
  */
 struct data_pl {
-  double bump;
+  double                 bump;
   unsigned long long int seed;
-  int bigM;
 };
 
-static void Cham_build_callback_plgsy(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) {
-  struct data_pl *data=(struct data_pl *)user_data;
-  CORE_dplgsy(data->bump, row_max-row_min+1, col_max-col_min+1, buffer, ld, data->bigM, row_min, col_min, data->seed);
+static int Cham_build_plgsy_cpu( void *op_args, cham_uplo_t uplo, int m, int n, int ndata,
+                                 const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
+{
+    struct data_pl *data = (struct data_pl *)op_args;
+    int             tempmm, tempnn;
+
+    /* Get the dimension of the tile */
+    tempmm = (m == (descA->mt-1)) ? (descA->m - m * descA->mb) : descA->mb;
+    tempnn = (n == (descA->nt-1)) ? (descA->n - n * descA->nb) : descA->nb;
+
+    TCORE_dplgsy( data->bump, tempmm, tempnn, tileA,
+                  descA->m, m * descA->mb, n * descA->nb, data->seed );
+
+    (void)uplo;
+    return 0;
 }
 
-static void Cham_build_callback_plrnt(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) {
-  struct data_pl *data=(struct data_pl *)user_data;
-  CORE_dplrnt(row_max-row_min+1, col_max-col_min+1, buffer, ld, data->bigM, row_min, col_min, data->seed);
+static int Cham_build_plrnt_cpu( void *op_args, cham_uplo_t uplo, int m, int n, int ndata,
+                                 const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
+{
+    struct data_pl *data = (struct data_pl *)op_args;
+    int             tempmm, tempnn;
+
+    /* Get the dimension of the tile */
+    tempmm = (m == (descA->mt-1)) ? (descA->m - m * descA->mb) : descA->mb;
+    tempnn = (n == (descA->nt-1)) ? (descA->n - n * descA->nb) : descA->nb;
+
+    TCORE_dplrnt( tempmm, tempnn, tileA,
+                  descA->m, m * descA->mb, n * descA->nb, data->seed );
+
+    (void)uplo;
+    return 0;
 }
 
 /**

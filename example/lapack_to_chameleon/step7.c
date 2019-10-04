@@ -11,12 +11,12 @@
  *
  * @brief Chameleon step7 example
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2022-02-22
+ * @date 2024-03-14
  *
  */
 #include "step7.h"
@@ -135,12 +135,32 @@ int main(int argc, char *argv[]) {
     /* generate A matrix with random values such that it is spd.
        We use the callback function Cham_build_callback_plgsy() defined in step7.h
        In this example, it is just a wrapper toward CORE_dplgsy() */
-    struct data_pl data_A={(double)N, 51, N};
-    CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A, Cham_build_callback_plgsy);
+    struct data_pl             plgsy_args = { (double)N, 51 };
+    struct cham_map_operator_s plgsy_op = {
+        .name = "plgsy",
+        .cpufunc = Cham_build_plgsy_cpu,
+        .cudafunc = NULL,
+        .hipfunc = NULL,
+    };
+    struct cham_map_data_s plgsy_data = {
+        .access = ChamW,
+        .desc   = descA,
+    };
+    CHAMELEON_mapv_Tile( ChamUpperLower, 1, &plgsy_data, &plgsy_op, &plgsy_args );
 
     /* generate RHS with the callback Cham_build_callback_plrnt() */
-    struct data_pl data_B={0., 5673, N};
-    CHAMELEON_dbuild_Tile(ChamUpperLower, descB, (void*)&data_B, Cham_build_callback_plrnt);
+    struct data_pl             plrnt_args = { 0., 5673 };
+    struct cham_map_operator_s plrnt_op = {
+        .name = "plrnt",
+        .cpufunc = Cham_build_plrnt_cpu,
+        .cudafunc = NULL,
+        .hipfunc = NULL,
+    };
+    struct cham_map_data_s plrnt_data = {
+        .access = ChamW,
+        .desc   = descA,
+    };
+    CHAMELEON_mapv_Tile( ChamUpperLower, 1, &plrnt_data, &plrnt_op, &plrnt_args );
 
     /* copy A before facto. in order to check the result */
     CHAMELEON_dlacpy_Tile(ChamUpperLower, descA, descAC);
