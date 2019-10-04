@@ -30,8 +30,8 @@
 /* Take 24 bits for the tile id, and 7 bits for descriptor id.
  These values can be changed through the call CHAMELEON_user_tag_size(int tag_width, int tag_sep) */
 #define TAG_WIDTH_MIN 20
-static int tag_width = 31;
-static int tag_sep   = 20;
+static int tag_width = 64;
+static int tag_sep   = 50;
 static int _tag_mpi_initialized_ = 0;
 
 static inline int
