@@ -139,14 +139,14 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  * @param[in] q
  *          Number of processes columns for the 2D block-cyclic distribution.
  *
- * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
+ * @param[in] get_blkaddr
  *          A function which return the address of the data corresponding to
  *          the tile A(m,n).
  *
- * @param[in] (*get_blkldd)( const CHAM_desc_t *A, int m )
+ * @param[in] get_blkldd
  *          A function that return the leading dimension of the tile A(m,*).
  *
- * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
+ * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
@@ -158,9 +158,9 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
                          cham_flttype_t dtyp, int mb, int nb, int bsiz,
                          int lm, int ln, int i, int j,
                          int m,  int n,  int p, int q,
-                         void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                         int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                         int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
+                         blkaddr_fct_t   get_blkaddr,
+                         blkldd_fct_t    get_blkldd,
+                         blkrankof_fct_t get_rankof)
 {
     CHAM_context_t *chamctxt;
     int rc = CHAMELEON_SUCCESS;
@@ -291,7 +291,7 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 /**
  *  Internal static descriptor initializer for submatrices
  */
-CHAM_desc_t* chameleon_desc_submatrix(CHAM_desc_t *descA, int i, int j, int m, int n)
+CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n )
 {
     CHAM_desc_t *descB = malloc(sizeof(CHAM_desc_t));
     int mb, nb;
@@ -374,6 +374,12 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
     return CHAMELEON_SUCCESS;
+}
+
+CHAM_desc_t *
+CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n )
+{
+    return chameleon_desc_submatrix( descA, i, j, m, n );
 }
 
 /**
@@ -502,14 +508,14 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp
  * @param[in] q
  *          Number of processes columns for the 2D block-cyclic distribution.
  *
- * @param[in] (*get_blkaddr)( const CHAM_desc_t *A, int m, int n)
+ * @param[in] get_blkaddr
  *          A function which return the address of the data corresponding to
  *          the tile A(m,n).
  *
- * @param[in] (*get_blkldd)( const CHAM_desc_t *A, int m)
+ * @param[in] get_blkldd
  *          A function that return the leading dimension of the tile A(m,*).
  *
- * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
+ * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
@@ -519,9 +525,9 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp
  */
 int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                 int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                                int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
+                                blkaddr_fct_t   get_blkaddr,
+                                blkldd_fct_t    get_blkldd,
+                                blkrankof_fct_t get_rankof )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -610,7 +616,7 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
  * @param[in] q
  *          Number of processes columns for the 2D block-cyclic distribution.
  *
- * @param[in] (*get_rankof)( const CHAM_desc_t *A, int m, int n)
+ * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
  ******************************************************************************
@@ -620,7 +626,7 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
  */
 int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                    int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                   int (*get_rankof)( const CHAM_desc_t*, int, int ))
+                                   blkrankof_fct_t get_rankof )
 {
 #if !defined (CHAMELEON_SCHED_STARPU)
     (void)descptr; (void)dtyp; (void)mb; (void)nb; (void)bsiz;
@@ -702,6 +708,76 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
     return CHAMELEON_Desc_Create_User( descptr, CHAMELEON_MAT_OOC, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
                                        chameleon_getaddr_null, NULL, NULL );
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ * @brief Creates a new descriptor with the same properties as the one given as
+ * input.
+ *
+ * @warning This function copies the descriptor structure, but does not copy the
+ * matrix data.
+ *
+ ******************************************************************************
+ *
+ * @param[in] descin
+ *          The descriptor structure to duplicate.
+ *
+ * @param[in] mat
+ *          Memory location for the copy. If mat is NULL, the space to store
+ *          the data is automatically allocated by the call to the function.
+ *
+ ******************************************************************************
+ *
+ * @retval The new matrix descriptor.
+ *
+ */
+CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
+{
+    CHAM_desc_t *descout;
+    CHAMELEON_Desc_Create_User( &descout, mat,
+                                descin->dtyp, descin->mb, descin->nb, descin->bsiz,
+                                descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, descin->p, descin->q,
+                                descin->get_blkaddr, descin->get_blkldd, descin->get_rankof );
+    return descout;
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ * @brief Creates a new descriptor with the same properties as the one given as
+ * input and restricted on node 0.
+ *
+ * @warning This function copies the descriptor structure, but does not copy the
+ * matrix data.
+ *
+ ******************************************************************************
+ *
+ * @param[in] descin
+ *          The descriptor structure to duplicate.
+ *
+ * @param[in] mat
+ *          Memory location for the copy. If mat is NULL, the space to store
+ *          the data is automatically allocated by the call to the function.
+ *
+ ******************************************************************************
+ *
+ * @retval The new matrix descriptor.
+ *
+ */
+CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat )
+{
+    CHAM_desc_t *descout;
+    CHAMELEON_Desc_Create_User( &descout, mat,
+                                descin->dtyp, descin->mb, descin->nb, descin->bsiz,
+                                descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, 1, 1,
+                                descin->get_blkaddr, descin->get_blkldd, descin->get_rankof );
+    return descout;
 }
 
 /**

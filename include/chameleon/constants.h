@@ -112,6 +112,16 @@ typedef enum chameleon_dist_e {
 } cham_dist_t;
 
 /**
+ * @brief Main matrix type
+ */
+typedef enum chameleon_mtxtype_e {
+    ChamGeneral    = 231,
+    ChamSymmetric  = 232,
+    ChamHermitian  = 233,
+    ChamTriangular = 234,
+} cham_mtxtype_t;
+
+/**
  * @brief Eigen and singular values generator format
  */
 #define ChamHermGeev        241
