@@ -29,10 +29,10 @@
  *  Parallel initialization a 2-D array A to BETA on the diagonal and
  *  ALPHA on the offdiagonals.
  */
-void chameleon_pzlaset(cham_uplo_t uplo,
-                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                          CHAM_desc_t *A,
-                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzlaset( cham_uplo_t uplo,
+                        CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
+                        CHAM_desc_t *A,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -71,18 +71,28 @@ void chameleon_pzlaset(cham_uplo_t uplo,
        }
     }
     else if (uplo == ChamUpper) {
-       for (j = 0; j < A->nt; j++){
-           tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           for (i = 0; i < chameleon_min(j+1, A->mt); i++){
-               tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
-               ldai = BLKLDD(A, i);
-               INSERT_TASK_zlaset(
-                   &options,
-                   ChamUpperLower, tempim, tempjn,
-                   alpha,  (i == j) ? beta : alpha,
-                   A(i, j), ldai);
-           }
-       }
+        for (i = 0; i < A->mt; i++) {
+            tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
+            ldai = BLKLDD(A, i);
+
+            if ( i < A->nt ) {
+                j = i;
+                tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
+
+                INSERT_TASK_zlaset(
+                    &options,
+                    uplo, tempim, tempjn,
+                    alpha, beta, A(i, j), ldai);
+            }
+            for (j = i+1; j < A->nt; j++) {
+                tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
+
+                INSERT_TASK_zlaset(
+                    &options,
+                    ChamUpperLower, tempim, tempjn,
+                    alpha, alpha, A(i, j), ldai);
+            }
+        }
     }
     else {
        for (i = 0; i < A->mt; i++){

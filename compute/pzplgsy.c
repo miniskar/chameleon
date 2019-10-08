@@ -12,9 +12,6 @@
  * @brief Chameleon zplgsy parallel algorithm
  *
  * @version 0.9.2
- * @comment This file is a copy of pzplgsy.c,
-            wich has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -31,13 +28,13 @@
  *  chameleon_pzplgsy - Generate a random symmetric (positive definite if 'bump' is large enough) half-matrix by tiles.
  */
 void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A,
-                    unsigned long long int seed,
-                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                        unsigned long long int seed,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
-    int m, n;
+    int m, n, minmn;
     int ldam;
     int tempmm, tempnn;
 
@@ -47,16 +44,15 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
     }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    for (m = 0; m < A->mt; m++) {
-        tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-        ldam = BLKLDD(A, m);
+    minmn = chameleon_min( A->mt, A->nt );
+    switch ( uplo ) {
+    case ChamLower:
+        for (n = 0; n < minmn; n++) {
+            tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-        /*
-         * ChamLower
-         */
-        if (uplo == ChamLower) {
-            for (n = 0; n <= m; n++) {
-                tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
+            for (m = n; m < A->mt; m++) {
+                tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+                ldam = BLKLDD(A, m);
 
                 options.priority = m + n;
                 INSERT_TASK_zplgsy(
@@ -65,10 +61,13 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
-        /*
-         * ChamUpper
-         */
-        else if (uplo == ChamUpper) {
+        break;
+
+    case ChamUpper:
+        for (m = 0; m < minmn; m++) {
+            tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+            ldam = BLKLDD(A, m);
+
             for (n = m; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
@@ -79,13 +78,17 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
-        /*
-         * ChamUpperLower
-         */
-        else {
+
+    case ChamUpperLower:
+    default:
+        for (m = 0; m < A->mt; m++) {
+            tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+            ldam = BLKLDD(A, m);
+
             for (n = 0; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
+                options.priority = m + n;
                 INSERT_TASK_zplgsy(
                     &options,
                     bump, tempmm, tempnn, A(m, n), ldam,
