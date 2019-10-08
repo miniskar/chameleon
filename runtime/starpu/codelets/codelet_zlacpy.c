@@ -77,7 +77,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,   &uplo,                sizeof(int),
+        STARPU_VALUE,   &uplo,                sizeof(cham_uplo_t),
         STARPU_VALUE,   &m,                   sizeof(int),
         STARPU_VALUE,   &n,                   sizeof(int),
         STARPU_VALUE,   &displA,              sizeof(int),
