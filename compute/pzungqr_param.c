@@ -143,15 +143,16 @@ void chameleon_pzungqr_param( int genD, int K,
             ldqm = BLKLDD(Q, m);
 
             if ( genD ) {
+                int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamLower, tempmm, tempkmin, A->nb,
+                    ChamLower, tempDmm, tempkmin, A->nb,
                     A(m, k), ldam,
                     D(m, k), lddm );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
-                    ChamUpper, tempmm, tempkmin,
+                    ChamUpper, tempDmm, tempkmin,
                     0., 1.,
                     D(m, k), lddm );
 #endif

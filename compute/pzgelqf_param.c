@@ -108,15 +108,18 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                 T(k, p), T->mb);
 
             if ( genD ) {
+                int tempDkm = k == D->mt-1 ? D->m-k*D->mb : D->mb;
+                int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
+
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpper, tempkm, temppn, A->nb,
+                    ChamUpper, tempDkm, tempDpn, A->nb,
                     A(k, p), ldak,
                     D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
-                    ChamLower, tempkm, temppn,
+                    ChamLower, tempDkm, tempDpn,
                     0., 1.,
                     D(k, p), lddk );
 #endif

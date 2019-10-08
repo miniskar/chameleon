@@ -99,7 +99,7 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
 
         for (n = Q->nt-1; n > k; n--) {
             tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
-            for (m = 0; m < Q->mt; m++) {
+            for (m = k; m < Q->mt; m++) {
                 tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
                 ldqm = BLKLDD(Q, m);
 
@@ -121,15 +121,16 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
         }
 
         if ( genD ) {
+            int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
             INSERT_TASK_zlacpy(
                 &options,
-                ChamUpper, tempkmin, tempkn, A->nb,
+                ChamUpper, tempkmin, tempDkn, A->nb,
                 A(k, k), ldak,
                 D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(
                 &options,
-                ChamLower, tempkmin, tempkn,
+                ChamLower, tempkmin, tempDkn,
                 0., 1.,
                 D(k), lddk );
 #endif
@@ -138,6 +139,7 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
             tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
             ldqm = BLKLDD(Q, m);
 
+            /* Restore the original location of the tiles */
             RUNTIME_data_migrate( sequence, Q(m, k),
                                   Q->get_rankof( Q, m, k ) );
 

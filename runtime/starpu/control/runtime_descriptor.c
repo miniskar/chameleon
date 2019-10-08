@@ -415,6 +415,7 @@ void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
                            const CHAM_desc_t *A, int Am, int An, int new_rank )
 {
 #if defined(HAVE_STARPU_MPI_DATA_MIGRATE)
+    int old_rank;
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(A->schedopt);
     starpu_data_handle_t lhandle;
     handle += ((int64_t)(A->lmt) * (int64_t)An + (int64_t)Am);
@@ -424,8 +425,11 @@ void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
         /* Register the data */
         lhandle = RUNTIME_data_getaddr( A, Am, An );
     }
+    old_rank = starpu_mpi_data_get_rank( lhandle );
 
-    starpu_mpi_data_migrate( MPI_COMM_WORLD, lhandle, new_rank );
+    if ( old_rank != new_rank ) {
+        starpu_mpi_data_migrate( MPI_COMM_WORLD, lhandle, new_rank );
+    }
 
     (void)sequence;
 #else
