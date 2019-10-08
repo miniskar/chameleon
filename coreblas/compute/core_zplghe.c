@@ -78,10 +78,21 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
      * Tile diagonal
      */
     if ( m0 == n0 ) {
-        for (j = 0; j < n; j++) {
+        int minmn = chameleon_min( m, n );
+
+        /* Lower part */
+        for (j = 0; j < minmn; j++) {
             ran = Rnd64_jump( NBELEM * jump, seed );
 
-            for (i = j; i < m; i++) {
+            *tmp = 0.5f - ran * RndF_Mul;
+            ran  = Rnd64_A * ran + Rnd64_C;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+            ran  = Rnd64_A * ran + Rnd64_C;
+#endif
+            *tmp = creal( *tmp + bump );
+            tmp++;
+
+            for (i = j+1; i < m; i++) {
                 *tmp = 0.5f - ran * RndF_Mul;
                 ran  = Rnd64_A * ran + Rnd64_C;
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -94,16 +105,21 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
             jump += bigM + 1;
         }
 
-        for (j = 0; j < n; j++) {
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            A[j+j*lda] += bump - I*cimag( A[j+j*lda] );
-#else
-            A[j+j*lda] += bump;
-#endif
+        /* Upper part */
+        jump = (unsigned long long int)m0 + (unsigned long long int)n0 * (unsigned long long int)bigM;
 
-            for (i=0; i<j; i++) {
-                A[lda*j+i] = conj( A[lda*i+j] );
+        for (i = 0; i < minmn; i++) {
+            ran = Rnd64_jump( NBELEM * (jump+i+1), seed );
+
+            for (j = i+1; j < n; j++) {
+                A[j*lda+i] = 0.5f - ran * RndF_Mul;
+                ran = Rnd64_A * ran + Rnd64_C;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+                A[j*lda+i] -= I*(0.5f - ran * RndF_Mul);
+                ran = Rnd64_A * ran + Rnd64_C;
+#endif
             }
+            jump += bigM;
         }
     }
     /*
@@ -148,6 +164,3 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
         }
     }
 }
-
-
-

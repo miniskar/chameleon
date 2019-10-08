@@ -243,7 +243,7 @@ int CHAMELEON_zpotrf_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
  *
  */
 int CHAMELEON_zpotrf_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
 

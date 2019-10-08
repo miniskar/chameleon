@@ -21,6 +21,7 @@
  *
  */
 #include "coreblas.h"
+#include "coreblas/lapacke.h"
 
 /**
  ******************************************************************************
@@ -112,12 +113,21 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
         return -8;
     }
 
+    if ( beta == 0. ) {
+        LAPACKE_zlaset_work( LAPACK_COL_MAJOR, 'A',
+                             M, N, 0., 0., B, LDB );
+    }
+    else if ( beta != 1. ) {
+        LAPACKE_zlascl_work( LAPACK_COL_MAJOR, 'G',
+                             0, 0, 1., beta, M, N, B, LDB );
+    }
+
     switch( trans ) {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     case ChamConjTrans:
         for (j=0; j<N; j++, A++) {
             for(i=0; i<M; i++, B++) {
-                *B = beta * (*B) + alpha * conj(A[LDA*i]);
+                *B += alpha * conj(A[LDA*i]);
             }
             B += LDB-M;
         }
@@ -127,7 +137,7 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
     case ChamTrans:
         for (j=0; j<N; j++, A++) {
             for(i=0; i<M; i++, B++) {
-                *B = beta * (*B) + alpha * A[LDA*i];
+                *B += alpha * A[LDA*i];
             }
             B += LDB-M;
         }
@@ -137,7 +147,7 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
     default:
         for (j=0; j<N; j++) {
             for(i=0; i<M; i++, B++, A++) {
-                *B = beta * (*B) + alpha * (*A);
+                *B += alpha * (*A);
             }
             A += LDA-M;
             B += LDB-M;

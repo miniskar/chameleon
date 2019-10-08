@@ -179,7 +179,7 @@ int CHAMELEON_zlascal( cham_uplo_t uplo, int M, int N,
  *
  */
 int CHAMELEON_zlascal_Tile( cham_uplo_t uplo,
-                        CHAMELEON_Complex64_t alpha, CHAM_desc_t *A )
+                            CHAMELEON_Complex64_t alpha, CHAM_desc_t *A )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;

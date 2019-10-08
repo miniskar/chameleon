@@ -20,6 +20,7 @@
  *
  */
 #include "coreblas.h"
+#include "coreblas/lapacke.h"
 
 /**
  ******************************************************************************
@@ -95,7 +96,7 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
                       CHAMELEON_Complex64_t  beta,
                       CHAMELEON_Complex64_t *B, int LDB)
 {
-    int i, j;
+    int i, j, minMN;
 
     if (uplo == ChamUpperLower){
         int rc = CORE_zgeadd( trans, M, N, alpha, A, LDA, beta, B, LDB );
@@ -137,6 +138,17 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
         return -9;
     }
 
+    minMN = chameleon_min( M, N );
+
+    if ( beta == 0. ) {
+        LAPACKE_zlaset_work( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo),
+                             M, N, 0., 0., B, LDB );
+    }
+    else if ( beta != 1. ) {
+        LAPACKE_zlascl_work( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo),
+                             0, 0, 1., beta, M, N, B, LDB );
+    }
+
     /**
      * ChamLower
      */
@@ -144,9 +156,9 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
         switch( trans ) {
 #if defined(PRECISION_z) || defined(PRECISION_c)
         case ChamConjTrans:
-            for (j=0; j<N; j++, A++) {
+            for (j=0; j<minMN; j++, A++) {
                 for(i=j; i<M; i++, B++) {
-                    *B = beta * (*B) + alpha * conj(A[LDA*i]);
+                    *B += alpha * conj(A[LDA*i]);
                 }
                 B += LDB-M+j+1;
             }
@@ -154,9 +166,9 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
         case ChamTrans:
-            for (j=0; j<N; j++, A++) {
+            for (j=0; j<minMN; j++, A++) {
                 for(i=j; i<M; i++, B++) {
-                    *B = beta * (*B) + alpha * A[LDA*i];
+                    *B += alpha * A[LDA*i];
                 }
                 B += LDB-M+j+1;
             }
@@ -164,9 +176,9 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
 
         case ChamNoTrans:
         default:
-            for (j=0; j<N; j++) {
+            for (j=0; j<minMN; j++) {
                 for(i=j; i<M; i++, B++, A++) {
-                    *B = beta * (*B) + alpha * (*A);
+                    *B += alpha * (*A);
                 }
                 B += LDB-M+j+1;
                 A += LDA-M+j+1;
@@ -183,7 +195,7 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
             for (j=0; j<N; j++, A++) {
                 int mm = chameleon_min( j+1, M );
                 for(i=0; i<mm; i++, B++) {
-                    *B = beta * (*B) + alpha * conj(A[LDA*i]);
+                    *B += alpha * conj(A[LDA*i]);
                 }
                 B += LDB-mm;
             }
@@ -194,7 +206,7 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
             for (j=0; j<N; j++, A++) {
                 int mm = chameleon_min( j+1, M );
                 for(i=0; i<mm; i++, B++) {
-                    *B = beta * (*B) + alpha * (A[LDA*i]);
+                    *B += alpha * (A[LDA*i]);
                 }
                 B += LDB-mm;
             }
@@ -205,7 +217,7 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
             for (j=0; j<N; j++) {
                 int mm = chameleon_min( j+1, M );
                 for(i=0; i<mm; i++, B++, A++) {
-                    *B = beta * (*B) + alpha * (*A);
+                    *B += alpha * (*A);
                 }
                 B += LDB-mm;
                 A += LDA-mm;

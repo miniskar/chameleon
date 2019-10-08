@@ -63,7 +63,6 @@ Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
   return ran;
 }
 
-
 //  CORE_zplgsy - Generate a tile for random symmetric (positive definite if 'bump' is large enough) matrix.
 
 void CORE_zplgsy( CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
@@ -79,10 +78,22 @@ void CORE_zplgsy( CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_
      * Tile diagonal
      */
     if ( m0 == n0 ) {
-        for (j = 0; j < n; j++) {
+        int minmn = chameleon_min( m, n );
+
+        /* Lower part */
+        for (j = 0; j < minmn; j++) {
             ran = Rnd64_jump( NBELEM * jump, seed );
 
-            for (i = j; i < m; i++) {
+            *tmp = 0.5f - ran * RndF_Mul;
+            ran  = Rnd64_A * ran + Rnd64_C;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+            *tmp += I*(0.5f - ran * RndF_Mul);
+            ran   = Rnd64_A * ran + Rnd64_C;
+#endif
+            *tmp = *tmp + bump;
+            tmp++;
+
+            for (i = j+1; i < m; i++) {
                 *tmp = 0.5f - ran * RndF_Mul;
                 ran  = Rnd64_A * ran + Rnd64_C;
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -95,12 +106,21 @@ void CORE_zplgsy( CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_
             jump += bigM + 1;
         }
 
-        for (j = 0; j < n; j++) {
-            A[j+j*lda] += bump;
+        /* Upper part */
+        jump = (unsigned long long int)m0 + (unsigned long long int)n0 * (unsigned long long int)bigM;
 
-            for (i=0; i<j; i++) {
-                A[lda*j+i] = A[lda*i+j];
+        for (i = 0; i < minmn; i++) {
+            ran = Rnd64_jump( NBELEM * (jump+i+1), seed );
+
+            for (j = i+1; j < n; j++) {
+                A[j*lda+i] = 0.5f - ran * RndF_Mul;
+                ran = Rnd64_A * ran + Rnd64_C;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+                A[j*lda+i] += I*(0.5f - ran * RndF_Mul);
+                ran = Rnd64_A * ran + Rnd64_C;
+#endif
             }
+            jump += bigM;
         }
     }
     /*
@@ -145,6 +165,3 @@ void CORE_zplgsy( CHAMELEON_Complex64_t bump, int m, int n, CHAMELEON_Complex64_
         }
     }
 }
-
-
-
