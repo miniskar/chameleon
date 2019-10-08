@@ -48,6 +48,8 @@ subs = {
         ('',                     'sLapack',              'dLapack',              'cLapack',              'zLapack'             ),
         ('',                     'ORMQR',                'ORMQR',                'UNMQR',                'UNMQR'               ),
         ('',                     'ORMLQ',                'ORMLQ',                'UNMLQ',                'UNMLQ'               ),
+        ('',                     'ORGQR',                'ORGQR',                'UNGQR',                'UNGQR'               ),
+        ('',                     'ORGLQ',                'ORGLQ',                'UNGLQ',                'UNGLQ'               ),
         ('',                     'SYEV',                 'SYEV',                 'HEEV',                 'HEEV'                ),
         ('',                     'SYG',                  'SYG',                  'HEG',                  'HEG'                 ),
     ]
@@ -77,6 +79,7 @@ subs = {
 #        ('CORE_P',               'CORE_S',               'CORE_D',               'CORE_C',               'CORE_Z'              ),
 #        ('vec_p',                'vec_s',                'vec_d',                'vec_c',                'vec_z'               ),
 
+        ('',                     'cublasS',              'cublasD',              'cublasC',              'cublasZ'             ),
       # ('',                     'starpu_s',             'starpu_d',             'starpu_c',             'starpu_z'            ),
       # ('',                     'STARPU_S',             'STARPU_D',             'STARPU_C',             'STARPU_Z'            ),
       # ('',                     's_',                   'd_',                   'c_',                   'z_'                  ),

@@ -131,9 +131,11 @@ int CHAMELEON_ztrmm( cham_side_t side, cham_uplo_t uplo,
         chameleon_error("CHAMELEON_ztrmm", "illegal value of uplo");
         return -2;
     }
-    if (transA != ChamConjTrans &&
-        transA != ChamNoTrans   &&
-        transA != ChamTrans )
+    if ((transA != ChamNoTrans)   &&
+#if defined(PRECISION_z) || defined(PRECISION_c)
+        (transA != ChamConjTrans) &&
+#endif
+        (transA != ChamTrans) )
     {
         chameleon_error("CHAMELEON_ztrmm", "illegal value of transA");
         return -3;

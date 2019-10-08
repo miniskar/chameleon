@@ -23,7 +23,7 @@
 /**
  *  Create a sequence
  */
-int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
+int RUNTIME_sequence_create( CHAM_context_t     *chamctxt,
                              RUNTIME_sequence_t *sequence )
 {
     parsec_context_t  *parsec        = (parsec_context_t *)(chamctxt->schedopt);
@@ -40,16 +40,17 @@ int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
+int RUNTIME_sequence_destroy( CHAM_context_t     *chamctxt,
                               RUNTIME_sequence_t *sequence )
 {
-    parsec_context_t  *parsec = (parsec_context_t *)(chamctxt->schedopt);
     parsec_taskpool_t *parsec_dtd_tp = (parsec_taskpool_t *)(sequence->schedopt);
 
     assert( parsec_dtd_tp );
     parsec_taskpool_free( parsec_dtd_tp );
 
     sequence->schedopt = NULL;
+
+    (void)chamctxt;
     return CHAMELEON_SUCCESS;
 }
 

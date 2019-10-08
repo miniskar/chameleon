@@ -86,7 +86,7 @@
      void cl_##name##_restore_model(void);                                    \
      extern struct starpu_codelet cl_##name;                                  \
      void cl_##name##_restrict_where(uint32_t where);                         \
-     void cl_##name##_restore_where(void);
+     void cl_##name##_restore_where(void)
 
 #if defined(CHAMELEON_SIMULATION)
 #if defined(CHAMELEON_USE_CUDA)

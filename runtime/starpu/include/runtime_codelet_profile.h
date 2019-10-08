@@ -68,10 +68,10 @@
             }                                                                                  \
     }                                                                                          \
 
-#define CHAMELEON_CL_CB_HEADER(name)                        \
+#define CHAMELEON_CL_CB_HEADER(name)                    \
     extern struct starpu_perfmodel*cl_##name##_save;    \
     extern struct starpu_perfmodel cl_##name##_fake;    \
     void cl_##name##_callback();                        \
-    void profiling_display_##name##_info(void);
+    void profiling_display_##name##_info(void)
 
 #endif /* _runtime_codelet_profile_h_ */
