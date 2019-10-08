@@ -110,15 +110,18 @@ void chameleon_pzgeqrf_param( int genD, int K,
                 T(m, k), T->mb);
 
             if ( genD ) {
+                int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
+                int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
+
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamLower, tempmm, tempkn, A->nb,
+                    ChamLower, tempDmm, tempDkn, A->nb,
                     A(m, k), ldam,
                     D(m, k), lddm );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
-                    ChamUpper, tempmm, tempkn,
+                    ChamUpper, tempDmm, tempDkn,
                     0., 1.,
                     D(m, k), lddm );
 #endif

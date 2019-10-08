@@ -220,7 +220,6 @@ int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
  *          Intended usage:
  *          = ChamNoTrans:   no transpose, apply Q;
  *          = ChamConjTrans: conjugate transpose, apply Q^H.
- *          Currently only ChamConjTrans is supported.
  *
  * @param[in] A
  *          Details of the QR factorization of the original matrix A as returned by CHAMELEON_zgeqrf.

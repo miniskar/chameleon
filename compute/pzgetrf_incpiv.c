@@ -49,7 +49,7 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldak, ldam;
+    int ldak, ldam, lddk;
     int tempkm, tempkn, tempmm, tempnn;
     int ib;
     int minMNT = chameleon_min(A->mt, A->nt);
@@ -61,6 +61,10 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
+
+    if ( D == NULL ) {
+        D = A;
+    }
 
     /*
      * zgetrf_incpiv = 0
@@ -81,6 +85,7 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD(D, k);
         INSERT_TASK_zgetrf_incpiv(
             &options,
             tempkm, tempkn, ib, L->nb,
@@ -95,7 +100,7 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
                 &options,
                 ChamUpperLower, tempkm, tempkn, A->nb,
                 A(k, k), ldak,
-                D(k), ldak);
+                D(k),    lddk);
 #endif
         }
 
@@ -106,7 +111,7 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
                 tempkm, tempnn, tempkm, ib, L->nb,
                 IPIV(k, k),
                 L(k, k), L->mb,
-                D(k), ldak,
+                D(k),    lddk,
                 A(k, n), ldak);
         }
         for (m = k+1; m < A->mt; m++) {

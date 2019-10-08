@@ -102,15 +102,17 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     tempkmin = chameleon_min(tempkm,tempNn);
                     ldbN = BLKLDD(B, N);
                     if ( genD ) {
+                        int tempDNn = N == D->nt-1 ? D->n-N*D->nb : D->nb;
+
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, tempNn, A->nb,
+                            ChamUpper, tempkmin, tempDNn, A->nb,
                             A(k, N), ldak,
                             D(k, N), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, tempNn,
+                            ChamLower, tempkmin, tempDNn,
                             0., 1.,
                             D(k, N), lddk );
 #endif
@@ -254,15 +256,16 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         RUNTIME_data_flush( sequence, T(k, m) );
                     }
                     if ( genD ) {
+                        int tempDNn = N == D->nt-1 ? D->n-N*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, tempNn, A->nb,
+                            ChamUpper, tempkmin, tempDNn, A->nb,
                             A(k, N), ldak,
                             D(k, N), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, tempNn,
+                            ChamLower, tempkmin, tempDNn,
                             0., 1.,
                             D(k, N), lddk );
 #endif
@@ -339,7 +342,7 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                             node = B->get_rankof( B, m, n );
                             RUNTIME_data_migrate( sequence, B(m, N), node );
-                            RUNTIME_data_migrate( sequence, B(m, m), node );
+                            RUNTIME_data_migrate( sequence, B(m, n), node );
 
                             /* TS kernel */
                             INSERT_TASK_ztpmlqt(
@@ -355,15 +358,16 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         RUNTIME_data_flush( sequence, T(k, n) );
                     }
                     if ( genD ) {
+                        int tempDNn = N == D->nt-1 ? D->n-N*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, tempNn, A->nb,
+                            ChamUpper, tempkmin, tempDNn, A->nb,
                             A(k, N), ldak,
                             D(k, N), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, tempNn,
+                            ChamLower, tempkmin, tempDNn,
                             0., 1.,
                             D(k, N), lddk );
 #endif
@@ -404,15 +408,16 @@ void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     tempNn = N == A->nt-1 ? A->n-N*A->nb : A->nb;
                     tempkmin = chameleon_min(tempkm,tempNn);
                     if ( genD ) {
+                        int tempDNn = N == D->nt-1 ? D->n-N*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, tempNn, A->nb,
+                            ChamUpper, tempkmin, tempDNn, A->nb,
                             A(k, N), ldak,
                             D(k, N), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, tempNn,
+                            ChamLower, tempkmin, tempDNn,
                             0., 1.,
                             D(k, N), lddk );
 #endif

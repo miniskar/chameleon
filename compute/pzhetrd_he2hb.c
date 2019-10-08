@@ -23,7 +23,7 @@
 
 #define A(m, n) A,  m,  n
 #define T(m, n) T,  m,  n
-#define D(k) &D, (k)-1, 0
+#define D(k)  &D, (k)-1, 0
 
 #define AT(k) &AT, k, 0
 
@@ -49,6 +49,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
 
     int k, m, n, i, j;
     int ldak, ldak1, ldam, ldan, ldaj, ldai;
+    int lddk, lddk1, lddm, lddn, ldek, ldek1;
     int tempkm, tempkn, tempmm, tempnn, tempjj;
     int ib;
 
@@ -98,12 +99,13 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     for (k = 1; k < A->nt; k++){
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD((&D), k);
 
         INSERT_TASK_zhe2ge(&options,
                           uplo,
                           tempkn, tempkn, ldak,
                           A(k, k), ldak,
-                          D(k),    ldak);
+                          D(k),    lddk);
     }
 
     if (uplo == ChamLower) {
@@ -113,6 +115,8 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
            tempkm = k+1 == A->mt-1 ? A->m-(k+1)*A->mb : A->mb;
            tempkn = k   == A->nt-1 ? A->n- k   *A->nb : A->nb;
            ldak1 = BLKLDD(A, k+1);
+           lddk1 = BLKLDD((&D), k+1);
+           ldek1 = BLKLDD(E, k+1);
 
            INSERT_TASK_zgeqrt(
                &options,
@@ -125,13 +129,13 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                &options,
                ChamLower, tempkm, tempkn, A->nb,
                A(k+1, k), ldak1,
-               E(k+1, k), ldak1 );
+               E(k+1, k), ldek1 );
 #if defined(CHAMELEON_USE_CUDA)
            INSERT_TASK_zlaset(
                &options,
                ChamUpper, tempkm, tempkn,
                0., 1.,
-               E(k+1, k), ldak1 );
+               E(k+1, k), ldek1 );
 #endif
 #endif
 
@@ -142,7 +146,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                tempkm, tempkm, ib, A->nb,
                E(k+1, k), ldak1,
                T(k+1, k), T->mb,
-               D(k+1),    ldak1);
+               D(k+1),    lddk1);
 
            /* RIGHT on the remaining tiles until the bottom */
            for (m = k+2; m < A->mt ; m++) {
@@ -152,7 +156,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamRight, ChamNoTrans,
                    tempmm, A->nb, tempkm, ib, A->nb,
-                   E(k+1, k),   ldak1,
+                   E(k+1, k),   ldek1,
                    T(k+1, k),   T->mb,
                    A(m,   k+1), ldam);
            }
@@ -160,6 +164,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
            for (m = k+2; m < A->mt; m++) {
                tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                ldam = BLKLDD(A, m);
+               lddm = BLKLDD((&D), m);
 
                options.priority = 1;
                INSERT_TASK_ztsqrt(
@@ -222,7 +227,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamLeft, ChamConjTrans,
                    A->mb, A->nb, tempmm, A->nb, A->nb, ib, A->nb,
-                   D(k+1), ldak1,
+                   D(k+1),    lddk1,
                    A(m, k+1), ldam,
                    A(m,   k), ldam,
                    T(m,   k), T->mb);
@@ -233,8 +238,8 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamLeft, ChamConjTrans,
                    A->mb, tempmm, tempmm, tempmm, A->nb, ib, A->nb,
-                   AT(m), ldak1,
-                   D(m) , ldam,
+                   AT(m),    ldak1,
+                   D(m),     lddm,
                    A(m,  k), ldam,
                    T(m,  k), T->mb);
 
@@ -243,7 +248,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamRight, ChamNoTrans,
                    A->mb, A->nb, A->mb, tempmm, A->nb, ib, A->nb,
-                   D(k+1), ldak1,
+                   D(k+1), lddk1,
                    AT(m) , ldak1,
                    A(m,   k), ldam,
                    T(m,   k), T->mb);
@@ -254,7 +259,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    ChamRight, ChamNoTrans,
                    tempmm, A->nb, tempmm, tempmm, A->nb, ib, A->nb,
                    A(m, k+1), ldam,
-                   D(m)  , ldam,
+                   D(m),      lddm,
                    A(m,   k), ldam,
                    T(m,   k), T->mb);
                options.priority = 0;
@@ -270,7 +275,9 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
            tempkn = k+1 == A->nt-1 ? A->n-(k+1)*A->nb : A->nb;
            tempkm = k   == A->mt-1 ? A->m- k   *A->mb : A->mb;
            ldak  = BLKLDD(A, k);
+           ldek  = BLKLDD(E, k);
            ldak1 = BLKLDD(A, k+1);
+           lddk1 = BLKLDD((&D), k+1);
            INSERT_TASK_zgelqt(
                &options,
                tempkm, tempkn, ib, A->nb,
@@ -282,13 +289,13 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                &options,
                ChamUpper, tempkm, tempkn, A->nb,
                A(k, k+1), ldak,
-               E(k, k+1), ldak );
+               E(k, k+1), ldek );
 #if defined(CHAMELEON_USE_CUDA)
            INSERT_TASK_zlaset(
                &options,
                ChamLower, tempkm, tempkn,
                0., 1.,
-               E(k, k+1), ldak );
+               E(k, k+1), ldek );
 #endif
 #endif
 
@@ -297,9 +304,9 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                &options,
                ChamUpper,
                tempkn, tempkn, ib, A->nb,
-               E(k, k+1), ldak,
+               E(k, k+1), ldek,
                T(k, k+1), T->mb,
-               D(k+1),    ldak1);
+               D(k+1),    lddk1);
 
            /* LEFT on the remaining tiles until the left side */
            for (n = k+2; n < A->nt ; n++) {
@@ -308,7 +315,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamLeft, ChamNoTrans,
                    A->mb, tempnn, tempkn, ib, A->nb,
-                   E(k,   k+1), ldak,
+                   E(k,   k+1), ldek,
                    T(k,   k+1), T->mb,
                    A(k+1, n  ), ldak1);
            }
@@ -316,6 +323,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
            for (n = k+2; n < A->nt; n++) {
                tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                ldan = BLKLDD(A, n);
+               lddn = BLKLDD((&D), n);
                options.priority = 1;
                INSERT_TASK_ztslqt(
                    &options,
@@ -375,7 +383,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamRight, ChamConjTrans,
                    A->mb, A->nb, A->mb, tempnn, A->nb, ib, A->nb,
-                   D(k+1),    ldak1,
+                   D(k+1),    lddk1,
                    A(k+1, n), ldak1,
                    A(k,   n), ldak,
                    T(k,   n), T->mb);
@@ -386,7 +394,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    ChamRight, ChamConjTrans,
                    tempnn, A->nb, tempnn, tempnn, A->nb, ib, A->nb,
                    AT(n),    A->mb,
-                   D(n),     ldan,
+                   D(n),     lddn,
                    A(k,  n), ldak,
                    T(k,  n), T->mb);
 
@@ -396,7 +404,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    &options,
                    ChamLeft, ChamNoTrans,
                    A->mb, A->nb, tempnn, A->nb, A->nb, ib, A->nb,
-                   D(k+1),  ldak1,
+                   D(k+1),  lddk1,
                    AT(n),   A->mb,
                    A(k, n), ldak,
                    T(k, n), T->mb);
@@ -408,7 +416,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
                    ChamLeft, ChamNoTrans,
                    A->mb, tempnn, tempnn, tempnn, A->nb, ib, A->nb,
                    A(k+1, n), ldak1,
-                   D(n),      ldan,
+                   D(n),      lddn,
                    A(k,   n), ldak,
                    T(k,   n), T->mb);
            }
@@ -422,10 +430,11 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     for (k = 1; k < A->nt; k++){
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         ldak = BLKLDD(A, k);
+        lddk = BLKLDD((&D), k);
         INSERT_TASK_zlacpy(&options,
                           uplo,
                           tempkn, tempkn, ldak,
-                          D(k), ldak,
+                          D(k), lddk,
                           A(k, k), ldak);
     }
 

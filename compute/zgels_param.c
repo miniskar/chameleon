@@ -26,19 +26,20 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zgels_param - solves overdetermined or underdetermined linear systems involving an M-by-N
- *  matrix A using the QR or the LQ factorization of A.  It is assumed that A has full rank.
- *  The following options are provided:
+ *  CHAMELEON_zgels_param - solves overdetermined or underdetermined linear
+ *  systems involving an M-by-N matrix A using the QR or the LQ factorization of
+ *  A.  It is assumed that A has full rank.  The following options are provided:
  *
- *  # trans = ChamNoTrans and M >= N: find the least squares solution of an overdetermined
- *    system, i.e., solve the least squares problem: minimize || B - A*X ||.
+ *  # trans = ChamNoTrans and M >= N: find the least squares solution of an
+ *    overdetermined system, i.e., solve the least squares problem: minimize
+ *    || B - A*X ||.
  *
- *  # trans = ChamNoTrans and M < N:  find the minimum norm solution of an underdetermined
- *    system A * X = B.
+ *  # trans = ChamNoTrans and M < N: find the minimum norm solution of an
+ *    underdetermined system A * X = B.
  *
- *  Several right hand side vectors B and solution vectors X can be handled in a single call;
- *  they are stored as the columns of the M-by-NRHS right hand side matrix B and the N-by-NRHS
- *  solution matrix X.
+ *  Several right hand side vectors B and solution vectors X can be handled in a
+ *  single call; they are stored as the columns of the M-by-NRHS right hand side
+ *  matrix B and the N-by-NRHS solution matrix X.
  *
  *******************************************************************************
  *
@@ -49,7 +50,6 @@
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
  *          = ChamConjTrans: the linear system involves A^H.
- *          Currently only ChamNoTrans is supported.
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0.
@@ -58,16 +58,15 @@
  *          The number of columns of the matrix A. N >= 0.
  *
  * @param[in] NRHS
- *          The number of right hand sides, i.e., the number of columns of the matrices B and X.
- *          NRHS >= 0.
+ *          The number of right hand sides, i.e., the number of columns of the
+ *          matrices B and X.  NRHS >= 0.
  *
  * @param[in,out] A
  *          On entry, the M-by-N matrix A.
- *          On exit,
- *          if M >= N, A is overwritten by details of its QR factorization as returned by
- *                     CHAMELEON_zgeqrf;
- *          if M < N, A is overwritten by details of its LQ factorization as returned by
- *                      CHAMELEON_zgelqf.
+ *          On exit, if M >= N, A is overwritten by details of its QR
+ *          factorization as returned by CHAMELEON_zgeqrf; if M < N, A is
+ *          overwritten by details of its LQ factorization as returned by
+ *          CHAMELEON_zgelqf.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
@@ -79,13 +78,14 @@
  *          On exit, auxiliary factorization data.
  *
  * @param[in,out] B
- *          On entry, the M-by-NRHS matrix B of right hand side vectors, stored columnwise;
- *          On exit, if return value = 0, B is overwritten by the solution vectors, stored
- *          columnwise:
- *          if M >= N, rows 1 to N of B contain the least squares solution vectors; the residual
- *          sum of squares for the solution in each column is given by the sum of squares of the
- *          modulus of elements N+1 to M in that column;
- *          if M < N, rows 1 to N of B contain the minimum norm solution vectors;
+ *          On entry, the M-by-NRHS matrix B of right hand side vectors, stored
+ *          columnwise;
+ *          On exit, if return value = 0, B is overwritten by the solution
+ *          vectors, stored columnwise: if M >= N, rows 1 to N of B contain the
+ *          least squares solution vectors; the residual sum of squares for the
+ *          solution in each column is given by the sum of squares of the
+ *          modulus of elements N+1 to M in that column; if M < N, rows 1 to N
+ *          of B contain the minimum norm solution vectors;
  *
  * @param[in] LDB
  *          The leading dimension of the array B. LDB >= MAX(1,M,N).
@@ -105,9 +105,9 @@
  *
  */
 int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int M, int N, int NRHS,
-                       CHAMELEON_Complex64_t *A, int LDA,
-                       CHAM_desc_t *descTS, CHAM_desc_t *descTT,
-                       CHAMELEON_Complex64_t *B, int LDB )
+                           CHAMELEON_Complex64_t *A, int LDA,
+                           CHAM_desc_t *descTS, CHAM_desc_t *descTT,
+                           CHAMELEON_Complex64_t *B, int LDB )
 {
     int i, j;
     int NB;
@@ -125,8 +125,8 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
     }
 
     /* Check input arguments */
-    if (trans != ChamNoTrans) {
-        chameleon_error("CHAMELEON_zgels_param", "only ChamNoTrans supported");
+    if ( (trans != ChamNoTrans) && (trans != ChamConjTrans) ) {
+        chameleon_error("CHAMELEON_zgels_param", "illegal value of trans");
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
     if (M < 0) {
@@ -172,14 +172,14 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
     /* Submit the matrix conversion */
     if ( M >= N ) {
         chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                         A, NB, NB, LDA, N, M, N, sequence, &request );
+                             A, NB, NB, LDA, N, M, N, sequence, &request );
         chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
-                         B, NB, NB, LDB, NRHS, M, NRHS, sequence, &request );
+                             B, NB, NB, LDB, NRHS, M, NRHS, sequence, &request );
     } else {
         chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                         A, NB, NB, LDA, N, M, N, sequence, &request );
+                             A, NB, NB, LDA, N, M, N, sequence, &request );
         chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
-                         B, NB, NB, LDB, NRHS, N, NRHS, sequence, &request );
+                             B, NB, NB, LDB, NRHS, N, NRHS, sequence, &request );
     }
 
     /* Call the tile interface */
@@ -187,9 +187,9 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descBl, &descBt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
     CHAMELEON_Desc_Flush( descTS, sequence );
     CHAMELEON_Desc_Flush( descTT, sequence );
 
@@ -205,12 +205,13 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
 }
 
 /**
- *******************************************************************************
+ ********************************************************************************
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  CHAMELEON_zgels_param_Tile - Solves overdetermined or underdetermined linear system of equations
- *  using the tile QR or the tile LQ factorization.
+ *  CHAMELEON_zgels_param_Tile - solves overdetermined or underdetermined linear
+ *  systems involving an M-by-N matrix A using the QR or the LQ factorization of
+ *  A.
  *  Tile equivalent of CHAMELEON_zgels_param().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
@@ -222,15 +223,13 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
  *          Intended usage:
  *          = ChamNoTrans:   the linear system involves A;
  *          = ChamConjTrans: the linear system involves A^H.
- *          Currently only ChamNoTrans is supported.
  *
  * @param[in,out] A
  *          On entry, the M-by-N matrix A.
- *          On exit,
- *          if M >= N, A is overwritten by details of its QR factorization as returned by
- *                     CHAMELEON_zgeqrf;
- *          if M < N, A is overwritten by details of its LQ factorization as returned by
- *                      CHAMELEON_zgelqf.
+ *          On exit, if M >= N, A is overwritten by details of its QR
+ *          factorization as returned by CHAMELEON_zgeqrf; if M < N, A is
+ *          overwritten by details of its LQ factorization as returned by
+ *          CHAMELEON_zgelqf.
  *
  * @param[out] TS
  *          On exit, auxiliary factorization data.
@@ -239,13 +238,14 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
  *          On exit, auxiliary factorization data.
  *
  * @param[in,out] B
- *          On entry, the M-by-NRHS matrix B of right hand side vectors, stored columnwise;
- *          On exit, if return value = 0, B is overwritten by the solution vectors, stored
- *          columnwise:
- *          if M >= N, rows 1 to N of B contain the least squares solution vectors; the residual
- *          sum of squares for the solution in each column is given by the sum of squares of the
- *          modulus of elements N+1 to M in that column;
- *          if M < N, rows 1 to N of B contain the minimum norm solution vectors;
+ *          On entry, the M-by-NRHS matrix B of right hand side vectors, stored
+ *          columnwise;
+ *          On exit, if return value = 0, B is overwritten by the solution
+ *          vectors, stored columnwise: if M >= N, rows 1 to N of B contain the
+ *          least squares solution vectors; the residual sum of squares for the
+ *          solution in each column is given by the sum of squares of the
+ *          modulus of elements N+1 to M in that column; if M < N, rows 1 to N
+ *          of B contain the minimum norm solution vectors;
  *
  *******************************************************************************
  *
@@ -261,7 +261,7 @@ int CHAMELEON_zgels_param( const libhqr_tree_t *qrtree, cham_trans_t trans, int 
  *
  */
 int CHAMELEON_zgels_param_Tile( const libhqr_tree_t *qrtree, cham_trans_t trans, CHAM_desc_t *A,
-                            CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B )
+                                CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -289,7 +289,7 @@ int CHAMELEON_zgels_param_Tile( const libhqr_tree_t *qrtree, cham_trans_t trans,
 }
 
 /**
- *******************************************************************************
+ ********************************************************************************
  *
  * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
@@ -318,8 +318,8 @@ int CHAMELEON_zgels_param_Tile( const libhqr_tree_t *qrtree, cham_trans_t trans,
  *
  */
 int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t trans, CHAM_desc_t *A,
-                                  CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B,
-                                  RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                      CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *B,
+                                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_desc_t *subA;
     CHAM_desc_t *subB;
@@ -348,6 +348,10 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
     }
 
     /* Check descriptors for correctness */
+    if ( (trans != ChamNoTrans) && (trans != ChamConjTrans) ) {
+        chameleon_error("CHAMELEON_zgels_param_Tile_Async", "illegal value of trans");
+        return CHAMELEON_ERR_NOT_SUPPORTED;
+    }
     if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
         chameleon_error("CHAMELEON_zgels_param_Tile", "invalid first descriptor");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
@@ -369,20 +373,8 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
         chameleon_error("CHAMELEON_zgels_param_Tile", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if (trans != ChamNoTrans) {
-        chameleon_error("CHAMELEON_zgels_param_Tile", "only ChamNoTrans supported");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_NOT_SUPPORTED);
-    }
-    /* Quick return  - currently NOT equivalent to LAPACK's:
-     if (chameleon_min(M, chameleon_min(N, NRHS)) == 0) {
-     for (i = 0; i < chameleon_max(M, N); i++)
-     for (j = 0; j < NRHS; j++)
-     B[j*LDB+i] = 0.0;
-     return CHAMELEON_SUCCESS;
-     }
-     */
-    if (A->m >= A->n) {
 
+    if (A->m >= A->n) {
 #if defined(CHAMELEON_COPY_DIAG)
         {
             int n = chameleon_min(A->m, A->n);
@@ -390,14 +382,51 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
             Dptr = &D;
         }
 #endif
-
-        subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
-        subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
-
+        /*
+         * compute QR factorization of A
+         */
         chameleon_pzgeqrf_param( 1, A->nt, qrtree, A,
                                  TS, TT, Dptr, sequence, request );
-        chameleon_pzunmqr_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
-        chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
+
+        /* Perform the solve part */
+        if ( trans == ChamNoTrans ) {
+            /*
+             * Least-Squares Problem min || A * X - B ||
+             *
+             * B(1:M,1:NRHS) := Q**H * B(1:M,1:NRHS)
+             */
+            chameleon_pzunmqr_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+
+            /*
+             * B(1:N,1:NRHS) := inv(R) * B(1:N,1:NRHS)
+             */
+            subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
+            subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
+            chameleon_pztrsm( ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
+        }
+        else {
+            /*
+             * Underdetermined system of equations A**H * X = B
+             *
+             * B(1:N,1:NRHS) := inv(R**H) * B(1:N,1:NRHS)
+             */
+            subB = chameleon_desc_submatrix(B, 0, 0, A->n, B->n);
+            subA = chameleon_desc_submatrix(A, 0, 0, A->n, A->n);
+            chameleon_pztrsm( ChamLeft, ChamUpper, ChamConjTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
+
+            /*
+             * B(M+1:N,1:NRHS) = 0
+             */
+            /* TODO: enable subdescriptor with non aligned starting point in laset */
+            /* free(subB); */
+            /* subB = chameleon_desc_submatrix(B, A->n, 0, A->m-A->n, B->n); */
+            /* chameleon_pzlaset( ChamUpperLower, 0., 0., subB, sequence, request ); */
+
+            /*
+             * B(1:N,1:NRHS) := Q(1:N,:)**H * B(1:M,1:NRHS)
+             */
+            chameleon_pzunmqr_param( 0, qrtree, ChamLeft, ChamNoTrans, A, B, TS, TT, Dptr, sequence, request );
+        }
     }
     else {
 #if defined(CHAMELEON_COPY_DIAG)
@@ -407,13 +436,50 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
             Dptr = &D;
         }
 #endif
-
-        subB = chameleon_desc_submatrix(B, 0, 0, A->m, B->n);
-        subA = chameleon_desc_submatrix(A, 0, 0, A->m, A->m);
-
+        /*
+         * Compute LQ factorization of A
+         */
         chameleon_pzgelqf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
-        chameleon_pztrsm( ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
-        chameleon_pzunmlq_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+
+        /* Perform the solve part */
+        if ( trans == ChamNoTrans ) {
+            /*
+             * Underdetermined system of equations A * X = B
+             *
+             * B(1:M,1:NRHS) := inv(L) * B(1:M,1:NRHS)
+             */
+            subB = chameleon_desc_submatrix(B, 0, 0, A->m, B->n);
+            subA = chameleon_desc_submatrix(A, 0, 0, A->m, A->m);
+            chameleon_pztrsm( ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
+
+            /*
+             * B(M+1:N,1:NRHS) = 0
+             */
+            /* TODO: enable subdescriptor with non aligned starting point in laset */
+            /* free(subB); */
+            /* subB = chameleon_desc_submatrix(B, A->m, 0, A->n-A->m, B->n); */
+            /* chameleon_pzlaset( ChamUpperLower, 0., 0., subB, sequence, request ); */
+
+            /*
+             * B(1:N,1:NRHS) := Q(1:N,:)**H * B(1:M,1:NRHS)
+             */
+            chameleon_pzunmlq_param( 0, qrtree, ChamLeft, ChamConjTrans, A, B, TS, TT, Dptr, sequence, request );
+        }
+        else {
+            /*
+             * Overdetermined system min || A**H * X - B ||
+             *
+             * B(1:N,1:NRHS) := Q * B(1:N,1:NRHS)
+             */
+            chameleon_pzunmlq_param( 0, qrtree, ChamLeft, ChamNoTrans, A, B, TS, TT, Dptr, sequence, request );
+
+            /*
+             * B(1:M,1:NRHS) := inv(L**H) * B(1:M,1:NRHS)
+             */
+            subB = chameleon_desc_submatrix(B, 0, 0, A->m, B->n);
+            subA = chameleon_desc_submatrix(A, 0, 0, A->m, A->m);
+            chameleon_pztrsm( ChamLeft, ChamLower, ChamConjTrans, ChamNonUnit, 1.0, subA, subB, sequence, request );
+        }
     }
 
     free(subA);

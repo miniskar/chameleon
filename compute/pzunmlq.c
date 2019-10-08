@@ -98,22 +98,22 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans,
                 RUNTIME_iteration_push(chamctxt, k);
 
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
-                tempkn   = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
                 ldak = BLKLDD(A, k);
                 ldbk = BLKLDD(B, k);
                 lddk = BLKLDD(D, k);
 
                 if ( genD ) {
+                    int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpper, tempkmin, tempkn, A->nb,
+                        ChamUpper, tempkmin, tempDkn, A->nb,
                         A(k, k), ldak,
                         D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
                     INSERT_TASK_zlaset(
                         &options,
-                        ChamLower, tempkmin, tempkn,
+                        ChamLower, tempkmin, tempDkn,
                         0., 1.,
                         D(k), lddk );
 #endif
@@ -172,7 +172,6 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans,
             for (k = minMT-1; k >= 0; k--) {
                 RUNTIME_iteration_push(chamctxt, k);
 
-                tempkn   = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                 tempkm   = k == B->mt-1 ? B->m-k*B->mb : B->mb;
                 tempkmin = k == minMT-1 ? minM-k*A->nb : A->nb;
                 ldak = BLKLDD(A, k);
@@ -203,15 +202,16 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans,
                     RUNTIME_data_flush( sequence, T(k, m) );
                 }
                 if ( genD ) {
+                    int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpper, tempkmin, tempkn, A->nb,
+                        ChamUpper, tempkmin, tempDkn, A->nb,
                         A(k, k), ldak,
                         D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
                     INSERT_TASK_zlaset(
                         &options,
-                        ChamLower, tempkmin, tempkn,
+                        ChamLower, tempkmin, tempDkn,
                         0., 1.,
                         D(k), lddk );
 #endif
@@ -273,15 +273,16 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans,
                     RUNTIME_data_flush( sequence, T(k, n) );
                 }
                 if ( genD ) {
+                    int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpper, tempkmin, tempkn, A->nb,
+                        ChamUpper, tempkmin, tempDkn, A->nb,
                         A(k, k), ldak,
                         D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
                     INSERT_TASK_zlaset(
                         &options,
-                        ChamLower, tempkmin, tempkn,
+                        ChamLower, tempkmin, tempDkn,
                         0., 1.,
                         D(k), lddk );
 #endif
@@ -321,15 +322,16 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans,
                 lddk = BLKLDD(D, k);
 
                 if ( genD ) {
+                    int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpper, tempkmin, tempkn, A->nb,
+                        ChamUpper, tempkmin, tempDkn, A->nb,
                         A(k, k), ldak,
                         D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
                     INSERT_TASK_zlaset(
                         &options,
-                        ChamLower, tempkmin, tempkn,
+                        ChamLower, tempkmin, tempDkn,
                         0., 1.,
                         D(k), lddk );
 #endif

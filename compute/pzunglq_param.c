@@ -53,10 +53,6 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
     ib = CHAMELEON_IB;
 
-    if (D == NULL) {
-        D = A;
-    }
-
     if ( D == NULL ) {
         D    = A;
         genD = 0;
@@ -142,15 +138,16 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
             tempkmin = chameleon_min(tempkm, temppn);
 
             if ( genD ) {
+                int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpper, tempkmin, temppn, A->nb,
+                    ChamUpper, tempkmin, tempDpn, A->nb,
                     A(k, p), ldak,
                     D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
-                    ChamLower, tempkmin, temppn,
+                    ChamLower, tempkmin, tempDpn,
                     0., 1.,
                     D(k, p), lddk );
 #endif

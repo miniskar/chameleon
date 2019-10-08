@@ -123,15 +123,17 @@ void chameleon_pzungqr( int genD, CHAM_desc_t *A, CHAM_desc_t *Q,
         }
 
         if ( genD ) {
+            int tempDkm = k == D->mt-1 ? D->m-k*D->mb : D->mb;
+
             INSERT_TASK_zlacpy(
                 &options,
-                ChamLower, tempkm, tempkmin, A->nb,
+                ChamLower, tempDkm, tempkmin, A->nb,
                 A(k, k), ldak,
                 D(k),    lddk );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(
                 &options,
-                ChamUpper, tempkm, tempkmin,
+                ChamUpper, tempDkm, tempkmin,
                 0., 1.,
                 D(k), lddk );
 #endif

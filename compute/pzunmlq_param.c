@@ -106,15 +106,16 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                     ldbp = BLKLDD(B, p);
 
                     if ( genD ) {
+                        int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, temppn, A->nb,
+                            ChamUpper, tempkmin, tempDpn, A->nb,
                             A(k, p), ldak,
                             D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, temppn,
+                            ChamLower, tempkmin, tempDpn,
                             0., 1.,
                             D(k, p), lddk );
 #endif
@@ -245,15 +246,16 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                     ldbp = BLKLDD(B, p);
 
                     if ( genD ) {
+                        int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, temppn, A->nb,
+                            ChamUpper, tempkmin, tempDpn, A->nb,
                             A(k, p), ldak,
                             D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, temppn,
+                            ChamLower, tempkmin, tempDpn,
                             0., 1.,
                             D(k, p), lddk );
 #endif
@@ -341,15 +343,16 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                     tempkmin = chameleon_min(tempkm, temppn);
 
                     if ( genD ) {
+                        int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, temppn, A->nb,
+                            ChamUpper, tempkmin, tempDpn, A->nb,
                             A(k, p), ldak,
                             D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, temppn,
+                            ChamLower, tempkmin, tempDpn,
                             0., 1.,
                             D(k, p), lddk );
 #endif
@@ -396,15 +399,16 @@ void chameleon_pzunmlq_param( int genD, const libhqr_tree_t *qrtree,
                     tempkmin = chameleon_min(tempkm, temppn);
 
                     if ( genD ) {
+                        int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamUpper, tempkmin, temppn, A->nb,
+                            ChamUpper, tempkmin, tempDpn, A->nb,
                             A(k, p), ldak,
                             D(k, p), lddk );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamLower, tempkmin, temppn,
+                            ChamLower, tempkmin, tempDpn,
                             0., 1.,
                             D(k, p), lddk );
 #endif

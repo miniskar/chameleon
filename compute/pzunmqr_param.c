@@ -106,15 +106,17 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     ldbm = BLKLDD(B, m);
 
                     if ( genD ) {
+                        int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
+
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempmm, tempkmin, A->nb,
+                            ChamLower, tempDmm, tempkmin, A->nb,
                             A(m, k), ldam,
                             D(m, k), lddm );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamUpper, tempmm, tempkmin,
+                            ChamUpper, tempDmm, tempkmin,
                             0., 1.,
                             D(m, k), lddm );
 #endif
@@ -215,7 +217,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         L = tempmm;
                         T = TT;
                     }
-                    for (n = k; n < B->nt; n++) {
+                    for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
 
                         node = B->get_rankof( B, m, n );
@@ -246,15 +248,17 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     ldbm = BLKLDD(B, m);
 
                     if ( genD ) {
+                        int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
+
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempmm, tempkmin, A->nb,
+                            ChamLower, tempDmm, tempkmin, A->nb,
                             A(m, k), ldam,
                             D(m, k), lddm );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamUpper, tempmm, tempkmin,
+                            ChamUpper, tempDmm, tempkmin,
                             0., 1.,
                             D(m, k), lddm );
 #endif
@@ -309,7 +313,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     }
                     else {
                         /* TT kernel */
-                        L = tempmm;
+                        L = A->mb;
                         T = TT;
                     }
 
@@ -344,15 +348,17 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     lddn = BLKLDD(D, n);
 
                     if ( genD ) {
+                        int tempDnn = n == D->nt-1 ? D->n-n*D->nb : D->nb;
+
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempnn, tempkmin, A->nb,
+                            ChamLower, tempDnn, tempkmin, A->nb,
                             A(n, k), ldan,
                             D(n, k), lddn );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamUpper, tempnn, tempkmin,
+                            ChamUpper, tempDnn, tempkmin,
                             0., 1.,
                             D(n, k), lddn );
 #endif
@@ -397,15 +403,17 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     lddn = BLKLDD(D, n);
 
                     if ( genD ) {
+                        int tempDnn = n == D->nt-1 ? D->n-n*D->nb : D->nb;
+
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempnn, tempkmin, A->nb,
+                            ChamLower, tempDnn, tempkmin, A->nb,
                             A(n, k), ldan,
                             D(n, k), lddn );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
-                            ChamUpper, tempnn, tempkmin,
+                            ChamUpper, tempDnn, tempkmin,
                             0., 1.,
                             D(n, k), lddn );
 #endif
