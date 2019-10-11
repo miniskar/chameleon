@@ -1,0 +1,104 @@
+---
+.test_starpu_template:
+  extends: .test_script_template
+  needs: [build_starpu]
+  dependencies:
+    - build_starpu
+  artifacts:
+    name: test_starpu
+    expire_in: 48 hours
+    paths:
+      - build_starpu
+      - chameleon_starpu_*.log
+      - chameleon_starpu_*.lcov
+      - bis_chameleon_starpu_*.lcov
+
+.test_starpu_template_master: &test_starpu_master
+  extends:
+    - .test_starpu_template
+    - .only-master
+
+.test_starpu_template_branches: &test_starpu_branches
+  extends:
+    - .test_starpu_template
+    - .only-branches
+
+test_starpu_shm_s:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: shm
+    PRECISION: s
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_shm_d:
+  <<: *test_starpu_branches
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: shm
+    PRECISION: d
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_shm_c:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: shm
+    PRECISION: c
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_shm_z:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: shm
+    PRECISION: z
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_mpi_s:
+  <<: *test_starpu_branches
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: mpi
+    PRECISION: s
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_mpi_d:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: mpi
+    PRECISION: d
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_mpi_c:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: mpi
+    PRECISION: c
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_mpi_z:
+  <<: *test_starpu_master
+  variables:
+    STARPU_WORKERS_NOBIND: 1
+    STARPU_SILENT: 1
+    VERSION: starpu
+    CATEGORY: mpi
+    PRECISION: z
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""

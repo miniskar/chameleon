@@ -1,0 +1,65 @@
+#
+# This file describes the common rules for the stages
+#
+---
+.only-master:
+  only:
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+
+.only-branches:
+  only:
+    - branches
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+  except:
+    - master
+    - schedules
+
+.build_script_template:
+  image: hpclib/hiepacs
+  stage: build
+  tags: ["large"]
+  script:
+    - export LOGNAME=chameleon_${VERSION}.log
+    - echo $LOGNAME
+    - echo build BUILD_OPTIONS $BUILD_OPTIONS | tee -a ${LOGNAME}
+    - echo build VERSION       $VERSION       | tee -a ${LOGNAME}
+    - ls -l *.log
+    - (cd build-$VERSION &&
+       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
+       cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS &&
+       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
+       ctest --no-compress-output -V -j 5
+             -D ExperimentalBuild
+             -D ExperimentalSubmit
+             | tee ../${LOGNAME})
+    - (cd build-$VERSION &&
+       make install | tee -a ../${LOGNAME} &&
+       rm install/ -r)
+  except:
+    - schedules
+
+.test_script_template:
+  image: hpclib/hiepacs
+  stage: test
+  tags: ["large"]
+  script:
+    - export LOGNAME=chameleon_${VERSION}_${CATEGORY}_${PRECISION}
+    - echo $LOGNAME
+    - echo test TESTS_RESTRICTION $TESTS_RESTRICTION  | tee -a ${LOGNAME}.log
+    - echo test VERSION $VERSION     | tee -a ${LOGNAME}.log
+    - echo test CATEGORY $CATEGORY   | tee -a ${LOGNAME}.log
+    - echo test PRECISION $PRECISION | tee -a ${LOGNAME}.log
+    - ls -l *.log
+    - (cd build-$VERSION &&
+       eval "ctest --no-compress-output -V
+             $TESTS_RESTRICTION
+             -D ExperimentalTest
+             -D ExperimentalCoverage
+             -D ExperimentalSubmit
+             | tee -a ../${LOGNAME}.log")
+    - lcov --directory build-$VERSION --capture --output-file ./${LOGNAME}.lcov
+    - (cd build-$VERSION && lcov --directory . --capture --output-file ../bis_${LOGNAME}.lcov)
+  except:
+    - schedules

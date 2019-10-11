@@ -1,0 +1,22 @@
+sonarqube:
+  image: hpclib/hiepacs
+  stage: analyse
+  tags: ["large"]
+  artifacts:
+    name: chameleon_analysis
+    expire_in: 1 week
+    paths:
+      - chameleon_coverage.xml
+      - chameleon_cppcheck.xml
+      - chameleon_rats.xml
+      - sonar.log
+  variables:
+    VERSION: sonarqube
+  script:
+    - cat *.log > chameleon_build.log
+    - ./tools/analysis.sh
+  only:
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+  except:
+    - schedules

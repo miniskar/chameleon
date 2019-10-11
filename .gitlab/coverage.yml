@@ -1,0 +1,23 @@
+#
+# Rule to generate the full coverage of the testings in the branches.
+# Not used by the master, as it s done in the analysis script for sonarqube
+#
+# Rk: We do not take into account the simgrid lcov file for now, as it is empty with new testings
+#
+---
+coverage:
+  image: hpclib/hiepacs
+  stage: analyse
+  script:
+    - export INPUT_FILES=""
+    - for name in $( ls -1 chameleon_*.lcov | grep -v simgrid); do export INPUT_FILES="$INPUT_FILES -a $name"; done
+    - lcov $INPUT_FILES -o chameleon.lcov
+    - lcov --summary chameleon.lcov
+    - export INPUT_FILES=""
+    - for name in $( ls -1 bis_chameleon_*.lcov | grep -v simgrid); do export INPUT_FILES="$INPUT_FILES -a $name"; done
+    - lcov $INPUT_FILES -o bis_chameleon.lcov
+    - lcov --summary bis_chameleon.lcov
+  except:
+    - master
+    - /^ci-.*$/
+    - schedules
