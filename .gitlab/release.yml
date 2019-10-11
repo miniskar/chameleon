@@ -1,0 +1,18 @@
+---
+release:
+  image: hpclib/hiepacs
+  stage: deploy
+  dependencies: []
+  artifacts:
+    name: chameleon_release
+    expire_in: 1 week
+    paths:
+      - chameleon-*.tar.gz
+  variables:
+    VERSION: release
+  script:
+    - ./tools/release.sh
+  only:
+    - /^release-.*$/
+  except:
+    - schedules

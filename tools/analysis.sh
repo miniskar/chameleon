@@ -12,11 +12,12 @@
 ./tools/find_sources.sh
 
 # Generate coverage xml output
-lcov -a $PWD/chameleon_starpu.lcov \
-     -a $PWD/chameleon_starpu_simgrid.lcov \
-     -a $PWD/chameleon_quark.lcov \
-     -a $PWD/chameleon_parsec.lcov \
-     -o $PWD/chameleon.lcov
+INPUT_FILES=""
+for name in $( ls -1 chameleon_*.lcov | grep -v simgrid)
+do
+    INPUT_FILES="$INPUT_FILES -a $name";
+done
+lcov $INPUT_FILES -o chameleon.lcov
 lcov --summary chameleon.lcov
 lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 
@@ -24,7 +25,12 @@ lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 export UNDEFINITIONS="-UCHAMELEON_USE_OPENCL -UWIN32 -UWIN64 -U_MSC_EXTENSIONS -U_MSC_VER -U__SUNPRO_C -U__SUNPRO_CC -U__sun -Usun -U__cplusplus"
 
 # run cppcheck analysis
-cppcheck -v -f --language=c --platform=unix64 --enable=all --xml --xml-version=2 --suppress=missingInclude ${UNDEFINITIONS} --file-list=./filelist.txt 2> chameleon_cppcheck.xml
+CPPCHECK_OPT=" -v -f --language=c --platform=unix64 --enable=all --xml --xml-version=2 --suppress=missingInclude ${UNDEFINITIONS}"
+cppcheck $CPPCHECK_OPT --file-list=./filelist_none.txt 2> chameleon_cppcheck.xml
+cppcheck $CPPCHECK_OPT -DPRECISION_s -UPRECISION_d -UPRECISION_c -UPRECISION_z --file-list=./filelist_s.txt 2>> chameleon_cppcheck.xml
+cppcheck $CPPCHECK_OPT -DPRECISION_d -UPRECISION_s -UPRECISION_c -UPRECISION_z --file-list=./filelist_d.txt 2>> chameleon_cppcheck.xml
+cppcheck $CPPCHECK_OPT -DPRECISION_c -UPRECISION_s -UPRECISION_d -UPRECISION_z --file-list=./filelist_c.txt 2>> chameleon_cppcheck.xml
+cppcheck $CPPCHECK_OPT -DPRECISION_z -UPRECISION_s -UPRECISION_d -UPRECISION_c --file-list=./filelist_z.txt 2>> chameleon_cppcheck.xml
 
 # create the sonarqube config file
 cat > sonar-project.properties << EOF

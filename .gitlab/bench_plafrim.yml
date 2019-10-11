@@ -1,0 +1,10 @@
+bench_plafrim:
+  stage: test
+  tags: ['plafrim']
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_USE_MPI=ON -DCMAKE_BUILD_TYPE=Release"
+    VERSION: miriel
+  script:
+    - (cd tools/bench/plafrim/miriel && ./run.sh)
+  only:
+    - schedules
