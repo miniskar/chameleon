@@ -49,13 +49,17 @@ BEGIN_C_DECLS
 struct chameleon_desc_s;
 typedef struct chameleon_desc_s CHAM_desc_t;
 
+typedef void* (*blkaddr_fct_t)  ( const CHAM_desc_t*, int, int );
+typedef int   (*blkldd_fct_t)   ( const CHAM_desc_t*, int );
+typedef int   (*blkrankof_fct_t)( const CHAM_desc_t*, int, int );
+
 struct chameleon_desc_s {
     // function to get chameleon tiles address
-    void *(*get_blkaddr)( const CHAM_desc_t*, int, int );
+    blkaddr_fct_t   get_blkaddr;
     // function to get chameleon tiles leading dimension
-    int   (*get_blkldd )( const CHAM_desc_t*, int );
+    blkldd_fct_t    get_blkldd;
     // function to get chameleon tiles MPI rank
-    int   (*get_rankof) ( const CHAM_desc_t*, int, int );
+    blkrankof_fct_t get_rankof;
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21
     size_t A12;       // pointer to the beginning of the matrix A12

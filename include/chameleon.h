@@ -100,36 +100,42 @@ int CHAMELEON_GetThreadNbr      (void);
 
 /* Descriptor */
 int CHAMELEON_Element_Size(int type);
-int CHAMELEON_Desc_Create  (CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
-                        int mb, int nb, int bsiz, int lm, int ln,
-                        int i, int j, int m, int n, int p, int q);
-int CHAMELEON_Desc_Create_User(CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                           int lm, int ln, int i, int j, int m, int n, int p, int q,
-                           void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
-                           int (*get_blkldd)( const CHAM_desc_t*, int ),
-                           int (*get_rankof)( const CHAM_desc_t*, int, int ));
-int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **desc, cham_flttype_t dtyp,
-                          int mb, int nb, int bsiz, int lm, int ln,
-                          int i, int j, int m, int n, int p, int q);
-int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **desc, cham_flttype_t dtyp,
+
+int CHAMELEON_Desc_Create_User( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
+                                int lm, int ln, int i, int j, int m, int n, int p, int q,
+                                blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
+
+int CHAMELEON_Desc_Create( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
+                           int mb, int nb, int bsiz, int lm, int ln,
+                           int i, int j, int m, int n, int p, int q );
+
+int CHAMELEON_Desc_Create_OOC_User( CHAM_desc_t **desc, cham_flttype_t dtyp,
+                                    int mb, int nb, int bsiz, int lm, int ln,
+                                    int i, int j, int m, int n, int p, int q,
+                                    blkrankof_fct_t get_rankof );
+int CHAMELEON_Desc_Create_OOC( CHAM_desc_t **desc, cham_flttype_t dtyp,
                                int mb, int nb, int bsiz, int lm, int ln,
-                               int i, int j, int m, int n, int p, int q,
-                               int (*get_rankof)( const CHAM_desc_t*, int, int ));
-int CHAMELEON_Desc_Destroy (CHAM_desc_t **desc);
-int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc);
-int CHAMELEON_Desc_Release (CHAM_desc_t  *desc);
-int CHAMELEON_Desc_Flush   (CHAM_desc_t  *desc, RUNTIME_sequence_t *sequence);
-void CHAMELEON_user_tag_size(int, int) ;
+                               int i, int j, int m, int n, int p, int q );
+
+CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat );
+CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat );
+CHAM_desc_t *CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
+
+int CHAMELEON_Desc_Destroy( CHAM_desc_t **desc );
+int CHAMELEON_Desc_Acquire( CHAM_desc_t  *desc );
+int CHAMELEON_Desc_Release( CHAM_desc_t  *desc );
+int CHAMELEON_Desc_Flush  ( CHAM_desc_t  *desc, RUNTIME_sequence_t *sequence );
 
 /* Workspaces */
 int CHAMELEON_Dealloc_Workspace (CHAM_desc_t **desc);
 
 /* Options */
-int CHAMELEON_Enable  (int option);
-int CHAMELEON_Disable (int option);
-int CHAMELEON_Set     (int param, int  value);
-int CHAMELEON_Get     (int param, int *value);
-int CHAMELEON_Set_update_progress_callback(void (*p)(int, int)) ;
+int  CHAMELEON_Enable  (int option);
+int  CHAMELEON_Disable (int option);
+int  CHAMELEON_Set     (int param, int  value);
+int  CHAMELEON_Get     (int param, int *value);
+int  CHAMELEON_Set_update_progress_callback(void (*p)(int, int)) ;
+void CHAMELEON_user_tag_size(int, int);
 
 /* Sequences */
 int CHAMELEON_Sequence_Create  (RUNTIME_sequence_t **sequence);

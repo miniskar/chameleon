@@ -59,8 +59,8 @@ CHAM_context_t *chameleon_context_create()
 
     /* These initializations are just in case the user
        disables autotuning and does not set nb and ib */
-    chamctxt->nb                 = 128;
-    chamctxt->ib                 = 32;
+    chamctxt->nb                 = 320;
+    chamctxt->ib                 = 48;
     chamctxt->rhblock            = 4;
     chamctxt->lookahead          = 3;
 
@@ -69,7 +69,7 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->nthreads_per_worker= 1;
 
     chamctxt->warnings_enabled   = CHAMELEON_TRUE;
-    chamctxt->autotuning_enabled = CHAMELEON_TRUE;
+    chamctxt->autotuning_enabled = CHAMELEON_FALSE;
     chamctxt->parallel_enabled   = CHAMELEON_FALSE;
     chamctxt->profiling_enabled  = CHAMELEON_FALSE;
     chamctxt->progress_enabled   = CHAMELEON_FALSE;
