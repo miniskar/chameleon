@@ -391,7 +391,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
             for (k = 0; k < K; k++) {
                 RUNTIME_iteration_push(chamctxt, k);
 
-                tempkn = k == B->nt-1 ? B->n-k*B->nb : B->nb;
+                tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
                 T = TS;
                 for (i = 0; i < qrtree->getnbgeqrf(qrtree, k); i++) {
