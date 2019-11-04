@@ -144,7 +144,7 @@ int RUNTIME_comm_rank( CHAM_context_t *chamctxt )
  */
 int RUNTIME_comm_size( CHAM_context_t *chamctxt )
 {
-    int size = 0;
+    int size = 1;
 #if defined(CHAMELEON_USE_MPI)
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif
