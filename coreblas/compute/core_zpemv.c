@@ -138,7 +138,7 @@ int CORE_zpemv(cham_trans_t trans, cham_store_t storev,
 
 
     /* Check input arguments */
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         coreblas_error(1, "Illegal value of trans");
         return -1;
     }

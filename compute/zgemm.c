@@ -146,11 +146,11 @@ int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int
     }
 
     /* Check input arguments */
-    if ((transA < ChamNoTrans) || (transA > ChamConjTrans)) {
+    if ( !isValidTrans( transA ) ) {
         chameleon_error("CHAMELEON_zgemm", "illegal value of transA");
         return -1;
     }
-    if ((transB < ChamNoTrans) || (transB > ChamConjTrans)) {
+    if ( !isValidTrans( transB ) ) {
         chameleon_error("CHAMELEON_zgemm", "illegal value of transB");
         return -2;
     }
@@ -394,11 +394,11 @@ int CHAMELEON_zgemm_Tile_Async( cham_trans_t transA, cham_trans_t transB,
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if ((transA < ChamNoTrans) || (transA > ChamConjTrans)) {
+    if ( !isValidTrans( transA ) ) {
         chameleon_error("CHAMELEON_zgemm_Tile_Async", "illegal value of transA");
         return chameleon_request_fail(sequence, request, -1);
     }
-    if ((transB < ChamNoTrans) || (transB > ChamConjTrans)) {
+    if ( !isValidTrans( transB ) ) {
         chameleon_error("CHAMELEON_zgemm_Tile_Async", "illegal value of transB");
         return chameleon_request_fail(sequence, request, -2);
     }

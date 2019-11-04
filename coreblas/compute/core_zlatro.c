@@ -92,7 +92,7 @@ int CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,
         coreblas_error(1, "Illegal value of uplo");
         return -1;
     }
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         coreblas_error(2, "Illegal value of trans");
         return -2;
     }

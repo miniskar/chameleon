@@ -105,7 +105,7 @@ int CHAMELEON_zgeadd( cham_trans_t trans, int M, int N,
     }
 
     /* Check input arguments */
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         chameleon_error("CHAMELEON_zgeadd", "illegal value of trans");
         return -1;
     }
@@ -317,7 +317,7 @@ int CHAMELEON_zgeadd_Tile_Async( cham_trans_t trans,
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         chameleon_error("CHAMELEON_zgeadd_Tile_Async", "illegal value of trans");
         return chameleon_request_fail(sequence, request, -1);
     }

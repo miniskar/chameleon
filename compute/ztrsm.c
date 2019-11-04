@@ -43,7 +43,7 @@
  *          = ChamUpper: Upper triangle of A is stored;
  *          = ChamLower: Lower triangle of A is stored.
  *
- * @param[in] transA
+ * @param[in] trans
  *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
  *          = ChamNoTrans:   A is transposed;
  *          = ChamTrans:     A is not transposed;
@@ -98,7 +98,7 @@
  *
  */
 int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
-                 cham_trans_t transA, cham_diag_t diag,
+                 cham_trans_t trans, cham_diag_t diag,
                  int N, int NRHS, CHAMELEON_Complex64_t alpha,
                  CHAMELEON_Complex64_t *A, int LDA,
                  CHAMELEON_Complex64_t *B, int LDB )
@@ -132,8 +132,8 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
         chameleon_error("CHAMELEON_ztrsm", "illegal value of uplo");
         return -2;
     }
-    if (((transA < ChamNoTrans) || (transA > ChamConjTrans)) ) {
-        chameleon_error("CHAMELEON_ztrsm", "illegal value of transA");
+    if ( !isValidTrans( trans ) ) {
+        chameleon_error("CHAMELEON_ztrsm", "illegal value of trans");
         return -3;
     }
     if ((diag != ChamUnit) && (diag != ChamNonUnit)) {
@@ -179,7 +179,7 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
                      B, NB, NB, LDB, NRHS, N,  NRHS, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_ztrsm_Tile_Async(  side, uplo, transA, diag, alpha, &descAt, &descBt, sequence, &request );
+    CHAMELEON_ztrsm_Tile_Async(  side, uplo, trans, diag, alpha, &descAt, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -220,7 +220,7 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
  *          = ChamUpper: Upper triangle of A is stored;
  *          = ChamLower: Lower triangle of A is stored.
  *
- * @param[in] transA
+ * @param[in] trans
  *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
  *          = ChamNoTrans:   A is transposed;
  *          = ChamTrans:     A is not transposed;
@@ -260,7 +260,7 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_ztrsm_Tile( cham_side_t side, cham_uplo_t uplo,
-                      cham_trans_t transA, cham_diag_t diag,
+                      cham_trans_t trans, cham_diag_t diag,
                       CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B )
 {
     CHAM_context_t *chamctxt;
@@ -275,7 +275,7 @@ int CHAMELEON_ztrsm_Tile( cham_side_t side, cham_uplo_t uplo,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_ztrsm_Tile_Async(side, uplo, transA, diag, alpha, A, B, sequence, &request );
+    CHAMELEON_ztrsm_Tile_Async(side, uplo, trans, diag, alpha, A, B, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
@@ -315,7 +315,7 @@ int CHAMELEON_ztrsm_Tile( cham_side_t side, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
-                            cham_trans_t transA, cham_diag_t diag,
+                            cham_trans_t trans, cham_diag_t diag,
                             CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
@@ -364,8 +364,8 @@ int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
         chameleon_error("CHAMELEON_ztrsm_Tile", "illegal value of uplo");
         return chameleon_request_fail(sequence, request, -2);
     }
-    if ((transA < ChamNoTrans) || (transA > ChamConjTrans)) {
-        chameleon_error("CHAMELEON_ztrsm_Tile", "illegal value of transA");
+    if ( !isValidTrans( trans ) ) {
+        chameleon_error("CHAMELEON_ztrsm_Tile", "illegal value of trans");
         return chameleon_request_fail(sequence, request, -3);
     }
     if ((diag != ChamUnit) && (diag != ChamNonUnit)) {
@@ -374,7 +374,7 @@ int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
     }
 
     /* Quick return */
-    chameleon_pztrsm( side, uplo, transA, diag, alpha, A, B, sequence, request );
+    chameleon_pztrsm( side, uplo, trans, diag, alpha, A, B, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

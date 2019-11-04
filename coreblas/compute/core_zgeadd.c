@@ -88,7 +88,7 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
 {
     int i, j;
 
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans))
+    if ( !isValidTrans( trans ) )
     {
         coreblas_error(1, "illegal value of trans");
         return -1;
@@ -122,29 +122,7 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
                              0, 0, 1., beta, M, N, B, LDB );
     }
 
-    switch( trans ) {
-#if defined(PRECISION_z) || defined(PRECISION_c)
-    case ChamConjTrans:
-        for (j=0; j<N; j++, A++) {
-            for(i=0; i<M; i++, B++) {
-                *B += alpha * conj(A[LDA*i]);
-            }
-            B += LDB-M;
-        }
-        break;
-#endif /* defined(PRECISION_z) || defined(PRECISION_c) */
-
-    case ChamTrans:
-        for (j=0; j<N; j++, A++) {
-            for(i=0; i<M; i++, B++) {
-                *B += alpha * A[LDA*i];
-            }
-            B += LDB-M;
-        }
-        break;
-
-    case ChamNoTrans:
-    default:
+    if( trans == ChamNoTrans ) {
         for (j=0; j<N; j++) {
             for(i=0; i<M; i++, B++, A++) {
                 *B += alpha * (*A);
@@ -153,5 +131,24 @@ int CORE_zgeadd(cham_trans_t trans, int M, int N,
             B += LDB-M;
         }
     }
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    else if ( trans == ChamConjTrans ) {
+        for (j=0; j<N; j++, A++) {
+            for(i=0; i<M; i++, B++) {
+                *B += alpha * conj(A[LDA*i]);
+            }
+            B += LDB-M;
+        }
+    }
+#endif /* defined(PRECISION_z) || defined(PRECISION_c) */
+    else {
+        for (j=0; j<N; j++, A++) {
+            for(i=0; i<M; i++, B++) {
+                *B += alpha * A[LDA*i];
+            }
+            B += LDB-M;
+        }
+    }
+
     return CHAMELEON_SUCCESS;
 }

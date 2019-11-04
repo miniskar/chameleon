@@ -63,6 +63,17 @@ typedef enum chameleon_trans_e {
     ChamConjTrans = 113  /**< Use conj(A^t) */
 } cham_trans_t;
 
+static inline int
+isValidTrans( cham_trans_t trans )
+{
+    if ( (trans >= ChamNoTrans) && (trans <= ChamConjTrans) ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 /**
  * @brief Upper/Lower part
  */
