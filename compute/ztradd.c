@@ -115,7 +115,7 @@ int CHAMELEON_ztradd( cham_uplo_t uplo, cham_trans_t trans, int M, int N,
         chameleon_error("CHAMELEON_ztradd", "illegal value of uplo");
         return -1;
     }
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         chameleon_error("CHAMELEON_ztradd", "illegal value of trans");
         return -2;
     }
@@ -333,7 +333,7 @@ int CHAMELEON_ztradd_Tile_Async( cham_uplo_t uplo, cham_trans_t trans,
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if ((trans < ChamNoTrans) || (trans > ChamConjTrans)) {
+    if ( !isValidTrans( trans ) ) {
         chameleon_error("CHAMELEON_ztradd_Tile_Async", "illegal value of trans");
         return chameleon_request_fail(sequence, request, -1);
     }
