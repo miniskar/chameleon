@@ -11,7 +11,7 @@
  *
  * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2024-03-11
+ * @date 2024-03-14
  *
  */
 #include "control/common.h"
@@ -28,31 +28,34 @@ void chameleon_pmap( cham_uplo_t uplo, int ndata, cham_map_data_t *data,
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
     const CHAM_desc_t *A = data[0].desc;
-    int m, n;
+    int m, n, minmn;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
+    minmn = chameleon_min( A->mt, A->nt );
+
     switch( uplo ) {
     case ChamUpper:
-        for (n = 0; n < A->nt; n++) {
-            for (m = 0; m < n; m++) {
+        for (m = 0; m < minmn; m++) {
+            INSERT_TASK_map(
+                &options, uplo, m, m,
+                ndata, data,
+                op_fct, op_args );
+
+            for (n = m+1; n < A->nt; n++) {
                 INSERT_TASK_map(
                     &options, ChamUpperLower, m, n,
                     ndata, data,
                     op_fct, op_args );
             }
-            INSERT_TASK_map(
-                &options, uplo, n, n,
-                ndata, data,
-                op_fct, op_args );
         }
         break;
 
     case ChamLower:
-        for (n = 0; n < A->nt; n++) {
+        for (n = 0; n < minmn; n++){
             INSERT_TASK_map(
                 &options, uplo, n, n,
                 ndata, data,
