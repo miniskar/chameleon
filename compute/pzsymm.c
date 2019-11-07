@@ -23,11 +23,294 @@
  */
 #include "control/common.h"
 
-#define A(m, n) A,  m,  n
-#define B(m, n) B,  m,  n
-#define C(m, n) C,  m,  n
-#define WA(m, n) &WA,  m,  n
-#define WB(m, n) &WB,  m,  n
+#define A(  _m_, _n_ ) A,  (_m_), (_n_)
+#define B(  _m_, _n_ ) B,  (_m_), (_n_)
+#define C(  _m_, _n_ ) C,  (_m_), (_n_)
+#define WA( _m_, _n_ ) WA, (_m_), (_n_)
+#define WB( _m_, _n_ ) WB, (_m_), (_n_)
+
+/**
+ *  Parallel tile symmetric matrix-matrix multiplication.
+ *  SUMMA algorithm for 2D block-cyclic data distribution.
+ */
+static inline void
+chameleon_pzsymm_summa_left( CHAM_context_t *chamctxt, cham_uplo_t uplo,
+                             CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                             CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                             CHAM_desc_t *WA, CHAM_desc_t *WB,
+                             RUNTIME_option_t *options )
+{
+    RUNTIME_sequence_t *sequence = options->sequence;
+    cham_trans_t transA;
+    int m, n, k, p, q, KT, K, lp, lq;
+    int ldcm;
+    int tempmm, tempnn, tempkk;
+    int lookahead, myp, myq;
+
+    CHAMELEON_Complex64_t zbeta;
+    CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
+
+    lookahead = chamctxt->lookahead;
+    KT  = A->nt;
+    K   = A->n;
+    myp = C->myrank / C->q;
+    myq = C->myrank % C->q;
+
+    for (k = 0; k < KT; k++ ) {
+        lp = (k % lookahead) * C->p;
+        lq = (k % lookahead) * C->q;
+        tempkk = k == KT - 1 ? K - k * A->nb : A->nb;
+        zbeta = k == 0 ? beta : zone;
+
+        /* Transfert ownership of the k column of A or B */
+        for (m = 0; m < C->mt; m ++ ) {
+            int Am, Ak, ldam;
+            int tempam, tempak;
+
+            tempmm = m == C->mt-1 ? C->m - m * C->mb : C->mb;
+
+            if ( (( uplo == ChamUpper ) && ( m > k )) ||
+                 (( uplo == ChamLower ) && ( m < k )) )
+            {
+                    /* Let's take A( k, m ) */
+                Am = k;
+                Ak = m;
+                tempam = tempkk;
+                tempak = tempmm;
+            }
+            else {
+                /* Let's take A( m, k ) */
+                Am = m;
+                Ak = k;
+                tempam = tempmm;
+                tempak = tempkk;
+            }
+            ldam = BLKLDD( A, Am );
+
+            INSERT_TASK_zlacpy(
+                options,
+                ChamUpperLower, tempam, tempak, C->mb,
+                A( Am, Ak ),              ldam,
+                WA( m, (k % C->q) + lq ), WA->mb );
+
+            RUNTIME_data_flush( sequence, A( Am, Ak ) );
+
+            for ( q=1; q < C->q; q++ ) {
+                INSERT_TASK_zlacpy(
+                    options,
+                    ChamUpperLower, tempam, tempak, C->mb,
+                    WA( m, ((k+q-1) % C->q) + lq ), WA->mb,
+                    WA( m, ((k+q)   % C->q) + lq ), WA->mb );
+            }
+        }
+
+        /* Transfert ownership of the k row of B, or A */
+        for (n = 0; n < C->nt; n++) {
+            int ldbk;
+
+            tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+            ldbk = BLKLDD( B, k );
+
+            INSERT_TASK_zlacpy(
+                options,
+                ChamUpperLower, tempkk, tempnn, C->mb,
+                B(   k,              n ), ldbk,
+                WB( (k % C->p) + lp, n ), WB->mb );
+
+            RUNTIME_data_flush( sequence, B( k, n ) );
+
+            for ( p=1; p < C->p; p++ ) {
+                INSERT_TASK_zlacpy(
+                    options,
+                    ChamUpperLower, tempkk, tempnn, C->mb,
+                    WB( ((k+p-1) % C->p) + lp, n ), WB->mb,
+                    WB( ((k+p)   % C->p) + lp, n ), WB->mb );
+            }
+        }
+
+        /* Perform the update of this iteration */
+        for (m = myp; m < C->mt; m+=C->p) {
+            tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+            ldcm = BLKLDD(C, m);
+
+            if ( k == m ) {
+                for (n = myq; n < C->nt; n+=C->q) {
+                    tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+
+                    INSERT_TASK_zsymm(
+                        options, ChamLeft, uplo,
+                        tempmm, tempnn, A->mb,
+                        alpha, WA( m,        myq + lq ), WA->mb,
+                               WB( myp + lp, n        ), WB->mb,
+                        zbeta, C(  m,        n        ), ldcm );
+                }
+            }
+            else {
+                if ( (( uplo == ChamUpper ) && ( m > k )) ||
+                     (( uplo == ChamLower ) && ( m < k )) )
+                {
+                    transA = ChamTrans;
+                }
+                else {
+                    transA = ChamNoTrans;
+                }
+
+                for (n = myq; n < C->nt; n+=C->q) {
+                    tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+
+                    INSERT_TASK_zgemm(
+                        options, transA, ChamNoTrans,
+                        tempmm, tempnn, tempkk, A->mb,
+                        alpha, WA( m,        myq + lq ), WA->mb,
+                               WB( myp + lp, n        ), WB->mb,
+                        zbeta, C(  m,        n        ), ldcm );
+                }
+            }
+        }
+    }
+}
+
+/**
+ *  Parallel tile symmetric matrix-matrix multiplication.
+ *  SUMMA algorithm for 2D block-cyclic data distribution.
+ */
+static inline void
+chameleon_pzsymm_summa_right( CHAM_context_t *chamctxt, cham_uplo_t uplo,
+                              CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                              CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                              CHAM_desc_t *WA, CHAM_desc_t *WB,
+                              RUNTIME_option_t *options )
+{
+    RUNTIME_sequence_t *sequence = options->sequence;
+    cham_trans_t transA;
+    int m, n, k, p, q, KT, K, lp, lq;
+    int ldcm;
+    int tempmm, tempnn, tempkk;
+    int lookahead, myp, myq;
+
+    CHAMELEON_Complex64_t zbeta;
+    CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
+
+    lookahead = chamctxt->lookahead;
+    KT  = A->mt;
+    K   = A->m;
+    myp = C->myrank / C->q;
+    myq = C->myrank % C->q;
+
+    for (k = 0; k < KT; k++ ) {
+        lp = (k % lookahead) * C->p;
+        lq = (k % lookahead) * C->q;
+        tempkk = k == KT - 1 ? K - k * A->nb : A->nb;
+        zbeta = k == 0 ? beta : zone;
+
+        /* Transfert ownership of the k column of A or B */
+        for (m = 0; m < C->mt; m++ ) {
+            int ldbm;
+
+            tempmm = m == C->mt-1 ? C->m - m * C->mb : C->mb;
+            ldbm = BLKLDD( B, m );
+
+            INSERT_TASK_zlacpy(
+                options,
+                ChamUpperLower, tempmm, tempkk, C->mb,
+                B(  m,  k ),              ldbm,
+                WA( m, (k % C->q) + lq ), WA->mb );
+
+            RUNTIME_data_flush( sequence, B( m, k ) );
+
+            for ( q=1; q < C->q; q++ ) {
+                INSERT_TASK_zlacpy(
+                    options,
+                    ChamUpperLower, tempmm, tempkk, C->mb,
+                    WA( m, ((k+q-1) % C->q) + lq ), WA->mb,
+                    WA( m, ((k+q)   % C->q) + lq ), WA->mb );
+            }
+        }
+
+        /* Transfert ownership of the k row of B, or A */
+        for (n = 0; n < C->nt; n++) {
+            int Ak, An, ldak;
+            int tempak, tempan;
+
+            tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+
+            if ( (( uplo == ChamUpper ) && ( n < k )) ||
+                 (( uplo == ChamLower ) && ( n > k )) )
+            {
+                Ak = n;
+                An = k;
+                tempak = tempnn;
+                tempan = tempkk;
+            }
+            else
+            {
+                Ak = k;
+                An = n;
+                tempak = tempkk;
+                tempan = tempnn;
+            }
+            ldak = BLKLDD( A, Ak );
+
+            INSERT_TASK_zlacpy(
+                options,
+                ChamUpperLower, tempak, tempan, C->mb,
+                A(  Ak,              An ), ldak,
+                WB( (k % C->p) + lp, n  ), WB->mb );
+
+            RUNTIME_data_flush( sequence, A( Ak, An ) );
+
+            for ( p=1; p < C->p; p++ ) {
+                INSERT_TASK_zlacpy(
+                    options,
+                    ChamUpperLower, tempak, tempan, C->mb,
+                    WB( ((k+p-1) % C->p) + lp, n ), WB->mb,
+                    WB( ((k+p)   % C->p) + lp, n ), WB->mb );
+            }
+        }
+
+        /* Perform the update of this iteration */
+        for (n = myq; n < C->nt; n+=C->q) {
+            tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+
+            if ( k == n ) {
+                for (m = myp; m < C->mt; m+=C->p) {
+                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+                    ldcm = BLKLDD(C, m);
+
+                    /* A has been stored in WA or WB for the summa ring */
+                    INSERT_TASK_zsymm(
+                        options, ChamRight, uplo,
+                        tempmm, tempnn, A->mb,
+                        alpha, WB( myp + lp, n        ), WB->mb,
+                               WA( m,        myq + lq ), WA->mb,
+                        zbeta, C(  m,        n        ), ldcm );
+                }
+            }
+            else {
+                if ( (( uplo == ChamUpper ) && ( n < k )) ||
+                     (( uplo == ChamLower ) && ( n > k )) )
+                {
+                    transA = ChamTrans;
+                }
+                else {
+                    transA = ChamNoTrans;
+                }
+
+                for (m = myp; m < C->mt; m+=C->p) {
+                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+                    ldcm = BLKLDD(C, m);
+
+                    INSERT_TASK_zgemm(
+                        options, ChamNoTrans, transA,
+                        tempmm, tempnn, tempkk, A->mb,
+                        alpha, WA( m,        myq + lq ), WA->mb,
+                               WB( myp + lp, n        ), WB->mb,
+                        zbeta, C(  m,        n        ), ldcm );
+                }
+            }
+        }
+    }
+}
 
 /**
  *  Parallel tile symmetric matrix-matrix multiplication.
@@ -40,15 +323,8 @@ chameleon_pzsymm_summa( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                         RUNTIME_option_t *options )
 {
     RUNTIME_sequence_t *sequence = options->sequence;
-    cham_trans_t transA, transB;
-    int Am, An, m, n, k, p, q, KT, K, lp, lq;
-    int ldam, ldbk, ldbm, ldcm;
-    int tempmm, tempnn, tempkk;
-    int lookahead, myp, myq;
-
-    CHAMELEON_Complex64_t zbeta;
-    CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
     CHAM_desc_t WA, WB;
+    int lookahead;
 
     lookahead = chamctxt->lookahead;
     chameleon_desc_init( &WA, CHAMELEON_MAT_ALLOC_TILE,
@@ -62,171 +338,13 @@ chameleon_pzsymm_summa( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                          C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
                          NULL, NULL, NULL );
 
-    KT  = side == ChamLeft ? A->nt : A->mt;
-    K   = side == ChamLeft ? A->n  : A->m;
-    myp = C->myrank / C->q;
-    myq = C->myrank % C->q;
-
-    for (k = 0; k < KT; k++ ) {
-        lp = (k % lookahead) * C->p;
-        lq = (k % lookahead) * C->q;
-        tempkk = k == KT - 1 ? K - k * A->nb : A->nb;
-        zbeta = k == 0 ? beta : zone;
-        ldbk = BLKLDD(B, k);
-
-        /* Transfert ownership of the k column of A or B */
-        for (m = 0; m < C->mt; m ++ ) {
-            tempmm = m == C->mt-1 ? C->m - m * C->mb : C->mb;
-
-            if ( side == ChamLeft ) {
-                if ( (( uplo == ChamUpper ) && ( m > k )) ||
-                     (( uplo == ChamLower ) && ( m < k )) ) {
-                    Am = k;
-                    An = m;
-                }
-                else {
-                    Am = m;
-                    An = k;
-                }
-                ldam = BLKLDD(A, Am);
-
-                INSERT_TASK_zlacpy(
-                    options,
-                    ChamUpperLower, tempmm, tempkk, C->mb,
-                    A(  Am, An ),             ldam,
-                    WA( m, (k % C->q) + lq ), WA.mb );
-
-                RUNTIME_data_flush( sequence, A( Am, An ) );
-
-                for ( q=1; q < C->q; q++ ) {
-                    INSERT_TASK_zlacpy(
-                        options,
-                        ChamUpperLower, tempmm, tempkk, C->mb,
-                        WA( m, ((k+q-1) % C->q) + lq ), WA.mb,
-                        WA( m, ((k+q)   % C->q) + lq ), WA.mb );
-                }
-            }
-            else {
-                ldbm = BLKLDD(B, m);
-
-                INSERT_TASK_zlacpy(
-                    options,
-                    ChamUpperLower, tempmm, tempkk, C->mb,
-                    B(  m,  k ),              ldbm,
-                    WA( m, (k % C->q) + lq ), WA.mb );
-
-                RUNTIME_data_flush( sequence, B( m, k ) );
-
-                for ( q=1; q < C->q; q++ ) {
-                    INSERT_TASK_zlacpy(
-                        options,
-                        ChamUpperLower, tempmm, tempkk, C->mb,
-                        WA( m, ((k+q-1) % C->q) + lq ), WA.mb,
-                        WA( m, ((k+q)   % C->q) + lq ), WA.mb );
-                }
-            }
-        }
-
-        /* Transfert ownership of the k row of B, or A */
-        for (n = 0; n < C->nt; n++) {
-            tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-
-            if ( side == ChamRight ) {
-                if ( (( uplo == ChamUpper ) && ( n < k )) ||
-                     (( uplo == ChamLower ) && ( n > k )) ) {
-                    Am = n;
-                    An = k;
-                }
-                else {
-                    Am = k;
-                    An = n;
-                }
-                ldam = BLKLDD(A, Am);
-
-                INSERT_TASK_zlacpy(
-                    options,
-                    ChamUpperLower, tempkk, tempnn, C->mb,
-                    A(   Am,            An ), ldam,
-                    WB( (k % C->p) + lp, n ), WB.mb );
-
-                RUNTIME_data_flush( sequence, A( Am, An ) );
-
-                for ( p=1; p < C->p; p++ ) {
-                    INSERT_TASK_zlacpy(
-                        options,
-                        ChamUpperLower, tempkk, tempnn, C->mb,
-                        WB( ((k+p-1) % C->p) + lp, n ), WB.mb,
-                        WB( ((k+p)   % C->p) + lp, n ), WB.mb );
-                }
-            }
-            else {
-                INSERT_TASK_zlacpy(
-                    options,
-                    ChamUpperLower, tempkk, tempnn, C->mb,
-                    B(   k,              n ), ldbk,
-                    WB( (k % C->p) + lp, n ), WB.mb );
-
-                RUNTIME_data_flush( sequence, B( k, n ) );
-
-                for ( p=1; p < C->p; p++ ) {
-                    INSERT_TASK_zlacpy(
-                        options,
-                        ChamUpperLower, tempkk, tempnn, C->mb,
-                        WB( ((k+p-1) % C->p) + lp, n ), WB.mb,
-                        WB( ((k+p)   % C->p) + lp, n ), WB.mb );
-                }
-            }
-        }
-
-        /*
-         *  ChamLeft / ChamLower
-         */
-        for (m = myp; m < C->mt; m+=C->p) {
-            tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-            ldcm = BLKLDD(C, m);
-
-            for (n = myq; n < C->nt; n+=C->q) {
-                tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-
-                if (side == ChamLeft) {
-                    transB = ChamNoTrans;
-                    if ( (( uplo == ChamUpper ) && ( m > k )) ||
-                         (( uplo == ChamLower ) && ( m < k )) ) {
-                        transA = ChamTrans;
-                    }
-                    else {
-                        transA = ChamNoTrans;
-                    }
-                }
-                else {
-                    transA = ChamNoTrans;
-                    if ( (( uplo == ChamUpper ) && ( n < k )) ||
-                         (( uplo == ChamLower ) && ( n > k )) ) {
-                        transB = ChamTrans;
-                    }
-                    else {
-                        transB = ChamNoTrans;
-                    }
-                }
-
-                if ( k == m ) {
-                    INSERT_TASK_zsymm(
-                        options, side, uplo,
-                        tempmm, tempnn, A->mb,
-                        alpha, WA( m,        myq + lq ), WA.mb,  /* lda * Z */
-                               WB( myp + lp, n        ), WB.mb,  /* ldb * Y */
-                        zbeta, C(  m,        n        ), ldcm ); /* ldc * Y */
-                }
-                else {
-                    INSERT_TASK_zgemm(
-                        options, transA, transB,
-                        tempmm, tempnn, tempkk, A->mb,
-                        alpha, WA( m,        myq + lq ), WA.mb,  /* lda * Z */
-                               WB( myp + lp, n        ), WB.mb,  /* ldb * Y */
-                        zbeta, C(  m,        n        ), ldcm ); /* ldc * Y */
-                }
-            }
-        }
+    if (side == ChamLeft) {
+        chameleon_pzsymm_summa_left( chamctxt, uplo, alpha, A, B, beta, C,
+                                     &WA, &WB, options );
+    }
+    else {
+        chameleon_pzsymm_summa_right( chamctxt, uplo, alpha, A, B, beta, C,
+                                      &WA, &WB, options );
     }
 
     RUNTIME_desc_flush( &WA, sequence );
@@ -453,7 +571,8 @@ chameleon_pzsymm( cham_side_t side, cham_uplo_t uplo,
     {
         chameleon_pzsymm_summa(   chamctxt, side, uplo, alpha, A, B, beta, C, &options );
     }
-    else {
+    else
+    {
         chameleon_pzsymm_generic( chamctxt, side, uplo, alpha, A, B, beta, C, &options );
     }
 
