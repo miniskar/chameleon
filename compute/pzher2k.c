@@ -29,15 +29,15 @@
 /**
  *  Parallel tile Hermitian rank-k update - dynamic scheduling
  */
-void chameleon_pzher2k(cham_uplo_t uplo, cham_trans_t trans,
-                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                          double beta,  CHAM_desc_t *C,
-                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
+                        CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                        double beta,  CHAM_desc_t *C,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
-    int m, n, k;
+    int m, n, k, mmin, mmax;
     int ldak, ldam, ldan, ldcm, ldcn;
     int ldbk, ldbm, ldbn;
     int tempnn, tempmm, tempkn, tempkm;
@@ -57,6 +57,16 @@ void chameleon_pzher2k(cham_uplo_t uplo, cham_trans_t trans,
         ldan = BLKLDD(A, n);
         ldbn = BLKLDD(B, n);
         ldcn = BLKLDD(C, n);
+
+        if (uplo == ChamLower) {
+            mmin = n+1;
+            mmax = C->mt;
+        }
+        else {
+            mmin = 0;
+            mmax = n;
+        }
+
         /*
          *  ChamNoTrans
          */
@@ -72,68 +82,34 @@ void chameleon_pzher2k(cham_uplo_t uplo, cham_trans_t trans,
                            B(n, k), ldbn,
                     dbeta, C(n, n), ldcn); /* ldc  * N */
             }
-            /*
-             *  ChamNoTrans / ChamLower
-             */
-            if (uplo == ChamLower) {
-                for (m = n+1; m < C->mt; m++) {
-                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
-                    ldbm = BLKLDD(B, m);
-                    ldcm = BLKLDD(C, m);
-                    for (k = 0; k < A->nt; k++) {
-                        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-                        zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamConjTrans,
-                            tempmm, tempnn, tempkn, A->mb,
-                            conj(alpha), A(m, k), ldam,  /* ldam * K */
-                                   B(n, k), ldbn,  /* ldan * K */
-                            zbeta, C(m, n), ldcm); /* ldc  * N */
+            for (m = mmin; m < mmax; m++) {
+                tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+                ldam = BLKLDD(A, m);
+                ldbm = BLKLDD(B, m);
+                ldcm = BLKLDD(C, m);
+                for (k = 0; k < A->nt; k++) {
+                    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+                    zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
+                    INSERT_TASK_zgemm(
+                        &options,
+                        ChamNoTrans, ChamConjTrans,
+                        tempmm, tempnn, tempkn, A->mb,
+                        alpha, A(m, k), ldam,
+                               B(n, k), ldbn,
+                        zbeta, C(m, n), ldcm);
 
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamConjTrans,
-                            tempmm, tempnn, tempkn, A->mb,
-                            alpha, B(m, k), ldbm,  /* ldam * K */
-                                   A(n, k), ldan,  /* ldan * K */
-                            zone,  C(m, n), ldcm); /* ldc  * N */
-                    }
-                }
-            }
-            /*
-             *  ChamNoTrans / ChamUpper
-             */
-            else {
-                for (m = n+1; m < C->mt; m++) {
-                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
-                    ldbm = BLKLDD(B, m);
-                    for (k = 0; k < A->nt; k++) {
-                        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-                        zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamConjTrans,
-                            tempnn, tempmm, tempkn, A->mb,
-                            alpha, A(n, k), ldan,  /* ldan * K */
-                                   B(m, k), ldbm,  /* ldam * M */
-                            zbeta, C(n, m), ldcn); /* ldc  * M */
-
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamConjTrans,
-                            tempnn, tempmm, tempkn, A->mb,
-                            conj(alpha), B(n, k), ldan,  /* ldan * K */
-                                   A(m, k), ldam,  /* ldam * M */
-                            zone,  C(n, m), ldcn); /* ldc  * M */
-                    }
+                    INSERT_TASK_zgemm(
+                        &options,
+                        ChamNoTrans, ChamConjTrans,
+                        tempmm, tempnn, tempkn, A->mb,
+                        conj(alpha), B(m, k), ldbm,
+                                     A(n, k), ldan,
+                        zone,        C(m, n), ldcm);
                 }
             }
         }
         /*
-         *  Cham[Conj]Trans
+         *  ChamConjTrans
          */
         else {
             for (k = 0; k < A->mt; k++) {
@@ -149,63 +125,29 @@ void chameleon_pzher2k(cham_uplo_t uplo, cham_trans_t trans,
                            B(k, n), ldbk,
                     dbeta, C(n, n), ldcn); /* ldc * N */
             }
-            /*
-             *  Cham[Conj]Trans / ChamLower
-             */
-            if (uplo == ChamLower) {
-                for (m = n+1; m < C->mt; m++) {
-                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldcm = BLKLDD(C, m);
-                    for (k = 0; k < A->mt; k++) {
-                        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
-                        ldbk = BLKLDD(B, k);
-                        zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamNoTrans,
-                            tempmm, tempnn, tempkm, A->mb,
-                            alpha, A(k, m), ldak,  /* lda * M */
-                                   B(k, n), ldbk,  /* lda * N */
-                            zbeta, C(m, n), ldcm); /* ldc * N */
+            for (m = mmin; m < mmax; m++) {
+                tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+                ldcm = BLKLDD(C, m);
+                for (k = 0; k < A->mt; k++) {
+                    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+                    ldak = BLKLDD(A, k);
+                    ldbk = BLKLDD(B, k);
+                    zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
+                    INSERT_TASK_zgemm(
+                        &options,
+                        ChamConjTrans, ChamNoTrans,
+                        tempmm, tempnn, tempkm, A->mb,
+                        alpha, A(k, m), ldak,
+                               B(k, n), ldbk,
+                        zbeta, C(m, n), ldcm);
 
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamNoTrans,
-                            tempmm, tempnn, tempkm, A->mb,
-                            alpha, B(k, m), ldbk,  /* lda * M */
-                                   A(k, n), ldak,  /* lda * N */
-                            zone,  C(m, n), ldcm); /* ldc * N */
-                    }
-                }
-            }
-            /*
-             *  Cham[Conj]Trans / ChamUpper
-             */
-            else {
-                for (m = n+1; m < C->mt; m++) {
-                    tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    for (k = 0; k < A->mt; k++) {
-                        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
-                        ldbk = BLKLDD(B, k);
-                        zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamNoTrans,
-                            tempnn, tempmm, tempkm, A->mb,
-                            alpha, A(k, n), ldak,  /* lda * K */
-                                   B(k, m), ldbk,  /* lda * M */
-                            zbeta, C(n, m), ldcn); /* ldc * M */
-
-                        INSERT_TASK_zgemm(
-                            &options,
-                            trans, ChamNoTrans,
-                            tempnn, tempmm, tempkm, A->mb,
-                            conj(alpha), B(k, n), ldbk,  /* lda * K */
-                                   A(k, m), ldak,  /* lda * M */
-                            zone,  C(n, m), ldcn); /* ldc * M */
-                    }
+                    INSERT_TASK_zgemm(
+                        &options,
+                        ChamConjTrans, ChamNoTrans,
+                        tempmm, tempnn, tempkm, A->mb,
+                        conj(alpha), B(k, m), ldbk,
+                                     A(k, n), ldak,
+                        zone,        C(m, n), ldcm );
                 }
             }
         }
