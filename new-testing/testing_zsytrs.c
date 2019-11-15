@@ -1,0 +1,113 @@
+/**
+ *
+ * @file testing_zsytrs.c
+ *
+ * @copyright 2019-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon zsytrs testing
+ *
+ * @version 0.9.2
+ * @author Lucas Barros de Assis
+ * @date 2019-08-13
+ * @precisions normal z -> c
+ *
+ */
+#include <chameleon.h>
+#include <assert.h>
+#include "testing_zauxiliary.h"
+#include "testing_zcheck.h"
+#include "flops.h"
+
+int
+testing_zsytrs( run_arg_list_t *args, int check )
+{
+    static int   run_id = 0;
+    int          hres   = 0;
+    CHAM_desc_t *descA, *descX;
+
+    /* Reads arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    int         P     = parameters_getvalue_int( "P" );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         LDB   = run_arg_get_int( args, "LDB", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+    int         seedB = run_arg_get_int( args, "seedB", random() );
+    int         Q     = parameters_compute_q( P );
+    cham_fixdbl_t t, gflops;
+    cham_fixdbl_t flops = 0;  // flops_zsytrs( N, NRHS );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    hres = CHAMELEON_Desc_Create(
+        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+    assert( hres == 0 );
+    hres = CHAMELEON_Desc_Create(
+        &descX, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
+    assert( hres == 0 );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplgsy_Tile( (double)N, uplo, descA, seedA );
+    CHAMELEON_zplrnt_Tile( descX, seedB );
+
+    hres = CHAMELEON_zsytrf_Tile( uplo, descA );
+    assert( hres == 0 );
+
+    /* Calculates the solution */
+    START_TIMING( t );
+    hres = CHAMELEON_zsytrs_Tile( uplo, descA, descX );
+    STOP_TIMING( t );
+    gflops = flops * 1.e-9 / t;
+    run_arg_add_fixdbl( args, "time", t );
+    run_arg_add_fixdbl( args, "gflops", gflops );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, NULL );
+
+        CHAMELEON_zplgsy_Tile( (double)N, uplo, descA0, seedA );
+        CHAMELEON_zplrnt_Tile( descB, seedB );
+
+        hres += check_zsolve( ChamSymmetric, ChamNoTrans, uplo, descA0, descX, descB );
+
+        CHAMELEON_Desc_Destroy( &descA0 );
+        CHAMELEON_Desc_Destroy( &descB );
+    }
+
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descX );
+
+    run_id++;
+    return hres;
+}
+
+testing_t   test_zsytrs;
+const char *zsytrs_params[] = { "nb", "uplo", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zsytrs_output[] = { NULL };
+const char *zsytrs_outchk[] = { "RETURN", NULL };
+
+/**
+ * @brief Testing registration function
+ */
+void testing_zsytrs_init( void ) __attribute__( ( constructor ) );
+void
+testing_zsytrs_init( void )
+{
+    test_zsytrs.name        = "zsytrs";
+    test_zsytrs.helper      = "zsytrs";
+    test_zsytrs.params      = zsytrs_params;
+    test_zsytrs.output      = zsytrs_output;
+    test_zsytrs.outchk      = zsytrs_outchk;
+    test_zsytrs.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
+    test_zsytrs.fptr        = testing_zsytrs;
+    test_zsytrs.next        = NULL;
+
+    testing_register( &test_zsytrs );
+}

@@ -47,7 +47,7 @@ sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and 
 sonar.projectVersion=0.9
 
 sonar.language=c
-sonar.sources=build-openmp/runtime/openmp, build-parsec/runtime/parsec, build-quark/runtime/quark, build-starpu, compute, control, coreblas, example, include, runtime, testing, timing
+sonar.sources=build-openmp/runtime/openmp, build-parsec/runtime/parsec, build-quark/runtime/quark, build-starpu, compute, control, coreblas, example, include, runtime, new-testing
 sonar.inclusions=`cat filelist.txt | sed ':a;N;$!ba;s/\n/, /g'`
 sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
 sonar.sourceEncoding=UTF-8
