@@ -130,7 +130,7 @@ testing_ztradd( run_arg_list_t *args, int check )
         else {
             CHAMELEON_zplgsy_Tile( 0., uplo, descB0, seedB );
         }
-        hres += check_zsum( uplo, trans, alpha, descA, beta, descB0, descB );
+        hres += check_zsum( args, uplo, trans, alpha, descA, beta, descB0, descB );
 
         CHAMELEON_Desc_Destroy( &descB0 );
     }

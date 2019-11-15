@@ -87,7 +87,7 @@ testing_zlanhe( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm( ChamHermitian, norm_type, uplo, ChamNonUnit, norm, descA );
+        hres = check_znorm( args, ChamHermitian, norm_type, uplo, ChamNonUnit, norm, descA );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

@@ -93,7 +93,7 @@ testing_zgeqrs( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descA0, seedA );
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
-        hres += check_zsolve( ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, subX, subB );
+        hres += check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, subX, subB );
 
         free( subB );
         free( subX );

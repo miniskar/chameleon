@@ -61,7 +61,7 @@ testing_ztrtri( run_arg_list_t *args, int check )
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
 
-        hres += check_ztrtri( ChamTriangular, uplo, diag, descA0, descA );
+        hres += check_ztrtri( args, ChamTriangular, uplo, diag, descA0, descA );
 
         CHAMELEON_Desc_Destroy( &descA0 );
     }

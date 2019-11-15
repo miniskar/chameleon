@@ -94,7 +94,7 @@ testing_zlacpy( run_arg_list_t *args, int check )
 
     /* Checks their differences */
     if ( check ) {
-        hres += check_zmatrices( uplo, descA, descB );
+        hres += check_zmatrices( args, uplo, descA, descB );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

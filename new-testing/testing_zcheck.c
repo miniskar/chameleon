@@ -57,7 +57,7 @@
  *
  *******************************************************************************
  */
-int check_zmatrices( cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB )
+int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB )
 {
     int info_solution = 0;
     int M = descA->m;
@@ -155,7 +155,7 @@ int check_zmatrices( cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB )
  *
  *******************************************************************************
  */
-int check_znorm( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
+int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                  cham_diag_t diag, double norm_cham, CHAM_desc_t *descA )
 {
     int info_solution = 0;
@@ -271,11 +271,11 @@ int check_znorm( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_upl
  *
  *******************************************************************************
  */
-int check_zsum ( cham_uplo_t uplo, cham_trans_t trans,
+int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descBref, CHAM_desc_t *descBcham )
 {
-    int info_solution;
+    int info_solution = 0;
     int M = descBref->m;
     int N = descBref->n;
     int Am = (trans == ChamNoTrans)? M : N;
@@ -390,7 +390,7 @@ int check_zsum ( cham_uplo_t uplo, cham_trans_t trans,
  *
  *******************************************************************************
  */
-int check_zscale( cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA1, CHAM_desc_t *descA2 )
+int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA1, CHAM_desc_t *descA2 )
 {
     int info_solution;
     int M = descA1->m;
@@ -416,7 +416,7 @@ int check_zscale( cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *de
     CHAMELEON_Lapack_to_Tile( Ainit, M, descBlas );
 
     /* Compares the two matrices */
-    info_solution = check_zmatrices( uplo, descA2, descBlas );
+    info_solution = check_zmatrices( args, uplo, descA2, descBlas );
 
     if ( rank == 0 ) {
         free( Ainit );
@@ -464,10 +464,11 @@ int check_zscale( cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *de
  *
  *******************************************************************************
  */
-int check_zgemm( cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
+int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                  CHAM_desc_t *descB, CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
-    int An, LDA, Bn, LDB, info_solution;
+    int An, LDA, Bn, LDB;
+    int info_solution = 0;
     int M = descC->m;
     int N = descC->n;
     int K = (transA != ChamNoTrans)? descA->m : descA->n;
@@ -518,7 +519,6 @@ int check_zgemm( cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t
 
     if ( rank == 0 ) {
         double eps = LAPACKE_dlamch_work('e');
-        double *work = (double *)malloc(chameleon_max(M, N)* sizeof(double));
 
         /* Makes the multiplication with the core function */
         cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K,
@@ -538,7 +538,6 @@ int check_zgemm( cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t
             info_solution = 0;
         }
 
-        free(work);
         free(A);
         free(B);
         free(C);
@@ -590,7 +589,7 @@ int check_zgemm( cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t
  *
  *******************************************************************************
  */
-int check_zsymm( cham_mtxtype_t matrix_type, cham_side_t side, cham_uplo_t uplo,
+int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t side, cham_uplo_t uplo,
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB,
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
@@ -730,7 +729,7 @@ int check_zsymm( cham_mtxtype_t matrix_type, cham_side_t side, cham_uplo_t uplo,
  *
  *******************************************************************************
  */
-int check_zsyrk( cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans,
+int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans,
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB,
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
@@ -908,7 +907,7 @@ int check_zsyrk( cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t tran
  *
  *******************************************************************************
  */
-int check_ztrmm( int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
+int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB, CHAM_desc_t *descBref )
 {
     int info_solution = 0;
@@ -1017,7 +1016,7 @@ int check_ztrmm( int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_
  *
  *******************************************************************************
  */
-int check_zlauum( cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descAAt )
+int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descAAt )
 {
     int info_local, info_global;
     int N = descA->n;
@@ -1226,7 +1225,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
  *
  *******************************************************************************
  */
-int check_zsolve( cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo,
+int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo,
                   CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB )
 {
     int info_local, info_global;
@@ -1312,7 +1311,7 @@ int check_zsolve( cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo,
  *
  *******************************************************************************
  */
-int check_ztrtri( cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_diag_t diag,
+int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_diag_t diag,
                   CHAM_desc_t *descA0, CHAM_desc_t *descAi )
 {
     int info_local, info_global;
@@ -1437,7 +1436,7 @@ int check_ztrtri( cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_diag_t diag
     return info_global;
 }
 
-int check_zortho( CHAM_desc_t *descQ )
+int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
 {
     int info_local, info_global;
     int M = descQ->m;
@@ -1463,6 +1462,8 @@ int check_zortho( CHAM_desc_t *descQ )
     /* Verifies the residual's norm */
     normR = CHAMELEON_zlansy_Tile( ChamOneNorm, ChamUpper, subI );
     result = normR / ( (double)minMN * eps );
+
+    run_arg_add_double( args, "||I-QQ'||", normR );
 
     if ( isnan(result) || isinf(result) || (result > 60.0) ) {
         info_local = 1;
@@ -1507,7 +1508,7 @@ int check_zortho( CHAM_desc_t *descQ )
  *
  *******************************************************************************
  */
-int check_zgelqf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
+int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
 {
     int info_local, info_global;
     int M = descQ->m;
@@ -1560,6 +1561,9 @@ int check_zgelqf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
     Anorm = CHAMELEON_zlange_Tile( ChamOneNorm, descA );
     result = Rnorm / ( (double)N * Anorm * eps );
 
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||A-fact(A)||", Rnorm );
+
     if ( isnan(result) || isinf(result) || (result > 60.0) ) {
         info_local = 1;
     }
@@ -1600,7 +1604,7 @@ int check_zgelqf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
  *
  *******************************************************************************
  */
-int check_zgeqrf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
+int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
 {
     int info_local, info_global;
     int M = descQ->m;
@@ -1653,6 +1657,9 @@ int check_zgeqrf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
     Anorm = CHAMELEON_zlange_Tile( ChamOneNorm, descA );
     result = Rnorm / ( (double)M * Anorm * eps );
 
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||A-fact(A)||", Rnorm );
+
     if ( isnan(result) || isinf(result) || (result > 60.0) ) {
         info_local = 1;
     }
@@ -1670,7 +1677,7 @@ int check_zgeqrf( CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ )
     return info_global;
 }
 
-int check_zqc( cham_side_t side, cham_trans_t trans,
+int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
                CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC )
 {
     int info_local, info_global;
@@ -1710,7 +1717,7 @@ int check_zqc( cham_side_t side, cham_trans_t trans,
     return info_global;
 }
 
-int check_zgeqrs( cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
+int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
 {
     int info_local, info_global, nb;
     int M = descA->m;
@@ -1770,7 +1777,7 @@ int check_zgeqrs( cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_des
     return info_global;
 }
 
-int check_zgelqs( cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
+int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
 {
     int info_local, info_global, nb;
     int M = descA->m;
@@ -1830,21 +1837,21 @@ int check_zgelqs( cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_des
     return info_global;
 }
 
-int check_zgels( cham_trans_t trans, CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB )
+int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB )
 {
     int info_solution;
     int M = descA->m;
     int N = descA->n;
     double Bnorm = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
 
-    info_solution = check_zsolve( ChamGeneral, trans, ChamUpperLower,
+    info_solution = check_zsolve( args, ChamGeneral, trans, ChamUpperLower,
                                   descA, descX, descB );
 
     if ( M >= N ) {
-        info_solution = check_zgeqrs( trans, descA, Bnorm, descB );
+        info_solution = check_zgeqrs( args, trans, descA, Bnorm, descB );
     }
     else {
-        info_solution = check_zgelqs( trans, descA, Bnorm, descB );
+        info_solution = check_zgelqs( args, trans, descA, Bnorm, descB );
     }
 
 #if defined(CHAMELEON_USE_MPI)

@@ -95,7 +95,7 @@ testing_zunmqr( run_arg_list_t *args, int check )
             &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, Am, Am, 0, 0, Am, Am, P, Q );
         CHAMELEON_zungqr_Tile( descA, descT, descQ );
 
-        hres = check_zqc( side, trans, descC0, descQ, descC );
+        hres = check_zqc( args, side, trans, descC0, descQ, descC );
 
         CHAMELEON_Desc_Destroy( &descC0 );
         CHAMELEON_Desc_Destroy( &descQ );

@@ -86,8 +86,8 @@ testing_zgelqf_hqr( run_arg_list_t *args, int check )
 
         CHAMELEON_zunglq_param_Tile( &qrtree, descA, descTS, descTT, descQ );
 
-        hres += check_zgelqf( descA0, descA, descQ );
-        hres += check_zortho( descQ );
+        hres += check_zgelqf( args, descA0, descA, descQ );
+        hres += check_zortho( args, descQ );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descQ );
@@ -106,7 +106,7 @@ testing_t   test_zgelqf_hqr;
 const char *zgelqf_hqr_params[] = { "nb",  "ib",   "m",    "n",      "lda",   "qra",
                                     "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
 const char *zgelqf_hqr_output[] = { NULL };
-const char *zgelqf_hqr_outchk[] = { "RETURN", NULL };
+const char *zgelqf_hqr_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

@@ -85,7 +85,7 @@ testing_ztrsm( run_arg_list_t *args, int check )
             &descBinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
         CHAMELEON_zplrnt_Tile( descBinit, seedB );
 
-        hres += check_ztrmm( CHECK_TRSM, side, uplo, trans, diag, alpha, descA, descB, descBinit );
+        hres += check_ztrmm( args, CHECK_TRSM, side, uplo, trans, diag, alpha, descA, descB, descBinit );
 
         CHAMELEON_Desc_Destroy( &descBinit );
     }

@@ -27,7 +27,6 @@ val_t pread_int( const char *str )
 {
     val_t val;
     val.ival = atoi( str );
-    fprintf( stderr, " %d", val.ival );
     return val;
 }
 
@@ -41,7 +40,6 @@ val_t pread_float( const char *str )
 {
     val_t val;
     val.sval = strtof( str, NULL );
-    fprintf( stderr, " %e", val.sval );
     return val;
 }
 
@@ -55,7 +53,6 @@ val_t pread_double( const char *str )
 {
     val_t val;
     val.dval = strtod( str, NULL );
-    fprintf( stderr, " %le", val.dval );
     return val;
 }
 
@@ -83,7 +80,6 @@ val_t pread_complex32( const char *str )
         val.cval = nan("NaN");
     }
 
-    fprintf( stderr, " (%le,%le)", crealf(val.cval), cimagf(val.cval) );
     return val;
 }
 
@@ -111,7 +107,6 @@ val_t pread_complex64( const char *str )
         val.zval = nan("NaN");
     }
 
-    fprintf( stderr, " (%le,%le)", crealf(val.zval), cimagf(val.zval) );
     return val;
 }
 
@@ -153,7 +148,6 @@ val_t pread_trans( const char *str )
             val.trans = ChamNoTrans;
         }
     }
-    fprintf( stderr, " %d", val.trans );
     return val;
 }
 
@@ -196,7 +190,6 @@ val_t pread_uplo( const char *str )
             val.uplo = ChamUpperLower;
         }
     }
-    fprintf( stderr, " %d", val.uplo );
     return val;
 }
 
@@ -230,7 +223,6 @@ val_t pread_diag( const char *str )
             val.diag = ChamNonUnit;
         }
     }
-    fprintf( stderr, " %d", val.diag );
     return val;
 }
 
@@ -264,7 +256,6 @@ val_t pread_side( const char *str )
             val.side = ChamLeft;
         }
     }
-    fprintf( stderr, " %d", val.side );
     return val;
 }
 
@@ -314,7 +305,6 @@ val_t pread_norm( const char *str )
             val.ntype = ChamOneNorm;
         }
     }
-    fprintf( stderr, " %d", val.ntype );
     return val;
 }
 
@@ -328,7 +318,6 @@ val_t pread_string( const char *str )
 {
     val_t val;
     val.str = strdup( str );
-    fprintf( stderr, " %s", val.str );
     return val;
 }
 

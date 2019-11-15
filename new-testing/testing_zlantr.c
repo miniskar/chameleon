@@ -87,7 +87,7 @@ testing_zlantr( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm( ChamTriangular, norm_type, uplo, diag, norm, descA );
+        hres = check_znorm( args, ChamTriangular, norm_type, uplo, diag, norm, descA );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

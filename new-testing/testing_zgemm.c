@@ -98,7 +98,7 @@ testing_zgemm( run_arg_list_t *args, int check )
             &descCinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descCinit, seedC );
 
-        hres += check_zgemm( transA, transB, alpha, descA, descB, beta, descCinit, descC );
+        hres += check_zgemm( args, transA, transB, alpha, descA, descB, beta, descCinit, descC );
 
         CHAMELEON_Desc_Destroy( &descCinit );
     }

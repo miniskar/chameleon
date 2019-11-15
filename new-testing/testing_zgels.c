@@ -108,7 +108,7 @@ testing_zgels( run_arg_list_t *args, int check )
         }
 
         /* Check the factorization and the residual */
-        hres = check_zgels( trans, descA0, subX, subB );  // A(Ax-B) == 0?
+        hres = check_zgels( args, trans, descA0, subX, subB );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descB );
