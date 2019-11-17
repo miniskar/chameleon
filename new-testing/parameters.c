@@ -79,8 +79,6 @@ parameters_read_list( parameter_t *param,
         current  = current->next;
     }
 
-    fprintf( stderr, "%s (list): ", param->name );
-
     token = strtok_r( str, delim, &saveptr );
     while ( token != NULL ) {
         assert( current == NULL );
@@ -105,7 +103,6 @@ parameters_read_list( parameter_t *param,
         token = strtok_r( NULL, delim, &saveptr );
     }
 
-    fprintf( stderr, "\n" );
     free( str );
 }
 
@@ -183,14 +180,12 @@ parameters_read_intrange( parameter_t *param,
         current  = current->next;
     }
 
-    fprintf( stderr, "%s (range): ", param->name );
     while ( start <= end ) {
         assert( current == NULL );
         current = calloc( 1, sizeof(vallist_t) );
 
         /* Read the value */
         current->value.ival = start;
-        fprintf( stderr, " %d", start );
 
         /* Insert at the end of the list */
         if ( previous != NULL ) {
@@ -206,7 +201,6 @@ parameters_read_intrange( parameter_t *param,
 
         start += step;
     }
-    fprintf( stderr, "\n" );
 }
 
 /**
@@ -286,7 +280,6 @@ parameters_addvalues( parameter_t *param,
                       const char  *values )
 {
     if ( param->has_arg == 0 ) {
-        fprintf( stderr, "%s: enabled\n", param->name );
         param->value.ival = 1;
     }
     else if ( param->has_arg == 1 ) {
@@ -358,7 +351,6 @@ parameters_read_file( const char  *filename )
             values++;
         }
 
-        //fprintf( stderr, "%s: %s", name, values );
         param = parameters_getbyname( name );
         if ( param == NULL ) {
             fprintf( stderr, "Parameter %s is not know. We skip it\n", name );

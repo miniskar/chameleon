@@ -88,7 +88,7 @@ testing_zherk( run_arg_list_t *args, int check )
         CHAMELEON_zplghe_Tile( bump, uplo, descCinit, seedC );
 
         hres +=
-            check_zsyrk( ChamHermitian, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
+            check_zsyrk( args, ChamHermitian, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
 
         CHAMELEON_Desc_Destroy( &descCinit );
     }

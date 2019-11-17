@@ -78,8 +78,8 @@ testing_zgeqrf( run_arg_list_t *args, int check )
 
         CHAMELEON_zungqr_Tile( descA, descT, descQ );
 
-        hres += check_zgeqrf( descA0, descA, descQ );
-        hres += check_zortho( descQ );
+        hres += check_zgeqrf( args, descA0, descA, descQ );
+        hres += check_zortho( args, descQ );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descQ );
@@ -95,7 +95,7 @@ testing_zgeqrf( run_arg_list_t *args, int check )
 testing_t   test_zgeqrf;
 const char *zgeqrf_params[] = { "nb", "ib", "m", "n", "lda", "qra", "seedA", NULL };
 const char *zgeqrf_output[] = { NULL };
-const char *zgeqrf_outchk[] = { "RETURN", NULL };
+const char *zgeqrf_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

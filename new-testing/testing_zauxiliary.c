@@ -96,6 +96,7 @@ static parameter_t parameters[] = {
     { "||b||",         "Norm of the vector b",                  1008, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
     { "||x||",         "Norm of the vector x",                  1009, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
     { "||Ax-b||/N/eps/(||A||||x||+||b||", "",                   1010, PARAM_OUTPUT, 2, 22, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||I-QQ'||",     "Orthonormality of Q",                   1011, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
 };
 
 #define STR_MAX_LENGTH 256

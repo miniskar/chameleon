@@ -80,7 +80,7 @@ testing_zungqr( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
-        hres += check_zortho( descQ );
+        hres += check_zortho( args, descQ );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

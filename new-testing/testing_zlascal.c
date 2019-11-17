@@ -88,7 +88,7 @@ testing_zlascal( run_arg_list_t *args, int check )
             &descAinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descAinit, seedA );
 
-        hres += check_zscale( uplo, alpha, descAinit, descA );
+        hres += check_zscale( args, uplo, alpha, descAinit, descA );
 
         CHAMELEON_Desc_Destroy( &descAinit );
     }

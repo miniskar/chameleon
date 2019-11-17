@@ -90,7 +90,7 @@ testing_zhemm( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descCinit, seedC );
 
         hres +=
-            check_zsymm( ChamHermitian, side, uplo, alpha, descA, descB, beta, descCinit, descC );
+            check_zsymm( args, ChamHermitian, side, uplo, alpha, descA, descB, beta, descCinit, descC );
 
         CHAMELEON_Desc_Destroy( &descCinit );
     }

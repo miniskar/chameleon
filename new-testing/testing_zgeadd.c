@@ -95,7 +95,7 @@ testing_zgeadd( run_arg_list_t *args, int check )
         CHAM_desc_t *descB0 = CHAMELEON_Desc_Copy( descB, NULL );
         CHAMELEON_zplrnt_Tile( descB0, seedB );
 
-        hres += check_zsum( ChamUpperLower, trans, alpha, descA, beta, descB0, descB );
+        hres += check_zsum( args, ChamUpperLower, trans, alpha, descA, beta, descB0, descB );
 
         CHAMELEON_Desc_Destroy( &descB0 );
     }

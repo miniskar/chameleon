@@ -87,7 +87,7 @@ testing_zlansy( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm( ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, descA );
+        hres = check_znorm( args, ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, descA );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

@@ -83,7 +83,7 @@ testing_zposv( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
-        hres += check_zsolve( ChamHermitian, ChamNoTrans, uplo, descA0, descX, descB );
+        hres += check_zsolve( args, ChamHermitian, ChamNoTrans, uplo, descA0, descX, descB );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descB );

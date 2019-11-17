@@ -86,7 +86,7 @@ testing_zlange( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm( ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, descA );
+        hres = check_znorm( args, ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, descA );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

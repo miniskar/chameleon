@@ -87,7 +87,7 @@ testing_zsyrk( run_arg_list_t *args, int check )
         CHAMELEON_zplgsy_Tile( bump, uplo, descCinit, seedC );
 
         hres +=
-            check_zsyrk( ChamSymmetric, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
+            check_zsyrk( args, ChamSymmetric, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
 
         CHAMELEON_Desc_Destroy( &descCinit );
     }
