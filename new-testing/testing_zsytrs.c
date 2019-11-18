@@ -25,7 +25,7 @@ int
 testing_zsytrs( run_arg_list_t *args, int check )
 {
     static int   run_id = 0;
-    int          hres   = 0;
+    int          hres;
     CHAM_desc_t *descA, *descX;
 
     /* Reads arguments */
@@ -45,12 +45,10 @@ testing_zsytrs( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    hres = CHAMELEON_Desc_Create(
+    CHAMELEON_Desc_Create(
         &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
-    assert( hres == 0 );
-    hres = CHAMELEON_Desc_Create(
+    CHAMELEON_Desc_Create(
         &descX, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
-    assert( hres == 0 );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplgsy_Tile( (double)N, uplo, descA, seedA );
@@ -61,7 +59,7 @@ testing_zsytrs( run_arg_list_t *args, int check )
 
     /* Calculates the solution */
     START_TIMING( t );
-    hres = CHAMELEON_zsytrs_Tile( uplo, descA, descX );
+    hres += CHAMELEON_zsytrs_Tile( uplo, descA, descX );
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );

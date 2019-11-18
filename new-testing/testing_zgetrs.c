@@ -25,7 +25,7 @@ int
 testing_zgetrs( run_arg_list_t *args, int check )
 {
     static int   run_id = 0;
-    int          hres   = 0;
+    int          hres;
     CHAM_desc_t *descA, *descX;
 
     /* Reads arguments */

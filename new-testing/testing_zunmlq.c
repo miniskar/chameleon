@@ -26,7 +26,7 @@ testing_zunmlq( run_arg_list_t *args, int check )
 {
     static int   run_id = 0;
     int          An;
-    int          hres = 0;
+    int          hres;
     CHAM_desc_t *descA, *descT, *descC;
 
     /* Reads arguments */
@@ -78,7 +78,7 @@ testing_zunmlq( run_arg_list_t *args, int check )
 
     /* Computes unmlq */
     START_TIMING( t );
-    hres = CHAMELEON_zunmlq_Tile( side, trans, descA, descT, descC );
+    hres += CHAMELEON_zunmlq_Tile( side, trans, descA, descT, descC );
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
@@ -95,7 +95,7 @@ testing_zunmlq( run_arg_list_t *args, int check )
             &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, An, An, 0, 0, An, An, P, Q );
         CHAMELEON_zunglq_Tile( descA, descT, descQ );
 
-        hres = check_zqc( args, side, trans, descC0, descQ, descC );
+        hres += check_zqc( args, side, trans, descC0, descQ, descC );
 
         CHAMELEON_Desc_Destroy( &descC0 );
         CHAMELEON_Desc_Destroy( &descQ );

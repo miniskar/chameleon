@@ -26,7 +26,7 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
 {
     static int   run_id = 0;
     int          Am;
-    int          hres = 0;
+    int          hres;
     CHAM_desc_t *descA, *descTS, *descTT, *descC;
 
     /* Reads arguments */
@@ -86,7 +86,7 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
 
     /* Computes unmqr_hqr */
     START_TIMING( t );
-    hres = CHAMELEON_zunmqr_param_Tile( &qrtree, side, trans, descA, descTS, descTT, descC );
+    hres += CHAMELEON_zunmqr_param_Tile( &qrtree, side, trans, descA, descTS, descTT, descC );
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
@@ -103,7 +103,7 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
             &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, Am, Am, 0, 0, Am, Am, P, Q );
         CHAMELEON_zungqr_param_Tile( &qrtree, descA, descTS, descTT, descQ );
 
-        hres = check_zqc( args, side, trans, descC0, descQ, descC );
+        hres += check_zqc( args, side, trans, descC0, descQ, descC );
 
         CHAMELEON_Desc_Destroy( &descC0 );
         CHAMELEON_Desc_Destroy( &descQ );
