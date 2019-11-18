@@ -48,12 +48,14 @@ testing_zpotri( run_arg_list_t *args, int check )
     /* Initialise the matrix with the random values */
     CHAMELEON_zplghe_Tile( (double)N, uplo, descA, seedA );
 
-    /* Calculates the inversed matrix */
-    START_TIMING( t );
     hres = CHAMELEON_zpotrf_Tile( uplo, descA );
     assert( hres == 0 );
-    hres = CHAMELEON_zpotri_Tile( uplo, descA );
+
+    /* Calculates the inversed matrix */
+    START_TIMING( t );
+    hres += CHAMELEON_zpotri_Tile( uplo, descA );
     STOP_TIMING( t );
+
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
     run_arg_add_fixdbl( args, "gflops", gflops );

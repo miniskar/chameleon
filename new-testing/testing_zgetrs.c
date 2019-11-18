@@ -58,7 +58,7 @@ testing_zgetrs( run_arg_list_t *args, int check )
 
     /* Calculates the solution */
     START_TIMING( t );
-    hres = CHAMELEON_zgetrs_nopiv_Tile( descA, descX );
+    hres += CHAMELEON_zgetrs_nopiv_Tile( descA, descX );
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
