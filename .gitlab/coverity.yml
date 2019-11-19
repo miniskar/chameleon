@@ -1,5 +1,5 @@
 ---
-.coverity:
+coverity:
   image: hpclib/hiepacs
   stage: analyse
   tags: ["large"]
@@ -13,8 +13,8 @@
     VERSION: coverity
   script:
     - (cd build-$VERSION &&
-       cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake \
-                .. -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON &&
+       cmake .. -C ../cmake_modules/gitlab-ci-initial-cache.cmake
+                -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON &&
        cov-build --dir ../cov-int make -j 4)
     - tar czvf chameleon.tgz cov-int
     - curl --form token=$COVERITY_TOKEN
