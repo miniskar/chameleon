@@ -56,19 +56,18 @@ chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
 
         for(m = mmin; m < mmax; m++) {
             int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-            int ldam = BLKLDD( A, m );
 
             if ( (n == m) && (uplo != ChamUpperLower) ) {
                 INSERT_TASK_ztrasm(
                     options,
                     ChamColumnwise, uplo, diag, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n ) );
+                    A(m, n), W( Wcol, m, n ) );
             }
             else {
                 INSERT_TASK_dzasum(
                     options,
                     ChamColumnwise, ChamUpperLower, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n ) );
+                    A(m, n), W( Wcol, m, n ) );
             }
 
             if ( m >= P ) {
@@ -93,7 +92,7 @@ chameleon_pzlange_one( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
         INSERT_TASK_dlange(
             options,
             ChamMaxNorm, 1, tempnn, A->nb,
-            W( Wcol, 0, n ), 1,
+            W( Wcol, 0, n ),
             W( Welt, 0, n ) );
     }
 
@@ -144,7 +143,6 @@ chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
         int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -153,13 +151,13 @@ chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
                 INSERT_TASK_ztrasm(
                     options,
                     ChamRowwise, uplo, diag, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
             }
             else {
                 INSERT_TASK_dzasum(
                     options,
                     ChamRowwise, ChamUpperLower, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
             }
 
             if ( n >= Q ) {
@@ -184,7 +182,7 @@ chameleon_pzlange_inf( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A,
         INSERT_TASK_dlange(
             options,
             ChamMaxNorm, tempmm, 1, A->nb,
-            W( Wcol, m, 0), 1, W( Welt, m, 0));
+            W( Wcol, m, 0), W( Welt, m, 0));
     }
 
     /**
@@ -231,7 +229,6 @@ chameleon_pzlange_max( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_
         int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -240,13 +237,13 @@ chameleon_pzlange_max( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_
                 INSERT_TASK_zlantr(
                     options,
                     ChamMaxNorm, uplo, diag, tempmm, tempnn, A->nb,
-                    A(m, n), ldam, W( Welt, m, n));
+                    A(m, n), W( Welt, m, n));
             }
             else {
                 INSERT_TASK_zlange(
                     options,
                     ChamMaxNorm, tempmm, tempnn, A->nb,
-                    A(m, n), ldam, W( Welt, m, n ));
+                    A(m, n), W( Welt, m, n ));
             }
 
             if ( n >= Q ) {
@@ -315,7 +312,6 @@ chameleon_pzlange_frb( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_
         int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -324,14 +320,14 @@ chameleon_pzlange_frb( cham_uplo_t uplo, cham_diag_t diag, CHAM_desc_t *A, CHAM_
                 INSERT_TASK_ztrssq(
                     options,
                     uplo, diag, tempmm, tempnn,
-                    A(m, n), ldam, W( Welt, m, n) );
+                    A(m, n), W( Welt, m, n) );
             }
             else {
                 INSERT_TASK_zgessq(
                     options,
                     ChamEltwise,
                     tempmm, tempnn,
-                    A(m, n), ldam, W( Welt, m, n) );
+                    A(m, n), W( Welt, m, n) );
             }
 
             if ( n >= Q ) {
@@ -469,7 +465,7 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
                     &options,
                     ChamUpperLower, Wcol.mb, Wcol.nb,
                     alpha, beta,
-                    W( &Wcol, m, n ), Wcol.mb );
+                    W( &Wcol, m, n ) );
             }
         }
     }
@@ -479,7 +475,7 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
                 &options,
                 ChamUpperLower, Welt.mb, Welt.nb,
                 alpha, beta,
-                W( &Welt, m, n ), Welt.mb );
+                W( &Welt, m, n ) );
         }
     }
 
@@ -512,7 +508,7 @@ void chameleon_pzlange_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_dia
                 INSERT_TASK_dlacpy(
                     &options,
                     ChamUpperLower, 1, 1, 1,
-                    W( &Welt, 0, 0 ), 1, W( &Welt, m, n ), 1);
+                    W( &Welt, 0, 0 ), W( &Welt, m, n ) );
             }
         }
     }

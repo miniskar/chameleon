@@ -42,7 +42,6 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldak, ldqm, lddk;
     int tempnn, tempmm, tempkmin, tempkn;
     int tempAkm, tempAkn;
     int ib, minMT;
@@ -94,14 +93,11 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
         tempAkn  = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         tempkmin = chameleon_min( tempAkn, tempAkm );
         tempkn   = k == Q->nt-1 ? Q->n-k*Q->nb : Q->nb;
-        ldak = BLKLDD(A, k);
-        lddk = BLKLDD(D, k);
 
         for (n = Q->nt-1; n > k; n--) {
             tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
             for (m = k; m < Q->mt; m++) {
                 tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
-                ldqm = BLKLDD(Q, m);
 
                 RUNTIME_data_migrate( sequence, Q(m, k),
                                       Q->get_rankof( Q, m, n ) );
@@ -111,10 +107,10 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
                     &options,
                     ChamRight, ChamNoTrans,
                     tempmm, tempnn, tempAkm, 0, ib, T->nb,
-                    A(k, n), ldak,
-                    T(k, n), T->mb,
-                    Q(m, k), ldqm,
-                    Q(m, n), ldqm);
+                    A(k, n),
+                    T(k, n),
+                    Q(m, k),
+                    Q(m, n));
             }
             RUNTIME_data_flush( sequence, A(k, n) );
             RUNTIME_data_flush( sequence, T(k, n) );
@@ -125,19 +121,18 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
             INSERT_TASK_zlacpy(
                 &options,
                 ChamUpper, tempkmin, tempDkn, A->nb,
-                A(k, k), ldak,
-                D(k),    lddk );
+                A(k, k),
+                D(k) );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(
                 &options,
                 ChamLower, tempkmin, tempDkn,
                 0., 1.,
-                D(k), lddk );
+                D(k) );
 #endif
         }
         for (m = k; m < Q->mt; m++) {
             tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
-            ldqm = BLKLDD(Q, m);
 
             /* Restore the original location of the tiles */
             RUNTIME_data_migrate( sequence, Q(m, k),
@@ -147,9 +142,9 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
                 &options,
                 ChamRight, ChamNoTrans,
                 tempmm, tempkn, tempkmin, ib, T->nb,
-                D(k),    lddk,
-                T(k, k), T->mb,
-                Q(m, k), ldqm);
+                D(k),
+                T(k, k),
+                Q(m, k));
         }
         RUNTIME_data_flush( sequence, D(k)    );
         RUNTIME_data_flush( sequence, T(k, k) );

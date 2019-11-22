@@ -38,8 +38,6 @@ void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
     RUNTIME_option_t options;
 
     int m, n, k, mmin, mmax;
-    int ldak, ldam, ldan, ldcm, ldcn;
-    int ldbk, ldbm, ldbn;
     int tempnn, tempmm, tempkn, tempkm;
 
     CHAMELEON_Complex64_t zone   = (CHAMELEON_Complex64_t)1.0;
@@ -54,9 +52,6 @@ void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
 
     for (n = 0; n < C->nt; n++) {
         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-        ldan = BLKLDD(A, n);
-        ldbn = BLKLDD(B, n);
-        ldcn = BLKLDD(C, n);
 
         if (uplo == ChamLower) {
             mmin = n+1;
@@ -78,15 +73,12 @@ void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
                     &options,
                     uplo, trans,
                     tempnn, tempkn, A->mb,
-                    alpha, A(n, k), ldan, /* ldan * K */
-                           B(n, k), ldbn,
-                    dbeta, C(n, n), ldcn); /* ldc  * N */
+                    alpha, A(n, k), /* ldan * K */
+                           B(n, k),
+                    dbeta, C(n, n)); /* ldc  * N */
             }
             for (m = mmin; m < mmax; m++) {
                 tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                ldam = BLKLDD(A, m);
-                ldbm = BLKLDD(B, m);
-                ldcm = BLKLDD(C, m);
                 for (k = 0; k < A->nt; k++) {
                     tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                     zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
@@ -94,17 +86,17 @@ void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
                         &options,
                         ChamNoTrans, ChamConjTrans,
                         tempmm, tempnn, tempkn, A->mb,
-                        alpha, A(m, k), ldam,
-                               B(n, k), ldbn,
-                        zbeta, C(m, n), ldcm);
+                        alpha, A(m, k),
+                               B(n, k),
+                        zbeta, C(m, n));
 
                     INSERT_TASK_zgemm(
                         &options,
                         ChamNoTrans, ChamConjTrans,
                         tempmm, tempnn, tempkn, A->mb,
-                        conj(alpha), B(m, k), ldbm,
-                                     A(n, k), ldan,
-                        zone,        C(m, n), ldcm);
+                        conj(alpha), B(m, k),
+                                     A(n, k),
+                        zone,        C(m, n));
                 }
             }
         }
@@ -114,40 +106,35 @@ void chameleon_pzher2k( cham_uplo_t uplo, cham_trans_t trans,
         else {
             for (k = 0; k < A->mt; k++) {
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                ldak = BLKLDD(A, k);
-                ldbk = BLKLDD(B, k);
                 dbeta = k == 0 ? beta : 1.0;
                 INSERT_TASK_zher2k(
                     &options,
                     uplo, trans,
                     tempnn, tempkm, A->mb,
-                    alpha, A(k, n), ldak,  /* lda * N */
-                           B(k, n), ldbk,
-                    dbeta, C(n, n), ldcn); /* ldc * N */
+                    alpha, A(k, n),  /* lda * N */
+                           B(k, n),
+                    dbeta, C(n, n)); /* ldc * N */
             }
             for (m = mmin; m < mmax; m++) {
                 tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                ldcm = BLKLDD(C, m);
                 for (k = 0; k < A->mt; k++) {
                     tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                    ldak = BLKLDD(A, k);
-                    ldbk = BLKLDD(B, k);
                     zbeta = k == 0 ? (CHAMELEON_Complex64_t)beta : zone;
                     INSERT_TASK_zgemm(
                         &options,
                         ChamConjTrans, ChamNoTrans,
                         tempmm, tempnn, tempkm, A->mb,
-                        alpha, A(k, m), ldak,
-                               B(k, n), ldbk,
-                        zbeta, C(m, n), ldcm);
+                        alpha, A(k, m),
+                               B(k, n),
+                        zbeta, C(m, n));
 
                     INSERT_TASK_zgemm(
                         &options,
                         ChamConjTrans, ChamNoTrans,
                         tempmm, tempnn, tempkm, A->mb,
-                        conj(alpha), B(k, m), ldbk,
-                                     A(k, n), ldak,
-                        zone,        C(m, n), ldcm );
+                        conj(alpha), B(k, m),
+                                     A(k, n),
+                        zone,        C(m, n) );
                 }
             }
         }

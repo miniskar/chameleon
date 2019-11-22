@@ -25,30 +25,18 @@ static void cl_zgram_cpu_func(void *descr[], void *cl_arg)
 {
     cham_uplo_t uplo;
     int m, n, mt, nt;
-    double *Di;
-    int ldDI;
-    double *Dj;
-    int ldDJ;
-    double *D;
-    double *A;
-    int ldA;
+    CHAM_tile_t *Di;
+    CHAM_tile_t *Dj;
+    CHAM_tile_t *D;
+    CHAM_tile_t *A;
 
-    Di = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    Dj = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    D  = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    A  = (double *)STARPU_MATRIX_GET_PTR(descr[3]);
+    Di = cti_interface_get(descr[0]);
+    Dj = cti_interface_get(descr[1]);
+    D  = cti_interface_get(descr[2]);
+    A  = cti_interface_get(descr[3]);
 
-    ldDI = STARPU_MATRIX_GET_LD( descr[0] );
-    ldDJ = STARPU_MATRIX_GET_LD( descr[1] );
-    ldA = STARPU_MATRIX_GET_LD( descr[3] );
-
-    starpu_codelet_unpack_args(cl_arg, &uplo, &m, &n, &mt, &nt);
-    CORE_zgram( uplo,
-                m, n, mt, nt,
-                Di, ldDI,
-                Dj, ldDJ,
-                D,
-                A, ldA);
+    starpu_codelet_unpack_args( cl_arg, &uplo, &m, &n, &mt, &nt );
+    TCORE_zgram( uplo, m, n, mt, nt, Di, Dj, D, A );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -60,10 +48,10 @@ CODELETS_CPU(zgram, 4, cl_zgram_cpu_func)
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int mt, int nt,
-                        const CHAM_desc_t *Di, int Dim, int Din, int ldDI,
-                        const CHAM_desc_t *Dj, int Djm, int Djn, int ldDJ,
+                        const CHAM_desc_t *Di, int Dim, int Din,
+                        const CHAM_desc_t *Dj, int Djm, int Djn,
                         const CHAM_desc_t *D, int Dm, int Dn,
-                        CHAM_desc_t *A, int Am, int An, int ldA)
+                        CHAM_desc_t *A, int Am, int An)
 {
   struct starpu_codelet *codelet = &cl_zgram;
   void (*callback)(void*) = options->profiling ? cl_zgram_callback : NULL;
@@ -92,7 +80,4 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
         STARPU_NAME, "zgram",
 #endif
         0);
-    (void)ldA;
-    (void)ldDJ;
-    (void)ldDI;
 }

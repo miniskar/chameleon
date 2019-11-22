@@ -456,23 +456,18 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
 
     if (*ptrtile == NULL) {
         int home_node = -1;
-        void *user_ptr = NULL;
         int myrank = A->myrank;
         int owner  = A->get_rankof( A, m, n );
-        int64_t eltsze = CHAMELEON_Element_Size(A->dtyp);
-        int tempmm = (mm == A->lmt-1) ? (A->lm - mm * A->mb) : A->mb;
-        int tempnn = (nn == A->lnt-1) ? (A->ln - nn * A->nb) : A->nb;
+        CHAM_tile_t *tile = A->get_blktile( A, m, n );
 
         if ( myrank == owner ) {
-            user_ptr = A->get_blkaddr(A, m, n);
-            if ( user_ptr != NULL ) {
+            if ( tile->mat != NULL )
+            {
                 home_node = STARPU_MAIN_RAM;
             }
         }
 
-        starpu_matrix_data_register( ptrtile, home_node, (uintptr_t) user_ptr,
-                                     BLKLDD(A, m),
-                                     tempmm, tempnn, eltsze );
+        starpu_cham_tile_register( ptrtile, home_node, tile, A->dtyp );
 
 #if defined(HAVE_STARPU_DATA_SET_OOC_FLAG)
         if ( A->ooc == 0 ) {

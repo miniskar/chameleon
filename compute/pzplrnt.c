@@ -34,7 +34,6 @@ void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
     RUNTIME_option_t options;
 
     int m, n;
-    int ldam;
     int tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
@@ -45,14 +44,13 @@ void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
 
     for (m = 0; m < A->mt; m++) {
         tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-        ldam = BLKLDD(A, m);
 
         for (n = 0; n < A->nt; n++) {
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
             INSERT_TASK_zplrnt(
                 &options,
-                tempmm, tempnn, A(m, n), ldam,
+                tempmm, tempnn, A(m, n),
                 A->m, m*A->mb, n*A->nb, seed );
         }
     }

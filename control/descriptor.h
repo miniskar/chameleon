@@ -132,6 +132,21 @@ inline static void *chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
 }
 
 /**
+ *  Internal function to return address of block (m,n) with m,n = block indices
+ */
+inline static CHAM_tile_t *chameleon_desc_gettile(const CHAM_desc_t *A, int m, int n)
+{
+    size_t mm = m + A->i / A->mb;
+    size_t nn = n + A->j / A->nb;
+    size_t offset = 0;
+
+    assert( A->tiles != NULL );
+
+    offset = A->lmt * nn + mm;
+    return A->tiles + offset;
+}
+
+/**
  *  Internal function to return address of element A(m,n) with m,n = matrix indices
  */
 inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize) // Not used anywhere ?!

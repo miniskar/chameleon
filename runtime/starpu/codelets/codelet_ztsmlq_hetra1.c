@@ -34,31 +34,22 @@ static void cl_ztsmlq_hetra1_cpu_func(void *descr[], void *cl_arg)
     int n2;
     int k;
     int ib;
-    int nb;
-    CHAMELEON_Complex64_t *A1;
-    int ldA1;
-    CHAMELEON_Complex64_t *A2;
-    int ldA2;
-    CHAMELEON_Complex64_t *V;
-    int ldV;
-    CHAMELEON_Complex64_t *T;
-    int ldT;
+    CHAM_tile_t *tileA1;
+    CHAM_tile_t *tileA2;
+    CHAM_tile_t *tileV;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileW;
+    int ldW;
 
-    CHAMELEON_Complex64_t *WORK;
-    int ldWORK;
+    tileA1 = cti_interface_get(descr[0]);
+    tileA2 = cti_interface_get(descr[1]);
+    tileV  = cti_interface_get(descr[2]);
+    tileT  = cti_interface_get(descr[3]);
+    tileW  = cti_interface_get(descr[4]); /* ib * nb */
 
-    A1    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    A2    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    V     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    T     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-    WORK  = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
-    ldA1 = STARPU_MATRIX_GET_LD( descr[0] );
-    ldA2 = STARPU_MATRIX_GET_LD( descr[1] );
-    ldV = STARPU_MATRIX_GET_LD( descr[2] );
-    ldT = STARPU_MATRIX_GET_LD( descr[3] );
-    starpu_codelet_unpack_args( cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib, &nb, &ldWORK);
-    CORE_ztsmlq_hetra1(side, trans, m1, n1, m2, n2, k,
-                       ib, A1, ldA1, A2, ldA2, V, ldV, T, ldT, WORK, ldWORK);
+    starpu_codelet_unpack_args( cl_arg, &side, &trans, &m1, &n1, &m2, &n2, &k, &ib, &ldW );
+    TCORE_ztsmlq_hetra1( side, trans, m1, n1, m2, n2, k, ib,
+                         tileA1, tileA2, tileV, tileT, tileW->mat, ldW );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -75,10 +66,10 @@ CODELETS_CPU(ztsmlq_hetra1, 5, cl_ztsmlq_hetra1_cpu_func)
 void INSERT_TASK_ztsmlq_hetra1( const RUNTIME_option_t *options,
                                 cham_side_t side, cham_trans_t trans,
                                 int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                                const CHAM_desc_t *A1, int A1m, int A1n, int ldA1,
-                                const CHAM_desc_t *A2, int A2m, int A2n, int ldA2,
-                                const CHAM_desc_t *V,  int Vm,  int Vn,  int ldV,
-                                const CHAM_desc_t *T,  int Tm,  int Tn,  int ldT )
+                                const CHAM_desc_t *A1, int A1m, int A1n,
+                                const CHAM_desc_t *A2, int A2m, int A2n,
+                                const CHAM_desc_t *V,  int Vm,  int Vn,
+                                const CHAM_desc_t *T,  int Tm,  int Tn )
 {
     struct starpu_codelet *codelet = &cl_ztsmlq_hetra1;
     void (*callback)(void*) = options->profiling ? cl_ztsmlq_hetra1_callback : NULL;
@@ -102,13 +93,12 @@ void INSERT_TASK_ztsmlq_hetra1( const RUNTIME_option_t *options,
         STARPU_VALUE,    &n2,                sizeof(int),
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_VALUE,    &nb,                sizeof(int),
+        STARPU_VALUE,    &ldWORK,            sizeof(int),
         STARPU_RW,        RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
         STARPU_RW,        RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
         STARPU_R,         RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),
         STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_SCRATCH,   options->ws_worker,
-        STARPU_VALUE,    &ldWORK,            sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)

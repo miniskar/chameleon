@@ -44,17 +44,18 @@ CORE_zplrnt_parsec( parsec_execution_stream_t *context,
 }
 
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
-                        int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                        int m, int n, const CHAM_desc_t *A, int Am, int An,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zplrnt_parsec, options->priority, "zplrnt",
         sizeof(int),       &m,                          VALUE,
         sizeof(int),       &n,                          VALUE,
         PASSED_BY_REF,     RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
-        sizeof(int),       &lda,                        VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(int),       &bigM,                       VALUE,
         sizeof(int),       &m0,                         VALUE,
         sizeof(int),       &n0,                         VALUE,

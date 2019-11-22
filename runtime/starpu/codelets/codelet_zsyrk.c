@@ -35,22 +35,18 @@ static void cl_zsyrk_cpu_func(void *descr[], void *cl_arg)
     int n;
     int k;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *C;
-    int ldC;
+    CHAM_tile_t *tileC;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    C = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    tileA = cti_interface_get(descr[0]);
+    tileC = cti_interface_get(descr[1]);
 
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldC = STARPU_MATRIX_GET_LD( descr[1] );
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &n, &k, &alpha, &beta);
-    CORE_zsyrk(uplo, trans,
+    TCORE_zsyrk(uplo, trans,
         n, k,
-        alpha, A, ldA,
-        beta, C, ldC);
+        alpha, tileA,
+        beta, tileC);
 }
 
 #ifdef CHAMELEON_USE_CUDA
@@ -61,25 +57,21 @@ static void cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
     int n;
     int k;
     cuDoubleComplex alpha;
-    const cuDoubleComplex *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     cuDoubleComplex beta;
-    cuDoubleComplex *C;
-    int ldC;
+    CHAM_tile_t *tileC;
 
-    A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    C = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldC = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileC = cti_interface_get(descr[1]);
+
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &n, &k, &alpha, &beta);
 
     RUNTIME_getStream(stream);
 
     CUDA_zsyrk(
-        uplo, trans,
-        n, k,
-        &alpha, A, ldA,
-        &beta, C, ldC,
+        uplo, trans, n, k,
+        &alpha, tileA->mat, tileA->ld,
+        &beta,  tileC->mat, tileC->ld,
         stream);
 
 #ifndef STARPU_CUDA_ASYNC
@@ -104,8 +96,8 @@ CODELETS(zsyrk, 2, cl_zsyrk_cpu_func, cl_zsyrk_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
                       cham_uplo_t uplo, cham_trans_t trans,
                       int n, int k, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldC)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsyrk;
@@ -132,6 +124,4 @@ void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
         STARPU_NAME, "zsyrk",
 #endif
         0);
-    (void)ldC;
-    (void)ldA;
 }

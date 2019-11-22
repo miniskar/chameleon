@@ -12,8 +12,6 @@
  * @brief Chameleon zgetrf Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -23,14 +21,13 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zgetrf_quark(Quark *quark)
 {
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     int *IPIV;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
@@ -38,8 +35,8 @@ void CORE_zgetrf_quark(Quark *quark)
     int iinfo;
     int info;
 
-    quark_unpack_args_9(quark, m, n, A, lda, IPIV, sequence, request, check_info, iinfo);
-    CORE_zgetrf( m, n, A, lda, IPIV, &info );
+    quark_unpack_args_8(quark, m, n, tileA, IPIV, sequence, request, check_info, iinfo);
+    TCORE_zgetrf( m, n, tileA, IPIV, &info );
     if ( (info != CHAMELEON_SUCCESS) && check_info ) {
         RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info );
     }
@@ -47,7 +44,7 @@ void CORE_zgetrf_quark(Quark *quark)
 
 void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An,
                        int *IPIV,
                        cham_bool_t check_info, int iinfo)
 {
@@ -56,11 +53,10 @@ void INSERT_TASK_zgetrf(const RUNTIME_option_t *options,
     QUARK_Insert_Task(opt->quark, CORE_zgetrf_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                        &m,             VALUE,
         sizeof(int),                        &n,             VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                     INOUT | LOCALITY,
-        sizeof(int),                        &lda,           VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                     INOUT | LOCALITY,
         sizeof(int)*nb,                      IPIV,                  OUTPUT,
-        sizeof(RUNTIME_sequence_t*),           &(options->sequence),      VALUE,
-        sizeof(RUNTIME_request_t*),            &(options->request),       VALUE,
+        sizeof(RUNTIME_sequence_t*),        &(options->sequence),      VALUE,
+        sizeof(RUNTIME_request_t*),         &(options->request),       VALUE,
         sizeof(cham_bool_t),                &check_info,    VALUE,
         sizeof(int),                        &iinfo,         VALUE,
         0);

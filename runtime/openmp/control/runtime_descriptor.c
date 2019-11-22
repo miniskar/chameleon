@@ -102,5 +102,5 @@ void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
 
 void *RUNTIME_data_getaddr( const CHAM_desc_t *desc, int m, int n )
 {
-    return desc->get_blkaddr( desc, m, n );
+    return desc->get_blktile( desc, m, n );
 }

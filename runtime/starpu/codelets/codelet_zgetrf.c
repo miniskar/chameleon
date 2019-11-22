@@ -30,8 +30,7 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
 {
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
@@ -39,11 +38,10 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
     RUNTIME_request_t *request;
     int info = 0;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &IPIV, &check_info, &iinfo, &sequence, &request);
-    CORE_zgetrf( m, n, A, ldA, IPIV, &info );
+    TCORE_zgetrf( m, n, tileA, IPIV, &info );
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -58,7 +56,7 @@ CODELETS_CPU(zgetrf, 1, cl_zgetrf_cpu_func)
 
 void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
                          int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          int *IPIV,
                          cham_bool_t check_info, int iinfo )
 {
@@ -86,5 +84,4 @@ void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
         STARPU_NAME, "zgetrf",
 #endif
         0);
-    (void)ldA;
 }

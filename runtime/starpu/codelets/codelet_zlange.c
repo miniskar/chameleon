@@ -28,22 +28,19 @@
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
 {
-    double *normA;
     cham_normtype_t norm;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *work;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tilework;
+    CHAM_tile_t *tilenormA;
 
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
+    tileA     = cti_interface_get(descr[0]);
+    tilework  = cti_interface_get(descr[1]);
+    tilenormA = cti_interface_get(descr[2]);
 
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-
-    starpu_codelet_unpack_args(cl_arg, &norm, &M, &N);
-    CORE_zlange( norm, M, N, A, ldA, work, normA );
+    starpu_codelet_unpack_args( cl_arg, &norm, &M, &N );
+    TCORE_zlange( norm, M, N, tileA, tilework->mat, tilenormA->mat );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -54,7 +51,7 @@ CODELETS_CPU(zlange, 3, cl_zlange_cpu_func)
 
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
                          cham_normtype_t norm, int M, int N, int NB,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)NB;
@@ -68,7 +65,7 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &norm,              sizeof(int),
+        STARPU_VALUE,    &norm,              sizeof(cham_normtype_t),
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
@@ -80,20 +77,23 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
         STARPU_NAME, "zlange",
 #endif
         0);
-    (void)ldA;
 }
 
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlange_max_cpu_func(void *descr[], void *cl_arg)
 {
-    double *A;
-    double *B;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileNorm;
+    double *A, *norm;
 
-    A = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    tileA    = cti_interface_get(descr[0]);
+    tileNorm = cti_interface_get(descr[1]);
 
-    if ( *A > *B ) {
-        *B = *A;
+    A    = tileA->mat;
+    norm = tileNorm->mat;
+
+    if ( A[0] > *norm ) {
+        *norm = A[0];
     }
     (void)cl_arg;
 }

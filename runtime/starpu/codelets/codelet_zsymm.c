@@ -35,26 +35,21 @@ static void cl_zsymm_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *C;
-    int ldC;
+    CHAM_tile_t *tileC;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
-    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &beta);
-    CORE_zsymm(side, uplo,
+    TCORE_zsymm(side, uplo,
         M, N,
-        alpha, A, ldA,
-        B, ldB,
-        beta, C, ldC);
+        alpha, tileA,
+        tileB,
+        beta, tileC);
 }
 
 #ifdef CHAMELEON_USE_CUDA
@@ -65,20 +60,15 @@ static void cl_zsymm_cuda_func(void *descr[], void *cl_arg)
     int M;
     int N;
     cuDoubleComplex alpha;
-    const cuDoubleComplex *A;
-    int ldA;
-    const cuDoubleComplex *B;
-    int ldB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
     cuDoubleComplex beta;
-    cuDoubleComplex *C;
-    int ldC;
+    CHAM_tile_t *tileC;
 
-    A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
-    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &beta);
 
     RUNTIME_getStream(stream);
@@ -86,9 +76,9 @@ static void cl_zsymm_cuda_func(void *descr[], void *cl_arg)
     CUDA_zsymm(
         side, uplo,
         M, N,
-        &alpha, A, ldA,
-        B, ldB,
-        &beta, C, ldC,
+        &alpha, tileA->mat, tileA->ld,
+                tileB->mat, tileB->ld,
+        &beta,  tileC->mat, tileC->ld,
         stream);
 
 #ifndef STARPU_CUDA_ASYNC
@@ -113,9 +103,9 @@ CODELETS(zsymm, 3, cl_zsymm_cpu_func, cl_zsymm_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
                       cham_side_t side, cham_uplo_t uplo,
                       int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldB,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldC)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                      const CHAM_desc_t *B, int Bm, int Bn,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsymm;
@@ -144,7 +134,4 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
         STARPU_NAME, "zsymm",
 #endif
         0);
-    (void)ldC;
-    (void)ldB;
-    (void)ldA;
 }

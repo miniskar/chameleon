@@ -38,7 +38,6 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
     RUNTIME_option_t options;
 
     int k, m, n;
-    int ldak, ldam, ldan, ldbk, ldbm;
     int tempkm, tempkn, tempmm, tempnn;
 
     CHAMELEON_Complex64_t zone       = (CHAMELEON_Complex64_t) 1.0;
@@ -59,8 +58,6 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             if (trans == ChamNoTrans) {
                 for (k = 0; k < B->mt; k++) {
                     tempkm = k == 0 ? B->m-(B->mt-1)*B->mb : B->mb;
-                    ldak = BLKLDD(A, B->mt-1-k);
-                    ldbk = BLKLDD(B, B->mt-1-k);
                     lalpha = k == 0 ? alpha : zone;
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -68,22 +65,20 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
                             &options,
                             side, uplo, trans, diag,
                             tempkm, tempnn, A->mb,
-                            lalpha, A(B->mt-1-k, B->mt-1-k), ldak,  /* lda * tempkm */
-                                    B(B->mt-1-k,        n), ldbk); /* ldb * tempnn */
+                            lalpha, A(B->mt-1-k, B->mt-1-k),  /* lda * tempkm */
+                                    B(B->mt-1-k,        n)); /* ldb * tempnn */
                     }
                     RUNTIME_data_flush( sequence, A(B->mt-1-k, B->mt-1-k) );
                     for (m = k+1; m < B->mt; m++) {
-                        ldam = BLKLDD(A, B->mt-1-m);
-                        ldbm = BLKLDD(B, B->mt-1-m);
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                             INSERT_TASK_zgemm(
                                 &options,
                                 ChamNoTrans, ChamNoTrans,
                                 B->mb, tempnn, tempkm, A->mb,
-                                mzone,  A(B->mt-1-m, B->mt-1-k), ldam,
-                                        B(B->mt-1-k, n       ), ldbk,
-                                lalpha, B(B->mt-1-m, n       ), ldbm);
+                                mzone,  A(B->mt-1-m, B->mt-1-k),
+                                        B(B->mt-1-k, n       ),
+                                lalpha, B(B->mt-1-m, n       ));
                         }
                         RUNTIME_data_flush( sequence, A(B->mt-1-m, B->mt-1-k) );
                     }
@@ -98,8 +93,6 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             else {
                 for (k = 0; k < B->mt; k++) {
                     tempkm = k == B->mt-1 ? B->m-k*B->mb : B->mb;
-                    ldak = BLKLDD(A, k);
-                    ldbk = BLKLDD(B, k);
                     lalpha = k == 0 ? alpha : zone;
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -107,22 +100,21 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
                             &options,
                             side, uplo, trans, diag,
                             tempkm, tempnn, A->mb,
-                            lalpha, A(k, k), ldak,
-                                    B(k, n), ldbk);
+                            lalpha, A(k, k),
+                                    B(k, n));
                     }
                     RUNTIME_data_flush( sequence, A(k, k) );
                     for (m = k+1; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                             INSERT_TASK_zgemm(
                                 &options,
                                 trans, ChamNoTrans,
                                 tempmm, tempnn, B->mb, A->mb,
-                                mzone,  A(k, m), ldak,
-                                        B(k, n), ldbk,
-                                lalpha, B(m, n), ldbm);
+                                mzone,  A(k, m),
+                                        B(k, n),
+                                lalpha, B(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(k, m) );
                     }
@@ -140,8 +132,6 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             if (trans == ChamNoTrans) {
                 for (k = 0; k < B->mt; k++) {
                     tempkm = k == B->mt-1 ? B->m-k*B->mb : B->mb;
-                    ldak = BLKLDD(A, k);
-                    ldbk = BLKLDD(B, k);
                     lalpha = k == 0 ? alpha : zone;
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -149,23 +139,21 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
                             &options,
                             side, uplo, trans, diag,
                             tempkm, tempnn, A->mb,
-                            lalpha, A(k, k), ldak,
-                                    B(k, n), ldbk);
+                            lalpha, A(k, k),
+                                    B(k, n));
                     }
                     RUNTIME_data_flush( sequence, A(k, k) );
                     for (m = k+1; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldam = BLKLDD(A, m);
-                        ldbm = BLKLDD(B, m);
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                             INSERT_TASK_zgemm(
                                 &options,
                                 ChamNoTrans, ChamNoTrans,
                                 tempmm, tempnn, B->mb, A->mb,
-                                mzone,  A(m, k), ldam,
-                                        B(k, n), ldbk,
-                                lalpha, B(m, n), ldbm);
+                                mzone,  A(m, k),
+                                        B(k, n),
+                                lalpha, B(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(m, k) );
                     }
@@ -180,8 +168,6 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             else {
                 for (k = 0; k < B->mt; k++) {
                     tempkm = k == 0 ? B->m-(B->mt-1)*B->mb : B->mb;
-                    ldak = BLKLDD(A, B->mt-1-k);
-                    ldbk = BLKLDD(B, B->mt-1-k);
                     lalpha = k == 0 ? alpha : zone;
                     for (n = 0; n < B->nt; n++) {
                         tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -189,21 +175,20 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
                             &options,
                             side, uplo, trans, diag,
                             tempkm, tempnn, A->mb,
-                            lalpha, A(B->mt-1-k, B->mt-1-k), ldak,
-                                    B(B->mt-1-k,        n), ldbk);
+                            lalpha, A(B->mt-1-k, B->mt-1-k),
+                                    B(B->mt-1-k,        n));
                     }
                     RUNTIME_data_flush( sequence, A(B->mt-1-k, B->mt-1-k) );
                     for (m = k+1; m < B->mt; m++) {
-                        ldbm = BLKLDD(B, B->mt-1-m);
                         for (n = 0; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                             INSERT_TASK_zgemm(
                                 &options,
                                 trans, ChamNoTrans,
                                 B->mb, tempnn, tempkm, A->mb,
-                                mzone,  A(B->mt-1-k, B->mt-1-m), ldak,
-                                        B(B->mt-1-k, n       ), ldbk,
-                                lalpha, B(B->mt-1-m, n       ), ldbm);
+                                mzone,  A(B->mt-1-k, B->mt-1-m),
+                                        B(B->mt-1-k, n       ),
+                                lalpha, B(B->mt-1-m, n       ));
                         }
                         RUNTIME_data_flush( sequence, A(B->mt-1-k, B->mt-1-m) );
                     }
@@ -222,31 +207,28 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             if (trans == ChamNoTrans) {
                 for (k = 0; k < B->nt; k++) {
                     tempkn = k == B->nt-1 ? B->n-k*B->nb : B->nb;
-                    ldak = BLKLDD(A, k);
                     lalpha = k == 0 ? alpha : zone;
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         INSERT_TASK_ztrsm(
                             &options,
                             side, uplo, trans, diag,
                             tempmm, tempkn, A->mb,
-                            lalpha, A(k, k), ldak,  /* lda * tempkn */
-                                    B(m, k), ldbm); /* ldb * tempkn */
+                            lalpha, A(k, k),  /* lda * tempkn */
+                                    B(m, k)); /* ldb * tempkn */
                     }
                     RUNTIME_data_flush( sequence, A(k, k) );
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         for (n = k+1; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                             INSERT_TASK_zgemm(
                                 &options,
                                 ChamNoTrans, ChamNoTrans,
                                 tempmm, tempnn, B->mb, A->mb,
-                                mzone,  B(m, k), ldbm,  /* ldb * B->mb   */
-                                        A(k, n), ldak,  /* lda * tempnn */
-                                lalpha, B(m, n), ldbm); /* ldb * tempnn */
+                                mzone,  B(m, k),  /* ldb * B->mb   */
+                                        A(k, n),  /* lda * tempnn */
+                                lalpha, B(m, n)); /* ldb * tempnn */
                         }
                         RUNTIME_data_flush( sequence, B(m, k) );
                     }
@@ -261,27 +243,24 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             else {
                 for (k = 0; k < B->nt; k++) {
                     tempkn = k == 0 ? B->n-(B->nt-1)*B->nb : B->nb;
-                    ldak = BLKLDD(A, B->nt-1-k);
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         INSERT_TASK_ztrsm(
                             &options,
                             side, uplo, trans, diag,
                             tempmm, tempkn, A->mb,
-                            alpha, A(B->nt-1-k, B->nt-1-k), ldak,  /* lda * tempkn */
-                                   B(       m, B->nt-1-k), ldbm); /* ldb * tempkn */
+                            alpha, A(B->nt-1-k, B->nt-1-k),  /* lda * tempkn */
+                                   B(       m, B->nt-1-k)); /* ldb * tempkn */
                         RUNTIME_data_flush( sequence, A(B->nt-1-k, B->nt-1-k) );
 
                         for (n = k+1; n < B->nt; n++) {
-                            ldan = BLKLDD(A, B->nt-1-n);
                             INSERT_TASK_zgemm(
                                 &options,
                                 ChamNoTrans, trans,
                                 tempmm, B->nb, tempkn, A->mb,
-                                minvalpha, B(m,        B->nt-1-k), ldbm,  /* ldb  * tempkn */
-                                           A(B->nt-1-n, B->nt-1-k), ldan, /* A->mb * tempkn (Never last row) */
-                                zone,      B(m,        B->nt-1-n), ldbm); /* ldb  * B->nb   */
+                                minvalpha, B(m,        B->nt-1-k),  /* ldb  * tempkn */
+                                           A(B->nt-1-n, B->nt-1-k), /* A->mb * tempkn (Never last row) */
+                                zone,      B(m,        B->nt-1-n)); /* ldb  * B->nb   */
                         }
                         RUNTIME_data_flush( sequence, B(m,        B->nt-1-k) );
                     }
@@ -298,17 +277,15 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             if (trans == ChamNoTrans) {
                 for (k = 0; k < B->nt; k++) {
                     tempkn = k == 0 ? B->n-(B->nt-1)*B->nb : B->nb;
-                    ldak = BLKLDD(A, B->nt-1-k);
                     lalpha = k == 0 ? alpha : zone;
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         INSERT_TASK_ztrsm(
                             &options,
                             side, uplo, trans, diag,
                             tempmm, tempkn, A->mb,
-                            lalpha, A(B->nt-1-k, B->nt-1-k), ldak,  /* lda * tempkn */
-                                    B(       m, B->nt-1-k), ldbm); /* ldb * tempkn */
+                            lalpha, A(B->nt-1-k, B->nt-1-k),  /* lda * tempkn */
+                                    B(       m, B->nt-1-k)); /* ldb * tempkn */
                         RUNTIME_data_flush( sequence, A(B->nt-1-k, B->nt-1-k) );
 
                         for (n = k+1; n < B->nt; n++) {
@@ -316,9 +293,9 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
                                 &options,
                                 ChamNoTrans, ChamNoTrans,
                                 tempmm, B->nb, tempkn, A->mb,
-                                mzone,  B(m,        B->nt-1-k), ldbm,  /* ldb * tempkn */
-                                        A(B->nt-1-k, B->nt-1-n), ldak,  /* lda * B->nb   */
-                                lalpha, B(m,        B->nt-1-n), ldbm); /* ldb * B->nb   */
+                                mzone,  B(m,        B->nt-1-k),  /* ldb * tempkn */
+                                        A(B->nt-1-k, B->nt-1-n),  /* lda * B->nb   */
+                                lalpha, B(m,        B->nt-1-n)); /* ldb * B->nb   */
                         }
                         RUNTIME_data_flush( sequence, B(m,        B->nt-1-k) );
                     }
@@ -333,28 +310,25 @@ void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, ch
             else {
                 for (k = 0; k < B->nt; k++) {
                     tempkn = k == B->nt-1 ? B->n-k*B->nb : B->nb;
-                    ldak = BLKLDD(A, k);
                     for (m = 0; m < B->mt; m++) {
                         tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
-                        ldbm = BLKLDD(B, m);
                         INSERT_TASK_ztrsm(
                             &options,
                             side, uplo, trans, diag,
                             tempmm, tempkn, A->mb,
-                            alpha, A(k, k), ldak,  /* lda * tempkn */
-                                   B(m, k), ldbm); /* ldb * tempkn */
+                            alpha, A(k, k),  /* lda * tempkn */
+                                   B(m, k)); /* ldb * tempkn */
                         RUNTIME_data_flush( sequence, A(k, k) );
 
                         for (n = k+1; n < B->nt; n++) {
                             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                            ldan = BLKLDD(A, n);
                             INSERT_TASK_zgemm(
                                 &options,
                                 ChamNoTrans, trans,
                                 tempmm, tempnn, B->mb, A->mb,
-                                minvalpha, B(m, k), ldbm,  /* ldb  * tempkn */
-                                           A(n, k), ldan, /* ldan * tempkn */
-                                zone,      B(m, n), ldbm); /* ldb  * tempnn */
+                                minvalpha, B(m, k),  /* ldb  * tempkn */
+                                           A(n, k), /* ldan * tempkn */
+                                zone,      B(m, n)); /* ldb  * tempnn */
                         }
                         RUNTIME_data_flush( sequence, B(m, k) );
                     }

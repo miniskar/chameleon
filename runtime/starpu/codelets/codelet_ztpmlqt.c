@@ -29,32 +29,22 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
     int K;
     int L;
     int ib;
-    const CHAMELEON_Complex64_t *V;
-    int ldV;
-    const CHAMELEON_Complex64_t *T;
-    int ldT;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
-    CHAMELEON_Complex64_t *WORK;
     size_t lwork;
+    CHAM_tile_t *tileV;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileW;
 
-    V    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    B    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[4]); /* ib * nb */
-    ldV = STARPU_MATRIX_GET_LD( descr[0] );
-    ldT = STARPU_MATRIX_GET_LD( descr[1] );
-    ldA = STARPU_MATRIX_GET_LD( descr[2] );
-    ldB = STARPU_MATRIX_GET_LD( descr[3] );
+    tileV = cti_interface_get(descr[0]);
+    tileT = cti_interface_get(descr[1]);
+    tileA = cti_interface_get(descr[2]);
+    tileB = cti_interface_get(descr[3]);
+    tileW = cti_interface_get(descr[4]); /* ib * nb */
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib, &lwork );
 
-    CORE_ztpmlqt( side, trans, M, N, K, L, ib,
-                  V, ldV, T, ldT, A, ldA, B, ldB, WORK );
-
-    (void)lwork;
+    TCORE_ztpmlqt( side, trans, M, N, K, L, ib,
+                   tileV, tileT, tileA, tileB, tileW->mat );
 }
 
 #if defined(CHAMELEON_USE_CUDA)
@@ -67,26 +57,18 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
     int K;
     int L;
     int ib;
-    const cuDoubleComplex *V;
-    int ldV;
-    const cuDoubleComplex *T;
-    int ldT;
-    cuDoubleComplex *A;
-    int ldA;
-    cuDoubleComplex *B;
-    int ldB;
-    cuDoubleComplex *W;
     size_t lwork;
+    CHAM_tile_t *tileV;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileW;
 
-    V = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    A = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
-    B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]);
-    W = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[4]); /* 2*ib*nb */
-    ldV = STARPU_MATRIX_GET_LD( descr[0] );
-    ldT = STARPU_MATRIX_GET_LD( descr[1] );
-    ldA = STARPU_MATRIX_GET_LD( descr[2] );
-    ldB = STARPU_MATRIX_GET_LD( descr[3] );
+    tileV = cti_interface_get(descr[0]);
+    tileT = cti_interface_get(descr[1]);
+    tileA = cti_interface_get(descr[2]);
+    tileB = cti_interface_get(descr[3]);
+    tileW = cti_interface_get(descr[4]); /* 3*ib*nb */
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib, &lwork );
 
@@ -94,8 +76,11 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 
     CUDA_ztpmlqt(
             side, trans, M, N, K, L, ib,
-            V, ldV, T, ldT, A, ldA, B, ldB,
-            W, lwork, stream );
+            tileV->mat, tileV->ld,
+            tileT->mat, tileT->ld,
+            tileA->mat, tileA->ld,
+            tileB->mat, tileB->ld,
+            tileW->mat, lwork, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -112,10 +97,10 @@ CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYN
 void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
                           cham_side_t side, cham_trans_t trans,
                           int M, int N, int K, int L, int ib, int nb,
-                          const CHAM_desc_t *V, int Vm, int Vn, int ldV,
-                          const CHAM_desc_t *T, int Tm, int Tn, int ldT,
-                          const CHAM_desc_t *A, int Am, int An, int ldA,
-                          const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                          const CHAM_desc_t *V, int Vm, int Vn,
+                          const CHAM_desc_t *T, int Tm, int Tn,
+                          const CHAM_desc_t *A, int Am, int An,
+                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_ztpmlqt;
     void (*callback)(void*) = options->profiling ? cl_ztpmlqt_callback : NULL;
@@ -136,11 +121,11 @@ void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
         STARPU_VALUE, &K,     sizeof(int),
         STARPU_VALUE, &L,     sizeof(int),
         STARPU_VALUE, &ib,     sizeof(int),
+        STARPU_VALUE, &(options->ws_wsize), sizeof(size_t),
         STARPU_R,      RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),
         STARPU_R,      RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE, &(options->ws_wsize), sizeof(size_t),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
@@ -152,9 +137,6 @@ void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
         STARPU_NAME, (( L == 0 ) ? "ztsmlq" : "ztpmlqt"),
 #endif
         0);
-    (void)ldA;
-    (void)ldT;
-    (void)ldV;
 
     (void)ib; (void)nb;
 }

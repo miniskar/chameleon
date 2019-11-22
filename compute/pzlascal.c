@@ -31,7 +31,6 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
 
     int tempmm, tempnn, tempmn, tempnm;
     int m, n;
-    int ldam, ldan;
     int minmnt = chameleon_min(A->mt, A->nt);
 
     chamctxt = chameleon_context_self();
@@ -46,21 +45,19 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
         for (n = 0; n < minmnt; n++) {
             tempnm = n == A->mt-1 ? A->m-n*A->mb : A->mb;
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-            ldan = BLKLDD(A, n);
 
             INSERT_TASK_zlascal(
                 &options,
                 ChamLower, tempnm, tempnn, A->mb,
-                alpha, A(n, n), ldan);
+                alpha, A(n, n));
 
             for (m = n+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
-                ldam = BLKLDD(A, m);
 
                 INSERT_TASK_zlascal(
                     &options,
                     ChamUpperLower, tempmm, tempnn, A->mb,
-                    alpha, A(m, n), ldam);
+                    alpha, A(m, n));
             }
         }
         break;
@@ -69,12 +66,11 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
         for (m = 0; m < minmnt; m++) {
             tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
             tempmn = m == A->nt-1 ? A->n-m*A->nb : A->nb;
-            ldam = BLKLDD(A, m);
 
             INSERT_TASK_zlascal(
                 &options,
                 ChamUpper, tempmm, tempmn, A->mb,
-                alpha, A(m, m), ldam);
+                alpha, A(m, m));
 
             for (n = m+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -82,7 +78,7 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
                 INSERT_TASK_zlascal(
                     &options,
                     ChamUpperLower, tempmm, tempnn, A->mb,
-                    alpha, A(m, n), ldam);
+                    alpha, A(m, n));
             }
         }
         break;
@@ -91,7 +87,6 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
     default:
         for (m = 0; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-A->mb*m : A->nb;
-            ldam = BLKLDD(A, m);
 
             for (n = 0; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -99,7 +94,7 @@ void chameleon_pzlascal(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc
                 INSERT_TASK_zlascal(
                     &options,
                     ChamUpperLower, tempmm, tempnn, A->mb,
-                    alpha, A(m, n), ldam);
+                    alpha, A(m, n));
             }
         }
     }

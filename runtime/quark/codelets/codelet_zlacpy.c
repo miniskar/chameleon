@@ -12,8 +12,6 @@
  * @brief Chameleon zlacpy Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -25,7 +23,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 static inline void CORE_zlacpy_quark(Quark *quark)
 {
@@ -33,20 +31,26 @@ static inline void CORE_zlacpy_quark(Quark *quark)
     int M;
     int N;
     int displA;
+    CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t *A;
-    int LDA;
     int displB;
+    CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t *B;
-    int LDB;
 
-    quark_unpack_args_9(quark, uplo, M, N, displA, A, LDA, displB, B, LDB);
-    CORE_zlacpy(uplo, M, N, A + displA, LDA, B + displB, LDB);
+    quark_unpack_args_7(quark, uplo, M, N, displA, tileA, displB, tileB);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+
+    A = tileA->mat;
+    B = tileB->mat;
+    CORE_zlacpy( uplo, M, N, A + displA, tileA->ld, B + displB, tileB->ld );
 }
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                          int displA, const CHAM_desc_t *A, int Am, int An,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;
@@ -55,20 +59,18 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         sizeof(int),                     &m,      VALUE,
         sizeof(int),                     &n,      VALUE,
         sizeof(int),                     &displA, VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INPUT,
-        sizeof(int),                     &lda,    VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INPUT,
         sizeof(int),                     &displB, VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             OUTPUT,
-        sizeof(int),                     &ldb,    VALUE,
+        sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             OUTPUT,
         0);
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An, lda,
-                         0, B, Bm, Bn, ldb );
+                         0, A, Am, An,
+                         0, B, Bm, Bn );
 }

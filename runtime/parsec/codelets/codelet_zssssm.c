@@ -52,13 +52,17 @@ CORE_zssssm_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zssssm(const RUNTIME_option_t *options,
                        int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                       const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
-                       const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
-                       const CHAM_desc_t *L1, int L1m, int L1n, int ldl1,
-                       const CHAM_desc_t *L2, int L2m, int L2n, int ldl2,
+                       const CHAM_desc_t *A1, int A1m, int A1n,
+                       const CHAM_desc_t *A2, int A2m, int A2n,
+                       const CHAM_desc_t *L1, int L1m, int L1n,
+                       const CHAM_desc_t *L2, int L2m, int L2n,
                        const int *IPIV)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA1 = A1->get_blktile( A1, A1m, A1n );
+    CHAM_tile_t *tileA2 = A2->get_blktile( A2, A2m, A2n );
+    CHAM_tile_t *tileL1 = L1->get_blktile( L1, L1m, L1n );
+    CHAM_tile_t *tileL2 = L2->get_blktile( L2, L2m, L2n );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zssssm_parsec, options->priority, "ssssm",
@@ -69,13 +73,13 @@ void INSERT_TASK_zssssm(const RUNTIME_option_t *options,
         sizeof(int),           &k,                                 VALUE,
         sizeof(int),           &ib,                                VALUE,
         PASSED_BY_REF,         RTBLKADDR( A1, CHAMELEON_Complex64_t, A1m, A1n ), chameleon_parsec_get_arena_index( A1 ) | INOUT,
-        sizeof(int),           &lda1,                              VALUE,
+        sizeof(int), &(tileA1->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( A2, CHAMELEON_Complex64_t, A2m, A2n ), chameleon_parsec_get_arena_index( A2 ) | INOUT | AFFINITY,
-        sizeof(int),           &lda2,                              VALUE,
+        sizeof(int), &(tileA2->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( L1, CHAMELEON_Complex64_t, L1m, L1n ), chameleon_parsec_get_arena_index( L1 ) | INPUT,
-        sizeof(int),           &ldl1,                              VALUE,
+        sizeof(int), &(tileL1->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( L2, CHAMELEON_Complex64_t, L2m, L2n ), chameleon_parsec_get_arena_index( L2 ) | INPUT,
-        sizeof(int),           &ldl2,                              VALUE,
+        sizeof(int), &(tileL2->ld), VALUE,
         sizeof(int*),          &IPIV,                              VALUE,
         PARSEC_DTD_ARG_END );
 

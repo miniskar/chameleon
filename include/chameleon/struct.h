@@ -28,6 +28,16 @@
 
 BEGIN_C_DECLS
 
+#define CHAMELEON_TILE_FULLRANK (1 << 0)
+#define CHAMELEON_TILE_DESC     (1 << 1)
+#define CHAMELEON_TILE_HMAT     (1 << 2)
+
+typedef struct chameleon_tile_s {
+    int8_t format;
+    int    m, n, ld;
+    void  *mat;
+} CHAM_tile_t;
+
 /**
  *  Tile matrix descriptor
  *
@@ -49,17 +59,21 @@ BEGIN_C_DECLS
 struct chameleon_desc_s;
 typedef struct chameleon_desc_s CHAM_desc_t;
 
-typedef void* (*blkaddr_fct_t)  ( const CHAM_desc_t*, int, int );
-typedef int   (*blkldd_fct_t)   ( const CHAM_desc_t*, int );
-typedef int   (*blkrankof_fct_t)( const CHAM_desc_t*, int, int );
+typedef void*        (*blkaddr_fct_t)  ( const CHAM_desc_t*, int, int );
+typedef int          (*blkldd_fct_t)   ( const CHAM_desc_t*, int );
+typedef int          (*blkrankof_fct_t)( const CHAM_desc_t*, int, int );
+typedef CHAM_tile_t* (*blktile_fct_t)  ( const CHAM_desc_t*, int, int );
 
 struct chameleon_desc_s {
+    // function to get chameleon tiles address
+    blktile_fct_t  get_blktile;
     // function to get chameleon tiles address
     blkaddr_fct_t   get_blkaddr;
     // function to get chameleon tiles leading dimension
     blkldd_fct_t    get_blkldd;
     // function to get chameleon tiles MPI rank
     blkrankof_fct_t get_rankof;
+    CHAM_tile_t *tiles; // pointer to the array of tiles descriptors
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21
     size_t A12;       // pointer to the beginning of the matrix A12

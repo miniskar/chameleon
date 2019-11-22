@@ -60,7 +60,6 @@ void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void*
   RUNTIME_option_t options;
 
   int m, n;
-  int ldam;
 
   chamctxt = chameleon_context_self();
   if (sequence->status != CHAMELEON_SUCCESS)
@@ -68,7 +67,6 @@ void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void*
   RUNTIME_options_init(&options, chamctxt, sequence, request);
 
   for (m = 0; m < A->mt; m++) {
-    ldam = BLKLDD(A, m);
     for (n = 0; n < A->nt; n++) {
 
       if ( ( uplo == ChamUpper && m <= n ) ||
@@ -76,7 +74,7 @@ void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void*
            ( uplo == ChamUpperLower ) )
         INSERT_TASK_zbuild(
               &options,
-              A(m, n), ldam,
+              A(m, n),
               user_data, user_build_callback );
     }
   }

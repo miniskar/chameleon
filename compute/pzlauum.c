@@ -36,7 +36,6 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
     RUNTIME_option_t options;
 
     int k, m, n;
-    int ldak, ldam, ldan;
     int tempkm, tempkn;
 
     chamctxt = chameleon_context_self();
@@ -50,25 +49,22 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
     if (uplo == ChamLower) {
         for (k = 0; k < A->mt; k++) {
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-            ldak = BLKLDD(A, k);
             for(n = 0; n < k; n++) {
-                ldan = BLKLDD(A, n);
                 INSERT_TASK_zherk(
                     &options,
                     uplo, ChamConjTrans,
                     A->mb, tempkm, A->mb,
-                    1.0, A(k, n), ldak,
-                    1.0, A(n, n), ldan);
+                    1.0, A(k, n),
+                    1.0, A(n, n));
 
                 for(m = n+1; m < k; m++) {
-                    ldam = BLKLDD(A, m);
                     INSERT_TASK_zgemm(
                         &options,
                         ChamConjTrans, ChamNoTrans,
                         A->mb, A->nb, tempkm, A->mb,
-                        1.0, A(k, m), ldak,
-                             A(k, n), ldak,
-                        1.0, A(m, n), ldam);
+                        1.0, A(k, m),
+                             A(k, n),
+                        1.0, A(m, n));
                 }
             }
             for (n = 0; n < k; n++) {
@@ -77,14 +73,14 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
                     &options,
                     ChamLeft, uplo, ChamConjTrans, ChamNonUnit,
                     tempkm, A->nb, A->mb,
-                    1.0, A(k, k), ldak,
-                         A(k, n), ldak);
+                    1.0, A(k, k),
+                         A(k, n));
             }
             RUNTIME_data_flush( sequence, A(k, k) );
             INSERT_TASK_zlauum(
                 &options,
                 uplo, tempkm, A->mb,
-                A(k, k), ldak);
+                A(k, k));
         }
     }
     /*
@@ -93,43 +89,39 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A,
     else {
         for (k = 0; k < A->mt; k++) {
             tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-            ldak = BLKLDD(A, k);
 
             for (m = 0; m < k; m++) {
-                ldam = BLKLDD(A, m);
                 INSERT_TASK_zherk(
                     &options,
                     uplo, ChamNoTrans,
                     A->mb, tempkn, A->mb,
-                    1.0, A(m, k), ldam,
-                    1.0, A(m, m), ldam);
+                    1.0, A(m, k),
+                    1.0, A(m, m));
 
                 for (n = m+1; n < k; n++){
-                    ldan = BLKLDD(A, n);
                     INSERT_TASK_zgemm(
                         &options,
                         ChamNoTrans, ChamConjTrans,
                         A->mb, A->nb, tempkn, A->mb,
-                        1.0, A(m, k), ldam,
-                             A(n, k), ldan,
-                        1.0, A(m, n), ldam);
+                        1.0, A(m, k),
+                             A(n, k),
+                        1.0, A(m, n));
                 }
             }
             for (m = 0; m < k; m++) {
-                ldam = BLKLDD(A, m);
                 RUNTIME_data_flush( sequence, A(m, k) );
                 INSERT_TASK_ztrmm(
                     &options,
                     ChamRight, uplo, ChamConjTrans, ChamNonUnit,
                     A->mb, tempkn, A->mb,
-                    1.0, A(k, k), ldak,
-                         A(m, k), ldam);
+                    1.0, A(k, k),
+                         A(m, k));
             }
             RUNTIME_data_flush( sequence, A(k, k) );
             INSERT_TASK_zlauum(
                 &options,
                 uplo, tempkn, A->mb,
-                A(k, k), ldak);
+                A(k, k));
         }
     }
     RUNTIME_options_finalize(&options, chamctxt);

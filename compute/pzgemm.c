@@ -41,7 +41,6 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
 {
     RUNTIME_sequence_t *sequence = options->sequence;
     int m, n, k, p, q, KT, K, lp, lq;
-    int ldam, ldak, ldbn, ldbk, ldcm;
     int tempmm, tempnn, tempkk;
     int lookahead, myp, myq;
 
@@ -74,20 +73,17 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
         lq = (k % lookahead) * C->q;
         tempkk = k == KT - 1 ? K - k * A->nb : A->nb;
         zbeta = k == 0 ? beta : zone;
-        ldak = BLKLDD(A, k);
-        ldbk = BLKLDD(B, k);
 
         /* Transfert ownership of the k column of A */
         for (m = 0; m < C->mt; m ++ ) {
             tempmm = m == C->mt-1 ? C->m - m * C->mb : C->mb;
-            ldam = BLKLDD(A, m);
 
             if ( transA == ChamNoTrans ) {
                 INSERT_TASK_zlacpy(
                     options,
                     ChamUpperLower, tempmm, tempkk, C->mb,
-                    A(  m,  k ),             ldam,
-                    WA( m, (k % C->q) + lq ), WA.mb );
+                    A(  m,  k ),
+                    WA( m, (k % C->q) + lq ) );
 
                 RUNTIME_data_flush( sequence, A( m, k ) );
 
@@ -95,16 +91,16 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                     INSERT_TASK_zlacpy(
                         options,
                         ChamUpperLower, tempmm, tempkk, C->mb,
-                        WA( m, ((k+q-1) % C->q) + lq ), WA.mb,
-                        WA( m, ((k+q)   % C->q) + lq ), WA.mb );
+                        WA( m, ((k+q-1) % C->q) + lq ),
+                        WA( m, ((k+q)   % C->q) + lq ) );
                 }
             }
             else {
                 INSERT_TASK_zlacpy(
                     options,
                     ChamUpperLower, tempkk, tempmm, C->mb,
-                    A(  k,  m ),              ldak,
-                    WA( m, (k % C->q) + lq ), WA.mb );
+                    A(  k,  m ),
+                    WA( m, (k % C->q) + lq ) );
 
                 RUNTIME_data_flush( sequence, A( k, m ) );
 
@@ -112,8 +108,8 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                     INSERT_TASK_zlacpy(
                         options,
                         ChamUpperLower, tempkk, tempmm, C->mb,
-                        WA( m, ((k+q-1) % C->q) + lq ), WA.mb,
-                        WA( m, ((k+q)   % C->q) + lq ), WA.mb );
+                        WA( m, ((k+q-1) % C->q) + lq ),
+                        WA( m, ((k+q)   % C->q) + lq ) );
                 }
             }
         }
@@ -121,14 +117,13 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
         /* Transfert ownership of the k row of B */
         for (n = 0; n < C->nt; n++) {
             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-            ldbn = BLKLDD(B, n);
 
             if ( transB == ChamNoTrans ) {
                 INSERT_TASK_zlacpy(
                     options,
                     ChamUpperLower, tempkk, tempnn, C->mb,
-                    B(   k,              n ), ldbk,
-                    WB( (k % C->p) + lp, n ), WB.mb );
+                    B(   k,              n ),
+                    WB( (k % C->p) + lp, n ) );
 
                 RUNTIME_data_flush( sequence, B( k, n ) );
 
@@ -136,16 +131,16 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                     INSERT_TASK_zlacpy(
                         options,
                         ChamUpperLower, tempkk, tempnn, C->mb,
-                        WB( ((k+p-1) % C->p) + lp, n ), WB.mb,
-                        WB( ((k+p)   % C->p) + lp, n ), WB.mb );
+                        WB( ((k+p-1) % C->p) + lp, n ),
+                        WB( ((k+p)   % C->p) + lp, n ) );
                 }
             }
             else {
                 INSERT_TASK_zlacpy(
                     options,
                     ChamUpperLower, tempnn, tempkk, C->mb,
-                    B(   n,              k ), ldbn,
-                    WB( (k % C->p) + lp, n ), WB.mb );
+                    B(   n,              k ),
+                    WB( (k % C->p) + lp, n ) );
 
                 RUNTIME_data_flush( sequence, B( n, k ) );
 
@@ -153,15 +148,14 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                     INSERT_TASK_zlacpy(
                         options,
                         ChamUpperLower, tempnn, tempkk, C->mb,
-                        WB( ((k+p-1) % C->p) + lp, n ), WB.mb,
-                        WB( ((k+p)   % C->p) + lp, n ), WB.mb );
+                        WB( ((k+p-1) % C->p) + lp, n ),
+                        WB( ((k+p)   % C->p) + lp, n ) );
                 }
             }
         }
 
         for (m = myp; m < C->mt; m+=C->p) {
             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-            ldcm = BLKLDD(C, m);
 
             for (n = myq; n < C->nt; n+=C->q) {
                 tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -170,9 +164,9 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                     options,
                     transA, transB,
                     tempmm, tempnn, tempkk, A->mb,
-                    alpha, WA( m,        myq + lq ), WA.mb,  /* lda * Z */
-                           WB( myp + lp, n        ), WB.mb,  /* ldb * Y */
-                    zbeta, C(  m,        n        ), ldcm ); /* ldc * Y */
+                    alpha, WA( m,        myq + lq ),  /* lda * Z */
+                           WB( myp + lp, n        ),  /* ldb * Y */
+                    zbeta, C(  m,        n        ) ); /* ldc * Y */
             }
         }
     }
@@ -198,7 +192,6 @@ chameleon_pzgemm_generic( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tr
     RUNTIME_sequence_t *sequence = options->sequence;
 
     int m, n, k;
-    int ldam, ldak, ldbn, ldbk, ldcm;
     int tempmm, tempnn, tempkn, tempkm;
 
     CHAMELEON_Complex64_t zbeta;
@@ -206,33 +199,29 @@ chameleon_pzgemm_generic( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tr
 
     for (m = 0; m < C->mt; m++) {
         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-        ldcm = BLKLDD(C, m);
         for (n = 0; n < C->nt; n++) {
             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
             /*
              *  A: ChamNoTrans / B: ChamNoTrans
              */
             if (transA == ChamNoTrans) {
-                ldam = BLKLDD(A, m);
                 if (transB == ChamNoTrans) {
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-                        ldbk = BLKLDD(B, k);
                         zbeta = k == 0 ? beta : zone;
                         INSERT_TASK_zgemm(
                             options,
                             transA, transB,
                             tempmm, tempnn, tempkn, A->mb,
-                            alpha, A(m, k), ldam,  /* lda * Z */
-                            B(k, n), ldbk,  /* ldb * Y */
-                            zbeta, C(m, n), ldcm); /* ldc * Y */
+                            alpha, A(m, k),  /* lda * Z */
+                            B(k, n),  /* ldb * Y */
+                            zbeta, C(m, n)); /* ldc * Y */
                     }
                 }
                 /*
                  *  A: ChamNoTrans / B: Cham[Conj]Trans
                  */
                 else {
-                    ldbn = BLKLDD(B, n);
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                         zbeta = k == 0 ? beta : zone;
@@ -240,9 +229,9 @@ chameleon_pzgemm_generic( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tr
                             options,
                             transA, transB,
                             tempmm, tempnn, tempkn, A->mb,
-                            alpha, A(m, k), ldam,  /* lda * Z */
-                            B(n, k), ldbn,  /* ldb * Z */
-                            zbeta, C(m, n), ldcm); /* ldc * Y */
+                            alpha, A(m, k),  /* lda * Z */
+                            B(n, k),  /* ldb * Z */
+                            zbeta, C(m, n)); /* ldc * Y */
                     }
                 }
             }
@@ -253,34 +242,30 @@ chameleon_pzgemm_generic( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tr
                 if (transB == ChamNoTrans) {
                     for (k = 0; k < A->mt; k++) {
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
-                        ldbk = BLKLDD(B, k);
                         zbeta = k == 0 ? beta : zone;
                         INSERT_TASK_zgemm(
                             options,
                             transA, transB,
                             tempmm, tempnn, tempkm, A->mb,
-                            alpha, A(k, m), ldak,  /* lda * X */
-                            B(k, n), ldbk,  /* ldb * Y */
-                            zbeta, C(m, n), ldcm); /* ldc * Y */
+                            alpha, A(k, m),  /* lda * X */
+                            B(k, n),  /* ldb * Y */
+                            zbeta, C(m, n)); /* ldc * Y */
                     }
                 }
                 /*
                  *  A: Cham[Conj]Trans / B: Cham[Conj]Trans
                  */
                 else {
-                    ldbn = BLKLDD(B, n);
                     for (k = 0; k < A->mt; k++) {
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
                         zbeta = k == 0 ? beta : zone;
                         INSERT_TASK_zgemm(
                             options,
                             transA, transB,
                             tempmm, tempnn, tempkm, A->mb,
-                            alpha, A(k, m), ldak,  /* lda * X */
-                            B(n, k), ldbn,  /* ldb * Z */
-                            zbeta, C(m, n), ldcm); /* ldc * Y */
+                            alpha, A(k, m),  /* lda * X */
+                            B(n, k),  /* ldb * Z */
+                            zbeta, C(m, n)); /* ldc * Y */
                     }
                 }
             }

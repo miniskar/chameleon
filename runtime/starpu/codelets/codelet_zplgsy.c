@@ -35,18 +35,16 @@ static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t bump;
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     int bigM;
     int m0;
     int n0;
     unsigned long long int seed;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
 
     starpu_codelet_unpack_args(cl_arg, &bump, &m, &n, &bigM, &m0, &n0, &seed );
-    CORE_zplgsy( bump, m, n, A, ldA, bigM, m0, n0, seed );
+    TCORE_zplgsy( bump, m, n, tileA, bigM, m0, n0, seed );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -56,7 +54,7 @@ static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(zplgsy, 1, cl_zplgsy_cpu_func)
 
 void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
-                        CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int ldA,
+                        CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
 
@@ -83,5 +81,4 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
         STARPU_NAME, "zplgsy",
 #endif
         0);
-    (void)ldA;
 }

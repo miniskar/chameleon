@@ -21,41 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_zlaset - Sets the elements of the matrix A on the diagonal
- *  to beta and on the off-diagonals to alpha
- *
- *******************************************************************************
- *
- * @param[in] uplo
- *          Specifies which elements of the matrix are to be set
- *          = ChamUpper: Upper part of A is set;
- *          = ChamLower: Lower part of A is set;
- *          = ChamUpperLower: ALL elements of A are set.
- *
- * @param[in] M
- *          The number of rows of the matrix A.  M >= 0.
- *
- * @param[in] N
- *         The number of columns of the matrix A.  N >= 0.
- *
- * @param[in] alpha
- *         The constant to which the off-diagonal elements are to be set.
- *
- * @param[in] beta
- *         The constant to which the diagonal elements are to be set.
- *
- * @param[in,out] A
- *         On entry, the M-by-N tile A.
- *         On exit, A has been set accordingly.
- *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
- *
- */
 static inline int
 CORE_zlaset_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -80,9 +45,10 @@ CORE_zlaset_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int M, int N,
                        CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
-                       const CHAM_desc_t *A, int Am, int An, int LDA)
+                       const CHAM_desc_t *A, int Am, int An)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlaset_parsec, options->priority, "laset",
@@ -92,6 +58,6 @@ void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
         sizeof(CHAMELEON_Complex64_t),       &alpha,       VALUE,
         sizeof(CHAMELEON_Complex64_t),       &beta,        VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
-        sizeof(int),                     &LDA,         VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PARSEC_DTD_ARG_END );
 }

@@ -65,7 +65,30 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
         desc->mat = NULL;
     }
 
+    if ( desc->tiles ) {
+        free( desc->tiles );
+    }
     return CHAMELEON_SUCCESS;
+}
+
+void chameleon_desc_init_tiles( CHAM_desc_t *desc )
+{
+    CHAM_tile_t *tile;
+    int ii, jj;
+
+    desc->tiles = malloc( desc->lmt * desc->lnt * sizeof(CHAM_tile_t) );
+
+    tile = desc->tiles;
+    for( jj=0; jj<desc->lnt; jj++ ) {
+        for( ii=0; ii<desc->lmt; ii++, tile++ ) {
+            int rank = desc->get_rankof( desc, ii, jj );
+            tile->format = CHAMELEON_TILE_FULLRANK;
+            tile->m   = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
+            tile->n   = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
+            tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
+            tile->ld  = desc->get_blkldd( desc, ii );
+        }
+    }
 }
 
 /**
@@ -174,6 +197,7 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
     }
 
     // If one of the function get_* is NULL, we switch back to the default, like in chameleon_desc_init()
+    desc->get_blktile = chameleon_desc_gettile;
     desc->get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
     desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
     desc->get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
@@ -281,6 +305,8 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
     desc->A21 = (size_t)(desc->llm - desc->llm%mb)*(size_t)(desc->lln - desc->lln%nb);
     desc->A12 = (size_t)(            desc->llm%mb)*(size_t)(desc->lln - desc->lln%nb) + desc->A21;
     desc->A22 = (size_t)(desc->llm - desc->llm%mb)*(size_t)(            desc->lln%nb) + desc->A12;
+
+    chameleon_desc_init_tiles( desc );
 
     /* Create runtime specific structure like registering data */
     RUNTIME_desc_create( desc );

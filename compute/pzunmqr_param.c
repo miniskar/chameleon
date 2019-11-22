@@ -42,7 +42,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
     size_t ws_host = 0;
 
     int k, m, n, i, p;
-    int ldap, ldam, ldan, lddp, ldcp, ldcm;
     int temppm, temppn, tempmm, tempnn, tempkn,tempkmin;
     int ib, KT, L;
     int node, nbtiles, *tiles;
@@ -101,9 +100,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     temppm   = p == C->mt-1 ? C->m - p * C->mb : C->mb;
                     tempkmin = chameleon_min( temppm, tempkn );
 
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
-                    ldcp = BLKLDD(C, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -111,14 +107,14 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
                     for (n = 0; n < C->nt; n++) {
@@ -126,9 +122,9 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             temppm, tempnn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(p, n), ldcp);
+                            D(p, k),
+                            T(p, k),
+                            C(p, n));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -142,9 +138,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     p = qrtree->currpiv(qrtree, k, m);
 
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
-                    ldcp = BLKLDD(C, p);
-                    ldcm = BLKLDD(C, m);
 
                     if( qrtree->gettype(qrtree, k, m) == LIBHQR_KILLED_BY_TS ) {
                         /* TS kernel */
@@ -166,10 +159,10 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_ztpmqrt(
                             &options, side, trans,
                             tempmm, tempnn, tempkn, L, ib, T->nb,
-                            A(m, k), ldam,
-                            T(m, k), T->mb,
-                            C(p, n), ldcp,
-                            C(m, n), ldcm);
+                            A(m, k),
+                            T(m, k),
+                            C(p, n),
+                            C(m, n));
                     }
                     RUNTIME_data_flush( sequence, A(m, k) );
                     RUNTIME_data_flush( sequence, T(m, k) );
@@ -201,9 +194,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     p = qrtree->currpiv(qrtree, k, m);
 
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
-                    ldcp = BLKLDD(C, p);
-                    ldcm = BLKLDD(C, m);
 
                     if( qrtree->gettype(qrtree, k, m) == LIBHQR_KILLED_BY_TS ) {
                         /* TS kernel */
@@ -225,10 +215,10 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_ztpmqrt(
                             &options, side, trans,
                             tempmm, tempnn, tempkn, L, ib, T->nb,
-                            A(m, k), ldam,
-                            T(m, k), T->mb,
-                            C(p, n), ldcp,
-                            C(m, n), ldcm);
+                            A(m, k),
+                            T(m, k),
+                            C(p, n),
+                            C(m, n));
                     }
                     RUNTIME_data_flush( sequence, A(m, k) );
                     RUNTIME_data_flush( sequence, T(m, k) );
@@ -241,9 +231,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     temppm   = p == C->mt-1 ? C->m-p*C->mb : C->mb;
                     tempkmin = chameleon_min( temppm, tempkn );
 
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
-                    ldcp = BLKLDD(C, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -251,14 +238,14 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
@@ -271,9 +258,9 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             temppm, tempnn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(p, n), ldcp);
+                            D(p, k),
+                            T(p, k),
+                            C(p, n));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -300,7 +287,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     p = qrtree->currpiv(qrtree, k, n);
 
                     tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-                    ldan = BLKLDD(A, n);
 
                     if( qrtree->gettype(qrtree, k, n) == LIBHQR_KILLED_BY_TS ) {
                         /* TS kernel */
@@ -315,7 +301,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                     for (m = 0; m < C->mt; m++) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldcm = BLKLDD(C, m);
 
                         node = C->get_rankof( C, m, n );
                         RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -324,10 +309,10 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_ztpmqrt(
                             &options, side, trans,
                             tempmm, tempnn, tempkn, chameleon_min( L, tempmm ), ib, T->nb,
-                            A(n, k), ldan,
-                            T(n, k), T->mb,
-                            C(m, p), ldcm,
-                            C(m, n), ldcm);
+                            A(n, k),
+                            T(n, k),
+                            C(m, p),
+                            C(m, n));
                     }
                     RUNTIME_data_flush( sequence, A(n, k) );
                     RUNTIME_data_flush( sequence, T(n, k) );
@@ -339,8 +324,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                     temppn   = p == C->nt-1 ? C->n - p * C->nb : C->nb;
                     tempkmin = chameleon_min(temppn, tempkn);
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -348,20 +331,19 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
                     for (m = 0; m < C->mt; m++) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldcm = BLKLDD(C, m);
 
                         RUNTIME_data_migrate( sequence, C(m, p),
                                               C->get_rankof( C, m, p ) );
@@ -369,9 +351,9 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(m, p), ldcm);
+                            D(p, k),
+                            T(p, k),
+                            C(m, p));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -394,8 +376,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                     temppn   = p == C->nt - 1 ? C->n - p * C->nb : C->nb;
                     tempkmin = chameleon_min( temppn, tempkn );
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -403,26 +383,25 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
                     for (m = 0; m < C->mt; m++) {
-                        ldcm = BLKLDD(C, m);
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(m, p), ldcm);
+                            D(p, k),
+                            T(p, k),
+                            C(m, p));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -436,7 +415,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                     p = qrtree->currpiv(qrtree, k, n);
 
                     tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-                    ldan = BLKLDD(A, n);
 
                     if( qrtree->gettype(qrtree, k, n) == LIBHQR_KILLED_BY_TS ) {
                         /* TS kernel */
@@ -451,7 +429,6 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                     for (m = 0; m < C->mt; m++) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldcm = BLKLDD(C, m);
 
                         node = C->get_rankof( C, m, n );
                         RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -460,10 +437,10 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
                         INSERT_TASK_ztpmqrt(
                             &options, side, trans,
                             tempmm, tempnn, tempkn, chameleon_min( L, tempmm ), ib, T->nb,
-                            A(n, k), ldan,
-                            T(n, k), T->mb,
-                            C(m, p), ldcm,
-                            C(m, n), ldcm);
+                            A(n, k),
+                            T(n, k),
+                            C(m, p),
+                            C(m, n));
                     }
                     RUNTIME_data_flush( sequence, A(n, k) );
                     RUNTIME_data_flush( sequence, T(n, k) );

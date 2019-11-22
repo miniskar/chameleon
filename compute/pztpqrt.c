@@ -36,7 +36,6 @@ void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldak, ldbm;
     int tempkm, tempkn, tempnn, tempmm, templm;
     int ib;
 
@@ -76,19 +75,17 @@ void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-        ldak = BLKLDD(A, k);
 
         for (m = 0; m < maxmt; m++) {
             tempmm = m == B->mt-1 ? B->m-m*B->mb : B->mb;
             templm = ((L > 0) && (m == maxmt-1)) ? tempmm : 0;
-            ldbm = BLKLDD(B, m);
             /* TT kernel */
             INSERT_TASK_ztpqrt(
                 &options,
                 tempmm, tempkn, templm, ib, T->nb,
-                A(k, k), ldak,
-                B(m, k), ldbm,
-                T(m, k), T->mb );
+                A(k, k),
+                B(m, k),
+                T(m, k) );
 
             for (n = k+1; n < B->nt; n++) {
                 tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -96,10 +93,10 @@ void chameleon_pztpqrt( int L, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T,
                     &options,
                     ChamLeft, ChamConjTrans,
                     tempmm, tempnn, tempkm, templm, ib, T->nb,
-                    B(m, k), ldbm,
-                    T(m, k), T->mb,
-                    A(k, n), ldak,
-                    B(m, n), ldbm );
+                    B(m, k),
+                    T(m, k),
+                    A(k, n),
+                    B(m, n) );
             }
         }
 

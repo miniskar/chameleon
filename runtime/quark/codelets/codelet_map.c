@@ -23,12 +23,12 @@ void CORE_map_quark(Quark *quark)
     cham_uplo_t uplo;
     int m;
     int n;
-    void *data;
+    CHAM_tile_t *tile;
     cham_unary_operator_t op_fct;
     void *op_args;
 
-    quark_unpack_args_7( quark, desc, uplo, m, n, data, op_fct, op_args );
-    op_fct( desc, uplo, m, n, data, op_args );
+    quark_unpack_args_7( quark, desc, uplo, m, n, tile, op_fct, op_args );
+    op_fct( desc, uplo, m, n, tile, op_args );
 }
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
@@ -43,7 +43,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(cham_uplo_t),              &uplo, VALUE,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
-        sizeof(char), RTBLKADDR(A, void, Am, An), INOUT,
+        sizeof(void*), RTBLKADDR(A, void, Am, An), INOUT,
         sizeof(cham_unary_operator_t),    &op_fct,  VALUE,
         sizeof(void*),                    &op_args, VALUE,
         0);

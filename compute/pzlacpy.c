@@ -25,21 +25,14 @@
 
 #define A(m,n) A,  m,  n
 #define B(m,n) B,  m,  n
-/**
- *
- */
-/**
- *
- */
 void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
-                          RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+                       RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
 
     int X, Y;
     int m, n;
-    int ldam, ldbm;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -54,16 +47,14 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
     case ChamUpper:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            ldbm = BLKLDD(B, m);
             if (m < A->nt) {
                 Y = m == A->nt-1 ? A->n-m*A->nb : A->nb;
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpper,
                     X, Y, A->mb,
-                    A(m, m), ldam,
-                    B(m, m), ldbm);
+                    A(m, m),
+                    B(m, m));
             }
             for (n = m+1; n < A->nt; n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -71,8 +62,8 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                     &options,
                     ChamUpperLower,
                     X, Y, A->mb,
-                    A(m, n), ldam,
-                    B(m, n), ldbm);
+                    A(m, n),
+                    B(m, n));
             }
         }
         break;
@@ -82,16 +73,14 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
     case ChamLower:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            ldbm = BLKLDD(B, m);
             if (m < A->nt) {
                 Y = m == A->nt-1 ? A->n-m*A->nb : A->nb;
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamLower,
                     X, Y, A->mb,
-                    A(m, m), ldam,
-                    B(m, m), ldbm);
+                    A(m, m),
+                    B(m, m));
             }
             for (n = 0; n < chameleon_min(m, A->nt); n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -99,8 +88,8 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                     &options,
                     ChamUpperLower,
                     X, Y, A->mb,
-                    A(m, n), ldam,
-                    B(m, n), ldbm);
+                    A(m, n),
+                    B(m, n));
             }
         }
         break;
@@ -111,16 +100,14 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
     default:
         for (m = 0; m < A->mt; m++) {
             X = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            ldbm = BLKLDD(B, m);
             for (n = 0; n < A->nt; n++) {
                 Y = n == A->nt-1 ? A->n-n*A->nb : A->nb;
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpperLower,
                     X, Y, A->mb,
-                    A(m, n), ldam,
-                    B(m, n), ldbm);
+                    A(m, n),
+                    B(m, n));
             }
         }
     }

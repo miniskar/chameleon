@@ -27,26 +27,20 @@ static void cl_ztpqrt_cpu_func(void *descr[], void *cl_arg)
     int N;
     int L;
     int ib;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
-    CHAMELEON_Complex64_t *T;
-    int ldT;
-    CHAMELEON_Complex64_t *WORK;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileWORK;
 
-    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    T    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
-    ldT = STARPU_MATRIX_GET_LD( descr[2] );
+    tileA    = cti_interface_get(descr[0]);
+    tileB    = cti_interface_get(descr[1]);
+    tileT    = cti_interface_get(descr[2]);
+    tileWORK = cti_interface_get(descr[3]); /* ib * nb */
     starpu_codelet_unpack_args( cl_arg, &M, &N, &L, &ib );
 
-    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldT );
-    CORE_ztpqrt( M, N, L, ib,
-                 A, ldA, B, ldB, T, ldT, WORK );
+    TCORE_zlaset( ChamUpperLower, ib, N, 0., 0., tileT );
+    TCORE_ztpqrt( M, N, L, ib,
+                  tileA, tileB, tileT, tileWORK->mat );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -57,9 +51,9 @@ CODELETS_CPU(ztpqrt, 4, cl_ztpqrt_cpu_func)
 
 void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          int M, int N, int L, int ib, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldB,
-                         const CHAM_desc_t *T, int Tm, int Tn, int ldT )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn,
+                         const CHAM_desc_t *T, int Tm, int Tn )
 {
     struct starpu_codelet *codelet = &cl_ztpqrt;
     void (*callback)(void*) = options->profiling ? cl_ztpqrt_callback : NULL;
@@ -90,8 +84,6 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
         STARPU_NAME, "ztpqrt",
 #endif
         0);
-    (void)ldB;
-    (void)ldA;
 
     (void)ib; (void)nb;
 }

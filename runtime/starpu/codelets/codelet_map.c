@@ -17,7 +17,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-CHAMELEON_CL_CB(map, starpu_matrix_get_nx(task->handles[0]), starpu_matrix_get_ny(task->handles[0]), 0, M*N);
+CHAMELEON_CL_CB(map, cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0, M*N)
 
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_map_cpu_func(void *descr[], void *cl_arg)
@@ -26,13 +26,13 @@ static void cl_map_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int m;
     int n;
-    void *data;
+    CHAM_tile_t *tile;
     cham_unary_operator_t op_fct;
     void *op_args;
 
-    data = (void *)STARPU_MATRIX_GET_PTR(descr[0]);
+    tile = cti_interface_get(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &desc, &uplo, &m, &n, &op_fct, &op_args );
-    op_fct( desc, uplo, m, n, data, op_args );
+    op_fct( desc, uplo, m, n, tile, op_args );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

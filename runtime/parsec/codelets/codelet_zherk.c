@@ -21,11 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zherk_parsec( parsec_execution_stream_t *context,
                    parsec_task_t             *this_task )
@@ -55,10 +50,12 @@ CORE_zherk_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_zherk(const RUNTIME_option_t *options,
                       cham_uplo_t uplo, cham_trans_t trans,
                       int n, int k, int nb,
-                      double alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      double beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                      double alpha, const CHAM_desc_t *A, int Am, int An,
+                      double beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileC = C->get_blktile( C, Cm, Cn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zherk_parsec, options->priority, "herk",
@@ -68,10 +65,10 @@ void INSERT_TASK_zherk(const RUNTIME_option_t *options,
         sizeof(int),           &k,                                VALUE,
         sizeof(double),        &alpha,                            VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),           &lda,                              VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(double),        &beta,                             VALUE,
         PASSED_BY_REF,         RTBLKADDR( C, CHAMELEON_Complex64_t, Cm, Cn ), chameleon_parsec_get_arena_index( C ) | INOUT | AFFINITY,
-        sizeof(int),           &ldc,                              VALUE,
+        sizeof(int), &(tileC->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

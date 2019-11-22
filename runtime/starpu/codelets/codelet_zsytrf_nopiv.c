@@ -32,14 +32,12 @@ static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
 {
     cham_uplo_t uplo;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     int iinfo;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &n, &iinfo);
-    CORE_zsytf2_nopiv(uplo, n, A, ldA);
+    TCORE_zsytf2_nopiv(uplo, n, tileA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -50,7 +48,7 @@ CODELETS_CPU(zsytrf_nopiv, 1, cl_zsytrf_nopiv_cpu_func)
 
 void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
                               cham_uplo_t uplo, int n, int nb,
-                               const CHAM_desc_t *A, int Am, int An, int ldA,
+                               const CHAM_desc_t *A, int Am, int An,
                                int iinfo )
 {
     (void)nb;
@@ -74,5 +72,4 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
         STARPU_NAME, "zsytrf_nopiv",
 #endif
         0);
-    (void)ldA;
 }

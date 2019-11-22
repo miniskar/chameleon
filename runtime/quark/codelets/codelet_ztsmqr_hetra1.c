@@ -22,7 +22,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_ztsmqr_hetra1_quark(Quark *quark)
 {
@@ -34,28 +34,24 @@ void CORE_ztsmqr_hetra1_quark(Quark *quark)
     int n2;
     int k;
     int ib;
-    CHAMELEON_Complex64_t *A1;
-    int lda1;
-    CHAMELEON_Complex64_t *A2;
-    int lda2;
-    CHAMELEON_Complex64_t *V;
-    int ldv;
-    CHAMELEON_Complex64_t *T;
-    int ldt;
+    CHAM_tile_t *tileA1;
+    CHAM_tile_t *tileA2;
+    CHAM_tile_t *tileV;
+    CHAM_tile_t *tileT;
     CHAMELEON_Complex64_t *WORK;
     int ldwork;
 
-    quark_unpack_args_18(quark, side, trans, m1, n1, m2, n2, k, ib, A1, lda1, A2, lda2, V, ldv, T, ldt, WORK, ldwork);
-    CORE_ztsmqr_hetra1(side, trans, m1, n1, m2, n2, k, ib, A1, lda1, A2, lda2, V, ldv, T, ldt, WORK, ldwork);
+    quark_unpack_args_14(quark, side, trans, m1, n1, m2, n2, k, ib, tileA1, tileA2, tileV, tileT, WORK, ldwork);
+    TCORE_ztsmqr_hetra1(side, trans, m1, n1, m2, n2, k, ib, tileA1, tileA2, tileV, tileT, WORK, ldwork);
 }
 
 void INSERT_TASK_ztsmqr_hetra1(const RUNTIME_option_t *options,
                               cham_side_t side, cham_trans_t trans,
                               int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                              const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
-                              const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
-                              const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                              const CHAM_desc_t *T, int Tm, int Tn, int ldt)
+                              const CHAM_desc_t *A1, int A1m, int A1n,
+                              const CHAM_desc_t *A2, int A2m, int A2n,
+                              const CHAM_desc_t *V, int Vm, int Vn,
+                              const CHAM_desc_t *T, int Tm, int Tn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     int ldwork = side == ChamLeft ? ib : nb;
@@ -69,14 +65,10 @@ void INSERT_TASK_ztsmqr_hetra1(const RUNTIME_option_t *options,
         sizeof(int),                     &n2,     VALUE,
         sizeof(int),                     &k,      VALUE,
         sizeof(int),                     &ib,     VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n), INOUT|QUARK_REGION_L|QUARK_REGION_D,
-        sizeof(int),                     &lda1,   VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n), INOUT,
-        sizeof(int),                     &lda2,   VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),    INPUT,
-        sizeof(int),                     &ldv,    VALUE,
-        sizeof(CHAMELEON_Complex64_t)*ib*nb,  RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),    INPUT,
-        sizeof(int),                     &ldt,    VALUE,
+        sizeof(void*), RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n), INOUT|QUARK_REGION_L|QUARK_REGION_D,
+        sizeof(void*), RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n), INOUT,
+        sizeof(void*), RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),    INPUT,
+        sizeof(void*), RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),    INPUT,
         sizeof(CHAMELEON_Complex64_t)*ib*nb,  NULL,   SCRATCH,
         sizeof(int),                     &ldwork, VALUE,
         0);

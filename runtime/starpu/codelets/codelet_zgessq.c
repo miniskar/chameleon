@@ -29,16 +29,14 @@ static void cl_zgessq_cpu_func(void *descr[], void *cl_arg)
     cham_store_t storev;
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *SCALESUMSQ;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileW;
 
-    A          = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
+    tileW = cti_interface_get(descr[1]);
 
-    SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &storev, &m, &n);
-    CORE_zgessq( storev, m, n, A, ldA, SCALESUMSQ );
+    starpu_codelet_unpack_args( cl_arg, &storev, &m, &n );
+    TCORE_zgessq( storev, m, n, tileA, tileW );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -49,7 +47,7 @@ CODELETS_CPU(zgessq, 2, cl_zgessq_cpu_func)
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
                          cham_store_t storev, int m, int n,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     struct starpu_codelet *codelet = &cl_zgessq;
@@ -73,5 +71,4 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
         STARPU_NAME, "zgessq",
 #endif
         0);
-    (void)ldA;
 }

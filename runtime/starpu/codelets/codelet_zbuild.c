@@ -31,22 +31,20 @@
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zbuild_cpu_func(void *descr[], void *cl_arg)
 {
-  CHAMELEON_Complex64_t *A;
-  int ldA;
-  void *user_data;
-  void (*user_build_callback)(int row_min, int row_max, int col_min, int col_max, void *buffer, int ldA, void *user_data) ;
-  int row_min, row_max, col_min, col_max;
+    CHAM_tile_t *tileA;
+    void *user_data;
+    void (*user_build_callback)(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) ;
+    int row_min, row_max, col_min, col_max;
 
-  A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-  ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
 
-  starpu_codelet_unpack_args(cl_arg, &row_min, &row_max, &col_min, &col_max, &user_data, &user_build_callback );
+    starpu_codelet_unpack_args(cl_arg, &row_min, &row_max, &col_min, &col_max, &user_data, &user_build_callback );
 
-  /* The callback 'user_build_callback' is expected to build the block of matrix [row_min, row_max] x [col_min, col_max]
-   * (with both min and max values included in the intervals, index start at 0 like in C, NOT 1 like in Fortran)
-   * and store it at the address 'buffer' with leading dimension 'ld'
-   */
-  user_build_callback(row_min, row_max, col_min, col_max, A, ldA, user_data);
+    /* The callback 'user_build_callback' is expected to build the block of matrix [row_min, row_max] x [col_min, col_max]
+     * (with both min and max values included in the intervals, index start at 0 like in C, NOT 1 like in Fortran)
+     * and store it at the address 'buffer' with leading dimension 'ld'
+     */
+    user_build_callback(row_min, row_max, col_min, col_max, tileA->mat, tileA->ld, user_data);
 
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -56,24 +54,24 @@ static void cl_zbuild_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zbuild, 1, cl_zbuild_cpu_func)
 
-void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
-                         void *user_data, void* user_build_callback )
+    void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
+                             const CHAM_desc_t *A, int Am, int An,
+                             void *user_data, void* user_build_callback )
 {
 
-  struct starpu_codelet *codelet = &cl_zbuild;
-  void (*callback)(void*) = options->profiling ? cl_zbuild_callback : NULL;
-  int row_min, row_max, col_min, col_max;
+    struct starpu_codelet *codelet = &cl_zbuild;
+    void (*callback)(void*) = options->profiling ? cl_zbuild_callback : NULL;
+    int row_min, row_max, col_min, col_max;
 
-  CHAMELEON_BEGIN_ACCESS_DECLARATION;
-  CHAMELEON_ACCESS_W(A, Am, An);
-  CHAMELEON_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_W(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
-  row_min = Am*A->mb ;
-  row_max = Am == A->mt-1 ? A->m-1 : row_min+A->mb-1 ;
-  col_min = An*A->nb ;
-  col_max = An == A->nt-1 ? A->n-1 : col_min+A->nb-1 ;
-  starpu_insert_task(
+    row_min = Am*A->mb ;
+    row_max = Am == A->mt-1 ? A->m-1 : row_min+A->mb-1 ;
+    col_min = An*A->nb ;
+    col_max = An == A->nt-1 ? A->n-1 : col_min+A->nb-1 ;
+    starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &row_min,                      sizeof(int),
         STARPU_VALUE,    &row_max,                      sizeof(int),
@@ -88,5 +86,4 @@ void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
         STARPU_NAME, "zbuild",
 #endif
         0);
-    (void)ldA;
 }

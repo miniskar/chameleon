@@ -12,8 +12,6 @@
  * @brief Chameleon zgemm Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -25,7 +23,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zgemm_quark(Quark *quark)
 {
@@ -35,28 +33,25 @@ void CORE_zgemm_quark(Quark *quark)
     int n;
     int k;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *B;
-    int ldb;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *C;
-    int ldc;
+    CHAM_tile_t *tileC;
 
-    quark_unpack_args_13(quark, transA, transB, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
-    CORE_zgemm(transA, transB,
-               m, n, k,
-               alpha, A, lda,
-               B, ldb,
-               beta, C, ldc);
+    quark_unpack_args_10(quark, transA, transB, m, n, k, alpha, tileA, tileB, beta, tileC);
+    TCORE_zgemm( transA, transB,
+                 m, n, k,
+                 alpha, tileA,
+                        tileB,
+                 beta,  tileC );
 }
 
 void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
                       cham_trans_t transA, cham_trans_t transB,
                       int m, int n, int k, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                      const CHAM_desc_t *B, int Bm, int Bn,
+                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_GEMM;
@@ -67,12 +62,9 @@ void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
                       sizeof(int),                        &n,         VALUE,
                       sizeof(int),                        &k,         VALUE,
                       sizeof(CHAMELEON_Complex64_t),         &alpha,     VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
-                      sizeof(int),                        &lda,       VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),                 INPUT,
-                      sizeof(int),                        &ldb,       VALUE,
+                      sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
+                      sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),                 INPUT,
                       sizeof(CHAMELEON_Complex64_t),         &beta,      VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
-                      sizeof(int),                        &ldc,       VALUE,
+                      sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
                       0);
 }

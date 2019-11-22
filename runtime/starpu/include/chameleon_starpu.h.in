@@ -72,6 +72,7 @@
 #include "runtime_profiling.h"
 #include "runtime_codelet_profile.h"
 #include "runtime_workspace.h"
+#include "cham_tile_interface.h"
 
 typedef struct starpu_conf starpu_conf_t;
 
@@ -80,16 +81,18 @@ typedef struct starpu_conf starpu_conf_t;
 /*
  * MPI Redefinitions
  */
+#if defined(CHAMELEON_STARPU_SYNC)
+#define TASK_SYNCHRONOUS , STARPU_TASK_SYNCHRONOUS, 1
+#else
+#define TASK_SYNCHRONOUS
+#endif
+
 #if defined(CHAMELEON_USE_MPI)
 #undef STARPU_REDUX
-//#define starpu_insert_task(...) starpu_mpi_insert_task(MPI_COMM_WORLD, __VA_ARGS__)
 #define starpu_insert_task starpu_mpi_insert_task
-#define starpu_mpi_codelet(_codelet_) MPI_COMM_WORLD, _codelet_
-
+#define starpu_mpi_codelet(_codelet_) MPI_COMM_WORLD, _codelet_ TASK_SYNCHRONOUS
 #else
-
-#define starpu_mpi_codelet(_codelet_) _codelet_
-
+#define starpu_mpi_codelet(_codelet_) _codelet_ TASK_SYNCHRONOUS
 #endif
 
 /*

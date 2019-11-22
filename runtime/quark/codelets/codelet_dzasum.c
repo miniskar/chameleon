@@ -12,8 +12,6 @@
  * @brief Chameleon dzasum Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @date 2014-11-16
  * @precisions normal z -> c d s
@@ -21,25 +19,25 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
-void CORE_dzasum_quark(Quark *quark)
+static inline void
+CORE_dzasum_quark(Quark *quark)
 {
     cham_store_t storev;
     cham_uplo_t uplo;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    double *work;
+    CHAM_tile_t *A;
+    CHAM_tile_t *work;
 
-    quark_unpack_args_7(quark, storev, uplo, M, N, A, lda, work);
-    CORE_dzasum(storev, uplo, M, N, A, lda, work);
+    quark_unpack_args_6(quark, storev, uplo, M, N, A, work);
+    TCORE_dzasum( storev, uplo, M, N, A, work->mat );
 }
 
 void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
                        cham_store_t storev, cham_uplo_t uplo, int M, int N,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -49,8 +47,7 @@ void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
         sizeof(int),              &uplo,      VALUE,
         sizeof(int),                     &M,         VALUE,
         sizeof(int),                     &N,         VALUE,
-        sizeof(CHAMELEON_Complex64_t)*lda*N,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
-        sizeof(int),                     &lda,       VALUE,
-        sizeof(double),                   RTBLKADDR(B, double, Bm, Bn), INOUT,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
+        sizeof(void*), RTBLKADDR(B, double, Bm, Bn), INOUT,
         0);
 }

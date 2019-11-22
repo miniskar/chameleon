@@ -25,20 +25,18 @@
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlantr_cpu_func(void *descr[], void *cl_arg)
 {
-    double *normA;
+    CHAM_tile_t *tilenormA;
     cham_normtype_t norm, uplo, diag;
     int M, N;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *work;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tilework;
 
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA     = cti_interface_get(descr[0]);
+    tilework  = cti_interface_get(descr[1]);
+    tilenormA = cti_interface_get(descr[2]);
 
     starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &diag, &M, &N);
-    CORE_zlantr( norm, uplo, diag, M, N, A, ldA, work, normA);
+    TCORE_zlantr( norm, uplo, diag, M, N, tileA, tilework->mat, tilenormA->mat );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -50,7 +48,7 @@ CODELETS_CPU(zlantr, 3, cl_zlantr_cpu_func)
 void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
                          cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
                          int M, int N, int NB,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_zlantr;
@@ -77,7 +75,6 @@ void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
         STARPU_NAME, "zlantr",
 #endif
         0);
-    (void)ldA;
 
     (void)NB;
 }

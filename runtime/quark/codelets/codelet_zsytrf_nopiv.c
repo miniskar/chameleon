@@ -25,21 +25,20 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zsytrf_nopiv_quark(Quark *quark)
 {
     cham_uplo_t uplo;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
     int iinfo;
     int info = 0;
 
-    quark_unpack_args_7(quark, uplo, n, A, lda, sequence, request, iinfo);
-    info = CORE_zsytf2_nopiv(uplo, n, A, lda);
+    quark_unpack_args_6(quark, uplo, n, tileA, sequence, request, iinfo);
+    info = TCORE_zsytf2_nopiv(uplo, n, tileA);
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, iinfo+info );
     }
@@ -47,7 +46,7 @@ void CORE_zsytrf_nopiv_quark(Quark *quark)
 
 void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
                              cham_uplo_t uplo, int n, int nb,
-                             const CHAM_desc_t *A, int Am, int An, int lda,
+                             const CHAM_desc_t *A, int Am, int An,
                              int iinfo)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -55,8 +54,7 @@ void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
     QUARK_Insert_Task(opt->quark, CORE_zsytrf_nopiv_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &uplo,                VALUE,
         sizeof(int),                     &n,                   VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INOUT,
-        sizeof(int),                     &lda,                 VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INOUT,
         sizeof(RUNTIME_sequence_t*),       &(options->sequence), VALUE,
         sizeof(RUNTIME_request_t*),        &(options->request),  VALUE,
         sizeof(int),                     &iinfo,               VALUE,

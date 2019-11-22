@@ -21,11 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zlacpyx_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -51,10 +46,12 @@ CORE_zlacpyx_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                          int displA, const CHAM_desc_t *A, int Am, int An,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlacpyx_parsec, options->priority, "lacpy",
@@ -63,20 +60,20 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         sizeof(int),           &n,                         VALUE,
         sizeof(int),           &displA,                    VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),           &lda,                       VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(int),           &displB,                    VALUE,
         PASSED_BY_REF,         RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), chameleon_parsec_get_arena_index( B ) | OUTPUT | AFFINITY,
-        sizeof(int),           &ldb,                       VALUE,
+        sizeof(int), &(tileB->ld), VALUE,
         PARSEC_DTD_ARG_END );
     (void)nb;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An, lda,
-                         0, B, Bm, Bn, ldb );
+                         0, A, Am, An,
+                         0, B, Bm, Bn );
 }

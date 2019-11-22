@@ -12,8 +12,6 @@
  * @brief Chameleon ztradd PaRSEC codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @date 2015-11-04
  * @precisions normal z -> c d s
@@ -108,10 +106,12 @@ CORE_ztradd_parsec( parsec_execution_stream_t *context,
  */
 void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
-                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztradd_parsec, options->priority, "tradd",
@@ -121,10 +121,10 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
         sizeof(int),               &n,     VALUE,
         sizeof(CHAMELEON_Complex64_t), &alpha, VALUE,
         PASSED_BY_REF,              RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),               &lda,   VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(CHAMELEON_Complex64_t), &beta,  VALUE,
         PASSED_BY_REF,              RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), chameleon_parsec_get_arena_index( B ) | INOUT | AFFINITY,
-        sizeof(int),               &ldb,   VALUE,
+        sizeof(int), &(tileB->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

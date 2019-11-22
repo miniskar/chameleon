@@ -28,22 +28,19 @@
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlanhe_cpu_func(void *descr[], void *cl_arg)
 {
-    double *normA;
+    CHAM_tile_t *tilenormA;
     cham_normtype_t norm;
     cham_uplo_t uplo;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *work;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tilework;
 
-    A     = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work  = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    normA = (double *)STARPU_MATRIX_GET_PTR(descr[2]);
-
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA     = cti_interface_get(descr[0]);
+    tilework  = cti_interface_get(descr[1]);
+    tilenormA = cti_interface_get(descr[2]);
 
     starpu_codelet_unpack_args(cl_arg, &norm, &uplo, &N);
-    CORE_zlanhe( norm, uplo, N, A, ldA, work, normA);
+    TCORE_zlanhe( norm, uplo, N, tileA, tilework->mat, tilenormA->mat );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -54,7 +51,7 @@ CODELETS_CPU(zlanhe, 3, cl_zlanhe_cpu_func)
 
 void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
                        cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An, int ldA,
+                       const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     struct starpu_codelet *codelet = &cl_zlanhe;
@@ -79,7 +76,6 @@ void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
         STARPU_NAME, "zlanhe",
 #endif
         0);
-    (void)ldA;
 
     (void)NB;
 }

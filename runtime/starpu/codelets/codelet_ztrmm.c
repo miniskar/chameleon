@@ -37,22 +37,18 @@ static void cl_ztrmm_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha);
-    CORE_ztrmm(side, uplo,
+    TCORE_ztrmm(side, uplo,
         transA, diag,
         M, N,
-        alpha, A, ldA,
-        B, ldB);
+        alpha, tileA,
+        tileB);
 }
 
 #ifdef CHAMELEON_USE_CUDA
@@ -65,26 +61,20 @@ static void cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
     int M;
     int N;
     cuDoubleComplex alpha;
-    const cuDoubleComplex *A;
-    int ldA;
-    cuDoubleComplex *B;
-    int ldB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &M, &N, &alpha);
 
     RUNTIME_getStream(stream);
 
     CUDA_ztrmm(
-        side, uplo,
-        transA, diag,
-        M, N,
-        &alpha, A, ldA,
-        B, ldB,
-        stream);
+        side, uplo, transA, diag, M, N, &alpha,
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -109,8 +99,8 @@ CODELETS(ztrmm, 2, cl_ztrmm_cpu_func, cl_ztrmm_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
                       cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
                       int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
-                      const CHAM_desc_t *B, int Bm, int Bn, int ldB)
+                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                      const CHAM_desc_t *B, int Bm, int Bn)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_ztrmm;
@@ -138,6 +128,4 @@ void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
         STARPU_NAME, "ztrmm",
 #endif
         0);
-    (void)ldB;
-    (void)ldA;
 }

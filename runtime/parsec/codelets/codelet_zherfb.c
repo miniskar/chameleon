@@ -53,11 +53,14 @@ CORE_zherfb_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int n, int k, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *T, int Tm, int Tn,
+                       const CHAM_desc_t *C, int Cm, int Cn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
+    CHAM_tile_t *tileC = C->get_blktile( C, Cm, Cn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zherfb_parsec, options->priority, "herfb",
@@ -67,11 +70,11 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
         sizeof(int),        &ib,   VALUE,
         sizeof(int),        &nb,   VALUE,
         PASSED_BY_REF,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
-        sizeof(int),        &lda,  VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn), INPUT,
-        sizeof(int),        &ldt,  VALUE,
+        sizeof(int), &(tileT->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn), INOUT | AFFINITY,
-        sizeof(int),        &ldc,  VALUE,
+        sizeof(int), &(tileC->ld), VALUE,
         sizeof(CHAMELEON_Complex64_t)*2*nb*nb,  NULL, SCRATCH,
         sizeof(int),        &nb,   VALUE,
         PARSEC_DTD_ARG_END );

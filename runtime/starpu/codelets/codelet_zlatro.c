@@ -34,18 +34,14 @@ static void cl_zlatro_cpu_func(void *descr[], void *cl_arg)
     cham_trans_t trans;
     int M;
     int N;
-    const CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N);
-    CORE_zlatro(uplo, trans, M, N, A, ldA, B, ldB);
+    TCORE_zlatro(uplo, trans, M, N, tileA, tileB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -62,8 +58,8 @@ CODELETS_CPU(zlatro, 2, cl_zlatro_cpu_func)
 void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans,
                          int m, int n, int mb,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_zlatro;
     void (*callback)(void*) = NULL;
@@ -87,7 +83,5 @@ void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
         STARPU_NAME, "zlatro",
 #endif
         0);
-    (void)ldA;
-    (void)ldB;
     (void)mb;
 }

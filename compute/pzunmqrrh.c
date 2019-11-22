@@ -47,9 +47,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
     int k, m, n, p;
     int KT, RD, lastRD;
-    int ldap, ldam, ldan;
-    int ldcp, ldcm;
-    int lddp;
     int temppm, temppn, tempkn, tempnn, tempmm, tempkmin;
     int ib, node;
 
@@ -102,9 +99,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     temppm   = p == C->mt-1 ? C->m - p * C->mb : C->mb;
                     tempkmin = chameleon_min( temppm, tempkn );
 
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
-                    ldcp = BLKLDD(C, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -112,14 +106,14 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
                     for (n = 0; n < C->nt; n++) {
@@ -128,17 +122,15 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             &options,
                             side, trans,
                             temppm, tempnn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(p, n), ldcp);
+                            D(p, k),
+                            T(p, k),
+                            C(p, n));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
 
                     for (m = p+1; m < chameleon_min(p+BS, C->mt); m++) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldam = BLKLDD(A, m);
-                        ldcm = BLKLDD(C, m);
 
                         for (n = 0; n < C->nt; n++) {
                             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -151,10 +143,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, 0, ib, T->nb,
-                                A(m, k), ldam,
-                                T(m, k), T->mb,
-                                C(p, n), ldcp,
-                                C(m, n), ldcm);
+                                A(m, k),
+                                T(m, k),
+                                C(p, n),
+                                C(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(m, k) );
                         RUNTIME_data_flush( sequence, T(m, k) );
@@ -165,9 +157,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         m = p+RD;
 
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldam = BLKLDD(A, m);
-                        ldcm = BLKLDD(C, m);
-                        ldcp = BLKLDD(C, p);
 
                         for (n = 0; n < C->nt; n++) {
                             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -180,10 +169,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, tempmm, ib, T->nb,
-                                A (m, k), ldam,
-                                T2(m, k), T->mb,
-                                C (p, n), ldcp,
-                                C (m, n), ldcm);
+                                A (m, k),
+                                T2(m, k),
+                                C (p, n),
+                                C (m, n));
                         }
                         RUNTIME_data_flush( sequence, A (m, k) );
                         RUNTIME_data_flush( sequence, T2(m, k) );
@@ -215,9 +204,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         m = p+RD;
 
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldam = BLKLDD(A, m);
-                        ldcm = BLKLDD(C, m);
-                        ldcp = BLKLDD(C, p);
 
                         for (n = 0; n < C->nt; n++) {
                             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -230,24 +216,19 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, tempmm, ib, T->nb,
-                                A (m, k), ldam,
-                                T2(m, k), T->mb,
-                                C (p, n), ldcp,
-                                C (m, n), ldcm);
+                                A (m, k),
+                                T2(m, k),
+                                C (p, n),
+                                C (m, n));
                         }
                         RUNTIME_data_flush( sequence, A (m, k) );
                         RUNTIME_data_flush( sequence, T2(m, k) );
                     }
                 }
                 for (p = k; p < C->mt; p += BS) {
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
-                    ldcp = BLKLDD(C, p);
 
                     for (m = chameleon_min(p+BS, C->mt)-1; m > p; m--) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldam = BLKLDD(A, m);
-                        ldcm = BLKLDD(C, m);
 
                         for (n = 0; n < C->nt; n++) {
                             tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
@@ -260,10 +241,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, 0, ib, T->nb,
-                                A(m, k), ldam,
-                                T(m, k), T->mb,
-                                C(p, n), ldcp,
-                                C(m, n), ldcm);
+                                A(m, k),
+                                T(m, k),
+                                C(p, n),
+                                C(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(m, k) );
                         RUNTIME_data_flush( sequence, T(m, k) );
@@ -278,14 +259,14 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
@@ -298,9 +279,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             temppm, tempnn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(p, n), ldcp);
+                            D(p, k),
+                            T(p, k),
+                            C(p, n));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -327,11 +308,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         n = p+RD;
 
                         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-                        ldan = BLKLDD(A, n);
 
                         for (m = 0; m < C->mt; m++) {
                             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                            ldcm   = BLKLDD(C, m);
 
                             node = C->get_rankof( C, m, n );
                             RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -341,10 +320,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, tempmm, ib, T->nb,
-                                A (n, k), ldan,
-                                T2(n, k), T->mb,
-                                C (m, p), ldcm,
-                                C (m, n), ldcm);
+                                A (n, k),
+                                T2(n, k),
+                                C (m, p),
+                                C (m, n));
                         }
                         RUNTIME_data_flush( sequence, A (n, k) );
                         RUNTIME_data_flush( sequence, T2(n, k) );
@@ -355,11 +334,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     for (n = chameleon_min(p+BS, C->nt)-1; n > p; n--) {
 
                         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-                        ldan = BLKLDD(A, n);
 
                         for (m = 0; m < C->mt; m++) {
                             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                            ldcm = BLKLDD(C, m);
 
                             node = C->get_rankof( C, m, n );
                             RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -369,10 +346,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, 0, ib, T->nb,
-                                A(n, k), ldan,
-                                T(n, k), T->mb,
-                                C(m, p), ldcm,
-                                C(m, n), ldcm);
+                                A(n, k),
+                                T(n, k),
+                                C(m, p),
+                                C(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(n, k) );
                         RUNTIME_data_flush( sequence, T(n, k) );
@@ -380,8 +357,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                     temppn   = p == C->nt-1 ? C->n - p * C->nb : C->nb;
                     tempkmin = chameleon_min( temppn, tempkn );
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -389,20 +364,19 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
                     for (m = 0; m < C->mt; m++) {
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                        ldcm = BLKLDD(C, m);
 
                         RUNTIME_data_migrate( sequence, C(m, p),
                                               C->get_rankof( C, m, p ) );
@@ -410,9 +384,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(m, p), ldcm);
+                            D(p, k),
+                            T(p, k),
+                            C(m, p));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
@@ -433,8 +407,6 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     temppn   = p == C->nt - 1 ? C->n - p * C->nb : C->nb;
                     tempkmin = chameleon_min( temppn, tempkn );
 
-                    ldap = BLKLDD(A, p);
-                    lddp = BLKLDD(D, p);
 
                     if ( genD ) {
                         int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
@@ -442,36 +414,33 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                         INSERT_TASK_zlacpy(
                             &options,
                             ChamLower, tempDpm, tempkmin, A->nb,
-                            A(p, k), ldap,
-                            D(p, k), lddp );
+                            A(p, k),
+                            D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
                         INSERT_TASK_zlaset(
                             &options,
                             ChamUpper, tempDpm, tempkmin,
                             0., 1.,
-                            D(p, k), lddp );
+                            D(p, k) );
 #endif
                     }
 
                     for (m = 0; m < C->mt; m++) {
-                        ldcm = BLKLDD(C, m);
                         tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
                         INSERT_TASK_zunmqr(
                             &options, side, trans,
                             tempmm, temppn, tempkmin, ib, T->nb,
-                            D(p, k), lddp,
-                            T(p, k), T->mb,
-                            C(m, p), ldcm);
+                            D(p, k),
+                            T(p, k),
+                            C(m, p));
                     }
                     RUNTIME_data_flush( sequence, D(p, k) );
                     RUNTIME_data_flush( sequence, T(p, k) );
 
                     for (n = p+1; n < chameleon_min(p+BS,  C->nt); n++) {
                         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-                        ldan = BLKLDD(A, n);
                         for (m = 0; m < C->mt; m++) {
                             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                            ldcm = BLKLDD(C, m);
 
                             node = C->get_rankof( C, m, n );
                             RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -481,10 +450,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, 0, ib, T->nb,
-                                A(n, k), ldan,
-                                T(n, k), T->mb,
-                                C(m, p), ldcm,
-                                C(m, n), ldcm);
+                                A(n, k),
+                                T(n, k),
+                                C(m, p),
+                                C(m, n));
                         }
                         RUNTIME_data_flush( sequence, A(n, k) );
                         RUNTIME_data_flush( sequence, T(n, k) );
@@ -494,11 +463,9 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                     for (p = k; p+RD < C->nt; p += 2*RD) {
                         n = p + RD;
                         tempnn = n == C->mt-1 ? C->m-n*C->mb : C->mb;
-                        ldan = BLKLDD(A, n);
 
                         for (m = 0; m < C->mt; m++) {
                             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                            ldcm   = BLKLDD(C, m);
 
                             node = C->get_rankof( C, m, n );
                             RUNTIME_data_migrate( sequence, C(m, p), node );
@@ -508,10 +475,10 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
                             INSERT_TASK_ztpmqrt(
                                 &options, side, trans,
                                 tempmm, tempnn, tempkn, tempmm, ib, T->nb,
-                                A (n, k), ldan,
-                                T2(n, k), T->mb,
-                                C (m, p), ldcm,
-                                C (m, n), ldcm);
+                                A (n, k),
+                                T2(n, k),
+                                C (m, p),
+                                C (m, n));
                         }
                         RUNTIME_data_flush( sequence, A (n, k) );
                         RUNTIME_data_flush( sequence, T2(n, k) );

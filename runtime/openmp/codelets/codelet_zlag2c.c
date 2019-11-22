@@ -2,53 +2,42 @@
  *
  * @file openmp/codelet_zlag2c.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zlag2c StarPU codelet
+ * @brief Chameleon zlag2c OpenMP codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
- * @author Mathieu Faverge
- * @author Emmanuel Agullo
- * @author Cedric Castagnede
  * @author Philippe Virouleau
- * @date 2018-06-15
+ * @author Mathieu Faverge
+ * @date 2019-11-19
  * @precisions mixed zc -> ds
  *
  */
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
-/**
- *
- * @ingroup CORE_CHAMELEON_Complex64_t
- *
- */
 void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
                          int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
-    CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-    CHAMELEON_Complex32_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn);
-#pragma omp task firstprivate(m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0]) depend(inout:ptrB[0])
-    CORE_zlag2c( m, n, ptrA, lda, ptrB, ldb);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAMELEON_Complex32_t *tileB = B->get_blktile( B, Bm, Bn );
+#pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
+    TCORE_zlag2c( m, n, tileA, tileB );
 }
 
 void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
                          int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
-    CHAMELEON_Complex32_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An);
-    CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
-#pragma omp task firstprivate(m, n, ptrA, lda, ptrB, ldb) depend(in:ptrA[0]) depend(inout:ptrB[0])
-    CORE_clag2z( m, n, ptrA, lda, ptrB, ldb);
+    CHAMELEON_Complex32_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
+#pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
+    TCORE_clag2z( m, n, tileA, tileB );
 }

@@ -92,11 +92,14 @@ CORE_zgessm_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
                        int m, int n, int k, int ib, int nb, int *IPIV,
-                       const CHAM_desc_t *L, int Lm, int Ln, int ldl,
-                       const CHAM_desc_t *D, int Dm, int Dn, int ldd,
-                       const CHAM_desc_t *A, int Am, int An, int lda)
+                       const CHAM_desc_t *L, int Lm, int Ln,
+                       const CHAM_desc_t *D, int Dm, int Dn,
+                       const CHAM_desc_t *A, int Am, int An)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileL = L->get_blktile( L, Lm, Ln );
+    CHAM_tile_t *tileD = D->get_blktile( D, Dm, Dn );
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgessm_parsec, options->priority, "gessm",
@@ -106,11 +109,11 @@ void INSERT_TASK_zgessm(const RUNTIME_option_t *options,
         sizeof(int),           &ib,                               VALUE,
         sizeof(int*),          &IPIV,                             VALUE,
         PASSED_BY_REF,         RTBLKADDR( L, CHAMELEON_Complex64_t, Lm, Ln ), chameleon_parsec_get_arena_index( L ) | INPUT,
-        sizeof(int),           &ldl,                              VALUE,
+        sizeof(int), &(tileL->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( D, CHAMELEON_Complex64_t, Dm, Dn ), chameleon_parsec_get_arena_index( D ) | INPUT,
-        sizeof(int),           &ldd,                              VALUE,
+        sizeof(int), &(tileD->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                              VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

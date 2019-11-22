@@ -20,11 +20,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zgegram_parsec( parsec_execution_stream_t *context,
                      parsec_task_t             *this_task )
@@ -82,12 +77,15 @@ CORE_zsygram_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int mt, int nt,
-                        const CHAM_desc_t *Di, int Dim, int Din, int lddi,
-                        const CHAM_desc_t *Dj, int Djm, int Djn, int lddj,
+                        const CHAM_desc_t *Di, int Dim, int Din,
+                        const CHAM_desc_t *Dj, int Djm, int Djn,
                         const CHAM_desc_t *D, int Dm, int Dn,
-                        CHAM_desc_t *A, int Am, int An, int lda)
+                        CHAM_desc_t *A, int Am, int An)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileDi = Di->get_blktile( Di, Dim, Din );
+    CHAM_tile_t *tileDj = Dj->get_blktile( Dj, Djm, Djn );
+    CHAM_tile_t *tileA  = A->get_blktile( A, Am, An );
     double *ptrDi, *ptrDj;
 
     /*
@@ -105,10 +103,10 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
             sizeof(int),   &mt,   VALUE,
             sizeof(int),   &nt,   VALUE,
             PASSED_BY_REF, RTBLKADDR( Di, double, Dim, Din ), chameleon_parsec_get_arena_index( Di ) | INPUT,
-            sizeof(int),   &lddi, VALUE,
+            sizeof(int), &(tileDi->ld), VALUE,
             PASSED_BY_REF, RTBLKADDR( D, double, Dm, Dn ), chameleon_parsec_get_arena_index( D ) | INPUT,
             PASSED_BY_REF, RTBLKADDR( A, double, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-            sizeof(int),   &lda,  VALUE,
+            sizeof(int), &(tileA->ld), VALUE,
             PARSEC_DTD_ARG_END );
     } else {
         parsec_dtd_taskpool_insert_task(
@@ -119,12 +117,12 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
             sizeof(int),   &mt,   VALUE,
             sizeof(int),   &nt,   VALUE,
             PASSED_BY_REF, RTBLKADDR( Di, double, Dim, Din ), chameleon_parsec_get_arena_index( Di ) | INPUT,
-            sizeof(int),   &lddi, VALUE,
+            sizeof(int), &(tileDi->ld), VALUE,
             PASSED_BY_REF, RTBLKADDR( Dj, double, Djm, Djn ), chameleon_parsec_get_arena_index( Dj ) | INPUT,
-            sizeof(int),   &lddj, VALUE,
+            sizeof(int), &(tileDj->ld), VALUE,
             PASSED_BY_REF, RTBLKADDR( D, double, Dm, Dn ), chameleon_parsec_get_arena_index( D ) | INPUT,
             PASSED_BY_REF, RTBLKADDR( A, double, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-            sizeof(int),   &lda,  VALUE,
+            sizeof(int), &(tileA->ld), VALUE,
             PARSEC_DTD_ARG_END );
     }
 

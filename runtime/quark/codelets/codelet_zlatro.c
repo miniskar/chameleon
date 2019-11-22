@@ -19,7 +19,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zlatro_quark(Quark *quark)
 {
@@ -27,20 +27,18 @@ void CORE_zlatro_quark(Quark *quark)
     cham_trans_t trans;
     int M;
     int N;
-    const CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    quark_unpack_args_8(quark, uplo, trans, M, N, A, LDA, B, LDB);
-    CORE_zlatro(uplo, trans, M, N, A, LDA, B, LDB);
+    quark_unpack_args_6(quark, uplo, trans, M, N, tileA, tileB);
+    TCORE_zlatro(uplo, trans, M, N, tileA, tileB);
 }
 
 void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, cham_trans_t trans,
                        int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
 
@@ -49,9 +47,7 @@ void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
         sizeof(int),              &trans, VALUE,
         sizeof(int),                     &m,     VALUE,
         sizeof(int),                     &n,     VALUE,
-        sizeof(CHAMELEON_Complex64_t)*mb*mb,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
-        sizeof(int),                     &lda,   VALUE,
-        sizeof(CHAMELEON_Complex64_t)*mb*mb,  RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT,
-        sizeof(int),                     &ldb,   VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+        sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT,
         0);
 }

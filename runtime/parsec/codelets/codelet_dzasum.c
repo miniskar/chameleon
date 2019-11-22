@@ -44,10 +44,11 @@ CORE_dzasum_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
                        cham_store_t storev, cham_uplo_t uplo, int M, int N,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
+                       const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_dzasum_parsec, options->priority, "dzasum",
@@ -56,7 +57,7 @@ void INSERT_TASK_dzasum(const RUNTIME_option_t *options,
         sizeof(int),           &M,                                VALUE,
         sizeof(int),           &N,                                VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),           &lda,                              VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( B, double, Bm, Bn ),     INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

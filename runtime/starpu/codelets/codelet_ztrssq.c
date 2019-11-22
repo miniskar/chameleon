@@ -29,15 +29,13 @@ static void cl_ztrssq_cpu_func(void *descr[], void *cl_arg)
     cham_diag_t diag;
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *SCALESUMSQ;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileW;
 
-    A          = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    SCALESUMSQ = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    starpu_codelet_unpack_args(cl_arg, &uplo, &diag, &m, &n);
-    CORE_ztrssq( uplo, diag, m, n, A, ldA, &SCALESUMSQ[0], &SCALESUMSQ[1]);
+    tileA = cti_interface_get(descr[0]);
+    tileW = cti_interface_get(descr[1]);
+    starpu_codelet_unpack_args( cl_arg, &uplo, &diag, &m, &n );
+    TCORE_ztrssq( uplo, diag, m, n, tileA, tileW );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -49,7 +47,7 @@ CODELETS_CPU(ztrssq, 2, cl_ztrssq_cpu_func)
 void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_diag_t diag,
                          int m, int n,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     struct starpu_codelet *codelet = &cl_ztrssq;
@@ -74,5 +72,4 @@ void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
         STARPU_NAME, "ztrssq",
 #endif
         0);
-    (void)ldA;
 }

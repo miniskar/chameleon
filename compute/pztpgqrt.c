@@ -40,7 +40,6 @@ void chameleon_pztpgqrt( int KT, int L,
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldvm, ldqk, ldqm;
     int tempkn, tempnn, tempmm, templm;
     int ib;
 
@@ -80,15 +79,12 @@ void chameleon_pztpgqrt( int KT, int L,
         RUNTIME_iteration_push(chamctxt, k);
 
         tempkn = k == Q1->nt-1 ? Q1->n-k*Q1->nb : Q1->nb;
-        ldqk = BLKLDD(Q1, k);
 
         /* Equivalent to the tsmqr step on Q1,Q2 */
         maxmtk = chameleon_min( Q2->mt, maxmt+k ) - 1;
         for (m = maxmtk; m > -1; m--) {
             tempmm = m == Q2->mt-1 ? Q2->m-m*Q2->mb : Q2->mb;
             templm = ((L > 0) && (m == maxmtk)) ? tempmm : 0;
-            ldvm = BLKLDD(V2, m);
-            ldqm = BLKLDD(Q2, m);
 
             for (n = k; n < Q2->nt; n++) {
                 tempnn = n == Q2->nt-1 ? Q2->n-n*Q2->nb : Q2->nb;
@@ -97,10 +93,10 @@ void chameleon_pztpgqrt( int KT, int L,
                     &options,
                     ChamLeft, ChamNoTrans,
                     tempmm, tempnn, tempkn, templm, ib, T2->nb,
-                    V2(m, k), ldvm,
-                    T2(m, k), T2->mb,
-                    Q1(k, n), ldqk,
-                    Q2(m, n), ldqm );
+                    V2(m, k),
+                    T2(m, k),
+                    Q1(k, n),
+                    Q2(m, n) );
             }
         }
 

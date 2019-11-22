@@ -29,14 +29,17 @@ static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
     cham_store_t storev;
     int M;
     int N;
-    double *SCLSSQ_IN;
-    double *SCLSSQ_OUT;
+    CHAM_tile_t *tileIN;
+    CHAM_tile_t *tileOUT;
 
-    starpu_codelet_unpack_args(cl_arg, &storev, &M, &N);
-    SCLSSQ_IN  = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
-    SCLSSQ_OUT = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
+    starpu_codelet_unpack_args( cl_arg, &storev, &M, &N );
+    tileIN  = cti_interface_get(descr[0]);
+    tileOUT = cti_interface_get(descr[1]);
 
-    CORE_zplssq(storev, M, N, SCLSSQ_IN, SCLSSQ_OUT);
+    assert( tileIN->format  & CHAMELEON_TILE_FULLRANK );
+    assert( tileOUT->format & CHAMELEON_TILE_FULLRANK );
+
+    CORE_zplssq( storev, M, N, tileIN->mat, tileOUT->mat );
 
     (void)cl_arg;
 }
@@ -49,15 +52,15 @@ CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
 
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
                          cham_store_t storev, int M, int N,
-                         const CHAM_desc_t *SCLSSQ_IN,  int SCLSSQ_INm,  int SCLSSQ_INn,
-                         const CHAM_desc_t *SCLSSQ_OUT, int SCLSSQ_OUTm, int SCLSSQ_OUTn )
+                         const CHAM_desc_t *IN,  int INm,  int INn,
+                         const CHAM_desc_t *OUT, int OUTm, int OUTn )
 {
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(  SCLSSQ_IN,  SCLSSQ_INm,  SCLSSQ_INn  );
-    CHAMELEON_ACCESS_RW( SCLSSQ_OUT, SCLSSQ_OUTm, SCLSSQ_OUTn );
+    CHAMELEON_ACCESS_R(  IN,  INm,  INn  );
+    CHAMELEON_ACCESS_RW( OUT, OUTm, OUTn );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     starpu_insert_task(
@@ -65,8 +68,8 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
         STARPU_VALUE,    &storev,            sizeof(int),
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
-        STARPU_R,  RTBLKADDR( SCLSSQ_IN,  double, SCLSSQ_INm,  SCLSSQ_INn  ),
-        STARPU_RW, RTBLKADDR( SCLSSQ_OUT, double, SCLSSQ_OUTm, SCLSSQ_OUTn ),
+        STARPU_R,  RTBLKADDR( IN,  double, INm,  INn  ),
+        STARPU_RW, RTBLKADDR( OUT, double, OUTm, OUTn ),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
@@ -79,12 +82,14 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
 {
     int N;
-    double *RESULT;
+    CHAM_tile_t *tileRESULT;
 
     starpu_codelet_unpack_args(cl_arg, &N);
-    RESULT = (double *)STARPU_MATRIX_GET_PTR(descr[0]);
+    tileRESULT = cti_interface_get(descr[0]);
 
-    CORE_zplssq2(N, RESULT);
+    assert( tileRESULT->format  & CHAMELEON_TILE_FULLRANK );
+
+    CORE_zplssq2( N, tileRESULT->mat );
 
     (void)cl_arg;
 }
