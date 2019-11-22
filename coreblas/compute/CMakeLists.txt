@@ -98,6 +98,7 @@ set(ZSRC
     core_zttqrt.c
     core_zunmlq.c
     core_zunmqr.c
+    core_ztile.c
     )
 
 precisions_rules_py(COREBLAS_SRCS_GENERATED "${ZSRC}"

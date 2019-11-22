@@ -48,10 +48,16 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
 {
     int ret = 0;
     if ( worker_size > 0 ) {
+        CHAM_tile_t tile = {
+            .format = CHAMELEON_TILE_FULLRANK,
+            .m      = worker_size,
+            .n      = 1,
+            .ld     = worker_size,
+            .mat    = NULL,
+        };
         options->ws_wsize = worker_size;
-        starpu_matrix_data_register( (starpu_data_handle_t*)(&(options->ws_worker)),
-                                     -1, (uintptr_t)NULL,
-                                     worker_size, worker_size, 1, sizeof(char));
+        starpu_cham_tile_register( (starpu_data_handle_t*)(&(options->ws_worker)),
+                                   -1, &tile, sizeof(char) );
     }
     if ( host_size > 0 ) {
         options->ws_hsize = host_size;

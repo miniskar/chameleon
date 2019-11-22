@@ -35,33 +35,28 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
     int n;
     int ib;
     int nb;
-    CHAMELEON_Complex64_t *U;
-    int ldU;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    CHAMELEON_Complex64_t *L;
-    int ldL;
+    CHAM_tile_t *tileU;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileL;
     int *IPIV;
-    CHAMELEON_Complex64_t *WORK;
-    int ldWORK;
+    CHAM_tile_t *tileW;
+    int ldW;
     cham_bool_t check_info;
     int iinfo;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
     int info = 0;
 
-    U = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    L = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]);
-    ldU = STARPU_MATRIX_GET_LD( descr[0] );
-    ldA = STARPU_MATRIX_GET_LD( descr[1] );
-    ldL = STARPU_MATRIX_GET_LD( descr[2] );
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &nb,
-                               &IPIV, &d_work, &ldWORK, &check_info, &iinfo,
-                               &sequence, &request);
+    tileU = cti_interface_get(descr[0]);
+    tileA = cti_interface_get(descr[1]);
+    tileL = cti_interface_get(descr[2]);
+    tileW = cti_interface_get(descr[3]);
 
-    CORE_ztstrf(m, n, ib, nb, U, ldU, A, ldA, L, ldL, IPIV, WORK, ldWORK, &info);
+    starpu_codelet_unpack_args( cl_arg, &m, &n, &ib, &nb,
+                                &IPIV, &d_work, &ldW, &check_info, &iinfo,
+                                &sequence, &request );
+
+    TCORE_ztstrf(m, n, ib, nb, tileU, tileA, tileL, IPIV, tileW->mat, ldW, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -74,76 +69,11 @@ static void cl_ztstrf_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(ztstrf, 4, cl_ztstrf_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_ztstrf computes an LU factorization of a complex matrix formed
- *  by an upper triangular NB-by-N tile U on top of a M-by-N tile A
- *  using partial pivoting with row interchanges.
- *
- *  This is the right-looking Level 2.5 BLAS version of the algorithm.
- *
- *******************************************************************************
- *
- * @param[in] M
- *         The number of rows of the tile A.  M >= 0.
- *
- * @param[in] N
- *         The number of columns of the tile A.  N >= 0.
- *
- * @param[in] IB
- *         The inner-blocking size.  IB >= 0.
- *
- * @param[in] NB
- *
- * @param[in,out] U
- *         On entry, the NB-by-N upper triangular tile.
- *         On exit, the new factor U from the factorization
- *
- * @param[in] ldU
- *         The leading dimension of the array U.  ldU >= max(1,NB).
- *
- * @param[in,out] A
- *         On entry, the M-by-N tile to be factored.
- *         On exit, the factor L from the factorization
- *
- * @param[in] ldA
- *         The leading dimension of the array A.  ldA >= max(1,M).
- *
- * @param[in,out] L
- *         On entry, the IB-by-N lower triangular tile.
- *         On exit, the interchanged rows form the tile A in case of pivoting.
- *
- * @param[in] ldL
- *         The leading dimension of the array L.  ldL >= max(1,IB).
- *
- * @param[out] IPIV
- *         The pivot indices; for 1 <= i <= min(M,N), row i of the
- *         tile U was interchanged with row IPIV(i) of the tile A.
- *
- * @param[in,out] WORK
- *
- * @param[in] ldWORK
- *         The dimension of the array WORK.
- *
- * @param[out] INFO
- *
- *******************************************************************************
- *
- * @retval CHAMELEON_SUCCESS successful exit
- * @retval <0 if INFO = -k, the k-th argument had an illegal value
- * @retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
- *              has been completed, but the factor U is exactly
- *              singular, and division by zero will occur if it is used
- *              to solve a system of equations.
- *
- */
 void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
-                         const CHAM_desc_t *U, int Um, int Un, int ldU,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
-                         const CHAM_desc_t *L, int Lm, int Ln, int ldL,
+                         const CHAM_desc_t *U, int Um, int Un,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *L, int Lm, int Ln,
                          int *IPIV,
                          cham_bool_t check_info, int iinfo )
 {
@@ -181,7 +111,4 @@ void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
         STARPU_NAME, "ztstrf",
 #endif
         0);
-    (void)ldL;
-    (void)ldA;
-    (void)ldU;
 }

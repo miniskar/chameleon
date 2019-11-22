@@ -30,14 +30,12 @@ static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
 
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha);
-    CORE_zlascal(uplo, M, N, alpha, A, ldA);
+    TCORE_zlascal(uplo, M, N, alpha, tileA);
     return;
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -47,42 +45,11 @@ static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zlascal, 1, cl_zlascal_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_zlascal adds to matrices together.
- *
- *       A <- alpha * A
- *
- *******************************************************************************
- *
- * @param[in] M
- *          Number of rows of the matrices A and B.
- *
- * @param[in] N
- *          Number of columns of the matrices A and B.
- *
- * @param[in] alpha
- *          Scalar factor of A.
- *
- * @param[in] A
- *          Matrix of size ldA-by-N.
- *
- * @param[in] ldA
- *          Leading dimension of the array A. ldA >= max(1,M)
- *
- *******************************************************************************
- *
- *          @retval CHAMELEON_SUCCESS successful exit
- *          @retval <0 if -i, the i-th argument had an illegal value
- *
- */
 void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int nb,
                         CHAMELEON_Complex64_t alpha,
-                        const CHAM_desc_t *A, int Am, int An, int ldA)
+                        const CHAM_desc_t *A, int Am, int An)
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlascal;
@@ -105,5 +72,4 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         STARPU_NAME, "zlascal",
 #endif
         0);
-    (void)ldA;
 }

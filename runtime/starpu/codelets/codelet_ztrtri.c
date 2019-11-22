@@ -33,17 +33,15 @@ static void cl_ztrtri_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     cham_diag_t diag;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     int iinfo;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
     int info = 0;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &diag, &N, &iinfo, &sequence, &request);
-    CORE_ztrtri(uplo, diag, N, A, ldA, &info);
+    TCORE_ztrtri(uplo, diag, N, tileA, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -64,7 +62,7 @@ CODELETS_CPU(ztrtri, 1, cl_ztrtri_cpu_func)
 void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_diag_t diag,
                          int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          int iinfo )
 {
     (void)nb;
@@ -90,5 +88,4 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
         STARPU_NAME, "ztrtri",
 #endif
         0);
-    (void)ldA;
 }

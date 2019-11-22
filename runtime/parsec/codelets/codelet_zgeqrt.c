@@ -108,10 +108,12 @@ CORE_zgeqrt_parsec ( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *T, int Tm, int Tn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgeqrt_parsec, options->priority, "geqrt",
@@ -119,9 +121,9 @@ void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
         sizeof(int),           &n,                             VALUE,
         sizeof(int),           &ib,                            VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                           VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( T, CHAMELEON_Complex64_t, Tm, Tn ), chameleon_parsec_get_arena_index( T ) | OUTPUT,
-        sizeof(int),           &ldt,                           VALUE,
+        sizeof(int), &(tileT->ld), VALUE,
         sizeof(CHAMELEON_Complex64_t)*nb,       NULL,                         SCRATCH,
         sizeof(CHAMELEON_Complex64_t)*ib*nb,    NULL,                         SCRATCH,
         PARSEC_DTD_ARG_END );

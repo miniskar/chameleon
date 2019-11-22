@@ -33,13 +33,11 @@ static void cl_zlaset2_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &alpha);
-    CORE_zlaset2(uplo, M, N, alpha, A, ldA);
+    TCORE_zlaset2(uplo, M, N, alpha, tileA);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -48,42 +46,9 @@ static void cl_zlaset2_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zlaset2, 1, cl_zlaset2_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_zlaset2 - Sets the elements of the matrix A to alpha.
- *  Not LAPACK compliant! Read below.
- *
- *******************************************************************************
- *
- * @param[in] uplo
- *          Specifies which elements of the matrix are to be set
- *          = ChamUpper: STRICT Upper part of A is set to alpha;
- *          = ChamLower: STRICT Lower part of A is set to alpha;
- *          = ChamUpperLower: ALL elements of A are set to alpha.
- *          Not LAPACK Compliant.
- *
- * @param[in] M
- *          The number of rows of the matrix A.  M >= 0.
- *
- * @param[in] N
- *         The number of columns of the matrix A.  N >= 0.
- *
- * @param[in] alpha
- *         The constant to which the elements are to be set.
- *
- * @param[in,out] A
- *         On entry, the M-by-N tile A.
- *         On exit, A has been set to alpha accordingly.
- *
- * @param[in] ldA
- *         The leading dimension of the array A.  ldA >= max(1,M).
- *
- */
 void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int M, int N,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA)
+                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An)
 {
 
     struct starpu_codelet *codelet = &cl_zlaset2;
@@ -106,5 +71,4 @@ void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
         STARPU_NAME, "zlaset2",
 #endif
         0);
-    (void)ldA;
 }

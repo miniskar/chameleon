@@ -30,16 +30,14 @@ static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
     cham_uplo_t uplo;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
-    double *work;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tilework;
 
-    A    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    work = (double *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA    = cti_interface_get(descr[0]);
+    tilework = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &storev, &uplo, &M, &N);
-    CORE_dzasum(storev, uplo, M, N, A, ldA, work);
+    TCORE_dzasum(storev, uplo, M, N, tileA, tilework->mat );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -50,7 +48,7 @@ CODELETS_CPU(dzasum, 2, cl_dzasum_cpu_func)
 
 void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_dzasum;
@@ -63,17 +61,16 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
 
     starpu_insert_task(
         starpu_mpi_codelet(codelet),
-        STARPU_VALUE,    &storev,                sizeof(int),
-        STARPU_VALUE,      &uplo,                sizeof(int),
-        STARPU_VALUE,         &M,                        sizeof(int),
-        STARPU_VALUE,         &N,                        sizeof(int),
-        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_VALUE,    &storev,              sizeof(cham_store_t),
+        STARPU_VALUE,    &uplo,                sizeof(cham_uplo_t),
+        STARPU_VALUE,    &M,                   sizeof(int),
+        STARPU_VALUE,    &N,                   sizeof(int),
+        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_RW,        RTBLKADDR(B, double, Bm, Bn),
-        STARPU_PRIORITY,    options->priority,
-        STARPU_CALLBACK,    callback,
+        STARPU_PRIORITY,  options->priority,
+        STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "dzasum",
 #endif
         0);
-    (void)ldA;
 }

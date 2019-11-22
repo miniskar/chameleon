@@ -12,8 +12,6 @@
  * @brief Chameleon zsyssq Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @date 2014-11-16
  * @precisions normal z -> c d s
@@ -21,42 +19,32 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zsyssq_quark(Quark *quark)
 {
     cham_store_t storev;
     cham_uplo_t uplo;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    double *SCALESUMSQ;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileW;
 
-    quark_unpack_args_6( quark, storev, uplo, n, A, lda, SCALESUMSQ );
-    CORE_zsyssq( storev, uplo, n, A, lda, SCALESUMSQ );
+    quark_unpack_args_5( quark, storev, uplo, n, tileA, tileW );
+    TCORE_zsyssq( storev, uplo, n, tileA, tileW );
 }
 
 void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
                         cham_store_t storev, cham_uplo_t uplo, int n,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *A, int Am, int An,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
-    int sizessq;
-
-    if ( storev == ChamEltwise ) {
-        sizessq = 2;
-    } else {
-        sizessq = 2*n;
-    }
-
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_SYSSQ;
     QUARK_Insert_Task(opt->quark, CORE_zsyssq_quark, (Quark_Task_Flags*)opt,
         sizeof(cham_store_t),            &storev, VALUE,
         sizeof(int),                     &uplo, VALUE,
         sizeof(int),                     &n,    VALUE,
-        sizeof(CHAMELEON_Complex64_t)*n*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
-        sizeof(int),                     &lda,  VALUE,
-        sizeof(double)*sizessq,          RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+        sizeof(void*), RTBLKADDR(SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn), INOUT,
         0);
 }

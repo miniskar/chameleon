@@ -35,19 +35,22 @@ static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
     int N;
     int displA;
     int displB;
-    const CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAMELEON_Complex64_t *A;
     CHAMELEON_Complex64_t *B;
-    int ldB;
 
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N, &displA, &displB);
-    CORE_zlacpy(uplo, M, N, A + displA, ldA, B + displB, ldB);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+
+    A = tileA->mat;
+    B = tileB->mat;
+    CORE_zlacpy( uplo, M, N, A + displA, tileA->ld, B + displB, tileB->ld );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -56,15 +59,10 @@ static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zlacpy, 2, cl_zlacpy_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An, int ldA,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                          int displA, const CHAM_desc_t *A, int Am, int An,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlacpy;
@@ -90,16 +88,14 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         STARPU_NAME, "zlacpy",
 #endif
         0);
-    (void)ldA;
-    (void)ldA;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int ldA,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An, ldA,
-                         0, B, Bm, Bn, ldB );
+                         0, A, Am, An,
+                         0, B, Bm, Bn );
 }

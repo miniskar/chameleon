@@ -21,11 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zhe2ge_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -51,10 +46,12 @@ CORE_zhe2ge_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zhe2ge_parsec, options->priority, "he2ge",
@@ -62,9 +59,9 @@ void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
         sizeof(int),        &m,      VALUE,
         sizeof(int),        &n,      VALUE,
         PASSED_BY_REF,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT ,
-        sizeof(int),        &lda,    VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT | AFFINITY,
-        sizeof(int),        &ldb,    VALUE,
+        sizeof(int), &(tileB->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)mb;

@@ -1,0 +1,431 @@
+/**
+ *
+ * @file starpu/cham_tile_interface.c
+ *
+ * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon tile interface for StarPU
+ *
+ * @version 0.9.2
+ * @author Mathieu Faverge
+ * @author Gwenole Lucas
+ * @date 2019-07-23
+ *
+ */
+#include "chameleon_starpu.h"
+
+static inline CHAM_tile_t *
+cti_handle_get( starpu_data_handle_t handle )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+
+#ifdef STARPU_DEBUG
+    STARPU_ASSERT_MSG( cham_tile_interface->id == STARPU_CHAM_TILE_INTERFACE_ID,
+                       "Error. The given data is not a cham_tile." );
+#endif
+
+    return &(cham_tile_interface->tile);
+}
+
+int
+cti_handle_get_m( starpu_data_handle_t handle )
+{
+    CHAM_tile_t *tile = cti_handle_get( handle );
+    return tile->m;
+}
+
+int
+cti_handle_get_n( starpu_data_handle_t handle )
+{
+    CHAM_tile_t *tile = cti_handle_get( handle );
+    return tile->n;
+}
+
+static void
+cti_init( void *data_interface )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = data_interface;
+    cham_tile_interface->id = STARPU_CHAM_TILE_INTERFACE_ID;
+    cham_tile_interface->allocsize = -1;
+}
+
+static void
+cti_register_data_handle( starpu_data_handle_t  handle,
+                          unsigned              home_node,
+                          void                 *data_interface )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *) data_interface;
+    unsigned node;
+
+    for (node = 0; node < STARPU_MAXNODES; node++)
+    {
+        starpu_cham_tile_interface_t *local_interface = (starpu_cham_tile_interface_t *)
+            starpu_data_get_interface_on_node(handle, node);
+
+        memcpy( local_interface, cham_tile_interface,
+                sizeof( starpu_cham_tile_interface_t ) );
+
+        if ( node != home_node )
+        {
+            local_interface->dev_handle = 0;
+            local_interface->tile.mat  = NULL;
+            local_interface->tile.ld   = -1;
+        }
+    }
+}
+
+static starpu_ssize_t
+cti_allocate_data_on_node( void *data_interface, unsigned node )
+{
+    uintptr_t addr = 0, handle;
+    starpu_cham_tile_interface_t *cham_tile_interface =
+        (starpu_cham_tile_interface_t *) data_interface;
+
+    uint32_t ld = cham_tile_interface->tile.m;
+    starpu_ssize_t allocated_memory;
+
+    allocated_memory = cham_tile_interface->allocsize;
+    if ( allocated_memory <= 0 ) {
+        return 0;
+    }
+
+    handle = starpu_malloc_on_node( node, allocated_memory );
+
+    if ( !handle ) {
+        return -ENOMEM;
+    }
+
+    if ( starpu_node_get_kind(node) != STARPU_OPENCL_RAM ) {
+        addr = handle;
+    }
+
+    /* update the data properly */
+    cham_tile_interface->tile.mat   = (void*)addr;
+    cham_tile_interface->tile.ld    = ld;
+    cham_tile_interface->dev_handle = handle;
+
+    return allocated_memory;
+}
+
+static void
+cti_free_data_on_node( void *data_interface, unsigned node )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface =
+        (starpu_cham_tile_interface_t *) data_interface;
+
+    starpu_free_on_node( node, cham_tile_interface->dev_handle, cham_tile_interface->allocsize );
+    cham_tile_interface->tile.mat = NULL;
+    cham_tile_interface->dev_handle = 0;
+}
+
+static void *
+cti_to_pointer( void *data_interface, unsigned node )
+{
+    (void) node;
+    starpu_cham_tile_interface_t *cham_tile_interface = data_interface;
+
+    return (void*)(cham_tile_interface->tile.mat);
+}
+
+static int
+cti_pointer_is_inside( void *data_interface, unsigned node, void *ptr )
+{
+    (void) node;
+    starpu_cham_tile_interface_t *cham_tile_interface = data_interface;
+    char *begin = cham_tile_interface->tile.mat;
+    char *end   = begin + cham_tile_interface->allocsize;
+
+    STARPU_ASSERT_MSG( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK,
+                       "Only full-rank matrices are supported." );
+
+    return ( (char*) ptr >= begin )
+        && ( (char*) ptr <  end   );
+}
+
+static size_t
+cti_get_size(starpu_data_handle_t handle)
+{
+    starpu_cham_tile_interface_t *cham_tile_interface =
+        starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+
+#ifdef STARPU_DEBUG
+    STARPU_ASSERT_MSG( cham_tile_interface->id == STARPU_CHAM_TILE_INTERFACE_ID,
+                       "Error. The given data is not a cham_tile." );
+#endif
+
+    return cham_tile_interface->allocsize;
+}
+
+static size_t
+cti_get_alloc_size(starpu_data_handle_t handle)
+{
+    starpu_cham_tile_interface_t *cham_tile_interface =
+        starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+
+#ifdef STARPU_DEBUG
+    STARPU_ASSERT_MSG( cham_tile_interface->id == STARPU_CHAM_TILE_INTERFACE_ID,
+                       "Error. The given data is not a cham_tile." );
+#endif
+
+    STARPU_ASSERT_MSG( cham_tile_interface->allocsize != (size_t)-1,
+                       "The cham_tile allocation size needs to be defined" );
+
+    return cham_tile_interface->allocsize;
+}
+
+static uint32_t
+cti_footprint( starpu_data_handle_t handle )
+{
+    CHAM_tile_t *tile = cti_handle_get( handle );
+    return starpu_hash_crc32c_be( tile->m, tile->n );
+}
+
+static uint32_t
+cti_alloc_footprint( starpu_data_handle_t handle )
+{
+    return starpu_hash_crc32c_be( cti_handle_get_allocsize(handle), 0 );
+}
+
+static int
+cti_compare( void *data_interface_a, void *data_interface_b )
+{
+    starpu_cham_tile_interface_t *cham_tile_a = (starpu_cham_tile_interface_t *) data_interface_a;
+    starpu_cham_tile_interface_t *cham_tile_b = (starpu_cham_tile_interface_t *) data_interface_b;
+
+    /* Two matrices are considered compatible if they have the same size */
+    return ( cham_tile_a->tile.m  == cham_tile_b->tile.m  )
+        && ( cham_tile_a->tile.n  == cham_tile_b->tile.n  )
+        && ( cham_tile_a->flttype == cham_tile_b->flttype );
+}
+
+static int
+cti_alloc_compare(void *data_interface_a, void *data_interface_b)
+{
+    starpu_cham_tile_interface_t *cham_tile_a = (starpu_cham_tile_interface_t *) data_interface_a;
+    starpu_cham_tile_interface_t *cham_tile_b = (starpu_cham_tile_interface_t *) data_interface_b;
+
+    /* Two matrices are considered compatible if they have the same allocated size */
+    return ( cham_tile_a->allocsize   == cham_tile_b->allocsize   );
+}
+
+static void
+cti_display( starpu_data_handle_t handle, FILE *f )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node(handle, STARPU_MAIN_RAM);
+
+    fprintf( f, "%u\t%u\t",
+             cham_tile_interface->tile.m,
+             cham_tile_interface->tile.n );
+}
+
+static int
+cti_pack_data_fullrank( starpu_cham_tile_interface_t *cham_tile_interface,
+                        void *ptr )
+{
+    char *matrix = (void *)cham_tile_interface->tile.mat;
+
+    if ( cham_tile_interface->tile.m == cham_tile_interface->tile.ld ) {
+        memcpy( ptr, matrix, cham_tile_interface->allocsize );
+    }
+    else {
+        int   n;
+        char *tmpptr = ptr;
+
+        for(n=0; n<cham_tile_interface->tile.n; n++)
+        {
+            size_t elemsize = CHAMELEON_Element_Size( cham_tile_interface->flttype );
+            size_t size = cham_tile_interface->tile.m * elemsize;
+            memcpy( tmpptr, matrix, size );
+            tmpptr += size;
+            matrix += cham_tile_interface->tile.ld * elemsize;
+        }
+    }
+    return 0;
+}
+
+static int
+cti_pack_data( starpu_data_handle_t handle, unsigned node, void **ptr, starpu_ssize_t *count )
+{
+    STARPU_ASSERT(starpu_data_test_if_allocated_on_node(handle, node));
+
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node(handle, node);
+
+    *count = (starpu_ssize_t)(cham_tile_interface->allocsize);
+    *count += sizeof(size_t) + sizeof(CHAM_tile_t);
+
+    if ( ptr != NULL )
+    {
+        char *tmp;
+        *ptr = (void *)starpu_malloc_on_node_flags( node, *count, 0 );
+        tmp = (char*)(*ptr);
+
+        /* Start by the size to allocate on reception */
+        memcpy( tmp, &(cham_tile_interface->allocsize), sizeof(size_t) );
+        tmp += sizeof(size_t);
+
+        /* Copy the tile metadata */
+        memcpy( tmp, &(cham_tile_interface->tile), sizeof(CHAM_tile_t) );
+        tmp += sizeof(CHAM_tile_t);
+
+        /* Pack the real data */
+        if ( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK ) {
+            cti_pack_data_fullrank( cham_tile_interface, tmp );
+        }
+        else {
+            STARPU_ASSERT_MSG( 1, "Unsupported format for pack." );
+        }
+    }
+
+    return 0;
+}
+
+static int
+cti_unpack_data_fullrank( starpu_cham_tile_interface_t *cham_tile_interface,
+                          void *ptr )
+{
+    char *matrix = (void *)cham_tile_interface->tile.mat;
+
+    if ( cham_tile_interface->tile.m == cham_tile_interface->tile.ld ) {
+        memcpy( matrix, ptr, cham_tile_interface->allocsize );
+    }
+    else {
+        int   n;
+        char *tmpptr = ptr;
+
+        for(n=0 ; n<cham_tile_interface->tile.n; n++)
+        {
+            size_t elemsize = CHAMELEON_Element_Size( cham_tile_interface->flttype );
+            size_t size = cham_tile_interface->tile.m * elemsize;
+            memcpy( matrix, tmpptr, size );
+            tmpptr += size;
+            matrix += cham_tile_interface->tile.ld * elemsize;
+        }
+    }
+    return 0;
+}
+
+static int
+cti_unpack_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t count )
+{
+    STARPU_ASSERT(starpu_data_test_if_allocated_on_node(handle, node));
+
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node(handle, node);
+
+    CHAM_tile_t dsttile;
+    char *tmp = ptr;
+
+    /* Extract the size of the information t unpack */
+    memcpy( &(cham_tile_interface->allocsize), tmp, sizeof(size_t) );
+    tmp += sizeof(size_t);
+
+    /* Extract the tile metadata of the remote tile */
+    memcpy( &dsttile, tmp, sizeof(CHAM_tile_t) );
+    tmp += sizeof(CHAM_tile_t);
+
+    cham_tile_interface->tile.format = dsttile.format;
+    cham_tile_interface->tile.ld = cham_tile_interface->tile.m;
+    STARPU_ASSERT( cham_tile_interface->tile.m == dsttile.m );
+    STARPU_ASSERT( cham_tile_interface->tile.n == dsttile.n );
+    STARPU_ASSERT( count == cham_tile_interface->allocsize + sizeof(size_t) + sizeof(CHAM_tile_t) );
+
+
+    /* Unpack the real data */
+    if ( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK ) {
+        cti_unpack_data_fullrank( cham_tile_interface, tmp );
+    }
+    else {
+        STARPU_ASSERT_MSG( 1, "Unsupported format for pack." );
+    }
+
+    /* Free the received information */
+    starpu_free_on_node_flags( node, (uintptr_t)ptr, count, 0 );
+
+    return 0;
+}
+
+static starpu_ssize_t
+cti_describe( void *data_interface, char *buf, size_t size )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *) data_interface;
+    return snprintf( buf, size, "M%ux%ux%u",
+                     (unsigned) cham_tile_interface->tile.m,
+                     (unsigned) cham_tile_interface->tile.n,
+                     (unsigned) cham_tile_interface->flttype );
+}
+
+struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
+{
+    .init                  = cti_init,
+    .register_data_handle  = cti_register_data_handle,
+    .allocate_data_on_node = cti_allocate_data_on_node,
+    .free_data_on_node     = cti_free_data_on_node,
+    .to_pointer            = cti_to_pointer,
+    .pointer_is_inside     = cti_pointer_is_inside,
+    .get_size              = cti_get_size,
+    .get_alloc_size        = cti_get_alloc_size,
+    .footprint             = cti_footprint,
+    .alloc_footprint       = cti_alloc_footprint,
+    .compare               = cti_compare,
+    .alloc_compare         = cti_alloc_compare,
+    .display               = cti_display,
+    .pack_data             = cti_pack_data,
+    .unpack_data           = cti_unpack_data,
+    .describe              = cti_describe,
+    //.copy_methods          =&cti_copy_methods,
+    .interfaceid           = STARPU_UNKNOWN_INTERFACE_ID,
+    .interface_size        = sizeof(starpu_cham_tile_interface_t),
+    .name                  = "STARPU_CHAM_TILE_INTERFACE"
+};
+
+void
+starpu_cham_tile_register( starpu_data_handle_t *handleptr,
+                           int                   home_node,
+                           CHAM_tile_t          *tile,
+                           cham_flttype_t        flttype )
+{
+    size_t elemsize = CHAMELEON_Element_Size( flttype );
+    starpu_cham_tile_interface_t cham_tile_interface =
+        {
+            .id         = STARPU_CHAM_TILE_INTERFACE_ID,
+            .flttype    = flttype,
+            .dev_handle = (intptr_t)(tile->mat),
+            .allocsize  = tile->m * tile->n * elemsize, /* We compute with m even if it's allocated with ld */
+            .tilesize   = tile->m * tile->n * elemsize,
+        };
+    memcpy( &(cham_tile_interface.tile), tile, sizeof( CHAM_tile_t ) );
+
+    starpu_data_register( handleptr, home_node, &cham_tile_interface, &starpu_interface_cham_tile_ops );
+}
+
+size_t
+cti_handle_get_allocsize( starpu_data_handle_t handle )
+{
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+
+#ifdef STARPU_DEBUG
+    STARPU_ASSERT_MSG( cham_tile_interface->id == STARPU_CHAM_TILE_INTERFACE_ID,
+                       "Error. The given data is not a cham_tile." );
+#endif
+
+    return cham_tile_interface->allocsize;
+}
+
+void
+starpu_cham_tile_interface_init() __attribute__((constructor));
+
+void
+starpu_cham_tile_interface_init()
+{
+    if ( starpu_interface_cham_tile_ops.interfaceid == STARPU_UNKNOWN_INTERFACE_ID )
+    {
+        starpu_interface_cham_tile_ops.interfaceid = starpu_data_interface_get_next_id();
+    }
+}

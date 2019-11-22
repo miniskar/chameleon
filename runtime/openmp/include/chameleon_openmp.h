@@ -20,14 +20,7 @@
 #define _chameleon_openmp_h_
 
 #include "coreblas.h"
-
 #include "control/common.h"
 #include <omp.h>
-
-/*
- * Access to block pointer and leading dimension
- */
-#define RTBLKADDR( desc, type, m, n ) ( (type*)RUNTIME_data_getaddr( desc, m, n ) )
-
 
 #endif /* _chameleon_openmp_h_ */

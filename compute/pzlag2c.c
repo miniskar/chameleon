@@ -41,7 +41,6 @@ void chameleon_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
 
     int X, Y;
     int m, n;
-    int ldam, ldbm;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -51,15 +50,13 @@ void chameleon_pclag2z(CHAM_desc_t *SA, CHAM_desc_t *B,
 
     for(m = 0; m < SA->mt; m++) {
         X = m == SA->mt-1 ? SA->m-m*SA->mb : SA->mb;
-        ldam = BLKLDD(SA, m);
-        ldbm = BLKLDD(B, m);
         for(n = 0; n < SA->nt; n++) {
             Y = n == SA->nt-1 ? SA->n-n*SA->nb : SA->nb;
             INSERT_TASK_clag2z(
                 &options,
                 X, Y, SA->mb,
-                SA(m, n), ldam,
-                B(m, n), ldbm);
+                SA(m, n),
+                B(m, n));
         }
     }
     RUNTIME_options_finalize(&options, chamctxt);

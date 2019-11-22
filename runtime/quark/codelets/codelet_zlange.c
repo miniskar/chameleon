@@ -12,8 +12,6 @@
  * @brief Chameleon zlange Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -23,25 +21,24 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zlange_quark(Quark *quark)
 {
-    double *normA;
+    CHAM_tile_t *tileNorm;
     cham_normtype_t norm;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
+    CHAM_tile_t *tileA;
     double *work;
 
-    quark_unpack_args_7(quark, norm, M, N, A, LDA, work, normA);
-    CORE_zlange( norm, M, N, A, LDA, work, normA);
+    quark_unpack_args_6( quark, norm, M, N, tileA, work, tileNorm );
+    TCORE_zlange( norm, M, N, tileA, work, tileNorm->mat );
 }
 
 void INSERT_TASK_zlange(const RUNTIME_option_t *options,
                        cham_normtype_t norm, int M, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An, int LDA,
+                       const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -52,21 +49,25 @@ void INSERT_TASK_zlange(const RUNTIME_option_t *options,
         sizeof(int),              &norm,  VALUE,
         sizeof(int),                     &M,     VALUE,
         sizeof(int),                     &N,     VALUE,
-        sizeof(CHAMELEON_Complex64_t)*NB*NB, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
-        sizeof(int),                     &LDA,   VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(double)*szeW,             NULL,   SCRATCH,
-        sizeof(double),                  RTBLKADDR(B, double, Bm, Bn), OUTPUT,
+        sizeof(void*), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
         0);
 }
 
 void CORE_zlange_max_quark(Quark *quark)
 {
-    double *A;
-    double *normA;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileNorm;
+    double *A, *norm;
 
-    quark_unpack_args_2(quark, A, normA);
-    if ( A[0] > *normA )
-        *normA = A[0];
+    quark_unpack_args_2(quark, tileA, tileNorm);
+    A = tileA->mat;
+    norm = tileNorm->mat;
+
+    if ( A[0] > *norm ) {
+        *norm = A[0];
+    }
 }
 
 void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
@@ -77,8 +78,8 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
     DAG_CORE_LANGE_MAX;
     QUARK_Insert_Task(
         opt->quark, CORE_zlange_max_quark, (Quark_Task_Flags*)opt,
-        sizeof(double), RTBLKADDR(A, double, Am, An), INPUT,
-        sizeof(double), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
+        sizeof(void*), RTBLKADDR(A, double, Am, An), INPUT,
+        sizeof(void*), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
         0);
 }
 

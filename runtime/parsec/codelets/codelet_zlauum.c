@@ -21,11 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zlauum_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -46,16 +41,17 @@ CORE_zlauum_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda)
+                       const CHAM_desc_t *A, int Am, int An)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlauum_parsec, options->priority, "lauum",
         sizeof(int),    &uplo,                  VALUE,
         sizeof(int),           &n,                     VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                   VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

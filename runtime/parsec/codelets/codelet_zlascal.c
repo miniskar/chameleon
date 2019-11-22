@@ -12,8 +12,6 @@
  * @brief Chameleon zlascal PaRSEC codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -27,11 +25,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zlascal_parsec( parsec_execution_stream_t *context,
                      parsec_task_t             *this_task )
@@ -56,9 +49,10 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int nb,
                         CHAMELEON_Complex64_t alpha,
-                        const CHAM_desc_t *A, int Am, int An, int lda)
+                        const CHAM_desc_t *A, int Am, int An)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlascal_parsec, options->priority, "lascal",
@@ -67,7 +61,7 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         sizeof(int),               &n,     VALUE,
         sizeof(CHAMELEON_Complex64_t), &alpha, VALUE,
         PASSED_BY_REF,              RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT | AFFINITY,
-        sizeof(int),               &lda,   VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PARSEC_DTD_ARG_END );
 
     (void)nb;

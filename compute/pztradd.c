@@ -38,7 +38,6 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
 
     int tempmm, tempnn, tempmn, tempnm;
     int m, n;
-    int ldam, ldan, ldbm, ldbn;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -52,25 +51,21 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
             for (n = 0; n < chameleon_min(B->mt,B->nt); n++) {
                 tempnm = n == B->mt-1 ? B->m-n*B->mb : B->mb;
                 tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                ldan = BLKLDD(A, n);
-                ldbn = BLKLDD(B, n);
 
                 INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempnm, tempnn, B->mb,
-                    alpha, A(n, n), ldan,
-                    beta,  B(n, n), ldbn);
+                    alpha, A(n, n),
+                    beta,  B(n, n));
 
                 for (m = n+1; m < B->mt; m++) {
                     tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
-                    ldam = BLKLDD(A, m);
-                    ldbm = BLKLDD(B, m);
 
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(m, n), ldam,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(m, n),
+                        beta,  B(m, n));
                 }
             }
         }
@@ -78,24 +73,21 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
             for (n = 0; n < chameleon_min(B->mt,B->nt); n++) {
                 tempnm = n == B->mt-1 ? B->m-n*B->mb : B->mb;
                 tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                ldan = BLKLDD(A, n);
-                ldbn = BLKLDD(B, n);
 
                 INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempnm, tempnn, B->mb,
-                    alpha, A(n, n), ldan,
-                    beta,  B(n, n), ldbn);
+                    alpha, A(n, n),
+                    beta,  B(n, n));
 
                 for (m = n+1; m < B->mt; m++) {
                     tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
-                    ldbm = BLKLDD(B, m);
 
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(n, m), ldan,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(n, m),
+                        beta,  B(m, n));
                 }
             }
         }
@@ -105,14 +97,12 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
             for (m = 0; m < chameleon_min(B->mt,B->nt); m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
                 tempmn = m == B->nt-1 ? B->n-m*B->nb : B->nb;
-                ldam = BLKLDD(A, m);
-                ldbm = BLKLDD(B, m);
 
                 INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempmm, tempmn, B->mb,
-                    alpha, A(m, m), ldam,
-                    beta,  B(m, m), ldbm);
+                    alpha, A(m, m),
+                    beta,  B(m, m));
 
                 for (n = m+1; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -120,8 +110,8 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(m, n), ldam,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(m, n),
+                        beta,  B(m, n));
                 }
             }
         }
@@ -129,24 +119,21 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
             for (m = 0; m < chameleon_min(B->mt,B->nt); m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
                 tempmn = m == B->nt-1 ? B->n-m*B->nb : B->nb;
-                ldam = BLKLDD(A, m);
-                ldbm = BLKLDD(B, m);
 
                 INSERT_TASK_ztradd(
                     &options,
                     uplo, trans, tempmm, tempmn, B->mb,
-                    alpha, A(m, m), ldam,
-                    beta,  B(m, m), ldbm);
+                    alpha, A(m, m),
+                    beta,  B(m, m));
 
                 for (n = m+1; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                    ldan = BLKLDD(A, n);
 
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(n, m), ldan,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(n, m),
+                        beta,  B(m, n));
                 }
             }
         }
@@ -156,8 +143,6 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
         if (trans == ChamNoTrans) {
             for (m = 0; m < B->mt; m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
-                ldam = BLKLDD(A, m);
-                ldbm = BLKLDD(B, m);
 
                 for (n = 0; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
@@ -165,25 +150,23 @@ void chameleon_pztradd(cham_uplo_t uplo, cham_trans_t trans,
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(m, n), ldam,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(m, n),
+                        beta,  B(m, n));
                 }
             }
         }
         else {
             for (m = 0; m < B->mt; m++) {
                 tempmm = m == B->mt-1 ? B->m-B->mb*m : B->nb;
-                ldbm = BLKLDD(B, m);
 
                 for (n = 0; n < B->nt; n++) {
                     tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
-                    ldan = BLKLDD(A, n);
 
                     INSERT_TASK_zgeadd(
                         &options,
                         trans, tempmm, tempnn, B->mb,
-                        alpha, A(n, m), ldan,
-                        beta,  B(m, n), ldbm);
+                        alpha, A(n, m),
+                        beta,  B(m, n));
                 }
             }
         }

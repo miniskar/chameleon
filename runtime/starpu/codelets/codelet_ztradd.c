@@ -31,18 +31,14 @@ static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
+    CHAM_tile_t *tileB;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &alpha, &beta);
-    CORE_ztradd(uplo, trans, M, N, alpha, A, ldA, beta, B, ldB);
+    TCORE_ztradd(uplo, trans, M, N, alpha, tileA, beta, tileB);
     return;
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -113,8 +109,8 @@ CODELETS_CPU(ztradd, 2, cl_ztradd_cpu_func)
  */
 void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
-                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
-                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_ztradd;
     void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
@@ -140,7 +136,6 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
         STARPU_NAME, "ztradd",
 #endif
         0);
-    (void)ldA;
 
     (void)nb;
 }

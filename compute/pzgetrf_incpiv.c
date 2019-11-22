@@ -49,7 +49,6 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
     size_t ws_host = 0;
 
     int k, m, n;
-    int ldak, ldam, lddk;
     int tempkm, tempkn, tempmm, tempnn;
     int ib;
     int minMNT = chameleon_min(A->mt, A->nt);
@@ -84,13 +83,11 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-        ldak = BLKLDD(A, k);
-        lddk = BLKLDD(D, k);
         INSERT_TASK_zgetrf_incpiv(
             &options,
             tempkm, tempkn, ib, L->nb,
-            A(k, k), ldak,
-            L(k, k), L->mb,
+            A(k, k),
+            L(k, k),
             IPIV(k, k),
             k == A->mt-1, A->nb*k);
 
@@ -99,8 +96,8 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
             INSERT_TASK_zlacpy(
                 &options,
                 ChamUpperLower, tempkm, tempkn, A->nb,
-                A(k, k), ldak,
-                D(k),    lddk);
+                A(k, k),
+                D(k));
 #endif
         }
 
@@ -110,19 +107,18 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
                 &options,
                 tempkm, tempnn, tempkm, ib, L->nb,
                 IPIV(k, k),
-                L(k, k), L->mb,
-                D(k),    lddk,
-                A(k, n), ldak);
+                L(k, k),
+                D(k),
+                A(k, n));
         }
         for (m = k+1; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
             INSERT_TASK_ztstrf(
                 &options,
                 tempmm, tempkn, ib, L->nb,
-                A(k, k), ldak,
-                A(m, k), ldam,
-                L(m, k), L->mb,
+                A(k, k),
+                A(m, k),
+                L(m, k),
                 IPIV(m, k),
                 m == A->mt-1, A->nb*k);
 
@@ -131,10 +127,10 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
                 INSERT_TASK_zssssm(
                     &options,
                     A->nb, tempnn, tempmm, tempnn, A->nb, ib, L->nb,
-                    A(k, n), ldak,
-                    A(m, n), ldam,
-                    L(m, k), L->mb,
-                    A(m, k), ldam,
+                    A(k, n),
+                    A(m, n),
+                    L(m, k),
+                    A(m, k),
                     IPIV(m, k));
             }
         }

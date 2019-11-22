@@ -52,7 +52,6 @@ chameleon_pzlansy_inf( cham_uplo_t uplo, CHAM_desc_t *A,
         int nmax = ( uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -61,18 +60,18 @@ chameleon_pzlansy_inf( cham_uplo_t uplo, CHAM_desc_t *A,
                 INSERT_TASK_dzasum(
                     options,
                     ChamRowwise, uplo, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
             }
             else {
                 INSERT_TASK_dzasum(
                     options,
                     ChamRowwise, ChamUpperLower, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
 
                 INSERT_TASK_dzasum(
                     options,
                     ChamColumnwise, ChamUpperLower, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, n, m) );
+                    A(m, n), W( Wcol, n, m) );
             }
         }
     }
@@ -101,7 +100,7 @@ chameleon_pzlansy_inf( cham_uplo_t uplo, CHAM_desc_t *A,
         INSERT_TASK_dlange(
             options,
             ChamMaxNorm, tempmm, 1, A->nb,
-            W( Wcol, m, 0), 1, W( Welt, m, 0));
+            W( Wcol, m, 0), W( Welt, m, 0));
     }
 
     /**
@@ -146,7 +145,6 @@ chameleon_pzlansy_max( cham_trans_t trans, cham_uplo_t uplo, CHAM_desc_t *A,
         int nmax = (uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -156,20 +154,20 @@ chameleon_pzlansy_max( cham_trans_t trans, cham_uplo_t uplo, CHAM_desc_t *A,
                     INSERT_TASK_zlanhe(
                         options,
                         ChamMaxNorm, uplo, tempmm, A->nb,
-                        A(m, n), ldam, W( Welt, m, n));
+                        A(m, n), W( Welt, m, n));
                 }
                 else {
                     INSERT_TASK_zlansy(
                         options,
                         ChamMaxNorm, uplo, tempmm, A->nb,
-                        A(m, n), ldam, W( Welt, m, n));
+                        A(m, n), W( Welt, m, n));
                 }
             }
             else {
                 INSERT_TASK_zlange(
                     options,
                     ChamMaxNorm, tempmm, tempnn, A->nb,
-                    A(m, n), ldam, W( Welt, m, n));
+                    A(m, n), W( Welt, m, n));
             }
 
             if ( n >= Q ) {
@@ -233,7 +231,6 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
         int nmax = (uplo == ChamLower ) ? chameleon_min(m+1, NT) : NT;
 
         int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-        int ldam = BLKLDD( A, m );
 
         for(n = nmin; n < nmax; n++) {
             int tempnn = ( n == (NT-1) ) ? N - n * A->nb : A->nb;
@@ -242,21 +239,21 @@ chameleon_pzlansy_frb( cham_trans_t trans, cham_uplo_t uplo,
                 if ( trans == ChamConjTrans) {
                     INSERT_TASK_zhessq(
                         options, ChamEltwise, uplo, tempmm,
-                        A(m, n), ldam, W( Welt, m, n) );
+                        A(m, n), W( Welt, m, n) );
                 }
                 else {
                     INSERT_TASK_zsyssq(
                         options, ChamEltwise, uplo, tempmm,
-                        A(m, n), ldam, W( Welt, m, n) );
+                        A(m, n), W( Welt, m, n) );
                 }
             }
             else {
                 INSERT_TASK_zgessq(
                     options, ChamEltwise, tempmm, tempnn,
-                    A(m, n), ldam, W( Welt, m, n) );
+                    A(m, n), W( Welt, m, n) );
                 INSERT_TASK_zgessq(
                     options, ChamEltwise, tempmm, tempnn,
-                    A(m, n), ldam, W( Welt, n, m) );
+                    A(m, n), W( Welt, n, m) );
             }
         }
     }
@@ -380,7 +377,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
                     &options,
                     ChamUpperLower, Wcol.mb, Wcol.nb,
                     alpha, beta,
-                    W( &Wcol, m, n ), Wcol.mb );
+                    W( &Wcol, m, n ) );
             }
         }
     }
@@ -390,7 +387,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
                 &options,
                 ChamUpperLower, Welt.mb, Welt.nb,
                 alpha, beta,
-                W( &Welt, m, n ), Welt.mb );
+                W( &Welt, m, n ) );
         }
     }
 
@@ -419,7 +416,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
                 INSERT_TASK_dlacpy(
                     &options,
                     ChamUpperLower, 1, 1, 1,
-                    W( &Welt, 0, 0 ), 1, W( &Welt, m, n ), 1);
+                    W( &Welt, 0, 0 ), W( &Welt, m, n ));
             }
         }
     }

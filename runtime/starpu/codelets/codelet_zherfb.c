@@ -25,64 +25,48 @@
 static void cl_zherfb_cpu_func(void *descr[], void *cl_arg)
 {
     cham_uplo_t uplo;
-    int n;
-    int k;
-    int ib;
-    int nb;
-    const CHAMELEON_Complex64_t *A;
-    int ldA;
-    const CHAMELEON_Complex64_t *T;
-    int ldT;
-    CHAMELEON_Complex64_t *C;
-    int ldC;
-    CHAMELEON_Complex64_t *WORK;
-    int ldWORK;
+    int n, k, ib, nb;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileC;
+    CHAM_tile_t *tileW;
+    int ldW;
 
-    A    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    tileA = cti_interface_get(descr[0]);
+    tileT = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+    tileW = cti_interface_get(descr[3]); /* ib * nb */
 
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldT = STARPU_MATRIX_GET_LD( descr[1] );
-    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args( cl_arg, &uplo, &n, &k, &ib, &nb, &ldW );
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &ldWORK);
-
-    CORE_zherfb(uplo, n, k, ib, nb, A, ldA, T, ldT, C, ldC, WORK, ldWORK);
+    TCORE_zherfb( uplo, n, k, ib, nb, tileA, tileT, tileC, tileW->mat, ldW );
 }
 
 #if defined(CHAMELEON_USE_CUDA)
 static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
 {
     cham_uplo_t uplo;
-    int n;
-    int k;
-    int ib;
-    int nb;
-    const cuDoubleComplex *A;
-    int ldA;
-    const cuDoubleComplex *T;
-    int ldT;
-    cuDoubleComplex *C;
-    int ldC;
-    cuDoubleComplex *WORK;
-    int ldWORK;
+    int n, k, ib, nb;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileT;
+    CHAM_tile_t *tileC;
+    CHAM_tile_t *tileW;
+    int ldW;
 
     RUNTIME_getStream(stream);
 
-    A    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    T    = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    C    = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[2]);
-    WORK = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[3]); /* ib * nb */
+    tileA = cti_interface_get(descr[0]);
+    tileT = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+    tileW = cti_interface_get(descr[3]); /* ib * nb */
 
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldT = STARPU_MATRIX_GET_LD( descr[1] );
-    ldC = STARPU_MATRIX_GET_LD( descr[2] );
+    starpu_codelet_unpack_args( cl_arg, &uplo, &n, &k, &ib, &nb, &ldW );
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &n, &k, &ib, &nb, &ldWORK);
-
-    CUDA_zherfb( uplo, n, k, ib, nb, A, ldA, T, ldT, C, ldC, WORK, ldWORK, stream );
+    CUDA_zherfb( uplo, n, k, ib, nb,
+                 tileA->mat, tileA->ld,
+                 tileT->mat, tileT->ld,
+                 tileC->mat, tileC->ld,
+                 tileW->mat, ldW, stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -104,9 +88,9 @@ CODELETS(zherfb, 4, cl_zherfb_cpu_func, cl_zherfb_cuda_func, STARPU_CUDA_ASYNC)
 void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int n, int k, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int ldA,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldT,
-                       const CHAM_desc_t *C, int Cm, int Cn, int ldC)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *T, int Tm, int Tn,
+                       const CHAM_desc_t *C, int Cm, int Cn)
 {
     struct starpu_codelet *codelet = &cl_zherfb;
     void (*callback)(void*) = options->profiling ? cl_zherfb_callback : NULL;
@@ -124,18 +108,15 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_VALUE,    &nb,                sizeof(int),
+        STARPU_VALUE,    &nb,                sizeof(int), /* ldw */
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
         STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_SCRATCH,   options->ws_worker,
-        STARPU_VALUE,    &nb,                sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zherfb",
 #endif
         0);
-    (void)ldC;
-    (void)ldT;
-    (void)ldA;
 }

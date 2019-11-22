@@ -12,8 +12,6 @@
  * @brief Chameleon zhessq Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @date 2014-11-16
  * @precisions normal z -> c
@@ -24,10 +22,10 @@
 
 void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int n,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     INSERT_TASK_zsyssq( options, storev, uplo, n,
-                        A, Am, An, lda,
+                        A, Am, An,
                         SCALESUMSQ, SCALESUMSQm, SCALESUMSQn );
 }

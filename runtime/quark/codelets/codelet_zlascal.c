@@ -12,8 +12,6 @@
  * @brief Chameleon zlascal Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -25,7 +23,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 static inline void CORE_zlascal_quark(Quark *quark)
 {
@@ -33,18 +31,17 @@ static inline void CORE_zlascal_quark(Quark *quark)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
+    CHAM_tile_t *tileA;
 
-    quark_unpack_args_6(quark, uplo, M, N, alpha, A, LDA);
-    CORE_zlascal(uplo, M, N, alpha, A, LDA);
+    quark_unpack_args_5(quark, uplo, M, N, alpha, tileA);
+    TCORE_zlascal(uplo, M, N, alpha, tileA);
 }
 
 void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int nb,
                         CHAMELEON_Complex64_t alpha,
-                        const CHAM_desc_t *A, int Am, int An, int lda)
+                        const CHAM_desc_t *A, int Am, int An)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LASCAL;
@@ -53,8 +50,7 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         sizeof(int),                     &m,     VALUE,
         sizeof(int),                     &n,     VALUE,
         sizeof(CHAMELEON_Complex64_t),       &alpha, VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
-        sizeof(int),                     &lda,   VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
         0);
 }
 

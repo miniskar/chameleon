@@ -25,15 +25,15 @@ static void cl_zaxpy_cpu_func(void *descr[], void *cl_arg)
 {
     int M;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
+    CHAM_tile_t *tileA;
     int incA;
-    CHAMELEON_Complex64_t *B;
+    CHAM_tile_t *tileB;
     int incB;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &M, &alpha, &incA, &incB);
-    CORE_zaxpy(M, alpha, A, incA, B, incB);
+    TCORE_zaxpy(M, alpha, tileA, incA, tileB, incB);
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

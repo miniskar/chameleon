@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "chameleon_starpu.h"
+#if defined(HAVE_STARPU_FXT_PROFILING)
+#include <starpu_fxt.h>
+#endif
 
 /**
  *
@@ -36,6 +39,10 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
 #  if !defined(CHAMELEON_SIMULATION)
         MPI_Initialized( &flag );
 #  endif
+
+#if defined(HAVE_STARPU_FXT_PROFILING)
+        starpu_fxt_autostart_profiling(0);
+#endif
 
 #  ifdef HAVE_STARPU_MPI_INIT_CONF
         hres = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);

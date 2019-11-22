@@ -46,21 +46,20 @@ chameleon_pzgram_internal( cham_uplo_t uplo,
 
         for(m = mmin; m < mmax; m++) {
             int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-            int ldam = BLKLDD( A, m );
 
             if ( n == m ) {
                 INSERT_TASK_dsyssq(
                     options, ChamColumnwise, uplo, tempmm,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
             }
             else {
                 INSERT_TASK_dgessq(
                     options, ChamColumnwise, tempmm, tempnn,
-                    A(m, n), ldam, W( Wcol, m, n) );
+                    A(m, n), W( Wcol, m, n) );
                 if ( uplo != ChamUpperLower ) {
                     INSERT_TASK_dgessq(
                         options, ChamRowwise, tempmm, tempnn,
-                        A(m, n), ldam, W( Wcol, n, m) );
+                        A(m, n), W( Wcol, n, m) );
                 }
             }
         }
@@ -121,16 +120,15 @@ chameleon_pzgram_internal( cham_uplo_t uplo,
 
         for(m = mmin; m < mmax; m++) {
             int tempmm = ( m == (MT-1) ) ? M - m * A->mb : A->mb;
-            int ldam = BLKLDD( A, m );
 
             INSERT_TASK_zgram(
                 options,
                 ( m == n ) ? uplo : ChamUpperLower,
                 A->m, A->n, tempmm, tempnn,
-                W( Wcol, 0, m ), 2,
-                W( Wcol, 0, n ), 2,
+                W( Wcol, 0, m ),
+                W( Wcol, 0, n ),
                 W( Welt, 0, 0 ),
-                A( m, n ), ldam );
+                A( m, n ) );
         }
     }
 }
@@ -144,9 +142,8 @@ void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *seq
     RUNTIME_option_t options;
     CHAM_desc_t Wcol;
     CHAM_desc_t Welt;
-
     int workmt, worknt;
-    int m, n, tempmm, tempnn, ldw;
+    int m, n, tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
     if ( sequence->status != CHAMELEON_SUCCESS ) {
@@ -170,27 +167,25 @@ void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *seq
     /* Initialize Wcol */
     for(m = 0; m < Wcol.mt; m++) {
         tempmm = m == Wcol.mt-1 ? Wcol.m-m*Wcol.mb : Wcol.mb;
-        ldw = Wcol.get_blkldd(&Wcol, m);
         for(n = 0; n < Wcol.nt; n++) {
             tempnn = n == Wcol.nt-1 ? Wcol.n-n*Wcol.nb : Wcol.nb;
             INSERT_TASK_dlaset(
                 &options,
                 ChamUpperLower, tempmm, tempnn,
                 -1., -1.,
-                W( &Wcol, m, n ), ldw );
+                W( &Wcol, m, n ) );
         }
     }
     /* Initialize Welt */
     for(m = 0; m < Welt.mt; m++) {
         tempmm = m == Welt.mt-1 ? Welt.m-m*Welt.mb : Welt.mb;
-        ldw = Welt.get_blkldd(&Welt, m);
         for(n = 0; n < Welt.nt; n++) {
             tempnn = n == Welt.nt-1 ? Welt.n-n*Welt.nb : Welt.nb;
             INSERT_TASK_dlaset(
                 &options,
                 ChamUpperLower, tempmm, tempnn,
                 -1., -1.,
-                W( &Welt, m, n ), ldw );
+                W( &Welt, m, n ) );
         }
     }
 

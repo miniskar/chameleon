@@ -44,11 +44,11 @@ CORE_zlansy_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zlansy(const RUNTIME_option_t *options,
                        cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An, int LDA,
+                       const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
-
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     int szeW = chameleon_max( 1, N );
 
     parsec_dtd_taskpool_insert_task(
@@ -57,7 +57,7 @@ void INSERT_TASK_zlansy(const RUNTIME_option_t *options,
         sizeof(int),            &uplo,          VALUE,
         sizeof(int),                   &N,             VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),                   &LDA,           VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(double)*szeW,           NULL,           SCRATCH,
         PASSED_BY_REF,         RTBLKADDR( B, double, Bm, Bn ),            OUTPUT | AFFINITY,
         PARSEC_DTD_ARG_END );

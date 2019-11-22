@@ -12,8 +12,6 @@
  * @brief Chameleon zbuild Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -26,23 +24,22 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zbuild_quark(Quark *quark)
 {
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     void *user_data;
     void (*user_build_callback)(int row_min, int row_max, int col_min, int col_max, void *buffer, int ld, void *user_data) ;
     int row_min, row_max, col_min, col_max;
 
-    quark_unpack_args_8( quark, row_min, row_max, col_min, col_max, A, lda, user_data, user_build_callback);
+    quark_unpack_args_7( quark, row_min, row_max, col_min, col_max, tileA, user_data, user_build_callback);
 
-    user_build_callback(row_min, row_max, col_min, col_max, A, lda, user_data);
+    user_build_callback(row_min, row_max, col_min, col_max, tileA->mat, tileA->ld, user_data);
 }
 
 void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *A, int Am, int An,
                         void *user_data, void* user_build_callback )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -58,8 +55,7 @@ void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
                       sizeof(int),                      &row_max,    VALUE,
                       sizeof(int),                      &col_min,    VALUE,
                       sizeof(int),                      &col_max,    VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*lda*A->nb, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
-                      sizeof(int),                      &lda,  VALUE,
+                      sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
                       sizeof(void*),                    &user_data,  VALUE,
                       sizeof(void*),                    &user_build_callback,   VALUE,
                       0);

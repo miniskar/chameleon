@@ -21,66 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_zgelqt - computes a LQ factorization of a complex M-by-N tile A: A = L * Q.
- *
- *  The tile Q is represented as a product of elementary reflectors
- *
- *    Q = H(k)' . . . H(2)' H(1)', where k = min(M,N).
- *
- *  Each H(i) has the form
- *
- *    H(i) = I - tau * v * v'
- *
- *  where tau is a complex scalar, and v is a complex vector with
- *  v(1:i-1) = 0 and v(i) = 1; conjg(v(i+1:n)) is stored on exit in
- *  A(i,i+1:n), and tau in TAU(i).
- *
- *******************************************************************************
- *
- * @param[in] M
- *          The number of rows of the tile A.  M >= 0.
- *
- * @param[in] N
- *         The number of columns of the tile A.  N >= 0.
- *
- * @param[in] IB
- *         The inner-blocking size.  IB >= 0.
- *
- * @param[in,out] A
- *         On entry, the M-by-N tile A.
- *         On exit, the elements on and below the diagonal of the array
- *         contain the M-by-min(M,N) lower trapezoidal tile L (L is
- *         lower triangular if M <= N); the elements above the diagonal,
- *         with the array TAU, represent the unitary tile Q as a
- *         product of elementary reflectors (see Further Details).
- *
- * @param[in] LDA
- *         The leading dimension of the array A.  LDA >= max(1,M).
- *
- * @param[out] T
- *         The IB-by-N triangular factor T of the block reflector.
- *         T is upper triangular by block (economic storage);
- *         The rest of the array is not referenced.
- *
- * @param[in] LDT
- *         The leading dimension of the array T. LDT >= IB.
- *
- * @param[out] TAU
- *         The scalar factors of the elementary reflectors (see Further
- *         Details).
- *
- * @param[out] WORK
- *
- *******************************************************************************
- *
- * @retval CHAMELEON_SUCCESS successful exit
- * @retval <0 if -i, the i-th argument had an illegal value
- *
- */
 static inline int
 CORE_zgelqt_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -107,10 +47,12 @@ CORE_zgelqt_parsec( parsec_execution_stream_t *context,
 
 void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *T, int Tm, int Tn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgelqt_parsec, options->priority, "gelqt",
@@ -118,9 +60,9 @@ void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
         sizeof(int),                        &n,     VALUE,
         sizeof(int),                        &ib,    VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),           &lda,                VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,         RTBLKADDR( T, CHAMELEON_Complex64_t, Tm, Tn ), chameleon_parsec_get_arena_index( T ) | OUTPUT,
-        sizeof(int),           &ldt,                VALUE,
+        sizeof(int), &(tileT->ld), VALUE,
         sizeof(CHAMELEON_Complex64_t)*nb,       NULL,   SCRATCH,
         sizeof(CHAMELEON_Complex64_t)*ib*nb,    NULL,   SCRATCH,
         PARSEC_DTD_ARG_END );

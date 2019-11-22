@@ -2,43 +2,38 @@
  *
  * @file openmp/codelet_zherfb.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zherfb StarPU codelet
+ * @brief Chameleon zherfb OpenMP codelet
  *
  * @version 0.9.2
  * @author Philippe Virouleau
- * @date 2018-06-15
+ * @author Mathieu Faverge
+ * @date 2019-11-19
  * @precisions normal z -> c d s
  *
  */
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
+#include "coreblas/coreblas_ztile.h"
 
-/**
- *
- * @ingroup CORE_CHAMELEON_Complex64_t
- *
- */
-void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
+void INSERT_TASK_zherfb( const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int n, int k, int ib, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                       const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *T, int Tm, int Tn,
+                       const CHAM_desc_t *C, int Cm, int Cn )
 {
-    CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-    CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
-    CHAMELEON_Complex64_t *ptrC = RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
+    CHAM_tile_t *tileC = C->get_blktile( C, Cm, Cn );
     int ws_size = options->ws_wsize;
-#pragma omp task firstprivate(ws_size, uplo, n, k, ib, nb, ptrA, lda, ptrT, ldt) depend(in:ptrA[0], ptrT[0]) depend(inout:ptrC[0])
+#pragma omp task firstprivate( ws_size, uplo, n, k, ib, nb, tileA, tileT ) depend( in:tileA[0], tileT[0] ) depend( inout:tileC[0] )
     {
       CHAMELEON_Complex64_t work[ws_size];
-      CORE_zherfb(uplo, n, k, ib, nb, ptrA, lda, ptrT, ldt, ptrC, ldc, work, nb);
+      TCORE_zherfb( uplo, n, k, ib, nb, tileA, tileT, tileC, work, nb );
     }
 }

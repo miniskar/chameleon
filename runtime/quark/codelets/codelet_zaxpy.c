@@ -12,8 +12,6 @@
  * @brief Chameleon zaxpy Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @date 2014-11-16
  * @precisions normal z -> c d s
@@ -21,19 +19,19 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zaxpy_quark(Quark *quark)
 {
     int M;
     CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t *A;
+    CHAM_tile_t *tileA;
     int incA;
-    CHAMELEON_Complex64_t *B;
+    CHAM_tile_t *tileB;
     int incB;
 
-    quark_unpack_args_6(quark, M, alpha, A, incA, B, incB);
-    CORE_zaxpy(M, alpha, A, incA, B, incB);
+    quark_unpack_args_6( quark, M, alpha, tileA, incA, tileB, incB );
+    TCORE_zaxpy(M, alpha, tileA, incA, tileB, incB);
 }
 
 void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
@@ -46,9 +44,9 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
     QUARK_Insert_Task(opt->quark, CORE_zaxpy_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                        &M,         VALUE,
         sizeof(CHAMELEON_Complex64_t),      &alpha,     VALUE,
-        sizeof(CHAMELEON_Complex64_t)*M,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(int),                        &incA,      VALUE,
-        sizeof(CHAMELEON_Complex64_t)*M,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), INOUT,
+        sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), INOUT,
         sizeof(int),                        &incB,      VALUE,
         0);
 }

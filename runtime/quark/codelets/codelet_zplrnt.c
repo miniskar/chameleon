@@ -12,8 +12,6 @@
  * @brief Chameleon zplrnt Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -25,25 +23,24 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zplrnt_quark(Quark *quark)
 {
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     int bigM;
     int m0;
     int n0;
     unsigned long long int seed;
 
-    quark_unpack_args_8( quark, m, n, A, lda, bigM, m0, n0, seed );
-    CORE_zplrnt( m, n, A, lda, bigM, m0, n0, seed );
+    quark_unpack_args_7( quark, m, n, tileA, bigM, m0, n0, seed );
+    TCORE_zplrnt( m, n, tileA, bigM, m0, n0, seed );
 }
 
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
-                        int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                        int m, int n, const CHAM_desc_t *A, int Am, int An,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -51,8 +48,7 @@ void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
     QUARK_Insert_Task(opt->quark, CORE_zplrnt_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                      &m,    VALUE,
         sizeof(int),                      &n,    VALUE,
-        sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
-        sizeof(int),                      &lda,  VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
         sizeof(int),                      &bigM, VALUE,
         sizeof(int),                      &m0,   VALUE,
         sizeof(int),                      &n0,   VALUE,

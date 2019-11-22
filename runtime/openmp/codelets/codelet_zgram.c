@@ -10,34 +10,30 @@
  * @brief Chameleon zgram OpenMP codelet
  *
  * @version 0.9.2
+ * @author Philippe Virouleau
  * @author Mathieu Faverge
- * @author Florent Pruvost
- * @date 2019-04-10
+ * @date 2019-11-19
  * @precisions normal z -> s d c z
  *
  */
-
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int mt, int nt,
-                        const CHAM_desc_t *Di, int Dim, int Din, int lddi,
-                        const CHAM_desc_t *Dj, int Djm, int Djn, int lddj,
-                        const CHAM_desc_t *D, int Dm, int Dn,
-                        CHAM_desc_t *A, int Am, int An, int lda)
+                        const CHAM_desc_t *Di, int Dim, int Din,
+                        const CHAM_desc_t *Dj, int Djm, int Djn,
+                        const CHAM_desc_t *D,  int Dm,  int Dn,
+                              CHAM_desc_t *A,  int Am,  int An )
 {
-    double *ptrDi = RTBLKADDR(Di, double, Dim, Din);
-    double *ptrDj = RTBLKADDR(Dj, double, Djm, Djn);
-    double *ptrD  = RTBLKADDR(D,  double, Dm, Dn);
-    double *ptrA  = RTBLKADDR(A,  double, Am, An);
+    CHAM_tile_t *tileDi = Di->get_blktile( Di, Dim, Din );
+    CHAM_tile_t *tileDj = Dj->get_blktile( Dj, Djm, Djn );
+    CHAM_tile_t *tileD  = D->get_blktile( D, Dm, Dn );
+    CHAM_tile_t *tileA  = A->get_blktile( A, Am, An );
 
-#pragma omp task firstprivate(uplo, m, n, mt, nt, ptrDi, lddi, ptrDj, lddj, ptrD, ptrA, lda) depend(in:ptrDi[0], ptrDj[0], ptrD[0]) depend(inout:ptrA[0])
-    CORE_zgram( uplo,
-                m, n, mt, nt,
-                ptrDi, lddi,
-                ptrDj, lddj,
-                ptrD,
-                ptrA, lda);
+#pragma omp task firstprivate( uplo, m, n, mt, nt, tileDi, tileDj, tileD, tileA ) depend( in:tileDi[0], tileDj[0], tileD[0] ) depend( inout:tileA[0] )
+    TCORE_zgram( uplo, m, n, mt, nt,
+                 tileDi, tileDj, tileD, tileA );
 }

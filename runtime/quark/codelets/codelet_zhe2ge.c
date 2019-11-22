@@ -19,7 +19,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 /**
  *
@@ -31,21 +31,19 @@ static inline void CORE_zhe2ge_quark(Quark *quark)
     cham_uplo_t uplo;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
-    int LDA;
-    CHAMELEON_Complex64_t *B;
-    int LDB;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    quark_unpack_args_7(quark, uplo, M, N, A, LDA, B, LDB);
-    CORE_zhe2ge(uplo, M, N, A, LDA, B, LDB);
+    quark_unpack_args_5(quark, uplo, M, N, tileA, tileB);
+    TCORE_zhe2ge(uplo, M, N, tileA, tileB);
 }
 
 
 void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
                        cham_uplo_t uplo,
                        int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;
@@ -53,9 +51,7 @@ void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
         sizeof(int),              &uplo,   VALUE,
         sizeof(int),                     &m,      VALUE,
         sizeof(int),                     &n,      VALUE,
-        sizeof(CHAMELEON_Complex64_t)*mb*mb,  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
-        sizeof(int),                     &lda,    VALUE,
-        sizeof(CHAMELEON_Complex64_t)*mb*mb,  RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT,
-        sizeof(int),                     &ldb,    VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
+        sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT,
         0);
 }

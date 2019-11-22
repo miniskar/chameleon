@@ -32,7 +32,7 @@
 struct chameleon_parsec_desc_s {
     parsec_data_collection_t super;
     int                      arena_index;
-    CHAM_desc_t            *desc;
+    CHAM_desc_t             *desc;
     parsec_data_t          **data_map;
 };
 

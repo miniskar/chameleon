@@ -12,8 +12,6 @@
  * @brief Chameleon zherk Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -25,7 +23,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zherk_quark(Quark *quark)
 {
@@ -34,24 +32,22 @@ void CORE_zherk_quark(Quark *quark)
     int n;
     int k;
     double alpha;
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     double beta;
-    CHAMELEON_Complex64_t *C;
-    int ldc;
+    CHAM_tile_t *tileC;
 
-    quark_unpack_args_10(quark, uplo, trans, n, k, alpha, A, lda, beta, C, ldc);
-    CORE_zherk(uplo, trans,
-        n, k,
-        alpha, A, lda,
-        beta, C, ldc);
+    quark_unpack_args_8(quark, uplo, trans, n, k, alpha, tileA, beta, tileC);
+    TCORE_zherk(uplo, trans,
+               n, k,
+               alpha, tileA,
+               beta, tileC);
 }
 
 void INSERT_TASK_zherk(const RUNTIME_option_t *options,
                       cham_uplo_t uplo, cham_trans_t trans,
                       int n, int k, int nb,
-                      double alpha, const CHAM_desc_t *A, int Am, int An, int lda,
-                      double beta, const CHAM_desc_t *C, int Cm, int Cn, int ldc)
+                      double alpha, const CHAM_desc_t *A, int Am, int An,
+                      double beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_HERK;
@@ -61,10 +57,8 @@ void INSERT_TASK_zherk(const RUNTIME_option_t *options,
         sizeof(int),                        &n,         VALUE,
         sizeof(int),                        &k,         VALUE,
         sizeof(double),                     &alpha,     VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
-        sizeof(int),                        &lda,       VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
         sizeof(double),                     &beta,      VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
-        sizeof(int),                        &ldc,       VALUE,
+        sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
         0);
 }

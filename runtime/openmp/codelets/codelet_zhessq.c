@@ -2,21 +2,17 @@
  *
  * @file openmp/codelet_zhessq.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zhessq StarPU codelet
+ * @brief Chameleon zhessq OpenMP codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
- * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2018-06-15
+ * @author Mathieu Faverge
+ * @date 2019-11-19
  * @precisions normal z -> c
  *
  */
@@ -25,10 +21,10 @@
 
 void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int n,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
+                         const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     INSERT_TASK_zsyssq( options, storev, uplo, n,
-                        A, Am, An, lda,
+                        A, Am, An,
                         SCALESUMSQ, SCALESUMSQm, SCALESUMSQn );
 }

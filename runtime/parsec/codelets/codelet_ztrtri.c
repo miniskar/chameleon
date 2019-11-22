@@ -51,10 +51,11 @@ CORE_ztrtri_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
                         cham_uplo_t uplo, cham_diag_t diag,
                         int n, int nb,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *A, int Am, int An,
                         int iinfo )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztrtri_parsec, options->priority, "trtri",
@@ -62,7 +63,7 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
         sizeof(int),                 &diag,                  VALUE,
         sizeof(int),                 &n,                     VALUE,
         PASSED_BY_REF,               RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
-        sizeof(int),                 &lda,                   VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(int),                 &iinfo,                 VALUE,
         sizeof(RUNTIME_sequence_t*), &(options->sequence),   VALUE,
         sizeof(RUNTIME_request_t*),  &(options->request),    VALUE,

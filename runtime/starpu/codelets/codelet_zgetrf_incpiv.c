@@ -34,8 +34,7 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     int m;
     int n;
     int ib;
-    CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     int *IPIV;
     cham_bool_t check_info;
     int iinfo;
@@ -43,11 +42,10 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
     RUNTIME_request_t *request;
     int info = 0;
 
-    A = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
+    tileA = cti_interface_get(descr[0]);
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &ib, &IPIV, &check_info, &iinfo, &h_work, &sequence, &request);
-    CORE_zgetrf_incpiv(m, n, ib, A, ldA, IPIV, &info);
+    TCORE_zgetrf_incpiv(m, n, ib, tileA, IPIV, &info);
 
     if ( (sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
         RUNTIME_sequence_flush( NULL, sequence, request, iinfo+info );
@@ -60,64 +58,10 @@ static void cl_zgetrf_incpiv_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zgetrf_incpiv, 3, cl_zgetrf_incpiv_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- *  CORE_zgetrf_incpiv computes an LU factorization of a general M-by-N tile A
- *  using partial pivoting with row interchanges.
- *
- *  The factorization has the form
- *
- *    A = P * L * U
- *
- *  where P is a permutation matrix, L is lower triangular with unit
- *  diagonal elements (lower trapezoidal if m > n), and U is upper
- *  triangular (upper trapezoidal if m < n).
- *
- *  This is the right-looking Level 2.5 BLAS version of the algorithm.
- *
- *******************************************************************************
- *
- * @param[in] M
- *          The number of rows of the tile A.  M >= 0.
- *
- * @param[in] N
- *         The number of columns of the tile A.  N >= 0.
- *
- * @param[in] IB
- *         The inner-blocking size.  IB >= 0.
- *
- * @param[in,out] A
- *         On entry, the M-by-N tile to be factored.
- *         On exit, the factors L and U from the factorization
- *         A = P*L*U; the unit diagonal elements of L are not stored.
- *
- * @param[in] ldA
- *         The leading dimension of the array A.  ldA >= max(1,M).
- *
- * @param[out] IPIV
- *         The pivot indices; for 1 <= i <= min(M,N), row i of the
- *         tile was interchanged with row IPIV(i).
- *
- * @param[out] INFO
- *         See returned value.
- *
- *******************************************************************************
- *
- * @retval CHAMELEON_SUCCESS successful exit
- * @retval <0 if INFO = -k, the k-th argument had an illegal value
- * @retval >0 if INFO = k, U(k,k) is exactly zero. The factorization
- *              has been completed, but the factor U is exactly
- *              singular, and division by zero will occur if it is used
- *              to solve a system of equations.
- *
- */
-
 void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
                               int m, int n, int ib, int nb,
-                              const CHAM_desc_t *A, int Am, int An, int ldA,
-                              const CHAM_desc_t *L, int Lm, int Ln, int ldL,
+                              const CHAM_desc_t *A, int Am, int An,
+                              const CHAM_desc_t *L, int Lm, int Ln,
                               int *IPIV,
                               cham_bool_t check_info, int iinfo)
 {
@@ -152,6 +96,4 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         STARPU_NAME, "zgetrf_incpiv",
 #endif
         0);
-    (void)ldL;
-    (void)ldA;
 }

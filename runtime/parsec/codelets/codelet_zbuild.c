@@ -43,10 +43,11 @@ CORE_zbuild_parsec( parsec_execution_stream_t *context,
 }
 
 void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *A, int Am, int An,
                         void *user_data, void* user_build_callback )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     int row_min, row_max, col_min, col_max;
     row_min = Am*A->mb ;
     row_max = Am == A->mt-1 ? A->m-1 : row_min+A->mb-1 ;
@@ -60,7 +61,7 @@ void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
         sizeof(int),   &col_min,                          VALUE,
         sizeof(int),   &col_max,                          VALUE,
         PASSED_BY_REF,  RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | OUTPUT | AFFINITY,
-        sizeof(int),   &lda,                              VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         sizeof(void*), &user_data,                        VALUE,
         sizeof(void*), &user_build_callback,              VALUE,
         PARSEC_DTD_ARG_END );

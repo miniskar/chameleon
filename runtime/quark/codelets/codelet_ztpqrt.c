@@ -19,7 +19,7 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 static void
 CORE_ztpqrt_quark( Quark *quark )
@@ -28,27 +28,24 @@ CORE_ztpqrt_quark( Quark *quark )
     int N;
     int L;
     int ib;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *B;
-    int ldb;
-    CHAMELEON_Complex64_t *T;
-    int ldt;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileT;
     CHAMELEON_Complex64_t *WORK;
 
-    quark_unpack_args_11( quark, M, N, L, ib,
-                          A, lda, B, ldb, T, ldt, WORK );
+    quark_unpack_args_8( quark, M, N, L, ib,
+                          tileA, tileB, tileT, WORK );
 
-    CORE_zlaset( ChamUpperLower, ib, N, 0., 0., T, ldt );
-    CORE_ztpqrt( M, N, L, ib,
-                 A, lda, B, ldb, T, ldt, WORK );
+    TCORE_zlaset( ChamUpperLower, ib, N, 0., 0., tileT );
+    TCORE_ztpqrt( M, N, L, ib,
+                  tileA, tileB, tileT, WORK );
 }
 
 void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
                          int M, int N, int L, int ib, int nb,
-                         const CHAM_desc_t *A, int Am, int An, int lda,
-                         const CHAM_desc_t *B, int Bm, int Bn, int ldb,
-                         const CHAM_desc_t *T, int Tm, int Tn, int ldt )
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn,
+                         const CHAM_desc_t *T, int Tm, int Tn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_TPQRT;
@@ -61,12 +58,9 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
         sizeof(int),                         &N,   VALUE,
         sizeof(int),                         &L,   VALUE,
         sizeof(int),                         &ib,  VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,      RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), INOUT | QUARK_REGION_U | QUARK_REGION_D,
-        sizeof(int),                         &lda, VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*nb,      RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), INOUT | shapeB | LOCALITY,
-        sizeof(int),                         &ldb, VALUE,
-        sizeof(CHAMELEON_Complex64_t)*nb*ib,      RTBLKADDR( T, CHAMELEON_Complex64_t, Tm, Tn ), OUTPUT,
-        sizeof(int),                         &ldt, VALUE,
+        sizeof(void*), RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), INOUT | QUARK_REGION_U | QUARK_REGION_D,
+        sizeof(void*), RTBLKADDR( B, CHAMELEON_Complex64_t, Bm, Bn ), INOUT | shapeB | LOCALITY,
+        sizeof(void*), RTBLKADDR( T, CHAMELEON_Complex64_t, Tm, Tn ), OUTPUT,
         sizeof(CHAMELEON_Complex64_t)*(ib+1)*nb,  NULL, SCRATCH,
         0);
 }

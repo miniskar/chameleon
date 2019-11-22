@@ -39,7 +39,6 @@ void chameleon_pztrsmpl( CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *L, int *IP
     RUNTIME_option_t options;
 
     int k, m, n;
-    int ldak, ldam, ldbk, ldbm;
     int tempkm, tempnn, tempkmin, tempmm, tempkn;
     int ib;
 
@@ -54,31 +53,27 @@ void chameleon_pztrsmpl( CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *L, int *IP
         tempkm   = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn   = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         tempkmin = k == chameleon_min(A->mt, A->nt)-1 ? chameleon_min(A->m, A->n)-k*A->mb : A->mb;
-        ldak = BLKLDD(A, k);
-        ldbk = BLKLDD(B, k);
         for (n = 0; n < B->nt; n++) {
             tempnn = n == B->nt-1 ? B->n-n*B->nb : B->nb;
             INSERT_TASK_zgessm(
                 &options,
                 tempkm, tempnn, tempkmin, ib, L->nb,
                 IPIV(k, k),
-                L(k, k), L->mb,
-                A(k, k), ldak,
-                B(k, n), ldbk);
+                L(k, k),
+                A(k, k),
+                B(k, n));
         }
         for (m = k+1; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
-            ldbm = BLKLDD(B, m);
             for (n = 0; n < B->nt; n++) {
                 tempnn  = n == B->nt-1 ? B->n-n*B->nb : B->nb;
                 INSERT_TASK_zssssm(
                     &options,
                     A->nb, tempnn, tempmm, tempnn, tempkn, ib, L->nb,
-                    B(k, n), ldbk,
-                    B(m, n), ldbm,
-                    L(m, k), L->mb,
-                    A(m, k), ldam,
+                    B(k, n),
+                    B(m, n),
+                    L(m, k),
+                    A(m, k),
                     IPIV(m, k));
             }
         }

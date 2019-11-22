@@ -31,6 +31,7 @@ set(COREBLAS_HDRS_GENERATED "")
 set(ZHDR
   coreblas/coreblas_z.h
   coreblas/coreblas_zc.h
+  coreblas/coreblas_ztile.h
 )
 precisions_rules_py(
   COREBLAS_HDRS_GENERATED "${ZHDR}"

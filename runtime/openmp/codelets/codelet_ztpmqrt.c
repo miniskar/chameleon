@@ -2,40 +2,40 @@
  *
  * @file openmp/codelet_ztpmqrt.c
  *
- * @copyright 2009-2016 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
- * @brief Chameleon ztpmqrt StarPU codelet
+ * @brief Chameleon ztpmqrt OpenMP codelet
  *
  * @version 0.9.2
+ * @author Philippe Virouleau
  * @author Mathieu Faverge
- * @date 2018-06-15
+ * @date 2019-11-19
  * @precisions normal z -> s d c
  *
  */
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void INSERT_TASK_ztpmqrt( const RUNTIME_option_t *options,
                           cham_side_t side, cham_trans_t trans,
                           int M, int N, int K, int L, int ib, int nb,
-                          const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                          const CHAM_desc_t *T, int Tm, int Tn, int ldt,
-                          const CHAM_desc_t *A, int Am, int An, int lda,
-                          const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+                          const CHAM_desc_t *V, int Vm, int Vn,
+                          const CHAM_desc_t *T, int Tm, int Tn,
+                          const CHAM_desc_t *A, int Am, int An,
+                          const CHAM_desc_t *B, int Bm, int Bn )
 {
-    CHAMELEON_Complex64_t *ptrA = RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An);
-    CHAMELEON_Complex64_t *ptrB = RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn);
-    CHAMELEON_Complex64_t *ptrT = RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn);
-    CHAMELEON_Complex64_t *ptrV = RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
+    CHAM_tile_t *tileV = V->get_blktile( V, Vm, Vn );
     int ws_size = options->ws_wsize;
 
-#pragma omp task firstprivate(ws_size, side, trans, M, N, K, L, ib, nb, ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb) depend(in:ptrV[0], ptrT[0]) depend(inout:ptrA[0], ptrB[0])
+#pragma omp task firstprivate( ws_size, side, trans, M, N, K, L, ib, nb, tileV, tileT, tileA, tileB ) depend( in:tileV[0], tileT[0] ) depend( inout:tileA[0], tileB[0] )
     {
         CHAMELEON_Complex64_t tmp[ws_size];
-        CORE_ztpmqrt( side, trans, M, N, K, L, ib,
-                      ptrV, ldv, ptrT, ldt, ptrA, lda, ptrB, ldb, tmp );
+        TCORE_ztpmqrt( side, trans, M, N, K, L, ib,
+                      tileV, tileT, tileA, tileB, tmp );
     }
 }

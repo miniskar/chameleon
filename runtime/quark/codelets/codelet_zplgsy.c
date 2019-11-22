@@ -12,8 +12,6 @@
  * @brief Chameleon zplgsy Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -25,26 +23,25 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zplgsy_quark(Quark *quark)
 {
     CHAMELEON_Complex64_t bump;
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
+    CHAM_tile_t *tileA;
     int bigM;
     int m0;
     int n0;
     unsigned long long int seed;
 
-    quark_unpack_args_9( quark, bump, m, n, A, lda, bigM, m0, n0, seed );
-    CORE_zplgsy( bump, m, n, A, lda, bigM, m0, n0, seed );
+    quark_unpack_args_8( quark, bump, m, n, tileA, bigM, m0, n0, seed );
+    TCORE_zplgsy( bump, m, n, tileA, bigM, m0, n0, seed );
 }
 
 void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
-                        CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An, int lda,
+                        CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An,
                         int bigM, int m0, int n0, unsigned long long int seed )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -53,8 +50,7 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
         sizeof(CHAMELEON_Complex64_t),       &bump, VALUE,
         sizeof(int),                      &m,    VALUE,
         sizeof(int),                      &n,    VALUE,
-        sizeof(CHAMELEON_Complex64_t)*lda*n, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
-        sizeof(int),                      &lda,  VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),         OUTPUT,
         sizeof(int),                      &bigM, VALUE,
         sizeof(int),                      &m0,   VALUE,
         sizeof(int),                      &n0,   VALUE,

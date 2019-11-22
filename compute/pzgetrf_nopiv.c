@@ -35,7 +35,6 @@ void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
     RUNTIME_option_t options;
 
     int k, m, n, ib;
-    int ldak, ldam;
     int tempkm, tempkn, tempmm, tempnn;
 
     CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
@@ -54,24 +53,22 @@ void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
 
         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-        ldak = BLKLDD(A, k);
 
         options.priority = 2*A->nt - 2*k;
         INSERT_TASK_zgetrf_nopiv(
             &options,
             tempkm, tempkn, ib, A->mb,
-            A(k, k), ldak, A->mb*k);
+            A(k, k), A->mb*k);
 
         for (m = k+1; m < A->mt; m++) {
             options.priority = 2*A->nt - 2*k - m;
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
             INSERT_TASK_ztrsm(
                 &options,
                 ChamRight, ChamUpper, ChamNoTrans, ChamNonUnit,
                 tempmm, tempkn, A->mb,
-                zone, A(k, k), ldak,
-                      A(m, k), ldam);
+                zone, A(k, k),
+                      A(m, k));
         }
         for (n = k+1; n < A->nt; n++) {
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -80,20 +77,19 @@ void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
                 &options,
                 ChamLeft, ChamLower, ChamNoTrans, ChamUnit,
                 tempkm, tempnn, A->mb,
-                zone, A(k, k), ldak,
-                      A(k, n), ldak);
+                zone, A(k, k),
+                      A(k, n));
 
             for (m = k+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
                 options.priority = 2*A->nt - 2*k  - n - m;
-                ldam = BLKLDD(A, m);
                 INSERT_TASK_zgemm(
                     &options,
                     ChamNoTrans, ChamNoTrans,
                     tempmm, tempnn, A->mb, A->mb,
-                    mzone, A(m, k), ldam,
-                           A(k, n), ldak,
-                    zone,  A(m, n), ldam);
+                    mzone, A(m, k),
+                           A(k, n),
+                    zone,  A(m, n));
             }
         }
 

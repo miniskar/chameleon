@@ -45,10 +45,11 @@ CORE_ztrssq_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
                         cham_uplo_t uplo, cham_diag_t diag,
                         int m, int n,
-                        const CHAM_desc_t *A, int Am, int An, int lda,
+                        const CHAM_desc_t *A, int Am, int An,
                         const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztrssq_parsec, options->priority, "trssq",
@@ -57,7 +58,7 @@ void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
         sizeof(int),            &m,                     VALUE,
         sizeof(int),            &n,                     VALUE,
         PASSED_BY_REF,          RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
-        sizeof(int),            &lda,                   VALUE,
+        sizeof(int), &(tileA->ld), VALUE,
         PASSED_BY_REF,          RTBLKADDR( SCALESUMSQ, double, SCALESUMSQm, SCALESUMSQn ),    INOUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }

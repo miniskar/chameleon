@@ -28,6 +28,7 @@
 #include "chameleon/tasks_z.h"
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 #if defined(CHAMELEON_USE_CUDA)
 #include "cudablas.h"
 #endif

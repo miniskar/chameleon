@@ -46,7 +46,6 @@ void chameleon_pzgeqrf_param( int genD, int K,
 
     int k, m, n, i, p;
     int L, nbgeqrt;
-    int ldap, ldam, lddm;
     int tempkmin, tempkn, tempnn, tempmm;
     int ib, node, nbtiles, *tiles;
 
@@ -100,14 +99,12 @@ void chameleon_pzgeqrf_param( int genD, int K,
             m = qrtree->getm(qrtree, k, i);
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
             tempkmin = chameleon_min(tempmm, tempkn);
-            ldam = BLKLDD(A, m);
-            lddm = BLKLDD(D, m);
 
             INSERT_TASK_zgeqrt(
                 &options,
                 tempmm, tempkn, ib, T->nb,
-                A(m, k), ldam,
-                T(m, k), T->mb);
+                A(m, k),
+                T(m, k));
 
             if ( genD ) {
                 int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
@@ -116,14 +113,14 @@ void chameleon_pzgeqrf_param( int genD, int K,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamLower, tempDmm, tempDkn, A->nb,
-                    A(m, k), ldam,
-                    D(m, k), lddm );
+                    A(m, k),
+                    D(m, k) );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
                     ChamUpper, tempDmm, tempDkn,
                     0., 1.,
-                    D(m, k), lddm );
+                    D(m, k) );
 #endif
             }
 
@@ -133,9 +130,9 @@ void chameleon_pzgeqrf_param( int genD, int K,
                     &options,
                     ChamLeft, ChamConjTrans,
                     tempmm, tempnn, tempkmin, ib, T->nb,
-                    D(m, k), lddm,
-                    T(m, k), T->mb,
-                    A(m, n), ldam);
+                    D(m, k),
+                    T(m, k),
+                    A(m, n));
             }
             RUNTIME_data_flush( sequence, D(m, k) );
             RUNTIME_data_flush( sequence, T(m, k) );
@@ -149,8 +146,6 @@ void chameleon_pzgeqrf_param( int genD, int K,
             p = qrtree->currpiv(qrtree, k, m);
 
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldap = BLKLDD(A, p);
-            ldam = BLKLDD(A, m);
 
             if ( qrtree->gettype(qrtree, k, m) == LIBHQR_KILLED_BY_TS ) {
                 /* TS kernel */
@@ -170,9 +165,9 @@ void chameleon_pzgeqrf_param( int genD, int K,
             INSERT_TASK_ztpqrt(
                 &options,
                 tempmm, tempkn, chameleon_min(L, tempkn), ib, T->nb,
-                A(p, k), ldap,
-                A(m, k), ldam,
-                T(m, k), T->mb);
+                A(p, k),
+                A(m, k),
+                T(m, k));
 
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -185,10 +180,10 @@ void chameleon_pzgeqrf_param( int genD, int K,
                     &options,
                     ChamLeft, ChamConjTrans,
                     tempmm, tempnn, A->nb, L, ib, T->nb,
-                    A(m, k), ldam,
-                    T(m, k), T->mb,
-                    A(p, n), ldap,
-                    A(m, n), ldam);
+                    A(m, k),
+                    T(m, k),
+                    A(p, n),
+                    A(m, n));
             }
             RUNTIME_data_flush( sequence, A(m, k) );
             RUNTIME_data_flush( sequence, T(m, k) );

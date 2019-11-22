@@ -62,12 +62,16 @@ CORE_ztsmlq_hetra1_parsec( parsec_execution_stream_t *context,
 void INSERT_TASK_ztsmlq_hetra1(const RUNTIME_option_t *options,
                               cham_side_t side, cham_trans_t trans,
                               int m1, int n1, int m2, int n2, int k, int ib, int nb,
-                              const CHAM_desc_t *A1, int A1m, int A1n, int lda1,
-                              const CHAM_desc_t *A2, int A2m, int A2n, int lda2,
-                              const CHAM_desc_t *V, int Vm, int Vn, int ldv,
-                              const CHAM_desc_t *T, int Tm, int Tn, int ldt)
+                              const CHAM_desc_t *A1, int A1m, int A1n,
+                              const CHAM_desc_t *A2, int A2m, int A2n,
+                              const CHAM_desc_t *V, int Vm, int Vn,
+                              const CHAM_desc_t *T, int Tm, int Tn)
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+    CHAM_tile_t *tileA1 = A1->get_blktile( A1, A1m, A1n );
+    CHAM_tile_t *tileA2 = A2->get_blktile( A2, A2m, A2n );
+    CHAM_tile_t *tileV = V->get_blktile( V, Vm, Vn );
+    CHAM_tile_t *tileT = T->get_blktile( T, Tm, Tn );
     int ldwork = side == ChamLeft ? ib : nb;
 
     parsec_dtd_taskpool_insert_task(
@@ -81,13 +85,13 @@ void INSERT_TASK_ztsmlq_hetra1(const RUNTIME_option_t *options,
         sizeof(int),        &k,      VALUE,
         sizeof(int),        &ib,     VALUE,
         PASSED_BY_REF,       RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n), INOUT,
-        sizeof(int),        &lda1,   VALUE,
+        sizeof(int), &(tileA1->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n), INOUT | AFFINITY,
-        sizeof(int),        &lda2,   VALUE,
+        sizeof(int), &(tileA2->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(V,  CHAMELEON_Complex64_t, Vm,  Vn),  INPUT,
-        sizeof(int),        &ldv,    VALUE,
+        sizeof(int), &(tileV->ld), VALUE,
         PASSED_BY_REF,       RTBLKADDR(T,  CHAMELEON_Complex64_t, Tm,  Tn),  INPUT,
-        sizeof(int),        &ldt,    VALUE,
+        sizeof(int), &(tileT->ld), VALUE,
         sizeof(CHAMELEON_Complex64_t)*ib*nb, NULL, SCRATCH,
         sizeof(int),        &ldwork, VALUE,
         PARSEC_DTD_ARG_END );

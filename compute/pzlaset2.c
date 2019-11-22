@@ -37,7 +37,6 @@ void chameleon_pzlaset2(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha,
     RUNTIME_option_t options;
 
     int i, j;
-    int ldai, ldaj;
     int tempim;
     int tempjm, tempjn;
     int minmn = chameleon_min(A->mt, A->nt);
@@ -53,19 +52,17 @@ void chameleon_pzlaset2(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha,
        for (j = 0; j < minmn; j++){
            tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           ldaj = BLKLDD(A, j);
            INSERT_TASK_zlaset2(
                &options,
                ChamLower, tempjm, tempjn, alpha,
-               A(j, j), ldaj);
+               A(j, j));
 
            for (i = j+1; i < A->mt; i++){
                tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
-               ldai = BLKLDD(A, i);
                INSERT_TASK_zlaset2(
                    &options,
                    ChamUpperLower, tempim, tempjn, alpha,
-                   A(i, j), ldai);
+                   A(i, j));
            }
        }
     }
@@ -74,33 +71,30 @@ void chameleon_pzlaset2(cham_uplo_t uplo, CHAMELEON_Complex64_t alpha,
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
            for (i = 0; i < chameleon_min(j, A->mt); i++){
                tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
-               ldai = BLKLDD(A, i);
                INSERT_TASK_zlaset2(
                    &options,
                    ChamUpperLower, tempim, tempjn, alpha,
-                   A(i, j), ldai);
+                   A(i, j));
            }
        }
        for (j = 0; j < minmn; j++){
            tempjm = j == A->mt-1 ? A->m-j*A->mb : A->mb;
            tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
-           ldaj = BLKLDD(A, j);
            INSERT_TASK_zlaset2(
                &options,
                ChamUpper, tempjm, tempjn, alpha,
-               A(j, j), ldaj);
+               A(j, j));
        }
     }
     else {
        for (i = 0; i < A->mt; i++){
            tempim = i == A->mt-1 ? A->m-i*A->mb : A->mb;
-           ldai = BLKLDD(A, i);
            for (j = 0; j < A->nt; j++){
                tempjn = j == A->nt-1 ? A->n-j*A->nb : A->nb;
                INSERT_TASK_zlaset2(
                    &options,
                    ChamUpperLower, tempim, tempjn, alpha,
-                   A(i, j), ldai);
+                   A(i, j));
            }
        }
     }

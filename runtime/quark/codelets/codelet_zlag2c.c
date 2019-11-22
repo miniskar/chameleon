@@ -12,8 +12,6 @@
  * @brief Chameleon zlag2c Quark codelet
  *
  * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
@@ -23,37 +21,37 @@
  */
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "coreblas/coreblas_ztile.h"
 
 void CORE_zlag2c_quark(Quark *quark)
 {
     int m;
     int n;
-    CHAMELEON_Complex64_t *A;
-    int lda;
-    CHAMELEON_Complex32_t *B;
-    int ldb;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
+    int info;
 
-    quark_unpack_args_8(quark, m, n, A, lda, B, ldb, sequence, request);
-    CORE_zlag2c( m, n, A, lda, B, ldb);
+    quark_unpack_args_6(quark, m, n, tileA, tileB, sequence, request);
+    TCORE_zlag2c( m, n, tileA, tileB, &info );
+    if ( (sequence->status != CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( (CHAM_context_t*)quark, sequence, request, info );
+    }
 }
 
 void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LAG2C;
     QUARK_Insert_Task(opt->quark, CORE_zlag2c_quark, (Quark_Task_Flags*)opt,
                       sizeof(int),                        &m,         VALUE,
                       sizeof(int),                        &n,         VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
-                      sizeof(int),                        &lda,       VALUE,
-                      sizeof(CHAMELEON_Complex32_t)*nb*nb,    RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn),                 OUTPUT,
-                      sizeof(int),                        &ldb,       VALUE,
+                      sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
+                      sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn),                 OUTPUT,
                       sizeof(RUNTIME_sequence_t*),           &(options->sequence),  VALUE,
                       sizeof(RUNTIME_request_t*),            &(options->request),   VALUE,
                       0);
@@ -63,26 +61,22 @@ void CORE_clag2z_quark(Quark *quark)
 {
     int m;
     int n;
-    CHAMELEON_Complex32_t *A;
-    int lda;
-    CHAMELEON_Complex64_t *B;
-    int ldb;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
-    quark_unpack_args_6(quark, m, n, A, lda, B, ldb);
-    CORE_clag2z( m, n, A, lda, B, ldb);
+    quark_unpack_args_6(quark, m, n, tileA, tileB);
+    TCORE_clag2z( m, n, tileA, tileB);
 }
 
 void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
                        int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An, int lda,
-                       const CHAM_desc_t *B, int Bm, int Bn, int ldb)
+                       const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn)
 {
     QUARK_Insert_Task(opt->quark, CORE_clag2z_quark, (Quark_Task_Flags*)opt,
                       sizeof(int),                        &m,     VALUE,
                       sizeof(int),                        &n,     VALUE,
-                      sizeof(CHAMELEON_Complex32_t)*nb*nb,    RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),             INPUT,
-                      sizeof(int),                        &lda,   VALUE,
-                      sizeof(CHAMELEON_Complex64_t)*nb*nb,    RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             INOUT,
-                      sizeof(int),                        &ldb,   VALUE,
+                      sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),             INPUT,
+                      sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             INOUT,
                       0);
 }

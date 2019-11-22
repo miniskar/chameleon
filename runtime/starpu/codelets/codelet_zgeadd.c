@@ -32,19 +32,15 @@ static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
     int M;
     int N;
     CHAMELEON_Complex64_t alpha;
-    const CHAMELEON_Complex64_t *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t beta;
-    CHAMELEON_Complex64_t *B;
-    int ldB;
+    CHAM_tile_t *tileB;
 
-    A = (const CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (CHAMELEON_Complex64_t *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta);
-    CORE_zgeadd(trans, M, N, alpha, A, ldA, beta, B, ldB);
+    TCORE_zgeadd(trans, M, N, alpha, tileA, beta, tileB);
     return;
 }
 
@@ -55,25 +51,21 @@ static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
     int M;
     int N;
     cuDoubleComplex alpha;
-    const cuDoubleComplex *A;
-    int ldA;
+    CHAM_tile_t *tileA;
     cuDoubleComplex beta;
-    cuDoubleComplex *B;
-    int ldB;
+    CHAM_tile_t *tileB;
 
-    A = (const cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[0]);
-    B = (cuDoubleComplex *)STARPU_MATRIX_GET_PTR(descr[1]);
-    ldA = STARPU_MATRIX_GET_LD( descr[0] );
-    ldB = STARPU_MATRIX_GET_LD( descr[1] );
-    starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta);
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta );
 
     RUNTIME_getStream( stream );
 
     CUDA_zgeadd(
         trans,
         M, N,
-        &alpha, A, ldA,
-        &beta,  B, ldB,
+        &alpha, tileA->mat, tileA->ld,
+        &beta,  tileB->mat, tileB->ld,
         stream);
 
 #ifndef STARPU_CUDA_ASYNC
@@ -149,8 +141,8 @@ CODELETS_CPU(zgeadd, 2, cl_zgeadd_cpu_func)
  */
 void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
                          cham_trans_t trans, int m, int n, int nb,
-                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An, int ldA,
-                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn, int ldB )
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn )
 {
     struct starpu_codelet *codelet = &cl_zgeadd;
     void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
@@ -175,7 +167,6 @@ void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
         STARPU_NAME, "zgeadd",
 #endif
         0);
-    (void)ldA;
 
     (void)nb;
 }

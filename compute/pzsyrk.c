@@ -38,7 +38,6 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
     RUNTIME_option_t options;
 
     int m, n, k;
-    int ldak, ldam, ldan, ldcm, ldcn;
     int tempnn, tempmm, tempkn, tempkm;
 
     CHAMELEON_Complex64_t zbeta;
@@ -52,8 +51,6 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
 
     for (n = 0; n < C->nt; n++) {
         tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
-        ldan = BLKLDD(A, n);
-        ldcn = BLKLDD(C, n);
         /*
          *  ChamNoTrans
          */
@@ -65,8 +62,8 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
                     &options,
                     uplo, trans,
                     tempnn, tempkn, A->mb,
-                    alpha, A(n, k), ldan, /* ldan * K */
-                    zbeta, C(n, n), ldcn); /* ldc  * N */
+                    alpha, A(n, k), /* ldan * K */
+                    zbeta, C(n, n)); /* ldc  * N */
             }
             /*
              *  ChamNoTrans / ChamLower
@@ -74,8 +71,6 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
             if (uplo == ChamLower) {
                 for (m = n+1; m < C->mt; m++) {
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
-                    ldcm = BLKLDD(C, m);
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                         zbeta = k == 0 ? beta : zone;
@@ -83,9 +78,9 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
                             &options,
                             trans, ChamTrans,
                             tempmm, tempnn, tempkn, A->mb,
-                            alpha, A(m, k), ldam,  /* ldam * K */
-                                   A(n, k), ldan,  /* ldan * K */
-                            zbeta, C(m, n), ldcm); /* ldc  * N */
+                            alpha, A(m, k),  /* ldam * K */
+                                   A(n, k),  /* ldan * K */
+                            zbeta, C(m, n)); /* ldc  * N */
                     }
                 }
             }
@@ -95,7 +90,6 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
             else {
                 for (m = n+1; m < C->mt; m++) {
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldam = BLKLDD(A, m);
                     for (k = 0; k < A->nt; k++) {
                         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
                         zbeta = k == 0 ? beta : zone;
@@ -103,9 +97,9 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
                             &options,
                             trans, ChamTrans,
                             tempnn, tempmm, tempkn, A->mb,
-                            alpha, A(n, k), ldan,  /* ldan * K */
-                                   A(m, k), ldam,  /* ldam * M */
-                            zbeta, C(n, m), ldcn); /* ldc  * M */
+                            alpha, A(n, k),  /* ldan * K */
+                                   A(m, k),  /* ldam * M */
+                            zbeta, C(n, m)); /* ldc  * M */
                     }
                 }
             }
@@ -116,14 +110,13 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
         else {
             for (k = 0; k < A->mt; k++) {
                 tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                ldak = BLKLDD(A, k);
                 zbeta = k == 0 ? beta : zone;
                 INSERT_TASK_zsyrk(
                     &options,
                     uplo, trans,
                     tempnn, tempkm, A->mb,
-                    alpha, A(k, n), ldak,  /* lda * N */
-                    zbeta, C(n, n), ldcn); /* ldc * N */
+                    alpha, A(k, n),  /* lda * N */
+                    zbeta, C(n, n)); /* ldc * N */
             }
             /*
              *  ChamTrans / ChamLower
@@ -131,18 +124,16 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
             if (uplo == ChamLower) {
                 for (m = n+1; m < C->mt; m++) {
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
-                    ldcm = BLKLDD(C, m);
                     for (k = 0; k < A->mt; k++) {
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
                         zbeta = k == 0 ? beta : zone;
                         INSERT_TASK_zgemm(
                             &options,
                             trans, ChamNoTrans,
                             tempmm, tempnn, tempkm, A->mb,
-                            alpha, A(k, m), ldak,  /* lda * M */
-                                   A(k, n), ldak,  /* lda * N */
-                            zbeta, C(m, n), ldcm); /* ldc * N */
+                            alpha, A(k, m),  /* lda * M */
+                                   A(k, n),  /* lda * N */
+                            zbeta, C(m, n)); /* ldc * N */
                     }
                 }
             }
@@ -154,15 +145,14 @@ void chameleon_pzsyrk(cham_uplo_t uplo, cham_trans_t trans,
                     tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
                     for (k = 0; k < A->mt; k++) {
                         tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-                        ldak = BLKLDD(A, k);
                         zbeta = k == 0 ? beta : zone;
                         INSERT_TASK_zgemm(
                             &options,
                             trans, ChamNoTrans,
                             tempnn, tempmm, tempkm, A->mb,
-                            alpha, A(k, n), ldak,  /* lda * K */
-                                   A(k, m), ldak,  /* lda * M */
-                            zbeta, C(n, m), ldcn); /* ldc * M */
+                            alpha, A(k, n),  /* lda * K */
+                                   A(k, m),  /* lda * M */
+                            zbeta, C(n, m)); /* ldc * M */
                     }
                 }
             }

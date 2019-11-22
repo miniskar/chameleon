@@ -35,7 +35,6 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
     RUNTIME_option_t options;
 
     int m, n, minmn;
-    int ldam;
     int tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
@@ -52,12 +51,11 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
 
             for (m = n; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-                ldam = BLKLDD(A, m);
 
                 options.priority = m + n;
                 INSERT_TASK_zplgsy(
                     &options,
-                    bump, tempmm, tempnn, A(m, n), ldam,
+                    bump, tempmm, tempnn, A(m, n),
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
@@ -66,7 +64,6 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
     case ChamUpper:
         for (m = 0; m < minmn; m++) {
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
 
             for (n = m; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -74,7 +71,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                 options.priority = m + n;
                 INSERT_TASK_zplgsy(
                     &options,
-                    bump, tempmm, tempnn, A(m, n), ldam,
+                    bump, tempmm, tempnn, A(m, n),
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
@@ -83,7 +80,6 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
     default:
         for (m = 0; m < A->mt; m++) {
             tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            ldam = BLKLDD(A, m);
 
             for (n = 0; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
@@ -91,7 +87,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                 options.priority = m + n;
                 INSERT_TASK_zplgsy(
                     &options,
-                    bump, tempmm, tempnn, A(m, n), ldam,
+                    bump, tempmm, tempnn, A(m, n),
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
