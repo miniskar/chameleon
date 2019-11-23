@@ -71,8 +71,8 @@ int chameleon_alloc_ibnb_tile(int M, int N, cham_tasktype_t func, int type, CHAM
         NT *= 2;
     }
 
-    lm = IB * MT;
-    ln = NB * NT;
+    lm = (int64_t)IB * (int64_t)MT;
+    ln = (int64_t)NB * (int64_t)NT;
 
     return CHAMELEON_Desc_Create( desc, CHAMELEON_MAT_ALLOC_TILE, type, IB, NB, IB*NB,
                                   lm, ln, 0, 0, lm, ln, p, q );
@@ -109,8 +109,8 @@ int chameleon_alloc_ipiv(int M, int N, cham_tasktype_t func, int type, CHAM_desc
     NT = (N%NB==0) ? (N/NB) : ((N/NB)+1);
     MT = (M%NB==0) ? (M/NB) : ((M/NB)+1);
 
-    lm = IB * MT;
-    ln = NB * NT;
+    lm = (int64_t)IB * (int64_t)MT;
+    ln = (int64_t)NB * (int64_t)NT;
 
     size = (size_t)(chameleon_min(MT, NT) * NB * NT * sizeof(int));
     if (size == 0) {

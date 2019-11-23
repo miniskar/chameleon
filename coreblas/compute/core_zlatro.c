@@ -117,7 +117,9 @@ int CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,
         CORE_zlacpy(uplo, M, N, A, LDA, B, LDB);
     }
     else {
-        if (trans == ChamConjTrans) {
+#if defined(PRECISION_z) || defined(PRECISION_c)
+        if (trans == ChamConjTrans)
+        {
             if(uplo == ChamUpper) {
                 for(j=0; j<N; j++)
                     for(i=0; i<chameleon_min(j+1,M); i++)
@@ -134,7 +136,9 @@ int CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,
                         B[j+i*LDB] = conj(A[i+j*LDA]);
             }
         }
-        else {
+        else
+#endif
+        {
             if(uplo==ChamUpper) {
                 for(j=0;j<N;j++)
                     for(i=0;i<chameleon_min(j+1,M);i++)

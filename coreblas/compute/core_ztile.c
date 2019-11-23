@@ -783,8 +783,8 @@ TCORE_zunmlq( cham_side_t            side,
               cham_trans_t           trans,
               int                    M,
               int                    N,
-              int                    IB,
               int                    K,
+              int                    IB,
               const CHAM_tile_t *    V,
               const CHAM_tile_t *    T,
               CHAM_tile_t *          C,
@@ -795,7 +795,7 @@ TCORE_zunmlq( cham_side_t            side,
     assert( T->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zunmlq(
-        side, trans, M, N, IB, K, V->mat, V->ld, T->mat, T->ld, C->mat, C->ld, WORK, LDWORK );
+        side, trans, M, N, K, IB, V->mat, V->ld, T->mat, T->ld, C->mat, C->ld, WORK, LDWORK );
 }
 
 int

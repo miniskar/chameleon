@@ -75,6 +75,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                     A->m, m*A->mb, n*A->nb, seed );
             }
         }
+        break;
 
     case ChamUpperLower:
     default:
