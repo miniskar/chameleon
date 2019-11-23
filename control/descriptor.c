@@ -559,8 +559,6 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
     CHAM_desc_t *desc;
     int status;
 
-    *descptr = NULL;
-
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
         chameleon_error("CHAMELEON_Desc_Create_User", "CHAMELEON not initialized");

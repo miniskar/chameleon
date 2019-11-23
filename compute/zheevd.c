@@ -437,6 +437,8 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     V = malloc( N * N * sizeof(CHAMELEON_Complex64_t) );
     if (V == NULL) {
         chameleon_error("CHAMELEON_zheevd_Tile_Async", "malloc(V) failed");
+        free(E);
+        free(Q2);
         free(V);
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }

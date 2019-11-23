@@ -87,13 +87,13 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
         }
         else {
             Anorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
-                                         M, N, B, LDA, work );
+                                         M, N, A, LDA, work );
         }
 
         /* Computes the difference with the core function */
         CORE_zgeadd( ChamNoTrans, M, N, 1, A, LDA, -1, B, LDA );
 
-        /* Computes the residue's norm */
+        /* Computes the residual's norm */
         if ( uplo == ChamUpperLower ) {
             Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, B, LDA, work );
         }
@@ -608,20 +608,26 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
     CHAMELEON_Complex64_t mzone = -1.0;
 
     if ( side == ChamLeft ) {
+#if defined(PRECISION_z) || defined(PRECISION_c)
         if ( matrix_type == ChamHermitian ) {
             Anorm = CHAMELEON_zlanhe_Tile(ChamInfNorm, uplo, descA);
         }
-        else {
+        else
+#endif
+        {
             Anorm = CHAMELEON_zlansy_Tile(ChamInfNorm, uplo, descA);
         }
         Bnorm = CHAMELEON_zlange_Tile(ChamOneNorm, descB);
         LDA = M;
         An  = M;
     } else {
+#if defined(PRECISION_z) || defined(PRECISION_c)
         if ( matrix_type == ChamHermitian ) {
             Anorm = CHAMELEON_zlanhe_Tile(ChamOneNorm, uplo, descA);
         }
-        else {
+        else
+#endif
+        {
             Anorm = CHAMELEON_zlansy_Tile(ChamOneNorm, uplo, descA);
         }
         Bnorm = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
@@ -650,12 +656,15 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
         double eps = LAPACKE_dlamch_work('e');
 
         /* Makes the multiplication with the core function */
+#if defined(PRECISION_z) || defined(PRECISION_c)
         if ( matrix_type == ChamHermitian ) {
             cblas_zhemm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
                          M, N, CBLAS_SADDR(alpha),
                          A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC );
         }
-        else {
+        else
+#endif
+        {
             cblas_zsymm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
                          M, N, CBLAS_SADDR(alpha),
                          A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC );
@@ -764,11 +773,14 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     }
 
     /* Computes the norms for comparing */
+#if defined(PRECISION_z) || defined(PRECISION_c)
     if ( matrix_type == ChamHermitian ) {
         Crefnorm  = CHAMELEON_zlanhe_Tile( ChamInfNorm, uplo, descCref );
         Cchamnorm = CHAMELEON_zlanhe_Tile( ChamInfNorm, uplo, descC    );
     }
-    else {
+    else
+#endif
+    {
         Crefnorm  = CHAMELEON_zlansy_Tile( ChamInfNorm, uplo, descCref );
         Cchamnorm = CHAMELEON_zlansy_Tile( ChamInfNorm, uplo, descC    );
     }
@@ -796,6 +808,7 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
         double *work = malloc(sizeof(double)*N);
 
         /* Makes the multiplication with the core function */
+#if defined(PRECISION_z) || defined(PRECISION_c)
         if ( matrix_type == ChamHermitian ) {
             if ( descB == NULL ) {
                 cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
@@ -807,8 +820,12 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
                               N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, creal(beta), Cref, LDC );
                 ABnorm = 2. * Anorm * Bnorm;
             }
+
+            Clapacknorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
         }
-        else {
+        else
+#endif
+        {
             if ( descB == NULL ) {
                 cblas_zsyrk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
                              N, K, CBLAS_SADDR(alpha), A, LDA, CBLAS_SADDR(beta), Cref, LDC );
@@ -819,22 +836,22 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
                               N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, CBLAS_SADDR(beta), Cref, LDC );
                 ABnorm = 2. * Anorm * Bnorm;
             }
-        }
-        if ( matrix_type == ChamHermitian ) {
-            Clapacknorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
-        }
-        else {
+
             Clapacknorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
         }
+
         CORE_ztradd( uplo, ChamNoTrans, N, N,
                      -1.,  C,    LDC,
                       1.,  Cref, LDC );
 
         /* Computes the norm with the core function's result */
+#if defined(PRECISION_z) || defined(PRECISION_c)
         if ( matrix_type == ChamHermitian ) {
             Rnorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
         }
-        else {
+        else
+#endif
+        {
             Rnorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
         }
         result = Rnorm / ((ABnorm + Crefnorm) * K * eps);
