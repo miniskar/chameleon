@@ -67,7 +67,7 @@ if (NOT CHAMELEON_SIMULATION)
     # -----------------------------
     add_library(chameleon_timing STATIC ${TIMING_SRCS})
     set_property(TARGET chameleon_timing PROPERTY LINKER_LANGUAGE Fortran)
-    add_dependencies(chameleon_timing timing_include timing_aux_sources)
+    add_dependencies(chameleon_timing timing_include timing_aux_sources chameleon_include)
 endif()
 
 # Generate the chameleon testing sources for all possible precisions

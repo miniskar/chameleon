@@ -191,6 +191,11 @@ if (NOT CHAMELEON_ENABLE_TRACING)
 endif()
 #option(CHAMELEON_USE_EZTRACE "Enable EZTRACE to build modules" OFF)
 
+option(CHAMELEON_RUNTIME_SYNC "Enable synchronous task submission when available to debug the code without parallelism" OFF)
+if (CHAMELEON_RUNTIME_SYNC)
+    message("-- ${BoldGreen}CHAMELEON_RUNTIME_SYNC is set to ON, turn it OFF to avoid synchronisation in the tasks submission${ColourReset}")
+endif()
+
 # Options to enable/disable testings and timings
 # ----------------------------------------------
 option(CHAMELEON_ENABLE_DOC      "Enable documentation build"  OFF)
@@ -912,7 +917,6 @@ if( CHAMELEON_SCHED_OPENMP )
     else ( OPENMP_FOUND )
       message(FATAL_ERROR "Something went wrong when finding OpenMP")
     endif ( OPENMP_FOUND )
-
 endif( CHAMELEON_SCHED_OPENMP )
 
 # getopt

@@ -81,7 +81,7 @@ typedef struct starpu_conf starpu_conf_t;
 /*
  * MPI Redefinitions
  */
-#if defined(CHAMELEON_STARPU_SYNC)
+#if defined(CHAMELEON_RUNTIME_SYNC)
 #define TASK_SYNCHRONOUS , STARPU_TASK_SYNCHRONOUS, 1
 #else
 #define TASK_SYNCHRONOUS

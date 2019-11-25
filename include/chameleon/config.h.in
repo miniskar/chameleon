@@ -29,6 +29,9 @@
 #cmakedefine CHAMELEON_SCHED_STARPU
 #cmakedefine CHAMELEON_SCHED_OPENMP
 
+/* Debug scheduling engine */
+#cmakedefine CHAMELEON_RUNTIME_SYNC
+
 /* Communication engine */
 #cmakedefine CHAMELEON_USE_MPI
 #cmakedefine CHAMELEON_USE_MIGRATE
