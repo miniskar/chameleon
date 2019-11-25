@@ -20,11 +20,14 @@
 #ifndef _chameleon_quark_h_
 #define _chameleon_quark_h_
 
+#include "control/common.h"
+
 #include <quark.h>
+#if defined(CHAMELEON_RUNTIME_SYNC)
+#define QUARk_Insert_Task QUARK_Execute_Task
+#endif
 #include "coreblas.h"
 #include "core_blas_dag.h"
-
-#include "control/common.h"
 
 typedef struct quark_option_s {
     Quark_Task_Flags flags;
