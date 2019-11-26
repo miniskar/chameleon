@@ -58,7 +58,7 @@ testing_zpotri( run_arg_list_t *args, int check )
 
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", gflops );
+    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
     /* Check the inverse */
     if ( check ) {

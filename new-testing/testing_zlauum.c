@@ -60,7 +60,7 @@ testing_zlauum( run_arg_list_t *args, int check )
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", gflops );
+    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
     if ( check ) {
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
