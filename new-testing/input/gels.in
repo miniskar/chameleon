@@ -12,6 +12,7 @@
 # trans: Wether the system involves A (ChamNoTrans) or A^H *ChamTransConj)
 # RH: Size of each subdomain when using RH
 
+op = gels
 nb = 16, 17
 ib = 8
 m = 17, 31, 35

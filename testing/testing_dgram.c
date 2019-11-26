@@ -71,7 +71,7 @@ int testing_dgram(int argc, char **argv)
 
     eps = LAPACKE_dlamch_work('e');
 
-    if (CHAMELEON_My_Mpi_Rank() == 0){
+    if (CHAMELEON_Comm_rank() == 0){
         printf("\n");
         printf("------ TESTS FOR CHAMELEON GRAM ROUTINE -------  \n");
         printf("            Size of the Matrix %d by %d\n", N, N);
@@ -109,7 +109,7 @@ int testing_dgram(int argc, char **argv)
         /* Check the solution */
         info_solution = check_solution(uplo[ua], N, Aref, Acham, LDA);
 
-        if (CHAMELEON_My_Mpi_Rank() == 0){
+        if (CHAMELEON_Comm_rank() == 0){
             if (info_solution == 0) {
                 printf("***************************************************\n");
                 printf(" ---- TESTING GRAM (%s) ............... PASSED !\n", uplostr[ua]);
@@ -173,13 +173,13 @@ static int check_solution(cham_uplo_t uplo,
     }
 
     eps = LAPACKE_dlamch_work('e');
-    if (CHAMELEON_My_Mpi_Rank() == 0)
+    if (CHAMELEON_Comm_rank() == 0)
         printf("Rnorm %e, Anorm %e\n", Rnorm, Arefnorm);
 
     /* scale the norm in respect to Aref */
     result = Rnorm / (Arefnorm * N * eps);
 
-    if (CHAMELEON_My_Mpi_Rank() == 0){
+    if (CHAMELEON_Comm_rank() == 0){
         printf("============\n");
         printf("Checking the norm of the difference against reference GRAM \n");
         printf("-- ||Acham - Aref||_oo/((||Aref||_oo.N.eps) = %e \n",
@@ -187,12 +187,12 @@ static int check_solution(cham_uplo_t uplo,
     }
 
     if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-         if (CHAMELEON_My_Mpi_Rank() == 0)
+         if (CHAMELEON_Comm_rank() == 0)
              printf("-- The solution is suspicious ! \n");
          info_solution = 1;
     }
     else {
-         if (CHAMELEON_My_Mpi_Rank() == 0)
+         if (CHAMELEON_Comm_rank() == 0)
              printf("-- The solution is CORRECT ! \n");
          info_solution= 0 ;
     }

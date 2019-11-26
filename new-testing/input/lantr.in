@@ -12,6 +12,7 @@
 # bump:
 # diag: whether or not A is unit triangular (0: non unit, 1: unit)
 
+op = lantr
 nb = 16, 17
 ib = 8
 m = 15, 19, 32

@@ -9,6 +9,7 @@
 # lda: Leading dimension of matrix A
 # uplo: Matrix part to be considered (0: Upper, 1: Lower)
 
+op = lauum
 nb = 16, 17
 ib = 8
 n = 15, 31, 33

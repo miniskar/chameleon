@@ -10,6 +10,7 @@
 # lda: Leading dimension of matrix A
 # ldb: Leading dimension of matrix B
 
+op = getrs
 nb = 16, 17
 ib = 8
 m = 13, 17, 35

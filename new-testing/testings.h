@@ -185,8 +185,8 @@ const run_arg_t *run_arg_get_byname( const run_arg_list_t *arglist, const char *
 int                   run_arg_get_int      ( run_arg_list_t *arglist, const char *name, int                   defval );
 float                 run_arg_get_float    ( run_arg_list_t *arglist, const char *name, float                 defval );
 double                run_arg_get_double   ( run_arg_list_t *arglist, const char *name, double                defval );
-CHAMELEON_Complex32_t run_arg_get_Complex32( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex32_t defval );
-CHAMELEON_Complex64_t run_arg_get_Complex64( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex64_t defval );
+CHAMELEON_Complex32_t run_arg_get_complex32( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex32_t defval );
+CHAMELEON_Complex64_t run_arg_get_complex64( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex64_t defval );
 cham_trans_t          run_arg_get_trans    ( run_arg_list_t *arglist, const char *name, cham_trans_t          defval );
 cham_uplo_t           run_arg_get_uplo     ( run_arg_list_t *arglist, const char *name, cham_uplo_t           defval );
 cham_diag_t           run_arg_get_diag     ( run_arg_list_t *arglist, const char *name, cham_diag_t           defval );
@@ -200,6 +200,9 @@ int run_arg_add_double( run_arg_list_t *arglist, const char *name, double defval
 void run_print_header( const testing_t *test, int check, int human );
 void run_print_line( const testing_t *test, const run_arg_list_t *arglist,
                      int check, int human, int id );
+
+run_arg_list_t run_arg_list_copy( const run_arg_list_t *arglist );
+void run_arg_list_destroy( run_arg_list_t *arglist );
 
 void         parameters_read( parameter_t *param, const char  *values );
 void         parameters_read_file( const char  *filename );

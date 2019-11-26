@@ -33,9 +33,10 @@ static parameter_t parameters[] = {
     { "id", "Id of the run", 0, PARAM_OUTPUT, 0, 3, TestValInt, {0}, NULL, NULL, sprint_int },
 
     { NULL, "Options", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "help",  "Show this help",                'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "check", "Enable checking of the result", 'c', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "human", "Enable human readable mode",    'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "help",  "Show this help",                      'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "check", "Enable checking of the result",       'c', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "human", "Enable human readable mode",          'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "niter", "Perform multiple iteration per test", 'l', PARAM_OPTION, 1, 0, TestValInt, {1}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {1}, NULL, pread_int, sprint_int },
@@ -74,9 +75,9 @@ static parameter_t parameters[] = {
     { "norm",   "Value of the norm parameter",   -17, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestNormtype, {0}, NULL, pread_norm,  sprint_norm  },
 
     { NULL, "Operation specific scalar", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "alpha", "Value of the scalar alpha",                     'x', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 12, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
-    { "beta",  "Value of the scalar beta",                      'y', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 12, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
-    { "bump",  "Bump value to make a matrix diagonal dominant", 'z', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 12, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
+    { "alpha", "Value of the scalar alpha",                     'x', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
+    { "beta",  "Value of the scalar beta",                      'y', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
+    { "bump",  "Bump value to make a matrix diagonal dominant", 'z', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
 
     { NULL, "QR/LQ parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "qra",    "Size of TS domain (=RH for householder trees)",           -20, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
@@ -85,16 +86,16 @@ static parameter_t parameters[] = {
     { "hlvl",   "Tree used for high level reduction between nodes",        -23, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "domino", "Enable/Disable the domino between upper and lower trees", -24, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
 
-    { "time",          "Time in s",                             1000, PARAM_OUTPUT, 2, 12, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
-    { "gflops",        "GFlop/s",                               1001, PARAM_OUTPUT, 2, 12, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
+    { "time",          "Time in s",                             1000, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
+    { "gflops",        "GFlop/s",                               1001, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
     { "RETURN",        "Result of the testing: SUCCESS/FAILED", 1002, PARAM_OUTPUT, 2,  7, TestValInt,    {0}, NULL, pread_int,    sprint_check  },
-    { "||Ax-b||",      "Norm of the residual",                  1003, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||Ax-b||",      "Norm of the residual",                  1003, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
     { "||A-fact(A)||", "Norm of the residual",                  1004, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||A||",         "Norm of the matrix A",                  1005, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||B||",         "Norm of the matrix B",                  1006, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||C||",         "Norm of the matrix C",                  1007, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||b||",         "Norm of the vector b",                  1008, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||x||",         "Norm of the vector x",                  1009, PARAM_OUTPUT, 2, 12, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||A||",         "Norm of the matrix A",                  1005, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||B||",         "Norm of the matrix B",                  1006, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||C||",         "Norm of the matrix C",                  1007, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||b||",         "Norm of the vector b",                  1008, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
+    { "||x||",         "Norm of the vector x",                  1009, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
     { "||Ax-b||/N/eps/(||A||||x||+||b||", "",                   1010, PARAM_OUTPUT, 2, 22, TestValDouble, {0}, NULL, pread_double, sprint_double },
     { "||I-QQ'||",     "Orthonormality of Q",                   1011, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
 };
@@ -103,7 +104,13 @@ static parameter_t parameters[] = {
 
 void print_usage( const char* prog_name )
 {
-    int rank = CHAMELEON_My_Mpi_Rank();
+    int rank;
+    if ( CHAMELEON_Initialized() ) {
+        rank = CHAMELEON_Comm_rank();
+    }
+    else {
+        rank = 0;
+    }
 
     if (rank == 0) {
         parameter_t *param = parameters;
@@ -185,8 +192,10 @@ testing_gettest( const char *prog_name,
     }
 
     while( test != NULL ) {
-        /* Check the name without the precision */
-        if ( strcasecmp( func_name, test->name + 1  ) == 0 ) {
+        /* Check the name with and without the precision */
+        if ( (strcasecmp( func_name, test->name     ) == 0) ||
+             (strcasecmp( func_name, test->name + 1 ) == 0) )
+        {
             break;
         }
         test = test->next;
@@ -466,7 +475,7 @@ parameters_destroy()
 
 int main (int argc, char **argv) {
 
-    int ncores, ngpus, human, check;
+    int ncores, ngpus, human, check, i, niter;
     int rc, info = 0;
     int run_id = 0;
     char *func_name;
@@ -487,6 +496,7 @@ int main (int argc, char **argv) {
     check      = parameters_getvalue_int( "check" );
     human      = parameters_getvalue_int( "human" );
     func_name  = parameters_getvalue_str( "op" );
+    niter      = parameters_getvalue_int( "niter" );
 
     CHAMELEON_Init( ncores, ngpus );
 
@@ -501,14 +511,18 @@ int main (int argc, char **argv) {
     run_print_header( test, check, human );
     run = runlist->head;
     while ( run != NULL ) {
-        rc = test->fptr( &(run->args), check );
+        for(i=0; i<niter; i++) {
+            run_arg_list_t copy = run_arg_list_copy( &(run->args) );
+            rc = test->fptr( &copy, check );
 
-        /* If rc < 0, we skipped the test */
-        if ( rc >= 0 ) {
-            run_arg_add_int( &(run->args), "RETURN", rc );
-            run_print_line( test, &(run->args), check, human, run_id );
-            run_id++;
-            info += rc;
+            /* If rc < 0, we skipped the test */
+            if ( rc >= 0 ) {
+                run_arg_add_int( &copy, "RETURN", rc );
+                run_print_line( test, &copy, check, human, run_id );
+                run_id++;
+                info += rc;
+            }
+            run_arg_list_destroy( &copy );
         }
 
         /* Move to next run */

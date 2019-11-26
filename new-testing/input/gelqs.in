@@ -10,6 +10,7 @@
 # lda: Leading dimension of the A matrix
 # RH: Size of each subdomain when using RH
 
+op = gelqs
 nb = 16, 17
 ib = 8
 m = 13, 17, 35

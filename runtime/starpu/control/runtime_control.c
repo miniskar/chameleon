@@ -215,7 +215,7 @@ void RUNTIME_progress( CHAM_context_t *chamctxt )
     int max;
 
 #if defined(CHAMELEON_USE_MPI)
-    if ( chamctxt->my_mpi_rank != 0 ) {
+    if ( RUNTIME_comm_rank( chamctxt ) != 0 ) {
         return;
     }
 #endif

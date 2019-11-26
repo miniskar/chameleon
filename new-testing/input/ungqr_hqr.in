@@ -15,6 +15,7 @@
 # hlv: Tree used for high level reduction between nodes, only if qrp > 1
 # domino: Enable/Disable the domino between upper and lower trees
 
+op = ungqr_hqr
 nb = 8, 9
 ib = 3
 m = 15, 19, 33

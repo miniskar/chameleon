@@ -123,10 +123,6 @@ typedef struct chameleon_context_s {
     int                nworkers;
     int                ncudas;
     int                nthreads_per_worker;
-#if defined(CHAMELEON_USE_MPI)
-    int                my_mpi_rank;
-    int                mpi_comm_size;
-#endif
 
     /* Boolean flags */
     cham_bool_t        warnings_enabled;

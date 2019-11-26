@@ -13,6 +13,7 @@
 # trans: Whether the matrix Q is transposed or conjugate transposed
 # RH: Size of each subdomain when using RH
 
+op = ormqr
 nb = 16, 17
 ib = 8
 m = 15, 20, 33

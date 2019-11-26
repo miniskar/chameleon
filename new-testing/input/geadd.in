@@ -12,6 +12,7 @@
 # alpha: Scalar alpha
 # beta: Scalar beta
 
+op = geadd
 nb = 16, 17
 ib = 8
 m = 15, 17, 33

@@ -11,6 +11,7 @@
 # ldb: Leading dimension of matrix B
 # uplo: Matrix part to be considered (0: Upper, 1: Lower)
 
+op = posv
 nb = 16, 17
 ib = 8
 n = 15, 21, 35

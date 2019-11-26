@@ -10,6 +10,7 @@
 # k: Number of reflectors of matrix A
 # lda: Leading dimension of matrix Q and A
 
+op = ongqr
 nb = 16, 17
 ib = 8
 m = 15, 19, 33

@@ -15,6 +15,7 @@
 # diag: Whether or not A is unit triangular
 # alpha: Scalar alpha
 
+op = trsm
 nb = 16, 17
 ib = 8
 n = 15, 27, 35

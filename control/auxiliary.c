@@ -214,16 +214,7 @@ int CHAMELEON_Element_Size(int type)
  */
 int CHAMELEON_My_Mpi_Rank(void)
 {
-#if defined(CHAMELEON_USE_MPI)
-    CHAM_context_t *chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
-        return CHAMELEON_ERR_NOT_INITIALIZED;
-    }
-    return CHAMELEON_MPI_RANK;
-#else
-    return CHAMELEON_SUCCESS;
-#endif
+    return CHAMELEON_Comm_rank();
 }
 
 /**

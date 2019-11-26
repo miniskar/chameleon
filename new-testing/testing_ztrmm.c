@@ -46,7 +46,7 @@ testing_ztrmm( run_arg_list_t *args, int check )
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_ztrmm( side, N, K );
 
-    alpha = run_arg_get_Complex64( args, "alpha", alpha );
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 

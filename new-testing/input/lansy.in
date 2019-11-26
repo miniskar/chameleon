@@ -11,6 +11,7 @@
 # uplo: matrix parte to be considered (0: Upper, 1: Lower)
 # bump: bump value for Hermitian matrices
 
+op = lansy
 nb = 16, 17
 ib = 8
 m = 15, 19, 32

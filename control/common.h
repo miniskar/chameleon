@@ -83,10 +83,6 @@
 #define CHAMELEON_TRANSLATION chamctxt->translation
 #define CHAMELEON_PARALLEL    chamctxt->parallel_enabled
 #define CHAMELEON_PROFILING   chamctxt->profiling_enabled
-#if defined(CHAMELEON_USE_MPI)
-#define CHAMELEON_MPI_RANK    chamctxt->my_mpi_rank
-#define CHAMELEON_MPI_SIZE    chamctxt->mpi_comm_size
-#endif
 
 /**
  *  IPT internal define

@@ -42,7 +42,8 @@ subs = {
         ('int',                  'float',                'double',               'CHAMELEON_Complex32_t', r'\bCHAMELEON_Complex64_t'),
         ('ChamPattern',          'ChamRealFloat',        'ChamRealDouble',       'ChamComplexFloat',    r'\bChamComplexDouble' ),
         ('ChamPattern',          'ChamRealFloat',        'ChamRealDouble',       'ChamRealFloat',       r'\bChamRealDouble'    ),
-        ('int',                  'float',                'double',               'complex32',           r'\bcomplex64'         ),
+        ('int',                  'float',                'double',               'complex32',             'complex64'          ),
+        ('Int',                  'Float',                'Double',               'Complex32',             'Complex64'          ),
 
         # ----- Additional BLAS
         ('',                     'sTile',                'dTile',                'cTile',                'zTile'               ),

@@ -15,6 +15,7 @@
 # alpha: Scalar alpha
 # beta: Scalar beta
 
+op = gemm
 nb = 16, 17
 ib = 8
 m = 15, 25, 37

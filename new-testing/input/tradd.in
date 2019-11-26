@@ -13,6 +13,7 @@
 # alpha: Scalar alpha
 # beta: Scalar beta
 
+op = tradd
 nb = 16, 17
 ib = 8
 m = 15, 29, 33

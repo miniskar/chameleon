@@ -48,8 +48,8 @@ testing_zgemm( run_arg_list_t *args, int check )
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zgemm( M, N, K );
 
-    alpha = run_arg_get_Complex64( args, "alpha", alpha );
-    beta  = run_arg_get_Complex64( args, "beta", beta );
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 

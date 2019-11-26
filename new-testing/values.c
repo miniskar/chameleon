@@ -317,7 +317,16 @@ val_t pread_norm( const char *str )
 val_t pread_string( const char *str )
 {
     val_t val;
+    int i, len = strlen( str );
     val.str = strdup( str );
+    for( i=0; i<len; i++ ) {
+        if ( (val.str[i] == '\n') ||
+             (val.str[i] == ' ') )
+        {
+            val.str[i] = '\0';
+            break;
+        }
+    }
     return val;
 }
 
@@ -349,7 +358,7 @@ char *sprint_float( val_t val, int human, int nbchar, char *str_in )
 {
     int rc;
     if ( human ) {
-        rc = sprintf( str_in, " %*e", nbchar, val.sval );
+        rc = sprintf( str_in, " %*e", chameleon_max( 13, nbchar ), val.sval );
     }
     else {
         rc = sprintf( str_in, ";%e", val.sval );
@@ -367,7 +376,7 @@ char *sprint_double( val_t val, int human, int nbchar, char *str_in )
 {
     int rc;
     if ( human ) {
-        rc = sprintf( str_in, " %*e", nbchar, val.dval );
+        rc = sprintf( str_in, " %*e", chameleon_max( 13, nbchar ), val.dval );
     }
     else {
         rc = sprintf( str_in, ";%e", val.dval );
@@ -385,7 +394,7 @@ char *sprint_complex32( val_t val, int human, int nbchar, char *str_in )
 {
     int rc;
     if ( human ) {
-        rc = sprintf( str_in, " %e,%e", crealf(val.cval), cimagf(val.cval) );
+        rc = sprintf( str_in, " (%*e,%*e)", chameleon_max( 13, nbchar ), crealf(val.cval), chameleon_max( 13, nbchar ), cimagf(val.cval) );
     }
     else {
         rc = sprintf( str_in, ";%e,%e", crealf(val.cval), cimagf(val.cval) );
@@ -403,7 +412,7 @@ char *sprint_complex64( val_t val, int human, int nbchar, char *str_in )
 {
     int rc;
     if ( human ) {
-        rc = sprintf( str_in, " %e,%e", creal(val.zval), cimag(val.zval) );
+        rc = sprintf( str_in, " (%*e,%*e)", chameleon_max( 13, nbchar ), creal(val.zval), chameleon_max( 13, nbchar ), cimag(val.zval) );
     }
     else {
         rc = sprintf( str_in, ";%e,%e", creal(val.zval), cimag(val.zval) );

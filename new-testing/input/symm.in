@@ -15,6 +15,7 @@
 # beta: Scalar beta
 # bump: bump value for Hermitian matrices
 
+op = symm
 nb = 16, 17
 ib = 8
 side = 0:1

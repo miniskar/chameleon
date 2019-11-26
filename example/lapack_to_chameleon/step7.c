@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     GRID_P = iparam[IPARAM_P];
     GRID_Q = iparam[IPARAM_Q];
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0 ){
+    if ( CHAMELEON_Comm_rank() == 0 ){
         /* print informations to user */
         print_header( argv[0], iparam);
     }
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
 
     /* print informations to user */
     gflops = flops / cpu_time;
-    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
+    if ( CHAMELEON_Comm_rank() == 0 ) {
         printf( "%9.3f %9.2f\n", cpu_time, gflops);
     }
     fflush( stdout );
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
      * else the test failed
      */
     hres = ( res / N / eps / (anorm * xnorm + bnorm ) > 100.0 );
-    if ( CHAMELEON_My_Mpi_Rank() == 0 ){
+    if ( CHAMELEON_Comm_rank() == 0 ){
         printf( "   ||Ax-b||       ||A||       ||x||       ||b|| ||Ax-b||/N/eps/(||A||||x||+||b||)  RETURN\n");
         if (hres) {
             printf( "%8.5e %8.5e %8.5e %8.5e                       %8.5e FAILURE \n",
