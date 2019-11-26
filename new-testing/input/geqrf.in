@@ -11,6 +11,7 @@
 # RH: Size of each subdomain when using RH
 
 
+op = geqrf
 nb = 16, 17
 ib = 8
 m = 13, 17, 35

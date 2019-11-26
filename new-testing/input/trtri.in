@@ -10,6 +10,7 @@
 # uplo: Matrix part to be considered (0: Upper, 1: Lower)
 # diag: Wheter the matrix A is unit trianuglar (0: non unit, 1: unit)
 
+op = trtri
 nb = 16, 17
 ib = 8
 n = 15, 19, 33

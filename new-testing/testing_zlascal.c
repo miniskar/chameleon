@@ -59,7 +59,7 @@ testing_zlascal( run_arg_list_t *args, int check )
     int                   N     = run_arg_get_int( args, "N", 1000 );
     int                   M     = run_arg_get_int( args, "M", N );
     int                   LDA   = run_arg_get_int( args, "LDA", M );
-    CHAMELEON_Complex64_t alpha = run_arg_get_Complex64( args, "alpha", 1. );
+    CHAMELEON_Complex64_t alpha = run_arg_get_complex64( args, "alpha", 1. );
     int                   seedA = run_arg_get_int( args, "seedA", random() );
     int                   Q     = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;

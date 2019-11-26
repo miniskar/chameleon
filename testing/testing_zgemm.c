@@ -90,7 +90,7 @@ int testing_zgemm(int argc, char **argv)
 
     eps = LAPACKE_dlamch_work('e');
 
-    if (CHAMELEON_My_Mpi_Rank() == 0){
+    if (CHAMELEON_Comm_rank() == 0){
         printf("\n");
         printf("------ TESTS FOR CHAMELEON ZGEMM ROUTINE -------  \n");
         printf("            Size of the Matrix %d by %d\n", M, N);
@@ -130,7 +130,7 @@ int testing_zgemm(int argc, char **argv)
             /* Check the solution */
             info_solution = check_solution(trans[ta], trans[tb], M, N, K,
                                            alpha, A, LDA, B, LDB, beta, Cinit, Cfinal, LDC);
-            if (CHAMELEON_My_Mpi_Rank() == 0){
+            if (CHAMELEON_Comm_rank() == 0){
                 if (info_solution == 0) {
                     printf("***************************************************\n");
                     printf(" ---- TESTING ZGEMM (%s, %s) ............... PASSED !\n", transstr[ta], transstr[tb]);
@@ -198,12 +198,12 @@ static int check_solution(cham_trans_t transA, cham_trans_t transB, int M, int N
     Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Cref, LDC, work);
 
     eps = LAPACKE_dlamch_work('e');
-    if (CHAMELEON_My_Mpi_Rank() == 0)
+    if (CHAMELEON_Comm_rank() == 0)
         printf("Rnorm %e, Anorm %e, Bnorm %e, Cinitnorm %e, Cchamnorm %e, Clapacknorm %e\n",
                Rnorm, Anorm, Bnorm, Cinitnorm, Cchamnorm, Clapacknorm);
 
     result = Rnorm / ((Anorm + Bnorm + Cinitnorm) * N * eps);
-    if (CHAMELEON_My_Mpi_Rank() == 0){
+    if (CHAMELEON_Comm_rank() == 0){
         printf("============\n");
         printf("Checking the norm of the difference against reference ZGEMM \n");
         printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||B||_oo+||C||_oo).N.eps) = %e \n",
@@ -211,13 +211,13 @@ static int check_solution(cham_trans_t transA, cham_trans_t transB, int M, int N
     }
 
     if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-         if (CHAMELEON_My_Mpi_Rank() == 0)
+         if (CHAMELEON_Comm_rank() == 0)
              printf("-- The solution is suspicious ! \n");
          info_solution = 1;
     }
     else {
-    	 //printf("CHAMELEON_My_Mpi_Rank() : %d\n",CHAMELEON_My_Mpi_Rank());
-         if (CHAMELEON_My_Mpi_Rank() == 0)
+    	 //printf("CHAMELEON_Comm_rank() : %d\n",CHAMELEON_Comm_rank());
+         if (CHAMELEON_Comm_rank() == 0)
              printf("-- The solution is CORRECT ! \n");
          info_solution= 0 ;
     }

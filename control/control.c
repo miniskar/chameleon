@@ -112,11 +112,6 @@ int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
 
     RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
 
-#if defined(CHAMELEON_USE_MPI)
-    chamctxt->my_mpi_rank   = RUNTIME_comm_rank( chamctxt );
-    chamctxt->mpi_comm_size = RUNTIME_comm_size( chamctxt );
-#endif
-
     return CHAMELEON_SUCCESS;
 }
 
@@ -151,6 +146,27 @@ int __chameleon_finalize(void)
 
     chameleon_context_destroy();
     return CHAMELEON_SUCCESS;
+}
+
+/**
+ *
+ * @ingroup Control
+ *
+ * @brief Check if the CHAMELEON library is initialized or not.
+ *
+ * @retval True if initialized
+ * @retval False if not initialized
+ *
+ */
+int CHAMELEON_Initialized(void)
+{
+    CHAM_context_t *chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
 }
 
 /**

@@ -46,9 +46,9 @@ testing_zsyrk( run_arg_list_t *args, int check )
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zsyrk( K, N );
 
-    alpha = run_arg_get_Complex64( args, "alpha", alpha );
-    beta  = run_arg_get_Complex64( args, "beta", beta );
-    bump  = run_arg_get_Complex64( args, "bump", bump );
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
+    bump  = run_arg_get_complex64( args, "bump", bump );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 

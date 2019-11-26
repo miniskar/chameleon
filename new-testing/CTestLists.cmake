@@ -71,7 +71,7 @@ foreach(prec ${RP_CHAMELEON_PRECISIONS})
       endif()
 
       foreach(_test ${TESTS})
-        add_test(test_${cat}_${prec}${_test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -o ${_test} -f input/${_test}.in )
+        add_test(test_${cat}_${prec}${_test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${_test}.in )
       endforeach()
     endforeach()
   endforeach()

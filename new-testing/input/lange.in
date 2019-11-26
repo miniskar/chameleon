@@ -10,6 +10,7 @@
 # norm: norm type to be calculated (0 for Max|1 for One|2 for Infinity|3 for Frobenius)
 
 
+op = lange
 nb = 16, 17
 ib = 8
 m = 15, 21, 33

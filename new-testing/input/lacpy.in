@@ -10,6 +10,7 @@
 # LDA: Leading dimension of matrix A
 # LDB: Leading dimension of matrix B
 
+op = lacpy
 nb = 16, 17
 ib = 8
 uplo = 0:2

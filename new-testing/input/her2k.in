@@ -15,6 +15,7 @@
 # beta: Scalar beta
 # bump: Bump value for symmetric matrices
 
+op = her2k
 nb = 16, 17
 ib = 8
 n = 15, 21, 33

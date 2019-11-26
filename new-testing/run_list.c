@@ -301,7 +301,7 @@ run_arg_get_double( run_arg_list_t *arglist, const char *name, double defval )
  * @retval The value of the argument _name_.
  */
 CHAMELEON_Complex32_t
-run_arg_get_Complex32( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex32_t defval )
+run_arg_get_complex32( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex32_t defval )
 {
     val_t val, rval;
     val.cval = defval;
@@ -327,7 +327,7 @@ run_arg_get_Complex32( run_arg_list_t *arglist, const char *name, CHAMELEON_Comp
  * @retval The value of the argument _name_.
  */
 CHAMELEON_Complex64_t
-run_arg_get_Complex64( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex64_t defval )
+run_arg_get_complex64( run_arg_list_t *arglist, const char *name, CHAMELEON_Complex64_t defval )
 {
     val_t val, rval;
     val.zval = defval;
@@ -477,7 +477,7 @@ run_arg_get_ntype( run_arg_list_t *arglist, const char *name, cham_normtype_t de
  *
  *******************************************************************************
  */
-void run_arg_destroy( run_arg_list_t *arglist )
+void run_arg_list_destroy( run_arg_list_t *arglist )
 {
     run_arg_t *arg1, *arg2;
 
@@ -490,6 +490,52 @@ void run_arg_destroy( run_arg_list_t *arglist )
 
     arglist->head = NULL;
     arglist->tail = NULL;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @brief Copy a run_arg list
+ *
+ *******************************************************************************
+ *
+ * @param[in] arglist
+ *          The list of running arguments to copy.
+ *
+ * @param[out] tailptr
+ *          If tailptr is not NULL, on exit it containes the pointer to the tail
+ *          of the list.
+ *
+ * @return The pointer to the head of the copy
+ *
+ *******************************************************************************
+ */
+run_arg_list_t
+run_arg_list_copy( const run_arg_list_t *list )
+{
+    run_arg_list_t   copy;
+    const run_arg_t *arg = list->head;
+    run_arg_t *copy_curr = NULL;
+
+    copy.head = NULL;
+    copy.tail = NULL;
+
+    /* Compute the size */
+    while( arg != NULL ) {
+        copy_curr = malloc( sizeof( run_arg_t ) );
+        memcpy( copy_curr, arg, sizeof( run_arg_t ) );
+        if ( copy.head == NULL ) {
+            copy.head = copy_curr;
+            copy.tail = copy_curr;
+        }
+        else {
+            copy.tail->next = copy_curr;
+            copy.tail = copy_curr;
+        }
+        arg = arg->next;
+    }
+
+    return copy;
 }
 
 /**
@@ -512,29 +558,12 @@ void
 run_list_add_one( run_list_t *runlist,
                   run_arg_t  *arglist )
 {
-    run_arg_t *arg = arglist;
-    run_arg_t *copy_curr = NULL;
+    run_arg_list_t  list = { .head = arglist, .tail = NULL };
     run_list_elt_t *run;
 
     run = malloc( sizeof( run_list_elt_t ) );
-    run->args.head = NULL;
-    run->args.tail = NULL;
     run->next = NULL;
-
-    /* Compute the size */
-    while( arg != NULL ) {
-        copy_curr = malloc( sizeof( run_arg_t ) );
-        memcpy( copy_curr, arg, sizeof( run_arg_t ) );
-        if ( run->args.head == NULL ) {
-            run->args.head = copy_curr;
-            run->args.tail = copy_curr;
-        }
-        else {
-            run->args.tail->next = copy_curr;
-            run->args.tail = copy_curr;
-        }
-        arg = arg->next;
-    }
+    run->args = run_arg_list_copy( &list );
 
     if ( runlist->head == NULL ) {
         assert( runlist->tail == NULL );
@@ -652,7 +681,7 @@ run_list_generate( const char **params )
 void
 run_list_destroy( run_list_elt_t *run )
 {
-    run_arg_destroy( &(run->args) );
+    run_arg_list_destroy( &(run->args) );
     free( run );
 }
 
@@ -697,7 +726,18 @@ run_print_header_partial( const char **list, int human, char *str )
         if ( human ) {
             param = parameters_getbyname( *pname );
             assert( param != NULL );
-            rc = sprintf( str, " %*s", param->psize, *pname );
+            switch ( param->valtype ) {
+            case TestTrans:
+            case TestUplo:
+            case TestDiag:
+            case TestSide:
+            case TestNormtype:
+            case TestString:
+                rc = sprintf( str, " %-*s", param->psize, *pname );
+                break;
+            default:
+                rc = sprintf( str, " %*s", param->psize, *pname );
+            }
         }
         else {
             rc = sprintf( str, ";%s", *pname );
@@ -740,7 +780,7 @@ run_print_header( const testing_t *test,
     }
 
     if ( human ) {
-        rc = sprintf( str_ptr, "%3s %12s",
+        rc = sprintf( str_ptr, "%3s %-12s",
                       "Id", "Function" );
     }
     else {
@@ -860,7 +900,7 @@ run_print_line( const testing_t *test, const run_arg_list_t *arglist,
     }
 
     if ( human ) {
-        rc = sprintf( str_ptr, "%3d %12s",
+        rc = sprintf( str_ptr, "%3d %-12s",
                       id, test->name );
     }
     else {

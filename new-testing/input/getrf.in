@@ -9,6 +9,7 @@
 # n: Number of columns of the matrix A
 # lda: Leading dimension of matrix A
 
+op = getrf
 nb = 16, 17
 ib = 8
 m = 13, 17, 35

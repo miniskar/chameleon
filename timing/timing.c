@@ -115,7 +115,7 @@ Test(int64_t n, int *iparam) {
     (void)M;(void)N;(void)K;(void)NRHS;
 
     if ( (n < 0) || (thrdnbr < 0 ) ) {
-        if (gnuplot && (CHAMELEON_My_Mpi_Rank() == 0) ) {
+        if (gnuplot && (CHAMELEON_Comm_rank() == 0) ) {
             printf( "set title '%d_NUM_THREADS: ", thrdnbr );
             for (i = 0; env[i][0]; ++i) {
                 s = getenv( env[i] );
@@ -141,7 +141,7 @@ Test(int64_t n, int *iparam) {
         return 0;
     }
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0)
+    if ( CHAMELEON_Comm_rank() == 0)
         printf( "%7d %7d %7d ", iparam[IPARAM_M], iparam[IPARAM_N], iparam[IPARAM_K] );
     fflush( stdout );
 
@@ -216,7 +216,7 @@ Test(int64_t n, int *iparam) {
     gflops = sumgf / niter;
     sd = sqrt((sumgf2 - (sumgf*sumgf)/niter)/niter);
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0) {
+    if ( CHAMELEON_Comm_rank() == 0) {
         printf( "%9.3f %9.2f +-%7.2f  ", sumt/niter, gflops, sd);
 
         if (iparam[IPARAM_BOUND]) {
@@ -681,7 +681,7 @@ timing_main(int *iparam, char *prog_name, int start, int stop, int step) {
     /* Layout conversion */
     CHAMELEON_Set(CHAMELEON_TRANSLATION_MODE, iparam[IPARAM_INPLACE]);
 
-    if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
+    if ( CHAMELEON_Comm_rank() == 0 ) {
         print_header( prog_name, iparam);
     }
 

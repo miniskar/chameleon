@@ -71,7 +71,7 @@ RunTest(int *iparam, double *dparam, chameleon_time_t *t_)
             result = result / ((double)M * (double)N);
             break;
         }
-        if ( CHAMELEON_My_Mpi_Rank() == 0 ) {
+        if ( CHAMELEON_Comm_rank() == 0 ) {
             dparam[IPARAM_ANORM] = normlapack;
             dparam[IPARAM_BNORM] = 0.;
             dparam[IPARAM_XNORM] = 1.;

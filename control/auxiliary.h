@@ -38,13 +38,6 @@ void chameleon_fatal_error  (const char *func_name, const char* msg_text);
 int  chameleon_rank         (CHAM_context_t *chamctxt);
 int  chameleon_tune         (cham_tasktype_t func, int M, int N, int NRHS);
 
-/**
- *  API routines
- */
-int  CHAMELEON_Version      (int *ver_major, int *ver_minor, int *ver_micro);
-int  CHAMELEON_Element_Size (int type);
-int  CHAMELEON_My_Mpi_Rank  (void);
-
 #ifdef __cplusplus
 }
 #endif
