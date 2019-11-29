@@ -206,10 +206,6 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
             chameleon_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
             return;
         }
-        if ( (lmt*lnt) > (1UL<<tag_sep) ) {
-            fprintf( stderr, "lmt= %ld, lnt= %ld, tag_sep=%d, %ld\n",
-                     lmt, lnt, tag_sep, 1UL << tag_sep );
-        }
         assert( (lmt*lnt) <= (1UL<<tag_sep) );
 
         if ( ((uintptr_t)desc->id) >= (uintptr_t)(1UL<<(tag_width-tag_sep)) ) {
