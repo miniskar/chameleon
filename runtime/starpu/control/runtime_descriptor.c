@@ -206,7 +206,11 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
             chameleon_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
             return;
         }
-        assert(lmt*lmt<=(1<<tag_sep));
+        if ( (lmt*lnt) > (1UL<<tag_sep) ) {
+            fprintf( stderr, "lmt= %ld, lnt= %ld, tag_sep=%d, %ld\n",
+                     lmt, lnt, tag_sep, 1UL << tag_sep );
+        }
+        assert( (lmt*lnt) <= (1UL<<tag_sep) );
 
         if ( ((uintptr_t)desc->id) >= (uintptr_t)(1UL<<(tag_width-tag_sep)) ) {
             chameleon_fatal_error("RUNTIME_desc_create", "Number of descriptor available in MPI mode out of stock");
@@ -482,7 +486,7 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
 #if defined(CHAMELEON_USE_MPI)
         {
             int64_t block_ind = A->lmt * nn + mm;
-            starpu_mpi_data_register(*ptrtile, (A->id << tag_sep) | (block_ind), owner);
+            starpu_mpi_data_register(*ptrtile, (((int64_t)A->id) << tag_sep) | block_ind, owner);
         }
 #endif /* defined(CHAMELEON_USE_MPI) */
     }
