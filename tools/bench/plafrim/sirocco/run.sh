@@ -6,51 +6,64 @@ echo "USERNAME $USERNAME"
 echo "GIT REPO $CI_REPOSITORY_URL"
 echo "GIT BRANCH $CI_COMMIT_REF_NAME"
 echo "GIT COMMIT $CI_COMMIT_SHA"
+echo "PROJECT DIR $CI_PROJECT_DIR"
 
-# Parameters of the Slurm jobs
-TIME=01:00:00
-PART=court_sirocco
-CONS=Skylake
-EXCL=
-NP=1
-JOBSLIM=1
+set -x
 
 function wait_completion {
     # Wait for completion of jobs
     echo "JOB_LIST $JOB_LIST"
-    while [ "$ITER" -ge "$JOBSLIM" ]
+    while [ "$NJOB" -gt 0 ]
     do
-	for JOB in $JOB_LIST
-	do
-	    IS_JOB_IN_QUEUE=`squeue |grep "$JOB"`
-	    if [[ -z "$IS_JOB_IN_QUEUE" ]]
-	    then
-		ITER=$[ITER-1]
-		JOB_LIST=`echo $JOB_LIST | sed "s#$JOB##"`
-		echo "JOB $JOB finished"
-	    else
-		echo "$IS_JOB_IN_QUEUE"
-	    fi
-	done
-	sleep 30
+        for JOB in $JOB_LIST
+        do
+            IS_JOB_IN_QUEUE=`squeue |grep "$JOB"`
+            if [[ -z "$IS_JOB_IN_QUEUE" ]]
+            then
+                NJOB=$[NJOB-1]
+                JOB_LIST=`echo $JOB_LIST | sed "s#$JOB##"`
+                echo "JOB $JOB finished"
+            else
+                echo "$IS_JOB_IN_QUEUE"
+            fi
+        done
+        sleep 30
     done
 }
 
+# Parameters for scripts
+export PLATFORM=plafrim
+export NODE=v100
+export BUILD_OPTIONS="-DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON -DCMAKE_BUILD_TYPE=Release"
+export STARPU_SILENT=1
+export STARPU_LIMIT_CPU_MEM=370000
+export STARPU_LIMIT_MAX_SUBMITTED_TASKS=16000
+export STARPU_LIMIT_MIN_SUBMITTED_TASKS=15000
+
+# Parameters of the Slurm jobs
+TIME=01:00:00
+PART=routage
+CONS=v100
+EXCL=
+NP=1
 
 # Submit jobs
-ITER=0
-JOB_ID=`JOB_NAME=chameleon_bench\_$NP && sbatch --job-name="$JOB_NAME" --output="$JOB_NAME.out" --error="$JOB_NAME.err" --nodes=$NP --time=$TIME --partition=$PART --constraint=$CONS chameleon_guix.sl | sed "s#Submitted batch job ##"`
-if [[ -n "$JOB_ID" ]]
-then
-    JOB_LIST="$JOB_LIST $JOB_ID"
-    ITER=$[ITER+1]
-fi
+NJOB=0
+#MPI_LIST="openmpi nmad"
+MPI_LIST="openmpi"
+for MPI in $MPI_LIST
+do
+    JOB_ID=`JOB_NAME=chameleon\_$MPI\_$NP && sbatch --job-name="$JOB_NAME" --output="$JOB_NAME.out" --error="$JOB_NAME.err" --nodes=$NP --time=$TIME --partition=$PART --constraint=$CONS --exclude=$EXCL $CI_PROJECT_DIR/tools/bench/chameleon_guix\_$MPI\_cuda.sl | sed "s#Submitted batch job ##"`
+    #JOB_ID=`JOB_NAME=chameleon\_$NP && sbatch --job-name="$JOB_NAME" --output="$JOB_NAME.out" --error="$JOB_NAME.err" --nodes=$NP --time=$TIME --partition=$PART --constraint=$CONS --exclude=$EXCL chameleon_guix.sl | sed "s#Submitted batch job ##"`
+    if [[ -n "$JOB_ID" ]]
+    then
+        JOB_LIST="$JOB_LIST $JOB_ID"
+        NJOB=$[NJOB+1]
+    fi
+done
 
 # Wait for completion of jobs
 wait_completion
-
-# Print results
-cat chameleon_bench\_$NP.out
 
 echo "####################### End Chameleon benchmarks #######################"
 

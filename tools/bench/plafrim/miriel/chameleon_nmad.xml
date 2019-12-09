@@ -15,9 +15,9 @@
             <parameter name="ngpu"               type="int"   >0</parameter>
             <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
-            <parameter name="m" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
-            <parameter name="k" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
-            <parameter name="n" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
+            <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
+            <parameter name="k" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
+            <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
         </parameterset>
 
         <parameterset name="param_potrf">
@@ -32,8 +32,8 @@
             <parameter name="ngpu"               type="int"   >0</parameter>
             <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
-            <parameter name="m" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
-            <parameter name="n" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
+            <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
+            <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
             <parameter name="k"                  type="int"   >1</parameter>
         </parameterset>
 
@@ -49,26 +49,23 @@
             <parameter name="ngpu"               type="int"   >0</parameter>
             <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
-            <parameter name="m" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
-            <parameter name="n" mode="python"    type="int"   >[${p}*${b}, ${p}*5*${b}, ${p}*10*${b}, ${p}*20*${b}, ${p}*50*${b}][$i_mn]</parameter>
+            <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
+            <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
             <parameter name="k"                  type="int"   >1</parameter>
         </parameterset>
 
         <!-- Operation -->
         <step name="run_gemm" tag="gemm">
             <use>param_gemm</use>
-            <use from="../../jube/paths.xml">paths</use>
-            <do>STARPU_SILENT=1 mpiexec -np $nmpi $BIN_DIR/timing/time_${precision}${algorithm}_tile -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b --niter=3</do>
+            <do>mpiexec -DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1 -np $nmpi $CHAMELEON_BUILD/new-testing/${precision}new-testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</do>
         </step>
         <step name="run_potrf" tag="potrf">
             <use>param_potrf</use>
-            <use from="../../jube/paths.xml">paths</use>
-            <do>STARPU_SILENT=1 mpiexec -np $nmpi $BIN_DIR/timing/time_${precision}${algorithm}_tile -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b --niter=3</do>
+            <do>mpiexec -DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1 -np $nmpi $CHAMELEON_BUILD/new-testing/${precision}new-testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</do>
         </step>
         <step name="run_geqrf_hqr" tag="geqrf">
             <use>param_geqrf</use>
-            <use from="../../jube/paths.xml">paths</use>
-            <do>STARPU_SILENT=1 mpiexec -np $nmpi $BIN_DIR/timing/time_${precision}${algorithm}_tile -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b --niter=3</do>
+            <do>mpiexec -DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1 -np $nmpi $CHAMELEON_BUILD/new-testing/${precision}new-testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</do>
         </step>
 
         <!-- Analyse -->
@@ -95,17 +92,16 @@
                 <column>hostname</column>
                 <column>algorithm</column>
                 <column>precision</column>
-                <column>NMPI</column>
-                <column>P</column>
-                <column>Q</column>
-                <column>NTHREAD</column>
-                <column>NGPU</column>
-                <column>M</column>
-                <column>N</column>
-                <column>K</column>
-                <column>CPUTIME</column>
-                <column>GFLOPS</column>
-                <column>STDDEV</column>
+                <column>nmpi</column>
+                <column>p</column>
+                <column>q</column>
+                <column>nthr</column>
+                <column>ngpu</column>
+                <column>m</column>
+                <column>n</column>
+                <column>k</column>
+                <column>cputime</column>
+                <column>gflops</column>
             </table>
         </result>
     </benchmark>
