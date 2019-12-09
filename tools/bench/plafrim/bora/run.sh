@@ -33,17 +33,17 @@ function wait_completion {
 
 # Parameters for scripts
 export PLATFORM=plafrim
-export NODE=miriel
+export NODE=bora
 export BUILD_OPTIONS="-DCHAMELEON_USE_MPI=ON -DCMAKE_BUILD_TYPE=Release"
 export STARPU_SILENT=1
-export STARPU_LIMIT_CPU_MEM=120000
-export STARPU_LIMIT_MAX_SUBMITTED_TASKS=16000
-export STARPU_LIMIT_MIN_SUBMITTED_TASKS=15000
+#export STARPU_LIMIT_CPU_MEM=180000
+#export STARPU_LIMIT_MAX_SUBMITTED_TASKS=16000
+#export STARPU_LIMIT_MIN_SUBMITTED_TASKS=15000
 
 # Parameters of the Slurm jobs
 TIME=01:00:00
 PART=routage
-CONS="miriel,omnipath"
+CONS=bora
 EXCL=
 NP=9
 

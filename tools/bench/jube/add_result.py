@@ -32,24 +32,23 @@ def open_csv(filename: str) -> List[Dict[str, str]]:
     return csv_rows
 
 
-def format_entry(row: Row, commit_chameleon: Repo, commit_guix: str, commit_guix_hpc: str, commit_guix_hpcnonfree: str) -> Dict[str, Any]:
+def format_entry(row: Row, mpivendor: str, commit_chameleon: Repo, commit_guix: str, commit_guix_hpc: str, commit_guix_hpcnonfree: str) -> Dict[str, Any]:
     """"format a result"""
     commit_date_chameleon = str(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(commit_chameleon.committed_date)))
     commit_sha_chameleon  = str(commit_chameleon.hexsha)
     hostname    = str(row.pop('hostname'))
     algorithm   = str(row.pop('algorithm'))
     precision   = str(row.pop('precision'))
-    nmpi        = int(row.pop('NMPI'))
-    tdbc_p      = int(row.pop('P'))
-    tdbc_q      = int(row.pop('Q'))
-    nthread     = int(row.pop('NTHREAD'))
-    ngpu        = int(row.pop('NGPU'))
-    m           = int(row.pop('M'))
-    n           = int(row.pop('N'))
-    k           = int(row.pop('K'))
-    cputime     = float(row.pop('CPUTIME'))
-    gflops      = float(row.pop('GFLOPS'))
-    stddev      = float(row.pop('STDDEV'))
+    nmpi        = int(row.pop('nmpi'))
+    p           = int(row.pop('p'))
+    q           = int(row.pop('q'))
+    nthread     = int(row.pop('nthr'))
+    ngpu        = int(row.pop('ngpu'))
+    m           = int(row.pop('m'))
+    n           = int(row.pop('n'))
+    k           = int(row.pop('k'))
+    cputime     = float(row.pop('cputime'))
+    gflops      = float(row.pop('gflops'))
     result = {
         "Commit_date_chameleon": commit_date_chameleon,
         "Commit_sha_chameleon": commit_sha_chameleon,
@@ -57,19 +56,19 @@ def format_entry(row: Row, commit_chameleon: Repo, commit_guix: str, commit_guix
         "Commit_sha_guix_hpc": commit_guix_hpc,
         "Commit_sha_guix_hpcnonfree": commit_guix_hpcnonfree,
         "Hostname": hostname,
+        "MPIvendor": mpivendor,
         "Algorithm": algorithm,
         "Precision": precision,
         "Nmpi": nmpi,
-        "P": tdbc_p,
-        "Q": tdbc_q,
+        "P": p,
+        "Q": q,
         "Nthread": nthread,
         "Ngpu": ngpu,
         "M": m,
         "N": n,
         "K": k,
         "Cputime": cputime,
-        "Gflops": gflops,
-        "Stddev": stddev
+        "Gflops": gflops
     }
     return result
 
@@ -80,6 +79,7 @@ def format_entry(row: Row, commit_chameleon: Repo, commit_guix: str, commit_guix
 @click.option("-t", "--team", required=True, help="team name")
 @click.option("-p", "--project", required=True, help="project name")
 @click.option("-h", "--host", required=True, help="host name")
+@click.option("-m", "--mpi", required=True, help="MPI vendor (openmpi, nmad)")
 @click.argument("csv-files", nargs=-1)
 def main(
     directory: str,
@@ -87,6 +87,7 @@ def main(
     team: str,
     project: str,
     host: str,
+    mpi: str,
     csv_files: str,
 ):
     """Add a result to an elasticsearch database."""
@@ -104,6 +105,7 @@ def main(
                 "Commit_sha_guix_hpc": {"type": "keyword"},
                 "Commit_sha_guix_hpcnonfree": {"type": "keyword"},
                 "Hostname": {"type": "keyword"},
+                "MPIvendor": {"type": "keyword"},
                 "Algorithm": {"type": "keyword"},
                 "Precision": {"type": "keyword"},
                 "Nmpi": {"type": "integer"},
@@ -115,8 +117,7 @@ def main(
                 "N": {"type": "integer"},
                 "K": {"type": "integer"},
                 "Cputime": {"type": "float"},
-                "Gflops": {"type": "float"},
-                "Stddev": {"type": "float"}
+                "Gflops": {"type": "float"}
             }
         }
     }
@@ -141,7 +142,7 @@ def main(
         request
         for file in csv_files
             for request in map(
-                lambda row: format_entry(row, commit_chameleon, commit_guix, commit_guix_hpc, commit_guix_hpcnonfree),
+                lambda row: format_entry(row, mpi, commit_chameleon, commit_guix, commit_guix_hpc, commit_guix_hpcnonfree),
                 open_csv(file)
             )
     ]

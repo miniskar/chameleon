@@ -1,10 +1,29 @@
-bench_plafrim:
+bench_plafrim_bora:
   stage: test
   tags: ['plafrim']
-  variables:
-    BUILD_OPTIONS: "-DCHAMELEON_USE_MPI=ON -DCMAKE_BUILD_TYPE=Release"
-    VERSION: miriel
+  before_script:
+    - git submodule update --init --recursive
   script:
-    - (cd tools/bench/plafrim/miriel && ./run.sh)
+    - ./tools/bench/plafrim/bora/run.sh
+  only:
+    - schedules
+
+.bench_plafrim_miriel:
+  stage: test
+  tags: ['plafrim']
+  before_script:
+    - git submodule update --init --recursive
+  script:
+    - ./tools/bench/plafrim/miriel/run.sh
+  only:
+    - schedules
+
+.bench_plafrim_sirocco:
+  stage: test
+  tags: ['plafrim']
+  before_script:
+    - git submodule update --init --recursive
+  script:
+    - ./tools/bench/plafrim/sirocco/run.sh
   only:
     - schedules

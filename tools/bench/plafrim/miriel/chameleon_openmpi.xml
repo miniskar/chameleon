@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jube>
-    <benchmark name="sirocco" outpath="results/sirocco">
-        <comment>benchmark chameleon on host plafrim sirocco</comment>
+    <benchmark name="miriel" outpath="results/miriel">
+        <comment>benchmark chameleon on host plafrim miriel</comment>
 
         <parameterset name="param_gemm">
-            <parameter name="hostname"           type="string">sirocco</parameter>
+            <parameter name="hostname"           type="string">miriel</parameter>
             <parameter name="algorithm"          type="string">gemm</parameter>
             <parameter name="precision"          type="string">s, d</parameter>
-            <parameter name="i_pq"               type="int"   >0</parameter>
+            <parameter name="i_pq"               type="int"   >0, 1, 2</parameter>
             <parameter name="p" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="q" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="nmpi" mode="python" type="int"   >[1, 4, 9][$i_pq]</parameter>
-            <parameter name="nthr"               type="int"   >29</parameter>
-            <parameter name="ngpu"               type="int"   >2</parameter>
-            <parameter name="b"                  type="int"   >1600</parameter>
+            <parameter name="nthr"               type="int"   >22</parameter>
+            <parameter name="ngpu"               type="int"   >0</parameter>
+            <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
             <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
             <parameter name="k" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
@@ -21,16 +21,16 @@
         </parameterset>
 
         <parameterset name="param_potrf">
-            <parameter name="hostname"           type="string">sirocco</parameter>
+            <parameter name="hostname"           type="string">miriel</parameter>
             <parameter name="algorithm"          type="string">potrf</parameter>
             <parameter name="precision"          type="string">s, d</parameter>
-            <parameter name="i_pq"               type="int"   >0</parameter>
+            <parameter name="i_pq"               type="int"   >0, 1, 2</parameter>
             <parameter name="p" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="q" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="nmpi" mode="python" type="int"   >[1, 4, 9][$i_pq]</parameter>
-            <parameter name="nthr"               type="int"   >29</parameter>
-            <parameter name="ngpu"               type="int"   >2</parameter>
-            <parameter name="b"                  type="int"   >1600</parameter>
+            <parameter name="nthr"               type="int"   >22</parameter>
+            <parameter name="ngpu"               type="int"   >0</parameter>
+            <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
             <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
             <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
@@ -38,16 +38,16 @@
         </parameterset>
 
         <parameterset name="param_geqrf">
-            <parameter name="hostname"           type="string">sirocco</parameter>
+            <parameter name="hostname"           type="string">miriel</parameter>
             <parameter name="algorithm"          type="string">geqrf_hqr</parameter>
             <parameter name="precision"          type="string">s, d</parameter>
-            <parameter name="i_pq"               type="int"   >0</parameter>
+            <parameter name="i_pq"               type="int"   >0, 1, 2</parameter>
             <parameter name="p" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="q" mode="python"    type="int"   >[1, 2, 3][$i_pq]</parameter>
             <parameter name="nmpi" mode="python" type="int"   >[1, 4, 9][$i_pq]</parameter>
-            <parameter name="nthr"               type="int"   >29</parameter>
-            <parameter name="ngpu"               type="int"   >2</parameter>
-            <parameter name="b"                  type="int"   >1600</parameter>
+            <parameter name="nthr"               type="int"   >22</parameter>
+            <parameter name="ngpu"               type="int"   >0</parameter>
+            <parameter name="b"                  type="int"   >320</parameter>
             <parameter name="i_mn"               type="int"   >0, 1, 2, 3, 4</parameter>
             <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
             <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*5*${b}, ${nmpi}*10*${b}, ${nmpi}*20*${b}, ${nmpi}*40*${b}][$i_mn]</parameter>
