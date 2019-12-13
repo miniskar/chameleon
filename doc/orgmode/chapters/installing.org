@@ -61,6 +61,9 @@ we encourage users to use [[sec:spack][Spack]].
    sudo apt-get install -y libopenmpi-dev
    # Install hwloc (used by StarPU or QUARK, already a dependency of OpenMPI)
    sudo apt-get install -y libhwloc-dev
+   # install EZTrace, usefull to export some nice execution traces
+   with all runtimes
+   sudo apt-get install -y libeztrace-dev
    # install FxT, usefull to export some nice execution traces with StarPU
    sudo apt-get install -y libfxt-dev
    # Install cuda and cuBLAS: only if you have a GPU cuda compatible
@@ -209,17 +212,17 @@ we encourage users to use [[sec:spack][Spack]].
      *Caution about the compatibility:* Chameleon has been mainly tested
      with the QUARK library coming from https://github.com/ecrc/quark.
 
-**** FxT
-     [[http://download.savannah.gnu.org/releases/fkt/][FxT]] stands for both FKT (Fast Kernel Tracing) and FUT (Fast User
-     Tracing).  This library provides efficient support for recording
-     traces.  Chameleon can trace kernels execution on the different
-     workers and produce .paje files if FxT is enabled.  FxT can only
-     be used through StarPU and StarPU must be compiled with FxT
-     enabled, see how to use this feature here [[sec:trace][Execution trace using
-     StarPU]].
-
-     *Caution about the compatibility:* FxT should be compatible with
-     the version of StarPU used.
+**** EZTrace
+     This library provides efficient modules for recording
+     traces. Chameleon can trace kernels execution on CPU workers
+     thanks to EZTrace and produce .paje files. EZTrace also provides
+     integrated modules to trace MPI calls and/or memory usage. See
+     how to use this feature here [[sec:trace_ezt][Execution trace
+     using EZTrace]]. To trace kernels execution on all kind of
+     workers, such as CUDA, We recommend to use the internal tracing
+     support of the runtime system used done by the underlying
+     runtime.  See how to use this feature here [[sec:trace_fxt][Execution trace
+     using StarPU/FxT]].
 
 **** hwloc
      [[http://www.open-mpi.org/projects/hwloc/][hwloc]] (Portable Hardware Locality) is a software package for
@@ -394,11 +397,6 @@ we encourage users to use [[sec:spack][Spack]].
      * *CHAMELEON_ENABLE_TIMING=ON|OFF* (default ON): to control build
        of timing executables (performances check) contained in timing/
        sub-directory
-     * *CHAMELEON_ENABLE_TRACING=ON|OFF* (default OFF): to enable trace
-       generation during execution of timing drivers. It requires
-       StarPU to be linked with FxT library (trace execution of
-       kernels on workers), see also [[sec:trace][Execution tracing
-       with StarPU]].
      * *CHAMELEON_SIMULATION=ON|OFF* (default OFF): to enable
        simulation mode, means Chameleon will not really execute tasks,
        see details in section [[sec:simu][Use simulation mode with

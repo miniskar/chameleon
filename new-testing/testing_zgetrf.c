@@ -55,8 +55,6 @@ testing_zgetrf( run_arg_list_t *args, int check )
     run_arg_add_fixdbl( args, "time", t );
     run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
-    fprintf( stdout, "hres = %d\n", hres );
-
     /* Checks the factorisation and residue */
     if ( check ) {
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );

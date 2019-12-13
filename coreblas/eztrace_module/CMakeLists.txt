@@ -39,36 +39,39 @@ if (EZTRACE_FOUND AND EZTRACE_DIR_FOUND)
 
         set(EZTRACE_CREATE_PLUGIN "${EZTRACE_eztrace_create_plugin_DIR}/eztrace_create_plugin")
 
-        add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/output
-            COMMAND ${EZTRACE_CREATE_PLUGIN}
-            ARGS ${CMAKE_CURRENT_SOURCE_DIR}/coreblas_eztrace_module
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/coreblas_eztrace_module
-            )
-        add_custom_target(
-            eztrace-module-chameleon_core-dir ALL
-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/output
-            )
-        add_custom_command(
-            OUTPUT libeztrace-convert-chameleon_core.so
-            COMMAND make
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output
-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/output
-            )
-        add_custom_target(
-            eztrace-module-chameleon_core-libs ALL
-            DEPENDS libeztrace-convert-chameleon_core.so
-            )
-        # installation
-        # ------------
-        install(
-            FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/output/libeztrace-autostart-chameleon_core.so
-            ${CMAKE_CURRENT_BINARY_DIR}/output/libeztrace-chameleon_core.so
-            ${CMAKE_CURRENT_BINARY_DIR}/output/libeztrace-convert-chameleon_core.so
-            DESTINATION ${EZTRACE_LIBRARY_DIRS}
-            )
+        set( COREBLAS_EZTRACE_MODULES core tcore )
 
+        foreach( _module ${COREBLAS_EZTRACE_MODULES} )
+            add_custom_command(
+                OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_module}
+                COMMAND ${EZTRACE_CREATE_PLUGIN} -o ${CMAKE_CURRENT_BINARY_DIR}/${_module} > /dev/null
+                ARGS ${CMAKE_CURRENT_SOURCE_DIR}/coreblas_${_module}_eztrace_module
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/coreblas_${_module}_eztrace_module
+                )
+            add_custom_target(
+                eztrace-module-chameleon_${_module}-dir ALL
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_module}
+                )
+            add_custom_command(
+                OUTPUT libeztrace-convert-chameleon_${_module}.so
+                COMMAND make
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${_module}
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_module}
+                )
+            add_custom_target(
+                eztrace-module-chameleon_${_module}-libs ALL
+                DEPENDS libeztrace-convert-chameleon_${_module}.so
+                )
+            # installation
+            # ------------
+            install(
+                FILES
+                ${CMAKE_CURRENT_BINARY_DIR}/${_module}/libeztrace-autostart-chameleon_${_module}.so
+                ${CMAKE_CURRENT_BINARY_DIR}/${_module}/libeztrace-chameleon_${_module}.so
+                ${CMAKE_CURRENT_BINARY_DIR}/${_module}/libeztrace-convert-chameleon_${_module}.so
+                DESTINATION ${EZTRACE_LIBRARY_DIRS}
+                )
+        endforeach()
     endif (EZTRACE_eztrace_create_plugin_DIR)
 
 endif (EZTRACE_FOUND AND EZTRACE_DIR_FOUND)

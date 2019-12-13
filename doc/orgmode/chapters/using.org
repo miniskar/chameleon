@@ -129,28 +129,91 @@
      * GELS: solves overdetermined or underdetermined linear systems involving a general matrix using the QR or the LQ factorization
      * GESVD: general matrix singular value decomposition
 
-*** Execution trace using StarPU
-    <<sec:trace>>
+*** Execution trace using EZTrace
+    <<sec:trace_ezt>>
+
+    [[http://eztrace.gforge.inria.fr/support.html][EZTrace]] can be used by chameleon to generate traces. Two modules
+    are automatically generated as soon as EZTrace is detected on the
+    system. The first one (which is recommended) is the
+    ~chameleon_tcore~ module. It traces all the ~TCORE_...()~ functions
+    that are called by the codelets of all the runtime but PaRSEC. The
+    second one is the ~chameleon_core~ module which traces the lower
+    level ~CORE_...()~ functions. If using PaRSEC, you need to use this
+    module to generate the traces.
+
+    To generate traces with EZTrace, you need first to compile with
+    *-DBUILD_SHARED_LIBS=ON*. EZTrace is using weak symbols to overload
+    function calls with ld_preload and enable trace generation. Then,
+    either you install the ~libeztrace-*.so~ files into the EZTrace
+    install directory, or you can add the path of the modules to your
+    environement
+    #+begin_src
+    export EZTRACE_LIBRARY_PATH=/path/to/your/modules
+    #+end_src
+
+    To check if the modules are available you should have
+    #+begin_src
+    $ eztrace_avail
+    1	omp	Module for OpenMP parallel regions
+    2	pthread	Module for PThread synchronization functions (mutex, semaphore, spinlock, etc.)
+    3	stdio	Module for stdio functions (read, write, select, poll, etc.)
+    4	mpi	Module for MPI functions
+    5	memory	Module for memory functions (malloc, free, etc.)
+    6	papi	Module for PAPI Performance counters
+    128	chameleon_core	Module for Chameleon CORE functions
+    129	chameleon_tcore	Module for Chameleon TCORE functions
+    #+end_src
+
+    Then, you can restrict the modules used during the execution
+    #+begin_src
+    export EZTRACE_TRACE="mpi chameleon_tcore"
+    #+end_src
+
+    _The module ~mpi~ is required if you want to run in distributed._
+
+    The setup can be checked with ~eztrace_loaded~
+    #+begin_src
+    $ eztrace_loaded
+    4	mpi	Module for MPI functions
+    129	chameleon_tcore	Module for Chameleon TCORE functions
+    #+end_src
+
+    To generate the traces, you need to run your binary through
+    eztrace:
+    #+begin_src
+    eztrace ./dnew-testing -o gemm -n 1000 -b 200
+    mpirun -np 4 eztrace ./dnew-testing -o gemm -n 1000 -b 200 -P 2
+    #+end_src
+
+    Convert the binary files into a ~.trace~ file, and visualize it.
+    #+begin_src
+    eztrace_convert <username>_eztrace_log_rank_<[0-9]*>
+    vite eztrace_output.trace
+    #+end_src
+
+    For more information on EZTrace, you can follow the [[http://eztrace.gforge.inria.fr/support.html][support page]].
+
+*** Execution trace using StarPU/FxT
+    <<sec:trace_fxt>>
 
     StarPU can generate its own trace log files by compiling it with
     the ~--with-fxt~ option at the configure step (you can have to
     specify the directory where you installed FxT by giving
     ~--with-fxt=...~ instead of ~--with-fxt~ alone).  By doing so, traces
     are generated after each execution of a program which uses StarPU
-    in the directory pointed by the STARPU_FXT_PREFIX environment
+    in the directory pointed by the [[http://starpu.gforge.inria.fr/doc/html/ExecutionConfigurationThroughEnvironmentVariables.html][STARPU_FXT_PREFIX]] environment
     variable.
     #+begin_example
     export STARPU_FXT_PREFIX=/home/jdoe/fxt_files/
     #+end_example
     When executing a ~./timing/...~ Chameleon program, if it has been
-    enabled (StarPU compiled with FxT and
-    *-DCHAMELEON_ENABLE_TRACING=ON*), you can give the option ~--trace~ to
-    tell the program to generate trace log files.
+    enabled (StarPU compiled with FxT), the program will generate
+    trace files in the directory $STARPU_FXT_PREFIX.
 
     Finally, to generate the trace file which can be opened with [[http://vite.gforge.inria.fr/][Vite]]
     program, you can use the *starpu_fxt_tool* executable of StarPU.
-    This tool should be in ~$STARPU_INSTALL_REPOSITORY/bin~.  You can
-    use it to generate the trace file like this:
+    This tool should be in the bin directory of StarPU's installation.
+    You can use it to generate the trace file like this:
     #+begin_src
     path/to/your/install/starpu/bin/starpu_fxt_tool -i prof_filename
     #+end_src
