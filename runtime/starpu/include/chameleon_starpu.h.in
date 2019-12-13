@@ -24,7 +24,6 @@
 #include "chameleon/config.h"
 
 /* StarPU options */
-#cmakedefine HAVE_STARPU_FXT_PROFILING
 #cmakedefine HAVE_STARPU_IDLE_PREFETCH
 #cmakedefine HAVE_STARPU_ITERATION_PUSH
 #cmakedefine HAVE_STARPU_DATA_WONT_USE

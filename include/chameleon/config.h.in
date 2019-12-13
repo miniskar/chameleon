@@ -47,9 +47,6 @@
 /* Simulation */
 #cmakedefine CHAMELEON_SIMULATION
 
-/* Tracing support */
-#cmakedefine CHAMELEON_ENABLE_TRACING
-
 /* getopt */
 #cmakedefine CHAMELEON_HAVE_GETOPT_H
 #cmakedefine CHAMELEON_HAVE_GETOPT_LONG

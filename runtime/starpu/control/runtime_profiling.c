@@ -20,7 +20,7 @@
  */
 #include <math.h>
 #include "chameleon_starpu.h"
-#if defined(HAVE_STARPU_FXT_PROFILING)
+#if defined(STARPU_USE_FXT)
 #include <starpu_fxt.h>
 #endif
 
@@ -55,18 +55,14 @@ void RUNTIME_iteration_pop( CHAM_context_t *chamctxt )
 }
 
 void RUNTIME_start_profiling(){
-#if defined(HAVE_STARPU_FXT_PROFILING)
+#if defined(STARPU_USE_FXT)
     starpu_fxt_start_profiling();
-#else
-    fprintf(stderr, "Profiling throught FxT has not been enabled in StarPU runtime (configure StarPU with --with-fxt)\n");
 #endif
 }
 
 void RUNTIME_stop_profiling(){
-#if defined(HAVE_STARPU_FXT_PROFILING)
+#if defined(STARPU_USE_FXT)
     starpu_fxt_stop_profiling();
-#else
-    fprintf(stderr, "Profiling throught FxT has not been enabled in StarPU runtime (configure StarPU with --with-fxt)\n");
 #endif
 }
 

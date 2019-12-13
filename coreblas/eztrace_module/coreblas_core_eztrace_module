@@ -1,9 +1,7 @@
 BEGIN_MODULE
 NAME chameleon_core
 DESC "Module for Chameleon CORE functions"
-ID 7770
-
-#include <chameleon.h>
+ID 0
 
 void CORE_scasum(int storev, int uplo, int M, int N,
                  void *A, int lda, float *work);

@@ -30,13 +30,16 @@ struct option;
  * @brief Defines all the parameters of the testings
  */
 static parameter_t parameters[] = {
+    /* Name, helper, shname, flags, has_arg, psize, valtype, value, vallist, read, sprint */
     { "id", "Id of the run", 0, PARAM_OUTPUT, 0, 3, TestValInt, {0}, NULL, NULL, sprint_int },
 
     { NULL, "Options", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "help",  "Show this help",                      'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "check", "Enable checking of the result",       'c', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "human", "Enable human readable mode",          'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "niter", "Perform multiple iteration per test", 'l', PARAM_OPTION, 1, 0, TestValInt, {1}, NULL, pread_int, sprint_int },
+    { "help",     "Show this help",                           'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "check",    "Enable checking of the result",            'c', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "human",    "Enable human readable mode",               'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "niter",    "Perform multiple iteration per test",      'l', PARAM_OPTION, 1, 0, TestValInt, {1}, NULL, pread_int, sprint_int },
+    { "trace",    "Enable the trace generation",              -30, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "nowarmup", "Disable the warmup run to load libraries", -31, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {1}, NULL, pread_int, sprint_int },
@@ -476,6 +479,7 @@ parameters_destroy()
 int main (int argc, char **argv) {
 
     int ncores, ngpus, human, check, i, niter;
+    int trace, nowarmup;
     int rc, info = 0;
     int run_id = 0;
     char *func_name;
@@ -491,12 +495,14 @@ int main (int argc, char **argv) {
         parameters_read_file( input_file );
         free(input_file);
     }
-    ncores     = parameters_getvalue_int( "threads" );
-    ngpus      = parameters_getvalue_int( "gpus" );
-    check      = parameters_getvalue_int( "check" );
-    human      = parameters_getvalue_int( "human" );
-    func_name  = parameters_getvalue_str( "op" );
-    niter      = parameters_getvalue_int( "niter" );
+    ncores    = parameters_getvalue_int( "threads"  );
+    ngpus     = parameters_getvalue_int( "gpus"     );
+    check     = parameters_getvalue_int( "check"    );
+    human     = parameters_getvalue_int( "human"    );
+    func_name = parameters_getvalue_str( "op"       );
+    niter     = parameters_getvalue_int( "niter"    );
+    trace     = parameters_getvalue_int( "trace"    );
+    nowarmup  = parameters_getvalue_int( "nowarmup" );
 
     CHAMELEON_Init( ncores, ngpus );
 
@@ -510,6 +516,20 @@ int main (int argc, char **argv) {
     /* Executes the tests */
     run_print_header( test, check, human );
     run = runlist->head;
+
+    /* Warmup */
+    if ( !nowarmup ) {
+        run_arg_list_t copy = run_arg_list_copy( &(run->args) );
+        rc = test->fptr( &copy, check );
+        run_arg_list_destroy( &copy );
+    }
+
+    /* Start tracing */
+    if ( trace ) {
+        CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
+    }
+
+    /* Perform all runs */
     while ( run != NULL ) {
         for(i=0; i<niter; i++) {
             run_arg_list_t copy = run_arg_list_copy( &(run->args) );
@@ -530,6 +550,12 @@ int main (int argc, char **argv) {
         run_list_destroy( run );
         run = next;
     }
+
+    /* Stop tracing */
+    if ( trace ) {
+        CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
+    }
+
     free( runlist );
 
     CHAMELEON_Finalize();

@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "chameleon_starpu.h"
-#if defined(HAVE_STARPU_FXT_PROFILING)
+#if defined(STARPU_USE_FXT)
 #include <starpu_fxt.h>
 #endif
 
@@ -40,7 +40,7 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
         MPI_Initialized( &flag );
 #  endif
 
-#if defined(HAVE_STARPU_FXT_PROFILING)
+#if defined(STARPU_USE_FXT)
         starpu_fxt_autostart_profiling(0);
 #endif
 

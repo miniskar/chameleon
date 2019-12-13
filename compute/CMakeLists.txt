@@ -304,11 +304,6 @@ elseif(CHAMELEON_SCHED_QUARK)
 elseif(CHAMELEON_SCHED_OPENMP)
   target_link_libraries(chameleon chameleon_openmp)
 endif()
-if (NOT CHAMELEON_SIMULATION)
-  # Depends on coreblas only for set_coreblas_gemm3m_enabled() (Maybe we should change that)
-  add_dependencies(chameleon coreblas_include)
-  target_link_libraries(chameleon coreblas)
-endif()
 target_link_libraries(chameleon hqr)
 
 add_dependencies(chameleon

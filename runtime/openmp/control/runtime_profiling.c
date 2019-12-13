@@ -27,12 +27,10 @@ double RUNTIME_get_time(){
 
 void RUNTIME_start_profiling()
 {
-    chameleon_warning("RUNTIME_start_profiling()", "FxT profiling is not available with OpenMP\n");
 }
 
 void RUNTIME_stop_profiling()
 {
-    chameleon_warning("RUNTIME_stop_profiling()", "FxT profiling is not available with OpenMP\n");
 }
 
 void RUNTIME_start_stats()

@@ -148,6 +148,7 @@ int CHAMELEON_Enable(int option)
             break;
         case CHAMELEON_PROFILING_MODE:
             chamctxt->profiling_enabled = CHAMELEON_TRUE;
+            RUNTIME_start_profiling();
             break;
         case CHAMELEON_PROGRESS:
             chamctxt->progress_enabled = CHAMELEON_TRUE;
@@ -218,6 +219,7 @@ int CHAMELEON_Disable(int option)
             break;
         case CHAMELEON_PROFILING_MODE:
             chamctxt->profiling_enabled = CHAMELEON_FALSE;
+            RUNTIME_stop_profiling();
             break;
         case CHAMELEON_PROGRESS:
             chamctxt->progress_enabled = CHAMELEON_FALSE;
