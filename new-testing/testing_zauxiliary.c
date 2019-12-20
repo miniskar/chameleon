@@ -42,10 +42,10 @@ static parameter_t parameters[] = {
     { "nowarmup", "Disable the warmup run to load libraries", -31, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {1}, NULL, pread_int, sprint_int },
-    { "gpus",    "Number of GPU workers per node",      'g', PARAM_OPTION | PARAM_OUTPUT, 1, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "P",       "Rows (P) in the PxQ process grid",    'P', PARAM_OPTION | PARAM_OUTPUT, 1, 2, TestValInt, {1}, NULL, pread_int, sprint_int },
-    { "Q",       "Columns (Q) in the PxQ process grid", 'Q', PARAM_OUTPUT,                1, 2, TestValInt, {1}, NULL, pread_int, sprint_int },
+    { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
+    { "gpus",    "Number of GPU workers per node",      'g', PARAM_OPTION | PARAM_OUTPUT, 1, 4, TestValInt, { 0}, NULL, pread_int, sprint_int },
+    { "P",       "Rows (P) in the PxQ process grid",    'P', PARAM_OPTION | PARAM_OUTPUT, 1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
+    { "Q",       "Columns (Q) in the PxQ process grid", 'Q', PARAM_OUTPUT,                1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
 
     { NULL, "Main input parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "op",   "Operation to test/time", 'o', PARAM_OPTION | PARAM_OUTPUT, 1, 1, TestString, {0}, NULL, pread_string, sprint_string },
@@ -505,6 +505,13 @@ int main (int argc, char **argv) {
     nowarmup  = parameters_getvalue_int( "nowarmup" );
 
     CHAMELEON_Init( ncores, ngpus );
+
+    /* Set ncores to the right value */
+    if ( ncores == -1 ) {
+        parameter_t *param;
+        param = parameters_get( 't' );
+        param->value.ival = CHAMELEON_GetThreadNbr();
+    }
 
     /* Binds the right function to be called and builds the parameters combinations */
     test = testing_gettest( argv[0], func_name );
