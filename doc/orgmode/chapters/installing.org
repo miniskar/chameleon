@@ -72,9 +72,9 @@ we encourage users to use [[sec:spack][Spack]].
    # Install StarPU (with MPI and FxT enabled)
    mkdir -p $HOME/install
    cd $HOME/install
-   wget http://starpu.gforge.inria.fr/files/starpu-1.2.6/starpu-1.2.6.tar.gz
-   tar xvzf starpu-1.2.6.tar.gz
-   cd starpu-1.2.6/
+   wget http://starpu.gforge.inria.fr/files/starpu-1.3.3/starpu-1.3.3.tar.gz
+   tar xvzf starpu-1.3.3.tar.gz
+   cd starpu-1.3.3/
    ./configure --prefix=/usr/local --with-fxt=/usr/lib/x86_64-linux-gnu/
    make -j5
    sudo make install
@@ -262,23 +262,229 @@ we encourage users to use [[sec:spack][Spack]].
      with CUDA releases from versions 4 to 7.5.  Your compiler must be
      compatible with CUDA.
 
+** Distribution of Chameleon using GNU Guix
+   <<sec:guix>>
+
+   We provide [[http://guix.gnu.org/][Guix]] packages to install Chameleon with its dependencies
+   in a reproducible way on GNU/Linux systems. For MacOSX please refer
+   to the next section about Spack packaging.
+
+   If you are "root" on the system you can install Guix and directly
+   use it to install the libraries. On supercomputers your are not
+   root on you may still be able to use it if Docker or Singularity
+   are available on the machine because Chameleon can be packaged as
+   Docker/Singularity images with Guix.
+
+*** Installing Guix
+    Guix requires a running GNU/Linux system, GNU tar and Xz.
+
+    #+begin_src sh
+    gpg --keyserver pgp.mit.edu --recv-keys 3CE464558A84FDC69DB40CFB090B11993D9AEBB5
+    wget https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh
+    chmod +x guix-install.sh
+    sudo ./guix-install.sh
+    #+end_src
+
+    The Chameleon packages are not official Guix packages. It is then
+    necessary to add a channel to get additional packages.  Create a
+    ~/.config/guix/channels.scm file with the following snippet:
+    #+begin_example
+    (cons (channel
+        (name 'guix-hpc-non-free)
+        (url "https://gitlab.inria.fr/guix-hpc/guix-hpc-non-free.git"))
+      %default-channels)
+    #+end_example
+
+    Update guix package definition
+    #+begin_src sh
+    guix pull
+    #+end_src
+
+    Update new guix in the path
+    #+begin_src sh
+    PATH="$HOME/.config/guix/current/bin${PATH:+:}$PATH"
+    hash guix
+    #+end_src
+
+    For further shell sessions, add this to the ~/.bash_profile file
+    #+begin_example
+    export PATH="$HOME/.config/guix/current/bin${PATH:+:}$PATH"
+    export GUIX_LOCPATH="$HOME/.guix-profile/lib/locale"
+    #+end_example
+
+    Chameleon packages are now available
+    #+begin_src sh
+    guix search ^chameleon
+    #+end_src
+
+    Refer to the [[https://guix.gnu.org/manual/en/guix.html#Invoking-guix-package][official documentation of Guix]] to learn the basic
+    commands.
+
+*** Installing Chameleon with Guix
+
+    Standard Chameleon, last release
+    #+begin_src sh
+    guix install chameleon
+    #+end_src
+
+    Notice that there exist several build variants
+    - chameleon (default) : with starpu - with mpi
+    - chameleon-cuda : with starpu - with mpi - with cuda
+    - chameleon-fxt : with starpu - with mpi - with fxt
+    - chameleon-simgrid : with starpu - with mpi - with simgrid
+    - chameleon-openmp : with openmp - without mpi
+    - chameleon-parsec : with parsec - without mpi
+    - chameleon-quark : with quark - without mpi
+
+    Change the version
+    #+begin_src sh
+    guix install chameleon --with-branch=chameleon=master
+    guix install chameleon --with-commit=chameleon=b31d7575fb7d9c0e1ba2d8ec633e16cb83778e8b
+    guix install chameleon --with-git-url=chameleon=https://gitlab.inria.fr/fpruvost/chameleon.git
+    guix install chameleon --with-git-url=chameleon=$HOME/git/chameleon
+    #+end_src
+
+    Notice also that default mpi is OpenMPI and default blas/lapack is
+    Openblas. This can be changed with a [[https://guix.gnu.org/manual/en/guix.html#Package-Transformation-Options][transformation option]].
+
+    Change some dependencies
+    #+begin_src sh
+    # install chameleon with intel mkl to replace openblas and nmad to replace openmpi
+    guix install chameleon --with-input=openblas=mkl --with-input=openmpi=nmad
+    #+end_src
+
+*** Generate a Chameleon Docker image with Guix
+
+    To install Chameleon and its dependencies within a docker image
+    (OpenMPI stack)
+    #+begin_src sh
+    docker_chameleon=`guix pack -f docker chameleon chameleon --with-branch=chameleon=master --with-input=openblas=mkl mkl starpu hwloc openmpi openssh slurm bash coreutils inetutils util-linux procps git grep tar sed gzip which gawk perl emacs-minimal vim gcc-toolchain make cmake pkg-config -S /bin=bin --entry-point=/bin/bash`
+    # Load the generated tarball as a docker image
+    docker_chameleon_tag=`docker load --input $docker_chameleon | grep "Loaded image: " | cut -d " " -f 3-`
+    # Change tag name, see the existing image name with "docker images" command, then change to a more simple name
+    docker tag $docker_chameleon_tag guix/chameleon-tmp
+    #+end_src
+
+    Create a Dockerfile inheriting from the image (renamed
+    =guix/chameleon= here):
+
+    #+begin_src sh :eval no :tangle Dockerfile :export none
+    FROM guix/chameleon-tmp
+
+    # Create a directory for user 1000
+    RUN mkdir -p /builds
+    RUN chown -R 1000 /builds
+
+    ENTRYPOINT ["/bin/bash", "-l"]
+
+    # Enter the image as user 1000 in /builds
+    USER 1000
+    WORKDIR /builds
+    ENV HOME /builds
+    #+end_src
+
+    Then create the final docker image from this docker file.
+
+    #+begin_src sh
+    docker build -t guix/chameleon .
+    #+end_src
+
+    Test the image
+    #+begin_src sh
+    docker run -it guix/chameleon
+    # test starpu
+    STARPU=`pkg-config --variable=prefix libstarpu`
+    mpiexec -np 4 $STARPU/lib/starpu/mpi/comm
+    # test chameleon
+    CHAMELEON=`pkg-config --variable=prefix chameleon`
+    mpiexec -np 2 $CHAMELEON/bin/new-testing/snew-testing -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+    #+end_src
+
+*** Generate a Chameleon Singularity image with Guix
+
+    To package Chameleon and its dependencies within a singularity image
+    (OpenMPI stack)
+    #+begin_src sh
+    singularity_chameleon=`guix pack -f squashfs chameleon --with-branch=chameleon=master --with-input=openblas=mkl mkl starpu hwloc openmpi openssh slurm hdf5 zlib bash coreutils inetutils util-linux procps git grep tar sed gzip which gawk perl emacs-minimal vim gcc-toolchain make cmake pkg-config -S /bin=bin --entry-point=/bin/bash`
+    cp $singularity_chameleon chameleon-pack.gz.squashfs
+    # copy the singularity image on the supercomputer, e.g. 'supercomputer'
+    scp chameleon-pack.gz.squashfs supercomputer:
+    #+end_src
+
+    On a machine where Singularity is installed Chameleon can then be
+    called as follows
+    #+begin_src sh
+    # at least openmpi and singularity are required here, e.g. module add openmpi singularity
+    mpiexec -np 2 singularity exec chameleon-pack.gz.squashfs /bin/new-testing/snew-testing -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+    #+end_src
+
 ** Distribution of Chameleon using Spack
    <<sec:spack>>
 
-   To get support to install a full distribution (Chameleon +
-   dependencies) we encourage users to use *Spack*. Please refer to our
-   [[https://gitlab.inria.fr/solverstack/spack-repo/blob/master/README.org][Spack Repository]].
+*** Installing Spack
 
-*** Usage example for a simple distribution of Chameleon
+    To get support to install a full distribution, Chameleon plus
+    dependencies, we encourage users to use [[https://spack.io/][Spack]]. Please refer to our
+    [[https://gitlab.inria.fr/solverstack/spack-repo/blob/master/README.org][Spack Repository]].
+
     #+begin_src sh
     git clone https://github.com/llnl/spack.git
     export SPACK_ROOT=$PWD/spack
+    cd spack/
+    git checkout v0.13.2
     . $SPACK_ROOT/share/spack/setup-env.sh
-    git clone https://gitlab.inria.fr/solverstack/spack-repo.git
-    spack repo add spack-repo
+    git clone https://gitlab.inria.fr/solverstack/spack-repo.git ./var/spack/repos/solverstack
+    spack repo add ./var/spack/repos/solverstack
+    #+end_src
+
+    Chameleon is then available
+    #+begin_src sh
+    spack info chameleon
+    spack spec chameleon
+    #+end_src
+
+    Refer to te [[https://spack.readthedocs.io/en/latest/basic_usage.html][official documentation of Spack]] to learn the basic
+    commands.
+
+*** Installing Chameleon with Spack
+
+    Standard Chameleon, last state on the 'master' branch
+    #+begin_src sh
     spack install -v chameleon
     # chameleon is installed here:
     `spack location -i chameleon`
+    #+end_src
+
+    Notice that there exist several build variants
+    - chameleon (default) : with starpu - with mpi
+    - tune the build type (CMake) with build_type=RelWithDebInfo|Debug|Release
+    - enable/disable shared libraries with +/- shared
+    - enable/disable mpi with +/- mpi
+    - enable/disable cuda with +/- cuda
+    - enable/disable fxt with +/- fxt
+    - enable/disable simgrid with +/- simgrid
+    - +openmp~starpu : with openmp - without starpu
+    - +quark~starpu : with quark - without starpu
+
+    Change the version
+    #+begin_src sh
+    spack install -v chameleon@0.9.2
+    #+end_src
+
+    Notice also that default mpi is OpenMPI and default blas/lapack is
+    Openblas. This can be changed by adding some [[https://spack.readthedocs.io/en/latest/basic_usage.html#constraining-virtual-packages][constraints on
+    virtual packages]].
+
+    Change some dependencies
+    #+begin_src sh
+    # see lapack providers
+    spack providers lapack
+    # see mpi providers
+    spack providers mpi
+    # install chameleon with intel mkl to replace openblas
+    spack install -v chameleon ^intel-mkl
+    # install chameleon with nmad to replace openmpi
+    spack install -v chameleon ^nmad
     #+end_src
 
 ** Build and install Chameleon with CMake
