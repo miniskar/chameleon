@@ -57,7 +57,7 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
         };
         options->ws_wsize = worker_size;
         starpu_cham_tile_register( (starpu_data_handle_t*)(&(options->ws_worker)),
-                                   -1, &tile, sizeof(char) );
+                                   -1, &tile, ChamByte );
     }
     if ( host_size > 0 ) {
         options->ws_hsize = host_size;
