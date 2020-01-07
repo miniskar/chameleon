@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -57,7 +57,7 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
         };
         options->ws_wsize = worker_size;
         starpu_cham_tile_register( (starpu_data_handle_t*)(&(options->ws_worker)),
-                                   -1, &tile, sizeof(char) );
+                                   -1, &tile, ChamByte );
     }
     if ( host_size > 0 ) {
         options->ws_hsize = host_size;

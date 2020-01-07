@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -300,8 +300,8 @@ int CHAMELEON_zunglq_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *Q,
 
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        int m = chameleon_min(A->m, A->n);
-        chameleon_zdesc_alloc(D, A->mb, A->nb, m, A->n, 0, 0, m, A->n, );
+        int m = chameleon_min( A->m, A->n );
+        chameleon_zdesc_copy_and_restrict( A, &D, m, A->n );
         Dptr = &D;
     }
 #endif
