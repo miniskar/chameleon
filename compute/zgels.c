@@ -364,8 +364,8 @@ int CHAMELEON_zgels_Tile_Async( cham_trans_t trans, CHAM_desc_t *A,
     if (A->m >= A->n) {
 #if defined(CHAMELEON_COPY_DIAG)
         {
-            int n = chameleon_min(A->m, A->n);
-            chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
+            int n = chameleon_min( A->m, A->n );
+            chameleon_zdesc_copy_and_restrict( A, &D, A->m, n );
             Dptr = &D;
         }
 #endif
@@ -432,8 +432,8 @@ int CHAMELEON_zgels_Tile_Async( cham_trans_t trans, CHAM_desc_t *A,
     else {
 #if defined(CHAMELEON_COPY_DIAG)
         {
-            int m = chameleon_min(A->m, A->n);
-            chameleon_zdesc_alloc(D, A->mb, A->nb, m, A->n, 0, 0, m, A->n, );
+            int m = chameleon_min( A->m, A->n );
+            chameleon_zdesc_copy_and_restrict( A, &D, m, A->n );
             Dptr = &D;
         }
 #endif

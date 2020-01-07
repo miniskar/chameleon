@@ -155,6 +155,29 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
     }
 
 /**
+ * @brief Create a copy of a descriptor restricted to a smaller size.
+ * @param[in]  descIn  The input descriptor from which the structure should be copied.
+ * @param[out] descOut The output descriptor that is a copy of the input one with allocation on the fly.
+ * @param[in]  m       The number of rows of the output descriptor.
+ * @param[in]  n       The number of columns of the output descriptor.
+ * @return CHAMELEON_SUCCESS on success, the associated error on failure.
+ */
+static inline int
+chameleon_zdesc_copy_and_restrict( CHAM_desc_t *descIn,
+                                   CHAM_desc_t *descOut,
+                                   int m, int n )
+{
+    int rc;
+    rc = chameleon_desc_init( descOut, CHAMELEON_MAT_ALLOC_TILE,
+                              ChamComplexDouble, descIn->mb, descIn->nb, descIn->mb * descIn->nb,
+                              m, n, 0, 0, m, n, descIn->p, descIn->q,
+                              descIn->get_blkaddr,
+                              descIn->get_blkldd,
+                              descIn->get_rankof );
+    return rc;
+}
+
+/**
  * @brief Internal function to convert the lapack format to tile format in
  * LAPACK interface calls
  */
