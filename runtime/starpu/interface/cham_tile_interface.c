@@ -151,13 +151,14 @@ cti_get_size(starpu_data_handle_t handle)
 {
     starpu_cham_tile_interface_t *cham_tile_interface =
         starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+    size_t elemsize = CHAMELEON_Element_Size( cham_tile_interface->flttype );
 
 #ifdef STARPU_DEBUG
     STARPU_ASSERT_MSG( cham_tile_interface->id == STARPU_CHAM_TILE_INTERFACE_ID,
                        "Error. The given data is not a cham_tile." );
 #endif
 
-    return cham_tile_interface->allocsize;
+    return cham_tile_interface->tile.m * cham_tile_interface->tile.n * elemsize;
 }
 
 static size_t
