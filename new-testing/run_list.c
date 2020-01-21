@@ -927,5 +927,6 @@ run_print_line( const testing_t *test, const run_arg_list_t *arglist,
     }
 
     fprintf( stdout, "%s\n", str );
+    fflush(stdout);
     return;
 }
