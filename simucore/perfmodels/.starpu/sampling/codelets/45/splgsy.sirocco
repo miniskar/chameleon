@@ -7,12 +7,12 @@
 # number of combinations
 1
 ####################
-# COMB_4
+# COMB_0
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 0
 ####################
 # DEV_0
@@ -26,9 +26,9 @@
 # number of implementations
 1
 #####
-# Model for cpu0_impl0 (Comb4)
+# Model for cpu0_impl0 (Comb0)
 # number of entries
-5
+8
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
 0.000000e+00   	0.000000e+00   	0.000000e+00   	0.000000e+00   	nan            	nan            	0	0              	0              
 # a		b		c
@@ -41,4 +41,7 @@ nan            	nan            	nan
 617e5fe6	3686400        	0.000000e+00   	8.939938e+03   	2.153220e+02   	1.231923e+07   	1.101971e+11   	1378
 982013a8	774400         	0.000000e+00   	2.302314e+03   	5.466484e+02   	1.138264e+07   	2.768379e+10   	4944
 ad30af9b	25600          	0.000000e+00   	8.731844e+01   	8.227614e+00   	1.389149e+06   	1.223753e+08   	15909
+2384211a	6400           	0.000000e+00   	3.342405e+01   	1.257385e+01   	6.684810e+02   	2.550538e+04   	20
+30b2a96f	51200          	0.000000e+00   	1.475864e+02   	1.554810e+01   	1.136415e+04   	1.695808e+06   	77
+2806844d	409600         	0.000000e+00   	8.902086e+02   	1.436824e+02   	1.370921e+05   	1.252199e+08   	154
 

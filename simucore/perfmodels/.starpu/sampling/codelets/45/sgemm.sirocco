@@ -7,12 +7,12 @@
 # number of combinations
 5
 ####################
-# COMB_4
+# COMB_0
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 0
 ####################
 # DEV_0
@@ -26,9 +26,9 @@
 # number of implementations
 1
 #####
-# Model for cpu0_impl0 (Comb4)
+# Model for cpu0_impl0 (Comb0)
 # number of entries
-5
+7
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
 0.000000e+00   	0.000000e+00   	0.000000e+00   	0.000000e+00   	nan            	nan            	0	0              	0              
 # a		b		c
@@ -41,14 +41,16 @@ a7cdf15b	44236800       	0.000000e+00   	2.633445e+05   	5.249424e+04   	6.32290
 24c84a50	11059200       	0.000000e+00   	3.623402e+04   	6.546678e+03   	1.580528e+08   	5.913839e+12   	4362
 c4a08f5f	2323200        	0.000000e+00   	3.732336e+03   	6.841164e+02   	3.950678e+07   	1.524065e+11   	10585
 e6b94418	76800          	0.000000e+00   	3.040738e+01   	3.904133e+00   	2.440131e+06   	7.542116e+07   	80248
+a4820f8f	512000         	0.000000e+00   	2.424582e+02   	4.362487e+01   	1.672962e+04   	4.187550e+06   	69
+6a7210dc	1228800        	0.000000e+00   	1.962744e+03   	4.745716e+02   	4.710585e+04   	9.786197e+07   	24
 
 ####################
-# COMB_2
+# COMB_3
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 1
 ####################
 # DEV_0
@@ -62,7 +64,7 @@ e6b94418	76800          	0.000000e+00   	3.040738e+01   	3.904133e+00   	2.44013
 # number of implementations
 1
 #####
-# Model for cuda3_impl0 (Comb2)
+# Model for cuda3_impl0 (Comb3)
 # number of entries
 5
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
@@ -79,12 +81,12 @@ c4a08f5f	2323200        	0.000000e+00   	1.681587e+02   	2.185477e+01   	2.33219
 e6b94418	76800          	0.000000e+00   	4.561876e+01   	1.081980e+01   	6.934052e+03   	3.341172e+05   	152
 
 ####################
-# COMB_0
+# COMB_1
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 1
 ####################
 # DEV_0
@@ -98,7 +100,7 @@ e6b94418	76800          	0.000000e+00   	4.561876e+01   	1.081980e+01   	6.93405
 # number of implementations
 1
 #####
-# Model for cuda0_impl0 (Comb0)
+# Model for cuda0_impl0 (Comb1)
 # number of entries
 5
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
@@ -115,12 +117,12 @@ c4a08f5f	2323200        	0.000000e+00   	1.678676e+02   	2.188969e+01   	2.44465
 e6b94418	76800          	0.000000e+00   	5.712863e+01   	1.016253e+01   	2.182314e+04   	1.286178e+06   	382
 
 ####################
-# COMB_3
+# COMB_2
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 1
 ####################
 # DEV_0
@@ -134,7 +136,7 @@ e6b94418	76800          	0.000000e+00   	5.712863e+01   	1.016253e+01   	2.18231
 # number of implementations
 1
 #####
-# Model for cuda1_impl0 (Comb3)
+# Model for cuda1_impl0 (Comb2)
 # number of entries
 5
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
@@ -151,12 +153,12 @@ c4a08f5f	2323200        	0.000000e+00   	1.706067e+02   	2.205696e+01   	2.52293
 e6b94418	76800          	0.000000e+00   	4.872868e+01   	7.797709e+00   	3.376898e+04   	1.687655e+06   	693
 
 ####################
-# COMB_1
+# COMB_4
 # number of types devices
 1
 ####################
 # DEV_0
-# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, SCC - 4)
+# device type (CPU - 0, CUDA - 1, OPENCL - 2, MIC - 3, MPI_MS - 5)
 1
 ####################
 # DEV_0
@@ -170,7 +172,7 @@ e6b94418	76800          	0.000000e+00   	4.872868e+01   	7.797709e+00   	3.37689
 # number of implementations
 1
 #####
-# Model for cuda2_impl0 (Comb1)
+# Model for cuda2_impl0 (Comb4)
 # number of entries
 5
 # sumlnx	sumlnx2		sumlny		sumlnxlny	alpha		beta		n	minx		maxx
