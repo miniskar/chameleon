@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -501,13 +501,6 @@ else (NOT CHAMELEON_SIMULATION)
         set(CHAMELEON_ENABLE_EXAMPLE OFF)
         message("-- ${BoldBlue}CHAMELEON_ENABLE_EXAMPLE is set to ON but we turn it OFF.")
     endif ()
-    if (CHAMELEON_ENABLE_TESTING)
-        set(CHAMELEON_ENABLE_TESTING OFF)
-        message("-- ${BoldBlue}CHAMELEON_ENABLE_TESTING is set to ON but we turn it OFF."
-            "\n   Because we are compiling the simulation mode (CHAMELEON_SIMULATION=ON),"
-            "\n   there is no sense in compiling testing drivers that are used to check"
-            "\n   numerical correctness of algorithms and kernels.${ColourReset}")
-    endif ()
 
     # Simulation mode: we depend on SimGrid
     find_package(SIMGRID REQUIRED)
@@ -995,10 +988,13 @@ if(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
 endif(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
 
 # Testing executables
-if(CHAMELEON_ENABLE_TESTING AND NOT CHAMELEON_SIMULATION)
-  add_subdirectory(testing)
+if(CHAMELEON_ENABLE_TESTING)
   add_subdirectory(new-testing)
-endif(CHAMELEON_ENABLE_TESTING AND NOT CHAMELEON_SIMULATION)
+endif(CHAMELEON_ENABLE_TESTING)
+
+if(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
+  add_subdirectory(testing)
+endif(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
 
 # Timing executables
 if(CHAMELEON_ENABLE_TIMING)
