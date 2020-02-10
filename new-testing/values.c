@@ -568,18 +568,13 @@ char *sprint_string( val_t val, int human, int nbchar, char *str_in )
     return str_in+rc;
 }
 
-/*
- Rnd64seed is a global variable but it doesn't spoil thread safety. All matrix
- generating threads only read Rnd64seed. It is safe to set Rnd64seed before
- and after any calls to create_tile(). The only problem can be caused if
- Rnd64seed is changed during the matrix generation time.
- */
-
-//static unsigned long long int Rnd64seed = 100;
 #define Rnd64_A 6364136223846793005ULL
 #define Rnd64_C 1ULL
 #define RndF_Mul 5.4210108624275222e-20f
 
+/**
+ * @brief Generate a random number
+ */
 static inline unsigned long long int
 testing_Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
   unsigned long long int a_k, c_k, ran;

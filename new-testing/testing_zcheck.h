@@ -62,7 +62,7 @@ static inline int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans
 static inline int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR ) { return 0; }
 static inline int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC ) { return 0; }
 
-#else // !CHAMELEON_SIMULATION
+#else /* !defined(CHAMELEON_SIMULATION) */
 
 int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB );
 int check_znorm         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_normtype_t norm_type, cham_uplo_t uplo,
@@ -94,7 +94,7 @@ int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t 
 int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR );
 int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC );
 
-#endif // CHAMELEON_SIMULATION
+#endif /* defined(CHAMELEON_SIMULATION) */
 
 #endif
 

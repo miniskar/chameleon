@@ -22,7 +22,7 @@
 #include <chameleon.h>
 
 
-#if ! defined(CHAMELEON_SIMULATION)
+#if !defined(CHAMELEON_SIMULATION)
 
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
@@ -1882,4 +1882,4 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
     return info_solution;
 }
 
-#endif // CHAMELEON_SIMULATION
+#endif /* defined(CHAMELEON_SIMULATION) */
