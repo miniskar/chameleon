@@ -78,6 +78,7 @@ subs = {
         ('testing_p',            'testing_s',            'testing_d',            'testing_c',            'testing_z'           ),
         ('timing_p',             'timing_s',             'timing_d',             'timing_c',             'timing_z'            ),
         ('workspace_p',          'workspace_s',          'workspace_d',          'workspace_c',          'workspace_z'         ),
+        ('check_p',              'check_s',              'check_d',              'check_c',              'check_z'             ),
 #        ('CORE_P',               'CORE_S',               'CORE_D',               'CORE_C',               'CORE_Z'              ),
 #        ('vec_p',                'vec_s',                'vec_d',                'vec_c',                'vec_z'               ),
 

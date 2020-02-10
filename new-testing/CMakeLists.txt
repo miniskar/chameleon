@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -25,9 +25,6 @@
 #  @date 2014-11-16
 #
 ###
-if (CHAMELEON_SIMULATION)
-  message(ERROR "new-testing directory should not be included when simulation is enabled")
-endif()
 
 # Generate chameleon auxiliary testing sources for all possible precisions
 # --------------------------------------------------------------------
@@ -128,10 +125,14 @@ foreach(_precision ${CHAMELEON_PRECISION} )
     )
   add_dependencies(${_precision}new-testing
     chameleon_include
-    coreblas_include
     control_include
     new-testing_include
     )
+if(NOT CHAMELEON_SIMULATION)
+  add_dependencies(${_precision}new-testing
+    coreblas_include
+    )
+endif(NOT CHAMELEON_SIMULATION)
   set_property(TARGET ${_precision}new-testing PROPERTY LINKER_LANGUAGE Fortran)
   target_link_libraries(${_precision}new-testing ${libs_for_tests})
 

@@ -2,7 +2,7 @@
  *
  * @file values.c
  *
- * @copyright 2019-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  ***
  *
@@ -15,7 +15,6 @@
  *
  */
 #include "testings.h"
-#include <coreblas.h>
 
 /**
  * @brief Convert the input string to an integer
@@ -569,6 +568,32 @@ char *sprint_string( val_t val, int human, int nbchar, char *str_in )
     return str_in+rc;
 }
 
+#define Rnd64_A 6364136223846793005ULL
+#define Rnd64_C 1ULL
+#define RndF_Mul 5.4210108624275222e-20f
+
+/**
+ * @brief Generate a random number
+ */
+static inline unsigned long long int
+testing_Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
+  unsigned long long int a_k, c_k, ran;
+  int i;
+
+  a_k = Rnd64_A;
+  c_k = Rnd64_C;
+
+  ran = seed;
+  for (i = 0; n; n >>= 1, ++i) {
+    if (n & 1)
+      ran = a_k * ran + c_k;
+    c_k *= (a_k + 1);
+    a_k *= a_k;
+  }
+
+  return ran;
+}
+
 /**
  * @brief Generate a random float
  */
@@ -576,7 +601,14 @@ float
 testing_salea()
 {
     float val;
-    CORE_splrnt( 1, 1, &val, 1, 1, 1, 0, random() );
+    unsigned long long int ran;
+
+    ran = testing_Rnd64_jump( 2, random() );
+
+    /* Real part */
+    val = 0.5f - ran * RndF_Mul;
+    ran  = Rnd64_A * ran + Rnd64_C;
+
     return val;
 }
 
@@ -587,7 +619,14 @@ double
 testing_dalea()
 {
     double val;
-    CORE_dplrnt( 1, 1, &val, 1, 1, 1, 0, random() );
+    unsigned long long int ran;
+
+    ran = testing_Rnd64_jump( 2, random() );
+
+    /* Real part */
+    val = 0.5f - ran * RndF_Mul;
+    ran  = Rnd64_A * ran + Rnd64_C;
+
     return val;
 }
 
@@ -598,7 +637,18 @@ CHAMELEON_Complex32_t
 testing_calea()
 {
     CHAMELEON_Complex32_t val;
-    CORE_cplrnt( 1, 1, &val, 1, 1, 1, 0, random() );
+    unsigned long long int ran;
+
+    ran = testing_Rnd64_jump( 2, random() );
+
+    /* Real part */
+    val = 0.5f - ran * RndF_Mul;
+    ran  = Rnd64_A * ran + Rnd64_C;
+
+    /* Imaginary part */
+    val += I*(0.5f - ran * RndF_Mul);
+    ran  = Rnd64_A * ran + Rnd64_C;
+
     return val;
 }
 
@@ -609,6 +659,17 @@ CHAMELEON_Complex64_t
 testing_zalea()
 {
     CHAMELEON_Complex64_t val;
-    CORE_zplrnt( 1, 1, &val, 1, 1, 1, 0, random() );
+    unsigned long long int ran;
+
+    ran = testing_Rnd64_jump( 2, random() );
+
+    /* Real part */
+    val = 0.5f - ran * RndF_Mul;
+    ran  = Rnd64_A * ran + Rnd64_C;
+
+    /* Imaginary part */
+    val += I*(0.5f - ran * RndF_Mul);
+    ran  = Rnd64_A * ran + Rnd64_C;
+
     return val;
 }

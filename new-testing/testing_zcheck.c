@@ -2,7 +2,7 @@
  *
  * @file testing_zcheck.c
  *
- * @copyright 2019-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -20,6 +20,10 @@
 #include <string.h>
 #include <math.h>
 #include <chameleon.h>
+
+
+#if !defined(CHAMELEON_SIMULATION)
+
 #include <coreblas/cblas.h>
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
@@ -1878,3 +1882,4 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
     return info_solution;
 }
 
+#endif /* defined(CHAMELEON_SIMULATION) */
