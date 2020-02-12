@@ -44,7 +44,7 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
         starpu_fxt_autostart_profiling(0);
 #endif
 
-#  ifdef HAVE_STARPU_MPI_INIT_CONF
+#  if defined(HAVE_STARPU_MPI_INIT_CONF)
         hres = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);
 #  else
         hres = starpu_init(conf);
@@ -52,9 +52,8 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
             return hres;
         }
         starpu_mpi_init(NULL, NULL, !flag);
-    }
 #  endif
-
+    }
 #else
 
     hres = starpu_init(conf);

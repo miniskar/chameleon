@@ -35,6 +35,7 @@
 #cmakedefine HAVE_STARPU_MPI_COMM_RANK
 #cmakedefine HAVE_STARPU_MPI_CACHED_RECEIVE
 #cmakedefine HAVE_STARPU_MPI_COMM_GET_ATTR
+#cmakedefine HAVE_STARPU_MPI_INIT_CONF
 
 #if defined(CHAMELEON_USE_MPI)
 #include <starpu_mpi.h>
