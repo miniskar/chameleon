@@ -76,7 +76,9 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
         return 0;
     }
 
-    conf->ncpus = ncpus;
+    if (ncpus != -1) {
+        conf->ncpus = ncpus;
+    }
     conf->ncuda = ncudas;
     conf->nopencl = 0;
 
