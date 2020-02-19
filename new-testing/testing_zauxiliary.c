@@ -527,7 +527,7 @@ int main (int argc, char **argv) {
     /* Warmup */
     if ( !nowarmup ) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-        rc = test->fptr( &copy, check );
+        test->fptr( &copy, check );
         run_arg_list_destroy( &copy );
     }
 
