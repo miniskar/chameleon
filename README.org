@@ -6,8 +6,8 @@
 # gitlab-ci pipeline badge
 #+HTML:<a href="https://gitlab.inria.fr/solverstack/chameleon/commits/master"><img alt="pipeline status"src="https://gitlab.inria.fr/solverstack/chameleon/badges/master/pipeline.svg"/></a>
 
-# # Coverity badge
-# #+HTML:<a href="https://scan.coverity.com/projects/chameleon"><img alt="Coverity Scan Build Status"src="https://scan.coverity.com/projects/10590/badge.svg"/></a>
+# Coverity badge
+#+HTML:<a href="https://scan.coverity.com/projects/chameleon"><img alt="Coverity Scan Build Status"src="https://scan.coverity.com/projects/10590/badge.svg"/></a>
 
 Chameleon is a C library providing parallel algorithms to perform
 BLAS/LAPACK operations exploiting fully modern architectures.
