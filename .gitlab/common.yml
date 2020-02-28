@@ -63,3 +63,23 @@
     - (cd build-$VERSION && lcov --directory . --capture --output-file ../bis_${LOGNAME}.lcov)
   except:
     - schedules
+
+.bench_plafrim_common:
+  only:
+    - schedules
+  stage: test
+  tags: ['plafrim']
+  before_script:
+    - git submodule update --init --recursive
+  script:
+    - ./tools/bench/plafrim/run.sh
+  artifacts:
+    name: "$CI_JOB_NAME"
+    expire_in: 1 week
+    paths:
+      - "chameleon-$NODE-$MPI-$SLURM_NP.err"
+      - "chameleon-$NODE-$MPI-$SLURM_NP.out"
+      - "build-$NODE-$MPI/chameleon.csv"
+      - "tools/bench/plafrim/results/$JUBE_ID"
+  variables:
+    PLATFORM: plafrim

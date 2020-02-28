@@ -92,37 +92,35 @@ def main(
 ):
     """Add a result to an elasticsearch database."""
     es = Elasticsearch(elastic_url)
-    es_index = team + "_" + project + "_" + "perf"
+    es_index = team + "-" + project + "_" + "perf"
     if not es.indices.exists(es_index):
         es.indices.create(es_index)
 
     mapping_input = {
-        "result": {
-            "properties": {
-                "Commit_date_chameleon": {"type": "date", "format": "yyyy-MM-dd' 'HH:mm:ss"},
-                "Commit_sha_chameleon": {"type": "keyword"},
-                "Commit_sha_guix": {"type": "keyword"},
-                "Commit_sha_guix_hpc": {"type": "keyword"},
-                "Commit_sha_guix_hpcnonfree": {"type": "keyword"},
-                "Hostname": {"type": "keyword"},
-                "MPIvendor": {"type": "keyword"},
-                "Algorithm": {"type": "keyword"},
-                "Precision": {"type": "keyword"},
-                "Nmpi": {"type": "integer"},
-                "P": {"type": "integer"},
-                "Q": {"type": "integer"},
-                "Nthread": {"type": "integer"},
-                "Ngpu": {"type": "integer"},
-                "M": {"type": "integer"},
-                "N": {"type": "integer"},
-                "K": {"type": "integer"},
-                "Cputime": {"type": "float"},
-                "Gflops": {"type": "float"}
-            }
+        "properties": {
+            "Commit_date_chameleon": {"type": "date", "format": "yyyy-MM-dd HH:mm:ss"},
+            "Commit_sha_chameleon": {"type": "keyword"},
+            "Commit_sha_guix": {"type": "keyword"},
+            "Commit_sha_guix_hpc": {"type": "keyword"},
+            "Commit_sha_guix_hpcnonfree": {"type": "keyword"},
+            "Hostname": {"type": "keyword"},
+            "MPIvendor": {"type": "keyword"},
+            "Algorithm": {"type": "keyword"},
+            "Precision": {"type": "keyword"},
+            "Nmpi": {"type": "integer"},
+            "P": {"type": "integer"},
+            "Q": {"type": "integer"},
+            "Nthread": {"type": "integer"},
+            "Ngpu": {"type": "integer"},
+            "M": {"type": "integer"},
+            "N": {"type": "integer"},
+            "K": {"type": "integer"},
+            "Cputime": {"type": "float"},
+            "Gflops": {"type": "float"}
         }
+
     }
-    # es.indices.put_mapping(index=es_index, doc_type="result" , body=mapping_input, include_type_name=True)
-    es.indices.put_mapping(index=es_index, doc_type="result" , body=mapping_input)
+    es.indices.put_mapping(index=es_index, body=mapping_input)
 
     repo = Repo(directory, search_parent_directories=True)
     commit_chameleon = repo.head.commit
@@ -147,7 +145,7 @@ def main(
             )
     ]
     for request in requests:
-        es.index(index=es_index.lower(), doc_type="result", body=request)
+        es.index(index=es_index.lower(), body=request)
 
 
 if __name__ == "__main__":
