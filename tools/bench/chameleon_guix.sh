@@ -2,24 +2,23 @@
 
 set -x
 
-# this script depends on a MPI vendor: openmpi or nmad
-MPI=$1
-
 # Configure and Build Chameleon
 mkdir -p $CI_PROJECT_DIR/build-$NODE-$MPI
 cp $CI_PROJECT_DIR/guix.json $CI_PROJECT_DIR/build-$NODE-$MPI/
 cd $CI_PROJECT_DIR/build-$NODE-$MPI
 rm CMake* -rf
-cmake $BUILD_OPTIONS ..
+cmake $CHAMELEON_BUILD_OPTIONS ..
 make -j20 VERBOSE=1
 export CHAMELEON_BUILD=$PWD
 
+# clean old benchmarks
+jube remove --id $JUBE_ID
 # Execute jube benchmarks
-jube run $CI_PROJECT_DIR/tools/bench/$PLATFORM/$NODE/chameleon_$MPI.xml --tag gemm potrf geqrf
+jube run $CI_PROJECT_DIR/tools/bench/$PLATFORM/chameleon.xml --tag gemm potrf geqrf --include-path $CI_PROJECT_DIR/tools/bench/$PLATFORM/parameters/$NODE --id $JUBE_ID
 # jube analysis
-jube analyse $CI_PROJECT_DIR/tools/bench/$PLATFORM/$NODE/results/
+jube analyse $CI_PROJECT_DIR/tools/bench/$PLATFORM/results --id $JUBE_ID
 # jube report
-jube result $CI_PROJECT_DIR/tools/bench/$PLATFORM/$NODE/results/ -i last > chameleon.csv
+jube result $CI_PROJECT_DIR/tools/bench/$PLATFORM/results --id $JUBE_ID > chameleon.csv
 
 # send results to the elasticsearch server
 export PYTHONPATH=$GUIX_ENVIRONMENT/lib/python3.7/site-packages
