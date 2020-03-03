@@ -17,12 +17,12 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 0.9.2
+# @version 1.0.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
-#  @date 2014-11-16
+#  @date 2020-03-03
 #
 ###
 cmake_minimum_required(VERSION 3.3)
@@ -36,9 +36,9 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 # set project version number
-set(CHAMELEON_VERSION_MAJOR 0)
-set(CHAMELEON_VERSION_MINOR 9)
-set(CHAMELEON_VERSION_MICRO 2)
+set(CHAMELEON_VERSION_MAJOR 1)
+set(CHAMELEON_VERSION_MINOR 0)
+set(CHAMELEON_VERSION_MICRO 0)
 
 set(CHAMELEON_CMAKE_DIR "" CACHE PATH "Directory of CHAMELEON CMake modules, can be external to the project")
 
@@ -189,8 +189,8 @@ if (CHAMELEON_RUNTIME_SYNC)
     message("-- ${BoldGreen}CHAMELEON_RUNTIME_SYNC is set to ON, turn it OFF to avoid synchronisation in the tasks submission${ColourReset}")
 endif()
 
-# Options to enable/disable testings and timings
-# ----------------------------------------------
+# Options to enable/disable doc, examples, and testings
+# -----------------------------------------------------
 option(CHAMELEON_ENABLE_DOC      "Enable documentation build"  OFF)
 if (CHAMELEON_ENABLE_DOC)
     message("-- ${BoldGreen}CHAMELEON_ENABLE_DOC is set to ON, turn it OFF to avoid building docs${ColourReset}")
@@ -202,10 +202,6 @@ endif()
 option(CHAMELEON_ENABLE_TESTING  "Enable testings build"       ON)
 if (CHAMELEON_ENABLE_TESTING)
     message("-- ${BoldGreen}CHAMELEON_ENABLE_TESTING is set to ON, turn it OFF to avoid building testing${ColourReset}")
-endif()
-option(CHAMELEON_ENABLE_TIMING   "Enable timings build"        ON)
-if (CHAMELEON_ENABLE_TIMING)
-    message("-- ${BoldGreen}CHAMELEON_ENABLE_TIMING is set to ON, turn it OFF to avoid building timing${ColourReset}")
 endif()
 
 # Option to activate or not simulation mode (use Simgrid through StarPU)
@@ -993,17 +989,8 @@ endif(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
 
 # Testing executables
 if(CHAMELEON_ENABLE_TESTING)
-  add_subdirectory(new-testing)
-endif(CHAMELEON_ENABLE_TESTING)
-
-if(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
   add_subdirectory(testing)
-endif(CHAMELEON_ENABLE_EXAMPLE AND NOT CHAMELEON_SIMULATION)
-
-# Timing executables
-if(CHAMELEON_ENABLE_TIMING)
-  add_subdirectory(timing)
-endif(CHAMELEON_ENABLE_TIMING)
+endif(CHAMELEON_ENABLE_TESTING)
 #------------------------------------------------------------------------------
 
 # Define a target which gathers all targets of sources

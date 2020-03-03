@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -17,9 +17,9 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 0.9.2
+# @version 1.0.0
 #  @author Florent Pruvost
-#  @date 2014-11-10
+#  @date 2020-03-03
 #
 ###
 
@@ -56,14 +56,12 @@ set(dep_message "${dep_message}"
 "       BLAS ................: ${BLAS_VENDOR_FOUND}\n"
 "       LAPACK...............: ${LAPACK_VENDOR_FOUND}\n"
 "\n"
-"       Trace ...............: ${CHAMELEON_ENABLE_TRACING}\n"
 "       Simulation mode .....: ${CHAMELEON_SIMULATION}\n"
 "\n"
 "       Binaries to build\n"
 "       documentation ........: ${CHAMELEON_ENABLE_DOC}\n"
 "       example ..............: ${CHAMELEON_ENABLE_EXAMPLE}\n"
 "       testing ..............: ${CHAMELEON_ENABLE_TESTING}\n"
-"       timing ...............: ${CHAMELEON_ENABLE_TIMING}\n"
 "\n"
 "       CHAMELEON dependencies :\n")
 foreach (_dep ${CHAMELEON_LIBRARIES_DEP})

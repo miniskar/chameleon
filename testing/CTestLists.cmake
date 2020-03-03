@@ -1,76 +1,78 @@
 #
 # Check testing/
 #
-
-set(TEST_CMD_shm    testing 4 0 19 7 )
-set(TEST_CMD_shmgpu testing 4 1 19 7 )
-# set(TEST_CMD_mpi    testing 4 0 19 7 )
-# set(TEST_CMD_mpigpu testing 4 1 19 7 )
-
-set( TEST_CATEGORIES shm )
+set(NP 2) # Amount of MPI processes
+set(THREADS 2) # Amount of threads
+set(N_GPUS 0) # Amount of graphic cards
+set(TEST_CATEGORIES shm)
+if (CHAMELEON_USE_MPI AND MPI_C_FOUND)
+  set( TEST_CATEGORIES ${TEST_CATEGORIES} mpi )
+endif()
 if (CHAMELEON_USE_CUDA AND CUDA_FOUND)
-  set( TEST_CATEGORIES ${TEST_CATEGORIES} shmgpu )
+  set(N_GPUS 0 1)
 endif()
 
-foreach(cat  ${TEST_CATEGORIES})
-  foreach(prec ${RP_CHAMELEON_PRECISIONS})
+foreach(prec ${RP_CHAMELEON_PRECISIONS})
+  set (CMD ./chameleon_${prec}testing)
 
-    string(TOUPPER ${prec} PREC)
+  #
+  # Create the list of test based on precision and runtime
+  #
+  set( TESTS lacpy lange lantr lansy )
+  if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+    set( TESTS ${TESTS} lanhe )
+  endif()
+  set( TESTS ${TESTS}
+    geadd tradd lascal
+    gemm symm syrk syr2k trmm trsm )
+  if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+    set( TESTS ${TESTS}
+      hemm herk her2k )
+  endif()
+  set( TESTS ${TESTS}
+    potrf potrs posv trtri lauum )
+  if ( NOT CHAMELEON_SCHED_PARSEC )
+    set( TESTS ${TESTS} potri )
+  endif()
+  if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+    set( TESTS ${TESTS}
+      sytrf sytrs sysv )
+  endif()
+  set( TESTS ${TESTS}
+    getrf     getrs gesv
+    geqrf     gelqf
+    geqrf_hqr gelqf_hqr)
+  if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+    set( TESTS ${TESTS}
+      ungqr     unglq     unmqr     unmlq
+      ungqr_hqr unglq_hqr unmqr_hqr unmlq_hqr)
+  else()
+    set( TESTS ${TESTS}
+      orgqr     orglq     ormqr     ormlq
+      orgqr_hqr orglq_hqr ormqr_hqr ormlq_hqr)
+  endif()
+  set( TESTS ${TESTS}
+    #geqrs     gelqs
+    #geqrs_hqr gelqs_hqr
+    gels
+    gels_hqr )
 
-    if (CHAMELEON_PREC_${PREC})
-      add_test(test_${cat}_${prec}lange ./${prec}${TEST_CMD_${cat}} LANGE 117 213 232 )
-      add_test(test_${cat}_${prec}gemm  ./${prec}${TEST_CMD_${cat}} GEADD 1.7 -2.3 117 213    215 220    )
-      add_test(test_${cat}_${prec}gemm  ./${prec}${TEST_CMD_${cat}} GEMM  1.7 -2.3 117 213 97 215 220 232)
-      add_test(test_${cat}_${prec}trsm  ./${prec}${TEST_CMD_${cat}} TRSM      -2.3 117 213    215 220    )
-      add_test(test_${cat}_${prec}trmm  ./${prec}${TEST_CMD_${cat}} TRMM      -2.3 117 213    215 220    )
-      add_test(test_${cat}_${prec}symm  ./${prec}${TEST_CMD_${cat}} SYMM  1.7 -2.3 117 213    215 220 232)
-      add_test(test_${cat}_${prec}syrk  ./${prec}${TEST_CMD_${cat}} SYRK  1.7 -2.3 117 213    215 220    )
-      add_test(test_${cat}_${prec}syr2k ./${prec}${TEST_CMD_${cat}} SYR2K 1.7 -2.3 117 213    215 220 232)
+  foreach(cat ${TEST_CATEGORIES})
+    foreach(gpus ${N_GPUS})
 
-      if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
-        add_test(test_${cat}_${prec}hemm  ./${prec}${TEST_CMD_${cat}} HEMM  1.7 -2.3 117 213 215 220 232)
-        add_test(test_${cat}_${prec}herk  ./${prec}${TEST_CMD_${cat}} HERK  1.7 -2.3 117 213 215 220    )
-        add_test(test_${cat}_${prec}her2k ./${prec}${TEST_CMD_${cat}} HER2K 1.7 -2.3 117 213 215 220 232)
+      if (${gpus} EQUAL 1)
+        set(cat ${cat}_gpu)
       endif()
 
-      add_test(test_${cat}_${prec}posv        ./${prec}${TEST_CMD_${cat}} POSV            117 155 25 143)
-      if ( NOT CHAMELEON_SCHED_PARSEC )
-        add_test(test_${cat}_${prec}potri       ./${prec}${TEST_CMD_${cat}} POTRI           117 155       )
+      if (${cat} STREQUAL "mpi")
+        set (PREFIX mpiexec --bind-to none -n ${NP})
+      else()
+        set (PREFIX "")
       endif()
-      add_test(test_${cat}_${prec}gels_qr     ./${prec}${TEST_CMD_${cat}} GELS      0 233 117 255 25 242  )
-      add_test(test_${cat}_${prec}gels_hqr    ./${prec}${TEST_CMD_${cat}} GELS      1 233 117 255 25 242 3)
-      add_test(test_${cat}_${prec}gels_lq     ./${prec}${TEST_CMD_${cat}} GELS      0 117 233 155 25 242  )
-      add_test(test_${cat}_${prec}gels_hlq    ./${prec}${TEST_CMD_${cat}} GELS      1 117 233 155 25 242 3)
-      add_test(test_${cat}_${prec}gesv_incpiv ./${prec}${TEST_CMD_${cat}} GESV_INCPIV     117 155 25 242)
 
-      add_test(test_${cat}_${prec}gels_hqr_greedy    ./${prec}${TEST_CMD_${cat}} GELS_HQR 233 117 255 25 242 2 -1 1 -1 0)
-      add_test(test_${cat}_${prec}gels_hqr_fibonacci ./${prec}${TEST_CMD_${cat}} GELS_HQR 233 117 255 25 242 2 -1 2 -1 0)
-      add_test(test_${cat}_${prec}gels_hqr_binary    ./${prec}${TEST_CMD_${cat}} GELS_HQR 233 117 255 25 242 2 -1 3 -1 0)
-      add_test(test_${cat}_${prec}gels_hlq_greedy    ./${prec}${TEST_CMD_${cat}} GELS_HQR 117 233 255 25 242 2 -1 1 -1 0)
-      add_test(test_${cat}_${prec}gels_hlq_fibonacci ./${prec}${TEST_CMD_${cat}} GELS_HQR 117 233 255 25 242 2 -1 2 -1 0)
-      add_test(test_${cat}_${prec}gels_hlq_binary    ./${prec}${TEST_CMD_${cat}} GELS_HQR 117 233 255 25 242 2 -1 3 -1 0)
-
-      add_test(test_${cat}_${prec}gels_qr_systolic   ./${prec}${TEST_CMD_${cat}} GELS_SYSTOLIC 233 117 255 25 242 3 2)
-      add_test(test_${cat}_${prec}gels_lq_systolic   ./${prec}${TEST_CMD_${cat}} GELS_SYSTOLIC 117 233 255 25 242 3 2)
-    endif()
-
-  endforeach()
-endforeach()
-
-#if (CHAMELEON_USE_MPI AND MPI_C_FOUND)
-#    set( TEST_CATEGORIES ${TEST_CATEGORIES} mpi )
-#    if (CHAMELEON_USE_CUDA AND CUDA_FOUND)
-#        set( TEST_CATEGORIES ${TEST_CATEGORIES} mpigpu )
-#    endif()
-#    foreach(prec ${RP_CHAMELEON_PRECISIONS})
-#        add_test(test_mpi_${prec}lange mpirun -np 4 ./${prec}testing 1 0 LANGE 600 500 600 --p=2)
-#    endforeach()
-#endif()
-
-# Specific algorithms
-# Gram
-foreach(cat  ${TEST_CATEGORIES})
-  foreach(prec s;d)
-    add_test(test_${cat}_${prec}gram ./${prec}${TEST_CMD_${cat}} GRAM 117 213 )
+      foreach(_test ${TESTS})
+        add_test(test_${cat}_${prec}${_test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${_test}.in )
+      endforeach()
+    endforeach()
   endforeach()
 endforeach()

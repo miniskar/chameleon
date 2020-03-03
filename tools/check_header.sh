@@ -1,12 +1,12 @@
 #
 #  @file check_header.sh
 #
-#  @copyright 2016-2017 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#  @copyright 2016-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
-#  @version 6.0.0
+#  @version 1.0.0
 #  @author Mathieu Faverge
-#  @date 2018-10-12
+#  @date 2020-03-03
 #
 # This script check that basic informations is present and correct in
 # headers of source files.
@@ -53,10 +53,10 @@ check_header_copyright()
     filename=$1
     basename=`basename $filename`
 
-    toto=`grep -E " @copyright [0-9]{4}-2019 Bordeaux INP" $filename`
+    toto=`grep -E " @copyright [0-9]{4}-2020 Bordeaux INP" $filename`
     if [ $? -ne 0 ]
     then
-        toto=`grep -E " @copyright 2019      Bordeaux INP" $filename`
+        toto=`grep -E " @copyright 2020      Bordeaux INP" $filename`
     fi
 
     if [ $? -ne 0 ]

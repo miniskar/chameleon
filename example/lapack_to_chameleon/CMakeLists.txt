@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -13,9 +13,9 @@
 #  CHAMELEON is a software package provided by Inria Bordeaux - Sud-Ouest, LaBRI,
 #  University of Bordeaux, Bordeaux INP
 #
-# @version 0.9.2
+# @version 1.0.0
 #  @author Florent Pruvost
-#  @date 2018-07-12
+#  @date 2020-03-03
 #
 ###
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -61,14 +61,14 @@ foreach(_ltm ${LTM_SOURCES})
     set_property(TARGET ${_name_exe} PROPERTY LINKER_LANGUAGE Fortran)
     target_link_libraries(${_name_exe} ${libs_for_ltm})
     install(TARGETS ${_name_exe}
-            DESTINATION bin/example/lapack_to_chameleon)
+            DESTINATION bin/chameleon/lapack_to_chameleon)
 endforeach()
 
 add_executable(step0 step0.c)
 set_property(TARGET step0 PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(step0 ${libs_for_step0})
 install(TARGETS step0
-        DESTINATION bin/example/lapack_to_chameleon)
+        DESTINATION bin/chameleon/lapack_to_chameleon)
 
 #-------- Tests ---------
 include(CTestLists.cmake)

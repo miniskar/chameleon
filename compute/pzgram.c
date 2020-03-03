@@ -2,17 +2,17 @@
  *
  * @file pzgram.c
  *
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgram parallel algorithm
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2019-04-10
+ * @date 2020-03-03
  * @precisions normal z -> s d c z
  *
  */

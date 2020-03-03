@@ -2,16 +2,16 @@
  *
  * @file sumsq_update.h
  *
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon CPU auxiliary sumsq_update routine
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2019-03-27
+ * @date 2020-03-03
  *
  */
 #ifndef _sumsq_update_h_

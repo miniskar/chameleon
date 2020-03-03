@@ -4,16 +4,16 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
- * @version 0.9.2
+ * @version 1.0.0
  *
  * @brief Chameleon timer
  *
  * Provide a simple timer for examples and runtimes which do not provide their
  * own timer.
- * @date 2018-07-11
+ * @date 2020-03-03
  *
  */
 #ifndef _chameleon_timer_h_

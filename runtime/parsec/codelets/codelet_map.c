@@ -2,16 +2,16 @@
  *
  * @file parsec/codelet_map.c
  *
- * @copyright 2018-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2018-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon map PaRSEC codelet
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2018-09-25
+ * @date 2020-03-03
  *
  */
 #include "chameleon_parsec.h"

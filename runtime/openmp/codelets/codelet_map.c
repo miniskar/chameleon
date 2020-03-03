@@ -2,17 +2,17 @@
  *
  * @file openmp/codelet_map.c
  *
- * @copyright 2018-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2018-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon map OpenMP codelet
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Philippe Virouleau
  * @author Mathieu Faverge
- * @date 2019-11-19
+ * @date 2020-03-03
  *
  */
 #include "chameleon_openmp.h"

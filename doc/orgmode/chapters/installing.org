@@ -107,7 +107,7 @@ we encourage users to use [[sec:spack][Spack]].
     1) we need the lapacke interface to tmg routines and symbol like
        ~LAPACKE_dlatms_work~ should be defined in the lapacke
        library. The Debian packages /libopenblas-dev/ and /liblapacke-dev/
-       (version 3.7.1) do not provide the tmg interface. Please update
+       (version 1.0.0) do not provide the tmg interface. Please update
        your distribution or install the lapacke interface library in
        another way, by yourself from source or with [[https://gitlab.inria.fr/solverstack/spack-repo][Spack]], ...
     2) sometimes parallel make with -j can fails due to undefined
@@ -397,7 +397,7 @@ we encourage users to use [[sec:spack][Spack]].
     mpiexec -np 4 $STARPU/lib/starpu/mpi/comm
     # test chameleon
     CHAMELEON=`pkg-config --variable=prefix chameleon`
-    mpiexec -np 2 $CHAMELEON/bin/new-testing/snew-testing -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+    mpiexec -np 2 $CHAMELEON/bin/chameleon_stesting -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
     #+end_src
 
 *** Generate a Chameleon Singularity image with Guix
@@ -415,7 +415,7 @@ we encourage users to use [[sec:spack][Spack]].
     called as follows
     #+begin_src sh
     # at least openmpi and singularity are required here, e.g. module add openmpi singularity
-    mpiexec -np 2 singularity exec chameleon-pack.gz.squashfs /bin/new-testing/snew-testing -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+    mpiexec -np 2 singularity exec chameleon-pack.gz.squashfs /bin/chameleon_stesting -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
     #+end_src
 
 ** Distribution of Chameleon using Spack
@@ -504,8 +504,7 @@ we encourage users to use [[sec:spack][Spack]].
       make
       # do not hesitate to use -j[ncores] option to speedup the compilation
       #+end_src
-   3. test (optional, required CHAMELEON_ENABLE_TESTING=ON and/or
-      CHAMELEON_ENABLE_TIMING=ON):
+   3. test (optional, required CHAMELEON_ENABLE_TESTING=ON):
       #+begin_src
       make test
       # or
@@ -598,10 +597,7 @@ we encourage users to use [[sec:spack][Spack]].
        sub-directory
      * *CHAMELEON_ENABLE_PRUNING_STATS=ON|OFF* (default OFF)
      * *CHAMELEON_ENABLE_TESTING=ON|OFF* (default ON): to control build
-       of testing executables (numerical check) contained in testing/
-       sub-directory
-     * *CHAMELEON_ENABLE_TIMING=ON|OFF* (default ON): to control build
-       of timing executables (performances check) contained in timing/
+       of testing executables (timer and numerical check) contained in testing/
        sub-directory
      * *CHAMELEON_SIMULATION=ON|OFF* (default OFF): to enable
        simulation mode, means Chameleon will not really execute tasks,

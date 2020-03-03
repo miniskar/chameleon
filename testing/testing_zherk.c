@@ -2,189 +2,125 @@
  *
  * @file testing_zherk.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zherk testing
  *
- * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
- * @author Mathieu Faverge
- * @author Emmanuel Agullo
- * @author Cedric Castagnede
- * @date 2014-11-16
- * @precisions normal z -> c
+ * @version 1.0.0
+ * @author Lucas Barros de Assis
+ * @date 2020-03-03
+ * @precisions normal z -> z c
  *
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include <chameleon.h>
-#include <coreblas/cblas.h>
-#include <coreblas/lapacke.h>
-#include <coreblas.h>
-#include "testing_zauxiliary.h"
+#include "flops.h"
+#include "testings.h"
+#include "testing_zcheck.h"
+#include "flops.h"
 
-static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
-                          double alpha, CHAMELEON_Complex64_t *A, int LDA,
-                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC);
-
-
-int testing_zherk(int argc, char **argv)
+int
+testing_zherk( run_arg_list_t *args, int check )
 {
-    int hres = 0;
-    /* Check for number of arguments*/
-    if ( argc != 6 ){
-        USAGE("HERK", "alpha beta M N LDA LDC",
-              "   - alpha : alpha coefficient\n"
-              "   - beta : beta coefficient\n"
-              "   - N : number of columns and rows of matrix C and number of row of matrix A\n"
-              "   - K : number of columns of matrix A\n"
-              "   - LDA : leading dimension of matrix A\n"
-              "   - LDC : leading dimension of matrix C\n");
-        return -1;
+    static int   run_id = 0;
+    int          Am, An;
+    int          hres = 0;
+    CHAM_desc_t *descA, *descC, *descCinit;
+
+    /* Reads arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    int          P     = parameters_getvalue_int( "P" );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t  uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          K     = run_arg_get_int( args, "K", N );
+    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int          LDC   = run_arg_get_int( args, "LDC", N );
+    double       alpha = testing_dalea();
+    double       beta  = testing_dalea();
+    double       bump  = testing_dalea();
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedC = run_arg_get_int( args, "seedC", random() );
+    int          Q     = parameters_compute_q( P );
+    cham_fixdbl_t t, gflops;
+    cham_fixdbl_t flops = flops_zherk( K, N );
+
+    alpha = run_arg_get_double( args, "alpha", alpha );
+    beta  = run_arg_get_double( args, "beta", beta );
+    bump  = run_arg_get_double( args, "bump", bump );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Calculates the dimensions according to the transposition */
+    if ( trans == ChamNoTrans ) {
+        Am = N;
+        An = K;
+    }
+    else {
+        Am = K;
+        An = N;
     }
 
-    double alpha = (double) atol(argv[0]);
-    double beta  = (double) atol(argv[1]);
-    int N     = atoi(argv[2]);
-    int K     = atoi(argv[3]);
-    int LDA   = atoi(argv[4]);
-    int LDC   = atoi(argv[5]);
-    int NKmax = max(N, K);
+    /* Creates the matrices */
+    CHAMELEON_Desc_Create(
+        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
+    CHAMELEON_Desc_Create(
+        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
 
-    double eps;
-    int info_solution;
-    int u, t;
-    size_t LDAxK = LDA*NKmax;
-    size_t LDCxN = LDC*N;
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplghe_Tile( bump, uplo, descC, seedC );
 
-    CHAMELEON_Complex64_t *A      = (CHAMELEON_Complex64_t *)malloc(LDAxK*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *C      = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Cinit  = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Cfinal = (CHAMELEON_Complex64_t *)malloc(LDCxN*sizeof(CHAMELEON_Complex64_t));
+    /* Calculates the product */
+    START_TIMING( t );
+    hres = CHAMELEON_zherk_Tile( uplo, trans, alpha, descA, beta, descC );
+    STOP_TIMING( t );
+    gflops = flops * 1.e-9 / t;
+    run_arg_add_fixdbl( args, "time", t );
+    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
-    /* Check if unable to allocate memory */
-    if ( (!A) || (!C) || (!Cinit) || (!Cfinal) ){
-        free(A); free(C);
-        free(Cinit); free(Cfinal);
-        printf("Out of Memory \n ");
-        return -2;
+    /* Checks the solution */
+    if ( check ) {
+        CHAMELEON_Desc_Create(
+            &descCinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
+        CHAMELEON_zplghe_Tile( bump, uplo, descCinit, seedC );
+
+        hres +=
+            check_zsyrk( args, ChamHermitian, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
+
+        CHAMELEON_Desc_Destroy( &descCinit );
     }
 
-    eps = LAPACKE_dlamch_work('e');
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descC );
 
-    printf("\n");
-    printf("------ TESTS FOR CHAMELEON ZHERK ROUTINE -------  \n");
-    printf("            Size of the Matrix A %d by %d\n", N, K);
-    printf("\n");
-    printf(" The matrix A is randomly generated for each test.\n");
-    printf("============\n");
-    printf(" The relative machine precision (eps) is to be %e \n",eps);
-    printf(" Computational tests pass if scaled residuals are less than 10.\n");
-
-    /*----------------------------------------------------------
-    *  TESTING ZHERK
-    */
-
-    /* Initialize A */
-    LAPACKE_zlarnv_work(IONE, ISEED, LDAxK, A);
-
-    /* Initialize C */
-    CHAMELEON_zplgsy( (double)0., ChamUpperLower, N, C, LDC, 51 );
-
-    for (u=0; u<2; u++) {
-        for (t=0; t<3; t++) {
-            if (trans[t] == ChamTrans) continue;
-
-            memcpy(Cinit,  C, LDCxN*sizeof(CHAMELEON_Complex64_t));
-            memcpy(Cfinal, C, LDCxN*sizeof(CHAMELEON_Complex64_t));
-
-            /* CHAMELEON ZHERK */
-            CHAMELEON_zherk(uplo[u], trans[t], N, K, alpha, A, LDA, beta, Cfinal, LDC);
-
-            /* Check the solution */
-            info_solution = check_solution(uplo[u], trans[t], N, K,
-                                           alpha, A, LDA, beta, Cinit, Cfinal, LDC);
-
-            if (info_solution == 0) {
-                printf("***************************************************\n");
-                printf(" ---- TESTING ZHERK (%5s, %s) ........... PASSED !\n", uplostr[u], transstr[t]);
-                printf("***************************************************\n");
-            }
-            else {
-                printf("************************************************\n");
-                printf(" - TESTING ZHERK (%5s, %s) ... FAILED !\n", uplostr[u], transstr[t]);    hres++;
-                printf("************************************************\n");
-            }
-        }
-    }
-
-    free(A); free(C);
-    free(Cinit); free(Cfinal);
-
+    run_id++;
     return hres;
 }
 
-/*--------------------------------------------------------------
- * Check the solution
+testing_t   test_zherk;
+const char *zherk_params[] = { "nb",    "trans", "uplo",  "n",     "k",    "lda", "ldc",
+                               "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+const char *zherk_output[] = { NULL };
+const char *zherk_outchk[] = { "RETURN", NULL };
+
+/**
+ * @brief Testing registration function
  */
-
-static int check_solution(cham_uplo_t uplo, cham_trans_t trans, int N, int K,
-                          double alpha, CHAMELEON_Complex64_t *A, int LDA,
-                          double beta,  CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *Ccham, int LDC)
+void testing_zherk_init( void ) __attribute__( ( constructor ) );
+void
+testing_zherk_init( void )
 {
-    int info_solution;
-    double Anorm, Cinitnorm, Cchamnorm, Clapacknorm, Rnorm;
-    double eps;
-    CHAMELEON_Complex64_t beta_const;
-    double result;
-    double *work = (double *)malloc(max(N, K)* sizeof(double));
+    test_zherk.name        = "zherk";
+    test_zherk.helper      = "Hermitian matrix-matrix rank k update";
+    test_zherk.params      = zherk_params;
+    test_zherk.output      = zherk_output;
+    test_zherk.outchk      = zherk_outchk;
+    test_zherk.params_list = "nb;P;trans;uplo;n;k;lda;ldc;alpha;beta;seedA;seedC;bump";
+    test_zherk.fptr        = testing_zherk;
+    test_zherk.next        = NULL;
 
-    beta_const  = -1.0;
-    Anorm       = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I',
-                                (trans == ChamNoTrans) ? N : K,
-                                (trans == ChamNoTrans) ? K : N, A, LDA, work);
-    Cinitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref,    LDC, work);
-    Cchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Ccham, LDC, work);
-
-    cblas_zherk(CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                N, K, (alpha), A, LDA, (beta), Cref, LDC);
-
-    Clapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref, LDC, work);
-
-    cblas_zaxpy(LDC*N, CBLAS_SADDR(beta_const), Ccham, 1, Cref, 1);
-
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', N, N, Cref, LDC, work);
-
-    eps = LAPACKE_dlamch_work('e');
-
-    printf("Rnorm %e, Anorm %e, Cinitnorm %e, Cchamnorm %e, Clapacknorm %e\n",
-           Rnorm, Anorm, Cinitnorm, Cchamnorm, Clapacknorm);
-
-    result = Rnorm / ((Anorm + Cinitnorm) * N * eps);
-
-    printf("============\n");
-    printf("Checking the norm of the difference against reference ZHERK \n");
-    printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||C||_oo).N.eps) = %e \n", result);
-
-    if ( isinf(Clapacknorm) || isinf(Cchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-        printf("-- The solution is suspicious ! \n");
-        info_solution = 1;
-    }
-    else {
-        printf("-- The solution is CORRECT ! \n");
-        info_solution= 0 ;
-    }
-
-    free(work);
-
-    return info_solution;
+    testing_register( &test_zherk );
 }

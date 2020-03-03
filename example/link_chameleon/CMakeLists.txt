@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -17,8 +17,8 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-#  @version 0.9.2
-#  @date 2015-01-30
+#  @version 1.0.0
+#  @date 2020-03-03
 #
 ###
 cmake_minimum_required(VERSION 2.8)
