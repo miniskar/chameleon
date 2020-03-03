@@ -607,7 +607,6 @@ testing_salea()
 
     /* Real part */
     val = 0.5f - ran * RndF_Mul;
-    ran  = Rnd64_A * ran + Rnd64_C;
 
     return val;
 }
@@ -625,7 +624,6 @@ testing_dalea()
 
     /* Real part */
     val = 0.5f - ran * RndF_Mul;
-    ran  = Rnd64_A * ran + Rnd64_C;
 
     return val;
 }
@@ -647,7 +645,6 @@ testing_calea()
 
     /* Imaginary part */
     val += I*(0.5f - ran * RndF_Mul);
-    ran  = Rnd64_A * ran + Rnd64_C;
 
     return val;
 }
@@ -669,7 +666,6 @@ testing_zalea()
 
     /* Imaginary part */
     val += I*(0.5f - ran * RndF_Mul);
-    ran  = Rnd64_A * ran + Rnd64_C;
 
     return val;
 }
