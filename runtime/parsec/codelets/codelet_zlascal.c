@@ -4,20 +4,20 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zlascal PaRSEC codelet
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2016-12-15
+ * @date 2020-03-03
  * @precisions normal z -> c d s
  *
  */

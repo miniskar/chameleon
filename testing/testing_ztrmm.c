@@ -2,199 +2,121 @@
  *
  * @file testing_ztrmm.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon ztrmm testing
  *
- * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
- * @author Mathieu Faverge
- * @author Emmanuel Agullo
- * @author Cedric Castagnede
- * @date 2014-11-16
+ * @version 1.0.0
+ * @author Lucas Barros de Assis
+ * @date 2020-03-03
  * @precisions normal z -> c d s
  *
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include <chameleon.h>
-#include <coreblas/cblas.h>
-#include <coreblas/lapacke.h>
-#include <coreblas.h>
-#include "testing_zauxiliary.h"
+#include "testings.h"
+#include "testing_zcheck.h"
+#include "flops.h"
 
-static int check_solution(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
-                          int M, int N, CHAMELEON_Complex64_t alpha,
-                          CHAMELEON_Complex64_t *A, int LDA,
-                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB);
-
-int testing_ztrmm(int argc, char **argv)
+int
+testing_ztrmm( run_arg_list_t *args, int check )
 {
-    int hres = 0;
-    /* Check for number of arguments*/
-    if ( argc != 5 ) {
-        USAGE("TRMM", "alpha M N LDA LDB",
-              "   - alpha  : alpha coefficient\n"
-              "   - M      : number of rows of matrices B\n"
-              "   - N      : number of columns of matrices B\n"
-              "   - LDA    : leading dimension of matrix A\n"
-              "   - LDB    : leading dimension of matrix B\n");
-        return -1;
+    static int   run_id = 0;
+    int          Bm, Bn;
+    int          hres = 0;
+    CHAM_desc_t *descA, *descB, *descBinit;
+
+    /* Reads arguments */
+    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   P     = parameters_getvalue_int( "P" );
+    cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_side_t           side  = run_arg_get_uplo( args, "side", ChamLeft );
+    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    cham_diag_t           diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int                   N     = run_arg_get_int( args, "N", 1000 );
+    int                   K     = run_arg_get_int( args, "K", N );
+    int                   LDA   = run_arg_get_int( args, "LDA", N );
+    int                   LDB   = run_arg_get_int( args, "LDB", N );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    int                   seedA = run_arg_get_int( args, "seedA", random() );
+    int                   seedB = run_arg_get_int( args, "seedB", random() );
+    int                   Q     = parameters_compute_q( P );
+    cham_fixdbl_t t, gflops;
+    cham_fixdbl_t flops = flops_ztrmm( side, N, K );
+
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Calculates the dimensions according to the side */
+    if ( side == ChamLeft ) {
+        Bm = N;
+        Bn = K;
+    }
+    else {
+        Bm = K;
+        Bn = N;
     }
 
-    CHAMELEON_Complex64_t alpha = (CHAMELEON_Complex64_t) atol(argv[0]);
-    int M     = atoi(argv[1]);
-    int N     = atoi(argv[2]);
-    int LDA   = atoi(argv[3]);
-    int LDB   = atoi(argv[4]);
+    /* Creates the matrices */
+    CHAMELEON_Desc_Create(
+        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+    CHAMELEON_Desc_Create(
+        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
 
-    double eps;
-    int info_solution;
-    int s, u, t, d, i;
-    int LDAxM = LDA*max(M,N);
-    int LDBxN = LDB*max(M,N);
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplrnt_Tile( descB, seedB );
 
-    CHAMELEON_Complex64_t *A      = (CHAMELEON_Complex64_t *)malloc(LDAxM*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *B      = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Binit  = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Bfinal = (CHAMELEON_Complex64_t *)malloc(LDBxN*sizeof(CHAMELEON_Complex64_t));
+    /* Calculates the product */
+    START_TIMING( t );
+    hres = CHAMELEON_ztrmm_Tile( side, uplo, trans, diag, alpha, descA, descB );
+    STOP_TIMING( t );
+    gflops = flops * 1.e-9 / t;
+    run_arg_add_fixdbl( args, "time", t );
+    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
-    /* Check if unable to allocate memory */
-    if ( (!A) || (!B) || (!Binit) || (!Bfinal) )
-    {
-        free(A); free(B);
-        free(Binit); free(Bfinal);
-        printf("Out of Memory \n ");
-        return -2;
+    /* Checks the solution */
+    if ( check ) {
+        CHAMELEON_Desc_Create(
+            &descBinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
+        CHAMELEON_zplrnt_Tile( descBinit, seedB );
+
+        hres += check_ztrmm( args, CHECK_TRMM, side, uplo, trans, diag, alpha, descA, descB, descBinit );
+
+        CHAMELEON_Desc_Destroy( &descBinit );
     }
 
-    eps = LAPACKE_dlamch_work('e');
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
 
-    printf("\n");
-    printf("------ TESTS FOR CHAMELEON ZTRMM ROUTINE -------  \n");
-    printf("            Size of the Matrix B : %d by %d\n", M, N);
-    printf("\n");
-    printf(" The matrix A is randomly generated for each test.\n");
-    printf("============\n");
-    printf(" The relative machine precision (eps) is to be %e \n",eps);
-    printf(" Computational tests pass if scaled residuals are less than 10.\n");
-
-    /*----------------------------------------------------------
-     *  TESTING ZTRMM
-     */
-
-    /* Initialize A, B, C */
-    LAPACKE_zlarnv_work(IONE, ISEED, LDAxM, A);
-    LAPACKE_zlarnv_work(IONE, ISEED, LDBxN, B);
-    for(i=0;i<max(M,N);i++)
-      A[LDA*i+i] = A[LDA*i+i] + 2.0;
-
-    for (s=0; s<2; s++) {
-        for (u=0; u<2; u++) {
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            for (t=0; t<3; t++) {
-#else
-            for (t=0; t<2; t++) {
-#endif
-                for (d=0; d<2; d++) {
-
-                    memcpy(Binit,  B, LDBxN*sizeof(CHAMELEON_Complex64_t));
-                    memcpy(Bfinal, B, LDBxN*sizeof(CHAMELEON_Complex64_t));
-
-                    /* CHAMELEON ZTRMM */
-                    CHAMELEON_ztrmm(side[s], uplo[u], trans[t], diag[d],
-                                 M, N, alpha, A, LDA, Bfinal, LDB);
-
-                    /* Check the solution */
-                    info_solution = check_solution(side[s], uplo[u], trans[t], diag[d],
-                                                   M, N, alpha, A, LDA, Binit, Bfinal, LDB);
-
-                    printf("***************************************************\n");
-                    if (info_solution == 0) {
-                        printf(" ---- TESTING ZTRMM (%s, %s, %s, %s) ...... PASSED !\n",
-                               sidestr[s], uplostr[u], transstr[t], diagstr[d]);
-                    }
-                    else {
-                        printf(" ---- TESTING ZTRMM (%s, %s, %s, %s) ... FAILED !\n",
-                               sidestr[s], uplostr[u], transstr[t], diagstr[d]);    hres++;
-                    }
-                    printf("***************************************************\n");
-                }
-            }
-        }
-    }
-
-    free(A); free(B);
-    free(Binit); free(Bfinal);
-
+    run_id++;
     return hres;
 }
 
-/*--------------------------------------------------------------
- * Check the solution
+testing_t   test_ztrmm;
+const char *ztrmm_params[] = { "nb",  "trans", "side",  "uplo",  "diag",  "n", "k",
+                               "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
+const char *ztrmm_output[] = { NULL };
+const char *ztrmm_outchk[] = { "RETURN", NULL };
+
+/**
+ * @brief Testing registration function
  */
-static int check_solution(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
-                          int M, int N, CHAMELEON_Complex64_t alpha,
-                          CHAMELEON_Complex64_t *A, int LDA,
-                          CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB)
+void testing_ztrmm_init( void ) __attribute__( ( constructor ) );
+void
+testing_ztrmm_init( void )
 {
-    int info_solution;
-    double Anorm, Binitnorm, Bchamnorm, Blapacknorm, Rnorm, result;
-    double eps;
-    CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
+    test_ztrmm.name        = "ztrmm";
+    test_ztrmm.helper      = "Triangular matrix-matrix multiply";
+    test_ztrmm.params      = ztrmm_params;
+    test_ztrmm.output      = ztrmm_output;
+    test_ztrmm.outchk      = ztrmm_outchk;
+    test_ztrmm.params_list = "nb;P;trans;side;uplo;diag;n;k;lda;ldb;alpha;seedA;seedB";
+    test_ztrmm.fptr        = testing_ztrmm;
+    test_ztrmm.next        = NULL;
 
-    double *work = (double *)malloc(max(M, N)* sizeof(double));
-    int Am, An;
-
-    if (side == ChamLeft) {
-        Am = M; An = M;
-    } else {
-        Am = N; An = N;
-    }
-
-    Anorm       = LAPACKE_zlantr_work(LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), chameleon_lapack_const(diag),
-                                Am, An, A, LDA, work);
-    Binitnorm   = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref,    LDB, work);
-    Bchamnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bcham, LDB, work);
-
-    cblas_ztrmm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
-
-    Blapacknorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref, LDB, work);
-
-    cblas_zaxpy(LDB * N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1);
-
-    Rnorm = LAPACKE_zlange_work(LAPACK_COL_MAJOR, 'I', M, N, Bref, LDB, work);
-
-    eps = LAPACKE_dlamch_work('e');
-
-    printf("Rnorm %e, Anorm %e, Binitnorm %e, Bchamnorm %e, Blapacknorm %e\n",
-           Rnorm, Anorm, Binitnorm, Bchamnorm, Blapacknorm);
-
-    result = Rnorm / ((Anorm + Blapacknorm) * max(M,N) * eps);
-
-    printf("============\n");
-    printf("Checking the norm of the difference against reference ZTRMM \n");
-    printf("-- ||Ccham - Clapack||_oo/((||A||_oo+||B||_oo).N.eps) = %e \n", result);
-
-    if ( isinf(Blapacknorm) || isinf(Bchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-        printf("-- The solution is suspicious ! \n");
-        info_solution = 1;
-    }
-    else {
-        printf("-- The solution is CORRECT ! \n");
-        info_solution= 0 ;
-    }
-    free(work);
-
-    return info_solution;
+    testing_register( &test_ztrmm );
 }

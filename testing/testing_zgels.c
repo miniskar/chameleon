@@ -2,510 +2,150 @@
  *
  * @file testing_zgels.c
  *
- * @copyright 2009-2014 The University of Tennessee and The University of
- *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgels testing
  *
- * @version 0.9.2
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
- * @author Bilel Hadri
- * @author Hatem Ltaief
- * @author Mathieu Faverge
- * @author Emmanuel Agullo
- * @author Cedric Castagnede
+ * @version 1.0.0
  * @author Lucas Barros de Assis
- * @date 2014-11-16
+ * @date 2020-03-03
  * @precisions normal z -> c d s
  *
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include <chameleon.h>
-#include <coreblas/cblas.h>
-#include <coreblas/lapacke.h>
-#include <coreblas.h>
-#include "testing_zauxiliary.h"
+#include "testings.h"
+#include "testing_zcheck.h"
+#include "flops.h"
+#include "../control/common.h"
 
-static int check_orthogonality(int, int, int, CHAMELEON_Complex64_t*, double);
-static int check_factorization(int, int, CHAMELEON_Complex64_t*, CHAMELEON_Complex64_t*, int, CHAMELEON_Complex64_t*, double);
-static int check_solution(int, int, int, CHAMELEON_Complex64_t*, int, CHAMELEON_Complex64_t*, CHAMELEON_Complex64_t*, int, double);
-
-int testing_zgels(int argc, char **argv)
+static cham_fixdbl_t
+flops_zgels( cham_trans_t trans, int M, int N, int NRHS )
 {
-    int hres = 0;
-    int mode = 0;
+    cham_fixdbl_t flops = 0.;
+    return flops;
+}
 
-    if ( argc < 1 ){
-        goto usage;
-    } else {
-        mode = atoi(argv[0]);
-    }
+int
+testing_zgels( run_arg_list_t *args, int check )
+{
+    static int   run_id = 0;
+    int          hres   = 0;
+    CHAM_desc_t *descA, *descX, *descT;
 
-    /* Check for number of arguments*/
-    if ( ((mode == 0) && (argc != 6)) ||
-         ((mode != 0) && (argc != 7)) ){
-      usage:
-        USAGE("GELS", "MODE M N LDA NRHS LDB [RH]",
-              "   - MODE : 0: flat, 1: tree (RH needed)\n"
-              "   - M    : number of rows of the matrix A\n"
-              "   - N    : number of columns of the matrix A\n"
-              "   - LDA  : leading dimension of the matrix A\n"
-              "   - NRHS : number of RHS\n"
-              "   - LDB  : leading dimension of the matrix B\n"
-              "   - RH   : Size of each subdomains\n");
-        return -1;
-    }
+    /* Reads arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    int          ib    = run_arg_get_int( args, "ib", 48 );
+    int          P     = parameters_getvalue_int( "P" );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          M     = run_arg_get_int( args, "M", N );
+    int          maxMN = chameleon_max( M, N );
+    int          NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int          LDA   = run_arg_get_int( args, "LDA", M );
+    int          LDB   = run_arg_get_int( args, "LDB", maxMN );
+    int          RH    = run_arg_get_int( args, "qra", 4 );
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedB = run_arg_get_int( args, "seedB", random() );
+    int          Q     = parameters_compute_q( P );
+    cham_fixdbl_t t, gflops;
+    cham_fixdbl_t flops = flops_zgels( trans, M, N, NRHS );
 
-    int M     = atoi(argv[1]);
-    int N     = atoi(argv[2]);
-    int LDA   = max( atoi(argv[3]), M );
-    int NRHS  = atoi(argv[4]);
-    int LDB   = max( max( atoi(argv[5]), M ), N );
-    int rh;
+    /* Make sure trans is only Notrans or ConjTrans */
+    trans = ( trans == ChamNoTrans ) ? trans : ChamConjTrans;
 
-    int K = min(M, N);
-    double eps;
-    int info_ortho, info_solution, info_factorization;
-    int i,j;
-    int LDAxN = LDA*N;
-    int LDBxNRHS = LDB*NRHS;
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
 
-    CHAMELEON_Complex64_t *A1 = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *A2 = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *B1 = (CHAMELEON_Complex64_t *)malloc(LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *B2 = (CHAMELEON_Complex64_t *)malloc(LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Q  = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
-    CHAM_desc_t *T;
-
-    /* Check if unable to allocate memory */
-    if ( (!A1) || (!A2) || (!B1) || (!B2) || (!Q) )
-    {
-        free(A1); free(A2);
-        free(B1); free(B2);
-        free(Q);
-        printf("Out of Memory \n ");
-        return -2;
-    }
-
-    if ( mode ) {
-        rh = atoi(argv[6]);
-
-        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder);
-        CHAMELEON_Set(CHAMELEON_HOUSEHOLDER_SIZE, rh);
-    }
-
-    CHAMELEON_Alloc_Workspace_zgels(M, N, &T, 1, 1);
-    eps = LAPACKE_dlamch_work('e');
-
-    /*----------------------------------------------------------
-    *  TESTING ZGELS
-    */
-
-    /* Initialize A1 and A2 */
-    LAPACKE_zlarnv_work(IONE, ISEED, LDAxN, A1);
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, 'A', M, N, A1, LDA, A2, LDA );
-
-    /* Initialize B1 and B2 */
-    memset(B2, 0, LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
-    LAPACKE_zlarnv_work(IONE, ISEED, LDBxNRHS, B1);
-    LAPACKE_zlacpy_work(LAPACK_COL_MAJOR, 'A', M, NRHS, B1, LDB, B2, LDB );
-
-    /* CHAMELEON ZGELS */
-    CHAMELEON_zgels(ChamNoTrans, M, N, NRHS, A2, LDA, T, B2, LDB);
-
-    /* CHAMELEON ZGELS */
-    if (M >= N)
-       /* Building the economy-size Q */
-       CHAMELEON_zungqr(M, N, K, A2, LDA, T, Q, LDA);
-    else
-       /* Building the economy-size Q */
-       CHAMELEON_zunglq(M, N, K, A2, LDA, T, Q, LDA);
-
-    printf("\n");
-    printf("------ TESTS FOR CHAMELEON ZGELS ROUTINE -------  \n");
-    printf("            Size of the Matrix %d by %d\n", M, N);
-    printf("\n");
-    printf(" The matrix A is randomly generated for each test.\n");
-    printf("============\n");
-    printf(" The relative machine precision (eps) is to be %e \n",eps);
-    printf(" Computational tests pass if scaled residuals are less than 60.\n");
-
-    /* Check the orthogonality, factorization and the solution */
-    info_ortho = check_orthogonality(M, N, LDA, Q, eps);
-    info_factorization = check_factorization(M, N, A1, A2, LDA, Q, eps);
-    info_solution = check_solution(M, N, NRHS, A1, LDA, B1, B2, LDB, eps);
-
-    if ((info_solution == 0)&(info_factorization == 0)&(info_ortho == 0)) {
-        printf("***************************************************\n");
-        printf(" ---- TESTING ZGELS ...................... PASSED !\n");
-        printf("***************************************************\n");
+    if ( RH > 0 ) {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder );
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_SIZE, RH );
     }
     else {
-        hres++;
-        printf("************************************************\n");
-        printf(" - TESTING ZGELS ... FAILED !\n");
-        printf("************************************************\n");
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder );
     }
 
-    /*-------------------------------------------------------------
-    *  TESTING ZGEQRF + ZGEQRS or ZGELQF + ZGELQS
-    */
+    /* Creates the matrices */
+    CHAMELEON_Desc_Create(
+        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+    CHAMELEON_Desc_Create(
+        &descX, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
 
-    /* Initialize A1 and A2 */
-    LAPACKE_zlarnv_work(IONE, ISEED, LDAxN, A1);
-    for (i = 0; i < M; i++)
-        for (j = 0; j < N; j++)
-            A2[LDA*j+i] = A1[LDA*j+i];
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplrnt_Tile( descX, seedB );
 
-    /* Initialize B1 and B2 */
-    memset(B2, 0, LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
-    LAPACKE_zlarnv_work(IONE, ISEED, LDBxNRHS, B1);
-    for (i = 0; i < M; i++)
-        for (j = 0; j < NRHS; j++)
-             B2[LDB*j+i] = B1[LDB*j+i];
+    /* Computes the solution */
+    START_TIMING( t );
+    hres = CHAMELEON_zgels_Tile( trans, descA, descT, descX );
+    STOP_TIMING( t );
+    gflops = flops * 1.e-9 / t;
+    run_arg_add_fixdbl( args, "time", t );
+    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
 
-    if (M >= N) {
-        printf("\n");
-        printf("------ TESTS FOR CHAMELEON ZGEQRF + ZGEQRS ROUTINE -------  \n");
-        printf("            Size of the Matrix %d by %d\n", M, N);
-        printf("\n");
-        printf(" The matrix A is randomly generated for each test.\n");
-        printf("============\n");
-        printf(" The relative machine precision (eps) is to be %e \n", eps);
-        printf(" Computational tests pass if scaled residuals are less than 60.\n");
+    if ( check ) {
+        CHAM_desc_t *descA0, *descB;
+        CHAM_desc_t *subX, *subB;
 
-        /* Cham routines */
-        CHAMELEON_zgeqrf(M, N, A2, LDA, T);
-        CHAMELEON_zungqr(M, N, K, A2, LDA, T, Q, LDA);
-        CHAMELEON_zgeqrs(M, N, NRHS, A2, LDA, T, B2, LDB);
+        CHAMELEON_Desc_Create(
+            &descA0, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        CHAMELEON_Desc_Create(
+            &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
 
-        /* Check the orthogonality, factorization and the solution */
-        info_ortho = check_orthogonality(M, N, LDA, Q, eps);
-        info_factorization = check_factorization(M, N, A1, A2, LDA, Q, eps);
-        info_solution = check_solution(M, N, NRHS, A1, LDA, B1, B2, LDB, eps);
+        CHAMELEON_zplrnt_Tile( descA0, seedA );
+        CHAMELEON_zplrnt_Tile( descB, seedB );
 
-        if ((info_solution == 0)&(info_factorization == 0)&(info_ortho == 0)) {
-            printf("***************************************************\n");
-            printf(" ---- TESTING ZGEQRF + ZGEQRS ............ PASSED !\n");
-            printf("***************************************************\n");
-        }
-        else{
-            hres++;
-            printf("***************************************************\n");
-            printf(" - TESTING ZGEQRF + ZGEQRS ... FAILED !\n");
-            printf("***************************************************\n");
-        }
-    }
-    else  {
-        printf("\n");
-        printf("------ TESTS FOR CHAMELEON ZGELQF + ZGELQS ROUTINE -------  \n");
-        printf("            Size of the Matrix %d by %d\n", M, N);
-        printf("\n");
-        printf(" The matrix A is randomly generated for each test.\n");
-        printf("============\n");
-        printf(" The relative machine precision (eps) is to be %e \n", eps);
-        printf(" Computational tests pass if scaled residuals are less than 60.\n");
-
-        /* Cham routines */
-        CHAMELEON_zgelqf(M, N, A2, LDA, T);
-        CHAMELEON_zunglq(M, N, K, A2, LDA, T, Q, LDA);
-        CHAMELEON_zgelqs(M, N, NRHS, A2, LDA, T, B2, LDB);
-
-       /* Check the orthogonality, factorization and the solution */
-       info_ortho = check_orthogonality(M, N, LDA, Q, eps);
-       info_factorization = check_factorization(M, N, A1, A2, LDA, Q, eps);
-       info_solution = check_solution(M, N, NRHS, A1, LDA, B1, B2, LDB, eps);
-
-       if ( (info_solution == 0) & (info_factorization == 0) & (info_ortho == 0) ) {
-           printf("***************************************************\n");
-           printf(" ---- TESTING ZGELQF + ZGELQS ............ PASSED !\n");
-           printf("***************************************************\n");
-       }
-       else {
-           hres++;
-           printf("***************************************************\n");
-           printf(" - TESTING ZGELQF + ZGELQS ... FAILED !\n");
-           printf("***************************************************\n");
-       }
-    }
-
-    /*----------------------------------------------------------
-    *  TESTING ZGEQRF + ZORMQR + ZTRSM
-    */
-
-    /* Initialize A1 and A2 */
-    LAPACKE_zlarnv_work(IONE, ISEED, LDAxN, A1);
-    for (i = 0; i < M; i++)
-        for (j = 0; j < N; j++)
-            A2[LDA*j+i] = A1[LDA*j+i];
-
-    /* Initialize B1 and B2 */
-    memset(B2, 0, LDB*NRHS*sizeof(CHAMELEON_Complex64_t));
-    LAPACKE_zlarnv_work(IONE, ISEED, LDBxNRHS, B1);
-    for (i = 0; i < M; i++)
-        for (j = 0; j < NRHS; j++)
-            B2[LDB*j+i] = B1[LDB*j+i];
-
-    /* CHAMELEON ZGEQRF+ ZUNMQR + ZTRSM */
-    memset((void*)Q, 0, LDA*N*sizeof(CHAMELEON_Complex64_t));
-    for (i = 0; i < K; i++)
-        Q[LDA*i+i] = 1.0;
-
-    if (M >= N) {
-        printf("\n");
-        printf("------ TESTS FOR CHAMELEON ZGEQRF + ZUNMQR + ZTRSM  ROUTINE -------  \n");
-        printf("            Size of the Matrix %d by %d\n", M, N);
-        printf("\n");
-        printf(" The matrix A is randomly generated for each test.\n");
-        printf("============\n");
-        printf(" The relative machine precision (eps) is to be %e \n",eps);
-        printf(" Computational tests pass if scaled residuals are less than 60.\n");
-
-        CHAMELEON_zgeqrf(M, N, A2, LDA, T);
-        CHAMELEON_zungqr(M, N, K, A2, LDA, T, Q, LDA);
-        CHAMELEON_zunmqr(ChamLeft, ChamConjTrans, M, NRHS, N, A2, LDA, T, B2, LDB);
-        CHAMELEON_ztrsm(ChamLeft, ChamUpper, ChamNoTrans, ChamNonUnit, N, NRHS, 1.0, A2, LDA, B2, LDB);
-    }
-    else {
-        printf("\n");
-        printf("------ TESTS FOR CHAMELEON ZGELQF + ZUNMLQ + ZTRSM  ROUTINE -------  \n");
-        printf("            Size of the Matrix %d by %d\n", M, N);
-        printf("\n");
-        printf(" The matrix A is randomly generated for each test.\n");
-        printf("============\n");
-        printf(" The relative machine precision (eps) is to be %e \n",eps);
-        printf(" Computational tests pass if scaled residuals are less than 60.\n");
-
-        CHAMELEON_zgelqf(M, N, A2, LDA, T);
-        CHAMELEON_ztrsm(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, M, NRHS, 1.0, A2, LDA, B2, LDB);
-        CHAMELEON_zunglq(M, N, K, A2, LDA, T, Q, LDA);
-        CHAMELEON_zunmlq(ChamLeft, ChamConjTrans, N, NRHS, M, A2, LDA, T, B2, LDB);
-    }
-
-    /* Check the orthogonality, factorization and the solution */
-    info_ortho = check_orthogonality(M, N, LDA, Q, eps);
-    info_factorization = check_factorization(M, N, A1, A2, LDA, Q, eps);
-    info_solution = check_solution(M, N, NRHS, A1, LDA, B1, B2, LDB, eps);
-
-    if ( (info_solution == 0) & (info_factorization == 0) & (info_ortho == 0) ) {
-        if (M >= N) {
-            printf("***************************************************\n");
-            printf(" ---- TESTING ZGEQRF + ZUNMQR + ZTRSM .... PASSED !\n");
-            printf("***************************************************\n");
+        if ( trans == ChamNoTrans ) {
+            subX = chameleon_desc_submatrix( descX, 0, 0, N, NRHS );
+            subB = chameleon_desc_submatrix( descB, 0, 0, M, NRHS );
         }
         else {
-            printf("***************************************************\n");
-            printf(" ---- TESTING ZGELQF + ZTRSM + ZUNMLQ .... PASSED !\n");
-            printf("***************************************************\n");
+            subX = chameleon_desc_submatrix( descX, 0, 0, M, NRHS );
+            subB = chameleon_desc_submatrix( descB, 0, 0, N, NRHS );
         }
-    }
-    else {
-        hres++;
 
-        if (M >= N) {
-            printf("***************************************************\n");
-            printf(" - TESTING ZGEQRF + ZUNMQR + ZTRSM ... FAILED !\n");
-            printf("***************************************************\n");
-        }
-        else {
-            printf("***************************************************\n");
-            printf(" - TESTING ZGELQF + ZTRSM + ZUNMLQ ... FAILED !\n");
-            printf("***************************************************\n");
-        }
+        /* Check the factorization and the residual */
+        hres = check_zgels( args, trans, descA0, subX, subB );
+
+        CHAMELEON_Desc_Destroy( &descA0 );
+        CHAMELEON_Desc_Destroy( &descB );
+
+        free( subB );
+        free( subX );
     }
 
-    free(A1); free(A2); free(B1); free(B2); free(Q);
-    CHAMELEON_Dealloc_Workspace( &T );
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descT );
+    CHAMELEON_Desc_Destroy( &descX );
 
+    run_id++;
     return hres;
 }
 
-/*-------------------------------------------------------------------
- * Check the orthogonality of Q
+testing_t   test_zgels;
+const char *zgels_params[] = { "nb",  "ib",  "trans", "m",     "n",     "k",
+                               "lda", "ldb", "qra",    "seedA", "seedB", NULL };
+const char *zgels_output[] = { NULL };
+const char *zgels_outchk[] = { "RETURN", NULL };
+
+/**
+ * @brief Testing registration function
  */
-
-static int check_orthogonality(int M, int N, int LDQ, CHAMELEON_Complex64_t *Q, double eps)
+void testing_zgels_init( void ) __attribute__( ( constructor ) );
+void
+testing_zgels_init( void )
 {
-    double alpha, beta;
-    double normQ;
-    int info_ortho;
-    int i;
-    int minMN = min(M, N);
+    test_zgels.name        = "zgels";
+    test_zgels.helper      = "Linear least squares with general matrix";
+    test_zgels.params      = zgels_params;
+    test_zgels.output      = zgels_output;
+    test_zgels.outchk      = zgels_outchk;
+    test_zgels.params_list = "nb;ib;P;trans;m;n;k;lda;ldb;rh;seedA;seedB";
+    test_zgels.fptr        = testing_zgels;
+    test_zgels.next        = NULL;
 
-    double *work = (double *)malloc(minMN*sizeof(double));
-
-    alpha = 1.0;
-    beta  = -1.0;
-
-    /* Build the idendity matrix USE DLASET?*/
-    CHAMELEON_Complex64_t *Id = (CHAMELEON_Complex64_t *) malloc(minMN*minMN*sizeof(CHAMELEON_Complex64_t));
-    memset((void*)Id, 0, minMN*minMN*sizeof(CHAMELEON_Complex64_t));
-    for (i = 0; i < minMN; i++) {
-        Id[i*minMN+i] = (CHAMELEON_Complex64_t)1.0;
-    }
-
-    /* Perform Id - Q'Q */
-    if (M >= N) {
-        cblas_zherk(CblasColMajor, CblasUpper, CblasConjTrans, N, M, alpha, Q, LDQ, beta, Id, N);
-    }
-    else {
-        cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans, M, N, alpha, Q, LDQ, beta, Id, M);
-    }
-    normQ = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'i', 'u', minMN, Id, minMN, work );
-
-    printf("============\n");
-    printf("Checking the orthogonality of Q \n");
-    printf("||Id-Q'*Q||_oo / (N*eps) = %e \n", normQ/(minMN*eps));
-
-    if ( isnan(normQ / (minMN * eps)) || isinf(normQ / (minMN * eps)) || (normQ / (minMN * eps) > 60.0) ) {
-        printf("-- Orthogonality is suspicious ! \n");
-        info_ortho=1;
-    }
-    else {
-        printf("-- Orthogonality is CORRECT ! \n");
-        info_ortho=0;
-    }
-
-    free(work); free(Id);
-
-    return info_ortho;
-}
-
-/*------------------------------------------------------------
- *  Check the factorization QR
- */
-
-static int check_factorization(int M, int N, CHAMELEON_Complex64_t *A1, CHAMELEON_Complex64_t *A2, int LDA, CHAMELEON_Complex64_t *Q, double eps )
-{
-    double Anorm, Rnorm;
-    CHAMELEON_Complex64_t alpha, beta;
-    int info_factorization;
-    int i,j;
-
-    CHAMELEON_Complex64_t *Ql       = (CHAMELEON_Complex64_t *)malloc(M*N*sizeof(CHAMELEON_Complex64_t));
-    CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(M*N*sizeof(CHAMELEON_Complex64_t));
-    double *work              = (double *)malloc(max(M,N)*sizeof(double));
-
-    alpha=1.0;
-    beta=0.0;
-
-    if (M >= N) {
-        /* Extract the R */
-        CHAMELEON_Complex64_t *R = (CHAMELEON_Complex64_t *)malloc(N*N*sizeof(CHAMELEON_Complex64_t));
-        memset((void*)R, 0, N*N*sizeof(CHAMELEON_Complex64_t));
-        LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,'u', M, N, A2, LDA, R, N);
-
-        /* Perform Ql=Q*R */
-        memset((void*)Ql, 0, M*N*sizeof(CHAMELEON_Complex64_t));
-        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, N, N, CBLAS_SADDR(alpha), Q, LDA, R, N, CBLAS_SADDR(beta), Ql, M);
-        free(R);
-    }
-    else {
-        /* Extract the L */
-        CHAMELEON_Complex64_t *L = (CHAMELEON_Complex64_t *)malloc(M*M*sizeof(CHAMELEON_Complex64_t));
-        memset((void*)L, 0, M*M*sizeof(CHAMELEON_Complex64_t));
-        LAPACKE_zlacpy_work(LAPACK_COL_MAJOR,'l', M, N, A2, LDA, L, M);
-
-    /* Perform Ql=LQ */
-        memset((void*)Ql, 0, M*N*sizeof(CHAMELEON_Complex64_t));
-        cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, N, M, CBLAS_SADDR(alpha), L, M, Q, LDA, CBLAS_SADDR(beta), Ql, M);
-        free(L);
-    }
-
-    /* Compute the Residual */
-    for (i = 0; i < M; i++)
-        for (j = 0 ; j < N; j++)
-            Residual[j*M+i] = A1[j*LDA+i]-Ql[j*M+i];
-
-    Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, N, Residual, M, work );
-    Anorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, N, A2, LDA, work );
-
-    if (M >= N) {
-        printf("============\n");
-        printf("Checking the QR Factorization \n");
-        printf("-- ||A-QR||_oo/(||A||_oo.N.eps) = %e \n",Rnorm/(Anorm*N*eps));
-    }
-    else {
-        printf("============\n");
-        printf("Checking the LQ Factorization \n");
-        printf("-- ||A-LQ||_oo/(||A||_oo.N.eps) = %e \n",Rnorm/(Anorm*N*eps));
-    }
-
-    if (isnan(Rnorm / (Anorm * N *eps)) || isinf(Rnorm / (Anorm * N *eps)) || (Rnorm / (Anorm * N * eps) > 60.0) ) {
-        printf("-- Factorization is suspicious ! \n");
-        info_factorization = 1;
-    }
-    else {
-        printf("-- Factorization is CORRECT ! \n");
-        info_factorization = 0;
-    }
-
-    free(work); free(Ql); free(Residual);
-
-    return info_factorization;
-}
-
-/*--------------------------------------------------------------
- * Check the solution
- */
-
-static int check_solution(int M, int N, int NRHS, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, CHAMELEON_Complex64_t *X, int LDB, double eps)
-{
-    int info_solution;
-    double Rnorm, Anorm, Xnorm, Bnorm;
-    CHAMELEON_Complex64_t alpha, beta;
-    double result;
-    double *work = (double *)malloc(max(M, N)* sizeof(double));
-
-    alpha = 1.0;
-    beta  = -1.0;
-
-    Anorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, N,    A, LDA, work );
-    Bnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', N, NRHS, B, LDB, work );
-    Xnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, X, LDB, work );
-
-    cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, NRHS, N, CBLAS_SADDR(alpha), A, LDA, X, LDB, CBLAS_SADDR(beta), B, LDB);
-
-    if (M >= N) {
-       CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(M*NRHS*sizeof(CHAMELEON_Complex64_t));
-       memset((void*)Residual, 0, M*NRHS*sizeof(CHAMELEON_Complex64_t));
-       cblas_zgemm(CblasColMajor, CblasConjTrans, CblasNoTrans, N, NRHS, M, CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), Residual, M);
-       Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', M, NRHS, Residual, M, work );
-       free(Residual);
-    }
-    else {
-       CHAMELEON_Complex64_t *Residual = (CHAMELEON_Complex64_t *)malloc(N*NRHS*sizeof(CHAMELEON_Complex64_t));
-       memset((void*)Residual, 0, N*NRHS*sizeof(CHAMELEON_Complex64_t));
-       cblas_zgemm(CblasColMajor, CblasConjTrans, CblasNoTrans, N, NRHS, M, CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), Residual, N);
-       Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'i', N, NRHS, Residual, N, work );
-       free(Residual);
-    }
-
-    if (getenv("CHAMELEON_TESTING_VERBOSE"))
-       printf( "||A||_oo=%f\n||X||_oo=%f\n||B||_oo=%f\n||A X - B||_oo=%e\n", Anorm, Xnorm, Bnorm, Rnorm );
-
-    result = Rnorm / ( (Anorm*Xnorm+Bnorm)*N*eps ) ;
-    printf("============\n");
-    printf("Checking the Residual of the solution \n");
-    printf("-- ||Ax-B||_oo/((||A||_oo||x||_oo+||B||_oo).N.eps) = %e \n", result);
-
-    if (  isnan(Xnorm) || isinf(Xnorm) || isnan(result) || isinf(result) || (result > 60.0) ) {
-        printf("-- The solution is suspicious ! \n");
-        info_solution = 1;
-     }
-    else{
-        printf("-- The solution is CORRECT ! \n");
-        info_solution = 0;
-    }
-    free(work);
-    return info_solution;
+    testing_register( &test_zgels );
 }

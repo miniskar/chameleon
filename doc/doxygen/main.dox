@@ -58,7 +58,7 @@ functions to control the overall process, see \ref sec_auxiliary
 @section sec_src_code_structure Libraries and source code organization
 
 Chameleon's project is made of some C libraries and executables whose
-compilation is optional (examples, testing and timing).
+compilation is optional (examples and testing).
 
 The libraries are organized as follows :
 
@@ -116,9 +116,7 @@ algorithms into chameleon's ones
 - __simucore__ : data to be able to simulate chameleon executions
   through StarPU+SimGrid
 
-- __testing__ : source files for testing executables (test features)
-
-- __timing__ : source files for timing executables (test performances)
+- __testing__ : source files for testing executables (timing and numerical checks)
 
 - __tools__ : other scripts for testing (software development quality)
 

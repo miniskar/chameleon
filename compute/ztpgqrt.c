@@ -12,9 +12,9 @@
  *
  * @brief Chameleon ztpgqrt wrappers
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Mathieu Faverge
- * @date 2016-12-21
+ * @date 2020-01-07
  * @precisions normal z -> s d c
  *
  */

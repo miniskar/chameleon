@@ -11,11 +11,11 @@
  *
  * @brief Chameleon StarPU options routines
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
- * @date 2015-05-22
+ * @date 2020-01-07
  *
  */
 #include <stdio.h>

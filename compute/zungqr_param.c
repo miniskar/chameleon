@@ -11,10 +11,10 @@
  *
  * @brief Chameleon zungqr_param wrappers
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2017-05-05
+ * @date 2020-01-07
  * @precisions normal z -> s d c
  *
  */

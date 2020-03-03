@@ -12,122 +12,55 @@
      sub-directory ~lapack_to_chameleon/~ provides a tutorial that explains
      how to use Chameleon functionalities starting from a full LAPACK
      code, see [[sec:tuto][Tutorial LAPACK to Chameleon]]
-   * *testing*: contains testing drivers to check numerical correctness of
-     Chameleon linear algebra routines with a wide range of parameters
+   * *testing*: contains testing drivers to check numerical
+     correctness and assess performance of Chameleon linear algebra
+     routines with a wide range of parameters
      #+begin_src
-     ./testing/stesting 4 1 LANGE 600 100 700
-     #+end_src
-     Two first arguments are the number of cores and gpus to use.
-     The third one is the name of the algorithm to test.
-     The other arguments depend on the algorithm, here it lies for the number of
-     rows, columns and leading dimension of the problem.
-
-     Name of algorithms available for testing are:
-     * LANGE: norms of matrices Infinite, One, Max, Frobenius
-     * GEMM: general matrix-matrix multiply
-     * HEMM: hermitian matrix-matrix multiply
-     * HERK: hermitian matrix-matrix rank k update
-     * HER2K: hermitian matrix-matrix rank 2k update
-     * SYMM: symmetric matrix-matrix multiply
-     * SYRK: symmetric matrix-matrix rank k update
-     * SYR2K: symmetric matrix-matrix rank 2k update
-     * PEMV: matrix-vector multiply with pentadiagonal matrix
-     * TRMM: triangular matrix-matrix multiply
-     * TRSM: triangular solve, multiple rhs
-     * POSV: solve linear systems with symmetric positive-definite matrix
-     * GESV_INCPIV: solve linear systems with general matrix
-     * GELS: linear least squares with general matrix
-     * GELS_HQR: gels with hierarchical tree
-     * GELS_SYSTOLIC: gels with systolic tree
-   * *timing*: contains timing drivers to assess performances of
-     Chameleon routines. There are two sets of executables, those who
-     do not use the tile interface and those who do (with _tile in the
-     name of the executable). Executables without tile interface
-     allocates data following LAPACK conventions and these data can be
-     given as arguments to Chameleon routines as you would do with
-     LAPACK. Executables with tile interface generate directly the
-     data in the format Chameleon tile algorithms used to submit tasks
-     to the runtime system. Executables with tile interface should be
-     more performant because no data copy from LAPACK matrix layout to
-     tile matrix layout are necessary. Calling example:
-     #+begin_src
-     ./timing/time_dpotrf --n_range=1000:10000:1000 --nb=320
-                          --threads=9 --gpus=3
-                          --nowarmup
+     ./testing/chameleon_stesting -H -o gemm -t 2 -m 2000 -n 2000 -k 2000
      #+end_src
 
-     List of main options that can be used in timing:
-     * ~--help~: Show usage
-     * Machine parameters
-       * ~-t x, --threads=x~: Number of CPU workers (default: automatic
-         detection through runtime)
-       * ~-g x, --gpus=x~: Number of GPU workers (default: ~0~)
-       * ~-P x, --P=x~: Rows (P) in the PxQ process grid (default: ~1~)
-       * ~--nocpu~: All GPU kernels are exclusively executed on GPUs
-     * Matrix parameters
-       * ~-m x, --m=X, --M=x~: Dimension (M) of the matrices (default:
-         ~N~)
-       * ~-n x, --n=X, --N=x~: Dimension (N) of the matrices
-       * ~-N R, --n_range=R~: Range of N values to time with
-         ~R=Start:Stop:Step~ (default: ~500:5000:500~)
-       * ~-k x, --k=x, --K=x, --nrhs=x~: Dimension (K) of the matrices
-         or number of right-hand size (default: ~1~). This is useful for
-         GEMM algorithms (k is the shared dimension and must be defined
-         >1 to consider matrices and not vectors)
-       * ~-b x, --nb=x~: NB size. (default: ~320~)
-       * ~-i x, --ib=x~: IB size. (default: ~32~)
-     * Check/prints
-       * ~--niter=X~: Number of iterations performed for each test
-         (default: ~1~)
-       * ~-W, --nowarning~: Do not show warnings
-       * ~-w, --nowarmup~: Cancel the warmup run to pre-load libraries
-       * ~-c, --check~: Check result
-       * ~-C, --inc~: Check on inverse
-       * ~--mode=x~ : Change the xLATMS matrix mode generation for
-         SVD/EVD (default: ~4~). It must be between 0 and 20 included.
-     * Profiling parameters
-       * ~-T, --trace~: Enable trace generation
-       * ~--progress~: Display progress indicator
-       * ~-d, --dag~: Enable DAG generation. Generates a dot_dag_file.dot.
-       * ~-p, --profile~: Print profiling informations
-     * HQR parameters
-       * ~-a x, --qr_a=x, --rhblk=x~: Define the size of the local TS
-         trees in housholder reduction trees for QR and LQ
-         factorization. N is the size of each subdomain (default: ~-1~)
-       * ~-l x, --llvl=x~: Tree used for low level reduction inside
-         nodes (default: ~-1~)
-       * ~-L x, --hlvl=x~: Tree used for high level reduction between
-         nodes, only if P > 1 (default: ~-1~). Possible values are -1:
-         Automatic, 0: Flat, 1: Greedy, 2: Fibonacci, 3: Binary, 4:
-         Replicated greedy.
-       * ~-D, --domino~: Enable the domino between upper and lower trees
-     * Advanced options
-       * ~--nobigmat~: Disable single large matrix allocation for
-         multiple tiled allocations
-       * ~-s, --sync~: Enable synchronous calls in wrapper function such
-         as POTRI
-       * ~-o, --ooc~: Enable out-of-core (available only with StarPU)
-       * ~-G, --gemm3m~: Use gemm3m complex method
-       * ~--bound~: Compare result to area bound
+     To get the list of parameters, use the ~-h~ or ~--help~ option.
+     #+begin_src
+     ./testing/chameleon_stesting -h
+     #+end_src
 
-     List of timing algorithms available:
-     * LANGE: norms of matrices
-     * GEMM: general matrix-matrix multiply
-     * TRSM: triangular solve
-     * POTRF: Cholesky factorization with a symmetric
-       positive-definite matrix
-     * POTRI: Cholesky inversion
-     * POSV: solve linear systems with symmetric positive-definite matrix
-     * GETRF_NOPIV: LU factorization of a general matrix using the tile LU algorithm without row pivoting
-     * GESV_NOPIV: solve linear system for a general matrix using the tile LU algorithm without row pivoting
-     * GETRF_INCPIV: LU factorization of a general matrix using the tile LU algorithm with partial tile pivoting with row interchanges
-     * GESV_INCPIV: solve linear system for a general matrix using the tile LU algorithm with partial tile pivoting with row interchanges matrix
-     * GEQRF: QR factorization of a general matrix
-     * GELQF: LQ factorization of a general matrix
-     * QEQRF_HQR: GEQRF with hierarchical tree
-     * QEQRS: solve linear systems using a QR factorization
-     * GELS: solves overdetermined or underdetermined linear systems involving a general matrix using the QR or the LQ factorization
-     * GESVD: general matrix singular value decomposition
+     Available algorithms for testing are:
+     * gels_hqr:  Linear least squares with general matrix using hierarchical reduction trees
+     * ormlq_hqr: Q application with hierarchical reduction trees (LQ)
+     * orglq_hqr: Q generation with hierarchical reduction trees (LQ)
+     * gelqf_hqr: General LQ factorization with hierachical reduction trees
+     * ormqr_hqr: Q application with hierarchical reduction trees (QR)
+     * orgqr_hqr: Q generation with hierarchical reduction trees (QR)
+     * geqrf_hqr: General QR factorization with hierachical reduction trees
+     * gels:      Linear least squares with general matrix
+     * ormlq:     Q application (LQ)
+     * orglq:     Q generation (LQ)
+     * gelqf:     General LQ factorization
+     * ormqr:     Q application (QR)
+     * orgqr:     Q generation (QR)
+     * geqrf:     General QR factorization
+     * gesv:      General linear system solve (LU without pivoting)
+     * getrs:     General triangular solve (LU without pivoting)
+     * getrf:     General factorization (LU without pivoting)
+     * potri:     Symmetric positive definite matrix inversion
+     * lauum:     Trianguilar in-place matrix-matrix computation for Cholesky inversion
+     * trtri:     Triangular matrix inversion
+     * posv:      Symmetric positive definite linear system solve (Cholesky)
+     * potrs:     Symmetric positive definite solve (Cholesky)
+     * potrf:     Symmetric positive definite factorization (Cholesky)
+     * trsm:      Triangular matrix solve
+     * trmm:      Triangular matrix-matrix multiply
+     * syr2k:     Symmetrix matrix-matrix rank 2k update
+     * syrk:      Symmetrix matrix-matrix rank k update
+     * symm:      Symmetric matrix-matrix multiply
+     * gemm:      General matrix-matrix multiply
+     * lascal:    General matrix scaling
+     * tradd:     Triangular matrix-matrix addition
+     * geadd:     General matrix-matrix addition
+     * lantr:     Triangular matrix norm
+     * lansy:     Symmetric matrix norm
+     * lange:     General matrix norm
+     * lacpy:     General matrix copy
 
 *** Execution trace using EZTrace
     <<sec:trace_ezt>>
@@ -181,8 +114,8 @@
     To generate the traces, you need to run your binary through
     eztrace:
     #+begin_src
-    eztrace ./dnew-testing -o gemm -n 1000 -b 200
-    mpirun -np 4 eztrace ./dnew-testing -o gemm -n 1000 -b 200 -P 2
+    eztrace ./chameleon_dtesting -o gemm -n 1000 -b 200
+    mpirun -np 4 eztrace ./chameleon_dtesting -o gemm -n 1000 -b 200 -P 2
     #+end_src
 
     Convert the binary files into a ~.trace~ file, and visualize it.
@@ -206,7 +139,7 @@
     #+begin_example
     export STARPU_FXT_PREFIX=/home/jdoe/fxt_files/
     #+end_example
-    When executing a ~./timing/...~ Chameleon program, if it has been
+    When executing a ~./testing/...~ Chameleon program, if it has been
     enabled (StarPU compiled with FxT), the program will generate
     trace files in the directory $STARPU_FXT_PREFIX.
 

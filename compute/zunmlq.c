@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zunmlq wrappers
  *
- * @version 0.9.2
+ * @version 1.0.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
@@ -20,7 +20,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2014-11-16
+ * @date 2020-01-07
  * @precisions normal z -> s d c
  *
  */
