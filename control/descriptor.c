@@ -761,7 +761,7 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
  */
 CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
 {
-    CHAM_desc_t *descout;
+    CHAM_desc_t *descout = NULL;
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, descin->p, descin->q,
@@ -796,7 +796,7 @@ CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
  */
 CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat )
 {
-    CHAM_desc_t *descout;
+    CHAM_desc_t *descout = NULL;
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, 1, 1,
