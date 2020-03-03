@@ -803,7 +803,7 @@ run_print_header( const testing_t *test,
 
     /* Specific check output */
     if ( check ) {
-        str_ptr = run_print_header_partial( test->outchk, human, str_ptr );
+        run_print_header_partial( test->outchk, human, str_ptr );
     }
     fprintf( stdout, "%s\n", str );
     return;
@@ -923,7 +923,7 @@ run_print_line( const testing_t *test, const run_arg_list_t *arglist,
 
     /* Specific check output */
     if ( check ) {
-        str_ptr = run_print_line_partial( test->outchk, arglist, human, str_ptr );
+        run_print_line_partial( test->outchk, arglist, human, str_ptr );
     }
 
     fprintf( stdout, "%s\n", str );
