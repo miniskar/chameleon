@@ -43,10 +43,10 @@ then
 fi
 if [ $MPI = "openmpi" ]
 then
-  export MPI_OPTIONS=""
+  export MPI_OPTIONS="--map-by ppr:1:node:pe=36"
   if [ $NODE = "miriel" ]
   then
-    export MPI_OPTIONS="--mca mtl psm"
+    export MPI_OPTIONS="--mca mtl psm --map-by ppr:1:node:pe=24"
   fi
   GUIX_ENV_MPI=""
   GUIX_ADHOC_MPI="openssh openmpi"
