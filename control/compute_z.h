@@ -67,6 +67,7 @@ void chameleon_pzlauum(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *seq
 void chameleon_pzplghe(double bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pzplgsy(CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pzplrnt(CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pzplrnk(int K, CHAM_desc_t *C, unsigned long long int seedA, unsigned long long int seedB, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzpotrimm(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzshift(int, int, int, CHAMELEON_Complex64_t *, int *, int, int, int, RUNTIME_sequence_t*, RUNTIME_request_t*);

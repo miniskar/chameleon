@@ -1,0 +1,22 @@
+# You can enumerate each parameter's values as an explicit list separated by commas or by a range start:end[:step]
+# Not given parameters will receive default values
+
+# PLRNK
+# nb: Tile size
+# ib: Inner tile size
+# M: Number of rows of matrix  C
+# N: Number of columns of matrix C
+# K: Rank of matrix C
+# LDC: Leading dimension of matrix C
+# seedA: seed used to generate random matrix A
+# seedB: seed used to generate random matrix B
+
+op = plrnk
+nb = 16
+ib = 8
+m = 37
+n = 23
+k = 11
+ldc = 41
+seedA = 1
+seedB = 2

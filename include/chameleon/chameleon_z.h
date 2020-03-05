@@ -75,6 +75,7 @@ int CHAMELEON_zlauum(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA)
 int CHAMELEON_zplghe( double bump, cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, unsigned long long int seed );
 int CHAMELEON_zplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA, unsigned long long int seed );
 int CHAMELEON_zplrnt( int M, int N, CHAMELEON_Complex64_t *A, int LDA, unsigned long long int seed );
+int CHAMELEON_zplrnk( int M, int N, int K, CHAMELEON_Complex64_t *C, int LDC, unsigned long long int seedA, unsigned long long int seedB );
 int CHAMELEON_zposv(cham_uplo_t uplo, int N, int NRHS, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, int LDB);
 int CHAMELEON_zpotrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA);
 int CHAMELEON_zsytrf(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA);
@@ -148,6 +149,7 @@ int CHAMELEON_zlauum_Tile(cham_uplo_t uplo, CHAM_desc_t *A);
 int CHAMELEON_zplghe_Tile(double bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed );
 int CHAMELEON_zplgsy_Tile(CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed );
 int CHAMELEON_zplrnt_Tile(CHAM_desc_t *A, unsigned long long int seed );
+int CHAMELEON_zplrnk_Tile(int K, CHAM_desc_t *C, unsigned long long int seedA, unsigned long long int seedB );
 int CHAMELEON_zposv_Tile(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B);
 int CHAMELEON_zpotrf_Tile(cham_uplo_t uplo, CHAM_desc_t *A);
 int CHAMELEON_zsytrf_Tile(cham_uplo_t uplo, CHAM_desc_t *A);
@@ -218,6 +220,7 @@ int CHAMELEON_zlauum_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequen
 int CHAMELEON_zplghe_Tile_Async(double bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 int CHAMELEON_zplgsy_Tile_Async(CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 int CHAMELEON_zplrnt_Tile_Async(CHAM_desc_t *A, unsigned long long int seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+int CHAMELEON_zplrnk_Tile_Async(int K, CHAM_desc_t *C, unsigned long long int seedA, unsigned long long int seedB, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 int CHAMELEON_zposv_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zpotrf_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zsytrf_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);

@@ -122,6 +122,7 @@ set(ZSRC
     pzplghe.c
     pzplgsy.c
     pzplrnt.c
+    pzplrnk.c
     pzpotrf.c
     pzsytrf.c
     pztrtri.c
@@ -169,6 +170,7 @@ set(ZSRC
     zplghe.c
     zplgsy.c
     zplrnt.c
+    zplrnk.c
     zposv.c
     zsysv.c
     zpotrf.c

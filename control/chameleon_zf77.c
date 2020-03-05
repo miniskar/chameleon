@@ -86,6 +86,7 @@
 #endif
 #define CHAMELEON_ZPLGSY          CHAMELEON_FNAME(zplgsy       , ZPLGSY       )
 #define CHAMELEON_ZPLRNT          CHAMELEON_FNAME(zplrnt       , ZPLRNT       )
+#define CHAMELEON_ZPLRNK          CHAMELEON_FNAME(zplrnk       , ZPLRNK       )
 #define CHAMELEON_ZPOSV           CHAMELEON_FNAME(zposv        , ZPOSV        )
 #define CHAMELEON_ZPOTRF          CHAMELEON_FNAME(zpotrf       , ZPOTRF       )
 #define CHAMELEON_ZPOTRI          CHAMELEON_FNAME(zpotri       , ZPOTRI       )
@@ -159,6 +160,7 @@
 #endif
 #define CHAMELEON_ZPLGSY_TILE          CHAMELEON_TILE_FNAME(zplgsy       , ZPLGSY       )
 #define CHAMELEON_ZPLRNT_TILE          CHAMELEON_TILE_FNAME(zplrnt       , ZPLRNT       )
+#define CHAMELEON_ZPLRNK_TILE          CHAMELEON_TILE_FNAME(zplrnk       , ZPLRNK       )
 #define CHAMELEON_ZPOSV_TILE           CHAMELEON_TILE_FNAME(zposv        , ZPOSV        )
 #define CHAMELEON_ZPOTRF_TILE          CHAMELEON_TILE_FNAME(zpotrf       , ZPOTRF       )
 #define CHAMELEON_ZPOTRI_TILE          CHAMELEON_TILE_FNAME(zpotri       , ZPOTRI       )
@@ -229,6 +231,7 @@
 #endif
 #define CHAMELEON_ZPLGSY_TILE_ASYNC          CHAMELEON_ASYNC_FNAME(zplgsy       , ZPLGSY       )
 #define CHAMELEON_ZPLRNT_TILE_ASYNC          CHAMELEON_ASYNC_FNAME(zplrnt       , ZPLRNT       )
+#define CHAMELEON_ZPLRNK_TILE_ASYNC          CHAMELEON_ASYNC_FNAME(zplrnk       , ZPLRNK       )
 #define CHAMELEON_ZPOSV_TILE_ASYNC           CHAMELEON_ASYNC_FNAME(zposv        , ZPOSV        )
 #define CHAMELEON_ZPOTRF_TILE_ASYNC          CHAMELEON_ASYNC_FNAME(zpotrf       , ZPOTRF       )
 #define CHAMELEON_ZPOTRI_TILE_ASYNC          CHAMELEON_ASYNC_FNAME(zpotri       , ZPOTRI       )
@@ -425,6 +428,9 @@ void CHAMELEON_ZPLGSY(CHAMELEON_Complex64_t *bump, cham_uplo_t *uplo, int *N, CH
 void CHAMELEON_ZPLRNT(int *M, int *N, CHAMELEON_Complex64_t *A, int *LDA, unsigned long long int  *seed, int *info)
 { *info = CHAMELEON_zplrnt(*M, *N, A, *LDA, *seed); }
 
+void CHAMELEON_ZPLRNK(int *M, int *N, int *K, CHAMELEON_Complex64_t *C, int *LDC, unsigned long long int  *seedA, unsigned long long int  *seedB, int *info)
+{ *info = CHAMELEON_zplrnk(*M, *N, *K, C, *LDC, *seedA, *seedB); }
+
 void CHAMELEON_ZPOSV(cham_uplo_t *uplo, int *N, int *NRHS, CHAMELEON_Complex64_t *A, int *LDA, CHAMELEON_Complex64_t *B, int *LDB, int *info)
 { *info = CHAMELEON_zposv(*uplo, *N, *NRHS, A, *LDA, B, *LDB); }
 
@@ -615,6 +621,9 @@ void CHAMELEON_ZPLGSY_TILE(CHAMELEON_Complex64_t *bump, cham_uplo_t *uplo, CHAM_
 void CHAMELEON_ZPLRNT_TILE(CHAM_desc_t *A, unsigned long long int  *seed, int *info)
 { *info = CHAMELEON_zplrnt_Tile(A, *seed); }
 
+void CHAMELEON_ZPLRNK_TILE(int *K, CHAM_desc_t *C, unsigned long long int  *seedA, unsigned long long int  *seedB, int *info)
+{ *info = CHAMELEON_zplrnk_Tile(*K, C, *seedA, *seedB); }
+
 void CHAMELEON_ZPOSV_TILE(cham_uplo_t *uplo, CHAM_desc_t *A, CHAM_desc_t *B, int *info)
 { *info = CHAMELEON_zposv_Tile(*uplo, A, B); }
 
@@ -804,6 +813,9 @@ void CHAMELEON_ZPLGSY_TILE_ASYNC(CHAMELEON_Complex64_t *bump, cham_uplo_t *uplo,
 
 void CHAMELEON_ZPLRNT_TILE_ASYNC(CHAM_desc_t *A, unsigned long long int *seed, RUNTIME_sequence_t *sequence, RUNTIME_request_t * *request, int *info)
 { *info = CHAMELEON_zplrnt_Tile_Async(A, *seed, sequence, *request); }
+
+void CHAMELEON_ZPLRNK_TILE_ASYNC(int *K, CHAM_desc_t *C, unsigned long long int *seedA, unsigned long long int *seedB, RUNTIME_sequence_t *sequence, RUNTIME_request_t * *request, int *info)
+{ *info = CHAMELEON_zplrnk_Tile_Async(*K, C, *seedA, *seedB, sequence, *request); }
 
 void CHAMELEON_ZPOSV_TILE_ASYNC(cham_uplo_t *uplo, CHAM_desc_t *A, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
 { *info = CHAMELEON_zposv_Tile_Async(*uplo, A, B, sequence, request); }
