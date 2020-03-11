@@ -24,7 +24,6 @@
 int
 testing_zgeqrs( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descX, *descT;
 
@@ -105,7 +104,6 @@ testing_zgeqrs( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descX );
     CHAMELEON_Desc_Destroy( &descT );
 
-    run_id++;
     return hres;
 }
 
@@ -127,7 +125,6 @@ testing_zgeqrs_init( void )
     test_zgeqrs.params      = zgeqrs_params;
     test_zgeqrs.output      = zgeqrs_output;
     test_zgeqrs.outchk      = zgeqrs_outchk;
-    test_zgeqrs.params_list = "nb;ib;P;m;n;k;lda;ldb;rh;seedA;seedB";
     test_zgeqrs.fptr        = testing_zgeqrs;
     test_zgeqrs.next        = NULL;
 

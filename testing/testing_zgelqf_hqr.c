@@ -23,7 +23,6 @@
 int
 testing_zgelqf_hqr( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descTS, *descTT;
 
@@ -98,7 +97,6 @@ testing_zgelqf_hqr( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descTT );
     libhqr_finalize( &qrtree );
 
-    run_id++;
     return hres;
 }
 
@@ -120,7 +118,6 @@ testing_zgelqf_hqr_init( void )
     test_zgelqf_hqr.params      = zgelqf_hqr_params;
     test_zgelqf_hqr.output      = zgelqf_hqr_output;
     test_zgelqf_hqr.outchk      = zgelqf_hqr_outchk;
-    test_zgelqf_hqr.params_list = "nb;ib;P;m;n;lda;qra;qrp;llvl;hlvl;domino;seedA";
     test_zgelqf_hqr.fptr        = testing_zgelqf_hqr;
     test_zgelqf_hqr.next        = NULL;
 

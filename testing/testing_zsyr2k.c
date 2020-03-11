@@ -23,7 +23,6 @@
 int
 testing_zsyr2k( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am, An;
     int          hres = 0;
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
@@ -101,7 +100,6 @@ testing_zsyr2k( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descB );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -123,7 +121,6 @@ testing_zsyr2k_init( void )
     test_zsyr2k.params      = zsyr2k_params;
     test_zsyr2k.output      = zsyr2k_output;
     test_zsyr2k.outchk      = zsyr2k_outchk;
-    test_zsyr2k.params_list = "nb;P;trans;uplo;n;k;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC;bump";
     test_zsyr2k.fptr        = testing_zsyr2k;
     test_zsyr2k.next        = NULL;
 

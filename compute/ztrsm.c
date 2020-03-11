@@ -12,8 +12,6 @@
  * @brief Chameleon ztrsm wrappers
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -29,59 +27,79 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_ztrsm - Computes triangular solve A*X = B or X*A = B.
+ *  CHAMELEON_ztrsm - Solves one of the matrix equations
+ *    op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
+ *
+ * where alpha is a scalar, X and B are m by n matrices, A is a unit, or
+ * non-unit,  upper or lower triangular matrix  and  op( A )  is one  of
+ *
+ *    op( A ) = A   or   op( A ) = A**T   or   op( A ) = A**H.
+ *
+ * The matrix X is overwritten on B.
  *
  *******************************************************************************
  *
  * @param[in] side
- *          Specifies whether A appears on the left or on the right of X:
- *          = ChamLeft:  A*X = B
- *          = ChamRight: X*A = B
+ *          Specifies whether op(A) appears on the left or on the right of X:
+ *          = ChamLeft:  op(A) * X = B
+ *          = ChamRight: X * op(A) = B
  *
  * @param[in] uplo
  *          Specifies whether the matrix A is upper triangular or lower triangular:
- *          = ChamUpper: Upper triangle of A is stored;
- *          = ChamLower: Lower triangle of A is stored.
+ *          = ChamUpper: A is an upper triangular matrix.
+ *          = ChamLower: A is a lower triangular matrix.
  *
  * @param[in] trans
- *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
- *          = ChamNoTrans:   A is transposed;
- *          = ChamTrans:     A is not transposed;
- *          = ChamConjTrans: A is conjugate transposed.
+ *          Specifies the form of op( A ) to be used in the matrix
+ *          multiplication as follows:
+ *          = ChamNoTrans:   op( A ) = A.
+ *          = ChamTrans:     op( A ) = A**T.
+ *          = ChamConjTrans: op( A ) = A**H.
  *
  * @param[in] diag
  *          Specifies whether or not A is unit triangular:
- *          = ChamNonUnit: A is non unit;
- *          = ChamUnit:    A us unit.
+ *          = ChamNonUnit: A is assumed to be unit triangular.
+ *          = ChamUnit:    A is not assumed to be unit triangular.
+ *
+ * @param[in] M
+ *          M specifies the number of rows of B. M must be at least zero.
  *
  * @param[in] N
- *          The order of the matrix A. N >= 0.
- *
- * @param[in] NRHS
- *          The number of right hand sides, i.e., the number of columns of the matrix B if side = ChamLeft or
- *          the number of rows of the matrix B if side = ChamRight. NRHS >= 0.
+ *          N specifies the number of columns of B. N must be at least zero.
  *
  * @param[in] alpha
- *          alpha specifies the scalar alpha.
+ *          alpha specifies the scalar alpha. When alpha is zero then A is not
+ *          referenced and B need not be set before entry.
  *
  * @param[in] A
- *          The triangular matrix A. If uplo = ChamUpper, the leading N-by-N upper triangular
- *          part of the array A contains the upper triangular matrix, and the strictly lower
- *          triangular part of A is not referenced. If uplo = ChamLower, the leading N-by-N
- *          lower triangular part of the array A contains the lower triangular matrix, and the
- *          strictly upper triangular part of A is not referenced. If diag = ChamUnit, the
- *          diagonal elements of A are also not referenced and are assumed to be 1.
+ *          The triangular matrix A of dimension lda-by-k,
+ *          where k is M when side = ChamLeft
+ *            and k is N when side = ChamRight
+ *          Before entry with uplo = ChamUpper, the leading k-by-k upper
+ *          triangular part of the array A must contain the upper triangular
+ *          matrix and the strictly lower triangular part of A is not
+ *          referenced.
+ *          Before entry with uplo = ChamLower, the leading k-by-k lower
+ *          triangular part of the array A must contain the lower triangular
+ *          matrix and the strictly upper triangular part of A is not
+ *          referenced.
+ *          Note that when diag = ChamUnit, the diagonal elements of A are not
+ *          referenced either, but are assumed to be unity.
  *
  * @param[in] LDA
- *          The leading dimension of the array A. LDA >= max(1,N).
+ *          LDA specifies the first dimension of A. When side = ChamLeft then
+ *          LDA must be at least max( 1, M ), when side = ChamRight then LDA
+ *          must be at least max( 1, N ).
  *
  * @param[in,out] B
- *          On entry, the N-by-NRHS right hand side matrix B.
- *          On exit, if return value = 0, the N-by-NRHS solution matrix X if side = ChamLeft
- *          or the NRHS-by-N matrix X if side = ChamRight.
+ *          The matrix B of dimension LDB-by-N.
+ *          Before entry, the leading m by n part of the array B must contain
+ *          the right-hand side matrix B, and on exit is overwritten by the
+ *          solution matrix X.
  *
  * @param[in] LDB
- *          The leading dimension of the array B. LDB >= max(1,N).
+ *          LDB specifies the first dimension of B. LDB must be at least
+ *          max( 1, M ).
  *
  *******************************************************************************
  *
@@ -98,12 +116,12 @@
  *
  */
 int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
-                 cham_trans_t trans, cham_diag_t diag,
-                 int N, int NRHS, CHAMELEON_Complex64_t alpha,
-                 CHAMELEON_Complex64_t *A, int LDA,
-                 CHAMELEON_Complex64_t *B, int LDB )
+                     cham_trans_t trans, cham_diag_t diag,
+                     int M, int N, CHAMELEON_Complex64_t alpha,
+                     CHAMELEON_Complex64_t *A, int LDA,
+                     CHAMELEON_Complex64_t *B, int LDB )
 {
-    int NB, NA;
+    int NB, Ak;
     int status;
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -117,14 +135,14 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    if (side == ChamLeft) {
-        NA = N;
+    if ( side == ChamLeft ) {
+        Ak = M;
     } else {
-        NA = NRHS;
+        Ak = N;
     }
 
     /* Check input arguments */
-    if (side != ChamLeft && side != ChamRight) {
+    if ((side != ChamLeft) && (side != ChamRight)) {
         chameleon_error("CHAMELEON_ztrsm", "illegal value of side");
         return -1;
     }
@@ -140,28 +158,28 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
         chameleon_error("CHAMELEON_ztrsm", "illegal value of diag");
         return -4;
     }
-    if (N < 0) {
-        chameleon_error("CHAMELEON_ztrsm", "illegal value of N");
+    if (M < 0) {
+        chameleon_error("CHAMELEON_ztrsm", "illegal value of M");
         return -5;
     }
-    if (NRHS < 0) {
-        chameleon_error("CHAMELEON_ztrsm", "illegal value of NRHS");
+    if (N < 0) {
+        chameleon_error("CHAMELEON_ztrsm", "illegal value of N");
         return -6;
     }
-    if (LDA < chameleon_max(1, NA)) {
+    if (LDA < chameleon_max(1, Ak)) {
         chameleon_error("CHAMELEON_ztrsm", "illegal value of LDA");
         return -8;
     }
-    if (LDB < chameleon_max(1, N)) {
+    if (LDB < chameleon_max(1, M)) {
         chameleon_error("CHAMELEON_ztrsm", "illegal value of LDB");
         return -10;
     }
     /* Quick return */
-    if (chameleon_min(N, NRHS) == 0)
+    if (chameleon_min(M, N) == 0)
         return CHAMELEON_SUCCESS;
 
-    /* Tune NB depending on M, N & NRHS; Set NBNB */
-    status = chameleon_tune(CHAMELEON_FUNC_ZPOSV, N, N, NRHS);
+    /* Tune NB depending on M, M & N; Set NBNB */
+    status = chameleon_tune(CHAMELEON_FUNC_ZPOSV, M, M, N);
     if (status != CHAMELEON_SUCCESS) {
         chameleon_error("CHAMELEON_ztrsm", "chameleon_tune() failed");
         return status;
@@ -174,9 +192,9 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, uplo,
-                     A, NB, NB, LDA, NA, NA, NA, sequence, &request );
+                     A, NB, NB, LDA, Ak, Ak, Ak, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
-                     B, NB, NB, LDB, NRHS, N,  NRHS, sequence, &request );
+                     B, NB, NB, LDB, N,  M,  N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_ztrsm_Tile_Async(  side, uplo, trans, diag, alpha, &descAt, &descBt, sequence, &request );
@@ -202,7 +220,9 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  CHAMELEON_ztrsm_Tile - Computes triangular solve.
+ *  CHAMELEON_ztrsm_Tile - Solves one of the matrix equations
+ *    op( A )*X = alpha*B,   or   X*op( A ) = alpha*B.
+ *
  *  Tile equivalent of CHAMELEON_ztrsm().
  *  Operates on matrices stored by tiles.
  *  All matrices are passed through descriptors.
@@ -211,40 +231,51 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
  *******************************************************************************
  *
  * @param[in] side
- *          Specifies whether A appears on the left or on the right of X:
- *          = ChamLeft:  A*X = B
- *          = ChamRight: X*A = B
+ *          Specifies whether op(A) appears on the left or on the right of X:
+ *          = ChamLeft:  op(A) * X = B
+ *          = ChamRight: X * op(A) = B
  *
  * @param[in] uplo
  *          Specifies whether the matrix A is upper triangular or lower triangular:
- *          = ChamUpper: Upper triangle of A is stored;
- *          = ChamLower: Lower triangle of A is stored.
+ *          = ChamUpper: A is an upper triangular matrix.
+ *          = ChamLower: A is a lower triangular matrix.
  *
  * @param[in] trans
- *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
- *          = ChamNoTrans:   A is transposed;
- *          = ChamTrans:     A is not transposed;
- *          = ChamConjTrans: A is conjugate transposed.
+ *          Specifies the form of op( A ) to be used in the matrix
+ *          multiplication as follows:
+ *          = ChamNoTrans:   op( A ) = A.
+ *          = ChamTrans:     op( A ) = A**T.
+ *          = ChamConjTrans: op( A ) = A**H.
  *
  * @param[in] diag
  *          Specifies whether or not A is unit triangular:
- *          = ChamNonUnit: A is non unit;
- *          = ChamUnit:    A us unit.
+ *          = ChamNonUnit: A is assumed to be unit triangular.
+ *          = ChamUnit:    A is not assumed to be unit triangular.
  *
  * @param[in] alpha
- *          alpha specifies the scalar alpha.
+ *          alpha specifies the scalar alpha. When alpha is zero then A is not
+ *          referenced and B need not be set before entry.
  *
  * @param[in] A
- *          The triangular matrix A. If uplo = ChamUpper, the leading N-by-N upper triangular
- *          part of the array A contains the upper triangular matrix, and the strictly lower
- *          triangular part of A is not referenced. If uplo = ChamLower, the leading N-by-N
- *          lower triangular part of the array A contains the lower triangular matrix, and the
- *          strictly upper triangular part of A is not referenced. If diag = ChamUnit, the
- *          diagonal elements of A are also not referenced and are assumed to be 1.
+ *          The triangular matrix A of dimension lda-by-k,
+ *          where k is M when side = ChamLeft
+ *            and k is N when side = ChamRight
+ *          Before entry with uplo = ChamUpper, the leading k-by-k upper
+ *          triangular part of the array A must contain the upper triangular
+ *          matrix and the strictly lower triangular part of A is not
+ *          referenced.
+ *          Before entry with uplo = ChamLower, the leading k-by-k lower
+ *          triangular part of the array A must contain the lower triangular
+ *          matrix and the strictly upper triangular part of A is not
+ *          referenced.
+ *          Note that when diag = ChamUnit, the diagonal elements of A are not
+ *          referenced either, but are assumed to be unity.
  *
  * @param[in,out] B
- *          On entry, the N-by-NRHS right hand side matrix B.
- *          On exit, if return value = 0, the N-by-NRHS solution matrix X.
+ *          The matrix B of dimension LDB-by-N.
+ *          Before entry, the leading m by n part of the array B must contain
+ *          the right-hand side matrix B, and on exit is overwritten by the
+ *          solution matrix X.
  *
  *******************************************************************************
  *
@@ -260,8 +291,8 @@ int CHAMELEON_ztrsm( cham_side_t side, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_ztrsm_Tile( cham_side_t side, cham_uplo_t uplo,
-                      cham_trans_t trans, cham_diag_t diag,
-                      CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B )
+                          cham_trans_t trans, cham_diag_t diag,
+                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -315,9 +346,9 @@ int CHAMELEON_ztrsm_Tile( cham_side_t side, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
-                            cham_trans_t trans, cham_diag_t diag,
-                            CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                cham_trans_t trans, cham_diag_t diag,
+                                CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                                RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
 
@@ -352,7 +383,7 @@ int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
-    if (A->nb != A->mb || B->nb != B->mb) {
+    if ((A->nb != A->mb) || (B->nb != B->mb)) {
         chameleon_error("CHAMELEON_ztrsm_Tile", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
@@ -374,7 +405,8 @@ int CHAMELEON_ztrsm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
     }
 
     /* Quick return */
-    chameleon_pztrsm( side, uplo, trans, diag, alpha, A, B, sequence, request );
+    chameleon_pztrsm( side, uplo, trans, diag, alpha,
+                      A, B, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

@@ -23,7 +23,6 @@
 int
 testing_zhemm( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am;
     int          hres = 0;
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
@@ -99,7 +98,6 @@ testing_zhemm( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descB );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -121,7 +119,6 @@ testing_zhemm_init( void )
     test_zhemm.params      = zhemm_params;
     test_zhemm.output      = zhemm_output;
     test_zhemm.outchk      = zhemm_outchk;
-    test_zhemm.params_list = "nb;P;side;uplo;m;n;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC;bump";
     test_zhemm.fptr        = testing_zhemm;
     test_zhemm.next        = NULL;
 

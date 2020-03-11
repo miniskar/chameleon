@@ -23,7 +23,6 @@
 int
 testing_zsyrk( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am, An;
     int          hres = 0;
     CHAM_desc_t *descA, *descC, *descCinit;
@@ -95,7 +94,6 @@ testing_zsyrk( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -117,7 +115,6 @@ testing_zsyrk_init( void )
     test_zsyrk.params      = zsyrk_params;
     test_zsyrk.output      = zsyrk_output;
     test_zsyrk.outchk      = zsyrk_outchk;
-    test_zsyrk.params_list = "nb;P;trans;uplo;n;k;lda;ldc;alpha;beta;seedA;seedC;bump";
     test_zsyrk.fptr        = testing_zsyrk;
     test_zsyrk.next        = NULL;
 

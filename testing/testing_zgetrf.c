@@ -23,7 +23,6 @@
 int
 testing_zgetrf( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA;
 
@@ -67,7 +66,6 @@ testing_zgetrf( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -88,7 +86,6 @@ testing_zgetrf_init( void )
     test_zgetrf.params      = zgetrf_params;
     test_zgetrf.output      = zgetrf_output;
     test_zgetrf.outchk      = zgetrf_outchk;
-    test_zgetrf.params_list = "nb;P;m;n;lda;seedA";
     test_zgetrf.fptr        = testing_zgetrf;
     test_zgetrf.next        = NULL;
 

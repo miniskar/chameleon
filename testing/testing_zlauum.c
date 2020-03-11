@@ -30,7 +30,6 @@ flops_zlauum( int N )
 int
 testing_zlauum( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA;
 
@@ -73,7 +72,6 @@ testing_zlauum( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -94,7 +92,6 @@ testing_zlauum_init( void )
     test_zlauum.params      = zlauum_params;
     test_zlauum.output      = zlauum_output;
     test_zlauum.outchk      = zlauum_outchk;
-    test_zlauum.params_list = "nb;P;uplo;n;lda;seedA";
     test_zlauum.fptr        = testing_zlauum;
     test_zlauum.next        = NULL;
 

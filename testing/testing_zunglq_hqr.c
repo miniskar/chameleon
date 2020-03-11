@@ -23,7 +23,6 @@
 int
 testing_zunglq_hqr( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descTS, *descTT, *descQ;
 
@@ -97,7 +96,6 @@ testing_zunglq_hqr( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descQ );
     libhqr_finalize( &qrtree );
 
-    run_id++;
     return hres;
 }
 
@@ -119,7 +117,6 @@ testing_zunglq_hqr_init( void )
     test_zunglq_hqr.params      = zunglq_hqr_params;
     test_zunglq_hqr.output      = zunglq_hqr_output;
     test_zunglq_hqr.outchk      = zunglq_hqr_outchk;
-    test_zunglq_hqr.params_list = "nb;ib;P;m;n;k;lda;qra;qrp;llvl;hlvl;domino;seedA";
     test_zunglq_hqr.fptr        = testing_zunglq_hqr;
     test_zunglq_hqr.next        = NULL;
 

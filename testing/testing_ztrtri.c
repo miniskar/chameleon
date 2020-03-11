@@ -23,7 +23,6 @@
 int
 testing_ztrtri( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA;
 
@@ -68,7 +67,6 @@ testing_ztrtri( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -89,7 +87,6 @@ testing_ztrtri_init( void )
     test_ztrtri.params      = ztrtri_params;
     test_ztrtri.output      = ztrtri_output;
     test_ztrtri.outchk      = ztrtri_outchk;
-    test_ztrtri.params_list = "nb;P;uplo;diag;n;lda;seedA";
     test_ztrtri.fptr        = testing_ztrtri;
     test_ztrtri.next        = NULL;
 

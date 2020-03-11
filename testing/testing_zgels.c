@@ -25,13 +25,16 @@ static cham_fixdbl_t
 flops_zgels( cham_trans_t trans, int M, int N, int NRHS )
 {
     cham_fixdbl_t flops = 0.;
+    (void)trans;
+    (void)M;
+    (void)N;
+    (void)NRHS;
     return flops;
 }
 
 int
 testing_zgels( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descX, *descT;
 
@@ -121,7 +124,6 @@ testing_zgels( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     CHAMELEON_Desc_Destroy( &descX );
 
-    run_id++;
     return hres;
 }
 
@@ -143,7 +145,6 @@ testing_zgels_init( void )
     test_zgels.params      = zgels_params;
     test_zgels.output      = zgels_output;
     test_zgels.outchk      = zgels_outchk;
-    test_zgels.params_list = "nb;ib;P;trans;m;n;k;lda;ldb;rh;seedA;seedB";
     test_zgels.fptr        = testing_zgels;
     test_zgels.next        = NULL;
 

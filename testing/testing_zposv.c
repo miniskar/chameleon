@@ -30,7 +30,6 @@ flops_zposv( int N, int NRHS )
 int
 testing_zposv( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descX;
 
@@ -92,7 +91,6 @@ testing_zposv( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descX );
 
-    run_id++;
     return hres;
 }
 
@@ -113,7 +111,6 @@ testing_zposv_init( void )
     test_zposv.params      = zposv_params;
     test_zposv.output      = zposv_output;
     test_zposv.outchk      = zposv_outchk;
-    test_zposv.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zposv.fptr        = testing_zposv;
     test_zposv.next        = NULL;
 

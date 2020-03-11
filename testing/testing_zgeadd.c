@@ -37,7 +37,6 @@ flops_zgeadd( int M, int N )
 int
 testing_zgeadd( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     int          Am, An;
     CHAM_desc_t *descA, *descB;
@@ -103,7 +102,6 @@ testing_zgeadd( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descB );
 
-    run_id++;
     return hres;
 }
 
@@ -125,7 +123,6 @@ testing_zgeadd_init( void )
     test_zgeadd.params      = zgeadd_params;
     test_zgeadd.output      = zgeadd_output;
     test_zgeadd.outchk      = zgeadd_outchk;
-    test_zgeadd.params_list = "nb;P;trans;m;n;lda;ldb;alpha;beta;seedA;seedB";
     test_zgeadd.fptr        = testing_zgeadd;
     test_zgeadd.next        = NULL;
 

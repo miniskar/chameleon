@@ -24,7 +24,6 @@
 int
 testing_zherk( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am, An;
     int          hres = 0;
     CHAM_desc_t *descA, *descC, *descCinit;
@@ -96,7 +95,6 @@ testing_zherk( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -118,7 +116,6 @@ testing_zherk_init( void )
     test_zherk.params      = zherk_params;
     test_zherk.output      = zherk_output;
     test_zherk.outchk      = zherk_outchk;
-    test_zherk.params_list = "nb;P;trans;uplo;n;k;lda;ldc;alpha;beta;seedA;seedC;bump";
     test_zherk.fptr        = testing_zherk;
     test_zherk.next        = NULL;
 

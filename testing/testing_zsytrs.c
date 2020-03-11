@@ -24,7 +24,6 @@
 int
 testing_zsytrs( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres;
     CHAM_desc_t *descA, *descX;
 
@@ -82,7 +81,6 @@ testing_zsytrs( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descX );
 
-    run_id++;
     return hres;
 }
 
@@ -103,7 +101,6 @@ testing_zsytrs_init( void )
     test_zsytrs.params      = zsytrs_params;
     test_zsytrs.output      = zsytrs_output;
     test_zsytrs.outchk      = zsytrs_outchk;
-    test_zsytrs.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zsytrs.fptr        = testing_zsytrs;
     test_zsytrs.next        = NULL;
 

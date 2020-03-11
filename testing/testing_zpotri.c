@@ -24,7 +24,6 @@
 int
 testing_zpotri( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres;
     CHAM_desc_t *descA;
 
@@ -72,7 +71,6 @@ testing_zpotri( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -93,7 +91,6 @@ testing_zpotri_init( void )
     test_zpotri.params      = zpotri_params;
     test_zpotri.output      = zpotri_output;
     test_zpotri.outchk      = zpotri_outchk;
-    test_zpotri.params_list = "nb;P;uplo;n;lda;seedA";
     test_zpotri.fptr        = testing_zpotri;
     test_zpotri.next        = NULL;
 

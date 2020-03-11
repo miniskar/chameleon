@@ -24,7 +24,6 @@
 int
 testing_zunmlq( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          An;
     int          hres;
     CHAM_desc_t *descA, *descT, *descC;
@@ -105,7 +104,6 @@ testing_zunmlq( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -127,7 +125,6 @@ testing_zunmlq_init( void )
     test_zunmlq.params      = zunmlq_params;
     test_zunmlq.output      = zunmlq_output;
     test_zunmlq.outchk      = zunmlq_outchk;
-    test_zunmlq.params_list = "nb;ib;P;side;trans;m;n;k;lda;ldc;rh;seedA;seedC";
     test_zunmlq.fptr        = testing_zunmlq;
     test_zunmlq.next        = NULL;
 

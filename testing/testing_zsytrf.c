@@ -23,7 +23,6 @@
 int
 testing_zsytrf( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA;
 
@@ -67,7 +66,6 @@ testing_zsytrf( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -88,7 +86,6 @@ testing_zsytrf_init( void )
     test_zsytrf.params      = zsytrf_params;
     test_zsytrf.output      = zsytrf_output;
     test_zsytrf.outchk      = zsytrf_outchk;
-    test_zsytrf.params_list = "nb;P;uplo;n;lda;seedA";
     test_zsytrf.fptr        = testing_zsytrf;
     test_zsytrf.next        = NULL;
 

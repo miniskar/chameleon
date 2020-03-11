@@ -54,7 +54,6 @@ flops_zlacpy( cham_uplo_t uplo, int M, int N )
 int
 testing_zlacpy( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descB;
 
@@ -100,7 +99,6 @@ testing_zlacpy( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descB );
 
-    run_id++;
     return hres;
 }
 
@@ -121,7 +119,6 @@ testing_zlacpy_init( void )
     test_zlacpy.params      = zlacpy_params;
     test_zlacpy.output      = zlacpy_output;
     test_zlacpy.outchk      = zlacpy_outchk;
-    test_zlacpy.params_list = "nb;P;uplo;m;n;lda;ldb;seedA";
     test_zlacpy.fptr        = testing_zlacpy;
     test_zlacpy.next        = NULL;
 

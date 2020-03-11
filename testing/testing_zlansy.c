@@ -21,7 +21,7 @@
 #include "flops.h"
 
 static cham_fixdbl_t
-flops_zlansy( cham_normtype_t ntype, cham_uplo_t uplo, int N )
+flops_zlansy( cham_normtype_t ntype, int N )
 {
     cham_fixdbl_t flops   = 0.;
     double coefabs = 1.;
@@ -48,7 +48,6 @@ flops_zlansy( cham_normtype_t ntype, cham_uplo_t uplo, int N )
 int
 testing_zlansy( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     double       norm;
     CHAM_desc_t *descA;
@@ -64,7 +63,7 @@ testing_zlansy( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t bump      = testing_zalea();
     int                   Q         = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlansy( norm_type, uplo, N );
+    cham_fixdbl_t flops = flops_zlansy( norm_type, N );
 
     bump = run_arg_get_complex64( args, "bump", bump );
 
@@ -92,7 +91,6 @@ testing_zlansy( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -113,7 +111,6 @@ testing_zlansy_init( void )
     test_zlansy.params      = zlansy_params;
     test_zlansy.output      = zlansy_output;
     test_zlansy.outchk      = zlansy_outchk;
-    test_zlansy.params_list = "nb;P;norm;uplo;n;lda;seedA;bump";
     test_zlansy.fptr        = testing_zlansy;
     test_zlansy.next        = NULL;
 

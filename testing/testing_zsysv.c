@@ -30,7 +30,6 @@ flops_zsysv( int N, int NRHS )
 int
 testing_zsysv( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descX;
 
@@ -92,7 +91,6 @@ testing_zsysv( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descX );
 
-    run_id++;
     return hres;
 }
 
@@ -113,7 +111,6 @@ testing_zsysv_init( void )
     test_zsysv.params      = zsysv_params;
     test_zsysv.output      = zsysv_output;
     test_zsysv.outchk      = zsysv_outchk;
-    test_zsysv.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zsysv.fptr        = testing_zsysv;
     test_zsysv.next        = NULL;
 

@@ -25,13 +25,16 @@ static cham_fixdbl_t
 flops_zgels_hqr( cham_trans_t trans, int M, int N, int NRHS )
 {
     cham_fixdbl_t flops = 0.;
+    (void)trans;
+    (void)M;
+    (void)N;
+    (void)NRHS;
     return flops;
 }
 
 int
 testing_zgels_hqr( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descX, *descTS, *descTT;
 
@@ -129,7 +132,6 @@ testing_zgels_hqr( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descX );
     libhqr_finalize( &qrtree );
 
-    run_id++;
     return hres;
 }
 
@@ -152,8 +154,6 @@ testing_zgels_hqr_init( void )
     test_zgels_hqr.params = zgels_hqr_params;
     test_zgels_hqr.output = zgels_hqr_output;
     test_zgels_hqr.outchk = zgels_hqr_outchk;
-    test_zgels_hqr.params_list =
-        "nb;ib;P;trans;m;n;k;lda;ldb;rh;qra;qrp;llvl;hlvl;domino;seedA;seedB";
     test_zgels_hqr.fptr = testing_zgels_hqr;
     test_zgels_hqr.next = NULL;
 

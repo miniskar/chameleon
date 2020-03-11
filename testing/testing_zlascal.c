@@ -48,7 +48,6 @@ flops_zlascal( cham_uplo_t uplo, int M, int N )
 int
 testing_zlascal( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descAinit;
 
@@ -95,7 +94,6 @@ testing_zlascal( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 
@@ -116,7 +114,6 @@ testing_zlascal_init( void )
     test_zlascal.params      = zlascal_params;
     test_zlascal.output      = zlascal_output;
     test_zlascal.outchk      = zlascal_outchk;
-    test_zlascal.params_list = "nb;P;uplo;m;n;lda;alpha;seedA";
     test_zlascal.fptr        = testing_zlascal;
     test_zlascal.next        = NULL;
 
