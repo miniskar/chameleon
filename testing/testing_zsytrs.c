@@ -24,7 +24,6 @@
 int
 testing_zsytrs( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres;
     CHAM_desc_t *descA, *descX;
 
@@ -82,7 +81,6 @@ testing_zsytrs( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descX );
 
-    run_id++;
     return hres;
 }
 

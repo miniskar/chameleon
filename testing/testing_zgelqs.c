@@ -31,7 +31,6 @@ flops_zgelqs()
 int
 testing_zgelqs( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA1, *descA2, *descB1, *descB2, *descT, *descQ, *descX;
 
@@ -105,7 +104,6 @@ testing_zgelqs( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descX );
     CHAMELEON_Desc_Destroy( &descT );
 
-    run_id++;
     return hres;
 }
 

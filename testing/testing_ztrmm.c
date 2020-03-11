@@ -23,7 +23,6 @@
 int
 testing_ztrmm( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Bm, Bn;
     int          hres = 0;
     CHAM_desc_t *descA, *descB, *descBinit;
@@ -92,7 +91,6 @@ testing_ztrmm( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descB );
 
-    run_id++;
     return hres;
 }
 

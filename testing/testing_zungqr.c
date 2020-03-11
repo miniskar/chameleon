@@ -23,7 +23,6 @@
 int
 testing_zungqr( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descT, *descQ;
 
@@ -87,7 +86,6 @@ testing_zungqr( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     CHAMELEON_Desc_Destroy( &descQ );
 
-    run_id++;
     return hres;
 }
 

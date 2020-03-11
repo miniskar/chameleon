@@ -24,7 +24,6 @@
 int
 testing_zunmqr_hqr( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am;
     int          hres;
     CHAM_desc_t *descA, *descTS, *descTT, *descC;
@@ -115,7 +114,6 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descC );
     libhqr_finalize( &qrtree );
 
-    run_id++;
     return hres;
 }
 

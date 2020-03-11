@@ -23,7 +23,6 @@
 int
 testing_zgemm( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am, An, Bm, Bn;
     int          hres = 0;
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
@@ -107,7 +106,6 @@ testing_zgemm( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descB );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 

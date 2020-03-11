@@ -24,7 +24,6 @@
 int
 testing_zunmlq( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          An;
     int          hres;
     CHAM_desc_t *descA, *descT, *descC;
@@ -105,7 +104,6 @@ testing_zunmlq( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 

@@ -24,7 +24,6 @@
 int
 testing_zherk( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          Am, An;
     int          hres = 0;
     CHAM_desc_t *descA, *descC, *descCinit;
@@ -96,7 +95,6 @@ testing_zherk( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 

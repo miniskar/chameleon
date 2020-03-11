@@ -48,7 +48,6 @@ flops_zlansy( cham_normtype_t ntype, int N )
 int
 testing_zlansy( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     double       norm;
     CHAM_desc_t *descA;
@@ -92,7 +91,6 @@ testing_zlansy( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    run_id++;
     return hres;
 }
 

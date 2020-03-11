@@ -54,7 +54,6 @@ flops_zlacpy( cham_uplo_t uplo, int M, int N )
 int
 testing_zlacpy( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descB;
 
@@ -100,7 +99,6 @@ testing_zlacpy( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descB );
 
-    run_id++;
     return hres;
 }
 

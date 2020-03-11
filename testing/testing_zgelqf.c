@@ -23,7 +23,6 @@
 int
 testing_zgelqf( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
     int          hres   = 0;
     CHAM_desc_t *descA, *descT;
 
@@ -88,7 +87,6 @@ testing_zgelqf( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descT );
 
-    run_id++;
     return hres;
 }
 
