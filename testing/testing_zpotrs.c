@@ -103,7 +103,6 @@ testing_zpotrs_init( void )
     test_zpotrs.params      = zpotrs_params;
     test_zpotrs.output      = zpotrs_output;
     test_zpotrs.outchk      = zpotrs_outchk;
-    test_zpotrs.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zpotrs.fptr        = testing_zpotrs;
     test_zpotrs.next        = NULL;
 

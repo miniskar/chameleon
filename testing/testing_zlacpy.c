@@ -121,7 +121,6 @@ testing_zlacpy_init( void )
     test_zlacpy.params      = zlacpy_params;
     test_zlacpy.output      = zlacpy_output;
     test_zlacpy.outchk      = zlacpy_outchk;
-    test_zlacpy.params_list = "nb;P;uplo;m;n;lda;ldb;seedA";
     test_zlacpy.fptr        = testing_zlacpy;
     test_zlacpy.next        = NULL;
 

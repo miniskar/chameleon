@@ -121,7 +121,6 @@ testing_zhemm_init( void )
     test_zhemm.params      = zhemm_params;
     test_zhemm.output      = zhemm_output;
     test_zhemm.outchk      = zhemm_outchk;
-    test_zhemm.params_list = "nb;P;side;uplo;m;n;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC;bump";
     test_zhemm.fptr        = testing_zhemm;
     test_zhemm.next        = NULL;
 

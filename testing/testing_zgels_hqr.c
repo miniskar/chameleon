@@ -156,8 +156,6 @@ testing_zgels_hqr_init( void )
     test_zgels_hqr.params = zgels_hqr_params;
     test_zgels_hqr.output = zgels_hqr_output;
     test_zgels_hqr.outchk = zgels_hqr_outchk;
-    test_zgels_hqr.params_list =
-        "nb;ib;P;trans;m;n;k;lda;ldb;rh;qra;qrp;llvl;hlvl;domino;seedA;seedB";
     test_zgels_hqr.fptr = testing_zgels_hqr;
     test_zgels_hqr.next = NULL;
 

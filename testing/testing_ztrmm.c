@@ -114,7 +114,6 @@ testing_ztrmm_init( void )
     test_ztrmm.params      = ztrmm_params;
     test_ztrmm.output      = ztrmm_output;
     test_ztrmm.outchk      = ztrmm_outchk;
-    test_ztrmm.params_list = "nb;P;trans;side;uplo;diag;n;k;lda;ldb;alpha;seedA;seedB";
     test_ztrmm.fptr        = testing_ztrmm;
     test_ztrmm.next        = NULL;
 

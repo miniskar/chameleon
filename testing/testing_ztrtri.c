@@ -89,7 +89,6 @@ testing_ztrtri_init( void )
     test_ztrtri.params      = ztrtri_params;
     test_ztrtri.output      = ztrtri_output;
     test_ztrtri.outchk      = ztrtri_outchk;
-    test_ztrtri.params_list = "nb;P;uplo;diag;n;lda;seedA";
     test_ztrtri.fptr        = testing_ztrtri;
     test_ztrtri.next        = NULL;
 

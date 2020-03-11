@@ -127,7 +127,6 @@ testing_zgeqrs_init( void )
     test_zgeqrs.params      = zgeqrs_params;
     test_zgeqrs.output      = zgeqrs_output;
     test_zgeqrs.outchk      = zgeqrs_outchk;
-    test_zgeqrs.params_list = "nb;ib;P;m;n;k;lda;ldb;rh;seedA;seedB";
     test_zgeqrs.fptr        = testing_zgeqrs;
     test_zgeqrs.next        = NULL;
 

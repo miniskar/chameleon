@@ -113,7 +113,6 @@ testing_zposv_init( void )
     test_zposv.params      = zposv_params;
     test_zposv.output      = zposv_output;
     test_zposv.outchk      = zposv_outchk;
-    test_zposv.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zposv.fptr        = testing_zposv;
     test_zposv.next        = NULL;
 

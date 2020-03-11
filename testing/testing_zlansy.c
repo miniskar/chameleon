@@ -113,7 +113,6 @@ testing_zlansy_init( void )
     test_zlansy.params      = zlansy_params;
     test_zlansy.output      = zlansy_output;
     test_zlansy.outchk      = zlansy_outchk;
-    test_zlansy.params_list = "nb;P;norm;uplo;n;lda;seedA;bump";
     test_zlansy.fptr        = testing_zlansy;
     test_zlansy.next        = NULL;
 

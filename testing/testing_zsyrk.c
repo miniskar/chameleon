@@ -117,7 +117,6 @@ testing_zsyrk_init( void )
     test_zsyrk.params      = zsyrk_params;
     test_zsyrk.output      = zsyrk_output;
     test_zsyrk.outchk      = zsyrk_outchk;
-    test_zsyrk.params_list = "nb;P;trans;uplo;n;k;lda;ldc;alpha;beta;seedA;seedC;bump";
     test_zsyrk.fptr        = testing_zsyrk;
     test_zsyrk.next        = NULL;
 

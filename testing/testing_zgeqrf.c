@@ -109,7 +109,6 @@ testing_zgeqrf_init( void )
     test_zgeqrf.params      = zgeqrf_params;
     test_zgeqrf.output      = zgeqrf_output;
     test_zgeqrf.outchk      = zgeqrf_outchk;
-    test_zgeqrf.params_list = "nb;ib;P;m;n;lda;rh;seedA";
     test_zgeqrf.fptr        = testing_zgeqrf;
     test_zgeqrf.next        = NULL;
 

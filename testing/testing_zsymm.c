@@ -121,7 +121,6 @@ testing_zsymm_init( void )
     test_zsymm.params      = zsymm_params;
     test_zsymm.output      = zsymm_output;
     test_zsymm.outchk      = zsymm_outchk;
-    test_zsymm.params_list = "nb;P;side;uplo;m;n;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC;bump";
     test_zsymm.fptr        = testing_zsymm;
     test_zsymm.next        = NULL;
 

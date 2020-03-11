@@ -138,8 +138,6 @@ testing_zunmlq_hqr_init( void )
     test_zunmlq_hqr.params = zunmlq_hqr_params;
     test_zunmlq_hqr.output = zunmlq_hqr_output;
     test_zunmlq_hqr.outchk = zunmlq_hqr_outchk;
-    test_zunmlq_hqr.params_list =
-        "nb;ib;P;side;trans;m;n;k;lda;ldc;qra;qrp;llvl;hlvl;domino;seedA;seedC";
     test_zunmlq_hqr.fptr = testing_zunmlq_hqr;
     test_zunmlq_hqr.next = NULL;
 

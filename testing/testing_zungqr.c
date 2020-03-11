@@ -108,7 +108,6 @@ testing_zungqr_init( void )
     test_zungqr.params      = zungqr_params;
     test_zungqr.output      = zungqr_output;
     test_zungqr.outchk      = zungqr_outchk;
-    test_zungqr.params_list = "nb;ib;P;m;n;k;lda;rh;seedA";
     test_zungqr.fptr        = testing_zungqr;
     test_zungqr.next        = NULL;
 

@@ -88,7 +88,6 @@ testing_zgetrf_init( void )
     test_zgetrf.params      = zgetrf_params;
     test_zgetrf.output      = zgetrf_output;
     test_zgetrf.outchk      = zgetrf_outchk;
-    test_zgetrf.params_list = "nb;P;m;n;lda;seedA";
     test_zgetrf.fptr        = testing_zgetrf;
     test_zgetrf.next        = NULL;
 

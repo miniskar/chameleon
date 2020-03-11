@@ -147,7 +147,6 @@ testing_zgels_init( void )
     test_zgels.params      = zgels_params;
     test_zgels.output      = zgels_output;
     test_zgels.outchk      = zgels_outchk;
-    test_zgels.params_list = "nb;ib;P;trans;m;n;k;lda;ldb;rh;seedA;seedB";
     test_zgels.fptr        = testing_zgels;
     test_zgels.next        = NULL;
 

@@ -112,7 +112,6 @@ testing_zlange_init( void )
     test_zlange.params      = zlange_params;
     test_zlange.output      = zlange_output;
     test_zlange.outchk      = zlange_outchk;
-    test_zlange.params_list = "nb;P;norm;m;n;lda;seedA";
     test_zlange.fptr        = testing_zlange;
     test_zlange.next        = NULL;
 

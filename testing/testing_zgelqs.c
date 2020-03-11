@@ -127,7 +127,6 @@ testing_zgelqs_init( void )
     test_zgelqs.params      = zgelqs_params;
     test_zgelqs.output      = zgelqs_output;
     test_zgelqs.outchk      = zgelqs_outchk;
-    test_zgelqs.params_list = "nb;ib;P;m;n;k;lda;ldb;rh;seedA;seedB";
     test_zgelqs.fptr        = testing_zgelqs;
     test_zgelqs.next        = NULL;
 

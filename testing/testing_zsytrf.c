@@ -88,7 +88,6 @@ testing_zsytrf_init( void )
     test_zsytrf.params      = zsytrf_params;
     test_zsytrf.output      = zsytrf_output;
     test_zsytrf.outchk      = zsytrf_outchk;
-    test_zsytrf.params_list = "nb;P;uplo;n;lda;seedA";
     test_zsytrf.fptr        = testing_zsytrf;
     test_zsytrf.next        = NULL;
 

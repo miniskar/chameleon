@@ -127,7 +127,6 @@ testing_zunmlq_init( void )
     test_zunmlq.params      = zunmlq_params;
     test_zunmlq.output      = zunmlq_output;
     test_zunmlq.outchk      = zunmlq_outchk;
-    test_zunmlq.params_list = "nb;ib;P;side;trans;m;n;k;lda;ldc;rh;seedA;seedC";
     test_zunmlq.fptr        = testing_zunmlq;
     test_zunmlq.next        = NULL;
 

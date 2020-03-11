@@ -116,7 +116,6 @@ testing_zlascal_init( void )
     test_zlascal.params      = zlascal_params;
     test_zlascal.output      = zlascal_output;
     test_zlascal.outchk      = zlascal_outchk;
-    test_zlascal.params_list = "nb;P;uplo;m;n;lda;alpha;seedA";
     test_zlascal.fptr        = testing_zlascal;
     test_zlascal.next        = NULL;
 

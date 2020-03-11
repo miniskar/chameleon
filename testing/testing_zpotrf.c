@@ -88,7 +88,6 @@ testing_zpotrf_init( void )
     test_zpotrf.params      = zpotrf_params;
     test_zpotrf.output      = zpotrf_output;
     test_zpotrf.outchk      = zpotrf_outchk;
-    test_zpotrf.params_list = "nb;P;uplo;n;lda;seedA";
     test_zpotrf.fptr        = testing_zpotrf;
     test_zpotrf.next        = NULL;
 

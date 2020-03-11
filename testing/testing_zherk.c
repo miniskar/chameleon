@@ -118,7 +118,6 @@ testing_zherk_init( void )
     test_zherk.params      = zherk_params;
     test_zherk.output      = zherk_output;
     test_zherk.outchk      = zherk_outchk;
-    test_zherk.params_list = "nb;P;trans;uplo;n;k;lda;ldc;alpha;beta;seedA;seedC;bump";
     test_zherk.fptr        = testing_zherk;
     test_zherk.next        = NULL;
 

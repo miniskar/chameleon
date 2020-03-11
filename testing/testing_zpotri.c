@@ -93,7 +93,6 @@ testing_zpotri_init( void )
     test_zpotri.params      = zpotri_params;
     test_zpotri.output      = zpotri_output;
     test_zpotri.outchk      = zpotri_outchk;
-    test_zpotri.params_list = "nb;P;uplo;n;lda;seedA";
     test_zpotri.fptr        = testing_zpotri;
     test_zpotri.next        = NULL;
 

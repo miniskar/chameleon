@@ -125,7 +125,6 @@ testing_zgeadd_init( void )
     test_zgeadd.params      = zgeadd_params;
     test_zgeadd.output      = zgeadd_output;
     test_zgeadd.outchk      = zgeadd_outchk;
-    test_zgeadd.params_list = "nb;P;trans;m;n;lda;ldb;alpha;beta;seedA;seedB";
     test_zgeadd.fptr        = testing_zgeadd;
     test_zgeadd.next        = NULL;
 

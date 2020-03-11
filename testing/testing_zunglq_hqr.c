@@ -119,7 +119,6 @@ testing_zunglq_hqr_init( void )
     test_zunglq_hqr.params      = zunglq_hqr_params;
     test_zunglq_hqr.output      = zunglq_hqr_output;
     test_zunglq_hqr.outchk      = zunglq_hqr_outchk;
-    test_zunglq_hqr.params_list = "nb;ib;P;m;n;k;lda;qra;qrp;llvl;hlvl;domino;seedA";
     test_zunglq_hqr.fptr        = testing_zunglq_hqr;
     test_zunglq_hqr.next        = NULL;
 

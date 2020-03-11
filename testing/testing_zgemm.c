@@ -129,7 +129,6 @@ testing_zgemm_init( void )
     test_zgemm.params      = zgemm_params;
     test_zgemm.output      = zgemm_output;
     test_zgemm.outchk      = zgemm_outchk;
-    test_zgemm.params_list = "nb;P;transA;transB;m;n;k;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC";
     test_zgemm.fptr        = testing_zgemm;
     test_zgemm.next        = NULL;
 

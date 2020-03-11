@@ -109,7 +109,6 @@ testing_zgelqf_init( void )
     test_zgelqf.params      = zgelqf_params;
     test_zgelqf.output      = zgelqf_output;
     test_zgelqf.outchk      = zgelqf_outchk;
-    test_zgelqf.params_list = "nb;ib;P;m;n;lda;rh;seedA";
     test_zgelqf.fptr        = testing_zgelqf;
     test_zgelqf.next        = NULL;
 

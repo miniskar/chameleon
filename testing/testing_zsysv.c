@@ -113,7 +113,6 @@ testing_zsysv_init( void )
     test_zsysv.params      = zsysv_params;
     test_zsysv.output      = zsysv_output;
     test_zsysv.outchk      = zsysv_outchk;
-    test_zsysv.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zsysv.fptr        = testing_zsysv;
     test_zsysv.next        = NULL;
 

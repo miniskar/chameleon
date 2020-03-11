@@ -103,7 +103,6 @@ testing_zsytrs_init( void )
     test_zsytrs.params      = zsytrs_params;
     test_zsytrs.output      = zsytrs_output;
     test_zsytrs.outchk      = zsytrs_outchk;
-    test_zsytrs.params_list = "nb;P;uplo;n;nrhs;lda;ldb;seedA;seedB";
     test_zsytrs.fptr        = testing_zsytrs;
     test_zsytrs.next        = NULL;
 

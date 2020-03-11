@@ -160,7 +160,6 @@ testing_ztradd_init( void )
     test_ztradd.params      = ztradd_params;
     test_ztradd.output      = ztradd_output;
     test_ztradd.outchk      = ztradd_outchk;
-    test_ztradd.params_list = "nb;P;trans;uplo;m;n;lda;ldb;alpha;beta;seedA;seedB";
     test_ztradd.fptr        = testing_ztradd;
     test_ztradd.next        = NULL;
 

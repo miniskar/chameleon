@@ -94,7 +94,6 @@ testing_zlauum_init( void )
     test_zlauum.params      = zlauum_params;
     test_zlauum.output      = zlauum_output;
     test_zlauum.outchk      = zlauum_outchk;
-    test_zlauum.params_list = "nb;P;uplo;n;lda;seedA";
     test_zlauum.fptr        = testing_zlauum;
     test_zlauum.next        = NULL;
 

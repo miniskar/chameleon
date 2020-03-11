@@ -108,7 +108,6 @@ testing_zunglq_init( void )
     test_zunglq.params      = zunglq_params;
     test_zunglq.output      = zunglq_output;
     test_zunglq.outchk      = zunglq_outchk;
-    test_zunglq.params_list = "nb;ib;P;m;n;k;lda;rh;seedA";
     test_zunglq.fptr        = testing_zunglq;
     test_zunglq.next        = NULL;
 

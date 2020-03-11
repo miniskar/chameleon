@@ -123,7 +123,6 @@ testing_zher2k_init( void )
     test_zher2k.params      = zher2k_params;
     test_zher2k.output      = zher2k_output;
     test_zher2k.outchk      = zher2k_outchk;
-    test_zher2k.params_list = "nb;P;trans;uplo;n;k;lda;ldb;ldc;alpha;beta;seedA;seedB;seedC;bump";
     test_zher2k.fptr        = testing_zher2k;
     test_zher2k.next        = NULL;
 

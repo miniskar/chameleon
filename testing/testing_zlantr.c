@@ -133,7 +133,6 @@ testing_zlantr_init( void )
     test_zlantr.params      = zlantr_params;
     test_zlantr.output      = zlantr_output;
     test_zlantr.outchk      = zlantr_outchk;
-    test_zlantr.params_list = "nb;P;norm;uplo;diag;m;n;lda;seedA";
     test_zlantr.fptr        = testing_zlantr;
     test_zlantr.next        = NULL;
 

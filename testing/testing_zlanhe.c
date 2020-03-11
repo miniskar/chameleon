@@ -113,7 +113,6 @@ testing_zlanhe_init( void )
     test_zlanhe.params      = zlanhe_params;
     test_zlanhe.output      = zlanhe_output;
     test_zlanhe.outchk      = zlanhe_outchk;
-    test_zlanhe.params_list = "nb;P;norm;uplo;n;lda;seedA;bump";
     test_zlanhe.fptr        = testing_zlanhe;
     test_zlanhe.next        = NULL;
 

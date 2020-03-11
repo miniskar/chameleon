@@ -102,7 +102,6 @@ testing_zgetrs_init( void )
     test_zgetrs.params      = zgetrs_params;
     test_zgetrs.output      = zgetrs_output;
     test_zgetrs.outchk      = zgetrs_outchk;
-    test_zgetrs.params_list = "nb;P;n;nrhs;lda;ldb;seedA;seedB";
     test_zgetrs.fptr        = testing_zgetrs;
     test_zgetrs.next        = NULL;
 

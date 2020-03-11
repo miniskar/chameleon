@@ -120,7 +120,6 @@ testing_zgelqf_hqr_init( void )
     test_zgelqf_hqr.params      = zgelqf_hqr_params;
     test_zgelqf_hqr.output      = zgelqf_hqr_output;
     test_zgelqf_hqr.outchk      = zgelqf_hqr_outchk;
-    test_zgelqf_hqr.params_list = "nb;ib;P;m;n;lda;qra;qrp;llvl;hlvl;domino;seedA";
     test_zgelqf_hqr.fptr        = testing_zgelqf_hqr;
     test_zgelqf_hqr.next        = NULL;
 

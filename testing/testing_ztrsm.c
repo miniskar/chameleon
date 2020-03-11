@@ -105,7 +105,6 @@ testing_ztrsm_init( void )
     test_ztrsm.params      = ztrsm_params;
     test_ztrsm.output      = ztrsm_output;
     test_ztrsm.outchk      = ztrsm_outchk;
-    test_ztrsm.params_list = "nb;P;trans;side;uplo;diag;n;k;lda;ldb;alpha;seedA;seedB";
     test_ztrsm.fptr        = testing_ztrsm;
     test_ztrsm.next        = NULL;
 

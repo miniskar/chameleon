@@ -112,7 +112,6 @@ testing_zgesv_init( void )
     test_zgesv.params      = zgesv_params;
     test_zgesv.output      = zgesv_output;
     test_zgesv.outchk      = zgesv_outchk;
-    test_zgesv.params_list = "nb;P;n;nrhs;lda;ldb;seedA;seedB";
     test_zgesv.fptr        = testing_zgesv;
     test_zgesv.next        = NULL;
 
