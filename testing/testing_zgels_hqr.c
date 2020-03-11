@@ -25,6 +25,10 @@ static cham_fixdbl_t
 flops_zgels_hqr( cham_trans_t trans, int M, int N, int NRHS )
 {
     cham_fixdbl_t flops = 0.;
+    (void)trans;
+    (void)M;
+    (void)N;
+    (void)NRHS;
     return flops;
 }
 

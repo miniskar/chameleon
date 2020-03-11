@@ -21,26 +21,46 @@
 #include "flops.h"
 
 static cham_fixdbl_t
-flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, cham_diag_t diag, int M, int N )
+flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
 {
-    /* TODO: update formula */
-    cham_fixdbl_t flops   = 0.;
+    cham_fixdbl_t flops = 0.;
     double coefabs = 1.;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
 
+    switch ( uplo ) {
+        case ChamUpper:
+            if ( N > M ) {
+                flops = ( M * ( M + 1 ) / 2 ) + M * ( N - M );
+            }
+            else {
+                flops = N * ( N + 1 ) / 2;
+            }
+            break;
+        case ChamLower:
+            if ( M > N ) {
+                flops = ( N * ( N + 1 ) / 2 ) + N * ( M - N );
+            }
+            else {
+                flops = M * ( M + 1 ) / 2;
+            }
+            break;
+        case ChamUpperLower:
+        default:
+            flops = M * N;
+    }
+    flops *= coefabs;
+
     switch ( ntype ) {
-        case ChamMaxNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2.;
-            break;
         case ChamOneNorm:
+            flops += N;
+            break;
         case ChamInfNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2. + N * ( N - 1 );
+            flops += M;
             break;
+        case ChamMaxNorm:
         case ChamFrobeniusNorm:
-            flops = ( coefabs + 1. ) * ( N * ( N + 1 ) ) / 2.;
-            break;
         default:;
     }
     return flops;
@@ -66,7 +86,7 @@ testing_zlantr( run_arg_list_t *args, int check )
     int             seedA     = run_arg_get_int( args, "seedA", random() );
     int             Q         = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlantr( norm_type, uplo, diag, M, N );
+    cham_fixdbl_t flops = flops_zlantr( norm_type, uplo, M, N );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 

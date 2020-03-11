@@ -125,6 +125,7 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
     MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
 #endif
 
+    (void)args;
     return info_solution;
 }
 
@@ -236,6 +237,7 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
     MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
 #endif
 
+    (void)args;
     return info_solution;
 }
 
@@ -366,6 +368,7 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
     MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
 #endif
 
+    (void)args;
     return info_solution;
 }
 
@@ -428,6 +431,7 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
 
     CHAMELEON_Desc_Destroy( &descBlas );
 
+    (void)args;
     return info_solution;
 }
 
@@ -553,6 +557,7 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
+    (void)args;
     return info_solution;
 }
 
@@ -702,6 +707,8 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
 
     (void)Clapacknorm;
     (void)Cchamnorm;
+    (void)matrix_type;
+    (void)args;
     return info_solution;
 }
 
@@ -882,6 +889,8 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
+    (void)matrix_type;
+    (void)args;
     return info_solution;
 }
 
@@ -1012,6 +1021,7 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
 #endif
 
     (void)Bnorm;
+    (void)args;
     return info_solution;
 }
 
@@ -1088,6 +1098,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 
@@ -1213,6 +1224,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 
@@ -1301,6 +1313,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
 #endif
 
     (void)Bnorm;
+    (void)args;
     return info_global;
 }
 
@@ -1454,6 +1467,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 
@@ -1503,6 +1517,7 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 
@@ -1735,6 +1750,7 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
 #endif
 
     (void)Qnorm;
+    (void)args;
     return info_global;
 }
 
@@ -1795,6 +1811,7 @@ int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 
@@ -1855,6 +1872,7 @@ int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     info_global = info_local;
 #endif
 
+    (void)args;
     return info_global;
 }
 

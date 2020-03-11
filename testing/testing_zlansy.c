@@ -21,7 +21,7 @@
 #include "flops.h"
 
 static cham_fixdbl_t
-flops_zlansy( cham_normtype_t ntype, cham_uplo_t uplo, int N )
+flops_zlansy( cham_normtype_t ntype, int N )
 {
     cham_fixdbl_t flops   = 0.;
     double coefabs = 1.;
@@ -64,7 +64,7 @@ testing_zlansy( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t bump      = testing_zalea();
     int                   Q         = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlansy( norm_type, uplo, N );
+    cham_fixdbl_t flops = flops_zlansy( norm_type, N );
 
     bump = run_arg_get_complex64( args, "bump", bump );
 
