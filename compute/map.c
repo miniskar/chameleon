@@ -16,6 +16,33 @@
  */
 #include "control/common.h"
 
+struct map_args_s {
+    cham_unary_operator_t  function;
+    void                  *args;
+};
+
+static inline int
+map_cpu( void *op_args,
+         cham_uplo_t uplo, int m, int n, int ndata,
+         const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
+{
+    struct map_args_s *options = (struct map_args_s *)op_args;
+
+    if ( ndata > 1 ) {
+        fprintf( stderr, "map_cpu: supports only one piece of data and %d have been given\n", ndata );
+    }
+    options->function( descA, uplo, m, n, tileA, options->args );
+
+    return 0;
+}
+
+static cham_map_operator_t map_op = {
+    .name     = "map",
+    .cpufunc  = map_cpu,
+    .cudafunc = NULL,
+    .hipfunc  = NULL,
+};
+
 /**
  ********************************************************************************
  *
@@ -78,8 +105,17 @@ int CHAMELEON_map_Tile( cham_access_t         access,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_map_Tile_Async( access, uplo, A, op_fct, op_args, sequence, &request );
-
+    {
+        cham_map_data_t data = {
+            .access = access,
+            .desc   = A
+        };
+        struct map_args_s map_args = {
+            .function = op_fct,
+            .args     = op_args,
+        };
+        chameleon_pmap( uplo, 1, &data, &map_op, &map_args, sequence, &request );
+    }
     CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
@@ -164,7 +200,20 @@ int CHAMELEON_map_Tile_Async( cham_access_t         access,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pmap( access, uplo, A, op_fct, op_args, sequence, request );
+    {
+        cham_map_data_t data = {
+            .access = access,
+            .desc   = A
+        };
+        struct map_args_s map_args = {
+            .function = op_fct,
+            .args     = op_args,
+        };
+        chameleon_pmap( uplo, 1, &data, &map_op, &map_args, sequence, request );
 
+        /* Need to wait to make sure no one access map_args after this function returned. */
+        CHAMELEON_Desc_Flush( A, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+    }
     return CHAMELEON_SUCCESS;
 }
