@@ -17,7 +17,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
@@ -25,7 +25,7 @@
 #  @author Florent Pruvost
 #  @author Alycia Lisito
 #  @author Matthieu Kuhn
-#  @date 2022-02-22
+#  @date 2024-04-03
 #
 ###
 
@@ -105,7 +105,14 @@ set(ZSRC_WO_STDAPI
   testing_zplrnk.c
   testing_zcesca.c
   testing_zgram.c
-)
+  #
+  # Batch kernels
+  #
+  testing_zgemm_batch.c
+  testing_zherk_batch.c
+  testing_zpotrf_batch.c
+  testing_ztrsm_batch.c
+  )
 
 foreach(_precision ${CHAMELEON_PRECISION} )
 

@@ -27,7 +27,7 @@
 #  @author Alycia Lisito
 #  @author Loris Lucido
 #  @author Matthieu Kuhn
-#  @date 2023-08-22
+#  @date 2024-04-03
 #
 ###
 
@@ -261,6 +261,16 @@ set(ZSRC
     zgenm2.c
     pzgenm2.c
     zprint.c
+    ##################
+    # Batch
+    ##################
+    zplghe_batch.c
+    #
+    zgemm_batch.c
+    zherk_batch.c
+    ztrsm_batch.c
+    #
+    zpotrf_batch.c
 )
 
 precisions_rules_py(CHAMELEON_SRCS_GENERATED "${ZSRC}"
