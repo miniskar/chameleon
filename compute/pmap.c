@@ -9,42 +9,44 @@
  *
  * @brief Chameleon map parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2024-03-11
  *
  */
 #include "control/common.h"
 
-#define A(m, n) A,  m,  n
+#define A(m, n) A, m, n
+
 /**
- *  chameleon_pmap - Generate a random matrix by tiles.
+ *  chameleon_pmap
  */
-void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
-                     cham_unary_operator_t op_fct, void *op_args,
+void chameleon_pmap( cham_uplo_t uplo, int ndata, cham_map_data_t *data,
+                     cham_map_operator_t *op_fct, void *op_args,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
+    const CHAM_desc_t *A = data[0].desc;
     int m, n;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS)
         return;
-    RUNTIME_options_init(&options, chamctxt, sequence, request);
+    RUNTIME_options_init( &options, chamctxt, sequence, request );
 
     switch( uplo ) {
     case ChamUpper:
         for (n = 0; n < A->nt; n++) {
             for (m = 0; m < n; m++) {
                 INSERT_TASK_map(
-                    &options,
-                    access, ChamUpperLower, A(m, n),
+                    &options, ChamUpperLower, m, n,
+                    ndata, data,
                     op_fct, op_args );
             }
             INSERT_TASK_map(
-                &options,
-                access, uplo, A(n, n),
+                &options, uplo, n, n,
+                ndata, data,
                 op_fct, op_args );
         }
         break;
@@ -52,13 +54,13 @@ void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
     case ChamLower:
         for (n = 0; n < A->nt; n++) {
             INSERT_TASK_map(
-                &options,
-                access, uplo, A(n, n),
+                &options, uplo, n, n,
+                ndata, data,
                 op_fct, op_args );
             for (m = n+1; m < A->mt; m++) {
                 INSERT_TASK_map(
-                    &options,
-                    access, ChamUpperLower, A(m, n),
+                    &options, ChamUpperLower, m, n,
+                    ndata, data,
                     op_fct, op_args );
             }
         }
@@ -69,12 +71,12 @@ void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
         for (m = 0; m < A->mt; m++) {
             for (n = 0; n < A->nt; n++) {
                 INSERT_TASK_map(
-                    &options,
-                    access, uplo, A(m, n),
+                    &options, ChamUpperLower, m, n,
+                    ndata, data,
                     op_fct, op_args );
             }
         }
     }
 
-    RUNTIME_options_finalize(&options, chamctxt);
+    RUNTIME_options_finalize( &options, chamctxt );
 }

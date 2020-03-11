@@ -18,7 +18,7 @@
  * @author Florent Pruvost
  * @author Philippe Virouleau
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-22
+ * @date 2024-03-11
  *
  */
 #ifndef _chameleon_h_
@@ -92,6 +92,20 @@ int CHAMELEON_map_Tile_Async( cham_access_t         access,
                               void                 *op_args,
                               RUNTIME_sequence_t   *sequence,
                               RUNTIME_request_t    *request );
+
+int CHAMELEON_mapv_Tile( cham_uplo_t          uplo,
+                         int                  ndata,
+                         cham_map_data_t     *data,
+                         cham_map_operator_t *op_fct,
+                         void                *op_args );
+
+int CHAMELEON_mapv_Tile_Async( cham_uplo_t          uplo,
+                               int                  ndata,
+                               cham_map_data_t     *data,
+                               cham_map_operator_t *op_fct,
+                               void                *op_args,
+                               RUNTIME_sequence_t  *sequence,
+                               RUNTIME_request_t   *request );
 
 /* ****************************************************************************
  * CHAMELEON Functions
