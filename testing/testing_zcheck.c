@@ -79,8 +79,8 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
     }
 
     /* Converts the matrices to LAPACK layout in order to compare them on the main process */
-    CHAMELEON_Tile_to_Lapack( descA, A, LDA );
-    CHAMELEON_Tile_to_Lapack( descB, B, LDA );
+    CHAMELEON_zDesc2Lap( uplo, descA, A, LDA );
+    CHAMELEON_zDesc2Lap( uplo, descB, B, LDA );
 
     if ( rank == 0 ) {
         double *work = (double *)malloc(LDA*N*sizeof(double));
@@ -175,7 +175,7 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
     }
 
     /* Converts the matrix to LAPACK layout in order to use the LAPACK norm function */
-    CHAMELEON_Tile_to_Lapack( descA, A, LDA );
+    CHAMELEON_zDesc2Lap( uplo, descA, A, LDA );
 
     if ( rank == 0 ) {
         double *work = (double*) malloc(chameleon_max(M, N)*sizeof(double));
@@ -294,6 +294,7 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
     CHAMELEON_Complex64_t *Bref  = NULL;
     CHAMELEON_Complex64_t *Bcham = NULL;
     CHAMELEON_Complex64_t  mzone = -1.0;
+    cham_uplo_t uploA = uplo;
 
     if ( rank == 0 ) {
         A     = malloc(An*LDA*sizeof(CHAMELEON_Complex64_t));
@@ -311,16 +312,16 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
             Anorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uplo, ChamNonUnit, descA );
         }
         else {
-            cham_uplo_t uplo_inv = (uplo == ChamUpper) ? ChamLower : ChamUpper;
-            Anorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uplo_inv, ChamNonUnit, descA );
+            uploA = (uplo == ChamUpper) ? ChamLower : ChamUpper;
+            Anorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uploA, ChamNonUnit, descA );
         }
         Binitnorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uplo, ChamNonUnit, descBref );
     }
 
     /* Creates the LAPACK version of the matrices */
-    CHAMELEON_Tile_to_Lapack( descA,     A,     LDA );
-    CHAMELEON_Tile_to_Lapack( descBref,  Bref,  LDB );
-    CHAMELEON_Tile_to_Lapack( descBcham, Bcham, LDB );
+    CHAMELEON_zDesc2Lap( uploA, descA,     A,     LDA );
+    CHAMELEON_zDesc2Lap( uplo,  descBref,  Bref,  LDB );
+    CHAMELEON_zDesc2Lap( uplo,  descBcham, Bcham, LDB );
 
     if ( rank == 0 ) {
         double  eps  = LAPACKE_dlamch_work('e');
@@ -411,7 +412,7 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
     }
 
     /* Converts the matrix to LAPACK layout in order to scale with BLAS */
-    CHAMELEON_Tile_to_Lapack( descA1, Ainit, M );
+    CHAMELEON_zDesc2Lap( uplo, descA1, Ainit, M );
 
     if ( rank == 0 ) {
         /* Scales using core function */
@@ -420,7 +421,7 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
 
     /* Converts back into Chameleon to compare with check_zmatrices */
     descBlas = CHAMELEON_Desc_CopyOnZero( descA1, NULL );
-    CHAMELEON_Lapack_to_Tile( Ainit, M, descBlas );
+    CHAMELEON_zLap2Desc( uplo, Ainit, M, descBlas );
 
     /* Compares the two matrices */
     info_solution = check_zmatrices( args, uplo, descA2, descBlas );
@@ -520,10 +521,10 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
         C    = (CHAMELEON_Complex64_t *)malloc(N *LDC*sizeof(CHAMELEON_Complex64_t));
     }
 
-    CHAMELEON_Tile_to_Lapack(descA,    A,    LDA);
-    CHAMELEON_Tile_to_Lapack(descB,    B,    LDB);
-    CHAMELEON_Tile_to_Lapack(descCref, Cref, LDC);
-    CHAMELEON_Tile_to_Lapack(descC,    C,    LDC);
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descA,    A,    LDA );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descB,    B,    LDB );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descCref, Cref, LDC );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descC,    C,    LDC );
 
     if ( rank == 0 ) {
         double eps = LAPACKE_dlamch_work('e');
@@ -656,10 +657,10 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
     }
 
     /* Creates the LAPACK version of the matrices */
-    CHAMELEON_Tile_to_Lapack( descA,    A,    LDA );
-    CHAMELEON_Tile_to_Lapack( descB,    B,    LDB );
-    CHAMELEON_Tile_to_Lapack( descCref, Cref, LDC );
-    CHAMELEON_Tile_to_Lapack( descC,    C,    LDC );
+    CHAMELEON_zDesc2Lap( uplo,           descA,    A,    LDA );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descB,    B,    LDB );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descCref, Cref, LDC );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descC,    C,    LDC );
 
     if ( rank == 0 ) {
         double eps = LAPACKE_dlamch_work('e');
@@ -806,11 +807,11 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     }
 
     /* Creates the LAPACK version of the matrices */
-    CHAMELEON_Tile_to_Lapack( descA,    A,    LDA );
-    CHAMELEON_Tile_to_Lapack( descCref, Cref, LDC );
-    CHAMELEON_Tile_to_Lapack( descC,    C,    LDC );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descA,    A,    LDA );
+    CHAMELEON_zDesc2Lap( uplo,           descCref, Cref, LDC );
+    CHAMELEON_zDesc2Lap( uplo,           descC,    C,    LDC );
     if ( descB != NULL ) {
-        CHAMELEON_Tile_to_Lapack( descB, B, LDA );
+        CHAMELEON_zDesc2Lap( ChamUpperLower, descB, B, LDA );
     }
 
     if ( rank == 0 ) {
@@ -979,9 +980,9 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
     }
 
     /* Creates the LAPACK version of the matrices */
-    CHAMELEON_Tile_to_Lapack(descA,    A,    LDA);
-    CHAMELEON_Tile_to_Lapack(descB,    B,    LDB);
-    CHAMELEON_Tile_to_Lapack(descBref, Bref, LDB);
+    CHAMELEON_zDesc2Lap( uplo,           descA,    A,    LDA);
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descB,    B,    LDB);
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descBref, Bref, LDB);
 
     if ( rank == 0 ) {
         double eps = LAPACKE_dlamch_work('e');

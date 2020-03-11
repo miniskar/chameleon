@@ -71,6 +71,7 @@ subs = {
 
         # ----- Chameleon Prefixes
         ('CHAMELEON_P',          'CHAMELEON_S',          'CHAMELEON_D',          'CHAMELEON_C',          'CHAMELEON_Z'         ),
+        ('CHAMELEON_p',          'CHAMELEON_s',          'CHAMELEON_d',          'CHAMELEON_c',          'CHAMELEON_z'         ),
         ('RUNTIME_P',            'RUNTIME_s',            'RUNTIME_d',            'RUNTIME_c',            'RUNTIME_z'           ),
         ('chameleon_p',          'chameleon_s',          'chameleon_d',          'chameleon_c',          'chameleon_z'         ),
         ('codelet_p',            'codelet_s',            'codelet_d',            'codelet_c',            'codelet_z'           ),

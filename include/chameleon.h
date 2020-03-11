@@ -91,13 +91,16 @@ int CHAMELEON_Distributed_start (void);
 int CHAMELEON_Distributed_stop  (void);
 int CHAMELEON_Comm_size         (void);
 int CHAMELEON_Comm_rank         (void);
-int CHAMELEON_Lapack_to_Tile    (void *Af77, int LDA, CHAM_desc_t *A);
-int CHAMELEON_Tile_to_Lapack    (CHAM_desc_t *A, void *Af77, int LDA);
+int CHAMELEON_Lap2Desc          ( cham_uplo_t uplo, void *Af77, int LDA, CHAM_desc_t *A );
+int CHAMELEON_Desc2Lap          ( cham_uplo_t uplo, CHAM_desc_t *A, void *Af77, int LDA );
 int CHAMELEON_Distributed_start (void);
 int CHAMELEON_Distributed_stop  (void);
 int CHAMELEON_Distributed_size  (int *size);
 int CHAMELEON_Distributed_rank  (int *rank);
 int CHAMELEON_GetThreadNbr      (void);
+
+int CHAMELEON_Lapack_to_Tile( void *Af77, int LDA, CHAM_desc_t *A ) __attribute__((deprecated("Please refer to CHAMELEON_Lap2Desc() instead")));
+int CHAMELEON_Tile_to_Lapack( CHAM_desc_t *A, void *Af77, int LDA ) __attribute__((deprecated("Please refer to CHAMELEON_Desc2Lap() instead")));
 
 /* Descriptor */
 int CHAMELEON_Element_Size(int type);

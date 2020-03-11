@@ -126,10 +126,10 @@ int main(int argc, char *argv[]) {
 
     /* copy LAPACK matrices in CHAMELEON descriptors to be able to call the tile
      * interface */
-    CHAMELEON_dLapack_to_Tile(A,    N, descA);
-    CHAMELEON_dLapack_to_Tile(B,    N, descB);
-    CHAMELEON_dLapack_to_Tile(X,    N, descX);
-    CHAMELEON_dLapack_to_Tile(Acpy, N, descAC);
+    CHAMELEON_dLap2Desc(UPLO,           A,    N, descA);
+    CHAMELEON_dLap2Desc(ChamUpperLower, B,    N, descB);
+    CHAMELEON_dLap2Desc(ChamUpperLower, X,    N, descX);
+    CHAMELEON_dLap2Desc(UPLO,           Acpy, N, descAC);
 
     /* You could alternatively create descriptors wrapping your allocated
      * matrices to avoid copies Lapack_to_Tile with the following */
@@ -208,11 +208,11 @@ int main(int argc, char *argv[]) {
             res / N / eps / (anorm * xnorm + bnorm ));
     }
 
-    /* get back results in LAPACK format */
-    CHAMELEON_dTile_to_Lapack(descA,  A,    N);
-    CHAMELEON_dTile_to_Lapack(descB,  B,    N);
-    CHAMELEON_dTile_to_Lapack(descX,  X,    N);
-    CHAMELEON_dTile_to_Lapack(descAC, Acpy, N);
+    /* get back results in LAPACK format if needed */
+    CHAMELEON_dDesc2Lap(UPLO,           descA,  A,    N);
+    CHAMELEON_dDesc2Lap(ChamUpperLower, descB,  B,    N);
+    CHAMELEON_dDesc2Lap(ChamUpperLower, descX,  X,    N);
+    CHAMELEON_dDesc2Lap(UPLO,           descAC, Acpy, N);
 
     /* deallocate A, B, X, Acpy and associated descriptors descA, ... */
     CHAMELEON_Desc_Destroy( &descA );

@@ -97,10 +97,10 @@ extern "C" {
      *  FORTRAN API - conversion from LAPACK F77 matrix layout to tile layout
      */
     void CHAMELEON_LAPACK_TO_TILE(intptr_t *Af77, int *LDA, intptr_t *A, int *INFO)
-    {   *INFO = CHAMELEON_Lapack_to_Tile( (void *)Af77, *LDA, (CHAM_desc_t *)(*A)); }
+    {   *INFO = CHAMELEON_Lap2Desc( ChamUpperLower, (void *)Af77, *LDA, (CHAM_desc_t *)(*A) ); }
 
     void CHAMELEON_TILE_TO_LAPACK(intptr_t *A, intptr_t *Af77, int *LDA, int *INFO)
-    {   *INFO = CHAMELEON_Tile_to_Lapack((CHAM_desc_t *)(*A), (void *)Af77, *LDA); }
+    {   *INFO = CHAMELEON_Desc2Lap( ChamUpperLower, (CHAM_desc_t *)(*A), (void *)Af77, *LDA ); }
 
 #ifdef __cplusplus
 }

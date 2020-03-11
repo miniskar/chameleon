@@ -26,7 +26,8 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zLapack_to_Tile - Conversion from LAPACK layout to tile layout.
+ * @brief Conversion of CHAMELEON_Complex64_t matrix from LAPACK layout to tile
+ *        layout.  Deprecated function, see CHAMELEON_zLap2Desc().
  *
  *******************************************************************************
  *
@@ -37,11 +38,71 @@
  *          The leading dimension of the matrix Af77.
  *
  * @param[in,out] A
- *          Descriptor of the CHAMELEON matrix in tile layout.
- *          If CHAMELEON_TRANSLATION_MODE is set to ChamInPlace,
- *          A->mat is not used and set to Af77 when returns, else if
- *          CHAMELEON_TRANSLATION_MODE is set to ChamOutOfPlace,
- *          A->mat has to be allocated before.
+ *          Descriptor of the CHAMELEON matrix.
+ *
+ *******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ *
+ */
+int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A )
+{
+    return CHAMELEON_zLap2Desc( ChamUpperLower, Af77, LDA, A );
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Conversion of CHAMELEON_Complex64_t matrix from tile layout to LAPACK
+ *        layout.  Deprecated function, see CHAMELEON_zDesc2Lap().
+ *
+ *******************************************************************************
+ *
+ * @param[in] A
+ *          Descriptor of the CHAMELEON matrix.
+ *
+ * @param[in,out] Af77
+ *          LAPACK matrix.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix Af77.
+ *
+ *******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ *
+ */
+int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA )
+{
+    return CHAMELEON_zDesc2Lap( ChamUpperLower, A, Af77, LDA );
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Conversion of a CHAMELEON_Complex64_t matrix from LAPACK layout to
+ *        CHAM_desct_t.
+ *
+ *******************************************************************************
+ *
+ * @param[in] uplo
+ *          Specifies the shape of the matrix A:
+ *          = ChamUpper: A is upper triangular;
+ *          = ChamLower: A is lower triangular;
+ *          = ChamUpperLower: A is general.
+ *
+ * @param[in] Af77
+ *          LAPACK matrix.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix Af77.
+ *
+ * @param[in,out] A
+ *          Descriptor of the CHAMELEON matrix.
  *
  *******************************************************************************
  *
@@ -49,13 +110,13 @@
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_zTile_to_Lapack
- * @sa CHAMELEON_cLapack_to_Tile
- * @sa CHAMELEON_dLapack_to_Tile
- * @sa CHAMELEON_sLapack_to_Tile
+ * @sa CHAMELEON_zDesc2Lap
+ * @sa CHAMELEON_cLap2Desc
+ * @sa CHAMELEON_dLap2Desc
+ * @sa CHAMELEON_sLap2Desc
  *
  */
-int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A )
+int CHAMELEON_zLap2Desc( cham_uplo_t uplo, CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -87,7 +148,7 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
     /* Start the computation */
     chameleon_sequence_create( chamctxt, &sequence );
 
-    chameleon_pzlacpy( ChamUpperLower, B, A, sequence, &request );
+    chameleon_pzlacpy( uplo, B, A, sequence, &request );
 
     CHAMELEON_Desc_Flush( B, sequence );
     CHAMELEON_Desc_Flush( A, sequence );
@@ -107,19 +168,22 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_Tile_to_Lapack - Conversion from tile layout to LAPACK layout.
+ * @brief Conversion of CHAMELEON_Complex64_t matrix from LAPACK layout to tile
+ *        layout. Deprecated function, see CHAMELEON_zDesc2Lap().
  *
  *******************************************************************************
  *
+ * @param[in] uplo
+ *          Specifies the shape of the matrix A:
+ *          = ChamUpper: A is upper triangular;
+ *          = ChamLower: A is lower triangular;
+ *          = ChamUpperLower: A is general.
+ *
  * @param[in] A
- *          Descriptor of the CHAMELEON matrix in tile layout.
+ *          Descriptor of the CHAMELEON matrix.
  *
  * @param[in,out] Af77
  *          LAPACK matrix.
- *          If CHAMELEON_TRANSLATION_MODE is set to ChamInPlace,
- *          Af77 has to be A->mat, else if
- *          CHAMELEON_TRANSLATION_MODE is set to ChamOutOfPlace,
- *          Af77 has to be allocated before.
  *
  * @param[in] LDA
  *          The leading dimension of the matrix Af77.
@@ -130,13 +194,13 @@ int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_zLapack_to_Tile
- * @sa CHAMELEON_cTile_to_Lapack
- * @sa CHAMELEON_dTile_to_Lapack
- * @sa CHAMELEON_sTile_to_Lapack
+ * @sa CHAMELEON_zLap2Desc
+ * @sa CHAMELEON_cDesc2Lap
+ * @sa CHAMELEON_dDesc2Lap
+ * @sa CHAMELEON_sDesc2Lap
  *
  */
-int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA )
+int CHAMELEON_zDesc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -167,7 +231,7 @@ int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int 
     /* Start the computation */
     chameleon_sequence_create( chamctxt, &sequence );
 
-    chameleon_pzlacpy( ChamUpperLower, A, B, sequence, &request );
+    chameleon_pzlacpy( uplo, A, B, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
