@@ -27,16 +27,17 @@ testing_zunglq( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descT, *descQ;
 
     /* Reads arguments */
-    int    nb    = run_arg_get_int( args, "nb", 320 );
-    int    ib    = run_arg_get_int( args, "ib", 48 );
-    int    P     = parameters_getvalue_int( "P" );
-    int    N     = run_arg_get_int( args, "N", 1000 );
-    int    M     = run_arg_get_int( args, "M", N );
-    int    K     = run_arg_get_int( args, "K", chameleon_min( M, N ) );
-    int    LDA   = run_arg_get_int( args, "LDA", M );
-    int    RH    = run_arg_get_int( args, "qra", 0 );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
-    int    Q     = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      ib     = run_arg_get_int( args, "ib", 48 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      K      = run_arg_get_int( args, "K", chameleon_min( M, N ) );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      RH     = run_arg_get_int( args, "qra", 0 );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zunglq( M, N, K );
 
@@ -60,9 +61,9 @@ testing_zunglq( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, K, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, K, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( K, N, &descT, P, Q );
 
     /* Fills the matrix with random values */
@@ -90,7 +91,7 @@ testing_zunglq( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zunglq;
-const char *zunglq_params[] = { "nb", "ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
+const char *zunglq_params[] = { "mtxfmt", "nb","ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
 const char *zunglq_output[] = { NULL };
 const char *zunglq_outchk[] = { "RETURN", NULL };
 

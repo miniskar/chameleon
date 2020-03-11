@@ -34,13 +34,14 @@ testing_zlauum( run_arg_list_t *args, int check )
     CHAM_desc_t *descA;
 
     /* Reads arguments */
-    int         nb    = run_arg_get_int( args, "nb", 320 );
-    int         P     = parameters_getvalue_int( "P" );
-    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int         N     = run_arg_get_int( args, "N", 1000 );
-    int         LDA   = run_arg_get_int( args, "LDA", N );
-    int         seedA = run_arg_get_int( args, "seedA", random() );
-    int         Q     = parameters_compute_q( P );
+    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int         nb     = run_arg_get_int( args, "nb", 320 );
+    int         P      = parameters_getvalue_int( "P" );
+    cham_uplo_t uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N      = run_arg_get_int( args, "N", 1000 );
+    int         LDA    = run_arg_get_int( args, "LDA", N );
+    int         seedA  = run_arg_get_int( args, "seedA", random() );
+    int         Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zlauum( N );
 
@@ -48,7 +49,7 @@ testing_zlauum( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
 
     /* Initialises the matrices with the same values */
     CHAMELEON_zplghe_Tile( 0., uplo, descA, seedA );
@@ -76,7 +77,7 @@ testing_zlauum( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlauum;
-const char *zlauum_params[] = { "nb", "uplo", "n", "lda", "seedA", NULL };
+const char *zlauum_params[] = { "mtxfmt", "nb","uplo", "n", "lda", "seedA", NULL };
 const char *zlauum_output[] = { NULL };
 const char *zlauum_outchk[] = { "RETURN", NULL };
 

@@ -27,21 +27,22 @@ testing_ztrsm( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB, *descBinit;
 
     /* Reads arguments */
-    int                   nb    = run_arg_get_int( args, "nb", 320 );
-    int                   P     = parameters_getvalue_int( "P" );
-    cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
-    cham_side_t           side  = run_arg_get_side( args, "side", ChamLeft );
-    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    cham_diag_t           diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
-    int                   N     = run_arg_get_int( args, "N", 1000 );
-    int                   M     = run_arg_get_int( args, "M", N );
-    int                   Ak    = ( side == ChamLeft ) ? M : N;
-    int                   LDA   = run_arg_get_int( args, "LDA", Ak );
-    int                   LDB   = run_arg_get_int( args, "LDB", N );
-    CHAMELEON_Complex64_t alpha = testing_zalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   Q     = parameters_compute_q( P );
+    intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int                   nb     = run_arg_get_int( args, "nb", 320 );
+    int                   P      = parameters_getvalue_int( "P" );
+    cham_trans_t          trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_side_t           side   = run_arg_get_side( args, "side", ChamLeft );
+    cham_uplo_t           uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    cham_diag_t           diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int                   N      = run_arg_get_int( args, "N", 1000 );
+    int                   M      = run_arg_get_int( args, "M", N );
+    int                   Ak     = ( side == ChamLeft ) ? M : N;
+    int                   LDA    = run_arg_get_int( args, "LDA", Ak );
+    int                   LDB    = run_arg_get_int( args, "LDB", N );
+    CHAMELEON_Complex64_t alpha  = testing_zalea();
+    int                   seedA  = run_arg_get_int( args, "seedA", random() );
+    int                   seedB  = run_arg_get_int( args, "seedB", random() );
+    int                   Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_ztrsm( side, M, N );
 
@@ -51,9 +52,9 @@ testing_ztrsm( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, Ak, 0, 0, Ak, Ak, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
 
     /* Fills the matrix with random values */
     /* We bump a little bit the diagonal to make it stable */
@@ -86,7 +87,7 @@ testing_ztrsm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztrsm;
-const char *ztrsm_params[] = { "nb",  "side",  "uplo",  "trans", "diag",  "m", "n",
+const char *ztrsm_params[] = { "mtxfmt", "nb",  "side",  "uplo",  "trans", "diag",  "m", "n",
                                "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
 const char *ztrsm_output[] = { NULL };
 const char *ztrsm_outchk[] = { "RETURN", NULL };

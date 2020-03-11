@@ -27,20 +27,21 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descTS, *descTT, *descQ;
 
     /* Reads arguments */
-    int    nb     = run_arg_get_int( args, "nb", 320 );
-    int    ib     = run_arg_get_int( args, "ib", 48 );
-    int    P      = parameters_getvalue_int( "P" );
-    int    N      = run_arg_get_int( args, "N", 1000 );
-    int    M      = run_arg_get_int( args, "M", N );
-    int    K      = run_arg_get_int( args, "K", chameleon_min( M, N ) );
-    int    LDA    = run_arg_get_int( args, "LDA", M );
-    int    qr_a   = run_arg_get_int( args, "qra", -1 );
-    int    qr_p   = run_arg_get_int( args, "qrp", -1 );
-    int    llvl   = run_arg_get_int( args, "llvl", -1 );
-    int    hlvl   = run_arg_get_int( args, "hlvl", -1 );
-    int    domino = run_arg_get_int( args, "domino", -1 );
-    int    seedA  = run_arg_get_int( args, "seedA", random() );
-    int    Q      = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      ib     = run_arg_get_int( args, "ib", 48 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      K      = run_arg_get_int( args, "K", chameleon_min( M, N ) );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      qr_a   = run_arg_get_int( args, "qra", -1 );
+    int      qr_p   = run_arg_get_int( args, "qrp", -1 );
+    int      llvl   = run_arg_get_int( args, "llvl", -1 );
+    int      hlvl   = run_arg_get_int( args, "hlvl", -1 );
+    int      domino = run_arg_get_int( args, "domino", -1 );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zungqr( M, N, K );
 
@@ -59,9 +60,9 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, M, K, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, M, K, P, Q );
     CHAMELEON_Desc_Create(
-        &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( M, K, &descTS, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( M, K, &descTT, P, Q );
 
@@ -100,7 +101,7 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zungqr_hqr;
-const char *zungqr_hqr_params[] = { "nb",  "ib",   "m",    "n",      "k",     "lda", "qra",
+const char *zungqr_hqr_params[] = { "mtxfmt", "nb", "ib",   "m",    "n",      "k",     "lda", "qra",
                                     "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
 const char *zungqr_hqr_output[] = { NULL };
 const char *zungqr_hqr_outchk[] = { "RETURN", NULL };

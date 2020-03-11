@@ -74,6 +74,7 @@ testing_zlantr( run_arg_list_t *args, int check )
     CHAM_desc_t *descA;
 
     /* Reads arguments */
+    intptr_t        mtxfmt    = parameters_getvalue_int( "mtxfmt" );
     int             nb        = run_arg_get_int( args, "nb", 320 );
     int             P         = parameters_getvalue_int( "P" );
     cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
@@ -91,7 +92,7 @@ testing_zlantr( run_arg_list_t *args, int check )
 
     /* Creates the matrix */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -115,7 +116,7 @@ testing_zlantr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlantr;
-const char *zlantr_params[] = { "nb", "norm", "uplo", "diag", "m", "n", "lda", "seedA", NULL };
+const char *zlantr_params[] = { "mtxfmt", "nb","norm", "uplo", "diag", "m", "n", "lda", "seedA", NULL };
 const char *zlantr_output[] = { NULL };
 const char *zlantr_outchk[] = { "RETURN", NULL };
 

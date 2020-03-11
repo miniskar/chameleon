@@ -28,6 +28,7 @@ testing_zgemm( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
 
     /* Read arguments */
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
     cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
@@ -72,11 +73,11 @@ testing_zgemm( run_arg_list_t *args, int check )
 
     /* Create the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
     CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
 
     /* Fill the matrices with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -94,7 +95,7 @@ testing_zgemm( run_arg_list_t *args, int check )
     /* Check the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descCinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+            &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descCinit, seedC );
 
         hres += check_zgemm( args, transA, transB, alpha, descA, descB, beta, descCinit, descC );
@@ -110,7 +111,7 @@ testing_zgemm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgemm;
-const char *zgemm_params[] = { "nb",  "transA", "transB", "m",     "n",     "k",     "lda", "ldb",
+const char *zgemm_params[] = { "mtxfmt", "nb", "transA", "transB", "m",     "n",     "k",     "lda", "ldb",
                                "ldc", "alpha",  "beta",   "seedA", "seedB", "seedC", NULL };
 const char *zgemm_output[] = { NULL };
 const char *zgemm_outchk[] = { "RETURN", NULL };
