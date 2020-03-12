@@ -18,6 +18,10 @@
 #include "coreblas.h"
 #include "coreblas/coreblas_ztile.h"
 
+#if defined( CHAMELEON_USE_HMAT )
+#include "coreblas/hmat.h"
+#endif
+
 #if defined( PRECISION_z ) || defined( PRECISION_c )
 void
 TCORE_dlag2z( cham_uplo_t uplo, int M, int N,
@@ -114,15 +118,41 @@ TCORE_zgemm( cham_trans_t          transA,
              CHAMELEON_Complex64_t beta,
              CHAM_tile_t *         C )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    assert( B->format & CHAMELEON_TILE_FULLRANK );
-    assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zgemm(
-        transA, transB, M, N, K, alpha,
-        CHAM_tile_get_ptr( A ), A->ld,
-        CHAM_tile_get_ptr( B ), B->ld,
-        beta,
-        CHAM_tile_get_ptr( C ), C->ld );
+    if ( ( A->format & CHAMELEON_TILE_FULLRANK ) &&
+         ( B->format & CHAMELEON_TILE_FULLRANK ) &&
+         ( C->format & CHAMELEON_TILE_FULLRANK ) )
+    {
+        CORE_zgemm( transA, transB, M, N, K, alpha,
+                    CHAM_tile_get_ptr( A ), A->ld,
+                    CHAM_tile_get_ptr( B ), B->ld,
+                    beta,
+                    CHAM_tile_get_ptr( C ), C->ld );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( ( A->format & CHAMELEON_TILE_HMAT ) &&
+              ( B->format & CHAMELEON_TILE_HMAT ) &&
+              ( C->format & CHAMELEON_TILE_HMAT ) )
+    {
+        hmat_zgemm( chameleon_lapack_const( transA ),
+                    chameleon_lapack_const( transB ),
+                    &alpha, A->mat, B->mat,
+                    &beta, C->mat );
+    }
+    else if ( ( A->format & CHAMELEON_TILE_HMAT     ) &&
+              ( B->format & CHAMELEON_TILE_FULLRANK ) &&
+              ( C->format & CHAMELEON_TILE_FULLRANK ) )
+    {
+        assert( transB == ChamNoTrans );
+        hmat_zgemv( chameleon_lapack_const( transA ),
+                    &alpha, A->mat,
+                    CHAM_tile_get_ptr( B ),
+                    &beta,
+                    CHAM_tile_get_ptr( C ), C->n );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
 }
 
 int
@@ -158,22 +188,58 @@ TCORE_zgessq( cham_store_t storev, int M, int N, const CHAM_tile_t *A, CHAM_tile
 int
 TCORE_zgetrf( int M, int N, CHAM_tile_t *A, int *IPIV, int *INFO )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf( M, N, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
+    int rc = -1;
+    if ( A->format & CHAMELEON_TILE_FULLRANK ) {
+        rc = CORE_zgetrf( M, N, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( A->format & CHAMELEON_TILE_HMAT ) {
+        rc = hmat_zgetrf( A->mat );
+        assert( rc == 0 );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
+    return rc;
 }
 
 int
 TCORE_zgetrf_incpiv( int M, int N, int IB, CHAM_tile_t *A, int *IPIV, int *INFO )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf_incpiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
+    if ( A->format & CHAMELEON_TILE_FULLRANK ) {
+        return CORE_zgetrf_incpiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( A->format & CHAMELEON_TILE_HMAT ) {
+        return hmat_zgetrf( A->mat );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
+    return -1;
 }
 
 int
 TCORE_zgetrf_nopiv( int M, int N, int IB, CHAM_tile_t *A, int *INFO )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf_nopiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, INFO );
+    int rc = -1;
+    *INFO  = 0;
+
+    if ( A->format & CHAMELEON_TILE_FULLRANK ) {
+        rc = CORE_zgetrf_nopiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, INFO );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( A->format & CHAMELEON_TILE_HMAT ) {
+        rc     = hmat_zgetrf( A->mat );
+        assert( rc == 0 );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
+    return rc;
 }
 
 void
@@ -423,8 +489,19 @@ TCORE_zplrnt( int                    m,
 void
 TCORE_zpotrf( cham_uplo_t uplo, int n, CHAM_tile_t *A, int *INFO )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zpotrf( uplo, n, CHAM_tile_get_ptr( A ), A->ld, INFO );
+    if ( A->format & CHAMELEON_TILE_FULLRANK ) {
+        CORE_zpotrf( uplo, n, CHAM_tile_get_ptr( A ), A->ld, INFO );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( A->format & CHAMELEON_TILE_HMAT ) {
+        assert( uplo == ChamLower );
+        *INFO = hmat_zpotrf( A->mat );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
+    return;
 }
 
 int
@@ -693,9 +770,25 @@ TCORE_ztrsm( cham_side_t           side,
              const CHAM_tile_t *   A,
              CHAM_tile_t *         B )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    assert( B->format & CHAMELEON_TILE_FULLRANK );
-    CORE_ztrsm( side, uplo, transA, diag, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
+    if ( ( A->format & CHAMELEON_TILE_FULLRANK ) &&
+         ( B->format & CHAMELEON_TILE_FULLRANK ) )
+    {
+        CORE_ztrsm( side, uplo, transA, diag, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
+    }
+#if defined( CHAMELEON_USE_HMAT )
+    else if ( A->format & CHAMELEON_TILE_HMAT ) {
+        hmat_ztrsm( chameleon_lapack_const( side ),
+                    chameleon_lapack_const( uplo ),
+                    chameleon_lapack_const( transA ),
+                    chameleon_lapack_const( diag ),
+                    M, N, &alpha, A->mat,
+                    ( B->format & CHAMELEON_TILE_HMAT ),
+                    CHAM_tile_get_ptr( B ) );
+    }
+#endif
+    else {
+        assert( 0 );
+    }
 }
 
 int
