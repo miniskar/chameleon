@@ -454,7 +454,8 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
         CHAM_tile_t *tile = A->get_blktile( A, m, n );
 
         if ( myrank == owner ) {
-            if ( tile->mat != NULL )
+            if ( (tile->format & CHAMELEON_TILE_HMAT) ||
+                 (tile->mat != NULL) )
             {
                 home_node = STARPU_MAIN_RAM;
             }
