@@ -51,6 +51,9 @@
 #cmakedefine CHAMELEON_USE_CUBLAS
 #cmakedefine CHAMELEON_USE_CUBLAS_V2
 
+/* Hmat-oss */
+#cmakedefine CHAMELEON_USE_HMAT
+
 /* Simulation */
 #cmakedefine CHAMELEON_SIMULATION
 #cmakedefine CHAMELEON_SIMULATION_EXTENDED
