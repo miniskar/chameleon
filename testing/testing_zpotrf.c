@@ -27,13 +27,14 @@ testing_zpotrf( run_arg_list_t *args, int check )
     CHAM_desc_t *descA;
 
     /* Reads arguments */
-    int         nb    = run_arg_get_int( args, "nb", 320 );
-    int         P     = parameters_getvalue_int( "P" );
-    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int         N     = run_arg_get_int( args, "N", 1000 );
-    int         LDA   = run_arg_get_int( args, "LDA", N );
-    int         seedA = run_arg_get_int( args, "seedA", random() );
-    int         Q     = parameters_compute_q( P );
+    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int         nb     = run_arg_get_int( args, "nb", 320 );
+    int         P      = parameters_getvalue_int( "P" );
+    cham_uplo_t uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N      = run_arg_get_int( args, "N", 1000 );
+    int         LDA    = run_arg_get_int( args, "LDA", N );
+    int         seedA  = run_arg_get_int( args, "seedA", random() );
+    int         Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zpotrf( N );
 
@@ -41,7 +42,7 @@ testing_zpotrf( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplghe_Tile( (double)N, uplo, descA, seedA );
@@ -70,7 +71,7 @@ testing_zpotrf( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpotrf;
-const char *zpotrf_params[] = { "nb", "uplo", "n", "lda", "seedA", NULL };
+const char *zpotrf_params[] = { "mtxfmt", "nb","uplo", "n", "lda", "seedA", NULL };
 const char *zpotrf_output[] = { NULL };
 const char *zpotrf_outchk[] = { "RETURN", NULL };
 

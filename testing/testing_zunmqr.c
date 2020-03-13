@@ -29,20 +29,21 @@ testing_zunmqr( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descT, *descC;
 
     /* Reads arguments */
-    int          nb    = run_arg_get_int( args, "nb", 320 );
-    int          ib    = run_arg_get_int( args, "ib", 48 );
-    int          P     = parameters_getvalue_int( "P" );
-    cham_side_t  side  = run_arg_get_uplo( args, "side", ChamLeft );
-    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
-    int          N     = run_arg_get_int( args, "N", 1000 );
-    int          M     = run_arg_get_int( args, "M", N );
-    int          K     = run_arg_get_int( args, "K", chameleon_min( M, N ) );
-    int          LDA   = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
-    int          LDC   = run_arg_get_int( args, "LDC", M );
-    int          RH    = run_arg_get_int( args, "qra", 4 );
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedC = run_arg_get_int( args, "seedC", random() );
-    int          Q     = parameters_compute_q( P );
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          ib     = run_arg_get_int( args, "ib", 48 );
+    int          P      = parameters_getvalue_int( "P" );
+    cham_side_t  side   = run_arg_get_uplo( args, "side", ChamLeft );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          K      = run_arg_get_int( args, "K", chameleon_min( M, N ) );
+    int          LDA    = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
+    int          LDC    = run_arg_get_int( args, "LDC", M );
+    int          RH     = run_arg_get_int( args, "qra", 4 );
+    int          seedA  = run_arg_get_int( args, "seedA", random() );
+    int          seedC  = run_arg_get_int( args, "seedC", random() );
+    int          Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zunmqr( side, M, N, K );
 
@@ -62,9 +63,9 @@ testing_zunmqr( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, Am, K, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, Am, K, P, Q );
     CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( Am, K, &descT, P, Q );
 
     /* Fills the matrix with random values */
@@ -91,7 +92,7 @@ testing_zunmqr( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descC0, seedC );
 
         CHAMELEON_Desc_Create(
-            &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, Am, Am, 0, 0, Am, Am, P, Q );
+            &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, Am, Am, 0, 0, Am, Am, P, Q );
         CHAMELEON_zungqr_Tile( descA, descT, descQ );
 
         hres += check_zqc( args, side, trans, descC0, descQ, descC );
@@ -108,7 +109,7 @@ testing_zunmqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zunmqr;
-const char *zunmqr_params[] = { "nb",  "ib",  "side", "trans", "m",     "n", "k",
+const char *zunmqr_params[] = { "mtxfmt", "nb", "ib",  "side", "trans", "m",     "n", "k",
                                 "lda", "ldc", "qra",   "seedA", "seedC", NULL };
 const char *zunmqr_output[] = { NULL };
 const char *zunmqr_outchk[] = { "RETURN", NULL };

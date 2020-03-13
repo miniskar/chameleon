@@ -765,7 +765,7 @@ CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, descin->p, descin->q,
-                                descin->get_blkaddr, descin->get_blkldd, descin->get_rankof );
+                                NULL, NULL, descin->get_rankof );
     return descout;
 }
 
@@ -800,7 +800,7 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, 1, 1,
-                                descin->get_blkaddr, descin->get_blkldd, descin->get_rankof );
+                                NULL, NULL, descin->get_rankof );
     return descout;
 }
 

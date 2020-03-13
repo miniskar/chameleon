@@ -39,20 +39,21 @@ testing_zgels( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descX, *descT;
 
     /* Reads arguments */
-    int          nb    = run_arg_get_int( args, "nb", 320 );
-    int          ib    = run_arg_get_int( args, "ib", 48 );
-    int          P     = parameters_getvalue_int( "P" );
-    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
-    int          N     = run_arg_get_int( args, "N", 1000 );
-    int          M     = run_arg_get_int( args, "M", N );
-    int          maxMN = chameleon_max( M, N );
-    int          NRHS  = run_arg_get_int( args, "NRHS", 1 );
-    int          LDA   = run_arg_get_int( args, "LDA", M );
-    int          LDB   = run_arg_get_int( args, "LDB", maxMN );
-    int          RH    = run_arg_get_int( args, "qra", 4 );
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedB = run_arg_get_int( args, "seedB", random() );
-    int          Q     = parameters_compute_q( P );
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          ib     = run_arg_get_int( args, "ib", 48 );
+    int          P      = parameters_getvalue_int( "P" );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          maxMN  = chameleon_max( M, N );
+    int          NRHS   = run_arg_get_int( args, "NRHS", 1 );
+    int          LDA    = run_arg_get_int( args, "LDA", M );
+    int          LDB    = run_arg_get_int( args, "LDB", maxMN );
+    int          RH     = run_arg_get_int( args, "qra", 4 );
+    int          seedA  = run_arg_get_int( args, "seedA", random() );
+    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    int          Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zgels( trans, M, N, NRHS );
 
@@ -72,9 +73,9 @@ testing_zgels( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descX, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
+        &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
 
     /* Fills the matrix with random values */
@@ -94,9 +95,9 @@ testing_zgels( run_arg_list_t *args, int check )
         CHAM_desc_t *subX, *subB;
 
         CHAMELEON_Desc_Create(
-            &descA0, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+            &descA0, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
         CHAMELEON_Desc_Create(
-            &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
+            &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, maxMN, NRHS, P, Q );
 
         CHAMELEON_zplrnt_Tile( descA0, seedA );
         CHAMELEON_zplrnt_Tile( descB, seedB );
@@ -128,7 +129,7 @@ testing_zgels( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgels;
-const char *zgels_params[] = { "nb",  "ib",  "trans", "m",     "n",     "k",
+const char *zgels_params[] = { "mtxfmt", "nb", "ib",  "trans", "m",     "n",     "k",
                                "lda", "ldb", "qra",    "seedA", "seedB", NULL };
 const char *zgels_output[] = { NULL };
 const char *zgels_outchk[] = { "RETURN", NULL };

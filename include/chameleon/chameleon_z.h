@@ -321,8 +321,10 @@ int CHAMELEON_Alloc_Workspace_zgetrf_incpiv_Tile(int N, CHAM_desc_t **descL, int
 /**
  *  Auxiliary function prototypes
  */
-int CHAMELEON_zLapack_to_Tile(CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A);
-int CHAMELEON_zTile_to_Lapack(CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA);
+int CHAMELEON_zLapack_to_Tile( CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A ) __attribute__((deprecated("Please refer to CHAMELEON_zLap2Desc() instead")));
+int CHAMELEON_zTile_to_Lapack( CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA ) __attribute__((deprecated("Please refer to CHAMELEON_zDesc2Lap() instead")));
+int CHAMELEON_zLap2Desc( cham_uplo_t uplo, CHAMELEON_Complex64_t *Af77, int LDA, CHAM_desc_t *A );
+int CHAMELEON_zDesc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int LDA );
 
 /**
  *  User Builder function prototypes

@@ -27,15 +27,16 @@ testing_zgeqrf( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descT;
 
     /* Reads arguments */
-    int    nb    = run_arg_get_int( args, "nb", 320 );
-    int    ib    = run_arg_get_int( args, "ib", 48 );
-    int    P     = parameters_getvalue_int( "P" );
-    int    N     = run_arg_get_int( args, "N", 1000 );
-    int    M     = run_arg_get_int( args, "M", N );
-    int    LDA   = run_arg_get_int( args, "LDA", M );
-    int    RH    = run_arg_get_int( args, "qra", 4 );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
-    int    Q     = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      ib     = run_arg_get_int( args, "ib", 48 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      RH     = run_arg_get_int( args, "qra", 4 );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zgeqrf( M, N );
 
@@ -52,7 +53,7 @@ testing_zgeqrf( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
 
     /* Fills the matrix with random values */
@@ -72,7 +73,7 @@ testing_zgeqrf( run_arg_list_t *args, int check )
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
 
         CHAMELEON_Desc_Create(
-            &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, M, M, 0, 0, M, M, P, Q );
+            &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, M, M, 0, 0, M, M, P, Q );
         CHAMELEON_zplrnt_Tile( descA0, seedA );
 
         CHAMELEON_zungqr_Tile( descA, descT, descQ );
@@ -91,7 +92,7 @@ testing_zgeqrf( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgeqrf;
-const char *zgeqrf_params[] = { "nb", "ib", "m", "n", "lda", "qra", "seedA", NULL };
+const char *zgeqrf_params[] = { "mtxfmt", "nb","ib", "m", "n", "lda", "qra", "seedA", NULL };
 const char *zgeqrf_output[] = { NULL };
 const char *zgeqrf_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 

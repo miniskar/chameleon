@@ -281,10 +281,10 @@
  *  FORTRAN API - math functions (simple interface)
  */
 void CHAMELEON_ZLAPACK_TO_TILE(CHAMELEON_Complex64_t *Af77, int *LDA, CHAM_desc_t *A, int *info)
-{ *info = CHAMELEON_zLapack_to_Tile(Af77, *LDA, A); }
+{ *info = CHAMELEON_zLap2Desc( ChamUpperLower, Af77, *LDA, A ); }
 
 void CHAMELEON_ZTILE_TO_LAPACK(CHAM_desc_t *A, CHAMELEON_Complex64_t *Af77, int *LDA, int *info)
-{ *info = CHAMELEON_zTile_to_Lapack(A, Af77, *LDA); }
+{ *info = CHAMELEON_zDesc2Lap( ChamUpperLower, A, Af77, *LDA ); }
 
 //void CHAMELEON_ZGEBRD(int *M, int *N, CHAMELEON_Complex64_t *A, int *LDA, double *D, double *E, CHAM_desc_t **descT, int *info)
 //{ *info = CHAMELEON_zgebrd(*M, *N, A, *LDA, D, E, *descT); }

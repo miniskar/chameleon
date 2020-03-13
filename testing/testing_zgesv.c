@@ -34,15 +34,16 @@ testing_zgesv( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descX;
 
     /* Reads arguments */
-    int    nb    = run_arg_get_int( args, "nb", 320 );
-    int    P     = parameters_getvalue_int( "P" );
-    int    N     = run_arg_get_int( args, "N", 1000 );
-    int    NRHS  = run_arg_get_int( args, "NRHS", 1 );
-    int    LDA   = run_arg_get_int( args, "LDA", N );
-    int    LDB   = run_arg_get_int( args, "LDB", N );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
-    int    seedB = run_arg_get_int( args, "seedB", random() );
-    int    Q     = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      NRHS   = run_arg_get_int( args, "NRHS", 1 );
+    int      LDA    = run_arg_get_int( args, "LDA", N );
+    int      LDB    = run_arg_get_int( args, "LDB", N );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedB  = run_arg_get_int( args, "seedB", random() );
+    int      Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zgesv( N, NRHS );
 
@@ -50,9 +51,9 @@ testing_zgesv( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descX, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
+        &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -94,7 +95,7 @@ testing_zgesv( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgesv;
-const char *zgesv_params[] = { "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zgesv_params[] = { "mtxfmt", "nb","n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
 const char *zgesv_output[] = { NULL };
 const char *zgesv_outchk[] = { "RETURN", NULL };
 

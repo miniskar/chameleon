@@ -28,23 +28,24 @@ testing_zhemm( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
 
     /* Reads arguments */
-    int                   nb    = run_arg_get_int( args, "nb", 320 );
-    int                   P     = parameters_getvalue_int( "P" );
-    cham_side_t           side  = run_arg_get_uplo( args, "side", ChamLeft );
-    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int                   N     = run_arg_get_int( args, "N", 1000 );
-    int                   M     = run_arg_get_int( args, "M", N );
-    int                   LDA   = run_arg_get_int( args, "LDA", ( ( side == ChamLeft ) ? M : N ) );
-    int                   LDB   = run_arg_get_int( args, "LDB", M );
-    int                   LDC   = run_arg_get_int( args, "LDC", M );
-    CHAMELEON_Complex64_t alpha = testing_zalea();
-    CHAMELEON_Complex64_t beta  = testing_zalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   seedC = run_arg_get_int( args, "seedC", random() );
-    double                bump  = testing_dalea();
-    bump                        = run_arg_get_double( args, "bump", bump );
-    int    Q                    = parameters_compute_q( P );
+    intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int                   nb     = run_arg_get_int( args, "nb", 320 );
+    int                   P      = parameters_getvalue_int( "P" );
+    cham_side_t           side   = run_arg_get_uplo( args, "side", ChamLeft );
+    cham_uplo_t           uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int                   N      = run_arg_get_int( args, "N", 1000 );
+    int                   M      = run_arg_get_int( args, "M", N );
+    int                   LDA    = run_arg_get_int( args, "LDA", ( ( side == ChamLeft ) ? M : N ) );
+    int                   LDB    = run_arg_get_int( args, "LDB", M );
+    int                   LDC    = run_arg_get_int( args, "LDC", M );
+    CHAMELEON_Complex64_t alpha  = testing_zalea();
+    CHAMELEON_Complex64_t beta   = testing_zalea();
+    int                   seedA  = run_arg_get_int( args, "seedA", random() );
+    int                   seedB  = run_arg_get_int( args, "seedB", random() );
+    int                   seedC  = run_arg_get_int( args, "seedC", random() );
+    double                bump   = testing_dalea();
+    bump                         = run_arg_get_double( args, "bump", bump );
+    int                   Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zhemm( side, M, N );
 
@@ -63,11 +64,11 @@ testing_zhemm( run_arg_list_t *args, int check )
 
     /* Create the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, Am, 0, 0, Am, Am, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, Am, 0, 0, Am, Am, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplghe_Tile( bump, uplo, descA, seedA );
@@ -85,7 +86,7 @@ testing_zhemm( run_arg_list_t *args, int check )
     /* Checks the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descCinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+            &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descCinit, seedC );
 
         hres +=
@@ -102,7 +103,7 @@ testing_zhemm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zhemm;
-const char *zhemm_params[] = { "nb",    "side", "uplo",  "m",     "n",     "lda",  "ldb", "ldc",
+const char *zhemm_params[] = { "mtxfmt", "nb",   "side", "uplo",  "m",     "n",     "lda",  "ldb", "ldc",
                                "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
 const char *zhemm_output[] = { NULL };
 const char *zhemm_outchk[] = { "RETURN", NULL };

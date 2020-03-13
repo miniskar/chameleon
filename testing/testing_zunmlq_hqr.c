@@ -29,6 +29,7 @@ testing_zunmlq_hqr( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descTS, *descTT, *descC;
 
     /* Reads arguments */
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          ib     = run_arg_get_int( args, "ib", 48 );
     int          P      = parameters_getvalue_int( "P" );
@@ -61,9 +62,9 @@ testing_zunmlq_hqr( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, K, An, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, K, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( K, An, &descTS, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( K, An, &descTT, P, Q );
 
@@ -99,7 +100,7 @@ testing_zunmlq_hqr( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descC0, seedC );
 
         CHAMELEON_Desc_Create(
-            &descQ, NULL, ChamComplexDouble, nb, nb, nb * nb, An, An, 0, 0, An, An, P, Q );
+            &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, An, An, 0, 0, An, An, P, Q );
         CHAMELEON_zunglq_param_Tile( &qrtree, descA, descTS, descTT, descQ );
 
         hres += check_zqc( args, side, trans, descC0, descQ, descC );
@@ -118,7 +119,7 @@ testing_zunmlq_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zunmlq_hqr;
-const char *zunmlq_hqr_params[] = { "nb",   "ib",     "side",  "trans", "m",   "n",
+const char *zunmlq_hqr_params[] = { "mtxfmt", "nb",  "ib",     "side",  "trans", "m",   "n",
                                     "k",    "lda",    "ldc",   "qra",   "qrp", "llvl",
                                     "hlvl", "domino", "seedA", "seedC", NULL };
 const char *zunmlq_hqr_output[] = { NULL };

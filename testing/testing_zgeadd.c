@@ -42,16 +42,17 @@ testing_zgeadd( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB;
 
     /* Read arguments */
-    int          nb    = run_arg_get_int( args, "nb", 320 );
-    int          P     = parameters_getvalue_int( "P" );
-    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
-    int          N     = run_arg_get_int( args, "N", 1000 );
-    int          M     = run_arg_get_int( args, "M", N );
-    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
-    int          LDB   = run_arg_get_int( args, "LDB", M );
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedB = run_arg_get_int( args, "seedB", random() );
-    int          Q     = parameters_compute_q( P );
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          P      = parameters_getvalue_int( "P" );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
+    int          LDB    = run_arg_get_int( args, "LDB", M );
+    int          seedA  = run_arg_get_int( args, "seedA", random() );
+    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    int          Q      = parameters_compute_q( P );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
     cham_fixdbl_t t, gflops;
@@ -73,9 +74,9 @@ testing_zgeadd( run_arg_list_t *args, int check )
 
     /* Create the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
 
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -106,7 +107,7 @@ testing_zgeadd( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgeadd;
-const char *zgeadd_params[] = { "nb",    "trans", "m",     "n",     "lda", "ldb",
+const char *zgeadd_params[] = { "mtxfmt", "nb",   "trans", "m",     "n",     "lda", "ldb",
                                 "alpha", "beta",  "seedA", "seedB", NULL };
 const char *zgeadd_output[] = { NULL };
 const char *zgeadd_outchk[] = { "RETURN", NULL };

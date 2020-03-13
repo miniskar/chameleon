@@ -28,15 +28,16 @@ testing_zsyr2k( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
 
     /* Read arguments */
-    int          nb    = run_arg_get_int( args, "nb", 320 );
-    int          P     = parameters_getvalue_int( "P" );
-    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
-    cham_uplo_t  uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int          N     = run_arg_get_int( args, "N", 1000 );
-    int          K     = run_arg_get_int( args, "K", N );
-    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
-    int          LDB   = run_arg_get_int( args, "LDB", ( ( trans == ChamNoTrans ) ? N : K ) );
-    int          LDC   = run_arg_get_int( args, "LDC", N );
+    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          P      = parameters_getvalue_int( "P" );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t  uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          K      = run_arg_get_int( args, "K", N );
+    int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int          LDB    = run_arg_get_int( args, "LDB", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int          LDC    = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
     int                   seedA = run_arg_get_int( args, "seedA", random() );
@@ -65,11 +66,11 @@ testing_zsyr2k( run_arg_list_t *args, int check )
 
     /* Create the matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, An, 0, 0, Am, An, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, An, 0, 0, Am, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
+        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
 
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -87,7 +88,7 @@ testing_zsyr2k( run_arg_list_t *args, int check )
     /* Check the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descCinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
+            &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
         CHAMELEON_zplgsy_Tile( bump, uplo, descCinit, seedC );
 
         hres +=
@@ -104,7 +105,7 @@ testing_zsyr2k( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsyr2k;
-const char *zsyr2k_params[] = { "nb",    "trans", "uplo",  "n",     "k",     "lda",  "ldb", "ldc",
+const char *zsyr2k_params[] = { "mtxfmt", "nb",   "trans", "uplo",  "n",     "k",     "lda",  "ldb", "ldc",
                                 "alpha", "beta",  "seedA", "seedB", "seedC", "bump", NULL };
 const char *zsyr2k_output[] = { NULL };
 const char *zsyr2k_outchk[] = { "RETURN", NULL };

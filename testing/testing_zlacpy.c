@@ -58,15 +58,16 @@ testing_zlacpy( run_arg_list_t *args, int check )
     CHAM_desc_t *descA, *descB;
 
     /* Reads arguments */
-    int         nb    = run_arg_get_int( args, "nb", 320 );
-    int         P     = parameters_getvalue_int( "P" );
-    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int         N     = run_arg_get_int( args, "N", 1000 );
-    int         M     = run_arg_get_int( args, "M", N );
-    int         LDA   = run_arg_get_int( args, "LDA", M );
-    int         LDB   = run_arg_get_int( args, "LDB", M );
-    int         seedA = run_arg_get_int( args, "seedA", random() );
-    int         Q     = parameters_compute_q( P );
+    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int         nb     = run_arg_get_int( args, "nb", 320 );
+    int         P      = parameters_getvalue_int( "P" );
+    cham_uplo_t uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N      = run_arg_get_int( args, "N", 1000 );
+    int         M      = run_arg_get_int( args, "M", N );
+    int         LDA    = run_arg_get_int( args, "LDA", M );
+    int         LDB    = run_arg_get_int( args, "LDB", M );
+    int         seedA  = run_arg_get_int( args, "seedA", random() );
+    int         Q      = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     cham_fixdbl_t flops = flops_zlacpy( uplo, M, N );
 
@@ -74,9 +75,9 @@ testing_zlacpy( run_arg_list_t *args, int check )
 
     /* Creates two different matrices */
     CHAMELEON_Desc_Create(
-        &descA, NULL, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
 
     /* Fills each matrix with different random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -103,7 +104,7 @@ testing_zlacpy( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlacpy;
-const char *zlacpy_params[] = { "nb", "uplo", "m", "n", "lda", "ldb", "seedA", NULL };
+const char *zlacpy_params[] = { "mtxfmt", "nb","uplo", "m", "n", "lda", "ldb", "seedA", NULL };
 const char *zlacpy_output[] = { NULL };
 const char *zlacpy_outchk[] = { "RETURN", NULL };
 
