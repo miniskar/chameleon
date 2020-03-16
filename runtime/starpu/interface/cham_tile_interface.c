@@ -481,6 +481,37 @@ cti_handle_get_allocsize( starpu_data_handle_t handle )
     return cham_tile_interface->allocsize;
 }
 
+#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+int
+cti_allocate_datatype( starpu_data_handle_t handle,
+                       MPI_Datatype        *datatype )
+{
+    int ret;
+
+    starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
+        starpu_data_get_interface_on_node( handle, STARPU_MAIN_RAM );
+
+    size_t m  = cham_tile_interface->tile.m;
+    size_t n  = cham_tile_interface->tile.n;
+    size_t ld = cham_tile_interface->tile.ld;
+    size_t elemsize = CHAMELEON_Element_Size( cham_tile_interface->flttype );
+
+    ret = MPI_Type_vector( n, m * elemsize, ld * elemsize, MPI_BYTE, datatype );
+    STARPU_ASSERT_MSG(ret == MPI_SUCCESS, "MPI_Type_vector failed");
+
+    ret = MPI_Type_commit( datatype );
+    STARPU_ASSERT_MSG(ret == MPI_SUCCESS, "MPI_Type_commit failed");
+
+    return 0;
+}
+
+void
+cti_free_datatype( MPI_Datatype *datatype )
+{
+    MPI_Type_free( datatype );
+}
+#endif
+
 void
 starpu_cham_tile_interface_init() __attribute__((constructor));
 
@@ -490,5 +521,10 @@ starpu_cham_tile_interface_init()
     if ( starpu_interface_cham_tile_ops.interfaceid == STARPU_UNKNOWN_INTERFACE_ID )
     {
         starpu_interface_cham_tile_ops.interfaceid = starpu_data_interface_get_next_id();
+#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+        starpu_mpi_interface_datatype_register( starpu_interface_cham_tile_ops.interfaceid,
+                                                cti_allocate_datatype,
+                                                cti_free_datatype );
+#endif
     }
 }
