@@ -79,7 +79,7 @@
     paths:
       - "chameleon-$NODE-$MPI-$SLURM_NP.err"
       - "chameleon-$NODE-$MPI-$SLURM_NP.out"
-      - "build-$NODE-$MPI/chameleon.csv"
+      - "tools/bench/plafrim/chameleon.csv"
       - "tools/bench/plafrim/results/$JUBE_ID"
   variables:
     PLATFORM: plafrim
