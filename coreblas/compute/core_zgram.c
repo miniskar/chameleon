@@ -122,16 +122,16 @@ int CORE_zgram( cham_uplo_t uplo,
         return CHAMELEON_SUCCESS;
 
     /* overall mean of squares */
-    d = D[0]*D[0]/(M*N);
+    d = ( D[0] * D[0] ) / ( (double)M * (double)N );
 
     for(j = 0; j < Nt; j++) {
         /* mean of squares of the column */
-        dj = Dj[j*LDDJ]*Dj[j*LDDJ]/M;
+        dj = ( Dj[j*LDDJ] * Dj[j*LDDJ] ) / ((double)M);
         int mmin = ( uplo == ChamLower ) ? j : 0;
         int mmax = ( uplo == ChamUpper)  ? chameleon_min(j+1, Mt) : Mt;
         for(i = mmin; i < mmax; i++) {
             /* mean of squares of the row */
-            di = Di[i*LDDI]*Di[i*LDDI]/N;
+            di = ( Di[i*LDDI] * Di[i*LDDI] ) / ((double)N);
             /* compute Gram factor */
             A[j*LDA+i] = coef*(A[j*LDA+i]*A[j*LDA+i] - di - dj + d);
         }
