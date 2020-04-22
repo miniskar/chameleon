@@ -37,6 +37,7 @@
 #cmakedefine HAVE_STARPU_MPI_CACHED_RECEIVE
 #cmakedefine HAVE_STARPU_MPI_COMM_GET_ATTR
 #cmakedefine HAVE_STARPU_MPI_INIT_CONF
+#cmakedefine HAVE_STARPU_MPI_WAIT_FOR_ALL
 
 #if defined(CHAMELEON_USE_MPI)
 #include <starpu_mpi.h>

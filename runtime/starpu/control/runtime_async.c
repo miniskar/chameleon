@@ -55,9 +55,15 @@ int RUNTIME_sequence_wait( CHAM_context_t  *chamctxt,
         RUNTIME_progress(chamctxt);
     }
 
-    starpu_task_wait_for_all();
 #if defined(CHAMELEON_USE_MPI)
+#  if defined(HAVE_STARPU_MPI_WAIT_FOR_ALL)
+    starpu_mpi_wait_for_all(MPI_COMM_WORLD);
+#  else
+    starpu_task_wait_for_all();
     starpu_mpi_barrier(MPI_COMM_WORLD);
+#  endif
+#else
+    starpu_task_wait_for_all();
 #endif
     return CHAMELEON_SUCCESS;
 }
