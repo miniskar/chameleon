@@ -145,6 +145,12 @@ void CHAMELEON_user_tag_size(int, int);
 int CHAMELEON_Sequence_Create  (RUNTIME_sequence_t **sequence);
 int CHAMELEON_Sequence_Destroy (RUNTIME_sequence_t *sequence);
 int CHAMELEON_Sequence_Wait    (RUNTIME_sequence_t *sequence);
+int CHAMELEON_Sequence_Flush   (RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+
+/* Requests */
+int CHAMELEON_Request_Create  (RUNTIME_request_t **request);
+int CHAMELEON_Request_Destroy (RUNTIME_request_t *request);
+int CHAMELEON_Request_Set     (RUNTIME_request_t *request, int param, int value);
 
 /**
  *

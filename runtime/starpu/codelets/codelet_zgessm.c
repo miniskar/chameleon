@@ -62,6 +62,8 @@ void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgessm;
     void (*callback)(void*) = options->profiling ? cl_zgessm_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(L, Lm, Ln);
@@ -81,6 +83,7 @@ void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
         STARPU_RW,            RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zgessm",
 #endif

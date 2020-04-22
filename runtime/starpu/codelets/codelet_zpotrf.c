@@ -67,6 +67,8 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zpotrf;
     void (*callback)(void*) = options->profiling ? cl_zpotrf_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
@@ -83,6 +85,7 @@ void INSERT_TASK_zpotrf(const RUNTIME_option_t *options,
         /* STARPU_SCRATCH,   options->ws_worker, */
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zpotrf",
 #endif

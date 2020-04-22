@@ -67,6 +67,8 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlacpy;
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R( A, Am, An );
@@ -84,6 +86,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         STARPU_W,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlacpy",
 #endif

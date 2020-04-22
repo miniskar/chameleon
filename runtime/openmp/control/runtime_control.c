@@ -38,6 +38,9 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
         chameleon_warning( "RUNTIME_init_scheduler(OpenMP)", "Multi-threaded kernels are not supported for now");
     }
 
+    chamctxt->nworkers = ncpus;
+    chamctxt->nthreads_per_worker = nthreads_per_worker;
+
     return hres;
 }
 

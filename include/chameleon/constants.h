@@ -217,6 +217,11 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_LOOKAHEAD         8
 
 /**
+ *  CHAMELEON constants - configuration parameters for a request
+ */
+#define CHAMELEON_REQUEST_WORKERID 1
+
+/**
  * @brief QR/LQ factorization trees
  */
 typedef enum chameleon_householder_e {

@@ -58,6 +58,8 @@ void INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_ztplqt;
     void (*callback)(void*) = options->profiling ? cl_ztplqt_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
@@ -78,6 +80,7 @@ void INSERT_TASK_ztplqt( const RUNTIME_option_t *options,
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_USE_MPI)
         STARPU_EXECUTE_ON_NODE, B->get_rankof(B, Bm, Bn),
 #endif

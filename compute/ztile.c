@@ -120,7 +120,7 @@ int CHAMELEON_zLap2Desc( cham_uplo_t uplo, CHAMELEON_Complex64_t *Af77, int LDA,
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t *B;
     int status;
 
@@ -204,7 +204,7 @@ int CHAMELEON_zDesc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, CHAMELEON_Complex64_t
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t *B;
     int status;
 

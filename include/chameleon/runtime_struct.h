@@ -41,13 +41,14 @@ typedef enum runtime_id_e {
  *
  */
 typedef struct runtime_request_s {
-    int       status;   /**< Return status registered by the tasks for the request */
+    int       status; /**< Return status registered by the tasks for the request */
+    void      *schedopt; /**< Specific runtime data pointer to handle the request */
 } RUNTIME_request_t;
 
 /**
  *  @brief Runtime request initializer
  */
-#define RUNTIME_REQUEST_INITIALIZER { 0 }
+#define RUNTIME_REQUEST_INITIALIZER { .status = 0, .schedopt = NULL }
 
 /**
  * @brief RUNTIME sequence structure
