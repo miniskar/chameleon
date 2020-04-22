@@ -107,6 +107,9 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
         chamctxt->parallel_enabled = CHAMELEON_FALSE;
 
         hres = chameleon_starpu_init( conf );
+
+        chamctxt->nworkers = ncpus;
+        chamctxt->nthreads_per_worker = nthreads_per_worker;
     }
     else {
         int worker;

@@ -77,6 +77,11 @@
 
 typedef struct starpu_conf starpu_conf_t;
 
+/* Structure used to give some options during one request (procedure) */
+typedef struct starpu_option_request_s {
+    int workerid; // to force task execution on a specific workerid
+} starpu_option_request_t;
+
 /**/
 
 /*

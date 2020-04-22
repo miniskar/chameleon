@@ -33,6 +33,9 @@ int chameleon_request_fail     (RUNTIME_sequence_t *sequence, RUNTIME_request_t 
 int chameleon_sequence_create  (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t **sequence);
 int chameleon_sequence_destroy (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
 int chameleon_sequence_wait    (CHAM_context_t *CHAMELEON, RUNTIME_sequence_t *sequence);
+int chameleon_request_create   (CHAM_context_t *CHAMELEON, RUNTIME_request_t **request);
+int chameleon_request_destroy  (CHAM_context_t *CHAMELEON, RUNTIME_request_t *request);
+int chameleon_request_set      (CHAM_context_t *chamctxt, RUNTIME_request_t *request, int param, int value);
 
 #ifdef __cplusplus
 }

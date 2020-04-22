@@ -57,6 +57,8 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
     (void)NB;
     struct starpu_codelet *codelet = &cl_zlange;
     void (*callback)(void*) = options->profiling ? cl_zlange_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
@@ -73,6 +75,7 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
         STARPU_W,        RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlange",
 #endif
@@ -110,6 +113,8 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zlange_max;
     void (*callback)(void*) = options->profiling ? cl_zlange_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(  A, Am, An );
@@ -122,6 +127,7 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
         STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
+         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlange_max",
 #endif

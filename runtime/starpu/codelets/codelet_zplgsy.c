@@ -60,6 +60,8 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
 
     struct starpu_codelet *codelet = &cl_zplgsy;
     void (*callback)(void*) = options->profiling ? cl_zplgsy_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_W(A, Am, An);
@@ -77,6 +79,7 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
         STARPU_VALUE, &seed,   sizeof(unsigned long long int),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zplgsy",
 #endif
