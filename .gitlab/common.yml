@@ -69,6 +69,7 @@
     - schedules
   stage: test
   tags: ['plafrim']
+  timeout: 1 week
   before_script:
     - git submodule update --init --recursive
   script:
