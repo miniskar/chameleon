@@ -513,9 +513,6 @@ cti_free_datatype( MPI_Datatype *datatype )
 #endif
 
 void
-starpu_cham_tile_interface_init() __attribute__((constructor));
-
-void
 starpu_cham_tile_interface_init()
 {
     if ( starpu_interface_cham_tile_ops.interfaceid == STARPU_UNKNOWN_INTERFACE_ID )
@@ -525,6 +522,17 @@ starpu_cham_tile_interface_init()
         starpu_mpi_interface_datatype_register( starpu_interface_cham_tile_ops.interfaceid,
                                                 cti_allocate_datatype,
                                                 cti_free_datatype );
+#endif
+    }
+}
+
+void
+starpu_cham_tile_interface_fini()
+{
+    if ( starpu_interface_cham_tile_ops.interfaceid != STARPU_UNKNOWN_INTERFACE_ID )
+    {
+#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+        starpu_mpi_interface_datatype_unregister( starpu_interface_cham_tile_ops.interfaceid );
 #endif
     }
 }

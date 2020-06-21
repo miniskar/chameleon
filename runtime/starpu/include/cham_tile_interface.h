@@ -53,4 +53,7 @@ cti_interface_get( starpu_cham_tile_interface_t *interface )
     return &(interface->tile);
 }
 
+void starpu_cham_tile_interface_init();
+void starpu_cham_tile_interface_fini();
+
 #endif /* _cham_tile_interface_h_ */
