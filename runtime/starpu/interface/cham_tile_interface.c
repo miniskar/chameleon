@@ -361,8 +361,8 @@ cti_describe( void *data_interface, char *buf, size_t size )
                      (unsigned) cham_tile_interface->flttype );
 }
 
-#ifdef HAVE_STARPU_INTERFACE_COPY2D
-static int cti_copy_any_to_any(void *src_interface, unsigned src_node, void *dst_interface, unsigned dst_node, void *async_data)
+static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
+                                void *dst_interface, unsigned dst_node, void *async_data )
 {
     starpu_cham_tile_interface_t *cham_tile_src = (starpu_cham_tile_interface_t *) src_interface;
     starpu_cham_tile_interface_t *cham_tile_dst = (starpu_cham_tile_interface_t *) dst_interface;
@@ -373,12 +373,45 @@ static int cti_copy_any_to_any(void *src_interface, unsigned src_node, void *dst
     size_t ld_dst = cham_tile_dst->tile.ld;
     int ret = 0;
 
+#if defined(HAVE_STARPU_INTERFACE_COPY2D)
+    ld_src *= elemsize;
+    ld_dst *= elemsize;
     if (starpu_interface_copy2d( (uintptr_t) cham_tile_src->tile.mat, 0, src_node,
                                  (uintptr_t) cham_tile_dst->tile.mat, 0, dst_node,
-                                 m * elemsize,
-                                 n, ld_src * elemsize, ld_dst * elemsize,
-                                 async_data) )
+                                 m * elemsize, n, ld_src, ld_dst, async_data ) ) {
         ret = -EAGAIN;
+    }
+#else
+    if ( (ld_src == m) && (ld_dst == m) )
+    {
+        /* Optimize unpartitioned and y-partitioned cases */
+        if ( starpu_interface_copy( (uintptr_t) cham_tile_src->tile.mat, 0, src_node,
+                                    (uintptr_t) cham_tile_dst->tile.mat, 0, dst_node,
+                                    m * n * elemsize, async_data ) )
+        {
+            ret = -EAGAIN;
+	}
+    }
+    else
+    {
+        unsigned y;
+        ld_src *= elemsize;
+        ld_dst *= elemsize;
+
+        for (y = 0; y < n; y++)
+        {
+            uint32_t src_offset = y * ld_src;
+            uint32_t dst_offset = y * ld_dst;
+
+            if ( starpu_interface_copy( (uintptr_t) cham_tile_src->tile.mat, src_offset, src_node,
+                                        (uintptr_t) cham_tile_dst->tile.mat, dst_offset, dst_node,
+                                        m * elemsize, async_data ) )
+            {
+                ret = -EAGAIN;
+            }
+        }
+    }
+#endif
 
     starpu_interface_data_copy( src_node, dst_node, (size_t) n*m*elemsize );
 
@@ -389,7 +422,6 @@ static const struct starpu_data_copy_methods cti_copy_methods =
 {
     .any_to_any = cti_copy_any_to_any,
 };
-#endif
 
 struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
 {
@@ -409,9 +441,7 @@ struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
     .pack_data             = cti_pack_data,
     .unpack_data           = cti_unpack_data,
     .describe              = cti_describe,
-#ifdef HAVE_STARPU_INTERFACE_COPY2D
     .copy_methods          =&cti_copy_methods,
-#endif
     .interfaceid           = STARPU_UNKNOWN_INTERFACE_ID,
     .interface_size        = sizeof(starpu_cham_tile_interface_t),
     .name                  = "STARPU_CHAM_TILE_INTERFACE"
