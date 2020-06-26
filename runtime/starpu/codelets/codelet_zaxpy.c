@@ -52,6 +52,10 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
+    if ( alpha == 0. ) {
+        return;
+    }
+
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(B, Bm, Bn);

@@ -47,7 +47,7 @@
         .cpu_func  = ((cpu_func_name)),                                 \
         CODELET_CUDA_FLAGS(cuda_flags)                                  \
         .cuda_func = ((cuda_func_name)),                                \
-        .nbuffers  = ((_nbuffers)),                                     \
+        .nbuffers  = STARPU_VARIABLE_NBUFFERS,                          \
         .model     = &cl_##cl_name##_model,                             \
         .name      = #cl_name                                           \
     };                                                                  \

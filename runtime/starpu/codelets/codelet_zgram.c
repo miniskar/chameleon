@@ -51,21 +51,21 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         const CHAM_desc_t *Di, int Dim, int Din,
                         const CHAM_desc_t *Dj, int Djm, int Djn,
                         const CHAM_desc_t *D, int Dm, int Dn,
-                        CHAM_desc_t *A, int Am, int An)
+                        CHAM_desc_t *A, int Am, int An )
 {
-  struct starpu_codelet *codelet = &cl_zgram;
-  void (*callback)(void*) = options->profiling ? cl_zgram_callback : NULL;
+    struct starpu_codelet *codelet = &cl_zgram;
+    void (*callback)(void*) = options->profiling ? cl_zgram_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
-  CHAMELEON_BEGIN_ACCESS_DECLARATION;
-  CHAMELEON_ACCESS_R(Di, Dim, Din);
-  CHAMELEON_ACCESS_R(Dj, Djm, Djn);
-  CHAMELEON_ACCESS_R(D, Dm, Dn);
-  CHAMELEON_ACCESS_RW(A, Am, An);
-  CHAMELEON_END_ACCESS_DECLARATION;
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(Di, Dim, Din);
+    CHAMELEON_ACCESS_R(Dj, Djm, Djn);
+    CHAMELEON_ACCESS_R(D, Dm, Dn);
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
-  starpu_insert_task(
+    starpu_insert_task(
         starpu_mpi_codelet(codelet),
         STARPU_VALUE,    &uplo,                      sizeof(int),
         STARPU_VALUE,    &m,                         sizeof(int),
