@@ -105,7 +105,12 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
             Rnorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
                                          M, N, B, LDA, work );
         }
-        result = Rnorm / (Anorm * eps);
+        if ( Anorm != 0. ) {
+            result = Rnorm / (Anorm * eps);
+        }
+        else {
+            result = Rnorm;
+        }
 
         /* Verifies if the result is inside a threshold */
         if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
@@ -537,7 +542,16 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
         /* Calculates the norm with the core function's result */
         Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
 
-        result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * K * eps);
+        if ( ( alpha != 0. ) || (beta != 0. ) ) {
+            result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * K * eps);
+        }
+        else {
+            result = Rnorm;
+        }
+        run_arg_add_double( args, "||A||", Anorm );
+        run_arg_add_double( args, "||B||", Bnorm );
+        run_arg_add_double( args, "||C||", Crefnorm );
+        run_arg_add_double( args, "||R||", Rnorm );
 
         /* Verifies if the result is inside a threshold */
         if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
@@ -685,7 +699,12 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
         Clapacknorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
         Rnorm       = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
 
-        result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * An * eps);
+        if ( ( alpha != 0. ) || (beta != 0. ) ) {
+            result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * An * eps);
+        }
+        else {
+            result = Rnorm;
+        }
 
         /* Verifies if the result is inside a threshold */
         if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
