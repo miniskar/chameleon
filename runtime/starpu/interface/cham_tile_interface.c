@@ -319,30 +319,47 @@ cti_unpack_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t c
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
         starpu_data_get_interface_on_node(handle, node);
 
-    CHAM_tile_t dsttile;
     char *tmp = ptr;
 
-    /* Extract the size of the information t unpack */
-    memcpy( &(cham_tile_interface->allocsize), tmp, sizeof(size_t) );
-    tmp += sizeof(size_t);
+#if defined(CHAMELEON_USE_MPI_DATATYPES)
+    /*
+     * We may end up here if an early reception occured before the handle of the
+     * received data has been registered. Thus, datatype was not existant and we
+     * need to unpack the data ourselves
+     */
+    STARPU_ASSERT( count == cham_tile_interface->allocsize );
+    STARPU_ASSERT( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK );
+#else
+    {
+        CHAM_tile_t dsttile;
 
-    /* Extract the tile metadata of the remote tile */
-    memcpy( &dsttile, tmp, sizeof(CHAM_tile_t) );
-    tmp += sizeof(CHAM_tile_t);
+        /* Extract the size of the information to unpack */
+        memcpy( &(cham_tile_interface->allocsize), tmp, sizeof(size_t) );
+        tmp += sizeof(size_t);
 
-    cham_tile_interface->tile.format = dsttile.format;
-    cham_tile_interface->tile.ld = cham_tile_interface->tile.m;
-    STARPU_ASSERT( cham_tile_interface->tile.m == dsttile.m );
-    STARPU_ASSERT( cham_tile_interface->tile.n == dsttile.n );
-    STARPU_ASSERT( count == cham_tile_interface->allocsize + sizeof(size_t) + sizeof(CHAM_tile_t) );
+        /* Extract the tile metadata of the remote tile */
+        memcpy( &dsttile, tmp, sizeof(CHAM_tile_t) );
+        tmp += sizeof(CHAM_tile_t);
 
+        /*
+         * Update with the local information. Data is packed now, and do not
+         * need leading dimension anymore
+         */
+        cham_tile_interface->tile.format = dsttile.format;
+        cham_tile_interface->tile.ld = cham_tile_interface->tile.m;
+
+        STARPU_ASSERT( cham_tile_interface->tile.m == dsttile.m );
+        STARPU_ASSERT( cham_tile_interface->tile.n == dsttile.n );
+        STARPU_ASSERT( count == cham_tile_interface->allocsize + sizeof(size_t) + sizeof(CHAM_tile_t) );
+    }
+#endif
 
     /* Unpack the real data */
     if ( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK ) {
         cti_unpack_data_fullrank( cham_tile_interface, tmp );
     }
     else {
-        STARPU_ASSERT_MSG( 1, "Unsupported format for pack." );
+        STARPU_ASSERT_MSG( 1, "Unsupported format for unpack." );
     }
 
     /* Free the received information */
@@ -481,7 +498,7 @@ cti_handle_get_allocsize( starpu_data_handle_t handle )
     return cham_tile_interface->allocsize;
 }
 
-#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+#if defined(CHAMELEON_USE_MPI_DATATYPES)
 int
 cti_allocate_datatype( starpu_data_handle_t handle,
                        MPI_Datatype        *datatype )
@@ -518,7 +535,7 @@ starpu_cham_tile_interface_init()
     if ( starpu_interface_cham_tile_ops.interfaceid == STARPU_UNKNOWN_INTERFACE_ID )
     {
         starpu_interface_cham_tile_ops.interfaceid = starpu_data_interface_get_next_id();
-#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+#if defined(CHAMELEON_USE_MPI_DATATYPES)
         starpu_mpi_interface_datatype_register( starpu_interface_cham_tile_ops.interfaceid,
                                                 cti_allocate_datatype,
                                                 cti_free_datatype );
@@ -531,7 +548,7 @@ starpu_cham_tile_interface_fini()
 {
     if ( starpu_interface_cham_tile_ops.interfaceid != STARPU_UNKNOWN_INTERFACE_ID )
     {
-#if defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
+#if defined(CHAMELEON_USE_MPI_DATATYPES)
         starpu_mpi_interface_datatype_unregister( starpu_interface_cham_tile_ops.interfaceid );
 #endif
     }

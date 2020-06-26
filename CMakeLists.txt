@@ -101,9 +101,6 @@ set( RP_CHAMELEON_DICTIONNARY ${CMAKE_SOURCE_DIR}/cmake_modules/local_subs.py )
 set( RP_CHAMELEON_PRECISIONS  "s;d;c;z" )
 include(RulesPrecisions)
 
-option(CHAMELEON_USE_MIGRATE
-  "This options enables the data migration in QR algorithms" ON)
-
 # Options to select the runtime
 # -----------------------------
 
@@ -174,6 +171,14 @@ cmake_dependent_option(CHAMELEON_USE_MPI
 if (CHAMELEON_ENABLE_MPI AND NOT CHAMELEON_USE_MPI)
     message("-- ${BoldGreen}CHAMELEON_USE_MPI is set to OFF, turn it ON to use MPI (unsupported by Quark)${ColourReset}")
 endif()
+
+cmake_dependent_option(CHAMELEON_USE_MIGRATE
+  "This options enables the data migration in QR algorithms" ON
+  "CHAMELEON_USE_MPI" OFF)
+
+cmake_dependent_option(CHAMELEON_USE_MPI_DATATYPES
+  "Enable MPI datatypes wheneve supported by the runtime" ON
+  "CHAMELEON_USE_MPI" OFF)
 
 # Enable Cuda kernels if StarPU (only if StarPU or PaRSEC runtime is enabled)
 # TODO: Default should be changed to ON/OFF when it will be ok
@@ -658,7 +663,11 @@ if( CHAMELEON_SCHED_STARPU )
         endif()
         check_function_exists(starpu_mpi_interface_datatype_register HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER)
         if ( HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER )
-            message("-- ${Blue}Add definition HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER${ColourReset}")
+          message("-- ${Blue}Add definition HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER${ColourReset}")
+        else()
+          if( CHAMELEON_USE_MPI_DATATYPES )
+            set( CHAMELEON_USE_MPI_DATATYPES OFF )
+          endif()
         endif()
         check_function_exists(starpu_interface_copy2d HAVE_STARPU_INTERFACE_COPY2D)
         if ( HAVE_STARPU_INTERFACE_COPY2D )

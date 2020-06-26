@@ -34,7 +34,7 @@ struct starpu_cham_tile_interface_s
     cham_flttype_t flttype;           /**< Type of the elements of the matrix    */
     size_t         allocsize;         /**< size actually currently allocated     */
     size_t         tilesize;          /**< size of the elements of the matrix    */
-    CHAM_tile_t    tile;             /**< Internal tile structure used to store
+    CHAM_tile_t    tile;              /**< Internal tile structure used to store
                                            information on non memory home_node   */
 };
 
