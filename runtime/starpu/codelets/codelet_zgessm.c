@@ -50,7 +50,7 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zgessm, 3, cl_zgessm_cpu_func)
+CODELETS_CPU(zgessm, cl_zgessm_cpu_func)
 
 void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
                          int m, int n, int k, int ib, int nb,

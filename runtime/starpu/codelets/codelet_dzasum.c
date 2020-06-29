@@ -44,7 +44,7 @@ static void cl_dzasum_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(dzasum, 2, cl_dzasum_cpu_func)
+CODELETS_CPU(dzasum, cl_dzasum_cpu_func)
 
 void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,

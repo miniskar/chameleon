@@ -31,7 +31,7 @@
 #define CODELET_CUDA_FLAGS(flags)
 #endif
 
-#define CODELETS_ALL(cl_name, _nbuffers, cpu_func_name, cuda_func_name, _original_location_, cuda_flags) \
+#define CODELETS_ALL(cl_name, cpu_func_name, cuda_func_name, _original_location_, cuda_flags) \
     struct starpu_perfmodel cl_##cl_name##_fake = {                     \
         .type   = STARPU_HISTORY_BASED,                                 \
         .symbol = "fake_"#cl_name                                       \
@@ -69,15 +69,15 @@
     }
 
 #if defined(CHAMELEON_SIMULATION)
-#define CODELETS_CPU(name, _nbuffers, cpu_func_name)                    \
-    CODELETS_ALL( name, _nbuffers, (starpu_cpu_func_t) 1, NULL, STARPU_CPU, 0 )
+#define CODELETS_CPU(name, cpu_func_name)                    \
+    CODELETS_ALL( name, (starpu_cpu_func_t) 1, NULL, STARPU_CPU, 0 )
 #else
-#define CODELETS_CPU(name, _nbuffers, cpu_func_name)                    \
-    CODELETS_ALL( name, _nbuffers, cpu_func_name, NULL, STARPU_CPU, 0 )
+#define CODELETS_CPU(name, cpu_func_name)                    \
+    CODELETS_ALL( name, cpu_func_name, NULL, STARPU_CPU, 0 )
 #endif
 
-#define CODELETS_GPU(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_ALL( name, _nbuffers, cpu_func_name, cuda_func_name, STARPU_CPU  | STARPU_CUDA, cuda_flags )
+#define CODELETS_GPU(name, cpu_func_name, cuda_func_name, cuda_flags) \
+    CODELETS_ALL( name, cpu_func_name, cuda_func_name, STARPU_CPU  | STARPU_CUDA, cuda_flags )
 
 #define CODELETS_ALL_HEADER(name)                            \
      CHAMELEON_CL_CB_HEADER(name);                           \
@@ -89,24 +89,24 @@
 
 #if defined(CHAMELEON_SIMULATION)
 #if defined(CHAMELEON_USE_CUDA)
-#define CODELETS(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_GPU(name, _nbuffers, (starpu_cpu_func_t) 1, (starpu_cuda_func_t) 1, cuda_flags)
+#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+    CODELETS_GPU(name, (starpu_cpu_func_t) 1, (starpu_cuda_func_t) 1, cuda_flags)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #else
-#define CODELETS(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_CPU(name, _nbuffers, (starpu_cpu_func_t) 1)
+#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+    CODELETS_CPU(name, (starpu_cpu_func_t) 1)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #endif
 #elif defined(CHAMELEON_USE_CUDA)
-#define CODELETS(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_GPU(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags)
+#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+    CODELETS_GPU(name, cpu_func_name, cuda_func_name, cuda_flags)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #else
-#define CODELETS(name, _nbuffers, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_CPU(name, _nbuffers, cpu_func_name)
+#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+    CODELETS_CPU(name, cpu_func_name)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #endif

@@ -51,7 +51,7 @@ static void cl_zplghe_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplghe, 1, cl_zplghe_cpu_func)
+CODELETS_CPU(zplghe, cl_zplghe_cpu_func)
 
 void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
                          double bump, int m, int n, const CHAM_desc_t *A, int Am, int An,

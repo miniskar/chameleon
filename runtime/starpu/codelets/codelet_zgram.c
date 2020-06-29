@@ -43,7 +43,7 @@ static void cl_zgram_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zgram, 4, cl_zgram_cpu_func)
+CODELETS_CPU(zgram, cl_zgram_cpu_func)
 
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,

@@ -54,7 +54,7 @@ static void cl_zssssm_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zssssm, 4, cl_zssssm_cpu_func)
+CODELETS_CPU(zssssm, cl_zssssm_cpu_func)
 
 void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
                          int m1, int n1, int m2, int n2, int k, int ib, int nb,

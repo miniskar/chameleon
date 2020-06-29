@@ -40,7 +40,7 @@ static void cl_zaxpy_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zaxpy, 2, cl_zaxpy_cpu_func)
+CODELETS_CPU(zaxpy, cl_zaxpy_cpu_func)
 
 void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
                         int M, CHAMELEON_Complex64_t alpha,

@@ -44,7 +44,7 @@ static void cl_ztrasm_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztrasm, 2, cl_ztrasm_cpu_func)
+CODELETS_CPU(ztrasm, cl_ztrasm_cpu_func)
 
 void INSERT_TASK_ztrasm( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, cham_diag_t diag, int M, int N,

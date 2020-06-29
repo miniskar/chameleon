@@ -46,7 +46,7 @@ static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztradd, 2, cl_ztradd_cpu_func)
+CODELETS_CPU(ztradd, cl_ztradd_cpu_func)
 
 /**
  ******************************************************************************

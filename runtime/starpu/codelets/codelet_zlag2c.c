@@ -45,7 +45,7 @@ static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlag2c, 1, cl_zlag2c_cpu_func)
+CODELETS_CPU(zlag2c, cl_zlag2c_cpu_func)
 
 /**
  *
@@ -103,7 +103,7 @@ static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(clag2z, 2, cl_clag2z_cpu_func)
+CODELETS_CPU(clag2z, cl_clag2z_cpu_func)
 
 void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
                        int m, int n, int nb,

@@ -48,7 +48,7 @@ static void cl_zlatro_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlatro, 2, cl_zlatro_cpu_func)
+CODELETS_CPU(zlatro, cl_zlatro_cpu_func)
 
 /**
  *

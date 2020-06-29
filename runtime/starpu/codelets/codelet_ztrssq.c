@@ -42,7 +42,7 @@ static void cl_ztrssq_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztrssq, 2, cl_ztrssq_cpu_func)
+CODELETS_CPU(ztrssq, cl_ztrssq_cpu_func)
 
 void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_diag_t diag,

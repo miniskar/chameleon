@@ -52,7 +52,7 @@ static void cl_zbuild_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zbuild, 1, cl_zbuild_cpu_func)
+CODELETS_CPU(zbuild, cl_zbuild_cpu_func)
 
     void INSERT_TASK_zbuild( const RUNTIME_option_t *options,
                              const CHAM_desc_t *A, int Am, int An,

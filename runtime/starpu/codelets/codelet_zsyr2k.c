@@ -89,7 +89,7 @@ static void cl_zsyr2k_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zsyr2k, 3, cl_zsyr2k_cpu_func, cl_zsyr2k_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zsyr2k, cl_zsyr2k_cpu_func, cl_zsyr2k_cuda_func, STARPU_CUDA_ASYNC)
 
 /**
  *

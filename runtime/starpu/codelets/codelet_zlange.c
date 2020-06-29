@@ -47,7 +47,7 @@ static void cl_zlange_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlange, 3, cl_zlange_cpu_func)
+CODELETS_CPU(zlange, cl_zlange_cpu_func)
 
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
                          cham_normtype_t norm, int M, int N, int NB,
@@ -105,7 +105,7 @@ static void cl_zlange_max_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlange_max, 2, cl_zlange_max_cpu_func)
+CODELETS_CPU(zlange_max, cl_zlange_max_cpu_func)
 
 void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
                            const CHAM_desc_t *A, int Am, int An,

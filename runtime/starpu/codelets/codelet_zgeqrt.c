@@ -57,7 +57,7 @@ static void cl_zgeqrt_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zgeqrt, 3, cl_zgeqrt_cpu_func)
+CODELETS_CPU(zgeqrt, cl_zgeqrt_cpu_func)
 
 void INSERT_TASK_zgeqrt(const RUNTIME_option_t *options,
                        int m, int n, int ib, int nb,

@@ -43,7 +43,7 @@ static void cl_zgessq_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zgessq, 2, cl_zgessq_cpu_func)
+CODELETS_CPU(zgessq, cl_zgessq_cpu_func)
 
 void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
                          cham_store_t storev, int m, int n,

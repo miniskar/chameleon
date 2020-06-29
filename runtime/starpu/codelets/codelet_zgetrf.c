@@ -52,7 +52,7 @@ static void cl_zgetrf_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zgetrf, 1, cl_zgetrf_cpu_func)
+CODELETS_CPU(zgetrf, cl_zgetrf_cpu_func)
 
 void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
                          int m, int n, int nb,

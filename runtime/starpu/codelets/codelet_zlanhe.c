@@ -47,7 +47,7 @@ static void cl_zlanhe_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlanhe, 3, cl_zlanhe_cpu_func)
+CODELETS_CPU(zlanhe, cl_zlanhe_cpu_func)
 
 void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
                        cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,

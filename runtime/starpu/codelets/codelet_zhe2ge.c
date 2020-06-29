@@ -42,7 +42,7 @@ static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zhe2ge, 2, cl_zhe2ge_cpu_func)
+CODELETS_CPU(zhe2ge, cl_zhe2ge_cpu_func)
 
 /**
  *

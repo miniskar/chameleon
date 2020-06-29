@@ -86,7 +86,7 @@ static void cl_zherk_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zherk, 2, cl_zherk_cpu_func, cl_zherk_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zherk, cl_zherk_cpu_func, cl_zherk_cuda_func, STARPU_CUDA_ASYNC)
 
 /**
  *

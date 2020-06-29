@@ -93,7 +93,7 @@ static void cl_zhemm_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zhemm, 3, cl_zhemm_cpu_func, cl_zhemm_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zhemm, cl_zhemm_cpu_func, cl_zhemm_cuda_func, STARPU_CUDA_ASYNC)
 
 /**
  *

@@ -43,7 +43,7 @@ static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlascal, 1, cl_zlascal_cpu_func)
+CODELETS_CPU(zlascal, cl_zlascal_cpu_func)
 
 void INSERT_TASK_zlascal( const RUNTIME_option_t *options,
                           cham_uplo_t uplo,

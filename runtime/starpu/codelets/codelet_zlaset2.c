@@ -44,7 +44,7 @@ static void cl_zlaset2_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlaset2, 1, cl_zlaset2_cpu_func)
+CODELETS_CPU(zlaset2, cl_zlaset2_cpu_func)
 
 void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
                        cham_uplo_t uplo, int M, int N,

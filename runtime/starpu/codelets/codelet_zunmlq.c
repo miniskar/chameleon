@@ -95,7 +95,7 @@ static void cl_zunmlq_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zunmlq, 4, cl_zunmlq_cpu_func, cl_zunmlq_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zunmlq, cl_zunmlq_cpu_func, cl_zunmlq_cuda_func, STARPU_CUDA_ASYNC)
 
 void INSERT_TASK_zunmlq( const RUNTIME_option_t *options,
                          cham_side_t side, cham_trans_t trans,

@@ -81,9 +81,9 @@ static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
  * Codelet definition
  */
 #if defined(CHAMELEON_USE_CUBLAS_V2)
-CODELETS(zgeadd, 2, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zgeadd, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
 #else
-CODELETS_CPU(zgeadd, 2, cl_zgeadd_cpu_func)
+CODELETS_CPU(zgeadd, cl_zgeadd_cpu_func)
 #endif
 
 /**
