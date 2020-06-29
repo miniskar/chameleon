@@ -12,8 +12,6 @@
  * @brief Chameleon zherk StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -88,11 +86,6 @@ static void cl_zherk_cuda_func(void *descr[], void *cl_arg)
  */
 CODELETS(zherk, cl_zherk_cpu_func, cl_zherk_cuda_func, STARPU_CUDA_ASYNC)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 void INSERT_TASK_zherk(const RUNTIME_option_t *options,
                       cham_uplo_t uplo, cham_trans_t trans,
                       int n, int k, int nb,

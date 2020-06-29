@@ -44,11 +44,6 @@ static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(zhe2ge, cl_zhe2ge_cpu_func)
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
                          cham_uplo_t uplo,
                          int m, int n, int mb,

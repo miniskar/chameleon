@@ -41,8 +41,7 @@ void CORE_zgemm_quark(Quark *quark)
     quark_unpack_args_10(quark, transA, transB, m, n, k, alpha, tileA, tileB, beta, tileC);
     TCORE_zgemm( transA, transB,
                  m, n, k,
-                 alpha, tileA,
-                        tileB,
+                 alpha, tileA, tileB,
                  beta,  tileC );
 }
 
@@ -50,10 +49,17 @@ void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
                       cham_trans_t transA, cham_trans_t transB,
                       int m, int n, int k, int nb,
                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                      const CHAM_desc_t *B, int Bm, int Bn,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
+                                                   const CHAM_desc_t *B, int Bm, int Bn,
+                      CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn)
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlascal( options, ChamUpperLower, m, n, nb,
+                                    beta, C, Cm, Cn );
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    int accessC = ( beta == 0. ) ? OUTPUT : INOUT;
+
     DAG_CORE_GEMM;
     QUARK_Insert_Task(opt->quark, CORE_zgemm_quark, (Quark_Task_Flags*)opt,
                       sizeof(int),                &transA,    VALUE,
@@ -65,6 +71,6 @@ void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
                       sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
                       sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),                 INPUT,
                       sizeof(CHAMELEON_Complex64_t),         &beta,      VALUE,
-                      sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
+                      sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 accessC,
                       0);
 }
