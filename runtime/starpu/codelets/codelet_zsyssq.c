@@ -41,7 +41,7 @@ static void cl_zsyssq_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zsyssq, 2, cl_zsyssq_cpu_func)
+CODELETS_CPU(zsyssq, cl_zsyssq_cpu_func)
 
 void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int n,

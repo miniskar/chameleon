@@ -44,7 +44,7 @@ static void cl_zsytrf_nopiv_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zsytrf_nopiv, 1, cl_zsytrf_nopiv_cpu_func)
+CODELETS_CPU(zsytrf_nopiv, cl_zsytrf_nopiv_cpu_func)
 
 void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
                               cham_uplo_t uplo, int n, int nb,

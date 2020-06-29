@@ -92,7 +92,7 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(ztpmlqt, 5, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(ztpmlqt, cl_ztpmlqt_cpu_func, cl_ztpmlqt_cuda_func, STARPU_CUDA_ASYNC)
 
 void INSERT_TASK_ztpmlqt( const RUNTIME_option_t *options,
                           cham_side_t side, cham_trans_t trans,

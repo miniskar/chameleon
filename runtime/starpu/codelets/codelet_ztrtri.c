@@ -52,7 +52,7 @@ static void cl_ztrtri_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztrtri, 1, cl_ztrtri_cpu_func)
+CODELETS_CPU(ztrtri, cl_ztrtri_cpu_func)
 
 /**
  *

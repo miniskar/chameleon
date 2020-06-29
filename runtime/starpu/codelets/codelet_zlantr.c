@@ -43,7 +43,7 @@ static void cl_zlantr_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlantr, 3, cl_zlantr_cpu_func)
+CODELETS_CPU(zlantr, cl_zlantr_cpu_func)
 
 void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
                          cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,

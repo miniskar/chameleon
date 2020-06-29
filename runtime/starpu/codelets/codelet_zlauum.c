@@ -44,7 +44,7 @@ static void cl_zlauum_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlauum, 1, cl_zlauum_cpu_func)
+CODELETS_CPU(zlauum, cl_zlauum_cpu_func)
 
 /**
  *

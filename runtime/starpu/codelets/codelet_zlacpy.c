@@ -57,7 +57,7 @@ static void cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlacpy, 2, cl_zlacpy_cpu_func)
+CODELETS_CPU(zlacpy, cl_zlacpy_cpu_func)
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,

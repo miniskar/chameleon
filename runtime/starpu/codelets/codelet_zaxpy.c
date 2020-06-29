@@ -40,7 +40,7 @@ static void cl_zaxpy_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zaxpy, 2, cl_zaxpy_cpu_func)
+CODELETS_CPU(zaxpy, cl_zaxpy_cpu_func)
 
 void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
                         int M, CHAMELEON_Complex64_t alpha,
@@ -51,6 +51,10 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
     void (*callback)(void*) = options->profiling ? cl_zaxpy_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    if ( alpha == 0. ) {
+        return;
+    }
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);

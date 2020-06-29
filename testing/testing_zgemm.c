@@ -114,7 +114,7 @@ testing_t   test_zgemm;
 const char *zgemm_params[] = { "mtxfmt", "nb", "transA", "transB", "m",     "n",     "k",     "lda", "ldb",
                                "ldc", "alpha",  "beta",   "seedA", "seedB", "seedC", NULL };
 const char *zgemm_output[] = { NULL };
-const char *zgemm_outchk[] = { "RETURN", NULL };
+const char *zgemm_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

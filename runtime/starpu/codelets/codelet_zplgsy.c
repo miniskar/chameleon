@@ -51,7 +51,7 @@ static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplgsy, 1, cl_zplgsy_cpu_func)
+CODELETS_CPU(zplgsy, cl_zplgsy_cpu_func)
 
 void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An,

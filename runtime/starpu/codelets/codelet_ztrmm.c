@@ -89,7 +89,7 @@ static void cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(ztrmm, 2, cl_ztrmm_cpu_func, cl_ztrmm_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(ztrmm, cl_ztrmm_cpu_func, cl_ztrmm_cuda_func, STARPU_CUDA_ASYNC)
 
 /**
  *
@@ -102,6 +102,11 @@ void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                       const CHAM_desc_t *B, int Bm, int Bn)
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlaset( options, ChamUpperLower, m, n,
+                                   alpha, alpha, B, Bm, Bn );
+    }
+
     (void)nb;
     struct starpu_codelet *codelet = &cl_ztrmm;
     void (*callback)(void*) = options->profiling ? cl_ztrmm_callback : NULL;
@@ -122,7 +127,7 @@ void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
         STARPU_VALUE,         &m,                        sizeof(int),
         STARPU_VALUE,         &n,                        sizeof(int),
         STARPU_VALUE,     &alpha,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,                  RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_RW,                 RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,

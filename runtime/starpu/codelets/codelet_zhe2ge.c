@@ -42,18 +42,18 @@ static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zhe2ge, 2, cl_zhe2ge_cpu_func)
+CODELETS_CPU(zhe2ge, cl_zhe2ge_cpu_func)
 
 /**
  *
  * @ingroup INSERT_TASK_Complex64_t
  *
  */
-void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo,
-                       int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo,
+                         int m, int n, int mb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)mb;
     struct starpu_codelet *codelet = &cl_zhe2ge;

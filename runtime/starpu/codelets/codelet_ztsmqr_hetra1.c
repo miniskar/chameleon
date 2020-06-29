@@ -56,7 +56,7 @@ static void cl_ztsmqr_hetra1_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztsmqr_hetra1, 5, cl_ztsmqr_hetra1_cpu_func)
+CODELETS_CPU(ztsmqr_hetra1, cl_ztsmqr_hetra1_cpu_func)
 
 /**
  *

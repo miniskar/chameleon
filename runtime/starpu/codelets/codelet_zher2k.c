@@ -89,7 +89,7 @@ static void cl_zher2k_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zher2k, 3, cl_zher2k_cpu_func, cl_zher2k_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS(zher2k, cl_zher2k_cpu_func, cl_zher2k_cuda_func, STARPU_CUDA_ASYNC)
 
 /**
  *
@@ -104,11 +104,17 @@ INSERT_TASK_zher2k( const RUNTIME_option_t *options,
                                                  const CHAM_desc_t *B, int Bm, int Bn,
                     double beta,                 const CHAM_desc_t *C, int Cm, int Cn )
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlascal( options, uplo, n, n, nb,
+                                    beta, C, Cm, Cn );
+    }
+
     (void)nb;
     struct starpu_codelet *codelet = &cl_zher2k;
     void (*callback)(void*) = options->profiling ? cl_zher2k_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
@@ -126,7 +132,7 @@ INSERT_TASK_zher2k( const RUNTIME_option_t *options,
         STARPU_R,                 RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_R,                 RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_VALUE,      &beta,                     sizeof(double),
-        STARPU_RW,                 RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        accessC,                  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
         STARPU_EXECUTE_ON_WORKER, workerid,

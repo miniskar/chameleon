@@ -15,6 +15,8 @@
 # beta: Scalar beta
 # bump: Bump value for symmetric matrices
 
+alpha = 0., 3.45
+beta = 0., -4.86
 op = syr2k
 nb = 16, 17
 ib = 8

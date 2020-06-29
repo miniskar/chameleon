@@ -39,7 +39,7 @@ static void cl_map_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(map, 1, cl_map_cpu_func)
+CODELETS_CPU(map, cl_map_cpu_func)
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
                       cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,

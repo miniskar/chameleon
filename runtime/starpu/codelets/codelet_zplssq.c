@@ -48,7 +48,7 @@ static void cl_zplssq_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplssq, 2, cl_zplssq_cpu_func)
+CODELETS_CPU(zplssq, cl_zplssq_cpu_func)
 
 void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
                          cham_store_t storev, int M, int N,
@@ -101,7 +101,7 @@ static void cl_zplssq2_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplssq2, 1, cl_zplssq2_cpu_func)
+CODELETS_CPU(zplssq2, cl_zplssq2_cpu_func)
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
                           const CHAM_desc_t *RESULT, int RESULTm, int RESULTn )

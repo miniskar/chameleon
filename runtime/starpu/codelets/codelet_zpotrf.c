@@ -52,7 +52,7 @@ static void cl_zpotrf_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zpotrf, 1, cl_zpotrf_cpu_func)
+CODELETS_CPU(zpotrf, cl_zpotrf_cpu_func)
 
 /**
  *

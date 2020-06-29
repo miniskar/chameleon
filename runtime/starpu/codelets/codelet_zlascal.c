@@ -43,14 +43,22 @@ static void cl_zlascal_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlascal, 1, cl_zlascal_cpu_func)
+CODELETS_CPU(zlascal, cl_zlascal_cpu_func)
 
-void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
-                        cham_uplo_t uplo,
-                        int m, int n, int nb,
-                        CHAMELEON_Complex64_t alpha,
-                        const CHAM_desc_t *A, int Am, int An)
+void INSERT_TASK_zlascal( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo,
+                          int m, int n, int nb,
+                          CHAMELEON_Complex64_t alpha,
+                          const CHAM_desc_t *A, int Am, int An)
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlaset( options, uplo, m, n,
+                                   alpha, alpha, A, Am, An );
+    }
+    else if ( alpha == 1. ) {
+        return;
+    }
+
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlascal;
     void (*callback)(void*) = options->profiling ? cl_zlascal_callback : NULL;
@@ -67,7 +75,7 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                  sizeof(int),
         STARPU_VALUE,    &n,                  sizeof(int),
         STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
-        STARPU_RW,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
