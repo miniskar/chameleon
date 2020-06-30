@@ -12,8 +12,6 @@
  * @brief Chameleon ztrmm StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge

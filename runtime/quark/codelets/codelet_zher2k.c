@@ -42,14 +42,22 @@ void CORE_zher2k_quark(Quark *quark)
                 n, k, alpha, tileA, tileB, beta, tileC);
 }
 
-void INSERT_TASK_zher2k(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, cham_trans_t trans,
-                       int n, int k, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn,
-                       double beta, const CHAM_desc_t *C, int Cm, int Cn)
+void
+INSERT_TASK_zher2k( const RUNTIME_option_t *options,
+                    cham_uplo_t uplo, cham_trans_t trans,
+                    int n, int k, int nb,
+                    CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                 const CHAM_desc_t *B, int Bm, int Bn,
+                    double beta,                 const CHAM_desc_t *C, int Cm, int Cn )
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlascal( options, uplo, n, n, nb,
+                                    beta, C, Cm, Cn );
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    int accessC = ( beta == 0. ) ? OUTPUT : INOUT;
+
     DAG_CORE_HER2K;
     QUARK_Insert_Task(opt->quark, CORE_zher2k_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                &uplo,      VALUE,
@@ -60,6 +68,6 @@ void INSERT_TASK_zher2k(const RUNTIME_option_t *options,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
         sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),                 INPUT,
         sizeof(double),                     &beta,      VALUE,
-        sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
+        sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 accessC,
         0);
 }

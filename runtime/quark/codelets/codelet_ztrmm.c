@@ -45,12 +45,17 @@ void CORE_ztrmm_quark(Quark *quark)
         tileB);
 }
 
-void INSERT_TASK_ztrmm(const RUNTIME_option_t *options,
-                      cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
-                      int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                      const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
+                        cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
+                        int m, int n, int nb,
+                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                        const CHAM_desc_t *B, int Bm, int Bn )
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlaset( options, ChamUpperLower, m, n,
+                                   alpha, alpha, B, Bm, Bn );
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_TRMM;
     QUARK_Insert_Task(opt->quark, CORE_ztrmm_quark, (Quark_Task_Flags*)opt,

@@ -43,6 +43,14 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha,
                         const CHAM_desc_t *A, int Am, int An)
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlaset( options, uplo, m, n,
+                                   alpha, alpha, A, Am, An );
+    }
+    else if ( alpha == 1. ) {
+        return;
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LASCAL;
     QUARK_Insert_Task(opt->quark, CORE_zlascal_quark, (Quark_Task_Flags*)opt,
@@ -53,5 +61,3 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
         0);
 }
-
-

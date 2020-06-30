@@ -21,11 +21,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_ztile.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline void CORE_zhe2ge_quark(Quark *quark)
 {
     cham_uplo_t uplo;
@@ -38,12 +33,11 @@ static inline void CORE_zhe2ge_quark(Quark *quark)
     TCORE_zhe2ge(uplo, M, N, tileA, tileB);
 }
 
-
-void INSERT_TASK_zhe2ge(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo,
-                       int m, int n, int mb,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo,
+                         int m, int n, int mb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;

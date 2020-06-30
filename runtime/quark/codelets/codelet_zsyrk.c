@@ -49,7 +49,14 @@ void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                       CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
+    if ( alpha == 0. ) {
+        return INSERT_TASK_zlascal( options, uplo, n, n, nb,
+                                    beta, C, Cm, Cn );
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    int accessC = ( beta == 0. ) ? OUTPUT : INOUT;
+
     DAG_CORE_SYRK;
     QUARK_Insert_Task(opt->quark, CORE_zsyrk_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                &uplo,      VALUE,
@@ -59,6 +66,6 @@ void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
         sizeof(CHAMELEON_Complex64_t),         &alpha,     VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
         sizeof(CHAMELEON_Complex64_t),         &beta,      VALUE,
-        sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 INOUT,
+        sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),                 accessC,
         0);
 }

@@ -39,6 +39,10 @@ void INSERT_TASK_zaxpy(const RUNTIME_option_t *options,
                       const CHAM_desc_t *A, int Am, int An, int incA,
                       const CHAM_desc_t *B, int Bm, int Bn, int incB)
 {
+    if ( alpha == 0. ) {
+        return;
+    }
+
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_AXPY;
     QUARK_Insert_Task(opt->quark, CORE_zaxpy_quark, (Quark_Task_Flags*)opt,

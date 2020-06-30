@@ -12,8 +12,6 @@
  * @brief Chameleon ztradd StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Lucas Barros de Assis
  * @date 2020-03-03
@@ -48,65 +46,6 @@ static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU(ztradd, cl_ztradd_cpu_func)
 
-/**
- ******************************************************************************
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- * @brief Adds two trapezoidal matrices together as in PBLAS pzgeadd.
- *
- *       B <- alpha * op(A)  + beta * B,
- *
- * where op(X) = X, X', or conj(X')
- *
- *******************************************************************************
- *
- * @param[in] uplo
- *          Specifies the shape of A and B matrices:
- *          = ChamUpperLower: A and B are general matrices.
- *          = ChamUpper: op(A) and B are upper trapezoidal matrices.
- *          = ChamLower: op(A) and B are lower trapezoidal matrices.
- *
- * @param[in] trans
- *          Specifies whether the matrix A is non-transposed, transposed, or
- *          conjugate transposed
- *          = ChamNoTrans:   op(A) = A
- *          = ChamTrans:     op(A) = A'
- *          = ChamConjTrans: op(A) = conj(A')
- *
- * @param[in] M
- *          Number of rows of the matrices op(A) and B.
- *
- * @param[in] N
- *          Number of columns of the matrices op(A) and B.
- *
- * @param[in] alpha
- *          Scalar factor of A.
- *
- * @param[in] A
- *          Matrix of size ldA-by-N, if trans = ChamNoTrans, ldA-by-M
- *          otherwise.
- *
- * @param[in] ldA
- *          Leading dimension of the array A. ldA >= max(1,k), with k=M, if
- *          trans = ChamNoTrans, and k=N otherwise.
- *
- * @param[in] beta
- *          Scalar factor of B.
- *
- * @param[in,out] B
- *          Matrix of size ldB-by-N.
- *          On exit, B = alpha * op(A) + beta * B
- *
- * @param[in] ldB
- *          Leading dimension of the array B. ldB >= max(1,M)
- *
- *******************************************************************************
- *
- *          @retval CHAMELEON_SUCCESS successful exit
- *          @retval <0 if -i, the i-th argument had an illegal value
- *
- */
 void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
