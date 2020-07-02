@@ -38,6 +38,11 @@
 #cmakedefine HAVE_STARPU_MPI_COMM_GET_ATTR
 #cmakedefine HAVE_STARPU_MPI_INIT_CONF
 #cmakedefine HAVE_STARPU_MPI_WAIT_FOR_ALL
+#cmakedefine HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER
+
+#if !defined(HAVE_STARPU_MPI_INTERFACE_DATATYPE_REGISTER) && defined(CHAMELEON_USE_MPI_DATATYPES)
+#error "This version of StarPU does not support MPI datatypes (Please compile with -DCHAMELEON_USE_MPI_DATATYPES=OFF)"
+#endif
 
 #if defined(CHAMELEON_USE_MPI)
 #include <starpu_mpi.h>

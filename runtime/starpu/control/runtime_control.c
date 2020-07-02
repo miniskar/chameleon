@@ -142,6 +142,8 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     starpu_cublas_init();
 #endif
 
+    starpu_cham_tile_interface_init();
+
     return hres;
 }
 
@@ -156,6 +158,8 @@ void RUNTIME_finalize( CHAM_context_t *chamctxt )
     if ( chamctxt->schedopt == NULL ) {
         return;
     }
+
+    starpu_cham_tile_interface_fini();
 
 #if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
     starpu_cublas_shutdown();

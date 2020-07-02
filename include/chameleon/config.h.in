@@ -38,6 +38,10 @@
 #if !defined(CHAMELEON_USE_MPI) && defined(CHAMELEON_USE_MIGRATE)
 #undef CHAMELEON_USE_MIGRATE
 #endif
+#cmakedefine CHAMELEON_USE_MPI_DATATYPES
+#if !defined(CHAMELEON_USE_MPI) && defined(CHAMELEON_USE_MPI_DATATYPES)
+#undef CHAMELEON_USE_MPI_DATATYPES
+#endif
 
 /* GPU Support */
 #cmakedefine CHAMELEON_USE_CUDA
