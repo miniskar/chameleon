@@ -177,7 +177,7 @@ cmake_dependent_option(CHAMELEON_USE_MIGRATE
   "CHAMELEON_USE_MPI" OFF)
 
 cmake_dependent_option(CHAMELEON_USE_MPI_DATATYPES
-  "Enable MPI datatypes wheneve supported by the runtime" ON
+  "Enable MPI datatypes whenever supported by the runtime" ON
   "CHAMELEON_USE_MPI" OFF)
 
 # Enable Cuda kernels if StarPU (only if StarPU or PaRSEC runtime is enabled)
@@ -325,7 +325,7 @@ if(NOT CHAMELEON_SIMULATION)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
-    find_package(LAPACKE REQUIRED COMPONENTS TMG)
+    find_package(LAPACKE REQUIRED)
     if(LAPACKE_FOUND)
         if (LAPACKE_INCLUDE_DIRS_DEP)
             include_directories(${LAPACKE_INCLUDE_DIRS_DEP})
@@ -661,16 +661,16 @@ if (NOT CHAMELEON_SIMULATION)
 endif()
 
 ###############################################################################
+# Runtimes libraries #
+######################
+add_subdirectory(runtime)
+
+###############################################################################
 # Main library #
 ################
 add_subdirectory(include)
 add_subdirectory(control)
 add_subdirectory(compute)
-
-###############################################################################
-# Runtimes libraries #
-######################
-add_subdirectory(runtime)
 
 ###############################################################################
 # Executables and Tests #

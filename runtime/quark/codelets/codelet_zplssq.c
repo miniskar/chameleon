@@ -57,12 +57,12 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 void CORE_zplssq2_quark(Quark *quark)
 {
     int N;
-    CHAM_tile_t *RESULT;
+    CHAM_tile_t *tileRESULT;
 
     assert( tileRESULT->format & CHAMELEON_TILE_FULLRANK );
 
-    quark_unpack_args_2( quark, N, RESULT );
-    CORE_zplssq2(N, RESULT->mat);
+    quark_unpack_args_2( quark, N, tileRESULT );
+    CORE_zplssq2(N, tileRESULT->mat);
 }
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,

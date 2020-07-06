@@ -66,7 +66,6 @@ void INSERT_TASK_zlange(const RUNTIME_option_t *options,
     (void)NB;
 }
 
-#if defined(PRECISION_d) || defined(PRECISION_s)
 static inline int
 CORE_zlange_max_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
@@ -96,5 +95,3 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
         PASSED_BY_REF,         RTBLKADDR( B, double, Bm, Bn ), OUTPUT | AFFINITY,
         PARSEC_DTD_ARG_END );
 }
-
-#endif /* defined(PRECISION_d) || defined(PRECISION_s) */
