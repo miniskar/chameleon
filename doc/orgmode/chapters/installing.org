@@ -329,12 +329,13 @@ we encourage users to use [[sec:spack][Spack]].
 
     Notice that there exist several build variants
     - chameleon (default) : with starpu - with mpi
+    - chameleon-mkl-mt : default version but with Intel MKL multithreaded to replace OpenBlas
     - chameleon-cuda : with starpu - with mpi - with cuda
-    - chameleon-fxt : with starpu - with mpi - with fxt
     - chameleon-simgrid : with starpu - with mpi - with simgrid
     - chameleon-openmp : with openmp - without mpi
     - chameleon-parsec : with parsec - without mpi
     - chameleon-quark : with quark - without mpi
+
 
     Change the version
     #+begin_src sh
@@ -349,8 +350,8 @@ we encourage users to use [[sec:spack][Spack]].
 
     Change some dependencies
     #+begin_src sh
-    # install chameleon with intel mkl to replace openblas and nmad to replace openmpi
-    guix install chameleon --with-input=openblas=mkl --with-input=openmpi=nmad
+    # install chameleon with intel mkl to replace openblas, nmad to replace openmpi and starpu with fxt
+    guix install chameleon --with-input=openblas=mkl --with-input=openmpi=nmad --with-input=starpu=starpu-fxt
     #+end_src
 
 *** Generate a Chameleon Docker image with Guix
