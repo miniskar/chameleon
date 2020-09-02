@@ -361,29 +361,17 @@ chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
 void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
                          const RUNTIME_sequence_t *sequence )
 {
-    starpu_data_handle_t *handle = (starpu_data_handle_t*)(desc->schedopt);
-    int lmt = desc->lmt;
-    int lnt = desc->lnt;
+    int mt = desc->mt;
+    int nt = desc->nt;
     int m, n;
 
-    for (n = 0; n < lnt; n++)
+    for (n = 0; n < nt; n++)
     {
-        for (m = 0; m < lmt; m++, handle++)
+        for (m = 0; m < mt; m++)
         {
-            if ( *handle == NULL ) {
-                continue;
-            }
-
-#if defined(CHAMELEON_USE_MPI)
-            starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
-#endif
-            if ( chameleon_desc_islocal( desc, m, n ) ) {
-                chameleon_starpu_data_wont_use( *handle );
-            }
+            RUNTIME_data_flush( sequence, desc, m, n );
         }
     }
-
-    (void)sequence;
 }
 
 void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
