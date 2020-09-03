@@ -474,7 +474,7 @@ else (NOT CHAMELEON_SIMULATION)
     "\n   To use these perfmodels, please set your STARPU_HOME environment variable to ${CMAKE_CURRENT_SOURCE_DIR}/simucore/perfmodels."
     "\n   Finally, you need to set your STARPU_HOSTNAME environment variable to the name of the machine to simulate."
     "\n   For example: STARPU_HOSTNAME=mirage."
-    "\n   Note that only POTRF kernels with block sizes of 320 or 960 (simple and double precision) on mirage machine are available for now."
+    "\n   Note that only POTRF kernels (simple and double precision) on mirage machine (block sizes of 320 or 960) and sirocco (block sizes of 80, 440, 960, 1440, 1920) are available for now."
     "\n   Database of models is subject to change, it should be enrich in a near future.${ColourReset}")
 
     message("-- ${Blue}Add definition CHAMELEON_SIMULATION"

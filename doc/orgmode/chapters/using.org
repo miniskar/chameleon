@@ -173,10 +173,22 @@
     set your *STARPU_HOME* environment variable to
     ~path/to/your/chameleon_sources/simucore/perfmodels~.  Finally, you
     need to set your *STARPU_HOSTNAME* environment variable to the name
-    of the machine to simulate.  For example: *STARPU_HOSTNAME=mirage*.
-    Note that only POTRF kernels with block sizes of 320 or 960
-    (simple and double precision) on /mirage/ and /sirocco/ machines are
-    available for now.  Database of models is subject to change.
+    of the machine to simulate.  Note that only *potrf* algorithm,
+    simple and double precisions, on /mirage/ and /sirocco/ machines, with
+    or without gpus, and for the following tile sizes (choose a size *N*
+    multiple of the tile size) are available for now
+    - /mirage/: 320, 960
+    - /sirocco/: 80, 440, 960, 1440, 1920
+
+    Database of models is subject to change.
+
+    #+begin_example
+    export STARPU_HOME=/tmp/chameleon/simucore/perfmodels/
+    export STARPU_HOSTNAME=sirocco
+    ./testing/chameleon_dtesting -o potrf -t 22 -g 2 -n 14400 -b 1440
+    Id;Function;threads;gpus;P;Q;mtxfmt;nb;uplo;n;lda;seedA;time;gflops
+    0;dpotrf;22;2;1;1;0;1440;121;14400;14400;846930886;7.814116e-01;1.273889e+03
+    #+end_example
 
 *** Use out of core support with StarPU
     <<sec:ooc>>
