@@ -506,6 +506,10 @@ else (NOT CHAMELEON_SIMULATION)
     # Simulation mode: we depend on SimGrid
     find_package(SIMGRID REQUIRED)
 
+    if (SIMGRID_INCLUDE_DIRS)
+        include_directories(${SIMGRID_INCLUDE_DIRS})
+    endif()
+
     # CHAMELEON depends on MPI
     #-------------------------
     if (CHAMELEON_USE_MPI)

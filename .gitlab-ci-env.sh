@@ -11,6 +11,7 @@ export STARPU_SILENT=1
 # if simgrid change the default starpu dir to use
 if [ "$1" == "simu" ]; then
   export STARPU_DIR=$STARPUSIMGRID_DIR
+  export PKG_CONFIG_PATH=$SIMGRID_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
 
 # for build: better to rely on pkg-config than to guess libraries with the env. var.
