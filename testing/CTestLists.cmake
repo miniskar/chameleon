@@ -26,7 +26,7 @@ if (NOT CHAMELEON_SIMULATION)
     #
     # Create the list of test based on precision and runtime
     #
-    set( TESTS lacpy lange lantr lansy )
+    set( TESTS lacpy lange lantr lansy plrnk )
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS} lanhe )
     endif()

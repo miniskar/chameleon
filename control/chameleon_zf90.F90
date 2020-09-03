@@ -793,6 +793,22 @@ module chameleon_z
   end interface
 
   interface
+     function CHAMELEON_zplrnk_c(M,N,K,C,LDC,seedA,seedB) &
+          & bind(c, name='CHAMELEON_zplrnk')
+       use iso_c_binding
+       implicit none
+       integer(kind=c_int) :: CHAMELEON_zplrnk_c
+       integer(kind=c_int), value :: M
+       integer(kind=c_int), value :: N
+       integer(kind=c_int), value :: K
+       type(c_ptr), value :: C
+       integer(kind=c_int), value :: LDC
+       integer(kind=c_long_long), value :: seedA
+       integer(kind=c_long_long), value :: seedB
+     end function CHAMELEON_zplrnk_c
+  end interface
+
+  interface
      function CHAMELEON_zposv_c(uplo,N,NRHS,A,LDA,B,LDB) &
           & bind(c, name='CHAMELEON_zposv')
        use iso_c_binding
@@ -1611,6 +1627,19 @@ module chameleon_z
        type(c_ptr), value :: A
        integer(kind=c_long_long), value :: seed
      end function CHAMELEON_zplrnt_Tile_c
+  end interface
+
+  interface
+     function CHAMELEON_zplrnk_Tile_c(K,C,seedA,seedB) &
+          & bind(c, name='CHAMELEON_zplrnk_Tile')
+       use iso_c_binding
+       implicit none
+       integer(kind=c_int) :: CHAMELEON_zplrnk_Tile_c
+       integer(kind=c_int), value :: K
+       type(c_ptr), value :: C
+       integer(kind=c_long_long), value :: seedA
+       integer(kind=c_long_long), value :: seedB
+     end function CHAMELEON_zplrnk_Tile_c
   end interface
 
   interface
@@ -2434,6 +2463,21 @@ module chameleon_z
        type(c_ptr), value :: sequence
        type(c_ptr), value :: request
      end function CHAMELEON_zplrnt_Tile_Async_c
+  end interface
+
+  interface
+     function CHAMELEON_zplrnk_Tile_Async_c(K,C,seedA,seedB,sequence,request) &
+          & bind(c, name='CHAMELEON_zplrnk_Tile_Async')
+       use iso_c_binding
+       implicit none
+       integer(kind=c_int) :: CHAMELEON_zplrnk_Tile_Async_c
+       integer(kind=c_int), value :: K
+       type(c_ptr), value :: C
+       integer(kind=c_long_long), value :: seedA
+       integer(kind=c_long_long), value :: seedB
+       type(c_ptr), value :: sequence
+       type(c_ptr), value :: request
+     end function CHAMELEON_zplrnk_Tile_Async_c
   end interface
 
   interface
@@ -3491,6 +3535,20 @@ contains
     info = CHAMELEON_zplrnt_c(M,N,c_loc(A),LDA,seed)
   end subroutine CHAMELEON_zplrnt
 
+  subroutine CHAMELEON_zplrnk(M,N,K,C,LDC,seedA,seedB,info)
+    use iso_c_binding
+    implicit none
+    integer(kind=c_int), intent(out) :: info
+    integer(kind=c_int), intent(in) :: M
+    integer(kind=c_int), intent(in) :: N
+    integer(kind=c_int), intent(in) :: K
+    integer(kind=c_int), intent(in) :: LDC
+    integer(kind=c_long_long), intent(in) :: seedA
+    integer(kind=c_long_long), intent(in) :: seedB
+    complex(kind=c_double_complex), intent(out), target :: C(LDC,*)
+    info = CHAMELEON_zplrnk_c(M,N,K,c_loc(C),LDC,seedA,seedB)
+  end subroutine CHAMELEON_zplrnk
+
   subroutine CHAMELEON_zposv(uplo,N,NRHS,A,LDA,B,LDB,info)
     use iso_c_binding
     implicit none
@@ -4220,6 +4278,17 @@ contains
     type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
     info = CHAMELEON_zplrnt_Tile_c(A,seed)
   end subroutine CHAMELEON_zplrnt_Tile
+
+  subroutine CHAMELEON_zplrnk_Tile(K,C,seedA,seedB,info)
+    use iso_c_binding
+    implicit none
+    integer(kind=c_int), intent(out) :: info
+    integer(kind=c_int), intent(in) :: K
+    integer(kind=c_long_long), intent(in) :: seedA
+    integer(kind=c_long_long), intent(in) :: seedB
+    type(c_ptr), value :: C ! Arg managed by CHAMELEON: opaque to Fortran
+    info = CHAMELEON_zplrnk_Tile_c(K,C,seedA,seedB)
+  end subroutine CHAMELEON_zplrnk_Tile
 
   subroutine CHAMELEON_zposv_Tile(uplo,A,B,info)
     use iso_c_binding
@@ -4952,6 +5021,19 @@ contains
     type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
     info = CHAMELEON_zplrnt_Tile_Async_c(A,seed,sequence,request)
   end subroutine CHAMELEON_zplrnt_Tile_Async
+
+  subroutine CHAMELEON_zplrnk_Tile_Async(K,C,seedA,seedB,sequence,request,info)
+    use iso_c_binding
+    implicit none
+    integer(kind=c_int), intent(out) :: info
+    integer(kind=c_int), intent(in) :: K
+    integer(kind=c_long_long), intent(in) :: seedA
+    integer(kind=c_long_long), intent(in) :: seedB
+    type(c_ptr), value :: C ! Arg managed by CHAMELEON: opaque to Fortran
+    type(c_ptr), value :: sequence ! Arg managed by CHAMELEON: opaque to Fortran
+    type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
+    info = CHAMELEON_zplrnk_Tile_Async_c(K,C,seedA,seedB,sequence,request)
+  end subroutine CHAMELEON_zplrnk_Tile_Async
 
   subroutine CHAMELEON_zposv_Tile_Async(uplo,A,B,sequence,request,info)
     use iso_c_binding

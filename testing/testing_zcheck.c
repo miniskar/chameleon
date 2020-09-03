@@ -42,7 +42,7 @@
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares two matrices by their norms.
  *
@@ -137,7 +137,7 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares the Chameleon computed norm with a Lapack computed one.
  *
@@ -249,7 +249,7 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed sum with a core function computed one.
  *
@@ -381,7 +381,7 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed scale with a core function computed one.
  *
@@ -444,7 +444,7 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed product with a core function computed one.
  *
@@ -579,7 +579,7 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed hermitian product with a core function computed one.
  *
@@ -735,7 +735,7 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed matrix rank k operation with a core function computed one.
  *
@@ -917,7 +917,7 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed matrix triangular product with a core function computed one.
  *
@@ -1048,7 +1048,7 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Compares a Chameleon computed product U*U' or L'*L result with a core function computed one.
  *
@@ -1125,7 +1125,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Checks if a Chameleon computed factorization is correct.
  *
@@ -1252,7 +1252,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Checks if the  linear solution of op(A) * x = b is correct.
  *
@@ -1340,7 +1340,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Checks if the A1 matrix is the inverse of A2.
  *
@@ -1544,7 +1544,7 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Checks if a linear solution is correct.
  *
@@ -1640,7 +1640,7 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
 /**
  ********************************************************************************
  *
- * @ingroup new_testing
+ * @ingroup testing
  *
  * @brief Checks if a linear solution is correct.
  *
@@ -1913,6 +1913,89 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
         info_solution = check_zgelqs( args, trans, descA, Bnorm, descB );
     }
 
+#if defined(CHAMELEON_USE_MPI)
+    MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
+#endif
+
+    return info_solution;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Check matrix is rank K
+ *
+ *******************************************************************************
+ *
+ * @param[in] K
+ *          Rank of the matrix
+ *
+ * @param[in] descA
+ *          The matrix descriptor.
+ *
+ * @retval 0 success, else failure
+ *
+ *******************************************************************************
+ */
+int check_zrankk( run_arg_list_t *args, int K, CHAM_desc_t *descA )
+{
+    int info_solution = 0;
+    int M = descA->m;
+    int N = descA->n;
+    int minMN = chameleon_min(M, N);
+    int LDA = descA->m;
+    int rank = CHAMELEON_Comm_rank();
+    double Anorm, Rnorm, result;
+    double eps = LAPACKE_dlamch_work('e');
+
+    Anorm = CHAMELEON_zlange_Tile( ChamFrobeniusNorm, descA );
+
+    /* Converts the matrices to LAPACK layout in order to check values on the main process */
+    CHAMELEON_Complex64_t *A = NULL;
+    if ( rank == 0 ) {
+        A = malloc( M * N * sizeof(CHAMELEON_Complex64_t) );
+    }
+    CHAMELEON_Desc2Lap( ChamUpperLower, descA, A, LDA );
+
+    /* check rank of A using SVD, value K+1 of Sigma must be small enough */
+    if ( rank == 0 ) {
+        CHAMELEON_Complex64_t *U  = malloc( M * M * sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *VT = malloc( N * N * sizeof(CHAMELEON_Complex64_t) );
+        double *S    = malloc( minMN * sizeof(double) );
+        double *work = malloc( minMN * sizeof(double) );
+
+        LAPACKE_zgesvd( LAPACK_COL_MAJOR, 'A', 'A', M, N, A, LDA, S, U, M, VT, N, work );
+
+        /* Computes the residual's norm */
+        if ( K >= minMN ) {
+            Rnorm = 0.;
+        } else {
+            Rnorm = S[K];
+        }
+
+        run_arg_add_double( args, "||A||", Anorm );
+        run_arg_add_double( args, "||R||", Rnorm );
+
+        result = Rnorm / (Anorm * eps);
+
+        /* Verifies if the result is inside a threshold */
+        if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+            info_solution = 1;
+        }
+        else {
+            info_solution = 0;
+        }
+
+        free(A);
+        free(S);
+        free(U);
+        free(VT);
+        free(work);
+    }
+
+    /* Broadcasts the result from the main processus */
 #if defined(CHAMELEON_USE_MPI)
     MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
 #endif
