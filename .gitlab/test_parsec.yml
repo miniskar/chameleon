@@ -12,6 +12,8 @@
       - chameleon_parsec_*.log
       - chameleon_parsec_*.lcov
       - bis_chameleon_parsec_*.lcov
+    reports:
+      junit: report.xml
 
 .test_parsec_template_master: &test_parsec_master
   extends:

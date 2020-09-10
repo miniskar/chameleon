@@ -12,6 +12,8 @@
       - chameleon_quark_*.log
       - chameleon_quark_*.lcov
       - bis_chameleon_quark_*.lcov
+    reports:
+      junit: report.xml
 
 .test_quark_template_master: &test_quark_master
   extends:
