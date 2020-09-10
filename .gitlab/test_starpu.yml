@@ -12,6 +12,8 @@
       - chameleon_starpu_*.log
       - chameleon_starpu_*.lcov
       - bis_chameleon_starpu_*.lcov
+    reports:
+      junit: report.xml
 
 .test_starpu_template_master: &test_starpu_master
   extends:

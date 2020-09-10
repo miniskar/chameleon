@@ -12,6 +12,8 @@
       - chameleon_starpu_simgrid_*.log
       - chameleon_starpu_simgrid_*.lcov
       - bis_chameleon_starpu_simgrid_*.lcov
+    reports:
+      junit: report.xml
 
 .test_starpu_simgrid_template_master: &test_starpu_simgrid_master
   extends:

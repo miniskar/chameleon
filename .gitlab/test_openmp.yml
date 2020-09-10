@@ -12,6 +12,8 @@
       - chameleon_openmp_*.log
       - chameleon_openmp_*.lcov
       - bis_chameleon_openmp_*.lcov
+    reports:
+      junit: report.xml
 
 .test_openmp_template_master: &test_openmp_master
   extends:
