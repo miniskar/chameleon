@@ -22,11 +22,20 @@
 #include "chameleon/config.h"
 
 /* we need this when starpu is compiled with simgrid enabled */
-#if defined(CHAMELEON_SCHED_STARPU) && defined(CHAMELEON_SIMULATION)
-#include <starpu_simgrid_wrap.h>
+#if defined(CHAMELEON_SIMULATION)
+
+#if !defined(CHAMELEON_SCHED_STARPU)
+#error "CHAMELEON_SIMULATION can not be enabled without StarPU support"
+#endif
+
+#ifndef main
+#define main starpu_main
+#endif
+
 #if defined(CHAMELEON_USE_MPI)
 #define starpu_main smpi_simulated_main_
 #endif
+
 #endif
 
 #endif /* _chameleon_simulate_h_ */

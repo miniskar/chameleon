@@ -27,6 +27,20 @@
 ###
 cmake_minimum_required(VERSION 2.8)
 
+find_package(OpenMP REQUIRED)
+
+if ( OPENMP_FOUND )
+  message("-- ${Blue}Add definition CHAMELEON_SCHED_OPENMP"
+    " - Activate OpenMP in Chameleon${ColourReset}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+  # TODO: check for compiler support for "_Pragma"
+else ( OPENMP_FOUND )
+  message(FATAL_ERROR "Something went wrong when finding OpenMP")
+  return()
+endif ( OPENMP_FOUND )
+
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
 
