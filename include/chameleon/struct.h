@@ -143,6 +143,15 @@ typedef struct chameleon_context_s {
     int                mpi_outer_init;     // MPI has been initialized outside our functions
 } CHAM_context_t;
 
+static inline void *
+CHAM_tile_get_ptr( const CHAM_tile_t *tile )
+{
+    if ( tile->format & CHAMELEON_TILE_DESC ) {
+        return ((CHAM_desc_t*)(tile->mat))->mat;
+    }
+    return tile->mat;
+}
+
 END_C_DECLS
 
 #endif /* _chameleon_struct_h_ */

@@ -39,7 +39,7 @@ TCORE_dzasum( cham_store_t       storev,
               double *           work )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_dzasum( storev, uplo, M, N, A->mat, A->ld, work );
+    CORE_dzasum( storev, uplo, M, N, CHAM_tile_get_ptr( A ), A->ld, work );
 }
 
 int
@@ -52,7 +52,7 @@ TCORE_zaxpy( int                   M,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zaxpy( M, alpha, A->mat, incA, B->mat, incB );
+    return CORE_zaxpy( M, alpha, CHAM_tile_get_ptr( A ), incA, CHAM_tile_get_ptr( B ), incB );
 }
 
 int
@@ -64,9 +64,15 @@ TCORE_zgeadd( cham_trans_t          trans,
               CHAMELEON_Complex64_t beta,
               CHAM_tile_t *         B )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    assert( B->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgeadd( trans, M, N, alpha, A->mat, A->ld, beta, B->mat, B->ld );
+    if ( (A->format & CHAMELEON_TILE_DESC) &&
+         (B->format & CHAMELEON_TILE_DESC) )
+    {
+        assert(0);
+    }
+
+    return CORE_zgeadd( trans, M, N,
+                        alpha, CHAM_tile_get_ptr( A ), A->ld,
+                        beta,  CHAM_tile_get_ptr( B ), B->ld );
 }
 
 int
@@ -80,7 +86,7 @@ TCORE_zgelqt( int                    M,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( T->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgelqt( M, N, IB, A->mat, A->ld, T->mat, T->ld, TAU, WORK );
+    return CORE_zgelqt( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( T ), T->ld, TAU, WORK );
 }
 
 void
@@ -112,7 +118,11 @@ TCORE_zgemm( cham_trans_t          transA,
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
     CORE_zgemm(
-        transA, transB, M, N, K, alpha, A->mat, A->ld, B->mat, B->ld, beta, C->mat, C->ld );
+        transA, transB, M, N, K, alpha,
+        CHAM_tile_get_ptr( A ), A->ld,
+        CHAM_tile_get_ptr( B ), B->ld,
+        beta,
+        CHAM_tile_get_ptr( C ), C->ld );
 }
 
 int
@@ -126,7 +136,7 @@ TCORE_zgeqrt( int                    M,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( T->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgeqrt( M, N, IB, A->mat, A->ld, T->mat, T->ld, TAU, WORK );
+    return CORE_zgeqrt( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( T ), T->ld, TAU, WORK );
 }
 
 int
@@ -134,7 +144,7 @@ TCORE_zgessm( int M, int N, int K, int IB, const int *IPIV, const CHAM_tile_t *L
 {
     assert( L->format & CHAMELEON_TILE_FULLRANK );
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgessm( M, N, K, IB, IPIV, L->mat, L->ld, A->mat, A->ld );
+    return CORE_zgessm( M, N, K, IB, IPIV, CHAM_tile_get_ptr( L ), L->ld, CHAM_tile_get_ptr( A ), A->ld );
 }
 
 int
@@ -142,28 +152,28 @@ TCORE_zgessq( cham_store_t storev, int M, int N, const CHAM_tile_t *A, CHAM_tile
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( sclssq->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgessq( storev, M, N, A->mat, A->ld, sclssq->mat );
+    return CORE_zgessq( storev, M, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( sclssq ) );
 }
 
 int
 TCORE_zgetrf( int M, int N, CHAM_tile_t *A, int *IPIV, int *INFO )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf( M, N, A->mat, A->ld, IPIV, INFO );
+    return CORE_zgetrf( M, N, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
 }
 
 int
 TCORE_zgetrf_incpiv( int M, int N, int IB, CHAM_tile_t *A, int *IPIV, int *INFO )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf_incpiv( M, N, IB, A->mat, A->ld, IPIV, INFO );
+    return CORE_zgetrf_incpiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, IPIV, INFO );
 }
 
 int
 TCORE_zgetrf_nopiv( int M, int N, int IB, CHAM_tile_t *A, int *INFO )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zgetrf_nopiv( M, N, IB, A->mat, A->ld, INFO );
+    return CORE_zgetrf_nopiv( M, N, IB, CHAM_tile_get_ptr( A ), A->ld, INFO );
 }
 
 void
@@ -171,7 +181,7 @@ TCORE_zhe2ge( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t 
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zhe2ge( uplo, M, N, A->mat, A->ld, B->mat, B->ld );
+    CORE_zhe2ge( uplo, M, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 #if defined( PRECISION_z ) || defined( PRECISION_c )
@@ -189,7 +199,7 @@ TCORE_zhemm( cham_side_t           side,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zhemm( side, uplo, M, N, alpha, A->mat, A->ld, B->mat, B->ld, beta, C->mat, C->ld );
+    CORE_zhemm( side, uplo, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 
 void
@@ -204,7 +214,7 @@ TCORE_zherk( cham_uplo_t        uplo,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zherk( uplo, trans, N, K, alpha, A->mat, A->ld, beta, C->mat, C->ld );
+    CORE_zherk( uplo, trans, N, K, alpha, CHAM_tile_get_ptr( A ), A->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 
 void
@@ -221,7 +231,7 @@ TCORE_zher2k( cham_uplo_t           uplo,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zher2k( uplo, trans, N, K, alpha, A->mat, A->ld, B->mat, B->ld, beta, C->mat, C->ld );
+    CORE_zher2k( uplo, trans, N, K, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 #endif
 
@@ -241,7 +251,7 @@ TCORE_zherfb( cham_uplo_t            uplo,
     assert( T->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zherfb(
-        uplo, N, K, IB, NB, A->mat, A->ld, T->mat, T->ld, C->mat, C->ld, WORK, ldwork );
+        uplo, N, K, IB, NB, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( T ), T->ld, CHAM_tile_get_ptr( C ), C->ld, WORK, ldwork );
 }
 
 #if defined( PRECISION_z ) || defined( PRECISION_c )
@@ -254,16 +264,19 @@ TCORE_zhessq( cham_store_t       storev,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( sclssq->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zhessq( storev, uplo, N, A->mat, A->ld, sclssq->mat );
+    return CORE_zhessq( storev, uplo, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( sclssq ) );
 }
 #endif
 
 void
 TCORE_zlacpy( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    assert( B->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlacpy( uplo, M, N, A->mat, A->ld, B->mat, B->ld );
+    if (( A->format & CHAMELEON_TILE_DESC ) &&
+        ( B->format & CHAMELEON_TILE_DESC ) )
+    {
+        assert(0); /* This should have been handled at the codelet level */
+    }
+    CORE_zlacpy( uplo, M, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 void
@@ -275,7 +288,7 @@ TCORE_zlange( cham_normtype_t    norm,
               double *           normA )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlange( norm, M, N, A->mat, A->ld, work, normA );
+    CORE_zlange( norm, M, N, CHAM_tile_get_ptr( A ), A->ld, work, normA );
 }
 
 #if defined( PRECISION_z ) || defined( PRECISION_c )
@@ -288,7 +301,7 @@ TCORE_zlanhe( cham_normtype_t    norm,
               double *           normA )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlanhe( norm, uplo, N, A->mat, A->ld, work, normA );
+    CORE_zlanhe( norm, uplo, N, CHAM_tile_get_ptr( A ), A->ld, work, normA );
 }
 #endif
 
@@ -301,7 +314,7 @@ TCORE_zlansy( cham_normtype_t    norm,
               double *           normA )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlansy( norm, uplo, N, A->mat, A->ld, work, normA );
+    CORE_zlansy( norm, uplo, N, CHAM_tile_get_ptr( A ), A->ld, work, normA );
 }
 
 void
@@ -315,14 +328,14 @@ TCORE_zlantr( cham_normtype_t    norm,
               double *           normA )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlantr( norm, uplo, diag, M, N, A->mat, A->ld, work, normA );
+    CORE_zlantr( norm, uplo, diag, M, N, CHAM_tile_get_ptr( A ), A->ld, work, normA );
 }
 
 int
 TCORE_zlascal( cham_uplo_t uplo, int m, int n, CHAMELEON_Complex64_t alpha, CHAM_tile_t *A )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zlascal( uplo, m, n, alpha, A->mat, A->ld );
+    return CORE_zlascal( uplo, m, n, alpha, CHAM_tile_get_ptr( A ), A->ld );
 }
 
 void
@@ -334,14 +347,14 @@ TCORE_zlaset( cham_uplo_t           uplo,
               CHAM_tile_t *         A )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlaset( uplo, n1, n2, alpha, beta, A->mat, A->ld );
+    CORE_zlaset( uplo, n1, n2, alpha, beta, CHAM_tile_get_ptr( A ), A->ld );
 }
 
 void
 TCORE_zlaset2( cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha, CHAM_tile_t *A )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlaset2( uplo, n1, n2, alpha, A->mat, A->ld );
+    CORE_zlaset2( uplo, n1, n2, alpha, CHAM_tile_get_ptr( A ), A->ld );
 }
 
 int
@@ -354,14 +367,14 @@ TCORE_zlatro( cham_uplo_t        uplo,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zlatro( uplo, trans, M, N, A->mat, A->ld, B->mat, B->ld );
+    return CORE_zlatro( uplo, trans, M, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 void
 TCORE_zlauum( cham_uplo_t uplo, int N, CHAM_tile_t *A )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zlauum( uplo, N, A->mat, A->ld );
+    CORE_zlauum( uplo, N, CHAM_tile_get_ptr( A ), A->ld );
 }
 
 #if defined( PRECISION_z ) || defined( PRECISION_c )
@@ -376,7 +389,7 @@ TCORE_zplghe( double                 bump,
               unsigned long long int seed )
 {
     assert( tileA->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zplghe( bump, m, n, tileA->mat, tileA->ld, bigM, m0, n0, seed );
+    CORE_zplghe( bump, m, n, CHAM_tile_get_ptr( tileA ), tileA->ld, bigM, m0, n0, seed );
 }
 #endif
 
@@ -391,7 +404,7 @@ TCORE_zplgsy( CHAMELEON_Complex64_t  bump,
               unsigned long long int seed )
 {
     assert( tileA->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zplgsy( bump, m, n, tileA->mat, tileA->ld, bigM, m0, n0, seed );
+    CORE_zplgsy( bump, m, n, CHAM_tile_get_ptr( tileA ), tileA->ld, bigM, m0, n0, seed );
 }
 
 void
@@ -404,14 +417,14 @@ TCORE_zplrnt( int                    m,
               unsigned long long int seed )
 {
     assert( tileA->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zplrnt( m, n, tileA->mat, tileA->ld, bigM, m0, n0, seed );
+    CORE_zplrnt( m, n, CHAM_tile_get_ptr( tileA ), tileA->ld, bigM, m0, n0, seed );
 }
 
 void
 TCORE_zpotrf( cham_uplo_t uplo, int n, CHAM_tile_t *A, int *INFO )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zpotrf( uplo, n, A->mat, A->ld, INFO );
+    CORE_zpotrf( uplo, n, CHAM_tile_get_ptr( A ), A->ld, INFO );
 }
 
 int
@@ -437,13 +450,13 @@ TCORE_zssssm( int                M1,
                         N2,
                         K,
                         IB,
-                        A1->mat,
+                        CHAM_tile_get_ptr( A1 ),
                         A1->ld,
-                        A2->mat,
+                        CHAM_tile_get_ptr( A2 ),
                         A2->ld,
-                        L1->mat,
+                        CHAM_tile_get_ptr( L1 ),
                         L1->ld,
-                        L2->mat,
+                        CHAM_tile_get_ptr( L2 ),
                         L2->ld,
                         IPIV );
 }
@@ -462,7 +475,7 @@ TCORE_zsymm( cham_side_t           side,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zsymm( side, uplo, M, N, alpha, A->mat, A->ld, B->mat, B->ld, beta, C->mat, C->ld );
+    CORE_zsymm( side, uplo, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 
 void
@@ -477,7 +490,7 @@ TCORE_zsyrk( cham_uplo_t           uplo,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zsyrk( uplo, trans, N, K, alpha, A->mat, A->ld, beta, C->mat, C->ld );
+    CORE_zsyrk( uplo, trans, N, K, alpha, CHAM_tile_get_ptr( A ), A->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 
 void
@@ -494,7 +507,7 @@ TCORE_zsyr2k( cham_uplo_t           uplo,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
-    CORE_zsyr2k( uplo, trans, N, K, alpha, A->mat, A->ld, B->mat, B->ld, beta, C->mat, C->ld );
+    CORE_zsyr2k( uplo, trans, N, K, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, beta, CHAM_tile_get_ptr( C ), C->ld );
 }
 
 int
@@ -506,7 +519,7 @@ TCORE_zsyssq( cham_store_t       storev,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( sclssq->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zsyssq( storev, uplo, N, A->mat, A->ld, sclssq->mat );
+    return CORE_zsyssq( storev, uplo, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( sclssq ) );
 }
 
 #if defined( PRECISION_z ) || defined( PRECISION_c )
@@ -514,7 +527,7 @@ int
 TCORE_zsytf2_nopiv( cham_uplo_t uplo, int n, CHAM_tile_t *A )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_zsytf2_nopiv( uplo, n, A->mat, A->ld );
+    return CORE_zsytf2_nopiv( uplo, n, CHAM_tile_get_ptr( A ), A->ld );
 }
 #endif
 
@@ -531,7 +544,7 @@ TCORE_ztplqt( int                    M,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( T->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_ztplqt( M, N, L, IB, A->mat, A->ld, B->mat, B->ld, T->mat, T->ld, WORK );
+    return CORE_ztplqt( M, N, L, IB, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, CHAM_tile_get_ptr( T ), T->ld, WORK );
 }
 
 int
@@ -559,13 +572,13 @@ TCORE_ztpmlqt( cham_side_t            side,
                          K,
                          L,
                          IB,
-                         V->mat,
+                         CHAM_tile_get_ptr( V ),
                          V->ld,
-                         T->mat,
+                         CHAM_tile_get_ptr( T ),
                          T->ld,
-                         A->mat,
+                         CHAM_tile_get_ptr( A ),
                          A->ld,
-                         B->mat,
+                         CHAM_tile_get_ptr( B ),
                          B->ld,
                          WORK );
 }
@@ -595,13 +608,13 @@ TCORE_ztpmqrt( cham_side_t            side,
                          K,
                          L,
                          IB,
-                         V->mat,
+                         CHAM_tile_get_ptr( V ),
                          V->ld,
-                         T->mat,
+                         CHAM_tile_get_ptr( T ),
                          T->ld,
-                         A->mat,
+                         CHAM_tile_get_ptr( A ),
                          A->ld,
-                         B->mat,
+                         CHAM_tile_get_ptr( B ),
                          B->ld,
                          WORK );
 }
@@ -619,7 +632,7 @@ TCORE_ztpqrt( int                    M,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
     assert( T->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_ztpqrt( M, N, L, IB, A->mat, A->ld, B->mat, B->ld, T->mat, T->ld, WORK );
+    return CORE_ztpqrt( M, N, L, IB, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, CHAM_tile_get_ptr( T ), T->ld, WORK );
 }
 
 int
@@ -632,9 +645,12 @@ TCORE_ztradd( cham_uplo_t           uplo,
               CHAMELEON_Complex64_t beta,
               CHAM_tile_t *         B )
 {
-    assert( A->format & CHAMELEON_TILE_FULLRANK );
-    assert( B->format & CHAMELEON_TILE_FULLRANK );
-    return CORE_ztradd( uplo, trans, M, N, alpha, A->mat, A->ld, beta, B->mat, B->ld );
+    if (( A->format & CHAMELEON_TILE_DESC ) &&
+        ( B->format & CHAMELEON_TILE_DESC ) )
+    {
+        assert(0); /* This should have been handled at the codelet level */
+    }
+    return CORE_ztradd( uplo, trans, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, beta, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 void
@@ -647,7 +663,7 @@ TCORE_ztrasm( cham_store_t       storev,
               double *           work )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_ztrasm( storev, uplo, diag, M, N, A->mat, A->ld, work );
+    CORE_ztrasm( storev, uplo, diag, M, N, CHAM_tile_get_ptr( A ), A->ld, work );
 }
 
 void
@@ -663,7 +679,7 @@ TCORE_ztrmm( cham_side_t           side,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
-    CORE_ztrmm( side, uplo, transA, diag, M, N, alpha, A->mat, A->ld, B->mat, B->ld );
+    CORE_ztrmm( side, uplo, transA, diag, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 void
@@ -679,7 +695,7 @@ TCORE_ztrsm( cham_side_t           side,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( B->format & CHAMELEON_TILE_FULLRANK );
-    CORE_ztrsm( side, uplo, transA, diag, M, N, alpha, A->mat, A->ld, B->mat, B->ld );
+    CORE_ztrsm( side, uplo, transA, diag, M, N, alpha, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld );
 }
 
 int
@@ -692,15 +708,15 @@ TCORE_ztrssq( cham_uplo_t        uplo,
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( sclssq->format & CHAMELEON_TILE_FULLRANK );
-    double *W = sclssq->mat;
-    return CORE_ztrssq( uplo, diag, M, N, A->mat, A->ld, W, W + 1 );
+    double *W = CHAM_tile_get_ptr( sclssq );
+    return CORE_ztrssq( uplo, diag, M, N, CHAM_tile_get_ptr( A ), A->ld, W, W + 1 );
 }
 
 void
 TCORE_ztrtri( cham_uplo_t uplo, cham_diag_t diag, int N, CHAM_tile_t *A, int *info )
 {
     assert( A->format & CHAMELEON_TILE_FULLRANK );
-    CORE_ztrtri( uplo, diag, N, A->mat, A->ld, info );
+    CORE_ztrtri( uplo, diag, N, CHAM_tile_get_ptr( A ), A->ld, info );
 }
 
 int
@@ -731,13 +747,13 @@ TCORE_ztsmlq_hetra1( cham_side_t            side,
                                n2,
                                k,
                                ib,
-                               A1->mat,
+                               CHAM_tile_get_ptr( A1 ),
                                A1->ld,
-                               A2->mat,
+                               CHAM_tile_get_ptr( A2 ),
                                A2->ld,
-                               V->mat,
+                               CHAM_tile_get_ptr( V ),
                                V->ld,
-                               T->mat,
+                               CHAM_tile_get_ptr( T ),
                                T->ld,
                                WORK,
                                ldwork );
@@ -771,13 +787,13 @@ TCORE_ztsmqr_hetra1( cham_side_t            side,
                                n2,
                                k,
                                ib,
-                               A1->mat,
+                               CHAM_tile_get_ptr( A1 ),
                                A1->ld,
-                               A2->mat,
+                               CHAM_tile_get_ptr( A2 ),
                                A2->ld,
-                               V->mat,
+                               CHAM_tile_get_ptr( V ),
                                V->ld,
-                               T->mat,
+                               CHAM_tile_get_ptr( T ),
                                T->ld,
                                WORK,
                                ldwork );
@@ -800,7 +816,7 @@ TCORE_ztstrf( int                    M,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( L->format & CHAMELEON_TILE_FULLRANK );
     return CORE_ztstrf(
-        M, N, IB, NB, U->mat, U->ld, A->mat, A->ld, L->mat, L->ld, IPIV, WORK, LDWORK, INFO );
+        M, N, IB, NB, CHAM_tile_get_ptr( U ), U->ld, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( L ), L->ld, IPIV, WORK, LDWORK, INFO );
 }
 
 int
@@ -820,7 +836,7 @@ TCORE_zunmlq( cham_side_t            side,
     assert( T->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zunmlq(
-        side, trans, M, N, K, IB, V->mat, V->ld, T->mat, T->ld, C->mat, C->ld, WORK, LDWORK );
+        side, trans, M, N, K, IB, CHAM_tile_get_ptr( V ), V->ld, CHAM_tile_get_ptr( T ), T->ld, CHAM_tile_get_ptr( C ), C->ld, WORK, LDWORK );
 }
 
 int
@@ -840,7 +856,7 @@ TCORE_zunmqr( cham_side_t            side,
     assert( T->format & CHAMELEON_TILE_FULLRANK );
     assert( C->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zunmqr(
-        side, trans, M, N, K, IB, V->mat, V->ld, T->mat, T->ld, C->mat, C->ld, WORK, LDWORK );
+        side, trans, M, N, K, IB, CHAM_tile_get_ptr( V ), V->ld, CHAM_tile_get_ptr( T ), T->ld, CHAM_tile_get_ptr( C ), C->ld, WORK, LDWORK );
 }
 
 int
@@ -859,5 +875,5 @@ TCORE_zgram( cham_uplo_t        uplo,
     assert( D->format & CHAMELEON_TILE_FULLRANK );
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zgram(
-        uplo, M, N, Mt, Nt, Di->mat, Di->ld, Dj->mat, Dj->ld, D->mat, A->mat, A->ld );
+        uplo, M, N, Mt, Nt, CHAM_tile_get_ptr( Di ), Di->ld, CHAM_tile_get_ptr( Dj ), Dj->ld, CHAM_tile_get_ptr( D ), CHAM_tile_get_ptr( A ), A->ld );
 }
