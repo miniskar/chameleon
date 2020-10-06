@@ -84,6 +84,19 @@ TCORE_zgelqt( int                    M,
 }
 
 void
+TCORE_zgemv( cham_trans_t trans, int M, int N,
+             CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A,
+                                          const CHAM_tile_t *x, int incX,
+             CHAMELEON_Complex64_t beta,        CHAM_tile_t *y, int incY )
+{
+    assert( A->format & CHAMELEON_TILE_FULLRANK );
+    assert( x->format & CHAMELEON_TILE_FULLRANK );
+    assert( y->format & CHAMELEON_TILE_FULLRANK );
+    CORE_zgemv(
+        trans, M, N, alpha, A->mat, A->ld, x->mat, incX, beta, y->mat, incY );
+}
+
+void
 TCORE_zgemm( cham_trans_t          transA,
              cham_trans_t          transB,
              int                   M,

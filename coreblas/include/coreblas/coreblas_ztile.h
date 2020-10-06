@@ -23,6 +23,7 @@ void TCORE_dzasum( cham_store_t storev, cham_uplo_t uplo, int M, int N, const CH
 int  TCORE_zaxpy( int M, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, int incA, CHAM_tile_t *B, int incB );
 int  TCORE_zgeadd( cham_trans_t trans, int M, int N, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, CHAMELEON_Complex64_t beta, CHAM_tile_t *B );
 int  TCORE_zgelqt( int M, int N, int IB, CHAM_tile_t *A, CHAM_tile_t *T, CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK );
+void TCORE_zgemv( cham_trans_t trans, int M, int N, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, const CHAM_tile_t *x, int incx, CHAMELEON_Complex64_t beta, CHAM_tile_t *y, int incy );
 void TCORE_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int K, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, const CHAM_tile_t *B, CHAMELEON_Complex64_t beta, CHAM_tile_t *C );
 int  TCORE_zgeqrt( int M, int N, int IB, CHAM_tile_t *A, CHAM_tile_t *T, CHAMELEON_Complex64_t *TAU, CHAMELEON_Complex64_t *WORK );
 int  TCORE_zgessm( int M, int N, int K, int IB, const int *IPIV, const CHAM_tile_t *L, CHAM_tile_t *A );

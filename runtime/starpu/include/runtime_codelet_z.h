@@ -40,6 +40,11 @@
 CODELETS_HEADER(zaxpy);
 
 /*
+ * BLAS 2 functions
+ */
+CODELETS_HEADER(zgemv);
+
+/*
  * BLAS 3 functions
  */
 CODELETS_HEADER(zgemm);

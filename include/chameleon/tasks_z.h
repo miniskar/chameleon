@@ -53,6 +53,11 @@ void INSERT_TASK_zgelqt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *T, int Tm, int Tn );
+void INSERT_TASK_zgemv( const RUNTIME_option_t *options,
+                        cham_trans_t trans, int m, int n,
+                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                     const CHAM_desc_t *X, int Xm, int Xn, int incX,
+                        CHAMELEON_Complex64_t beta,  const CHAM_desc_t *Y, int Ym, int Yn, int incY );
 void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
                         cham_trans_t transA, cham_trans_t transB,
                         int m, int n, int k, int nb,

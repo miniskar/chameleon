@@ -55,6 +55,10 @@ void CORE_zgemm(cham_trans_t transA, cham_trans_t transB,
                 CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
                                           const CHAMELEON_Complex64_t *B, int LDB,
                 CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *C, int LDC);
+void CORE_zgemv(cham_trans_t trans, int M, int N,
+                CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t *A, int LDA,
+                                             const CHAMELEON_Complex64_t *x, int incX,
+                CHAMELEON_Complex64_t beta,        CHAMELEON_Complex64_t *y, int incY);
 int  CORE_zgeqrt(int M, int N, int IB,
                  CHAMELEON_Complex64_t *A, int LDA,
                  CHAMELEON_Complex64_t *T, int LDT,

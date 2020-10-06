@@ -35,6 +35,10 @@ set(CODELETS_ZSRC
     ##################
     codelets/codelet_zaxpy.c
     ##################
+    # BLAS 2
+    ##################
+    codelets/codelet_zgemv.c
+    ##################
     # BLAS 3
     ##################
     codelets/codelet_zgemm.c
