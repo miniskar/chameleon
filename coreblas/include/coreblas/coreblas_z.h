@@ -30,6 +30,9 @@
 /**
  *  Declarations of serial kernels - alphabetical order
  */
+void CORE_dlag2z( cham_uplo_t uplo, int M, int N,
+                  const double          *A, int lda,
+                  CHAMELEON_Complex64_t *B, int ldb );
 void CORE_dzasum(cham_store_t storev, cham_uplo_t uplo, int M, int N,
                  const CHAMELEON_Complex64_t *A, int lda, double *work);
 int CORE_zaxpy(int M, CHAMELEON_Complex64_t alpha,

@@ -30,6 +30,10 @@
 /**
  *  Declarations of QUARK wrappers (called by CHAMELEON) - alphabetical order
  */
+void INSERT_TASK_dlag2z( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn );
 void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
                          cham_store_t storev, cham_uplo_t uplo, int M, int N,
                          const CHAM_desc_t *A, int Am, int An,

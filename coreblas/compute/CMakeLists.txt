@@ -30,6 +30,7 @@
 
 set(COREBLAS_SRCS_GENERATED "")
 set(ZSRC
+    core_dlag2z.c
     core_dzasum.c
     core_zaxpy.c
     core_zgeadd.c

@@ -16,6 +16,9 @@
 #ifndef _coreblas_ztile_h_
 #define _coreblas_ztile_h_
 
+#if defined(PRECISION_z) || defined(PRECISION_c)
+void TCORE_dlag2z( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B );
+#endif
 void TCORE_dzasum( cham_store_t storev, cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, double *work );
 int  TCORE_zaxpy( int M, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, int incA, CHAM_tile_t *B, int incB );
 int  TCORE_zgeadd( cham_trans_t trans, int M, int N, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, CHAMELEON_Complex64_t beta, CHAM_tile_t *B );
@@ -28,18 +31,18 @@ int  TCORE_zgetrf( int M, int N, CHAM_tile_t *A, int *IPIV, int *INFO );
 int  TCORE_zgetrf_incpiv( int M, int N, int IB, CHAM_tile_t *A, int *IPIV, int *INFO );
 int  TCORE_zgetrf_nopiv( int M, int N, int IB, CHAM_tile_t *A, int *INFO );
 void TCORE_zhe2ge( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B );
-#if defined(PRECISION_z ) || defined(PRECISION_c)
+#if defined(PRECISION_z) || defined(PRECISION_c)
 void TCORE_zhemm( cham_side_t side, cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, const CHAM_tile_t *B, CHAMELEON_Complex64_t beta, CHAM_tile_t *C );
 void TCORE_zherk( cham_uplo_t uplo, cham_trans_t trans, int N, int K, double alpha, const CHAM_tile_t *A, double beta, CHAM_tile_t *C );
 void TCORE_zher2k( cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A, const CHAM_tile_t *B, double beta, CHAM_tile_t *C );
 #endif
 int  TCORE_zherfb( cham_uplo_t uplo, int N, int K, int IB, int NB, const CHAM_tile_t *A, const CHAM_tile_t *T, CHAM_tile_t *C, CHAMELEON_Complex64_t *WORK, int ldwork );
-#if defined(PRECISION_z ) || defined(PRECISION_c)
+#if defined(PRECISION_z) || defined(PRECISION_c)
 int  TCORE_zhessq( cham_store_t storev, cham_uplo_t uplo, int N, const CHAM_tile_t *A, CHAM_tile_t *sclssq );
 #endif
 void TCORE_zlacpy( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B );
 void TCORE_zlange( cham_normtype_t norm, int M, int N, const CHAM_tile_t *A, double *work, double *normA );
-#if defined(PRECISION_z ) || defined(PRECISION_c)
+#if defined(PRECISION_z) || defined(PRECISION_c)
 void TCORE_zlanhe( cham_normtype_t norm, cham_uplo_t uplo, int N, const CHAM_tile_t *A, double *work, double *normA );
 #endif
 void TCORE_zlansy( cham_normtype_t norm, cham_uplo_t uplo, int N, const CHAM_tile_t *A, double *work, double *normA );
@@ -49,7 +52,7 @@ void TCORE_zlaset( cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha
 void TCORE_zlaset2( cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha, CHAM_tile_t *A );
 int  TCORE_zlatro( cham_uplo_t uplo, cham_trans_t trans, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B );
 void TCORE_zlauum( cham_uplo_t uplo, int N, CHAM_tile_t *A );
-#if defined(PRECISION_z ) || defined(PRECISION_c)
+#if defined(PRECISION_z) || defined(PRECISION_c)
 void TCORE_zplghe( double bump, int m, int n, CHAM_tile_t *tileA, int bigM, int m0, int n0, unsigned long long int seed );
 #endif
 void TCORE_zplgsy( CHAMELEON_Complex64_t bump, int m, int n, CHAM_tile_t *tileA, int bigM, int m0, int n0, unsigned long long int seed );

@@ -22,6 +22,9 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
+#if defined(PRECISION_z) || defined(PRECISION_c)
+CHAMELEON_CL_CB(dlag2z,        cti_handle_get_m(task->handles[1]), cti_handle_get_n(task->handles[1]), 0,                                      M*N)
+#endif
 CHAMELEON_CL_CB(dzasum,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zaxpy,         cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[1]), 0,                                      M)
 CHAMELEON_CL_CB(zgeadd,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)

@@ -18,6 +18,18 @@
 #include "coreblas.h"
 #include "coreblas/coreblas_ztile.h"
 
+#if defined( PRECISION_z ) || defined( PRECISION_c )
+void
+TCORE_dlag2z( cham_uplo_t uplo, int M, int N,
+              const CHAM_tile_t *A,
+              CHAM_tile_t       *B )
+{
+    assert( A->format & CHAMELEON_TILE_FULLRANK );
+    assert( B->format & CHAMELEON_TILE_FULLRANK );
+    CORE_dlag2z( uplo, M, N, A->mat, A->ld, B->mat, B->ld );
+}
+#endif
+
 void
 TCORE_dzasum( cham_store_t       storev,
               cham_uplo_t        uplo,
