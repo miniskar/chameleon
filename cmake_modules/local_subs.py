@@ -20,6 +20,7 @@ _extra_blas = [
     ('',                     'slaran',               'dlaran',               'slaran',               'dlaran'              ),
     ('',                     'slatm1',               'dlatm1',               'clatm1',               'zlatm1'              ),
     ('',                     'slatm1',               'dlatm1',               'slatm1',               'dlatm1'              ),
+    ('',                     'sgenm2',               'dgenm2',               'cgenm2',               'zgenm2'              ),
     ('',                     'slag2c_fake',          'dlag2z_fake',          'slag2c',               'dlag2z'              ),
 ]
 

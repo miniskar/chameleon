@@ -74,6 +74,7 @@ set(ZSRC
   testing_zsytrf.c
   testing_zsytrs.c
   testing_zsysv.c
+  testing_zgenm2.c
   testing_zgetrf.c
   testing_zgetrs.c
   testing_zgesv.c
