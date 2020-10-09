@@ -46,6 +46,7 @@ set(COREBLAS_HDRS
     coreblas/lapacke.h
     coreblas/lapacke_config.h
     coreblas/lapacke_mangling.h
+    coreblas/random.h
     )
 
 # Add generated headers
