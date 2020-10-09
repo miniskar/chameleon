@@ -18,6 +18,8 @@ _extra_blas = [
     ('',                     'sgram',                'dgram',                'cgram',                'zgram'               ),
     ('',                     'slaran',               'dlaran',               'claran',               'zlaran'              ),
     ('',                     'slaran',               'dlaran',               'slaran',               'dlaran'              ),
+    ('',                     'slatm1',               'dlatm1',               'clatm1',               'zlatm1'              ),
+    ('',                     'slatm1',               'dlatm1',               'slatm1',               'dlatm1'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]

@@ -34,6 +34,7 @@ set(ZSRC
     core_zaxpy.c
     core_zgeadd.c
     core_zlascal.c
+    core_zlatm1.c
     core_zgelqt.c
     core_zgemm.c
     core_zgeqrt.c
