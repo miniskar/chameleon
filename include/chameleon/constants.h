@@ -135,10 +135,12 @@ typedef enum chameleon_mtxtype_e {
 /**
  * @brief Eigen and singular values generator format
  */
-#define ChamHermGeev        241
-#define ChamHermPoev        242
-#define ChamNonsymPosv      243
-#define ChamSymPosv         244
+typedef enum chameleon_sym_e {
+    ChamHermGeev   = 241,
+    ChamHermPoev   = 242,
+    ChamNonsymPosv = 243,
+    ChamSymPosv    = 244
+} cham_sym_t;
 
 #define ChamNoPacking       291
 #define ChamPackSubdiag     292
