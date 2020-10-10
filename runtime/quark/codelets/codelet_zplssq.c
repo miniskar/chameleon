@@ -30,10 +30,10 @@ void CORE_zplssq_quark(Quark *quark)
     CHAM_tile_t *tileIN;
     CHAM_tile_t *tileOUT;
 
+    quark_unpack_args_5( quark, storev, M, N, tileIN, tileOUT );
+
     assert( tileIN->format  & CHAMELEON_TILE_FULLRANK );
     assert( tileOUT->format & CHAMELEON_TILE_FULLRANK );
-
-    quark_unpack_args_5( quark, storev, M, N, tileIN, tileOUT );
     CORE_zplssq( storev, M, N, tileIN->mat, tileOUT->mat );
 }
 
@@ -59,9 +59,9 @@ void CORE_zplssq2_quark(Quark *quark)
     int N;
     CHAM_tile_t *tileRESULT;
 
-    assert( tileRESULT->format & CHAMELEON_TILE_FULLRANK );
-
     quark_unpack_args_2( quark, N, tileRESULT );
+
+    assert( tileRESULT->format & CHAMELEON_TILE_FULLRANK );
     CORE_zplssq2(N, tileRESULT->mat);
 }
 

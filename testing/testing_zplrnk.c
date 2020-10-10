@@ -26,20 +26,18 @@ testing_zplrnk( run_arg_list_t *args, int check )
 {
     static int   run_id = 0;
     int          hres   = 0;
-    double       norm;
     CHAM_desc_t *descC;
 
     /* Reads arguments */
-    int             nb        = run_arg_get_int( args, "nb", 320 );
-    int             P         = parameters_getvalue_int( "P" );
-    cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
-    int             N         = run_arg_get_int( args, "N", 1000 );
-    int             M         = run_arg_get_int( args, "M", N );
-    int             K         = run_arg_get_int( args, "K", N );
-    int             LDC       = run_arg_get_int( args, "LDC", M );
-    int             seedA     = run_arg_get_int( args, "seedA", random() );
-    int             seedB     = run_arg_get_int( args, "seedB", random() );
-    int             Q         = parameters_compute_q( P );
+    int             nb    = run_arg_get_int( args, "nb", 320 );
+    int             P     = parameters_getvalue_int( "P" );
+    int             N     = run_arg_get_int( args, "N", 1000 );
+    int             M     = run_arg_get_int( args, "M", N );
+    int             K     = run_arg_get_int( args, "K", N );
+    int             LDC   = run_arg_get_int( args, "LDC", M );
+    int             seedA = run_arg_get_int( args, "seedA", random() );
+    int             seedB = run_arg_get_int( args, "seedB", random() );
+    int             Q     = parameters_compute_q( P );
     cham_fixdbl_t t, gflops;
     /* We consider the gemm cost used in this operation as the cost */
     cham_fixdbl_t flops = flops_zgemm( M, N, K );

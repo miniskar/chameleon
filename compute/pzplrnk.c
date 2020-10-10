@@ -34,7 +34,7 @@ void chameleon_pzplrnk( int K, CHAM_desc_t *C,
     RUNTIME_option_t options;
     int m, n, k, KT;
     int tempmm, tempnn, tempkk;
-    int lookahead, myp, myq;
+    int myp, myq;
     CHAMELEON_Complex64_t zbeta;
     CHAM_desc_t WA, WB;
 

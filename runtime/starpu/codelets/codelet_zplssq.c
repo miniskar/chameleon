@@ -121,6 +121,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
         STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zplssq2",
 #endif

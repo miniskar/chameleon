@@ -24,7 +24,7 @@
 
 #include <quark.h>
 #if defined(CHAMELEON_RUNTIME_SYNC)
-#define QUARk_Insert_Task QUARK_Execute_Task
+#define QUARK_Insert_Task QUARK_Execute_Task
 #endif
 #include "coreblas.h"
 #include "core_blas_dag.h"
