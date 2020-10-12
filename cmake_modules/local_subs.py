@@ -16,6 +16,10 @@ _extra_blas = [
     ('',                     'slatro',               'dlatro',               'clatro',               'zlatro'              ), #=> Replace by getmo/gecmo as in essl
     ('',                     'sbuild',               'dbuild',               'cbuild',               'zbuild'              ), #=> Replace by map function
     ('',                     'sgram',                'dgram',                'cgram',                'zgram'               ),
+    ('',                     'slaran',               'dlaran',               'claran',               'zlaran'              ),
+    ('',                     'slaran',               'dlaran',               'slaran',               'dlaran'              ),
+    ('',                     'slatm1',               'dlatm1',               'clatm1',               'zlatm1'              ),
+    ('',                     'slatm1',               'dlatm1',               'slatm1',               'dlatm1'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]

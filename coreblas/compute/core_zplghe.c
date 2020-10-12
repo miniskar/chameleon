@@ -24,19 +24,7 @@
  *
  */
 #include "coreblas.h"
-
-/*
- Rnd64seed is a global variable but it doesn't spoil thread safety. All matrix
- generating threads only read Rnd64seed. It is safe to set Rnd64seed before
- and after any calls to create_tile(). The only problem can be caused if
- Rnd64seed is changed during the matrix generation time.
- */
-
-//static unsigned long long int Rnd64seed = 100;
-#define Rnd64_A 6364136223846793005ULL
-#define Rnd64_C 1ULL
-#define RndF_Mul 5.4210108624275222e-20f
-#define RndD_Mul 5.4210108624275222e-20
+#include "coreblas/random.h"
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
 #define NBELEM   2
@@ -44,27 +32,7 @@
 #define NBELEM   1
 #endif
 
-static unsigned long long int
-Rnd64_jump(unsigned long long int n, unsigned long long int seed ) {
-  unsigned long long int a_k, c_k, ran;
-  int i;
-
-  a_k = Rnd64_A;
-  c_k = Rnd64_C;
-
-  ran = seed;
-  for (i = 0; n; n >>= 1, i++) {
-    if (n & 1)
-      ran = a_k * ran + c_k;
-    c_k *= (a_k + 1);
-    a_k *= a_k;
-  }
-
-  return ran;
-}
-
 //  CORE_zplghe - Generate a tile for random hermitian (positive definite if bump is large enough) matrix.
-
 void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
                   int bigM, int m0, int n0, unsigned long long int seed )
 {
@@ -82,23 +50,14 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
 
         /* Lower part */
         for (j = 0; j < minmn; j++) {
-            ran = Rnd64_jump( NBELEM * jump, seed );
+            ran = CORE_rnd64_jump( NBELEM * jump, seed );
 
-            *tmp = 0.5f - ran * RndF_Mul;
-            ran  = Rnd64_A * ran + Rnd64_C;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-            ran  = Rnd64_A * ran + Rnd64_C;
-#endif
-            *tmp = creal( *tmp + bump );
+            *tmp = CORE_zlaran( &ran );
+            *tmp = creal( *tmp + bump ); /* Take only the real part */
             tmp++;
 
             for (i = j+1; i < m; i++) {
-                *tmp = 0.5f - ran * RndF_Mul;
-                ran  = Rnd64_A * ran + Rnd64_C;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                *tmp += I*(0.5f - ran * RndF_Mul);
-                ran   = Rnd64_A * ran + Rnd64_C;
-#endif
+                *tmp = CORE_zlaran( &ran );
                 tmp++;
             }
             tmp  += (lda - i + j + 1);
@@ -109,15 +68,10 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
         jump = (unsigned long long int)m0 + (unsigned long long int)n0 * (unsigned long long int)bigM;
 
         for (i = 0; i < minmn; i++) {
-            ran = Rnd64_jump( NBELEM * (jump+i+1), seed );
+            ran = CORE_rnd64_jump( NBELEM * (jump+i+1), seed );
 
             for (j = i+1; j < n; j++) {
-                A[j*lda+i] = 0.5f - ran * RndF_Mul;
-                ran = Rnd64_A * ran + Rnd64_C;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                A[j*lda+i] -= I*(0.5f - ran * RndF_Mul);
-                ran = Rnd64_A * ran + Rnd64_C;
-#endif
+                A[j*lda+i] = conj( CORE_zlaran( &ran ) );
             }
             jump += bigM;
         }
@@ -127,15 +81,10 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
      */
     else if ( m0 > n0 ) {
         for (j = 0; j < n; j++) {
-            ran = Rnd64_jump( NBELEM * jump, seed );
+            ran = CORE_rnd64_jump( NBELEM * jump, seed );
 
             for (i = 0; i < m; i++) {
-                *tmp = 0.5f - ran * RndF_Mul;
-                ran  = Rnd64_A * ran + Rnd64_C;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                *tmp += I*(0.5f - ran * RndF_Mul);
-                ran   = Rnd64_A * ran + Rnd64_C;
-#endif
+                *tmp = CORE_zlaran( &ran );
                 tmp++;
             }
             tmp  += (lda - i);
@@ -150,15 +99,10 @@ void CORE_zplghe( double bump, int m, int n, CHAMELEON_Complex64_t *A, int lda,
         jump = (unsigned long long int)n0 + (unsigned long long int)m0 * (unsigned long long int)bigM;
 
         for (i = 0; i < m; i++) {
-            ran = Rnd64_jump( NBELEM * jump, seed );
+            ran = CORE_rnd64_jump( NBELEM * jump, seed );
 
             for (j = 0; j < n; j++) {
-                A[j*lda+i] = 0.5f - ran * RndF_Mul;
-                ran = Rnd64_A * ran + Rnd64_C;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-                A[j*lda+i] -= I*(0.5f - ran * RndF_Mul);
-                ran = Rnd64_A * ran + Rnd64_C;
-#endif
+                A[j*lda+i] = conj( CORE_zlaran( &ran ) );
             }
             jump += bigM;
         }

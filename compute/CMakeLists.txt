@@ -118,6 +118,7 @@ set(ZSRC
     pzlansy.c
     pzlaset2.c
     pzlaset.c
+    pzlatms.c
     pzlauum.c
     pzplghe.c
     pzplgsy.c
@@ -166,6 +167,7 @@ set(ZSRC
     zlansy.c
     zlantr.c
     zlaset.c
+    zlatms.c
     zlauum.c
     zplghe.c
     zplgsy.c

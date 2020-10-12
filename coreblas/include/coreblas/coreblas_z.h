@@ -168,6 +168,9 @@ int  CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,
                  int M, int N,
                  const CHAMELEON_Complex64_t *A, int LDA,
                        CHAMELEON_Complex64_t *B, int LDB);
+int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
+                 unsigned long long int seed,
+                 CHAMELEON_Complex64_t *D, int N );
 void CORE_zlauum(cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA);
 int CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
                int M, int N, int K, int L,
