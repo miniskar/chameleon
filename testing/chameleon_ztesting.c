@@ -42,6 +42,7 @@ static parameter_t parameters[] = {
     { "nowarmup", "Disable the warmup run to load libraries", -31, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "mtxfmt",   "Change the way the matrix is stored (0: global, 1: tiles, 2: OOC)", -32, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
@@ -490,7 +491,7 @@ parameters_destroy()
 int main (int argc, char **argv) {
 
     int ncores, ngpus, human, check, i, niter;
-    int trace, nowarmup, profile;
+    int trace, nowarmup, profile, forcegpu;
     int rc, info = 0;
     int run_id = 0;
     char *func_name;
@@ -515,6 +516,7 @@ int main (int argc, char **argv) {
     trace     = parameters_getvalue_int( "trace"    );
     nowarmup  = parameters_getvalue_int( "nowarmup" );
     profile   = parameters_getvalue_int( "profile" );
+    forcegpu  = parameters_getvalue_int( "forcegpu" );
 
     CHAMELEON_Init( ncores, ngpus );
 
@@ -535,6 +537,17 @@ int main (int argc, char **argv) {
     /* Executes the tests */
     run_print_header( test, check, human );
     run = runlist->head;
+
+    /* Force all possible kernels on GPU */
+    if ( forcegpu ) {
+        if ( ngpus == 0 ) {
+            fprintf( stderr,
+                     "--forcegpu can't be enable without GPU (-g 0).\n"
+                     "  Please specify a larger number of GPU or disable this option\n" );
+            return EXIT_FAILURE;
+        }
+        RUNTIME_zlocality_allrestrict( RUNTIME_CUDA );
+    }
 
     /* Warmup */
     if ( !nowarmup ) {
