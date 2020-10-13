@@ -50,6 +50,7 @@
 
 /* Simulation */
 #cmakedefine CHAMELEON_SIMULATION
+#cmakedefine CHAMELEON_SIMULATION_EXTENDED
 
 /* getopt */
 #cmakedefine CHAMELEON_HAVE_GETOPT_H

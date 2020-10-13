@@ -224,6 +224,10 @@ if(CHAMELEON_SCHED_STARPU)
     if(CHAMELEON_ENABLE_PRUNING_STATS)
         add_definitions(-DCHAMELEON_ENABLE_PRUNING_STATS)
     endif(CHAMELEON_ENABLE_PRUNING_STATS)
+
+    cmake_dependent_option(CHAMELEON_SIMULATION_EXTENDED
+      "Enable non GPU kernels to be simulated on GPU" OFF
+      "CHAMELEON_SIMULATION" OFF)
 endif()
 
 # Initially we need to generate files for different precisions
