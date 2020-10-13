@@ -196,16 +196,17 @@ typedef enum chameleon_store_e {
 /**
  *  State machine switches
  */
-#define CHAMELEON_WARNINGS        1
-#define CHAMELEON_ERRORS          2
-#define CHAMELEON_AUTOTUNING      3
-#define CHAMELEON_DAG             4
-#define CHAMELEON_PROFILING_MODE  5
-#define CHAMELEON_PARALLEL_MODE   6
-#define CHAMELEON_BOUND           7
-#define CHAMELEON_PROGRESS        8
-#define CHAMELEON_GEMM3M          9
-#define CHAMELEON_GENERIC        10
+#define CHAMELEON_WARNINGS            1
+#define CHAMELEON_ERRORS              2
+#define CHAMELEON_AUTOTUNING          3
+#define CHAMELEON_DAG                 4
+#define CHAMELEON_PROFILING_MODE      5
+#define CHAMELEON_KERNELPROFILE_MODE  6
+#define CHAMELEON_PARALLEL_MODE       7
+#define CHAMELEON_BOUND               8
+#define CHAMELEON_PROGRESS            9
+#define CHAMELEON_GEMM3M             10
+#define CHAMELEON_GENERIC            11
 
 /**
  *  CHAMELEON constants - configuration parameters
