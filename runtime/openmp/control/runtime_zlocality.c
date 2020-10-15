@@ -1,6 +1,6 @@
 /**
  *
- * @file parsec/runtime_zlocality.c
+ * @file openmp/runtime_zlocality.c
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon PaRSEC CHAMELEON_Complex64_t kernel locality management
+ * @brief Chameleon OpenMP CHAMELEON_Complex64_t kernel locality management
  *
  * @version 1.0.0
  * @author Mathieu Faverge
@@ -17,28 +17,28 @@
  * @precisions normal z -> s d c
  *
  */
-#include "chameleon_parsec.h"
+#include "chameleon_openmp.h"
 
 void RUNTIME_zlocality_allrestrict( uint32_t where )
 {
     (void)where;
-    chameleon_warning("RUNTIME_zlocality_allrestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_allrestrict(Openmp)", "Kernel locality cannot be specified with Openmp");
 }
 
 void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 {
     (void)kernel;
     (void)where;
-    chameleon_warning("RUNTIME_zlocality_onerestrict(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_onerestrict(Openmp)", "Kernel locality cannot be specified with Openmp");
 }
 
 void RUNTIME_zlocality_allrestore( )
 {
-    chameleon_warning("RUNTIME_zlocality_allrestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_allrestore(Openmp)", "Kernel locality cannot be specified with Openmp");
 }
 
 void RUNTIME_zlocality_onerestore( cham_tasktype_t kernel )
 {
     (void)kernel;
-    chameleon_warning("RUNTIME_zlocality_onerestore(PaRSEC)", "Kernel locality cannot be specified with PaRSEC");
+    chameleon_warning("RUNTIME_zlocality_onerestore(Openmp)", "Kernel locality cannot be specified with Openmp");
 }

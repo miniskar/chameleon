@@ -34,6 +34,12 @@ typedef enum runtime_id_e {
 } RUNTIME_id_t;
 
 /**
+ * @brief Ids of the worker type
+ */
+#define RUNTIME_CPU  ((1ULL)<<1)
+#define RUNTIME_CUDA ((1ULL)<<3)
+
+/**
  * @brief RUNTIME request structure
  *
  * A request is used to uniquely identifies a set of submitted tasks together,

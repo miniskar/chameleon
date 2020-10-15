@@ -64,6 +64,16 @@ install(
 
 # Generate the Chameleon common for all possible precisions
 # ---------------------------------------------------------
+set(RUNTIME_COMMON_GENERATED "")
+set(ZSRC
+  control/runtime_zprofiling.c
+  control/runtime_zlocality.c
+  )
+
+precisions_rules_py(
+  RUNTIME_COMMON_GENERATED "${ZSRC}"
+  PRECISIONS "${CHAMELEON_PRECISION}"
+  TARGETDIR "control")
 
 set(RUNTIME_COMMON
   control/runtime_async.c

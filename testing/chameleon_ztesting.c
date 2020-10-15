@@ -41,6 +41,8 @@ static parameter_t parameters[] = {
     { "trace",    "Enable the trace generation",              -30, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "nowarmup", "Disable the warmup run to load libraries", -31, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "mtxfmt",   "Change the way the matrix is stored (0: global, 1: tiles, 2: OOC)", -32, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
@@ -489,7 +491,7 @@ parameters_destroy()
 int main (int argc, char **argv) {
 
     int ncores, ngpus, human, check, i, niter;
-    int trace, nowarmup;
+    int trace, nowarmup, profile, forcegpu;
     int rc, info = 0;
     int run_id = 0;
     char *func_name;
@@ -513,6 +515,8 @@ int main (int argc, char **argv) {
     niter     = parameters_getvalue_int( "niter"    );
     trace     = parameters_getvalue_int( "trace"    );
     nowarmup  = parameters_getvalue_int( "nowarmup" );
+    profile   = parameters_getvalue_int( "profile" );
+    forcegpu  = parameters_getvalue_int( "forcegpu" );
 
     CHAMELEON_Init( ncores, ngpus );
 
@@ -534,11 +538,27 @@ int main (int argc, char **argv) {
     run_print_header( test, check, human );
     run = runlist->head;
 
+    /* Force all possible kernels on GPU */
+    if ( forcegpu ) {
+        if ( ngpus == 0 ) {
+            fprintf( stderr,
+                     "--forcegpu can't be enable without GPU (-g 0).\n"
+                     "  Please specify a larger number of GPU or disable this option\n" );
+            return EXIT_FAILURE;
+        }
+        RUNTIME_zlocality_allrestrict( RUNTIME_CUDA );
+    }
+
     /* Warmup */
     if ( !nowarmup ) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
         test->fptr( &copy, check );
         run_arg_list_destroy( &copy );
+    }
+
+    /* Start kernel statistics */
+    if ( profile ) {
+        CHAMELEON_Enable( CHAMELEON_KERNELPROFILE_MODE );
     }
 
     /* Start tracing */
@@ -573,6 +593,11 @@ int main (int argc, char **argv) {
         CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
     }
 
+    /* Stop kernel statistics and display results */
+    if ( profile ) {
+        CHAMELEON_Disable( CHAMELEON_KERNELPROFILE_MODE );
+        RUNTIME_kernelprofile_display();
+    }
     free( runlist );
 
     CHAMELEON_Finalize();

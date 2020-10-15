@@ -52,7 +52,11 @@ static void cl_zpotrf_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS_CPU(zpotrf, cl_zpotrf_cpu_func)
+#if defined(CHAMELEON_SIMULATION) && defined(CHAMELEON_SIMULATION_EXTENDED)
+CODELETS( zpotrf, cl_zpotrf_cpu_func, cl_zpotrf_cuda_func, STARPU_CUDA_ASYNC )
+#else
+CODELETS_CPU( zpotrf, cl_zpotrf_cpu_func )
+#endif
 
 /**
  *
