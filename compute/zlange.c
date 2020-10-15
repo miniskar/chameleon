@@ -288,8 +288,12 @@ int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *v
         chameleon_error("CHAMELEON_zlange_Tile", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
-         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+    if ( (norm != ChamMaxNorm) &&
+         (norm != ChamOneNorm) &&
+         (norm != ChamInfNorm) &&
+         (norm != ChamFrobeniusNorm) &&
+         (norm != ChamTwoNorm) )
+    {
         chameleon_error("CHAMELEON_zlange", "illegal value of norm");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
