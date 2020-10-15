@@ -214,9 +214,6 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
         result = fabs( norm_cham - norm_lapack ) / ( norm_lapack * eps );
 
         switch(norm_type) {
-        case ChamMaxNorm:
-            /* result should be perfectly equal */
-            break;
         case ChamInfNorm:
             /* Sum order on the line can differ */
             result = result / (double)N;
@@ -229,6 +226,10 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
             /* Sum order on every element can differ */
             result = result / ((double)M * (double)N);
             break;
+        case ChamMaxNorm:
+        default:
+            /* result should be perfectly equal */
+            ;
         }
 
         info_solution = ( result < 1 ) ? 0 : 1;

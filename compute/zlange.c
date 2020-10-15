@@ -6,16 +6,16 @@
  *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
+ * @copyright 2016-2020 KAUST. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zlange wrappers
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @author Hatem Ltaief
+ * @date 2020-10-14
  * @precisions normal z -> s d c
  *
  */
@@ -26,8 +26,9 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zlange returns the value
+ * @brief Return the norm of A.
  *
+ * CHAMELEON_zlange returns the value
  *     zlange = ( max(abs(A(i,j))), NORM = ChamMaxNorm
  *              (
  *              ( norm1(A),         NORM = ChamOneNorm
@@ -35,12 +36,17 @@
  *              ( normI(A),         NORM = ChamInfNorm
  *              (
  *              ( normF(A),         NORM = ChamFrobeniusNorm
+ *              (
+ *              ( norm2(A),         NORM = ChamTwoNorm
  *
- *  where norm1 denotes the one norm of a matrix (maximum column sum),
- *  normI denotes the infinity norm of a matrix (maximum row sum) and
- *  normF denotes the Frobenius norm of a matrix (square root of sum
- *  of squares). Note that max(abs(A(i,j))) is not a consistent matrix
- *  norm.
+ *  where norm1 denotes the one norm of a matrix (maximum column sum), normI
+ *  denotes the infinity norm of a matrix (maximum row sum), normF denotes the
+ *  Frobenius norm of a matrix (square root of sum of squares) and norm2 denotes
+ *  an estimator of the maximum singular value. Note that max(abs(A(i,j))) is
+ *  not a consistent matrix norm.
+ *
+ *  Note that ChamTwoNorm returns an estimate as computed by CHAMELEON_zgenm2()
+ *  with a tolerance of 1.e-1.
  *
  *******************************************************************************
  *
@@ -49,6 +55,7 @@
  *          = ChamOneNorm: One norm
  *          = ChamInfNorm: Infinity norm
  *          = ChamFrobeniusNorm: Frobenius norm
+ *          = ChamTwoNorm: Twonorm
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0. When M = 0,
@@ -77,8 +84,8 @@
  * @sa CHAMELEON_slange
  *
  */
-double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
-                    CHAMELEON_Complex64_t *A, int LDA )
+double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
+                         CHAMELEON_Complex64_t *A, int LDA )
 {
     int NB;
     int status;
@@ -94,8 +101,12 @@ double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
-    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
-         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
+    if ( (norm != ChamMaxNorm) &&
+         (norm != ChamOneNorm) &&
+         (norm != ChamInfNorm) &&
+         (norm != ChamFrobeniusNorm) &&
+         (norm != ChamTwoNorm) )
+    {
         chameleon_error("CHAMELEON_zlange", "illegal value of norm");
         return -1;
     }
@@ -130,14 +141,14 @@ double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
-                     A, NB, NB, LDA, N, M, N, sequence, &request );
+                         A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zlange_Tile_Async( norm, &descAt, &value, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInput, ChamUpperLower, sequence, &request );
+                         ChamDescInput, ChamUpperLower, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -153,10 +164,11 @@ double CHAMELEON_zlange(cham_normtype_t norm, int M, int N,
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  CHAMELEON_zlange_Tile - Tile equivalent of CHAMELEON_zlange().
- *  Operates on matrices stored by tiles.
- *  All matrices are passed through descriptors.
- *  All dimensions are taken from the descriptors.
+ * @brief Tile equivalent of CHAMELEON_zlange().
+ *
+ * Operates on matrices stored by tiles.
+ * All matrices are passed through descriptors.
+ * All dimensions are taken from the descriptors.
  *
  *******************************************************************************
  *
@@ -216,9 +228,11 @@ double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
  *
  * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  CHAMELEON_zlange_Tile_Async - Non-blocking equivalent of CHAMELEON_zlange_Tile().
- *  May return before the computation is finished.
- *  Allows for pipelining of operations at runtime.
+ * @brief Non-blocking equivalent of CHAMELEON_zlange_Tile().
+ *
+ * @Warning Note that this algorithm includes a RUNTIME_Sequence_wait to cleanup
+ * workspaces and thus, will return only when the result is computed. It does
+ * not allow to do pipelining.
  *
  *******************************************************************************
  *
@@ -239,7 +253,7 @@ double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
  *
  */
 int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *value,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
 
@@ -285,7 +299,12 @@ int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *v
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzlange_generic( norm, ChamUpperLower, ChamNonUnit, A, value, sequence, request );
+    if ( norm == ChamTwoNorm ) {
+        chameleon_pzgenm2( 1.e-1, A, value, sequence, request );
+    }
+    else {
+        chameleon_pzlange_generic( norm, ChamUpperLower, ChamNonUnit, A, value, sequence, request );
+    }
 
     return CHAMELEON_SUCCESS;
 }
