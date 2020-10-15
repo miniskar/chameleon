@@ -906,8 +906,8 @@ int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Flush( CHAM_desc_t     *desc,
-                          RUNTIME_sequence_t *sequence )
+int CHAMELEON_Desc_Flush( const CHAM_desc_t        *desc,
+                          const RUNTIME_sequence_t *sequence )
 {
     RUNTIME_desc_flush( desc, sequence );
     return CHAMELEON_SUCCESS;

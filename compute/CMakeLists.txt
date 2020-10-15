@@ -251,6 +251,9 @@ set(ZSRC
     ##################
     zgram.c
     pzgram.c
+    ##################
+    zgenm2.c
+    pzgenm2.c
 )
 
 precisions_rules_py(CHAMELEON_SRCS_GENERATED "${ZSRC}"

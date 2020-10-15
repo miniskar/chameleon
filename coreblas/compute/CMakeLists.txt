@@ -30,12 +30,14 @@
 
 set(COREBLAS_SRCS_GENERATED "")
 set(ZSRC
+    core_dlag2z.c
     core_dzasum.c
     core_zaxpy.c
     core_zgeadd.c
     core_zlascal.c
     core_zlatm1.c
     core_zgelqt.c
+    core_zgemv.c
     core_zgemm.c
     core_zgeqrt.c
     core_zgesplit.c

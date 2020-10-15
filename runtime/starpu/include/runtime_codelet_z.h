@@ -40,6 +40,11 @@
 CODELETS_HEADER(zaxpy);
 
 /*
+ * BLAS 2 functions
+ */
+CODELETS_HEADER(zgemv);
+
+/*
  * BLAS 3 functions
  */
 CODELETS_HEADER(zgemm);
@@ -106,6 +111,9 @@ CODELETS_HEADER(zlag2c);
 /*
  * DZ functions
  */
+#if defined(PRECISION_z) || defined(PRECISION_c)
+CODELETS_HEADER(dlag2z);
+#endif
 CODELETS_HEADER(dzasum);
 
 /*

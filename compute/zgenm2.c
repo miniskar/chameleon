@@ -1,6 +1,6 @@
 /**
  *
- * @file zlange.c
+ * @file zgenm2.c
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
@@ -10,12 +10,11 @@
  *
  ***
  *
- * @brief Chameleon zlange wrappers
+ * @brief Chameleon zgenm2 wrappers
  *
  * @version 1.0.0
  * @author Mathieu Faverge
- * @author Hatem Ltaief
- * @date 2020-10-14
+ * @date 2020-10-06
  * @precisions normal z -> s d c
  *
  */
@@ -26,36 +25,13 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- * @brief Return the norm of A.
- *
- * CHAMELEON_zlange returns the value
- *     zlange = ( max(abs(A(i,j))), NORM = ChamMaxNorm
- *              (
- *              ( norm1(A),         NORM = ChamOneNorm
- *              (
- *              ( normI(A),         NORM = ChamInfNorm
- *              (
- *              ( normF(A),         NORM = ChamFrobeniusNorm
- *              (
- *              ( norm2(A),         NORM = ChamTwoNorm
- *
- *  where norm1 denotes the one norm of a matrix (maximum column sum), normI
- *  denotes the infinity norm of a matrix (maximum row sum), normF denotes the
- *  Frobenius norm of a matrix (square root of sum of squares) and norm2 denotes
- *  an estimator of the maximum singular value. Note that max(abs(A(i,j))) is
- *  not a consistent matrix norm.
- *
- *  Note that ChamTwoNorm returns an estimate as computed by CHAMELEON_zgenm2()
- *  with a tolerance of 1.e-1.
+ * @brief Returns an estimate of the two-norm of A.
  *
  *******************************************************************************
  *
- * @param[in] norm
- *          = ChamMaxNorm: Max norm
- *          = ChamOneNorm: One norm
- *          = ChamInfNorm: Infinity norm
- *          = ChamFrobeniusNorm: Frobenius norm
- *          = ChamTwoNorm: Twonorm
+ * @param[in] tol
+ *          Specify the tolerance used in the iterative algorithm to converge to
+ *          an estimation. Must be > 0.
  *
  * @param[in] M
  *          The number of rows of the matrix A. M >= 0. When M = 0,
@@ -73,18 +49,18 @@
  *
  *******************************************************************************
  *
- * @retval the norm described above.
+ * @retval the two-norm estimate.
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_zlange_Tile
- * @sa CHAMELEON_zlange_Tile_Async
+ * @sa CHAMELEON_zgenm2_Tile
+ * @sa CHAMELEON_zgenm2_Tile_Async
  * @sa CHAMELEON_clange
  * @sa CHAMELEON_dlange
  * @sa CHAMELEON_slange
  *
  */
-double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
+double CHAMELEON_zgenm2( double tol, int M, int N,
                          CHAMELEON_Complex64_t *A, int LDA )
 {
     int NB;
@@ -97,40 +73,32 @@ double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zlange", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_zgenm2", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
-    if ( (norm != ChamMaxNorm) &&
-         (norm != ChamOneNorm) &&
-         (norm != ChamInfNorm) &&
-         (norm != ChamFrobeniusNorm) &&
-         (norm != ChamTwoNorm) )
-    {
-        chameleon_error("CHAMELEON_zlange", "illegal value of norm");
+    if (M < 0) {
+        chameleon_error("CHAMELEON_zgenm2", "illegal value of M");
         return -1;
     }
-    if (M < 0) {
-        chameleon_error("CHAMELEON_zlange", "illegal value of M");
+    if (N < 0) {
+        chameleon_error("CHAMELEON_zgenm2", "illegal value of N");
         return -2;
     }
-    if (N < 0) {
-        chameleon_error("CHAMELEON_zlange", "illegal value of N");
-        return -3;
-    }
     if (LDA < chameleon_max(1, M)) {
-        chameleon_error("CHAMELEON_zlange", "illegal value of LDA");
-        return -5;
+        chameleon_error("CHAMELEON_zgenm2", "illegal value of LDA");
+        return -4;
     }
 
     /* Quick return */
-    if (chameleon_min(N, M) == 0)
+    if (chameleon_min(N, M) == 0) {
         return (double)0.0;
+    }
 
     /* Tune NB depending on M, N & NRHS; Set NBNB */
     status = chameleon_tune(CHAMELEON_FUNC_ZGEMM, M, N, 0);
     if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zlange", "chameleon_tune() failed");
+        chameleon_error("CHAMELEON_zgenm2", "chameleon_tune() failed");
         return status;
     }
 
@@ -144,7 +112,7 @@ double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
                          A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zlange_Tile_Async( norm, &descAt, &value, sequence, &request );
+    CHAMELEON_zgenm2_Tile_Async( tol, &descAt, &value, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -164,26 +132,20 @@ double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- * @brief Tile equivalent of CHAMELEON_zlange().
+ * @brief Tile equivalent of CHAMELEON_zgenm2().
  *
- * Operates on matrices stored by tiles.
- * All matrices are passed through descriptors.
- * All dimensions are taken from the descriptors.
+ *  Operates on matrices stored by tiles.
+ *  All matrices are passed through descriptors.
+ *  All dimensions are taken from the descriptors.
  *
  *******************************************************************************
  *
- * @param[in] norm
- *          = ChamMaxNorm: Max norm
- *          = ChamOneNorm: One norm
- *          = ChamInfNorm: Infinity norm
- *          = ChamFrobeniusNorm: Frobenius norm
+ * @param[in] tol
+ *          Specify the tolerance used in the iterative algorithm to converge to
+ *          an estimation. Must be > 0.
  *
  * @param[in] A
- *          On entry, the triangular factor U or L.
- *          On exit, if UPLO = 'U', the upper triangle of A is
- *          overwritten with the upper triangle of the product U * U';
- *          if UPLO = 'L', the lower triangle of A is overwritten with
- *          the lower triangle of the product L' * L.
+ *          On entry, the input matrix A.
  *
  *******************************************************************************
  *
@@ -191,14 +153,14 @@ double CHAMELEON_zlange( cham_normtype_t norm, int M, int N,
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_zlange
- * @sa CHAMELEON_zlange_Tile_Async
+ * @sa CHAMELEON_zgenm2
+ * @sa CHAMELEON_zgenm2_Tile_Async
  * @sa CHAMELEON_clange_Tile
  * @sa CHAMELEON_dlange_Tile
  * @sa CHAMELEON_slange_Tile
  *
  */
-double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
+double CHAMELEON_zgenm2_Tile( double tol, CHAM_desc_t *A )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -208,12 +170,12 @@ double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zlange_Tile", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_zgenm2_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_zlange_Tile_Async( norm, A, &value, sequence, &request );
+    CHAMELEON_zgenm2_Tile_Async( tol, A, &value, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
 
@@ -228,11 +190,10 @@ double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
  *
  * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- * @brief Non-blocking equivalent of CHAMELEON_zlange_Tile().
+ * @brief Non-blocking equivalent of CHAMELEON_zgenm2_Tile().
  *
- * @Warning Note that this algorithm includes a RUNTIME_Sequence_wait to cleanup
- * workspaces and thus, will return only when the result is computed. It does
- * not allow to do pipelining.
+ *  May return before the computation is finished.
+ *  Allows for pipelining of operations at runtime.
  *
  *******************************************************************************
  *
@@ -245,29 +206,29 @@ double CHAMELEON_zlange_Tile( cham_normtype_t norm, CHAM_desc_t *A )
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_zlange
- * @sa CHAMELEON_zlange_Tile
+ * @sa CHAMELEON_zgenm2
+ * @sa CHAMELEON_zgenm2_Tile
  * @sa CHAMELEON_clange_Tile_Async
  * @sa CHAMELEON_dlange_Tile_Async
  * @sa CHAMELEON_slange_Tile_Async
  *
  */
-int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *value,
+int CHAMELEON_zgenm2_Tile_Async( double tol, CHAM_desc_t *A, double *value,
                                  RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zlange_Tile", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_zgenm2_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_zlange_Tile", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_zgenm2_Tile", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_zlange_Tile", "NULL request");
+        chameleon_fatal_error("CHAMELEON_zgenm2_Tile", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -280,31 +241,26 @@ int CHAMELEON_zlange_Tile_Async( cham_normtype_t norm, CHAM_desc_t *A, double *v
 
     /* Check descriptors for correctness */
     if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zlange_Tile", "invalid descriptor");
+        chameleon_error("CHAMELEON_zgenm2_Tile_Async", "invalid descriptor");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
     /* Check input arguments */
     if (A->nb != A->mb) {
-        chameleon_error("CHAMELEON_zlange_Tile", "only square tiles supported");
+        chameleon_error("CHAMELEON_zgenm2_Tile_Async", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
-    if ( (norm != ChamMaxNorm) && (norm != ChamOneNorm)
-         && (norm != ChamInfNorm) && (norm != ChamFrobeniusNorm) ) {
-        chameleon_error("CHAMELEON_zlange", "illegal value of norm");
+    if ( tol <= 0. ) {
+        chameleon_error("CHAMELEON_zgenm2_Tile_Async", "tol must be > 0");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
+
     /* Quick return */
     if (chameleon_min(A->m, A->n) == 0) {
         *value = 0.0;
         return CHAMELEON_SUCCESS;
     }
 
-    if ( norm == ChamTwoNorm ) {
-        chameleon_pzgenm2( 1.e-1, A, value, sequence, request );
-    }
-    else {
-        chameleon_pzlange_generic( norm, ChamUpperLower, ChamNonUnit, A, value, sequence, request );
-    }
+    chameleon_pzgenm2( tol, A, value, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

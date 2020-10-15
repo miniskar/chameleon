@@ -22,6 +22,7 @@
 #define _chameleon_types_h_
 
 #include "chameleon/config.h"
+#include <math.h>
 
 /**
  *  System requirements

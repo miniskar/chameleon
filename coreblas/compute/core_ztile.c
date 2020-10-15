@@ -18,6 +18,18 @@
 #include "coreblas.h"
 #include "coreblas/coreblas_ztile.h"
 
+#if defined( PRECISION_z ) || defined( PRECISION_c )
+void
+TCORE_dlag2z( cham_uplo_t uplo, int M, int N,
+              const CHAM_tile_t *A,
+              CHAM_tile_t       *B )
+{
+    assert( A->format & CHAMELEON_TILE_FULLRANK );
+    assert( B->format & CHAMELEON_TILE_FULLRANK );
+    CORE_dlag2z( uplo, M, N, A->mat, A->ld, B->mat, B->ld );
+}
+#endif
+
 void
 TCORE_dzasum( cham_store_t       storev,
               cham_uplo_t        uplo,
@@ -69,6 +81,19 @@ TCORE_zgelqt( int                    M,
     assert( A->format & CHAMELEON_TILE_FULLRANK );
     assert( T->format & CHAMELEON_TILE_FULLRANK );
     return CORE_zgelqt( M, N, IB, A->mat, A->ld, T->mat, T->ld, TAU, WORK );
+}
+
+void
+TCORE_zgemv( cham_trans_t trans, int M, int N,
+             CHAMELEON_Complex64_t alpha, const CHAM_tile_t *A,
+                                          const CHAM_tile_t *x, int incX,
+             CHAMELEON_Complex64_t beta,        CHAM_tile_t *y, int incY )
+{
+    assert( A->format & CHAMELEON_TILE_FULLRANK );
+    assert( x->format & CHAMELEON_TILE_FULLRANK );
+    assert( y->format & CHAMELEON_TILE_FULLRANK );
+    CORE_zgemv(
+        trans, M, N, alpha, A->mat, A->ld, x->mat, incX, beta, y->mat, incY );
 }
 
 void
