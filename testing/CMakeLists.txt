@@ -96,6 +96,7 @@ set(ZSRC
   # testing_zgeqrs_hqr.c
   # testing_zgelqs_hqr.c
   testing_zgels_hqr.c
+  testing_zgepdf_qdwh.c
   testing_zgepdf_qr.c
   testing_zplrnk.c
   )
