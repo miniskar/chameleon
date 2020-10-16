@@ -36,7 +36,7 @@
  *
  *     \f[ C = \alpha \times B \times A + \beta \times C \f]
  *
- *  where alpha and beta are scalars, A is an symmetric matrix and  B and
+ *  where alpha and beta are scalars, A is a symmetric matrix and  B and
  *  C are m by n matrices.
  *
  *******************************************************************************
