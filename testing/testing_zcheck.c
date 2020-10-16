@@ -1146,7 +1146,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
  *******************************************************************************
  */
 int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo,
-                  CHAM_desc_t *descA, CHAM_desc_t *descLU )
+                   CHAM_desc_t *descA, CHAM_desc_t *descLU )
 {
     int info_local, info_global;
     int M = descA->m;
@@ -2144,6 +2144,68 @@ int check_zgepdf_qr( run_arg_list_t *args,
     info_global = info_local;
 #endif
 
+    return info_global;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if a Chameleon Polar Decomposition is correct.
+ *
+ * @Warning Check only the general case for now.
+ *
+ *******************************************************************************
+ *
+ * @param[in,out] descA
+ *          The descriptor of the original matrix, on exit the matrix is modified.
+ *
+ * @param[in] descU
+ *          The descriptor of the orthogonal polar factor of the decomposition.
+ *
+ * @param[in] descH
+ *          The descriptor of the symmetric/hermitian polar factor of the decomposition.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zxxpd( run_arg_list_t *args,
+                 CHAM_desc_t *descA, CHAM_desc_t *descU, CHAM_desc_t *descH )
+{
+    int info_local, info_global;
+    double Anorm, Rnorm, result;
+    double eps = LAPACKE_dlamch_work('e');
+
+    /* Compute ||A|| */
+    Anorm = CHAMELEON_zlange_Tile( ChamFrobeniusNorm, descA );
+
+    /* R = A - U * H */
+    CHAMELEON_zgemm_Tile( ChamNoTrans, ChamNoTrans, 1., descU, descH, -1., descA );
+
+    /* Compute ||R|| */
+    Rnorm = CHAMELEON_zlange_Tile( ChamFrobeniusNorm, descA );
+
+    result = Rnorm / (Anorm * eps);
+    run_arg_add_double( args, "||A||",         Anorm );
+    run_arg_add_double( args, "||A-fact(A)||", Rnorm );
+
+    if ( isnan(result) || isinf(result) || (result > 60.0) ) {
+        info_local = 1;
+    }
+    else{
+        info_local = 0;
+    }
+
+    /* Broadcasts the result from the main processus */
+#if defined(CHAMELEON_USE_MPI)
+    MPI_Allreduce( &info_local, &info_global, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD );
+#else
+    info_global = info_local;
+#endif
+
+    (void)args;
     return info_global;
 }
 

@@ -62,12 +62,14 @@ static inline int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans
 static inline int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR ) { return 0; }
 static inline int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC ) { return 0; }
 
-/* Matrix Generators */ 
+/* Matrix Generators */
 static inline int check_zrankk        ( run_arg_list_t *args, int K, CHAM_desc_t *descA ) { return 0; }
 
 /* Polar decomposition */
 static inline int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
                                         CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 ) { return 0; }
+static inline int check_zxxpd         ( run_arg_list_t *args,
+               	                        CHAM_desc_t *descA, CHAM_desc_t *descU, CHAM_desc_t *descH ) { return 0; }
 
 #else /* !defined(CHAMELEON_SIMULATION) */
 
@@ -101,12 +103,14 @@ int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t 
 int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR );
 int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC );
 
-/* Matrix Generators */ 
+/* Matrix Generators */
 int check_zrankk        ( run_arg_list_t *args, int K, CHAM_desc_t *descA );
 
 /* Polar decomposition */
 int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
                           CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 );
+int check_zxxpd         ( run_arg_list_t *args,
+                          CHAM_desc_t *descA, CHAM_desc_t *descU, CHAM_desc_t *descH );
 
 #endif /* defined(CHAMELEON_SIMULATION) */
 
