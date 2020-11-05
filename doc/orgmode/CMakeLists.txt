@@ -62,12 +62,12 @@ FIND_PROGRAM(TEX_COMPILER tex)
 
 if(EMACS_COMPILER)
 
-    # css directory is required for the html output
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/css
+    # org-html-themes directory is required for the html output
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/org-html-themes
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                               ${CMAKE_CURRENT_SOURCE_DIR}/css
-                               ${CMAKE_CURRENT_BINARY_DIR}/css
-                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/css)
+                               ${CMAKE_CURRENT_SOURCE_DIR}/org-html-themes
+                               ${CMAKE_CURRENT_BINARY_DIR}/org-html-themes
+                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/org-html-themes)
 
     # Add target
     # ----------
@@ -80,7 +80,7 @@ if(EMACS_COMPILER)
                                --kill
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
                                ${CMAKE_CURRENT_BINARY_DIR}/version.org
-                               ${CMAKE_CURRENT_BINARY_DIR}/css)
+                               ${CMAKE_CURRENT_BINARY_DIR}/org-html-themes)
     add_custom_command(OUTPUT  users_guide.pdf
                        COMMAND ${EMACS_COMPILER}
                        ARGS    ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org

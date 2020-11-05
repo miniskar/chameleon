@@ -11,14 +11,7 @@ pages:
   variables:
     VERSION: pages
   script:
-    - cd build-$VERSION
-    - cmake .. -DCHAMELEON_ENABLE_DOC=ON
-    - make doc -j5
-    - mv doc/orgmode/ ../public/
-    - ln -s ../public/users_guide.html ../public/index.html
-    - mv doc/doxygen/out/html/ ../public/doxygen/
+    - ./tools/pages.sh
   only:
     - master@solverstack/chameleon
-    - /^ci-.*$/
-  except:
-    - schedules
+    - /^ci.*$/
