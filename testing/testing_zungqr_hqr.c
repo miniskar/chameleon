@@ -95,7 +95,13 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAMELEON_zplrnt_Tile( descA0, seedA );
+
         hres += check_zortho( args, descQ );
+        hres += check_zgeqrf( args, descA0, descA, descQ );
+
+        CHAMELEON_Desc_Destroy( &descA0 );
     }
 
     CHAMELEON_Desc_Destroy( &descA );
@@ -111,7 +117,7 @@ testing_t   test_zungqr_hqr;
 const char *zungqr_hqr_params[] = { "mtxfmt", "nb", "ib",   "m",    "n",      "k",     "lda", "qra",
                                     "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
 const char *zungqr_hqr_output[] = { NULL };
-const char *zungqr_hqr_outchk[] = { "RETURN", NULL };
+const char *zungqr_hqr_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

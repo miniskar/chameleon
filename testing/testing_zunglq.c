@@ -87,7 +87,13 @@ testing_zunglq( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAMELEON_zplrnt_Tile( descA0, seedA );
+
         hres += check_zortho( args, descQ );
+        hres += check_zgelqf( args, descA0, descA, descQ );
+
+        CHAMELEON_Desc_Destroy( &descA0 );
     }
 
     CHAMELEON_Desc_Destroy( &descA );
@@ -100,7 +106,7 @@ testing_zunglq( run_arg_list_t *args, int check )
 testing_t   test_zunglq;
 const char *zunglq_params[] = { "mtxfmt", "nb","ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
 const char *zunglq_output[] = { NULL };
-const char *zunglq_outchk[] = { "RETURN", NULL };
+const char *zunglq_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function
