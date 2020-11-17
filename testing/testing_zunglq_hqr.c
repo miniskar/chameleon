@@ -51,9 +51,16 @@ testing_zunglq_hqr( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
 
-    if ( K > chameleon_min( M, N ) ) {
+    if ( M > N ) {
         if ( CHAMELEON_Comm_rank() == 0 ) {
-            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq_hqr (K > min(M,N))\n" );
+            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq_hqr (M > N)\n" );
+        }
+        return -1;
+    }
+
+    if ( K > M ) {
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq_hqr (K > M)\n" );
         }
         return -1;
     }
