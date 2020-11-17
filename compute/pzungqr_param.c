@@ -28,6 +28,131 @@
 
 /**
  *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
+ *
+ * @param[in] genD
+ *         Indicate if the copies of the A tiles must be done to speedup
+ *         computations in updates.
+ *
+ * @param[in] uplo
+ *         Indicate which kind of factorization has been performed on A to apply
+ *         the respective Q generation.
+ *         - ChamLower: Apply Classic QR factorization of the matrix A
+ *         - ChamUpper: Apply the factorization of the upper part from a TT kernel.
+ *         - ChamUpperLower: Apply the factorization of the full tile from a TS kernel.
+ */
+void chameleon_pzungqr_param_step( int genD, cham_uplo_t uplo, int k, int ib,
+                                   const libhqr_tree_t *qrtree, int nbtiles, int *tiles,
+                                   CHAM_desc_t *A, CHAM_desc_t *Q,
+                                   CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                                   RUNTIME_option_t *options, RUNTIME_sequence_t *sequence )
+{
+    CHAM_desc_t *T;
+    int m, n, i, p, L;
+    int tempmm, tempnn, tempkmin, tempkn;
+    int nbgeqrt, node;
+
+    tempkn = k == A->nt-1 ? A->n - k * A->nb : A->nb;
+
+    for (i = nbtiles-1; i >= 0; i--) {
+        m = tiles[i];
+        p = qrtree->currpiv( qrtree, k, m );
+
+        tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
+
+        if( qrtree->gettype( qrtree, k, m ) == LIBHQR_KILLED_BY_TS ) {
+            /* TS kernel */
+            T = TS;
+            L = 0;
+
+            /* Force TT kernel if this is the last diagonal tile */
+            if ( (uplo == ChamUpper) && (m == k) ) {
+                L = tempmm;
+            }
+        }
+        else {
+            /* TT kernel */
+            T = TT;
+            L = tempmm;
+        }
+
+        for (n = k; n < Q->nt; n++) {
+            tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
+
+            node = Q->get_rankof( Q, m, n );
+            RUNTIME_data_migrate( sequence, Q(p, n), node );
+            RUNTIME_data_migrate( sequence, Q(m, n), node );
+
+            INSERT_TASK_ztpmqrt(
+                options,
+                ChamLeft, ChamNoTrans,
+                tempmm, tempnn, tempkn, L, ib, T->nb,
+                A(m, k),
+                T(m, k),
+                Q(p, n),
+                Q(m, n));
+        }
+        RUNTIME_data_flush( sequence, A(m, k) );
+        RUNTIME_data_flush( sequence, T(m, k) );
+    }
+
+    T = TS;
+
+    /* The number of geqrt to apply */
+    nbgeqrt = qrtree->getnbgeqrf( qrtree, k );
+    for (i = 0; i < nbgeqrt; i++) {
+        m = qrtree->getm( qrtree, k, i );
+
+        /* We skip the QR factorization if this is the last diagonal tile */
+        if ( (uplo == ChamUpper) && (m == k) ) {
+            continue;
+        }
+
+        tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+        tempkmin = chameleon_min( tempmm, tempkn );
+
+        if ( genD ) {
+            int tempDmm = m == D->mt-1 ? D->m - m * D->mb : D->mb;
+            INSERT_TASK_zlacpy(
+                options,
+                ChamLower, tempDmm, tempkmin, A->nb,
+                A(m, k),
+                D(m, k) );
+#if defined(CHAMELEON_USE_CUDA)
+            INSERT_TASK_zlaset(
+                options,
+                ChamUpper, tempDmm, tempkmin,
+                0., 1.,
+                D(m, k) );
+#endif
+        }
+
+        for (n = k; n < Q->nt; n++) {
+            tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
+
+            /* Restore the original location of the tiles */
+            RUNTIME_data_migrate( sequence, Q(m, n),
+                                  Q->get_rankof( Q, m, n ) );
+
+            INSERT_TASK_zunmqr(
+                options,
+                ChamLeft, ChamNoTrans,
+                tempmm, tempnn, tempkmin, ib, T->nb,
+                D(m, k),
+                T(m, k),
+                Q(m, n));
+        }
+        RUNTIME_data_flush( sequence, D(m, k) );
+        RUNTIME_data_flush( sequence, T(m, k) );
+    }
+}
+
+/**
+ *  Parallel construction of Q using tile V (application to identity) - dynamic scheduling
+ *
+ * @param[in] genD
+ *         Indicate if the copies of the A tiles must be done to speedup
+ *         computations in updates. genD is considered only if D is not NULL.
+ *
  */
 void chameleon_pzungqr_param( int genD, int K,
                               const libhqr_tree_t *qrtree,
@@ -37,13 +162,9 @@ void chameleon_pzungqr_param( int genD, int K,
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
-    CHAM_desc_t *T;
     size_t ws_worker = 0;
     size_t ws_host = 0;
-
-    int k, m, n, i, p, L;
-    int tempmm, tempnn, tempkmin, tempkn;
-    int ib, nbgeqrt, node, nbtiles, *tiles;
+    int k, ib, nbtiles, *tiles;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -53,7 +174,7 @@ void chameleon_pzungqr_param( int genD, int K,
 
     ib = CHAMELEON_IB;
 
-    if (D == NULL) {
+    if ( D == NULL ) {
         D    = A;
         genD = 0;
     }
@@ -83,92 +204,13 @@ void chameleon_pzungqr_param( int genD, int K,
     for (k = K-1; k >=0; k--) {
         RUNTIME_iteration_push(chamctxt, k);
 
-        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-
         /* Setting the order of tiles */
         nbtiles = libhqr_walk_stepk( qrtree, k, tiles );
 
-        for (i = nbtiles-1; i >= 0; i--) {
-            m = tiles[i];
-            p = qrtree->currpiv(qrtree, k, m);
-
-            tempmm = m == Q->mt-1 ? Q->m-m*Q->mb : Q->mb;
-
-            if( qrtree->gettype(qrtree, k, m) == LIBHQR_KILLED_BY_TS ) {
-                /* TS kernel */
-                T = TS;
-                L = 0;
-            }
-            else {
-                /* TT kernel */
-                T = TT;
-                L = tempmm;
-            }
-
-            for (n = k; n < Q->nt; n++) {
-                tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
-
-                node = Q->get_rankof( Q, m, n );
-                RUNTIME_data_migrate( sequence, Q(p, n), node );
-                RUNTIME_data_migrate( sequence, Q(m, n), node );
-
-                INSERT_TASK_ztpmqrt(
-                    &options,
-                    ChamLeft, ChamNoTrans,
-                    tempmm, tempnn, tempkn, L, ib, T->nb,
-                    A(m, k),
-                    T(m, k),
-                    Q(p, n),
-                    Q(m, n));
-            }
-            RUNTIME_data_flush( sequence, A(m, k) );
-            RUNTIME_data_flush( sequence, T(m, k) );
-        }
-
-        T = TS;
-
-        /* The number of geqrt to apply */
-        nbgeqrt = qrtree->getnbgeqrf(qrtree, k);
-        for (i = 0; i < nbgeqrt; i++) {
-            m = qrtree->getm(qrtree, k, i);
-
-            tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-            tempkmin = chameleon_min(tempmm, tempkn);
-
-            if ( genD ) {
-                int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
-                INSERT_TASK_zlacpy(
-                    &options,
-                    ChamLower, tempDmm, tempkmin, A->nb,
-                    A(m, k),
-                    D(m, k) );
-#if defined(CHAMELEON_USE_CUDA)
-                INSERT_TASK_zlaset(
-                    &options,
-                    ChamUpper, tempDmm, tempkmin,
-                    0., 1.,
-                    D(m, k) );
-#endif
-            }
-
-            for (n = k; n < Q->nt; n++) {
-                tempnn = n == Q->nt-1 ? Q->n-n*Q->nb : Q->nb;
-
-                /* Restore the original location of the tiles */
-                RUNTIME_data_migrate( sequence, Q(m, n),
-                                      Q->get_rankof( Q, m, n ) );
-
-                INSERT_TASK_zunmqr(
-                    &options,
-                    ChamLeft, ChamNoTrans,
-                    tempmm, tempnn, tempkmin, ib, T->nb,
-                    D(m, k),
-                    T(m, k),
-                    Q(m, n));
-            }
-            RUNTIME_data_flush( sequence, D(m, k) );
-            RUNTIME_data_flush( sequence, T(m, k) );
-        }
+        chameleon_pzungqr_param_step( genD, ChamLower, k, ib,
+                                      qrtree, nbtiles, tiles,
+                                      A, Q, TS, TT, D,
+                                      &options, sequence );
 
         RUNTIME_iteration_pop(chamctxt);
     }
