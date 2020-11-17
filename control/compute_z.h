@@ -126,6 +126,15 @@ void chameleon_pzungqr_param( int genD, int K, const libhqr_tree_t *qrtree,
                               CHAM_desc_t *A, CHAM_desc_t *Q,
                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+void chameleon_pztpgqrt_param( int genD, cham_uplo_t uplo, int kt, const libhqr_tree_t *qrtree,
+                               CHAM_desc_t *V2, CHAM_desc_t *Q1, CHAM_desc_t *Q2,
+                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *DD,
+                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pztpqrt_param( int genD, cham_uplo_t uplo, int K,
+                              const libhqr_tree_t *qrtree,
+                              CHAM_desc_t *ATop, CHAM_desc_t *A,
+                              CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 /**
  * Gram function prototypes

@@ -141,7 +141,9 @@ set(ZSRC
     pzunmqr_param.c
     pzunmqrrh.c
     pztpgqrt.c
+    pztpgqrt_param.c
     pztpqrt.c
+    pztpqrt_param.c
     ###
     zgels.c
     zgels_param.c
