@@ -1249,7 +1249,6 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
     return info_global;
 }
 
-
 /**
  ********************************************************************************
  *
@@ -1574,14 +1573,38 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     double result, Anorm, Rnorm;
     double eps = LAPACKE_dlamch_work('e');
     CHAM_desc_t *descL;
+    int full_lq = ( M == N ) ? 1 : 0;
+
+    assert( descA->n == N );
+    assert( descA->m == descAF->m );
 
     descL = CHAMELEON_Desc_Copy( descA, NULL );
 
-    if ( (K < chameleon_min( M, N )) && (N >= M) ) {
+    if ( full_lq ) {
+        /*
+         * Cas lapack zlqt01.f
+         * A full N-by-N Q has been generated
+         */
+        assert( descAF->n == N );
+
+        /* Copy L */
+        CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descL );
+        CHAMELEON_zlacpy_Tile( ChamLower, descAF, descL );
+
+        /* Compute L - A * Q' */
+        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamConjTrans, -1., descA, descQ, 1., descL );
+
+        Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descL );
+    }
+    else {
         /*
          * Cas lapack zlqt02.f
+         * A partial Q has been generated (K < min(M, N))
          */
         CHAM_desc_t *subL, *subAF;
+
+        assert( descAF->n >= M );
+        assert( N >= M );
 
         /* Copy L(1:k,1:m) */
         subL  = chameleon_desc_submatrix( descL,  0, 0, K, M );
@@ -1597,20 +1620,6 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
 
         free( subL );
         free( subAF );
-    }
-    else {
-        /*
-         * Cas lapack zlqt01.f
-         */
-
-        /* Copy L */
-        CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descL );
-        CHAMELEON_zlacpy_Tile( ChamLower, descAF, descL );
-
-        /* Compute L - A * Q' */
-        CHAMELEON_zgemm_Tile( ChamNoTrans, ChamConjTrans, -1., descA, descQ, 1., descL );
-
-        Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descL );
     }
 
     CHAMELEON_Desc_Destroy(&descL);
@@ -1670,14 +1679,38 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     double result, Anorm, Rnorm;
     double eps = LAPACKE_dlamch_work('e');
     CHAM_desc_t *descR;
+    int full_qr = ( M == N ) ? 1 : 0;
+
+    assert( descA->m == M );
+    assert( descA->n == descAF->n );
 
     descR = CHAMELEON_Desc_Copy( descA, NULL );
 
-    if ( (K < chameleon_min( M, N )) && (M >= N) ) {
+    if ( full_qr ) {
+        /*
+         * Cas lapack zqrt01.f
+         * A full M-by-M Q has been generated
+         */
+        assert( descAF->m == M );
+
+        /* Copy R */
+        CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descR );
+        CHAMELEON_zlacpy_Tile( ChamUpper, descAF, descR );
+
+        /* Compute R - Q'*A */
+        CHAMELEON_zgemm_Tile( ChamConjTrans, ChamNoTrans, -1., descQ, descA, 1., descR );
+
+        Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descR );
+    }
+    else {
         /*
          * Cas lapack zqrt02.f
+         * A partial Q has been generated (K < min(M, N))
          */
         CHAM_desc_t *subR, *subAF;
+
+        assert( descAF->m >= N );
+        assert( N <= M );
 
         /* Copy R(1:n,1:k) */
         subR  = chameleon_desc_submatrix( descR,  0, 0, N, K );
@@ -1693,20 +1726,6 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
 
         free( subR );
         free( subAF );
-    }
-    else {
-        /*
-         * Cas lapack zqrt01.f
-         */
-
-        /* Copy R */
-        CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descR );
-        CHAMELEON_zlacpy_Tile( ChamUpper, descAF, descR );
-
-        /* Compute R - Q'*A */
-        CHAMELEON_zgemm_Tile( ChamConjTrans, ChamNoTrans, -1., descQ, descA, 1., descR );
-
-        Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descR );
     }
 
     CHAMELEON_Desc_Destroy(&descR);

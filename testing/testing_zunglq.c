@@ -44,9 +44,16 @@ testing_zunglq( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
 
-    if ( K > chameleon_min( M, N ) ) {
+    if ( M > N ) {
         if ( CHAMELEON_Comm_rank() == 0 ) {
-            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq (K > min(M,N))\n" );
+            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq (M > N)\n" );
+        }
+        return -1;
+    }
+
+    if ( K > M ) {
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr, "SKIPPED: Incorrect parameters for unglq (K > M)\n" );
         }
         return -1;
     }
@@ -80,7 +87,13 @@ testing_zunglq( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAMELEON_zplrnt_Tile( descA0, seedA );
+
         hres += check_zortho( args, descQ );
+        hres += check_zgelqf( args, descA0, descA, descQ );
+
+        CHAMELEON_Desc_Destroy( &descA0 );
     }
 
     CHAMELEON_Desc_Destroy( &descA );
@@ -93,7 +106,7 @@ testing_zunglq( run_arg_list_t *args, int check )
 testing_t   test_zunglq;
 const char *zunglq_params[] = { "mtxfmt", "nb","ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
 const char *zunglq_output[] = { NULL };
-const char *zunglq_outchk[] = { "RETURN", NULL };
+const char *zunglq_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

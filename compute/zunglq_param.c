@@ -21,12 +21,13 @@
 #include "control/common.h"
 
 /**
- *******************************************************************************
+ ********************************************************************************
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zunglq_param - Generates an M-by-N matrix Q with orthonormal rows, which is defined as the
- *  first M rows of a product of the elementary reflectors returned by CHAMELEON_zgelqf.
+ * @brief Generates an M-by-N matrix Q with orthonormal rows, which is defined
+ * as the first M rows of a product of the elementary reflectors returned by
+ * CHAMELEON_zgelqf_param().
  *
  *******************************************************************************
  *
@@ -44,13 +45,17 @@
  *          M >= K >= 0.
  *
  * @param[in] A
- *          Details of the LQ factorization of the original matrix A as returned by CHAMELEON_zgelqf.
+ *          Details of the LQ factorization of the original matrix A as returned by
+ *          CHAMELEON_zgelqf_param().
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
  *
- * @param[in] descT
- *          Auxiliary factorization data, computed by CHAMELEON_zgelqf.
+ * @param[in] descTS
+ *          Auxiliary factorization data, computed by CHAMELEON_zgelqf_param().
+ *
+ * @param[in] descTT
+ *          Auxiliary factorization data, computed by CHAMELEON_zgelqf_param().
  *
  * @param[out] Q
  *          On exit, the M-by-N matrix Q.
@@ -61,7 +66,7 @@
  *******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
- * @retval CHAMELEON_SUCCESS <0 if -i, the i-th argument had an illegal value
+ * @retval <0 if -i, the i-th argument had an illegal value
  *
  *******************************************************************************
  *
@@ -73,54 +78,57 @@
  * @sa CHAMELEON_zgelqf
  *
  */
-int CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
+int
+CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
                         CHAMELEON_Complex64_t *A, int LDA,
                         CHAM_desc_t *descTS, CHAM_desc_t *descTT,
                         CHAMELEON_Complex64_t *Q, int LDQ )
 {
-    int NB;
-    int status;
-    CHAM_context_t *chamctxt;
+    int                 NB;
+    int                 status;
+    CHAM_context_t *    chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
-    CHAM_desc_t descAl, descAt;
-    CHAM_desc_t descQl, descQt;
+    RUNTIME_request_t   request  = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t         descAl, descAt;
+    CHAM_desc_t         descQl, descQt;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zunglq_param", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zunglq_param", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+
     /* Check input arguments */
-    if (M < 0) {
-        chameleon_error("CHAMELEON_zunglq_param", "illegal value of M");
+    if ( M < 0 ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "illegal value of M" );
         return -1;
     }
-    if (N < M) {
-        chameleon_error("CHAMELEON_zunglq_param", "illegal value of N");
+    if ( N < M ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "illegal value of N" );
         return -2;
     }
-    if (K < 0 || K > M) {
-        chameleon_error("CHAMELEON_zunglq_param", "illegal value of K");
+    if ( ( K < 0 ) || ( K > M ) ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "illegal value of K" );
         return -3;
     }
-    if (LDA < chameleon_max(1, M)) {
-        chameleon_error("CHAMELEON_zunglq_param", "illegal value of LDA");
+    if ( LDA < chameleon_max( 1, M ) ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "illegal value of LDA" );
         return -5;
     }
-    if (LDQ < chameleon_max(1, M)) {
-        chameleon_error("CHAMELEON_zunglq_param", "illegal value of LDQ");
+    if ( LDQ < chameleon_max( 1, M ) ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "illegal value of LDQ" );
         return -8;
     }
-    /* Quick return - currently NOT equivalent to LAPACK's:
-     * CALL DLASET( 'Full', MAX( M, N ), NRHS, ZERO, ZERO, B, LDQ ) */
-    if (chameleon_min(M, chameleon_min(N, K)) == 0)
-        return CHAMELEON_SUCCESS;
 
-    /* Tune NB & IB depending on M, N & NRHS; Set NBNB */
-    status = chameleon_tune(CHAMELEON_FUNC_ZGELS, M, N, 0);
-    if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zunglq_param", "chameleon_tune() failed");
+    /* Quick return */
+    if ( M <= 0 ) {
+        return CHAMELEON_SUCCESS;
+    }
+
+    /* Tune NB & IB depending on M & N; Set NBNB */
+    status = chameleon_tune( CHAMELEON_FUNC_ZGELS, M, N, 0 );
+    if ( status != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zunglq_param", "chameleon_tune() failed" );
         return status;
     }
 
@@ -131,18 +139,20 @@ int CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpper,
-                     A, NB, NB, LDA, N, K, N, sequence, &request );
+                         A, NB, NB, LDA, N, K, N, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descQl, &descQt, ChamDescInout, ChamUpperLower,
-                     Q, NB, NB, LDQ, N, M, N, sequence, &request );
+                         Q, NB, NB, LDQ, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zunglq_param_Tile_Async( qrtree, &descAt, descTS, descTT, &descQt, sequence, &request );
+    CHAMELEON_zunglq_param_Tile_Async( qrtree, &descAt, descTS, descTT, &descQt,
+                                       sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInput, ChamUpper, sequence, &request );
+                         ChamDescInput, ChamUpper, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descQl, &descQt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
+
     CHAMELEON_Desc_Flush( descTS, sequence );
     CHAMELEON_Desc_Flush( descTT, sequence );
 
@@ -158,21 +168,26 @@ int CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
 }
 
 /**
- *******************************************************************************
+ ********************************************************************************
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- * CHAMELEON_zunglq_param_Tile - Generates an M-by-N matrix Q with orthonormal rows, which is defined as the
- * first M rows of a product of the elementary reflectors returned by CHAMELEON_zgelqf.
- * All matrices are passed through descriptors. All dimensions are taken from the descriptors.
+ * @brief Generates an M-by-N matrix Q with orthonormal rows, which is defined
+ * as the first M rows of a product of the elementary reflectors returned by
+ * CHAMELEON_zgelqf_param(). All matrices are passed through descriptors. All
+ * dimensions are taken from the descriptors.
  *
  *******************************************************************************
  *
  * @param[in] A
- *          Details of the LQ factorization of the original matrix A as returned by CHAMELEON_zgelqf.
+ *          Details of the LQ factorization of the original matrix A as returned by
+ *          CHAMELEON_zgelqf_param().
  *
- * @param[in] T
- *          Auxiliary factorization data, computed by CHAMELEON_zgelqf.
+ * @param[in] TS
+ *          Auxiliary factorization data, computed by CHAMELEON_zgelqf_param().
+ *
+ * @param[in] TT
+ *          Auxiliary factorization data, computed by CHAMELEON_zgelqf_param().
  *
  * @param[out] Q
  *          On exit, the M-by-N matrix Q.
@@ -191,16 +206,18 @@ int CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
  * @sa CHAMELEON_zgelqf_Tile
  *
  */
-int CHAMELEON_zunglq_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *Q )
+int
+CHAMELEON_zunglq_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                             CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *Q )
 {
-    CHAM_context_t *chamctxt;
+    CHAM_context_t *    chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
-    int status;
+    RUNTIME_request_t   request  = RUNTIME_REQUEST_INITIALIZER;
+    int                 status;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zunglq_param_Tile", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zunglq_param_Tile", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     chameleon_sequence_create( chamctxt, &sequence );
@@ -219,13 +236,14 @@ int CHAMELEON_zunglq_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CH
 }
 
 /**
- *******************************************************************************
+ ********************************************************************************
  *
  * @ingroup CHAMELEON_Complex64_t_Tile_Async
  *
- *  Non-blocking equivalent of CHAMELEON_zunglq_param_Tile().
- *  May return before the computation is finished.
- *  Allows for pipelining of operations at runtime.
+ * @brief Non-blocking equivalent of CHAMELEON_zunglq_param_Tile().
+ *
+ * This function may return before the computation is finished.
+ * Allows for pipelining of operations at runtime.
  *
  *******************************************************************************
  *
@@ -246,65 +264,80 @@ int CHAMELEON_zunglq_param_Tile( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CH
  * @sa CHAMELEON_zgelqf_Tile_Async
  *
  */
-int CHAMELEON_zunglq_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *Q,
+int
+CHAMELEON_zunglq_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+                                   CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *Q,
                                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
-    CHAM_desc_t D, *Dptr = NULL;
+    CHAM_desc_t     D, *Dptr = NULL;
+    int             M, N, K;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zunglq_param_Tile", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zunglq_param_Tile_Async", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_zunglq_param_Tile", "NULL sequence");
+    if ( sequence == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zunglq_param_Tile_Async", "NULL sequence" );
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_zunglq_param_Tile", "NULL request");
+    if ( request == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zunglq_param_Tile_Async", "NULL request" );
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == CHAMELEON_SUCCESS) {
+    if ( sequence->status == CHAMELEON_SUCCESS ) {
         request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED );
     }
 
     /* Check descriptors for correctness */
-    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zunglq_param_Tile", "invalid first descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check( A ) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "invalid first descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
-    if (chameleon_desc_check(TS) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zunglq_param_Tile", "invalid second descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check( TS ) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "invalid second descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
-    if (chameleon_desc_check(TT) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zunglq_param_Tile", "invalid third descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check( TT ) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "invalid third descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
-    if (chameleon_desc_check(Q) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zunglq_param_Tile", "invalid fourth descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check( Q ) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "invalid fourth descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
+    if ( ( A->nb != A->mb ) || ( Q->nb != Q->mb ) ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "only square tiles supported" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
+    }
+
+    M = Q->m;
+    N = Q->n;
+    K = chameleon_min( A->m, A->n );
+
     /* Check input arguments */
-    if (A->nb != A->mb || Q->nb != Q->mb) {
-        chameleon_error("CHAMELEON_zunglq_param_Tile", "only square tiles supported");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( N < M ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "Incorrect value of N" );
+        return chameleon_request_fail( sequence, request, -2 );
     }
-    /* Quick return - currently NOT equivalent to LAPACK's:
-     * CALL DLASET( 'Full', MAX( M, N ), NRHS, ZERO, ZERO, Q, LDQ ) */
-    /*
-     if (chameleon_min(M, N) == 0)
-     return CHAMELEON_SUCCESS;
-     */
-#if defined(CHAMELEON_COPY_DIAG)
+    if ( K > M ) {
+        chameleon_error( "CHAMELEON_zunglq_param_Tile_Async", "Incorrect value of K" );
+        return chameleon_request_fail( sequence, request, -3 );
+    }
+
+    /* Quick return */
+    if ( M == 0 ) {
+        return CHAMELEON_SUCCESS;
+    }
+
+#if defined( CHAMELEON_COPY_DIAG )
     {
-        int m = chameleon_min( A->m, A->n );
-        chameleon_zdesc_copy_and_restrict( A, &D, m, A->n );
+        chameleon_zdesc_copy_and_restrict( A, &D, K, A->n );
         Dptr = &D;
     }
 #endif
@@ -312,7 +345,7 @@ int CHAMELEON_zunglq_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
     chameleon_pzlaset( ChamUpperLower, 0., 1., Q, sequence, request );
     chameleon_pzunglq_param( 1, qrtree, A, Q, TS, TT, Dptr, sequence, request );
 
-    if (Dptr != NULL) {
+    if ( Dptr != NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( Q, sequence );
         CHAMELEON_Desc_Flush( TS, sequence );
