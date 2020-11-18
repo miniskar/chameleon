@@ -65,6 +65,10 @@ static inline int check_zqc           ( run_arg_list_t *args, cham_side_t side, 
 /* Matrix Generators */ 
 static inline int check_zrankk        ( run_arg_list_t *args, int K, CHAM_desc_t *descA ) { return 0; }
 
+/* Polar decomposition */
+static inline int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
+                                        CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 ) { return 0; }
+
 #else /* !defined(CHAMELEON_SIMULATION) */
 
 int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB );
@@ -99,6 +103,10 @@ int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t t
 
 /* Matrix Generators */ 
 int check_zrankk        ( run_arg_list_t *args, int K, CHAM_desc_t *descA );
+
+/* Polar decomposition */
+int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
+                          CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 );
 
 #endif /* defined(CHAMELEON_SIMULATION) */
 

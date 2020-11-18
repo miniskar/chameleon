@@ -2023,4 +2023,128 @@ int check_zrankk( run_arg_list_t *args, int K, CHAM_desc_t *descA )
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Extends the check_zgeqrf and check_zortho to check the specific QR
+ * factorization and Q generation used in Polar decompositions.
+ *
+ * [ A1 ] = [ Q1 ] [ AF1 ]
+ * [ A2 ]   [ Q2 ]
+ *
+ *******************************************************************************
+ *
+ * @param[in] descA1
+ *          The descriptor of the top of the initial matrix A.
+ *
+ * @param[in] descA2
+ *          The descriptor of the bottom of the initial matrix A.
+ *
+ * @param[in] descQ1
+ *          The descriptor of the top of the Q matrix generated from the
+ *          QR factorization of A.
+ *
+ * @param[in] descQ2
+ *          The descriptor of the bottom of the Q matrix generated from the
+ *          QR factorization of A.
+ *
+ * @param[in] descAF1
+ *          The descriptor of the top of the QR factorization of A that holds R.
+ *
+ * @retval 0  on success
+ * @retval >0 on failure
+ *
+ *******************************************************************************
+ */
+int check_zgepdf_qr( run_arg_list_t *args,
+                     CHAM_desc_t *descA1, CHAM_desc_t *descA2,
+                     CHAM_desc_t *descQ1, CHAM_desc_t *descQ2,
+                     CHAM_desc_t *descAF1 )
+{
+    int info_local, info_global;
+    int M = (descQ1->m + descQ2->m);
+    int N = descQ1->n;
+    int K = descAF1->n;
+    double result, Anorm, A1norm, A2norm, Rnorm;
+    double eps = LAPACKE_dlamch_work('e');
+    CHAM_desc_t *descR, *subR, *subAF;
+
+    /*
+     * We exploit the fact that the lower matrix is supposed to be smaller than
+     * the upper one, and the fact that K is always equal to N in this specific
+     * problem.
+     */
+    assert( descAF1->m >= N );
+    assert( K == N );
+
+    /*
+     * First check: || R - Q' A ||
+     */
+    descR = CHAMELEON_Desc_Copy( descAF1, NULL );
+
+    /* Copy R(1:n,1:k) */
+    subR  = chameleon_desc_submatrix( descR,   0, 0, N, K );
+    subAF = chameleon_desc_submatrix( descAF1, 0, 0, N, K );
+
+    CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., subR );
+    CHAMELEON_zlacpy_Tile( ChamUpper, subAF, subR );
+    free( subAF );
+
+    /*
+     * Compute R(1:n,1:k) - Q(:,1:n)' * A(:,1:k)
+     *       = R(1:n,1:k) - Q1(:,1:n)' * A1(:,1:k) - Q2(,1:n)' * A2(,1:k)
+     */
+    CHAMELEON_zgemm_Tile( ChamConjTrans, ChamNoTrans, -1., descQ1, descA1, 1., subR );
+    CHAMELEON_zgemm_Tile( ChamConjTrans, ChamNoTrans, -1., descQ2, descA2, 1., subR );
+
+    Rnorm  = CHAMELEON_zlange_Tile( ChamOneNorm, subR );
+    A1norm = CHAMELEON_zlange_Tile( ChamOneNorm, descA1 );
+    A2norm = CHAMELEON_zlange_Tile( ChamOneNorm, descA2 );
+    Anorm  = A1norm + A2norm; /* This is an upper bound exact when A2 is diagonal due to OneNorm */
+    result = Rnorm / ( (double)M * Anorm * eps );
+
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||A-fact(A)||", Rnorm );
+
+    if ( isnan(result) || isinf(result) || (result > 60.0) ) {
+        info_local = 1;
+    }
+    else {
+        info_local = 0;
+    }
+
+    /*
+     * Second check: || I - Q' Q ||
+     */
+    CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 1., subR );
+
+    /* Performs I - Q'Q = I - Q1'Q1 - Q2'Q2 */
+    CHAMELEON_zherk_Tile( ChamUpper, ChamConjTrans, -1., descQ1, 1., subR );
+    CHAMELEON_zherk_Tile( ChamUpper, ChamConjTrans, -1., descQ2, 1., subR );
+
+    /* Verifies the residual's norm */
+    Rnorm = CHAMELEON_zlansy_Tile( ChamOneNorm, ChamUpper, subR );
+    result = Rnorm / ( (double)K * eps );
+
+    run_arg_add_double( args, "||I-QQ'||", Rnorm );
+
+    if ( isnan(result) || isinf(result) || (result > 60.0) ) {
+        info_local++;
+    }
+
+    free( subR );
+    CHAMELEON_Desc_Destroy( &descR );
+
+    /* Reduces the result on all processus */
+#if defined(CHAMELEON_USE_MPI)
+    MPI_Allreduce( &info_local, &info_global, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD );
+#else
+    info_global = info_local;
+#endif
+
+    return info_global;
+}
+
 #endif /* defined(CHAMELEON_SIMULATION) */
