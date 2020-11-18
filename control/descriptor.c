@@ -759,7 +759,7 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
  * @retval The new matrix descriptor.
  *
  */
-CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
+CHAM_desc_t *CHAMELEON_Desc_Copy( const CHAM_desc_t *descin, void *mat )
 {
     CHAM_desc_t *descout = NULL;
     CHAMELEON_Desc_Create_User( &descout, mat,
@@ -794,7 +794,7 @@ CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat )
  * @retval The new matrix descriptor.
  *
  */
-CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat )
+CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat )
 {
     CHAM_desc_t *descout = NULL;
     CHAMELEON_Desc_Create_User( &descout, mat,

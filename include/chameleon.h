@@ -121,8 +121,8 @@ int CHAMELEON_Desc_Create_OOC( CHAM_desc_t **desc, cham_flttype_t dtyp,
                                int mb, int nb, int bsiz, int lm, int ln,
                                int i, int j, int m, int n, int p, int q );
 
-CHAM_desc_t *CHAMELEON_Desc_Copy( CHAM_desc_t *descin, void *mat );
-CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( CHAM_desc_t *descin, void *mat );
+CHAM_desc_t *CHAMELEON_Desc_Copy( const CHAM_desc_t *descin, void *mat );
+CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat );
 CHAM_desc_t *CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
 
 int CHAMELEON_Desc_Destroy( CHAM_desc_t **desc );
