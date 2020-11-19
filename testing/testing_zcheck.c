@@ -33,7 +33,7 @@
 #include "../control/common.h"
 #include "testings.h"
 #include "testing_zcheck.h"
-#include "flops.h"
+#include <chameleon/flops.h>
 
 #ifndef max
 #define max( _a_, _b_ ) ( (_a_) > (_b_) ? (_a_) : (_b_) )

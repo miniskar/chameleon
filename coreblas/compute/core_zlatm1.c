@@ -189,7 +189,7 @@ int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
             alpha = ( 1. - temp ) / ((double)(N-1));
 
             for( i=1; i<N; i++ ) {
-                D[i] = ((double)(N-i)) * alpha + temp;
+                D[i] = ((double)(N-i-1)) * alpha + temp;
             }
         }
         break;

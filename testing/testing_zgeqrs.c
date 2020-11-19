@@ -18,7 +18,7 @@
 #include <chameleon.h>
 #include "testings.h"
 #include "testing_zcheck.h"
-#include "flops.h"
+#include <chameleon/flops.h>
 #include "control/common.h"
 
 int

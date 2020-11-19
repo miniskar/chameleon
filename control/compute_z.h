@@ -166,7 +166,7 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
  * @return CHAMELEON_SUCCESS on success, the associated error on failure.
  */
 static inline int
-chameleon_zdesc_copy_and_restrict( CHAM_desc_t *descIn,
+chameleon_zdesc_copy_and_restrict( const CHAM_desc_t *descIn,
                                    CHAM_desc_t *descOut,
                                    int m, int n )
 {

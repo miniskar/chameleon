@@ -134,6 +134,9 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
             return;
         }
 
+        /* Shift the seed for future use to generate the random unitary matrices */
+        seed = CORE_rnd64_jump( 2 * minmn, seed );
+
         /* Scale by dmax */
         if ( ( mode != 0 ) && ( abs(mode) != 6 ) )
         {
@@ -177,13 +180,11 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
         /* U is of size A->m by min(A->m, A->n) */
         chameleon_zdesc_copy_and_restrict( A, &descU, A->m, minmn );
 
-        /* Shift the seed to generate the random unitary matrix */
-#if !defined(CHAMELEON_SIMULATION)
-        seed = CORE_rnd64_jump( 2 * minmn, seed );
-#endif
         chameleon_pzplrnt( &descU, seed, sequence, request );
+
+        /* Shift the seed to generate the next random unitary matrix */
 #if !defined(CHAMELEON_SIMULATION)
-        seed = CORE_rnd64_jump( 2 * minmn * A->n, seed );
+        seed = CORE_rnd64_jump( 2 * minmn * A->m, seed );
 #endif
 
         /* Apply a QR factorization */
@@ -207,13 +208,13 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
 
         chameleon_desc_init( &descTS, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descU.nb, ib * descU.nb,
-                             ib * descU.lmt, descU.nb * descU.lnt, 0, 0,
-                             ib * descU.lmt, descU.nb * descU.lnt, descU.p, descU.q,
+                             ib * descU.mt, descU.nb * descU.nt, 0, 0,
+                             ib * descU.mt, descU.nb * descU.nt, descU.p, descU.q,
                              NULL, NULL, NULL );
         chameleon_desc_init( &descTT, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descU.nb, ib * descU.nb,
-                             ib * descU.lmt, descU.nb * descU.lnt, 0, 0,
-                             ib * descU.lmt, descU.nb * descU.lnt, descU.p, descU.q,
+                             ib * descU.mt, descU.nb * descU.nt, 0, 0,
+                             ib * descU.mt, descU.nb * descU.nt, descU.p, descU.q,
                              NULL, NULL, NULL );
 
         /* U <= qr(U) */
@@ -255,14 +256,7 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
         /* V is of size min(A->m, A->n) by A->n */
         chameleon_zdesc_copy_and_restrict( A, &descV, minmn, A->n );
 
-        /* Shift the seed to generate the random unitary matrix */
-#if !defined(CHAMELEON_SIMULATION)
-        seed = CORE_rnd64_jump( 2 * minmn, seed );
-#endif
         chameleon_pzplrnt( &descV, seed, sequence, request );
-#if !defined(CHAMELEON_SIMULATION)
-        seed = CORE_rnd64_jump( 2 * minmn * A->n, seed );
-#endif
 
         /* Apply a QR factorization */
         mat.mt    = descV.mt;
@@ -285,13 +279,13 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
 
         chameleon_desc_init( &descTS, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descV.nb, ib * descV.nb,
-                             ib * descV.lmt, descV.nb * descV.lnt, 0, 0,
-                             ib * descV.lmt, descV.nb * descV.lnt, descV.p, descV.q,
+                             ib * descV.mt, descV.nb * descV.nt, 0, 0,
+                             ib * descV.mt, descV.nb * descV.nt, descV.p, descV.q,
                              NULL, NULL, NULL );
         chameleon_desc_init( &descTT, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descV.nb, ib * descV.nb,
-                             ib * descV.lmt, descV.nb * descV.lnt, 0, 0,
-                             ib * descV.lmt, descV.nb * descV.lnt, descV.p, descV.q,
+                             ib * descV.mt, descV.nb * descV.nt, 0, 0,
+                             ib * descV.mt, descV.nb * descV.nt, descV.p, descV.q,
                              NULL, NULL, NULL );
 
         /* V <= qr(V) */
