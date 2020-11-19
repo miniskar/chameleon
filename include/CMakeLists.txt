@@ -57,7 +57,7 @@ set(CHAMELEON_HDRS
   chameleon/tasks.h
   chameleon/timer.h
   chameleon/types.h
-  chameleon/types.h
+  chameleon/flops.h
   )
 
 # Add generated headers

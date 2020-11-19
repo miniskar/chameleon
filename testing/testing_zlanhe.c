@@ -18,7 +18,7 @@
 #include <chameleon.h>
 #include "testings.h"
 #include "testing_zcheck.h"
-#include "flops.h"
+#include <chameleon/flops.h>
 
 static cham_fixdbl_t
 flops_zlanhe( cham_normtype_t ntype, int N )

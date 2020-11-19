@@ -24,7 +24,7 @@
 #endif
 #include "testings.h"
 #include "testing_zcheck.h"
-#include "flops.h"
+#include <chameleon/flops.h>
 
 static cham_fixdbl_t
 flops_zgenm2( int M, int N )
