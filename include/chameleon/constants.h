@@ -218,6 +218,7 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_HOUSEHOLDER_SIZE  6
 #define CHAMELEON_TRANSLATION_MODE  7
 #define CHAMELEON_LOOKAHEAD         8
+#define CHAMELEON_RUNTIME           9
 
 /**
  *  CHAMELEON constants - configuration parameters for a request
