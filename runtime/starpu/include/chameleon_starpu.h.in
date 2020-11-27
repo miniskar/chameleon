@@ -85,6 +85,7 @@
 #include "runtime_codelet_profile.h"
 #include "runtime_workspace.h"
 #include "cham_tile_interface.h"
+#include "cham_tile_filters.h"
 
 typedef struct starpu_conf starpu_conf_t;
 
