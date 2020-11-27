@@ -264,6 +264,27 @@ if(CHAMELEON_SCHED_STARPU)
       "CHAMELEON_SIMULATION" OFF)
 endif()
 
+# Option to enable the parallel submission of tasks
+# -------------------------------------------------
+cmake_dependent_option( CHAMELEON_USE_BUBBLE
+  "Enable recursive tasks to be inserted through the bubble mechanism of StarPU" OFF
+  "CHAMELEON_SCHED_STARPU" OFF )
+
+cmake_dependent_option( CHAMELEON_BUBBLE_PARALLEL_INSERT
+  "Enable parallel task insertion with bubbles" OFF
+  "CHAMELEON_USE_BUBBLE" OFF )
+
+cmake_dependent_option( CHAMELEON_BUBBLE_PROFILE
+  "Insert additional information to generate correct DAG information with bubbles" OFF
+  "CHAMELEON_USE_BUBBLE" OFF )
+
+if ( CHAMELEON_USE_BUBBLE )
+  if ( BUILD_SHARED_LIBS )
+    message( WARNING "Shared libraries are not available when compiling with Bubbles (Force static libraries)" )
+  endif()
+  set( BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE )
+endif()
+
 # Initially we need to generate files for different precisions
 # TODO: use this option to avoid generate multiple precisions each time we launch cmake
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)

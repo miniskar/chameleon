@@ -150,6 +150,17 @@ int main(void) {
     endif()
   endif()
 
+  # Check that bubbles are available if requested
+  # ---------------------------------------------
+  if ( CHAMELEON_USE_BUBBLE )
+    check_symbol_exists( STARPU_BUBBLE "starpu_config.h" HAVE_STARPU_BUBBLE )
+    if ( HAVE_STARPU_BUBBLE )
+      message("-- ${Blue}Add definition HAVE_STARPU_BUBBLE${ColourReset}")
+    else()
+      message( FATAL_ERROR "StarPU has not been compiled with Bubble support (--enable-bubble) and CHAMELEON_USE_BUBBLE is enabled\n"
+        "  Please disable CHAMELEON_USE_BUBBLE, or recompile StarPU with Bubble support" )
+    endif()
+  endif()
   morse_cmake_required_unset()
 endif ( STARPU_FOUND )
 
@@ -282,6 +293,10 @@ target_include_directories(chameleon_starpu PRIVATE
   $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
   $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
   $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>)
+
+if (CHAMELEON_USE_BUBBLE)
+  target_link_libraries(chameleon_starpu PRIVATE chameleon)
+endif()
 
 if (CHAMELEON_SIMULATION)
   # need PUBLIC here because simulation mode with starpu requires to replace the
