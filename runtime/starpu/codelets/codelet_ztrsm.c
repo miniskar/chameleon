@@ -39,6 +39,40 @@ struct cl_ztrsm_args_s {
     CHAM_tile_t *tileB;
 };
 
+#if defined(CHAMELEON_USE_BUBBLE)
+static inline int
+cl_ztrsm_is_bubble( struct starpu_task *t, void *_args )
+{
+    struct cl_ztrsm_args_s *clargs = (struct cl_ztrsm_args_s *)(t->cl_arg);
+    (void)_args;
+
+    return( ( clargs->tileA->format & CHAMELEON_TILE_DESC ) &&
+            ( clargs->tileB->format & CHAMELEON_TILE_DESC ) );
+}
+
+static void
+cl_ztrsm_bubble_func( struct starpu_task *t, void *_args )
+{
+    struct cl_ztrsm_args_s *clargs = (struct cl_ztrsm_args_s *)(t->cl_arg);
+    bubble_args_t          *b_args  = (bubble_args_t *)_args;
+    RUNTIME_request_t       request = RUNTIME_REQUEST_INITIALIZER;
+
+    /* Register the task parent */
+    request.parent = t;
+
+#if defined(CHAMELEON_BUBBLE_PARALLEL_INSERT)
+    request.dependency = t;
+    starpu_task_end_dep_add( t, 1 );
+#endif
+
+    chameleon_pztrsm( clargs->side, clargs->uplo, clargs->transA, clargs->diag,
+                      clargs->alpha, clargs->tileA->mat, clargs->tileB->mat,
+                      b_args->sequence, &request );
+
+    free( _args );
+}
+#endif /* defined(CHAMELEON_USE_BUBBLE) */
+
 #if !defined(CHAMELEON_SIMULATION)
 static void
 cl_ztrsm_cpu_func(void *descr[], void *cl_arg)
@@ -90,8 +124,11 @@ void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
 {
     struct cl_ztrsm_args_s  *clargs = NULL;
     void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    int                      is_bubble;
     int                      exec = 0;
     char                    *cl_name = "ztrsm";
+    bubble_args_t           *b_args = NULL;
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -115,6 +152,17 @@ void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrsm_callback : NULL;
+
+    /* Check if this is a bubble */
+    is_bubble = ( ( clargs->tileA->format & CHAMELEON_TILE_DESC ) &&
+                  ( clargs->tileB->format & CHAMELEON_TILE_DESC ) );
+    if ( is_bubble ) {
+        b_args = malloc( sizeof(bubble_args_t) + sizeof(struct cl_ztrsm_args_s) );
+        b_args->sequence = options->sequence;
+        b_args->parent   = request->parent;
+        memcpy( &(b_args->clargs), clargs, sizeof(struct cl_ztrsm_args_s) );
+        cl_name = "ztrsm_bubble";
+    }
 
 #if defined(CHAMELEON_KERNELS_TRACE)
     {
@@ -140,7 +188,24 @@ void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
         STARPU_NAME,              cl_name,
 #endif
 
+        /* Bubble management */
+#if defined(CHAMELEON_USE_BUBBLE)
+        STARPU_BUBBLE_FUNC,             is_bubble_func,
+        STARPU_BUBBLE_FUNC_ARG,         b_args,
+        STARPU_BUBBLE_GEN_DAG_FUNC,     cl_ztrsm_bubble_func,
+        STARPU_BUBBLE_GEN_DAG_FUNC_ARG, b_args,
+
+#if defined(CHAMELEON_BUBBLE_PROFILE)
+        STARPU_BUBBLE_PARENT, request->parent,
+#endif
+
+#if defined(CHAMELEON_BUBBLE_PARALLEL_INSERT)
+        STARPU_CALLBACK_WITH_ARG_NFREE, callback_end_dep_release, request->dependency,
+#endif
+#endif
         0 );
 
+    /* Dependency is used only by the first submitted task and should not be reused */
+    request->dependency = NULL;
     (void)nb;
 }
