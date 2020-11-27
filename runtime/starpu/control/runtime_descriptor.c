@@ -393,6 +393,18 @@ void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
         return;
     }
 
+    /*
+     * TODO: check later, a better check would be to check if we
+     * partitionned the handle or not
+     *
+     * Right now, we can't flush a partitionned handle, we would need to
+     * unpartition first, so we flush only the children.
+     */
+    //if ( tile->format & CHAMELEON_TILE_DESC ) {
+    //    CHAMELEON_Desc_Flush( tile->mat, sequence );
+    //    return;
+    //}
+
 #if defined(CHAMELEON_USE_MPI)
     starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
 #endif
