@@ -103,7 +103,13 @@ set(ZSRC_WO_STDAPI
   testing_zplrnk.c
   testing_zcesca.c
   testing_zgram.c
-)
+  testing_zrecursive.c
+  testing_zrecpotrf.c
+  testing_zrecpotri.c
+  testing_zrecgemm.c
+  testing_zrecgemm_R.c
+  testing_zrecgemm_RW.c
+  )
 
 foreach(_precision ${CHAMELEON_PRECISION} )
 
