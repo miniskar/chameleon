@@ -238,7 +238,8 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
             for (m = 0; m < lmt; m++)
             {
                 if (*handle != NULL) {
-                    starpu_data_unregister_submit(*handle);
+                    starpu_data_unregister(*handle);
+                    *handle = NULL;
                 }
                 handle++;
             }
@@ -358,7 +359,7 @@ chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
 
 #endif
 
-void RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+void RUNTIME_desc_flush( const CHAM_desc_t        *desc,
                          const RUNTIME_sequence_t *sequence )
 {
     int mt = desc->mt;
