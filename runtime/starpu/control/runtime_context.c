@@ -21,6 +21,11 @@
 #include <stdlib.h>
 #include "chameleon_starpu.h"
 
+/**
+ * @brief Store the status of some flags to knwo when enable/disable them
+ */
+static int context_starpu_flags = 0;
+
 #if (STARPU_MAJOR_VERSION > 1) || ((STARPU_MAJOR_VERSION == 1) && (STARPU_MINOR_VERSION >= 3))
 /* Defined by StarPU as external function */
 #else
@@ -76,7 +81,12 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
     case CHAMELEON_DAG:
         fprintf(stderr, "StarPU is providing DAG generation through tracing support (CHAMELEON_PROFILING_MODE)\n");
         break;
+    case CHAMELEON_KERNELPROFILE_MODE:
+        context_starpu_flags |= (1 << CHAMELEON_KERNELPROFILE_MODE);
+        starpu_profiling_status_set(STARPU_PROFILING_ENABLE);
+        break;
     case CHAMELEON_PROFILING_MODE:
+        context_starpu_flags |= (1 << CHAMELEON_PROFILING_MODE);
         starpu_profiling_status_set(STARPU_PROFILING_ENABLE);
         break;
     case CHAMELEON_BOUND:
@@ -101,7 +111,16 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
         fprintf(stderr, "StarPU is providing DAG generation through tracing support (CHAMELEON_PROFILING_MODE)\n");
         break;
     case CHAMELEON_PROFILING_MODE:
-        starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
+        context_starpu_flags |= ~(1 << CHAMELEON_PROFILING_MODE);
+        if ( !context_starpu_flags ) {
+            starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
+        }
+        break;
+    case CHAMELEON_KERNELPROFILE_MODE:
+        context_starpu_flags |= ~(1 << CHAMELEON_KERNELPROFILE_MODE);
+        if ( !context_starpu_flags ) {
+            starpu_profiling_status_set(STARPU_PROFILING_DISABLE);
+        }
         break;
     case CHAMELEON_BOUND:
         starpu_bound_stop();
