@@ -363,7 +363,12 @@ int CHAMELEON_Set( int param, int value )
  *          Feature to be enabled:
  *          @arg CHAMELEON_TILE_SIZE:        size matrix tile,
  *          @arg CHAMELEON_INNER_BLOCK_SIZE: size of tile inner block,
- *          @arg CHAMELEON_LOOKAHEAD:        depth of the look ahead in algorithms
+ *          @arg CHAMELEON_LOOKAHEAD:        depth of the look ahead in algorithms,
+ *          @arg CHAMELEON_HOUSEHOLDER_MODE: ChamFlatHouseholder or ChamTreeHouseholder,
+ *          @arg CHAMELEON_HOUSEHOLDER_SIZE: Size of the Householder tree,
+ *          @arg CHAMELEON_TRANSLATION_MODE: ChamInPlace or ChamOutOfPlace,
+ *          @arg CHAMELEON_LOOKAHEAD:        Size of the look-ahead,
+ *          @arg CHAMELEON_RUNTIME:          Runtime used by the library (See RUNTIME_id_t)
  *
  * @param[out] value
  *          Value of the parameter.
@@ -373,7 +378,7 @@ int CHAMELEON_Set( int param, int value )
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Get(int param, int *value)
+int CHAMELEON_Get( int param, int *value )
 {
     CHAM_context_t *chamctxt;
 
@@ -400,6 +405,9 @@ int CHAMELEON_Get(int param, int *value)
             return CHAMELEON_SUCCESS;
         case CHAMELEON_LOOKAHEAD:
             *value = chamctxt->lookahead;
+            return CHAMELEON_SUCCESS;
+        case CHAMELEON_RUNTIME:
+            *value = chamctxt->scheduler;
             return CHAMELEON_SUCCESS;
         default:
             chameleon_error("CHAMELEON_Get", "unknown parameter");

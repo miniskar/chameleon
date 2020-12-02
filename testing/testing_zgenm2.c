@@ -75,6 +75,8 @@ testing_zgenm2( run_arg_list_t *args, int check )
     /* Save the largest absolute value */
     hres = cblas_idamax( minMN, D, 1 );
     dmax = fabs( D[hres] );
+#else
+    (void)mode;
 #endif
 
     /* Creates the matrix */

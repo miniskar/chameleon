@@ -108,6 +108,8 @@ set(ZSRC
     pzgelqf.c
     pzgelqf_param.c
     pzgelqfrh.c
+    pzgepdf_qdwh.c
+    pzgepdf_qr.c
     pzgeqrf.c
     pzgeqrfrh.c
     pzgeqrf_param.c
@@ -141,7 +143,9 @@ set(ZSRC
     pzunmqr_param.c
     pzunmqrrh.c
     pztpgqrt.c
+    pztpgqrt_param.c
     pztpqrt.c
+    pztpqrt_param.c
     ###
     zgels.c
     zgels_param.c
@@ -151,6 +155,8 @@ set(ZSRC
     zgelqs_param.c
     zgeqrf.c
     zgeqrf_param.c
+    zgepdf_qdwh.c
+    zgepdf_qr.c
     zgeqrs.c
     zgeqrs_param.c
     #zgesv.c

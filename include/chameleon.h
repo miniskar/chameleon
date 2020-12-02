@@ -51,6 +51,15 @@
  */
 #include "chameleon/tasks.h"
 
+/**
+ *  @brief Structure to return information on the polar decomposition
+ */
+typedef struct gepdf_info_s {
+    int           itQR;  /**< Number of QR iterations        */
+    int           itPO;  /**< Number of Cholesky iterations  */
+    cham_fixdbl_t flops; /**< Total number of flops required */
+} gepdf_info_t;
+
 #include "chameleon/chameleon_z.h"
 #include "chameleon/chameleon_c.h"
 #include "chameleon/chameleon_d.h"
