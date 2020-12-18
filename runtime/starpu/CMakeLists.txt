@@ -25,52 +25,18 @@
 #  @date 2020-03-03
 #
 ###
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
-set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "oldest STARPU version desired")
+set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "necessary STARPU API version")
 
-# create list of components in order to make a single call to find_package(starpu...)
-if(NOT CHAMELEON_SIMULATION)
-  set(STARPU_COMPONENT_LIST "HWLOC")
-  if(CHAMELEON_USE_CUDA)
-    list(APPEND STARPU_COMPONENT_LIST "CUDA")
-  endif()
-else()
-  set(STARPU_COMPONENT_LIST "SIMGRID")
-endif()
-if(CHAMELEON_USE_MPI)
-  list(APPEND STARPU_COMPONENT_LIST "MPI")
-endif()
+find_package(STARPU ${CHAMELEON_STARPU_VERSION} REQUIRED)
 
-find_package(STARPU ${CHAMELEON_STARPU_VERSION} REQUIRED
-  COMPONENTS ${STARPU_COMPONENT_LIST})
-
-# Add definition and include_dir if found
+# check available functions
+# note: recall STARPU_VERSION provides the version
 if ( STARPU_FOUND )
   message("-- ${Blue}Add definition CHAMELEON_SCHED_STARPU"
     " - Activate StarPU in Chameleon${ColourReset}")
-  if (STARPU_INCLUDE_DIRS_DEP)
-    include_directories(${STARPU_INCLUDE_DIRS_DEP})
-    set(CMAKE_REQUIRED_INCLUDES "${STARPU_INCLUDE_DIRS_DEP}")
-  endif()
-  if(STARPU_CFLAGS_OTHER_DEP)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${STARPU_CFLAGS_OTHER_DEP}")
-    string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    set(CMAKE_REQUIRED_FLAGS "${STARPU_CFLAGS_OTHER_DEP}")
-  endif()
-  if(STARPU_LDFLAGS_OTHER_DEP)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${STARPU_LDFLAGS_OTHER_DEP}")
-    string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-    set(CMAKE_REQUIRED_LDFLAGS "${STARPU_LDFLAGS_OTHER_DEP}")
-  endif()
-  if(STARPU_LIBRARY_DIRS_DEP)
-    list(APPEND CMAKE_INSTALL_RPATH "${STARPU_LIBRARY_DIRS_DEP}")
-  endif()
-  if (STARPU_LIBRARIES_DEP)
-    list(INSERT CHAMELEON_DEP 0 ${STARPU_LIBRARIES_DEP})
-    set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")
-  endif()
-  string(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  get_target_property(CMAKE_REQUIRED_LIBRARIES MORSE::STARPU INTERFACE_LINK_LIBRARIES)
   check_function_exists(starpu_data_idle_prefetch_on_node HAVE_STARPU_IDLE_PREFETCH)
   if ( HAVE_STARPU_IDLE_PREFETCH )
     message("-- ${Blue}Add definition HAVE_STARPU_IDLE_PREFETCH${ColourReset}")
@@ -143,60 +109,8 @@ if ( STARPU_FOUND )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_COMM_GET_ATTR${ColourReset}")
     endif()
   endif()
-else ( STARPU_FOUND )
-  if(CHAMELEON_VERBOSE_FIND_PACKAGE)
-    if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
-      if (NOT HWLOC_hwloc.h_DIRS)
-        Print_Find_Header_Status(hwloc hwloc.h)
-      endif ()
-      if (NOT HWLOC_hwloc_LIBRARY)
-        Print_Find_Library_Status(hwloc libhwloc)
-      endif ()
-    endif()
-    if(CHAMELEON_SIMULATION AND (NOT SIMGRID_FOUND OR NOT SIMGRID_LIBRARIES))
-      if (NOT SIMGRID_simgrid.h_DIRS)
-        Print_Find_Header_Status(simgrid simgrid.h)
-      endif ()
-      if (NOT SIMGRID_simgrid_LIBRARY)
-        Print_Find_Library_Status(simgrid libsimgrid)
-      endif ()
-    endif()
-    if( (NOT STARPU_SHM_FOUND) OR (NOT STARPU_SHM_LIBRARIES) OR
-        ( STARPU_LOOK_FOR_MPI AND (NOT STARPU_MPI_FOUND OR NOT STARPU_MPI_LIBRARIES) )
-        )
-      foreach(starpu_hdr ${STARPU_hdrs_to_find})
-        if (NOT STARPU_${starpu_hdr}_INCLUDE_DIRS)
-          Print_Find_Header_Status(starpu ${starpu_hdr})
-        endif ()
-      endforeach()
-      if(STARPU_VERSION_STRING)
-        foreach(starpu_lib ${STARPU_libs_to_find})
-          if (NOT STARPU_${starpu_lib}_LIBRARY)
-            Print_Find_Library_Status(starpu ${starpu_lib})
-          endif ()
-        endforeach()
-      endif ()
-    endif ()
-  else(CHAMELEON_VERBOSE_FIND_PACKAGE)
-    message(WARNING "StarPU library has not been found and CHAMELEON_VERBOSE_FIND_PACKAGE is set to OFF."
-      " Try to activate CHAMELEON_VERBOSE_FIND_PACKAGE option (-DCHAMELEON_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-  endif(CHAMELEON_VERBOSE_FIND_PACKAGE)
-  if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
-    message(FATAL_ERROR "hwloc library is required but has not been found")
-  endif()
-  if(CHAMELEON_SIMULATION AND (NOT SIMGRID_FOUND OR NOT SIMGRID_LIBRARIES))
-    message(FATAL_ERROR "SimGrid library is required but has not been found")
-  endif()
-  if( (NOT STARPU_SHM_FOUND) OR (NOT STARPU_SHM_LIBRARIES) OR
-      ( STARPU_LOOK_FOR_MPI AND (NOT STARPU_MPI_FOUND OR NOT STARPU_MPI_LIBRARIES) )
-      )
-    message(FATAL_ERROR "StarPU library is required but has not been found")
-  endif()
-  return()
+  unset(CMAKE_REQUIRED_LIBRARIES)
 endif ( STARPU_FOUND )
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
 
 configure_file("include/chameleon_starpu.h.in"
                "include/chameleon_starpu.h"
@@ -298,19 +212,9 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};runtime_starpu_inclu
 # Add library
 # -----------
 add_library(chameleon_starpu ${RUNTIME_SRCS})
-set_property(TARGET chameleon_starpu PROPERTY LINKER_LANGUAGE Fortran)
+set_target_properties(chameleon_starpu PROPERTIES VERSION ${CHAMELEON_VERSION})
+set_target_properties(chameleon_starpu PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 set_property(TARGET chameleon_starpu PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-
-target_link_libraries(chameleon_starpu
-  ${STARPU_LIBRARIES_DEP})
-if (NOT CHAMELEON_SIMULATION)
-  target_link_libraries(chameleon_starpu
-    coreblas)
-  if(CHAMELEON_USE_CUDA)
-    target_link_libraries(chameleon_starpu
-      cudablas)
-  endif(CHAMELEON_USE_CUDA)
-endif(NOT CHAMELEON_SIMULATION)
 
 add_dependencies(chameleon_starpu
   chameleon_include
@@ -325,11 +229,59 @@ if (NOT CHAMELEON_SIMULATION)
   endif()
 endif()
 
+target_include_directories(chameleon_starpu PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include>)
+target_include_directories(chameleon_starpu PRIVATE
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>)
+
+if (CHAMELEON_SIMULATION)
+  # need PUBLIC here because simulation mode with starpu requires to replace the
+  # main function by a starpu main one
+  target_link_libraries(chameleon_starpu PUBLIC MORSE::STARPU)
+else()
+  target_link_libraries(chameleon_starpu PRIVATE MORSE::STARPU)
+endif()
+if (NOT CHAMELEON_SIMULATION)
+  target_link_libraries(chameleon_starpu PRIVATE coreblas)
+  if(CHAMELEON_USE_CUDA)
+    target_link_libraries(chameleon_starpu PRIVATE cudablas)
+  endif(CHAMELEON_USE_CUDA)
+endif(NOT CHAMELEON_SIMULATION)
+target_link_libraries(chameleon_starpu PRIVATE MORSE::M)
+
+# necessary cause of include control/common.h which depends on hqr, mpi, cuda, ...
+# TODO: remove this dependency as soon as headers are clean
+target_link_libraries(chameleon_starpu PUBLIC hqr)
+if (CHAMELEON_USE_MPI)
+  target_link_libraries(chameleon_starpu PUBLIC MPI::MPI_C)
+endif()
+if (NOT CHAMELEON_SIMULATION)
+  if (CHAMELEON_USE_CUDA)
+    target_link_libraries(chameleon_starpu PUBLIC CUDA::CUBLAS)
+  endif()
+endif()
+
 # installation
 # ------------
 install(TARGETS chameleon_starpu
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib)
+
+# export target
+install(EXPORT chameleon_starpuTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS chameleon_starpu EXPORT chameleon_starpuTargets)
 
 ###
 ### END CMakeLists.txt

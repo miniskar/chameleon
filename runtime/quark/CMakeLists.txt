@@ -25,61 +25,15 @@
 #  @date 2020-03-03
 #
 ###
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
-find_package( QUARK REQUIRED
-  COMPONENTS HWLOC )
+find_package( QUARK REQUIRED COMPONENTS HWLOC )
 
 # Add definition and include_dir if found
 if(QUARK_FOUND)
   message("-- ${Blue}Add definition CHAMELEON_SCHED_QUARK"
     " - Activate QUARK in Chameleon${ColourReset}")
-  if (QUARK_INCLUDE_DIRS_DEP)
-    include_directories(${QUARK_INCLUDE_DIRS_DEP})
-  endif()
-  if(QUARK_CFLAGS_OTHER_DEP)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${QUARK_CFLAGS_OTHER_DEP}")
-    string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  endif()
-  if(QUARK_LDFLAGS_OTHER_DEP)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${QUARK_LDFLAGS_OTHER_DEP}")
-    string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-  endif()
-  if(QUARK_LIBRARY_DIRS_DEP)
-    list(APPEND CMAKE_INSTALL_RPATH "${QUARK_LIBRARY_DIRS_DEP}")
-  endif()
-  if (QUARK_LIBRARIES_DEP)
-    list(INSERT CHAMELEON_DEP 0 ${QUARK_LIBRARIES_DEP})
-  endif()
-else(QUARK_FOUND)
-  if(CHAMELEON_VERBOSE_FIND_PACKAGE)
-    if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
-      if (NOT HWLOC_hwloc.h_DIRS)
-        Print_Find_Header_Status(hwloc hwloc.h)
-      endif ()
-      if (NOT HWLOC_hwloc_LIBRARY)
-        Print_Find_Library_Status(hwloc libhwloc)
-      endif ()
-    endif()
-    if (NOT QUARK_quark.h_DIRS)
-      Print_Find_Header_Status(quark quark.h)
-    endif ()
-    if (NOT QUARK_quark_LIBRARY)
-      Print_Find_Library_Status(quark libquark)
-    endif ()
-  else()
-    message(WARNING "QUARK library has not been found and CHAMELEON_VERBOSE_FIND_PACKAGE is set to OFF."
-      " Try to activate CHAMELEON_VERBOSE_FIND_PACKAGE option (-DCHAMELEON_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-  endif()
-  if(NOT HWLOC_FOUND OR NOT HWLOC_LIBRARIES)
-    message(FATAL_ERROR "hwloc library is required but has not been found")
-  endif()
-  message(FATAL_ERROR "QUARK library is required but has not been found")
-  return()
 endif(QUARK_FOUND)
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
 
 # # Generate headers for all possible precisions
 # # --------------------------------------------
@@ -164,28 +118,50 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};runtime_quark_includ
 # Add library
 # -----------
 add_library(chameleon_quark ${RUNTIME_SRCS})
-set_property(TARGET chameleon_quark PROPERTY LINKER_LANGUAGE Fortran)
+set_target_properties(chameleon_quark PROPERTIES VERSION ${CHAMELEON_VERSION})
 set_property(TARGET chameleon_quark PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-
-target_link_libraries(chameleon_quark coreblas ${QUARK_LIBRARIES_DEP})
-if(CHAMELEON_USE_CUDA)
-  target_link_libraries(chameleon_quark cudablas)
-endif(CHAMELEON_USE_CUDA)
 
 add_dependencies(chameleon_quark
   chameleon_include
   control_include
+  coreblas_include
   runtime_quark_include
   quark_sources
 )
-if (NOT CHAMELEON_SIMULATION)
-    add_dependencies(chameleon_quark coreblas_include)
-endif()
+
+target_include_directories(chameleon_quark PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include>)
+target_include_directories(chameleon_quark PRIVATE
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>)
+
+target_link_libraries(chameleon_quark PUBLIC MORSE::QUARK)
+target_link_libraries(chameleon_quark PUBLIC coreblas)
+target_link_libraries(chameleon_quark PRIVATE MORSE::M)
+
+# necessary cause of include control/common.h which depends on hqr, mpi, cuda, ...
+# TODO: remove this dependency as soon as headers are clean
+target_link_libraries(chameleon_quark PUBLIC hqr)
 
 # installation
 # ------------
 install(TARGETS chameleon_quark
   DESTINATION lib)
+
+  # export target
+install(EXPORT chameleon_quarkTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS chameleon_quark EXPORT chameleon_quarkTargets)
 
 ###
 ### END CMakeLists.txt

@@ -101,17 +101,6 @@ set(ZSRC
   testing_zplrnk.c
   )
 
-# Add include and link directories
-# --------------------------------
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-# Define what libraries we have to link with
-# ------------------------------------------
-unset(libs_for_tests)
-# testing executables depend on chameleon and cblas, lapacke, mpi (already chameleon's dependencies)
-list(APPEND libs_for_tests chameleon)
-# message(STATUS "libs testings: ${libs_for_tests}")
 
 # Create one testing per precision with all files
 # -----------------------------------------------
@@ -132,13 +121,32 @@ foreach(_precision ${CHAMELEON_PRECISION} )
     control_include
     testing_include
     )
-if(NOT CHAMELEON_SIMULATION)
-  add_dependencies(${__target_name}
-    coreblas_include
+  if(NOT CHAMELEON_SIMULATION)
+    add_dependencies(${__target_name}
+      coreblas_include
+      )
+  endif(NOT CHAMELEON_SIMULATION)
+
+  target_include_directories(${__target_name} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     )
-endif(NOT CHAMELEON_SIMULATION)
-  set_property(TARGET ${__target_name} PROPERTY LINKER_LANGUAGE Fortran)
-  target_link_libraries(${__target_name} ${libs_for_tests})
+  # testing_zcheck.c includes additional chameleon headers
+  # coreblas/include/coreblas/cblas.h, coreblas/coreblas_z.h, control/common.h, ...
+  target_include_directories(${__target_name} PRIVATE
+    ${CHAMELEON_SOURCE_DIR}
+    ${CHAMELEON_BINARY_DIR}
+    ${CHAMELEON_SOURCE_DIR}/coreblas/include
+    ${CHAMELEON_BINARY_DIR}/coreblas/include
+    )
+
+  target_link_libraries(${__target_name} PRIVATE chameleon)
+  if(NOT CHAMELEON_SIMULATION)
+    target_link_libraries(${__target_name} PRIVATE
+      MORSE::LAPACKE
+      MORSE::CBLAS)
+  endif()
+  target_link_libraries(${__target_name} PRIVATE MORSE::M)
 
   install(TARGETS ${__target_name}
     DESTINATION bin/ )

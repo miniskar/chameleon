@@ -120,20 +120,35 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};coreblas_sources" CA
 # Compile step
 # ------------
 add_library(coreblas ${COREBLAS_SRCS})
+set_target_properties(coreblas PROPERTIES VERSION ${CHAMELEON_VERSION})
+set_target_properties(coreblas PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 add_dependencies(coreblas coreblas_include coreblas_sources)
-set_property(TARGET coreblas PROPERTY LINKER_LANGUAGE Fortran)
+target_include_directories(coreblas PUBLIC
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-target_link_libraries(coreblas
-  ${LAPACKE_LIBRARIES_DEP}
-  ${CBLAS_LIBRARIES_DEP}
-  )
+target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)
+target_link_libraries(coreblas PRIVATE MORSE::CBLAS)
+target_link_libraries(coreblas PUBLIC MORSE::M)
 
 # Installation
 # ------------
 install(TARGETS coreblas
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib)
+
+# export target coreblas
+install(EXPORT coreblasTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS coreblas EXPORT coreblasTargets)
 
 ###
 ### END CMakeLists.txt

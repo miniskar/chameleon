@@ -43,10 +43,6 @@ endif()
 
 mark_as_advanced(CHAMELEON_COPY_DIAG)
 
-if (CHAMELEON_COPY_DIAG)
-  add_definitions(-DCHAMELEON_COPY_DIAG)
-endif()
-
 # Define the list of sources
 # --------------------------
 set(CHAMELEON_CONTROL
@@ -308,16 +304,8 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};chameleon_sources" C
 # Compile step
 # ------------
 add_library(chameleon ${CHAMELEON_SRCS} ${CHAMELEON_SRCSF})
-if(CHAMELEON_SCHED_STARPU)
-  target_link_libraries(chameleon chameleon_starpu)
-elseif(CHAMELEON_SCHED_PARSEC)
-  target_link_libraries(chameleon chameleon_parsec)
-elseif(CHAMELEON_SCHED_QUARK)
-  target_link_libraries(chameleon chameleon_quark)
-elseif(CHAMELEON_SCHED_OPENMP)
-  target_link_libraries(chameleon chameleon_openmp)
-endif()
-target_link_libraries(chameleon hqr)
+set_target_properties(chameleon PROPERTIES VERSION ${CHAMELEON_VERSION})
+set_target_properties(chameleon PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 
 add_dependencies(chameleon
   chameleon_include
@@ -325,7 +313,42 @@ add_dependencies(chameleon
   chameleon_sources
 )
 
-set_property(TARGET chameleon PROPERTY LINKER_LANGUAGE Fortran)
+target_include_directories(chameleon PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/control>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/control>
+  $<INSTALL_INTERFACE:include>)
+
+if (CHAMELEON_SIMULATION)
+  target_include_directories(chameleon PUBLIC ${SIMGRID_INCLUDE_DIRS})
+endif()
+
+if(CHAMELEON_SCHED_STARPU)
+  target_link_libraries(chameleon PUBLIC chameleon_starpu)
+elseif(CHAMELEON_SCHED_PARSEC)
+  target_link_libraries(chameleon PUBLIC chameleon_parsec)
+elseif(CHAMELEON_SCHED_QUARK)
+  target_link_libraries(chameleon PUBLIC chameleon_quark)
+elseif(CHAMELEON_SCHED_OPENMP)
+  target_link_libraries(chameleon PUBLIC chameleon_openmp)
+endif()
+if (NOT CHAMELEON_SIMULATION)
+  target_link_libraries(chameleon PUBLIC coreblas)
+endif()
+target_link_libraries(chameleon PUBLIC hqr)
+if (CHAMELEON_USE_MPI)
+  target_link_libraries(chameleon PUBLIC MPI::MPI_C)
+endif()
+if (CHAMELEON_USE_CUDA)
+  if (NOT CHAMELEON_SIMULATION)
+    target_link_libraries(chameleon PUBLIC cudablas)
+    target_link_libraries(chameleon PUBLIC CUDA::CUBLAS)
+  endif()
+endif()
+target_link_libraries(chameleon PUBLIC MORSE::M)
+
 set_property(TARGET chameleon PROPERTY Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/include")
 set_property(TARGET chameleon PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -333,6 +356,15 @@ set_property(TARGET chameleon PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}
 # ------------
 install(TARGETS chameleon
         DESTINATION lib)
+
+# export target
+install(EXPORT chameleonTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS chameleon EXPORT chameleonTargets)
 
 ###
 ### END CMakeLists.txt

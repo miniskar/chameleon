@@ -98,19 +98,34 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};cudablas_sources" CA
 # Compile step
 # ------------
 add_library(cudablas ${CUDABLAS_SRCS})
+set_target_properties(cudablas PROPERTIES VERSION ${CHAMELEON_VERSION})
+set_target_properties(cudablas PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 add_dependencies(cudablas cudablas_include cudablas_sources)
-set_property(TARGET cudablas PROPERTY LINKER_LANGUAGE Fortran)
+target_include_directories(cudablas PUBLIC
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/cudablas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/cudablas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 set_property(TARGET cudablas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-target_link_libraries(cudablas
-  coreblas
-  ${EXTRA_LIBRARIES_CUDA})
+target_link_libraries(cudablas PRIVATE coreblas CUDA::CUBLAS)
+target_link_libraries(cudablas PUBLIC MORSE::M)
 
 # installation
 # ------------
 install(TARGETS cudablas
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib)
+
+# export target coreblas
+install(EXPORT cudablasTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS cudablas EXPORT cudablasTargets)
 
 ###
 ### END CMakeLists.txt

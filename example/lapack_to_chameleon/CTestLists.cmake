@@ -2,7 +2,7 @@
 # Check Example lapack_to_chameleon
 #
 
-set(TESTLIST 
+set(TESTLIST
     step0
     step1
     step2
@@ -10,6 +10,7 @@ set(TESTLIST
     step4
     step5
     step6
+    step7
     )
 
 foreach(test ${TESTLIST})

@@ -39,6 +39,7 @@ endif()
 set(CHAMELEON_VERSION_MAJOR 1)
 set(CHAMELEON_VERSION_MINOR 0)
 set(CHAMELEON_VERSION_MICRO 0)
+set(CHAMELEON_VERSION "${CHAMELEON_VERSION_MAJOR}.${CHAMELEON_VERSION_MINOR}.${CHAMELEON_VERSION_MICRO}")
 
 set(CHAMELEON_CMAKE_DIR "" CACHE PATH "Directory of CHAMELEON CMake modules, can be external to the project")
 
@@ -77,6 +78,9 @@ FortranCInterface_HEADER(${CMAKE_CURRENT_BINARY_DIR}/include/chameleon/mangling.
 ###############################################################################
 # Parameters/Options #
 ######################
+
+# For fPIC when build static
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set the RPATH config
 # --------------------
@@ -221,10 +225,6 @@ if(CHAMELEON_SCHED_STARPU)
     if (NOT CHAMELEON_ENABLE_PRUNING_STATS)
         message("-- ${BoldGreen}CHAMELEON_ENABLE_PRUNING_STATS is set to OFF, turn it ON to build pruning statistics${ColourReset}")
     endif()
-    if(CHAMELEON_ENABLE_PRUNING_STATS)
-        add_definitions(-DCHAMELEON_ENABLE_PRUNING_STATS)
-    endif(CHAMELEON_ENABLE_PRUNING_STATS)
-
     cmake_dependent_option(CHAMELEON_SIMULATION_EXTENDED
       "Enable non GPU kernels to be simulated on GPU" OFF
       "CHAMELEON_SIMULATION" OFF)
@@ -239,171 +239,71 @@ endif()
 # Build dependency HQR library #
 ################################
 add_subdirectory(hqr)
-include_directories(hqr/include)
 
 ###############################################################################
 # Look for dependencies #
 #########################
-set(CHAMELEON_DEP "")
 
-# Check for Thread library
-# ------------------------
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package(Threads REQUIRED)
-if( THREADS_FOUND AND CMAKE_THREAD_LIBS_INIT )
-  libraries_absolute_path(CMAKE_THREAD_LIBS_INIT "")
-  list(APPEND EXTRA_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-endif ()
-
-# Add math library to the list of extra
+# Add math library (libm), searched with MORSE module FindM.cmake
 # it normally exists on all common systems provided with a C compiler
-if(UNIX OR WIN32)
-    find_library(
-      M_LIBRARY
-      NAMES m
-      )
-    mark_as_advanced(M_LIBRARY)
-    if (M_LIBRARY)
-      list(APPEND EXTRA_LIBRARIES "${M_LIBRARY}")
-    else()
-      message(FATAL_ERROR "Could NOT find libm on your system."
-        " Are you sure to a have a C compiler installed?")
-    endif()
-endif()
+find_package(M REQUIRED)
 
-# Try to find librt (libposix4 - POSIX.1b Realtime Extensions library)
-# on Unix systems except Apple ones because it does not exist on it
-if(UNIX AND NOT APPLE)
-    find_library(
-        RT_LIBRARY
-        NAMES rt
-        )
-    mark_as_advanced(RT_LIBRARY)
-    if (RT_LIBRARY)
-        list(APPEND EXTRA_LIBRARIES "${RT_LIBRARY}")
-    else()
-        message(FATAL_ERROR "Could NOT find librt on your system")
-    endif()
-endif()
-
-# If simulation we don't enter in kernel functions so that we don't need to
-# link with concerned libraries
+# If simulation we don't enter in kernel functions so that we don't need to link
+# with concerned libraries
 if(NOT CHAMELEON_SIMULATION)
+
     # CHAMELEON depends on CBLAS
     #---------------------------
     find_package(CBLAS REQUIRED)
-    if(CBLAS_FOUND)
-        if (CBLAS_INCLUDE_DIRS_DEP)
-            include_directories(${CBLAS_INCLUDE_DIRS_DEP})
-        endif()
-        if(CBLAS_CFLAGS_OTHER_DEP)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CBLAS_CFLAGS_OTHER_DEP}")
-            string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-        endif()
-        if(CBLAS_LDFLAGS_OTHER_DEP)
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CBLAS_LDFLAGS_OTHER_DEP}")
-            string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-        endif()
-        if(CBLAS_LIBRARY_DIRS_DEP)
-            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS_DEP}")
-        endif()
-        if (CBLAS_LIBRARIES_DEP)
-            list(INSERT CHAMELEON_DEP 0 ${CBLAS_LIBRARIES_DEP})
-        endif()
-    else()
-        if(CHAMELEON_VERBOSE_FIND_PACKAGE)
-            if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
-                if (NOT CBLAS_cblas.h_DIRS)
-                    Print_Find_Header_Status(cblas cblas.h)
-                endif ()
-                if (NOT CBLAS_cblas_LIBRARY)
-                    Print_Find_Library_Status(cblas libcblas)
-                endif ()
-            endif()
-        else()
-            message(WARNING "CBLAS library has not been found and CHAMELEON_VERBOSE_FIND_PACKAGE is set to OFF."
-            " Try to activate CHAMELEON_VERBOSE_FIND_PACKAGE option (-DCHAMELEON_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-        endif()
-        message(FATAL_ERROR "A CBLAS library is required but has not been found")
-    endif()
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
     find_package(LAPACKE REQUIRED)
-    if(LAPACKE_FOUND)
-        if (LAPACKE_INCLUDE_DIRS_DEP)
-            include_directories(${LAPACKE_INCLUDE_DIRS_DEP})
-        endif()
-        if(LAPACKE_CFLAGS_OTHER_DEP)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LAPACKE_CFLAGS_OTHER_DEP}")
-            string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-        endif()
-        if(LAPACKE_LDFLAGS_OTHER_DEP)
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LDFLAGS_OTHER_DEP}")
-            string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-        endif()
-        if(LAPACKE_LIBRARY_DIRS_DEP)
-            list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS_DEP}")
-        endif()
-        if (LAPACKE_LIBRARIES_DEP)
-            list(INSERT CHAMELEON_DEP 0 ${LAPACKE_LIBRARIES_DEP})
-        endif()
-    else()
-        if(CHAMELEON_VERBOSE_FIND_PACKAGE)
-            if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
-                if (NOT LAPACKE_lapacke.h_DIRS)
-                    Print_Find_Header_Status(lapacke lapacke.h)
-                endif ()
-                if (NOT LAPACKE_lapacke_LIBRARY)
-                    Print_Find_Library_Status(lapacke liblapacke)
-                endif ()
-            endif()
-        else()
-            message(WARNING "LAPACKE library has not been found and CHAMELEON_VERBOSE_FIND_PACKAGE is set to OFF."
-            " Try to activate CHAMELEON_VERBOSE_FIND_PACKAGE option (-DCHAMELEON_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-        endif()
-        message(FATAL_ERROR "A LAPACKE library is required but has not been found")
-    endif()
 
     # CHAMELEON depends on CUDA/CUBLAS
     #----------------------------------
     if (CHAMELEON_USE_CUDA)
 
+        # When our cmake_minimum version will be 3.17 we will be able to use this
+        # far better module: FindCUDAToolkit
+        # https://cmake.org/cmake/help/latest/module/FindCUDAToolkit.html#module:FindCUDAToolkit
+
         find_package(CUDA REQUIRED)
+
         if (CUDA_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_CUDA"
             " - Activate CUDA in Chameleon${ColourReset}")
-            libraries_absolute_path(CUDA_LIBRARIES "$ENV{CUDA_ROOT}/lib64")
-            set(EXTRA_LIBRARIES_CUDA)
+            # create imported target because not provided with old cmake
+            add_library(CUDA::CUDA INTERFACE IMPORTED)
+            add_library(CUDA::CUBLAS INTERFACE IMPORTED)
             if(CUDA_VERSION VERSION_LESS "3.0")
                 set(CUDA_HOST_COMPILATION_CPP OFF)
             endif(CUDA_VERSION VERSION_LESS "3.0")
             set(CUDA_BUILD_EMULATION OFF)
             if (CUDA_INCLUDE_DIRS)
-                include_directories(${CUDA_INCLUDE_DIRS})
+                set_target_properties(CUDA::CUDA PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CUDA_INCLUDE_DIRS}")
             else()
                 message(WARNING "CHAMELEON_USE_CUDA requires"
                 "\n   CUDA_INCLUDE_DIRS to be found. Be sure you have"
                 "\n   cuda headers with your distribution of CUDA.")
             endif()
             if (CUDA_LIBRARIES)
-                set(saved_include "${CMAKE_REQUIRED_INCLUDES}")
-                set(saved_libs "${CMAKE_REQUIRED_LIBRARIES}")
-                set(CMAKE_REQUIRED_INCLUDES  "${CMAKE_REQUIRED_INCLUDES};${CUDA_INCLUDE_DIRS}")
-                set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES};${CUDA_LIBRARIES}")
+                set_target_properties(CUDA::CUDA PROPERTIES INTERFACE_LINK_LIBRARIES "${CUDA_LIBRARIES}")
+                set(CMAKE_REQUIRED_INCLUDES  "${CUDA_INCLUDE_DIRS}")
+                set(CMAKE_REQUIRED_LIBRARIES "${CUDA_LIBRARIES}")
                 if(CUDA_VERSION VERSION_LESS "4.0")
                     set(CUDA_HAVE_PEER_DEVICE_MEMORY_ACCESS 0)
                 else()
                     check_function_exists(cuDeviceCanAccessPeer CUDA_HAVE_PEER_DEVICE_MEMORY_ACCESS)
                 endif()
-                set(CMAKE_REQUIRED_INCLUDES  "${saved_include}")
-                set(CMAKE_REQUIRED_LIBRARIES "${saved_libs}")
+                unset(CMAKE_REQUIRED_INCLUDES)
+                unset(CMAKE_REQUIRED_LIBRARIES)
                 # Add cublas if found
                 if (CUDA_CUBLAS_LIBRARIES)
+                    set_target_properties(CUDA::CUBLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${CUDA_CUBLAS_LIBRARIES}")
+                    target_link_libraries(CUDA::CUBLAS INTERFACE CUDA::CUDA)
                     message("-- ${Blue}Add definition CHAMELEON_USE_CUBLAS"
                     " - Use GPU kernels from cuBLAS${ColourReset}")
-                    list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_CUBLAS_LIBRARIES})
-                    list(APPEND EXTRA_LIBRARIES_CUDA ${CUDA_LIBRARIES}) # need CUDA libs to link.
                 else()
                     message(FATAL_ERROR "CHAMELEON_USE_CUDA requires"
                     "\n   CUDA_CUBLAS_LIBRARIES to be found. Be sure you have"
@@ -415,16 +315,6 @@ if(NOT CHAMELEON_SIMULATION)
                 "\n   libcuda with your distribution of CUDA.")
             endif()
         endif (CUDA_FOUND)
-
-        list(APPEND EXTRA_LIBRARIES ${EXTRA_LIBRARIES_CUDA})
-        foreach (_lib ${EXTRA_LIBRARIES_CUDA})
-            if (EXISTS ${_lib})
-                get_filename_component(libdir ${_lib} PATH)
-                if (EXISTS ${libdir})
-                    list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
-                endif()
-            endif()
-        endforeach()
 
     endif(CHAMELEON_USE_CUDA)
 
@@ -443,29 +333,7 @@ if(NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
-            include_directories( ${MPI_C_INCLUDE_PATH} )
-            # tests for intel mpi
-            #list(APPEND MPI_C_COMPILE_FLAGS "-mt_mpi")
-            #list(APPEND MPI_COMPILE_FLAGS "-mt_mpi")
-            if(MPI_C_COMPILE_FLAGS)
-                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-                string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-            endif()
-            if(MPI_C_LINK_FLAGS)
-                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
-                string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-            endif()
         endif (MPI_C_FOUND)
-
-        foreach (_lib ${MPI_C_LIBRARIES})
-            if (EXISTS ${_lib})
-                get_filename_component(libdir ${_lib} PATH)
-                if (EXISTS ${libdir})
-                    list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
-                endif()
-            endif()
-        endforeach()
 
     endif (CHAMELEON_USE_MPI)
 
@@ -510,10 +378,6 @@ else (NOT CHAMELEON_SIMULATION)
     # Simulation mode: we depend on SimGrid
     find_package(SIMGRID REQUIRED)
 
-    if (SIMGRID_INCLUDE_DIRS)
-        include_directories(${SIMGRID_INCLUDE_DIRS})
-    endif()
-
     # CHAMELEON depends on MPI
     #-------------------------
     if (CHAMELEON_USE_MPI)
@@ -522,7 +386,7 @@ else (NOT CHAMELEON_SIMULATION)
         # -DMPI_C_COMPILER=path/to/mpicc -DMPI_Fortran_COMPILER=path/to/mpif90
         # at cmake configure
         if(NOT MPI_C_COMPILER)
-            set(MPI_C_COMPILER "${SIMGRID_DIR_FOUND}/bin/smpicc")
+            set(MPI_C_COMPILER "${SIMGRID_PREFIX}/bin/smpicc")
         endif()
         if(NOT MPI_C_LIBRARIES)
             set(MPI_C_LIBRARIES "${SIMGRID_LIBRARIES}")
@@ -532,7 +396,7 @@ else (NOT CHAMELEON_SIMULATION)
             list(APPEND MPI_C_INCLUDE_PATH "${SIMGRID_INCLUDE_DIRS}/smpi")
         endif()
         if(NOT MPI_CXX_COMPILER)
-            set(MPI_CXX_COMPILER "${SIMGRID_DIR_FOUND}/bin/smpicxx")
+            set(MPI_CXX_COMPILER "${SIMGRID_PREFIX}/bin/smpicxx")
         endif()
         if(NOT MPI_CXX_LIBRARIES)
             set(MPI_CXX_LIBRARIES "${SIMGRID_LIBRARIES}")
@@ -542,7 +406,7 @@ else (NOT CHAMELEON_SIMULATION)
             list(APPEND MPI_CXX_INCLUDE_PATH "${SIMGRID_INCLUDE_DIRS}/smpi")
         endif()
         if(NOT MPI_Fortran_COMPILER)
-            set(MPI_Fortran_COMPILER "${SIMGRID_DIR_FOUND}/bin/smpif90")
+            set(MPI_Fortran_COMPILER "${SIMGRID_PREFIX}/bin/smpif90")
         endif()
         if(NOT MPI_Fortran_LIBRARIES)
             set(MPI_Fortran_LIBRARIES "${SIMGRID_LIBRARIES}")
@@ -556,28 +420,9 @@ else (NOT CHAMELEON_SIMULATION)
         if (MPI_C_FOUND)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
-            list(APPEND EXTRA_LIBRARIES ${MPI_C_LIBRARIES} )
-            include_directories( ${MPI_C_INCLUDE_PATH} )
-            if(MPI_C_COMPILE_FLAGS)
-                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-                string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-            endif()
-            if(MPI_C_LINK_FLAGS)
-                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_C_LINK_FLAGS}")
-                string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-            endif()
         endif (MPI_C_FOUND)
 
     endif (CHAMELEON_USE_MPI)
-
-    foreach (_lib ${SIMGRID_LIBRARIES} ${MPI_C_LIBRARIES})
-        if (EXISTS ${_lib})
-            get_filename_component(libdir ${_lib} PATH)
-            if (EXISTS ${libdir})
-                list(APPEND CMAKE_INSTALL_RPATH "${libdir}")
-            endif()
-        endif()
-    endforeach()
 
 endif(NOT CHAMELEON_SIMULATION)
 
@@ -594,71 +439,26 @@ cmake_dependent_option(CHAMELEON_USE_CUBLAS_V2
   "Enable cublas API v2" ON
   "CHAMELEON_USE_CUDA;CHAMELEON_SCHED_STARPU" OFF)
 
-list(REMOVE_DUPLICATES CMAKE_C_FLAGS)
-string(REPLACE ";" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-list(REMOVE_DUPLICATES CMAKE_EXE_LINKER_FLAGS)
-string(REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 # Fix a problem on Mac OS X when building shared libraries
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")
 endif()
-
-# Save extra dependencies (all required links)
-list(APPEND CHAMELEON_DEP ${EXTRA_LIBRARIES})
-# We remove duplicate dependencies ensuring that redundant libraries are placed last
-list(REVERSE CHAMELEON_DEP)
-list(REMOVE_DUPLICATES CHAMELEON_DEP)
-list(REVERSE CHAMELEON_DEP)
-
-# we add chameleon's own library
-set(CHAMELEON_LIBRARIES "chameleon")
-if (NOT CHAMELEON_SIMULATION)
-  list(APPEND CHAMELEON_LIBRARIES coreblas)
-  if (CHAMELEON_USE_CUDA)
-    list(APPEND CHAMELEON_LIBRARIES cudablas)
-  endif()
-endif()
-if (CHAMELEON_SCHED_QUARK)
-  list(APPEND CHAMELEON_LIBRARIES chameleon_quark)
-endif()
-if (CHAMELEON_SCHED_PARSEC)
-  list(APPEND CHAMELEON_LIBRARIES chameleon_parsec)
-endif()
-if (CHAMELEON_SCHED_STARPU)
-  list(APPEND CHAMELEON_LIBRARIES chameleon_starpu)
-endif()
-if (CHAMELEON_SCHED_OPENMP)
-  list(APPEND CHAMELEON_LIBRARIES chameleon_openmp)
-endif()
-list(APPEND CHAMELEON_LIBRARIES hqr)
-set(CHAMELEON_LIBRARIES_DEP ${CHAMELEON_LIBRARIES} ${CHAMELEON_DEP})
 
 # Check for the subdirectories
 # ----------------------------
 
 set(CHAMELEON_SOURCES_TARGETS "" CACHE INTERNAL "List of targets of sources")
 
-# include headers
-# ---------------
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-
 if (NOT CHAMELEON_SIMULATION)
   ###############################################################################
   # Coreblas library (kernels for CPUs) #
   #######################################
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/coreblas/include)
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/coreblas/include)
   add_subdirectory(coreblas)
 
   ###############################################################################
   # Cudablas library (kernels for CUDAs) #
   ########################################
   if(CHAMELEON_USE_CUDA)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cudablas/include)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/cudablas/include)
     add_subdirectory(cudablas)
   endif()
 
@@ -684,8 +484,8 @@ include(CTest)
 
 # Necessary to compile C executables linked with ifort
 if(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
-    message(STATUS "Add -nofor_main to the Fortran linker (Intel compiler)")
-    set(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -nofor_main")
+  message(STATUS "Add -nofor_main to the Fortran linker (Intel compiler)")
+  set(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -nofor_main")
 endif()
 
 # Testing executables
@@ -708,10 +508,10 @@ add_custom_target(chameleon_all_sources ALL DEPENDS ${CHAMELEON_SOURCES_TARGETS}
 #################
 
 if(CHAMELEON_ENABLE_DOC)
-    add_subdirectory(doc)
-    if (DOXYGEN_EXECUTABLE AND EMACS_COMPILER AND TEX_COMPILER)
-        add_custom_target(doc ALL DEPENDS doxygen-out doc-html-users_guide doc-pdf-users_guide)
-    endif()
+  add_subdirectory(doc)
+  if (DOXYGEN_EXECUTABLE AND EMACS_COMPILER AND TEX_COMPILER)
+    add_custom_target(doc ALL DEPENDS doxygen-out doc-html-users_guide doc-pdf-users_guide)
+  endif()
 endif()
 #------------------------------------------------------------------------------
 
@@ -721,12 +521,39 @@ endif()
 # link tests fail) only after tests.                                          #
 ###############################################################################
 if( CHAMELEON_SCHED_STARPU )
-    if ( STARPU_FOUND )
-        if (CHAMELEON_SIMULATION)
-            list(APPEND CMAKE_REQUIRED_FLAGS "-include" "starpu_simgrid_wrap.h")
-        endif()
+  if ( STARPU_FOUND )
+    if (CHAMELEON_SIMULATION)
+      list(APPEND CMAKE_REQUIRED_FLAGS "-include" "starpu_simgrid_wrap.h")
     endif()
+  endif()
 endif()
+
+###############################################################################
+# Export targets #
+##################
+
+# see https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html
+include(CMakePackageConfigHelpers)
+
+set(BIN_INSTALL_DIR "bin/" CACHE STRING "where to install executables relative to prefix" )
+set(INC_INSTALL_DIR "include/" CACHE STRING "where to install headers relative to prefix" )
+set(LIB_INSTALL_DIR "lib/" CACHE STRING "where to install libraries relative to prefix" )
+
+configure_package_config_file(cmake_modules/CHAMELEONConfig.cmake.in
+                              ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfig.cmake
+                              INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/chameleon
+                              PATH_VARS BIN_INSTALL_DIR INC_INSTALL_DIR LIB_INSTALL_DIR)
+write_basic_package_version_file(CHAMELEONConfigVersion.cmake
+                                 VERSION ${CHAMELEON_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
+
+# Install config files
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfigVersion.cmake
+        DESTINATION ${LIB_INSTALL_DIR}/cmake/chameleon)
+
+# need MORSE Find modules: necessary files must be distributed in the install path
+set(morse_dependencies "M;CBLAS;LAPACKE;HWLOC;PARSEC;QUARK;STARPU")
+morse_install_finds(morse_dependencies ${LIB_INSTALL_DIR}/cmake/chameleon/find)
 
 ###############################################################################
 # Config files (pkg_config) #
@@ -746,14 +573,14 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.org)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Chameleon is a C library providing parallel algorithms to perform BLAS/LAPACK "
                                       " operations exploiting fully modern architectures.")
 set(CHAMELEON_VERSION_PATCH ${CHAMELEON_VERSION_MICRO})
-set(CPACK_PACKAGE_VERSION "${CHAMELEON_VERSION_MAJOR}.${CHAMELEON_VERSION_MINOR}.${CHAMELEON_VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION "${CHAMELEON_VERSION}")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
 set(CPACK_PACKAGE_VENDOR "Inria")
 set(CPACK_PACKAGE_CONTACT "morse-devel@lists.gforge.inria.fr")
 set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.org)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENCE.txt)
-set(CPACK_SOURCE_IGNORE_FILES "/plasma-conversion/;/build*;.cproject;.settings;.dir-locals.el;.project;.pydevproject;/.git*")
+set(CPACK_SOURCE_IGNORE_FILES "/build*;/.*")
 include(CPack)
 
 ###############################################################################
@@ -762,10 +589,10 @@ include(CPack)
 include(PrintOpts)
 
 if (CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" OR CMAKE_INSTALL_PREFIX STREQUAL "C:/Program Files")
-    message("-- ${Yellow}Your CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX} which is a default system path."
-    " You may want to change it: set the CMAKE_INSTALL_PREFIX variable to do so${ColourReset}")
+  message("-- ${Yellow}Your CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX} which is a default system path."
+  " You may want to change it: set the CMAKE_INSTALL_PREFIX variable to do so${ColourReset}")
 else()
-    message("-- ${Yellow}Your CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}${ColourReset}")
+  message("-- ${Yellow}Your CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}${ColourReset}")
 endif()
 
 ###
