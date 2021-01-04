@@ -8,6 +8,9 @@
 # too noisy
 export STARPU_SILENT=1
 
+# initialize empty to get just what we need
+export PKG_CONFIG_PATH=""
+
 # if simgrid change the default starpu dir to use
 if [ "$1" == "simu" ]; then
   export STARPU_DIR=$STARPUSIMGRID_DIR

@@ -37,7 +37,8 @@ we encourage users to use [[sec:spack][Spack]].
      - runtimes: [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]] or [[http://icl.utk.edu/parsec/][PaRSEC]] or [[http://icl.cs.utk.edu/quark/][QUARK]] or [[https://www.openmp.org/][OpenMP]]
      - kernels : CBLAS, LAPACKE (with TMG). These are C interfaces to
        Fortran kernels BLAS and LAPACK. There exist several providers
-       that can be used with Chameleon (Intel MKL, Netlib, OpenBlas)
+       that can be used with Chameleon (Intel MKL, Netlib, OpenBLAS,
+       BLIS/FLAME)
 
    Optional libraries:
    - cuda: [[https://developer.nvidia.com/cuda-downloads][cuda]], [[http://docs.nvidia.com/cuda/cublas/][cublas]] (comes with cuda)
@@ -53,12 +54,14 @@ we encourage users to use [[sec:spack][Spack]].
 
    # Update Debian packages list
    sudo apt-get update
-   # Install Netlib blas, lapack, tmglib, cblas and lapacke suite
-   sudo apt-get install -y liblapack-dev liblapacke-dev
-   # Alternatively to Netlib, OpenBLAS could be used (faster kernels)
+   # Install OpenBLAS
    sudo apt-get install -y libopenblas-dev liblapacke-dev
    # Install OpenMPI
    sudo apt-get install -y libopenmpi-dev
+   # Install StarPU
+   sudo apt-get install libstarpu-dev
+
+   # Optionnaly to make some specific developments, the following may be installed
    # Install hwloc (used by StarPU or QUARK, already a dependency of OpenMPI)
    sudo apt-get install -y libhwloc-dev
    # install EZTrace, usefull to export some nice execution traces
@@ -69,12 +72,13 @@ we encourage users to use [[sec:spack][Spack]].
    # Install cuda and cuBLAS: only if you have a GPU cuda compatible
    sudo apt-get install -y nvidia-cuda-toolkit nvidia-cuda-dev
 
+   # If you prefer a specific version of StarPU, install it yourself, e.g.
    # Install StarPU (with MPI and FxT enabled)
    mkdir -p $HOME/install
    cd $HOME/install
-   wget http://starpu.gforge.inria.fr/files/starpu-1.3.3/starpu-1.3.3.tar.gz
-   tar xvzf starpu-1.3.3.tar.gz
-   cd starpu-1.3.3/
+   wget https://files.inria.fr/starpu/starpu-1.3.7/starpu-1.3.7.tar.gz
+   tar xvzf starpu-1.3.7.tar.gz
+   cd starpu-1.3.7/
    ./configure --prefix=/usr/local --with-fxt=/usr/lib/x86_64-linux-gnu/
    make -j5
    sudo make install
@@ -109,7 +113,8 @@ we encourage users to use [[sec:spack][Spack]].
        library. The Debian packages /libopenblas-dev/ and /liblapacke-dev/
        (version 1.0.0) do not provide the tmg interface. Please update
        your distribution or install the lapacke interface library in
-       another way, by yourself from source or with [[https://gitlab.inria.fr/solverstack/spack-repo][Spack]], ...
+       another way, by yourself from source or with [[https://gitlab.inria.fr/solverstack/spack-repo][Spack]], or with
+       [[https://gitlab.inria.fr/guix-hpc/guix-hpc-non-free][Guix-HPC]],...
     2) sometimes parallel make with -j can fails due to undefined
        dependencies between some targets. Try to invoke the make
        command several times if so.
@@ -531,7 +536,6 @@ we encourage users to use [[sec:spack][Spack]].
                                 -DCHAMELEON_USE_CUDA=ON \
                                 -DCHAMELEON_USE_MPI=ON \
                                 -DBLA_VENDOR=Intel10_64lp \
-                                -DSTARPU_DIR=/home/jdoe/install/starpu-1.2/ \
                                 -DCHAMELEON_ENABLE_TRACING=ON
     #+end_src
 
@@ -557,27 +561,18 @@ we encourage users to use [[sec:spack][Spack]].
        Fortran compilers if several exist in the environment
 
 **** Related to specific modules (find_package) to find external libraries
-     * *BLA_VENDOR=All|Eigen|Open|Generic|Intel10_64lp|Intel10_64lp_seq*:
+     * *BLA_VENDOR=All|OpenBLAS|Generic|Intel10_64lp|Intel10_64lp_seq|FLAME*:
        to use intel mkl for example, see the list of BLA_VENDOR in
        FindBLAS.cmake in cmake_modules/morse_cmake/modules/find
-     * *STARPU_DIR=path/to/root/starpu/install*, see [[sec:depdet][Dependencies
-       detection]]
-     * *STARPU_INCDIR=path/to/root/starpu/install/headers*, see
-       [[sec:depdet][Dependencies detection]]
-     * *STARPU_LIBDIR=path/to/root/starpu/install/libs*, see
-       [[sec:depdet][Dependencies detection]]
-     * List of packages that can be searched just like STARPU (with
-       _DIR, _INCDIR and _LIBDIR):
-       * *BLAS*, *CBLAS*, *EZTRACE*, *FXT*, *HWLOC*, *LAPACK*, *LAPACKE*, *QUARK*,
-         *SIMGRID*, *TMG*
 
-     Libraries detected with an official cmake module (see module files
-     in CMAKE_ROOT/Modules/): CUDA - MPI - OpenMP - Threads.
+     Libraries detected with an official cmake module (see module
+     files in CMAKE_ROOT/Modules/): BLAS - LAPACK - CUDA - MPI -
+     OpenMP - Threads.
 
      Libraries detected with our cmake modules (see module files in
      cmake_modules/morse_cmake/modules/find/ directory of Chameleon
-     sources): BLAS - CBLAS - EZTRACE - FXT - HWLOC - LAPACK -
-     LAPACKE - QUARK - SIMGRID - STARPU - TMG.
+     sources): CBLAS - EZTRACE - FXT - HWLOC - LAPACKE - PARSEC -
+     QUARK - SIMGRID - STARPU.
 
 **** Chameleon specific options
      * *CHAMELEON_SCHED=STARPU|PARSEC|QUARK|OPENMP* (default STARPU): to
@@ -625,8 +620,8 @@ we encourage users to use [[sec:spack][Spack]].
          #+begin_src
          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:install/path/to/your/lib
          #+end_src
-       - INCLUDE should contain the list of paths where to find the
-         header files of libraries
+       - INCLUDE (or CPATH, or C_INCLUDE_PATH)should contain the list
+         of paths where to find the header files of libraries
          #+begin_src
          export INCLUDE=$INCLUDE:install/path/to/your/headers
          #+end_src
@@ -637,19 +632,16 @@ we encourage users to use [[sec:spack][Spack]].
          #+end_example
          where LIB stands for the name of the lib to look for, /e.g./
          #+begin_src
-         cmake path/to/your/CMakeLists.txt -DSTARPU_DIR=path/to/starpudir \
+         cmake path/to/your/CMakeLists.txt -DQUARK_DIR=path/to/quarkdir \
                                            -DCBLAS_DIR= ...
          #+end_src
          it is also possible to specify headers and library directories
          separately
          #+begin_src
          cmake path/to/your/CMakeLists.txt \
-               -DSTARPU_INCDIR=path/to/libstarpu/include/starpu/1.1 \
-               -DSTARPU_LIBDIR=path/to/libstarpu/lib
+               -DQUARK_INCDIR=path/to/quark/include \
+               -DQUARK_LIBDIR=path/to/quark/lib
          #+end_src
-       - note: BLAS and LAPACK detection can be tedious so that we
-         provide a verbose mode you can set *-DBLAS_VERBOSE=ON* or
-         *-DLAPACK_VERBOSE=ON* to enable it
     3) detection with custom environment variables: all variables like
        _DIR, _INCDIR, _LIBDIR can be set as environment variables
        instead of CMake options, there will be read
@@ -658,23 +650,59 @@ we encourage users to use [[sec:spack][Spack]].
          files of installed external libraries like hwloc, starpu, some
          blas/lapack, etc
 
+    Note that PaRSEC and StarPU are only detected with pkg-config
+    mechanism because it is always provided and this avoids errors.
+
 ** Linking an external application with Chameleon libraries
    Compilation and link with Chameleon libraries have been tested with
    the GNU compiler suite ~gcc/gfortran~ and the Intel compiler suite
    ~icc/ifort~.
 
-*** Flags required
+*** For CMake projects
+    A CHAMELEONConfig.cmake file is provided at installation, stored
+    in <prefix>/lib/cmake/chameleon, so that users in cmake project
+    can use through the variable CHAMELEON_ROOT (set it as environment
+    or CMake variable).
+
+    #+begin_src
+    sudo apt-get update
+    sudo apt-get install -y libopenblas-dev liblapacke-dev libstarpu-dev
+    git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git
+    cd chameleon && mkdir -p build && cd build
+    CHAMELEON_ROOT=$PWD/install
+    cmake .. -DCMAKE_INSTALL_PREFIX=$CHAMELEON_ROOT && make -j5 install
+    # chameleon is installed in $CHAMELEON_ROOT
+
+    # if your work in a cmake project you can use the CHAMELEONConfig.cmake file
+    # installed under <prefix>/lib/cmake/chameleon/ by setting your
+    # CMAKE_PREFIX_PATH with the path of installation. In your cmake project, use
+    # find_package(CHAMELEON) and link your libraries and/or executables with the
+    # library target MORSE::CHAMELEON
+    cmake . -DCMAKE_PREFIX_PATH=$CHAMELEON_ROOT
+    #+end_src
+*** For non CMake projects
     The compiler, linker flags that are necessary to build an
     application using Chameleon are given through the [[https://www.freedesktop.org/wiki/Software/pkg-config/][pkg-config]]
     mechanism.
     #+begin_src
-    export PKG_CONFIG_PATH=/home/jdoe/install/chameleon/lib/pkgconfig:$PKG_CONFIG_PATH
+    sudo apt-get update
+    sudo apt-get install -y libopenblas-dev liblapacke-dev libstarpu-dev
+    git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git
+    cd chameleon && mkdir -p build && cd build
+    CHAMELEON_ROOT=$PWD/install
+    cmake .. -DCMAKE_INSTALL_PREFIX=$CHAMELEON_ROOT && make -j5 install
+    # chameleon is installed in $CHAMELEON_ROOT
+
+    export PKG_CONFIG_PATH=$CHAMELEON_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
     pkg-config --cflags chameleon
     pkg-config --libs chameleon
     pkg-config --libs --static chameleon
+
+    # use it in your configure/make
     #+end_src
     The .pc files required are located in the sub-directory
     ~lib/pkgconfig~ of your Chameleon install directory.
+
 *** Static linking in C
     Lets imagine you have a file ~main.c~ that you want to link with
     Chameleon static libraries.  Lets consider

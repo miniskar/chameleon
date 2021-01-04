@@ -23,6 +23,31 @@
 #
 ###
 
+if (BLAS_LIBRARIES MATCHES "mkl_core")
+  set(BLAS_VENDOR_FOUND "Intel")
+elseif(BLAS_LIBRARIES MATCHES "openblas")
+  set(BLAS_VENDOR_FOUND "OpenBLAS")
+elseif(BLAS_LIBRARIES MATCHES "blis")
+  set(BLAS_VENDOR_FOUND "BLIS")
+elseif(BLAS_LIBRARIES MATCHES "Accelerate")
+  set(BLAS_VENDOR_FOUND "Apple")
+elseif(BLAS_LIBRARIES MATCHES "essl")
+  set(BLAS_VENDOR_FOUND "IBMESSL")
+elseif(BLAS_LIBRARIES MATCHES "blas")
+  set(BLAS_VENDOR_FOUND "Generic")
+endif()
+if (LAPACK_LIBRARIES MATCHES "mkl_core")
+  set(LAPACK_VENDOR_FOUND "Intel")
+elseif(LAPACK_LIBRARIES MATCHES "openblas")
+  set(LAPACK_VENDOR_FOUND "OpenBLAS")
+elseif(LAPACK_LIBRARIES MATCHES "flame")
+  set(LAPACK_VENDOR_FOUND "FLAME")
+elseif(LAPACK_LIBRARIES MATCHES "Accelerate")
+  set(LAPACK_VENDOR_FOUND "Apple")
+elseif(LAPACK_LIBRARIES MATCHES "lapack")
+  set(LAPACK_VENDOR_FOUND "Generic")
+endif()
+
 set(dep_message "\nConfiguration of Chameleon:\n"
         "       BUILDNAME ...........: ${BUILDNAME}\n"
         "       SITE ................: ${SITE}\n"
@@ -63,12 +88,8 @@ set(dep_message "${dep_message}"
 "       documentation ........: ${CHAMELEON_ENABLE_DOC}\n"
 "       example ..............: ${CHAMELEON_ENABLE_EXAMPLE}\n"
 "       testing ..............: ${CHAMELEON_ENABLE_TESTING}\n"
-"\n"
-"       CHAMELEON dependencies :\n")
-foreach (_dep ${CHAMELEON_LIBRARIES_DEP})
-    set(dep_message "${dep_message}"
-    "                                 ${_dep}\n")
-endforeach ()
+"\n")
+
 set(dep_message "${dep_message}"
 "\n"
 "       INSTALL_PREFIX ......: ${CMAKE_INSTALL_PREFIX}\n\n")

@@ -27,9 +27,9 @@
 #include <coreblas/lapacke.h>
 #include <coreblas.h>
 #include <chameleon.h>
-#if defined(CHAMELEON_USE_MPI)
-#include <mpi.h>
-#endif
+// #if defined(CHAMELEON_USE_MPI)
+// #include <mpi.h>
+// #endif
 
 /* Integer parameters for step7 */
 enum iparam_step7 {

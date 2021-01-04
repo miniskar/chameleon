@@ -25,24 +25,18 @@
 #  @date 2020-03-03
 #
 ###
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 find_package(OpenMP REQUIRED)
 
 if ( OPENMP_FOUND )
   message("-- ${Blue}Add definition CHAMELEON_SCHED_OPENMP"
     " - Activate OpenMP in Chameleon${ColourReset}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
   # TODO: check for compiler support for "_Pragma"
 else ( OPENMP_FOUND )
   message(FATAL_ERROR "Something went wrong when finding OpenMP")
   return()
 endif ( OPENMP_FOUND )
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/include )
 
 # Define the list of headers
 # --------------------------
@@ -110,28 +104,52 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};runtime_openmp_inclu
 # Add library
 # -----------
 add_library(chameleon_openmp ${RUNTIME_SRCS})
-set_property(TARGET chameleon_openmp PROPERTY LINKER_LANGUAGE Fortran)
+set_target_properties(chameleon_openmp PROPERTIES VERSION ${CHAMELEON_VERSION})
+set_target_properties(chameleon_openmp PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 set_property(TARGET chameleon_openmp PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-
-target_link_libraries(chameleon_openmp
-  ${OPENMP_LIBRARIES_DEP})
-target_link_libraries(chameleon_openmp
-  coreblas)
 
 add_dependencies(chameleon_openmp
   chameleon_include
   control_include
+  coreblas_include
   runtime_openmp_include
   openmp_sources
   )
 
-add_dependencies(chameleon_openmp coreblas_include)
+target_include_directories(chameleon_openmp PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include>)
+target_include_directories(chameleon_openmp PRIVATE
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
+  $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>)
+
+target_link_libraries(chameleon_openmp PRIVATE OpenMP::OpenMP_C)
+target_link_libraries(chameleon_openmp PRIVATE coreblas)
+target_link_libraries(chameleon_openmp PRIVATE MORSE::M)
+
+# necessary cause of include control/common.h which depends on hqr, mpi, cuda, ...
+# TODO: remove this dependency as soon as headers are clean
+target_link_libraries(chameleon_openmp PUBLIC hqr)
 
 # installation
 # ------------
 install(TARGETS chameleon_openmp
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib)
+
+# export target
+install(EXPORT chameleon_openmpTargets
+        NAMESPACE CHAMELEON::
+        DESTINATION lib/cmake/chameleon
+        )
+
+# install target file
+install(TARGETS chameleon_openmp EXPORT chameleon_openmpTargets)
 
 ###
 ### END CMakeLists.txt

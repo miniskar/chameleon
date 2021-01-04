@@ -56,6 +56,12 @@
 #cmakedefine CHAMELEON_HAVE_GETOPT_H
 #cmakedefine CHAMELEON_HAVE_GETOPT_LONG
 
+/* chameleon compute */
+#cmakedefine CHAMELEON_COPY_DIAG
+
+/* chameleon runtime starpu */
+#cmakedefine CHAMELEON_ENABLE_PRUNING_STATS
+
 #ifdef BEGIN_C_DECLS
 #undef BEGIN_C_DECLS
 #endif
@@ -65,11 +71,13 @@
 #endif
 
 #if defined(c_plusplus) || defined(__cplusplus)
-# define BEGIN_C_DECLS extern "C" {
-# define END_C_DECLS }
+#define BEGIN_C_DECLS \
+    extern "C"        \
+    {
+#define END_C_DECLS }
 #else
-# define BEGIN_C_DECLS          /* empty */
-# define END_C_DECLS            /* empty */
+#define BEGIN_C_DECLS /* empty */
+#define END_C_DECLS   /* empty */
 #endif
 
-#endif  /* CHAMELEON_CONFIG_H_HAS_BEEN_INCLUDED */
+#endif /* CHAMELEON_CONFIG_H_HAS_BEEN_INCLUDED */

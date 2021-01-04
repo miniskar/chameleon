@@ -1,0 +1,61 @@
+set(CHAMELEON_VERSION @CHAMELEON_VERSION@)
+
+# relocatable package
+@PACKAGE_INIT@
+
+set_and_check(CHAMELEON_BIN_DIR "@PACKAGE_BIN_INSTALL_DIR@")
+set_and_check(CHAMELEON_INC_DIR "@PACKAGE_INC_INSTALL_DIR@")
+set_and_check(CHAMELEON_LIB_DIR "@PACKAGE_LIB_INSTALL_DIR@")
+
+check_required_components(CHAMELEON)
+
+# need MORSE Find modules: necessary files must be distributed in the install path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/find")
+
+# dependencies of CHAMELEON
+include(CMakeFindDependencyMacro)
+find_dependency(M)
+if (NOT @CHAMELEON_SIMULATION@)
+  find_dependency(CBLAS REQUIRED)
+  find_dependency(LAPACKE REQUIRED)
+endif()
+if (@CHAMELEON_SCHED_OPENMP@)
+  find_dependency(OpenMP REQUIRED)
+endif()
+if (@CHAMELEON_SCHED_PARSEC@)
+  find_dependency(PARSEC REQUIRED)
+endif()
+if (@CHAMELEON_SCHED_QUARK@)
+  find_dependency(QUARK REQUIRED COMPONENTS HWLOC)
+endif()
+if (@CHAMELEON_SCHED_STARPU@)
+  find_package(STARPU @CHAMELEON_STARPU_VERSION@ REQUIRED)
+endif()
+if (@CHAMELEON_USE_MPI@)
+  find_dependency(MPI REQUIRED)
+endif()
+if (@CHAMELEON_USE_CUDA@ AND NOT @CHAMELEON_SIMULATION@)
+  find_dependency(CUDA REQUIRED)
+endif()
+
+# add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/../hqr/hqrTargets.cmake")
+if (NOT @CHAMELEON_SIMULATION@)
+  include("${CMAKE_CURRENT_LIST_DIR}/coreblasTargets.cmake")
+endif()
+if (@CHAMELEON_USE_CUDA@ AND NOT @CHAMELEON_SIMULATION@)
+  include("${CMAKE_CURRENT_LIST_DIR}/cudablasTargets.cmake")
+endif()
+if (@CHAMELEON_SCHED_OPENMP@)
+  include("${CMAKE_CURRENT_LIST_DIR}/chameleon_openmpTargets.cmake")
+endif()
+if (@CHAMELEON_SCHED_PARSEC@)
+  include("${CMAKE_CURRENT_LIST_DIR}/chameleon_parsecTargets.cmake")
+endif()
+if (@CHAMELEON_SCHED_QUARK@)
+  include("${CMAKE_CURRENT_LIST_DIR}/chameleon_quarkTargets.cmake")
+endif()
+if (@CHAMELEON_SCHED_STARPU@)
+  include("${CMAKE_CURRENT_LIST_DIR}/chameleon_starpuTargets.cmake")
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/chameleonTargets.cmake")
