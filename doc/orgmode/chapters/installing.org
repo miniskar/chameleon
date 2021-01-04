@@ -61,7 +61,7 @@ we encourage users to use [[sec:spack][Spack]].
    # Install StarPU
    sudo apt-get install libstarpu-dev
 
-   # Optionnaly to make some specific develoments, the following may be installed
+   # Optionnaly to make some specific developments, the following may be installed
    # Install hwloc (used by StarPU or QUARK, already a dependency of OpenMPI)
    sudo apt-get install -y libhwloc-dev
    # install EZTrace, usefull to export some nice execution traces
@@ -632,7 +632,7 @@ we encourage users to use [[sec:spack][Spack]].
          #+end_example
          where LIB stands for the name of the lib to look for, /e.g./
          #+begin_src
-         cmake path/to/your/CMakeLists.txt -DQUARK_DIR=path/to/starpudir \
+         cmake path/to/your/CMakeLists.txt -DQUARK_DIR=path/to/quarkdir \
                                            -DCBLAS_DIR= ...
          #+end_src
          it is also possible to specify headers and library directories
@@ -651,7 +651,7 @@ we encourage users to use [[sec:spack][Spack]].
          blas/lapack, etc
 
     Note that PaRSEC and StarPU are only detected with pkg-config
-    mechanism because it is always provided and this avoid errors.
+    mechanism because it is always provided and this avoids errors.
 
 ** Linking an external application with Chameleon libraries
    Compilation and link with Chameleon libraries have been tested with
