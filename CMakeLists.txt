@@ -233,6 +233,24 @@ endif()
 # Initially we need to generate files for different precisions
 # TODO: use this option to avoid generate multiple precisions each time we launch cmake
 #option(CHAMELEON_GEN_PREC "Generate source files precisions" ON)
+
+if ( CHAMELEON_SCHED_OPENMP OR CHAMELEON_SCHED_STARPU )
+  if ( CHAMELEON_USE_CUDA )
+    set( CHAMELEON_COPY_DIAG ON )
+  else()
+    option(CHAMELEON_COPY_DIAG
+      "This options enables the duplication of the diagonal tiles in some algorithm to avoid anti-dependencies on lower/upper triangular parts (Might be useful to StarPU and OpenMP)" ON)
+  endif()
+endif()
+if ( CHAMELEON_SCHED_QUARK )
+  # No need for those extra diagonale tiles
+  set( CHAMELEON_COPY_DIAG OFF )
+endif()
+if ( CHAMELEON_SCHED_PARSEC )
+  # Actual DIAG can not be used with PaRSEC
+  set( CHAMELEON_COPY_DIAG OFF )
+endif()
+mark_as_advanced(CHAMELEON_COPY_DIAG)
 #------------------------------------------------------------------------------
 
 ###############################################################################

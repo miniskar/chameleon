@@ -25,24 +25,6 @@
 #
 ###
 
-if ( CHAMELEON_USE_CUDA )
-  set( CHAMELEON_COPY_DIAG ON )
-else()
-  option(CHAMELEON_COPY_DIAG
-    "This options enables the duplication of the diagonal tiles in some algorithm to avoid anti-dependencies on lower/upper triangular parts (Might be useful to StarPU and OpenMP)" ON)
-endif()
-
-if ( CHAMELEON_SCHED_QUARK )
-  # No need for those extra diagonale tiles
-  set( CHAMELEON_COPY_DIAG OFF )
-endif()
-if ( CHAMELEON_SCHED_PARSEC )
-  # Actual DIAG can not be used with PaRSEC
-  set( CHAMELEON_COPY_DIAG OFF )
-endif()
-
-mark_as_advanced(CHAMELEON_COPY_DIAG)
-
 # Define the list of sources
 # --------------------------
 set(CHAMELEON_CONTROL
