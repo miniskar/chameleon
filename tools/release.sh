@@ -45,9 +45,7 @@ echo $changelog
 
 # generate the archive
 wget https://raw.githubusercontent.com/Kentzo/git-archive-all/master/git_archive_all.py
-mv git_archive_all.py git-archive-all
-chmod +x git-archive-all
-./git-archive-all --force-submodules chameleon-$RELEASE_NAME.tar.gz
+python3 git_archive_all.py --force-submodules chameleon-$RELEASE_NAME.tar.gz
 
 # upload the source archive
 GETURL=`echo curl --request POST --header \"PRIVATE-TOKEN: $RELEASE_TOKEN\" --form \"file=\@chameleon-$RELEASE_NAME.tar.gz\" https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/uploads`

@@ -19,7 +19,7 @@ do
 done
 lcov $INPUT_FILES -o chameleon.lcov
 lcov --summary chameleon.lcov
-lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
+python3 /usr/local/lib/python3.8/dist-packages/lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 
 # Undefine this because not relevant in our configuration
 export UNDEFINITIONS="-UCHAMELEON_USE_OPENCL -UWIN32 -UWIN64 -U_MSC_EXTENSIONS -U_MSC_VER -U__SUNPRO_C -U__SUNPRO_CC -U__sun -Usun -U__cplusplus"
@@ -46,7 +46,7 @@ sonar.projectKey=hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE:$CI_COMMIT_REF_N
 sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and distributed architectures
 sonar.projectVersion=0.9
 
-sonar.language=c
+sonar.lang.patterns.c++=**/*.cxx,**/*.cpp,**/*.cc,**/*.hxx,**/*.hpp,**/*.hh
 sonar.sources=build-openmp/runtime/openmp, build-parsec/runtime/parsec, build-quark/runtime/quark, build-starpu, compute, control, coreblas, example, include, runtime, testing
 sonar.inclusions=`cat filelist.txt | sed ':a;N;$!ba;s/\n/, /g'`
 sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
