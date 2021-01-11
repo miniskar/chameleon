@@ -112,20 +112,19 @@ set_property(TARGET cudablas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/
 target_link_libraries(cudablas PRIVATE coreblas CUDA::CUBLAS)
 target_link_libraries(cudablas PUBLIC MORSE::M)
 
-# installation
-# ------------
-install(TARGETS cudablas
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
 # export target coreblas
 install(EXPORT cudablasTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS cudablas EXPORT cudablasTargets)
+# installation
+# ------------
+install(TARGETS cudablas
+        EXPORT cudablasTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt

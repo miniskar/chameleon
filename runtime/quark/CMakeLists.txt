@@ -149,19 +149,20 @@ target_link_libraries(chameleon_quark PRIVATE MORSE::M)
 # TODO: remove this dependency as soon as headers are clean
 target_link_libraries(chameleon_quark PUBLIC hqr)
 
-# installation
-# ------------
-install(TARGETS chameleon_quark
-  DESTINATION lib)
-
   # export target
 install(EXPORT chameleon_quarkTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS chameleon_quark EXPORT chameleon_quarkTargets)
+# installation
+# ------------
+install(TARGETS chameleon_quark
+        EXPORT chameleon_quarkTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
+
 
 ###
 ### END CMakeLists.txt

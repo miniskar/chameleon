@@ -334,19 +334,19 @@ target_link_libraries(chameleon PUBLIC MORSE::M)
 set_property(TARGET chameleon PROPERTY Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/include")
 set_property(TARGET chameleon PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-# installation
-# ------------
-install(TARGETS chameleon
-        DESTINATION lib)
-
 # export target
 install(EXPORT chameleonTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS chameleon EXPORT chameleonTargets)
+# installation
+# ------------
+install(TARGETS chameleon
+        EXPORT chameleonTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt

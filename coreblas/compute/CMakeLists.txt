@@ -135,20 +135,19 @@ target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)
 target_link_libraries(coreblas PRIVATE MORSE::CBLAS)
 target_link_libraries(coreblas PUBLIC MORSE::M)
 
-# Installation
-# ------------
-install(TARGETS coreblas
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
 # export target coreblas
 install(EXPORT coreblasTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS coreblas EXPORT coreblasTargets)
+# Installation
+# ------------
+install(TARGETS coreblas
+        EXPORT coreblasTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt

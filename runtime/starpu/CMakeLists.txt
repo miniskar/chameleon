@@ -268,20 +268,19 @@ if (NOT CHAMELEON_SIMULATION)
   endif()
 endif()
 
-# installation
-# ------------
-install(TARGETS chameleon_starpu
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
 # export target
 install(EXPORT chameleon_starpuTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS chameleon_starpu EXPORT chameleon_starpuTargets)
+# installation
+# ------------
+install(TARGETS chameleon_starpu
+        EXPORT chameleon_starpuTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt

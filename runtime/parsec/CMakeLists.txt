@@ -160,20 +160,19 @@ if (CHAMELEON_USE_CUDA)
   target_link_libraries(chameleon_parsec PUBLIC CUDA::CUBLAS)
 endif()
 
-# installation
-# ------------
-install(TARGETS chameleon_parsec
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
 # export target
 install(EXPORT chameleon_parsecTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS chameleon_parsec EXPORT chameleon_parsecTargets)
+# installation
+# ------------
+install(TARGETS chameleon_parsec
+        EXPORT chameleon_parsecTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt
