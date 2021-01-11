@@ -60,8 +60,8 @@ void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W(A, Am, An);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,  &uplo,                sizeof(int),
         STARPU_VALUE,     &M,                        sizeof(int),
         STARPU_VALUE,     &N,                        sizeof(int),

@@ -68,8 +68,8 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
@@ -121,8 +121,8 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W( B, Bm, Bn );
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),

@@ -61,8 +61,8 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-            starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+            codelet,
             STARPU_VALUE,    &M,                           sizeof(int),
             STARPU_VALUE,    &alpha,                       sizeof(CHAMELEON_Complex64_t),
             STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),

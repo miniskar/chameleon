@@ -85,8 +85,8 @@ void INSERT_TASK_ztsmqr_hetra1( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_R(T, Tm, Tn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &side,              sizeof(int),
         STARPU_VALUE,    &trans,             sizeof(int),
         STARPU_VALUE,    &m1,                sizeof(int),

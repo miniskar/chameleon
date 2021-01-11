@@ -65,8 +65,8 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &norm,              sizeof(cham_normtype_t),
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
@@ -121,8 +121,8 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW( B, Bm, Bn );
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_R,        RTBLKADDR(A, double, Am, An),
         STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
         STARPU_PRIORITY, options->priority,

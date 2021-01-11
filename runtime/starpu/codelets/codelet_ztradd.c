@@ -67,8 +67,8 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &uplo,               sizeof(int),
         STARPU_VALUE,    &trans,              sizeof(int),
         STARPU_VALUE,    &m,                  sizeof(int),
