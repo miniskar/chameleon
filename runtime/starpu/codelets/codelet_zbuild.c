@@ -73,8 +73,8 @@ CODELETS_CPU(zbuild, cl_zbuild_cpu_func)
     row_max = Am == A->mt-1 ? A->m-1 : row_min+A->mb-1 ;
     col_min = An*A->nb ;
     col_max = An == A->nt-1 ? A->n-1 : col_min+A->nb-1 ;
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &row_min,                      sizeof(int),
         STARPU_VALUE,    &row_max,                      sizeof(int),
         STARPU_VALUE,    &col_min,                      sizeof(int),

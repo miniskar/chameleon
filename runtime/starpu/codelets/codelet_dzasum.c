@@ -61,8 +61,8 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &storev,              sizeof(cham_store_t),
         STARPU_VALUE,    &uplo,                sizeof(cham_uplo_t),
         STARPU_VALUE,    &M,                   sizeof(int),

@@ -100,13 +100,16 @@ typedef struct starpu_option_request_s {
 #endif
 
 #if defined(CHAMELEON_USE_MPI)
+
 #undef STARPU_REDUX
-#undef starpu_insert_task
-#define starpu_insert_task starpu_mpi_insert_task
-#undef starpu_mpi_codelet
-#define starpu_mpi_codelet(_codelet_) MPI_COMM_WORLD, _codelet_ TASK_SYNCHRONOUS
+#define rt_starpu_insert_task( _codelet_, ... )                         \
+    starpu_mpi_insert_task( MPI_COMM_WORLD, (_codelet_) TASK_SYNCHRONOUS, ##__VA_ARGS__ )
+
 #else
-#define starpu_mpi_codelet(_codelet_) _codelet_ TASK_SYNCHRONOUS
+
+#define rt_starpu_insert_task( _codelet_, ... )                         \
+    starpu_insert_task( (_codelet_) TASK_SYNCHRONOUS, ##__VA_ARGS__ )
+
 #endif
 
 /*

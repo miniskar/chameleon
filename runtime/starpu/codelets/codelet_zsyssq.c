@@ -58,8 +58,8 @@ void INSERT_TASK_zsyssq( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(SCALESUMSQ, SCALESUMSQm, SCALESUMSQn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &storev,                     sizeof(cham_store_t),
         STARPU_VALUE,    &uplo,                       sizeof(int),
         STARPU_VALUE,    &n,                          sizeof(int),

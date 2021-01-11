@@ -109,8 +109,8 @@ void INSERT_TASK_zherk(const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(C, Cm, Cn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    starpu_insert_task(
-        starpu_mpi_codelet(codelet),
+    rt_starpu_insert_task(
+        codelet,
         STARPU_VALUE,    &uplo,              sizeof(int),
         STARPU_VALUE,    &trans,             sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
