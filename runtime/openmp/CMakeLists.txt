@@ -136,20 +136,19 @@ target_link_libraries(chameleon_openmp PRIVATE MORSE::M)
 # TODO: remove this dependency as soon as headers are clean
 target_link_libraries(chameleon_openmp PUBLIC hqr)
 
-# installation
-# ------------
-install(TARGETS chameleon_openmp
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
 # export target
 install(EXPORT chameleon_openmpTargets
         NAMESPACE CHAMELEON::
         DESTINATION lib/cmake/chameleon
         )
 
-# install target file
-install(TARGETS chameleon_openmp EXPORT chameleon_openmpTargets)
+# installation
+# ------------
+install(TARGETS chameleon_openmp
+        EXPORT chameleon_openmpTargets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
 
 ###
 ### END CMakeLists.txt
