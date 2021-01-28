@@ -65,6 +65,10 @@ if ( STARPU_FOUND )
   if ( HAVE_STARPU_INTERFACE_COPY2D )
     message("-- ${Blue}Add definition HAVE_STARPU_INTERFACE_COPY2D${ColourReset}")
   endif()
+  check_function_exists(starpu_data_peek HAVE_STARPU_DATA_PEEK)
+  if ( HAVE_STARPU_DATA_PEEK )
+    message("-- ${Blue}Add definition HAVE_STARPU_DATA_PEEK${ColourReset}")
+  endif()
 
   if (CHAMELEON_USE_MPI)
     # Add MPI in case StarPU don't have a public dependency on it
