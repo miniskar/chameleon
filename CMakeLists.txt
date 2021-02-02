@@ -570,7 +570,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfig.cmake ${CMAKE_CURRENT_
         DESTINATION ${LIB_INSTALL_DIR}/cmake/chameleon)
 
 # need MORSE Find modules: necessary files must be distributed in the install path
-set(morse_dependencies "M;CBLAS;LAPACKE;HWLOC;PARSEC;QUARK;STARPU")
+set(morse_dependencies "M;BLASEXT;LAPACKEXT;CBLAS;LAPACKE;HWLOC;PARSEC;QUARK;STARPU")
 morse_install_finds(morse_dependencies ${LIB_INSTALL_DIR}/cmake/chameleon/find)
 
 ###############################################################################
