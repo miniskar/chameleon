@@ -272,10 +272,12 @@ if(NOT CHAMELEON_SIMULATION)
 
     # CHAMELEON depends on CBLAS
     #---------------------------
+    set( CBLAS_MT FALSE )
     find_package(CBLAS REQUIRED)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
+    set( LAPACKE_MT FALSE )
     find_package(LAPACKE REQUIRED)
 
     # CHAMELEON depends on CUDA/CUBLAS
