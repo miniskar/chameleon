@@ -26,8 +26,8 @@
 #define A(m, n) A,  m,  n
 #define B(m, n) B,  m,  n
 #define C(m, n) C,  m,  n
-#define WA(m, n) &WA,  m,  n
-#define WB(m, n) &WB,  m,  n
+#define WA(m, n) WA,  m,  n
+#define WB(m, n) WB,  m,  n
 
 /**
  *  Parallel tile matrix-matrix multiplication
@@ -37,6 +37,7 @@ static inline void
 chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_trans_t transB,
                         CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                         CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                        CHAM_desc_t *WA, CHAM_desc_t *WB,
                         RUNTIME_option_t *options )
 {
     RUNTIME_sequence_t *sequence = options->sequence;
@@ -46,19 +47,8 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
 
     CHAMELEON_Complex64_t zbeta;
     CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
-    CHAM_desc_t WA, WB;
 
     lookahead = chamctxt->lookahead;
-    chameleon_desc_init( &WA, CHAMELEON_MAT_ALLOC_TILE,
-                         ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
-                         C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
-                         C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
-                         NULL, NULL, NULL );
-    chameleon_desc_init( &WB, CHAMELEON_MAT_ALLOC_TILE,
-                         ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
-                         C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
-                         C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
-                         NULL, NULL, NULL );
 
     KT  = transA == ChamNoTrans ? A->nt : A->mt;
     K   = transA == ChamNoTrans ? A->n  : A->m;
@@ -171,12 +161,8 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
         }
     }
 
-    RUNTIME_desc_flush( &WA, sequence );
-    RUNTIME_desc_flush( &WB, sequence );
-    RUNTIME_desc_flush(  C,  sequence );
-    chameleon_sequence_wait( chamctxt, sequence );
-    chameleon_desc_destroy( &WA );
-    chameleon_desc_destroy( &WB );
+    CHAMELEON_Desc_Flush( WA, sequence );
+    CHAMELEON_Desc_Flush( WB, sequence );
 }
 
 /**
@@ -286,10 +272,11 @@ chameleon_pzgemm_generic( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tr
 }
 
 /**
- *  Parallel tile matrix-matrix multiplication. wrapper.
+ *  Parallel tile matrix-matrix multiplication wrapper.
  */
 void
-chameleon_pzgemm( cham_trans_t transA, cham_trans_t transB,
+chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
+                  cham_trans_t transA, cham_trans_t transB,
                   CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                   CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
@@ -303,11 +290,10 @@ chameleon_pzgemm( cham_trans_t transA, cham_trans_t transB,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    if ( ((C->p > 1) || (C->q > 1)) &&
-         (C->get_rankof == chameleon_getrankof_2d) &&
-         (chamctxt->generic_enabled != CHAMELEON_TRUE) )
+    if ( ws->summa )
     {
-        chameleon_pzgemm_summa(   chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        chameleon_pzgemm_summa( chamctxt, transA, transB, alpha, A, B, beta, C,
+                                &(ws->WA), &(ws->WB), &options );
     }
     else {
         chameleon_pzgemm_generic( chamctxt, transA, transB, alpha, A, B, beta, C, &options );

@@ -192,7 +192,7 @@ int CHAMELEON_zgelqf_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *T, RUNTIME_sequence
 int CHAMELEON_zgelqs_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgels_Tile_Async(cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgenm2_Tile_Async( double tol, CHAM_desc_t *A, double *value, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
-int CHAMELEON_zgemm_Tile_Async(cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+int CHAMELEON_zgemm_Tile_Async(cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t beta, CHAM_desc_t *C, void *ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgepdf_qdwh_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *H, gepdf_info_t *info, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 int CHAMELEON_zgeqrf_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgeqrs_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);

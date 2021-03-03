@@ -236,9 +236,9 @@ void CHAMELEON_zgemm_WS_Free( void *user_ws )
  *
  */
 int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
-                 CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                 CHAMELEON_Complex64_t *B, int LDB,
-                 CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *C, int LDC )
+                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                     CHAMELEON_Complex64_t *B, int LDB,
+                     CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *C, int LDC )
 {
     int NB;
     int Am, An, Bm, Bn;
@@ -249,6 +249,7 @@ int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -319,26 +320,28 @@ int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
-                     A, NB, NB, LDA, An, Am, An, sequence, &request );
+                         A, NB, NB, LDA, An, Am, An, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInput, ChamUpperLower,
-                     B, NB, NB, LDB, Bn, Bm, Bn, sequence, &request );
+                         B, NB, NB, LDB, Bn, Bm, Bn, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descCl, &descCt, ChamDescInout, ChamUpperLower,
-                     C, NB, NB, LDC, N, M,  N, sequence, &request );
+                         C, NB, NB, LDC, N, M,  N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zgemm_Tile_Async( transA, transB, alpha, &descAt, &descBt, beta, &descCt, sequence, &request );
+    ws = CHAMELEON_zgemm_WS_Alloc( transA, transB, &descAt, &descBt, &descCt );
+    CHAMELEON_zgemm_Tile_Async( transA, transB, alpha, &descAt, &descBt, beta, &descCt, ws, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInput, ChamUpperLower, sequence, &request );
+                         ChamDescInput, ChamUpperLower, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descBl, &descBt,
-                     ChamDescInput, ChamUpperLower, sequence, &request );
+                         ChamDescInput, ChamUpperLower, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descCl, &descCt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
+    CHAMELEON_zgemm_WS_Free( ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
     chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
     chameleon_ztile2lap_cleanup( chamctxt, &descCl, &descCt );
@@ -405,13 +408,14 @@ int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int
  *
  */
 int CHAMELEON_zgemm_Tile( cham_trans_t transA, cham_trans_t transB,
-                      CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                      CHAMELEON_Complex64_t beta,  CHAM_desc_t *C )
+                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                          CHAMELEON_Complex64_t beta,  CHAM_desc_t *C )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -420,13 +424,17 @@ int CHAMELEON_zgemm_Tile( cham_trans_t transA, cham_trans_t transB,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_zgemm_Tile_Async( transA, transB, alpha, A, B, beta, C, sequence, &request );
+    ws = CHAMELEON_zgemm_WS_Alloc( transA, transB, A, B, C );
+    CHAMELEON_zgemm_Tile_Async( transA, transB, alpha, A, B, beta, C, ws, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
     CHAMELEON_Desc_Flush( C, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
+
+    CHAMELEON_zgemm_WS_Free( ws );
+
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
     return status;
@@ -461,11 +469,13 @@ int CHAMELEON_zgemm_Tile( cham_trans_t transA, cham_trans_t transB,
  *
  */
 int CHAMELEON_zgemm_Tile_Async( cham_trans_t transA, cham_trans_t transB,
-                            CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                            CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
-                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                                CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                                void *user_ws,
+                                RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
+    struct chameleon_pzgemm_s *ws;
     int M, N, K;
     int Am, An, Ai, Aj, Amb, Anb;
     int Bm, Bn, Bi, Bj, Bmb, Bnb;
@@ -570,7 +580,21 @@ int CHAMELEON_zgemm_Tile_Async( cham_trans_t transA, cham_trans_t transB,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzgemm( transA, transB, alpha, A, B, beta, C, sequence, request );
+    if ( user_ws == NULL ) {
+        ws = CHAMELEON_zgemm_WS_Alloc( transA, transB, A, B, C );
+    }
+    else {
+        ws = user_ws;
+    }
 
+    chameleon_pzgemm( ws, transA, transB, alpha, A, B, beta, C, sequence, request );
+
+    if ( user_ws == NULL ) {
+        CHAMELEON_Desc_Flush( A, sequence );
+        CHAMELEON_Desc_Flush( B, sequence );
+        CHAMELEON_Desc_Flush( C, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        CHAMELEON_zgemm_WS_Free( ws );
+    }
     return CHAMELEON_SUCCESS;
 }
