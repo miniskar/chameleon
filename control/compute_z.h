@@ -33,6 +33,13 @@ struct chameleon_pzgemm_s {
     CHAM_desc_t WA;
     CHAM_desc_t WB;
 };
+/**
+ * @brief Data structure to handle the GRAM workspaces
+ */
+struct chameleon_pzgram_s {
+    CHAM_desc_t Wcol;
+    CHAM_desc_t Welt;
+};
 
 /**
  *  Declarations of internal sequential functions
@@ -150,7 +157,7 @@ void chameleon_pztpqrt_param( int genD, cham_uplo_t uplo, int K,
 /**
  * Gram function prototypes
  */
-void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pzgram(  struct chameleon_pzgram_s *ws, cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 /**
  *  LAPACK/Tile Descriptor accesses

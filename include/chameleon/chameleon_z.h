@@ -305,6 +305,8 @@ int CHAMELEON_zunmqr_param_Tile_Async(const libhqr_tree_t *qrtree, cham_side_t s
  */
 void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t transA, cham_trans_t transB, const CHAM_desc_t *A, const CHAM_desc_t *B, const CHAM_desc_t *C );
 void  CHAMELEON_zgemm_WS_Free( void *ws );
+void *CHAMELEON_zgram_WS_Alloc( const CHAM_desc_t *A );
+void  CHAMELEON_zgram_WS_Free( void *ws );
 
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv(        int N, CHAM_desc_t **descL, int **IPIV, int p, int q);
 int CHAMELEON_Alloc_Workspace_zgetrf_incpiv(int M, int N, CHAM_desc_t **descL, int **IPIV, int p, int q);
@@ -354,7 +356,7 @@ int CHAMELEON_zbuild_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, void *user_dat
  */
 int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA );
 int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A );
-int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, void *user_ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 END_C_DECLS
 
