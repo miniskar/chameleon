@@ -312,7 +312,7 @@ cti_unpack_data_fullrank( starpu_cham_tile_interface_t *cham_tile_interface,
 }
 
 static int
-cti_unpack_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t count )
+cti_peek_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t count )
 {
     STARPU_ASSERT(starpu_data_test_if_allocated_on_node(handle, node));
 
@@ -361,6 +361,14 @@ cti_unpack_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t c
     else {
         STARPU_ASSERT_MSG( 1, "Unsupported format for unpack." );
     }
+
+    return 0;
+}
+
+static int
+cti_unpack_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t count )
+{
+    cti_peek_data( handle, node, ptr, count );
 
     /* Free the received information */
     starpu_free_on_node_flags( node, (uintptr_t)ptr, count, 0 );
@@ -456,6 +464,9 @@ struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
     .alloc_compare         = cti_alloc_compare,
     .display               = cti_display,
     .pack_data             = cti_pack_data,
+#if defined(HAVE_STARPU_DATA_PEEK)
+    .peek_data             = cti_peek_data,
+#endif
     .unpack_data           = cti_unpack_data,
     .describe              = cti_describe,
     .copy_methods          =&cti_copy_methods,
