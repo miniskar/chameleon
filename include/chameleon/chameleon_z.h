@@ -303,6 +303,9 @@ int CHAMELEON_zunmqr_param_Tile_Async(const libhqr_tree_t *qrtree, cham_side_t s
 /**
  *  Declarations of workspace allocation functions (tile layout) - alphabetical order
  */
+void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t transA, cham_trans_t transB, const CHAM_desc_t *A, const CHAM_desc_t *B, const CHAM_desc_t *C );
+void  CHAMELEON_zgemm_WS_Free( void *ws );
+
 int CHAMELEON_Alloc_Workspace_zgesv_incpiv(        int N, CHAM_desc_t **descL, int **IPIV, int p, int q);
 int CHAMELEON_Alloc_Workspace_zgetrf_incpiv(int M, int N, CHAM_desc_t **descL, int **IPIV, int p, int q);
 

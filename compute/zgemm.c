@@ -22,6 +22,7 @@
  *
  */
 #include "control/common.h"
+#include <stdlib.h>
 
 /**
  *
@@ -44,6 +45,116 @@
  *  asynchronous interface.
  *
  */
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ *  CHAMELEON_zgemm_WS_Alloc - Allocate the required workspaces for asynchronous gemm
+ *
+ *******************************************************************************
+ *
+ * @param[in] transA
+ *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
+ *          = ChamNoTrans:   A is not transposed;
+ *          = ChamTrans:     A is transposed;
+ *          = ChamConjTrans: A is conjugate transposed.
+ *
+ * @param[in] transB
+ *          Specifies whether the matrix B is transposed, not transposed or conjugate transposed:
+ *          = ChamNoTrans:   B is not transposed;
+ *          = ChamTrans:     B is transposed;
+ *          = ChamConjTrans: B is conjugate transposed.
+ *
+ * @param[in] A
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] B
+ *          The descriptor of the matrix B.
+ *
+ * @param[in] C
+ *          The descriptor of the matrix C.
+ *
+ *******************************************************************************
+ *
+ * @retval An allocated opaque pointer to use in CHAMELEON_zgemm_Tile_Async()
+ * and to free with CHAMELEON_zgemm_WS_Free().
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zgemm_Tile_Async
+ * @sa CHAMELEON_zgemm_WS_Free
+ *
+ */
+void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)),
+                                cham_trans_t       transB __attribute__((unused)),
+                                const CHAM_desc_t *A      __attribute__((unused)),
+                                const CHAM_desc_t *B      __attribute__((unused)),
+                                const CHAM_desc_t *C )
+{
+    CHAM_context_t *chamctxt;
+    struct chameleon_pzgemm_s *options;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        return NULL;
+    }
+
+    options = calloc( 1, sizeof(struct chameleon_pzgemm_s) );
+    options->summa = 0;
+
+    if ( ((C->p > 1) || (C->q > 1)) &&
+         (C->get_rankof == chameleon_getrankof_2d) &&
+         (chamctxt->generic_enabled != CHAMELEON_TRUE) )
+    {
+        int lookahead = chamctxt->lookahead;
+        options->summa = 1;
+
+        chameleon_desc_init( &(options->WA), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
+                             C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
+                             C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
+                             NULL, NULL, NULL );
+        chameleon_desc_init( &(options->WB), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
+                             C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
+                             C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
+                             NULL, NULL, NULL );
+    }
+
+    return (void*)options;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Free the allocated workspaces for asynchronous gemm
+ *
+ *******************************************************************************
+ *
+ * @param[in,out] user_ws
+ *          On entry, the opaque pointer allocated by CHAMELEON_zgemm_WS_Alloc()
+ *          On exit, all data are freed.
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zgemm_Tile_Async
+ * @sa CHAMELEON_zgemm_WS_Alloc
+ *
+ */
+void CHAMELEON_zgemm_WS_Free( void *user_ws )
+{
+    struct chameleon_pzgemm_s *ws = (struct chameleon_pzgemm_s*)user_ws;
+
+    if ( ws->summa ) {
+        chameleon_desc_destroy( &(ws->WA) );
+        chameleon_desc_destroy( &(ws->WB) );
+    }
+    free( ws );
+}
 
 /**
  ********************************************************************************
