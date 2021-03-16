@@ -28,8 +28,6 @@
 test_starpu_shm_s:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: shm
     PRECISION: s
@@ -38,8 +36,6 @@ test_starpu_shm_s:
 test_starpu_shm_d:
   <<: *test_starpu_branches
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: shm
     PRECISION: d
@@ -48,8 +44,6 @@ test_starpu_shm_d:
 test_starpu_shm_c:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: shm
     PRECISION: c
@@ -58,8 +52,6 @@ test_starpu_shm_c:
 test_starpu_shm_z:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: shm
     PRECISION: z
@@ -68,8 +60,6 @@ test_starpu_shm_z:
 test_starpu_mpi_s:
   <<: *test_starpu_branches
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: mpi
     PRECISION: s
@@ -78,8 +68,6 @@ test_starpu_mpi_s:
 test_starpu_mpi_d:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: mpi
     PRECISION: d
@@ -88,8 +76,6 @@ test_starpu_mpi_d:
 test_starpu_mpi_c:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: mpi
     PRECISION: c
@@ -98,8 +84,6 @@ test_starpu_mpi_c:
 test_starpu_mpi_z:
   <<: *test_starpu_master
   variables:
-    STARPU_WORKERS_NOBIND: 1
-    STARPU_SILENT: 1
     VERSION: starpu
     CATEGORY: mpi
     PRECISION: z

@@ -12,8 +12,6 @@
  * @brief Chameleon zlauum StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -27,55 +25,74 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zlauum_cpu_func(void *descr[], void *cl_arg)
-{
+struct cl_zlauum_args_s {
     cham_uplo_t uplo;
-    int N;
+    int n;
     CHAM_tile_t *tileA;
+};
+
+#if !defined(CHAMELEON_SIMULATION)
+static void
+cl_zlauum_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_zlauum_args_s clargs;
+    CHAM_tile_t *tileA;
+    int info = 0;
 
     tileA = cti_interface_get(descr[0]);
 
-    starpu_codelet_unpack_args(cl_arg, &uplo, &N);
-    TCORE_zlauum(uplo, N, tileA);
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_zlauum( clargs.uplo, clargs.n, tileA );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlauum, cl_zlauum_cpu_func)
+CODELETS_CPU( zlauum, cl_zlauum_cpu_func )
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int n, int nb,
                          const CHAM_desc_t *A, int Am, int An )
 {
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_zlauum;
-    void (*callback)(void*) = options->profiling ? cl_zlauum_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    struct cl_zlauum_args_s clargs = {
+        .uplo  = uplo,
+        .n     = n,
+        .tileA = A->get_blktile( A, Am, An ),
+    };
+    void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
+    int                      workerid;
+    char                    *cl_name = "zlauum";
 
+    /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
     CHAMELEON_END_ACCESS_DECLARATION;
 
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_zlauum_callback : NULL;
+
+    /* Fix the worker id */
+    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    /* Insert the task */
     rt_starpu_insert_task(
-        codelet,
-        STARPU_VALUE,    &uplo,              sizeof(int),
-        STARPU_VALUE,    &n,                 sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
+        &cl_zlauum,
+        /* Task codelet arguments */
+        STARPU_VALUE, &clargs, sizeof(struct cl_zlauum_args_s),
+        STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zlauum",
+        STARPU_NAME,              cl_name,
 #endif
-        0);
 
+        0 );
+
+    (void)nb;
 }

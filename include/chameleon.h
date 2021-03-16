@@ -135,8 +135,8 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat );
 CHAM_desc_t *CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
 
 int CHAMELEON_Desc_Destroy( CHAM_desc_t **desc );
-int CHAMELEON_Desc_Acquire( CHAM_desc_t  *desc );
-int CHAMELEON_Desc_Release( CHAM_desc_t  *desc );
+int CHAMELEON_Desc_Acquire( const CHAM_desc_t *desc );
+int CHAMELEON_Desc_Release( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Flush  ( const CHAM_desc_t        *desc,
                             const RUNTIME_sequence_t *sequence );
 

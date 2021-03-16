@@ -28,7 +28,7 @@ CHAMELEON_CL_CB(dlag2z,        cti_handle_get_m(task->handles[1]), cti_handle_ge
 CHAMELEON_CL_CB(dzasum,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zaxpy,         cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[1]), 0,                                      M)
 CHAMELEON_CL_CB(zgeadd,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
-CHAMELEON_CL_CB(ztradd,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                  0.5*M*N)
+CHAMELEON_CL_CB(ztradd,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N/2.)
 CHAMELEON_CL_CB(zlascal,       cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
 CHAMELEON_CL_CB(zgelqt,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      (4./3.)*M*N*K)
 CHAMELEON_CL_CB(zgemv,         cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      2. *M*N  )

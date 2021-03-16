@@ -25,9 +25,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zgemm_cpu_func(void *descr[], void *cl_arg)
-{
+struct cl_zgemm_args_s {
     cham_trans_t transA;
     cham_trans_t transB;
     int m;
@@ -38,47 +36,54 @@ static void cl_zgemm_cpu_func(void *descr[], void *cl_arg)
     CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t beta;
     CHAM_tile_t *tileC;
+};
 
-    tileA = cti_interface_get(descr[0]);
-    tileB = cti_interface_get(descr[1]);
-    tileC = cti_interface_get(descr[2]);
-
-    starpu_codelet_unpack_args(cl_arg, &transA, &transB, &m, &n, &k, &alpha, &beta);
-    TCORE_zgemm( transA, transB,
-                 m, n, k,
-                 alpha, tileA, tileB,
-                 beta,  tileC );
-}
-
-#ifdef CHAMELEON_USE_CUDA
-static void cl_zgemm_cuda_func(void *descr[], void *cl_arg)
+#if !defined(CHAMELEON_SIMULATION)
+static void
+cl_zgemm_cpu_func( void *descr[], void *cl_arg )
 {
-    cham_trans_t transA;
-    cham_trans_t transB;
-    int m;
-    int n;
-    int k;
-    cuDoubleComplex alpha;
+    struct cl_zgemm_args_s clargs;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
-    cuDoubleComplex beta;
     CHAM_tile_t *tileC;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
     tileC = cti_interface_get(descr[2]);
 
-    starpu_codelet_unpack_args(cl_arg, &transA, &transB, &m, &n, &k, &alpha, &beta);
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_zgemm( clargs.transA, clargs.transB,
+                 clargs.m, clargs.n, clargs.k,
+                 clargs.alpha, tileA, tileB,
+                 clargs.beta,  tileC );
+}
+
+#ifdef CHAMELEON_USE_CUDA
+static void
+cl_zgemm_cuda_func( void *descr[], void *_cl_arg )
+{
+    struct cl_zgemm_args_s clargs;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileC;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
+    starpu_codelet_unpack_args( _cl_arg, &clargs );
 
     RUNTIME_getStream( stream );
 
     CUDA_zgemm(
-        transA, transB,
-        m, n, k,
-        &alpha, tileA->mat, tileA->ld,
-                tileB->mat, tileB->ld,
-        &beta,  tileC->mat, tileC->ld,
-        stream);
+        clargs.transA, clargs.transB,
+        clargs.m, clargs.n, clargs.k,
+        (cuDoubleComplex*)&(clargs.alpha),
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        (cuDoubleComplex*)&(clargs.beta),
+        tileC->mat, tileC->ld,
+        stream );
 
 #ifndef STARPU_CUDA_ASYNC
     cudaStreamSynchronize( stream );
@@ -92,56 +97,72 @@ static void cl_zgemm_cuda_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
-CODELETS(zgemm, cl_zgemm_cpu_func, cl_zgemm_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS( zgemm, cl_zgemm_cpu_func, cl_zgemm_cuda_func, STARPU_CUDA_ASYNC )
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
-void INSERT_TASK_zgemm(const RUNTIME_option_t *options,
-                      cham_trans_t transA, cham_trans_t transB,
-                      int m, int n, int k, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                                                   const CHAM_desc_t *B, int Bm, int Bn,
-                      CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn)
+void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
+                        cham_trans_t transA, cham_trans_t transB,
+                        int m, int n, int k, int nb,
+                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                     const CHAM_desc_t *B, int Bm, int Bn,
+                        CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
 {
     if ( alpha == 0. ) {
         return INSERT_TASK_zlascal( options, ChamUpperLower, m, n, nb,
                                     beta, C, Cm, Cn );
     }
 
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_zgemm;
-    void (*callback)(void*) = options->profiling ? cl_zgemm_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
-    int accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
+    struct cl_zgemm_args_s clargs = {
+        .transA = transA,
+        .transB = transB,
+        .m      = m,
+        .n      = n,
+        .k      = k,
+        .alpha  = alpha,
+        .tileA  = A->get_blktile( A, Am, An ),
+        .tileB  = B->get_blktile( B, Bm, Bn ),
+        .beta   = beta,
+        .tileC  = C->get_blktile( C, Cm, Cn )
+    };
+    void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
+    int                      workerid, accessC;
+    char                    *cl_name = "zgemm";
 
+    /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_R(B, Bm, Bn);
     CHAMELEON_ACCESS_RW(C, Cm, Cn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_zgemm_callback : NULL;
+
+    /* Fix the worker id */
+    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    /* Reduce the C access if needed */
+    accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
+
+    /* Insert the task */
     rt_starpu_insert_task(
-        codelet,
-        STARPU_VALUE,    &transA,            sizeof(int),
-        STARPU_VALUE,    &transB,            sizeof(int),
-        STARPU_VALUE,    &m,                 sizeof(int),
-        STARPU_VALUE,    &n,                 sizeof(int),
-        STARPU_VALUE,    &k,                 sizeof(int),
-        STARPU_VALUE,    &alpha,             sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_VALUE,    &beta,              sizeof(CHAMELEON_Complex64_t),
-        accessC,          RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
+        &cl_zgemm,
+        /* Task codelet arguments */
+        STARPU_VALUE, &clargs, sizeof(struct cl_zgemm_args_s),
+        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,      RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        accessC,       RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgemm",
+        STARPU_NAME,              cl_name,
 #endif
-        0);
 
+        0 );
+
+    (void)nb;
 }

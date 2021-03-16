@@ -860,7 +860,7 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc) {
+int CHAMELEON_Desc_Acquire( const CHAM_desc_t *desc ) {
     return RUNTIME_desc_acquire( desc );
 }
 
@@ -883,7 +883,7 @@ int CHAMELEON_Desc_Acquire (CHAM_desc_t  *desc) {
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Release (CHAM_desc_t  *desc) {
+int CHAMELEON_Desc_Release( const CHAM_desc_t *desc ) {
     return RUNTIME_desc_release( desc );
 }
 

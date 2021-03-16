@@ -12,8 +12,6 @@
  * @brief Chameleon ztrsm StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -27,9 +25,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_ztrsm_cpu_func(void *descr[], void *cl_arg)
-{
+struct cl_ztrsm_args_s {
     cham_side_t side;
     cham_uplo_t uplo;
     cham_trans_t transA;
@@ -39,38 +35,43 @@ static void cl_ztrsm_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t alpha;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
+};
 
-    tileA = cti_interface_get(descr[0]);
-    tileB = cti_interface_get(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &m, &n, &alpha);
-    TCORE_ztrsm(side, uplo,
-        transA, diag,
-        m, n,
-        alpha, tileA,
-        tileB);
-}
-
-#ifdef CHAMELEON_USE_CUDA
-static void cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
+#if !defined(CHAMELEON_SIMULATION)
+static void
+cl_ztrsm_cpu_func(void *descr[], void *cl_arg)
 {
-    cham_side_t side;
-    cham_uplo_t uplo;
-    cham_trans_t transA;
-    cham_diag_t diag;
-    int m;
-    int n;
-    cuDoubleComplex alpha;
+    struct cl_ztrsm_args_s clargs;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &side, &uplo, &transA, &diag, &m, &n, &alpha);
+
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_ztrsm( clargs.side, clargs.uplo, clargs.transA, clargs.diag,
+                 clargs.m, clargs.n, clargs.alpha, tileA, tileB );
+}
+
+#ifdef CHAMELEON_USE_CUDA
+static void
+cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
+{
+    struct cl_ztrsm_args_s clargs;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+
+    starpu_codelet_unpack_args( cl_arg, &clargs );
 
     RUNTIME_getStream(stream);
 
     CUDA_ztrsm(
-        side, uplo, transA, diag, m, n, &alpha,
+        clargs.side, clargs.uplo, clargs.transA, clargs.diag,
+        clargs.m, clargs.n,
+        (cuDoubleComplex*)&(clargs.alpha),
         tileA->mat, tileA->ld,
         tileB->mat, tileB->ld,
         stream );
@@ -81,52 +82,66 @@ static void cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
 
     return;
 }
-#endif /* CHAMELEON_USE_CUDA */
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS(ztrsm, cl_ztrsm_cpu_func, cl_ztrsm_cuda_func, STARPU_CUDA_ASYNC)
+CODELETS( ztrsm, cl_ztrsm_cpu_func, cl_ztrsm_cuda_func, STARPU_CUDA_ASYNC )
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
-void INSERT_TASK_ztrsm(const RUNTIME_option_t *options,
-                      cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
-                      int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                      const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
+                        cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,
+                        int m, int n, int nb,
+                        CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                        const CHAM_desc_t *B, int Bm, int Bn )
 {
-    (void)nb;
-    struct starpu_codelet *codelet = &cl_ztrsm;
-    void (*callback)(void*) = options->profiling ? cl_ztrsm_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    struct cl_ztrsm_args_s clargs = {
+        .side   = side,
+        .uplo   = uplo,
+        .transA = transA,
+        .diag   = diag,
+        .m      = m,
+        .n      = n,
+        .alpha  = alpha,
+        .tileA  = A->get_blktile( A, Am, An ),
+        .tileB  = B->get_blktile( B, Bm, Bn ),
+    };
+    void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
+    int                      workerid;
+    char                    *cl_name = "ztrsm";
 
+    /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_ztrsm_callback : NULL;
+
+    /* Fix the worker id */
+    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    /* Insert the task */
     rt_starpu_insert_task(
-        codelet,
-        STARPU_VALUE,    &side,               sizeof(int),
-        STARPU_VALUE,    &uplo,               sizeof(int),
-        STARPU_VALUE,    &transA,             sizeof(int),
-        STARPU_VALUE,    &diag,               sizeof(int),
-        STARPU_VALUE,    &m,                  sizeof(int),
-        STARPU_VALUE,    &n,                  sizeof(int),
-        STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_RW,        RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
+        &cl_ztrsm,
+        /* Task codelet arguments */
+        STARPU_VALUE, &clargs, sizeof(struct cl_ztrsm_args_s),
+        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "ztrsm",
+        STARPU_NAME,              cl_name,
 #endif
-        0);
+
+        0 );
+
+    (void)nb;
 }
