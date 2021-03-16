@@ -8,6 +8,10 @@
 # too noisy
 export STARPU_SILENT=1
 
+# Make sure threads are not bound
+export STARPU_MPI_NOBIND=1
+export STARPU_WORKERS_NOBIND=1
+
 # initialize empty to get just what we need
 export PKG_CONFIG_PATH=""
 

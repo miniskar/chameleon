@@ -4,6 +4,10 @@ echo "######################### Chameleon benchmarks #########################"
 
 set -x
 
+# Unset the binding environment of the CI for this specific case
+unset STARPU_MPI_NOBIND
+unset STARPU_WORKERS_NOBIND
+
 # to avoid a lock during fetching chameleon branch in parallel
 export XDG_CACHE_HOME=/tmp/guix-$$
 
