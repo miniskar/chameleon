@@ -12,8 +12,6 @@
  * @brief Chameleon zplrnt StarPU codelet
  *
  * @version 1.0.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -27,9 +25,7 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
-{
+struct cl_zplrnt_args_s {
     int m;
     int n;
     CHAM_tile_t *tileA;
@@ -37,47 +33,72 @@ static void cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
     int m0;
     int n0;
     unsigned long long int seed;
+};
+
+#if !defined(CHAMELEON_SIMULATION)
+static void
+cl_zplrnt_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_zplrnt_args_s clargs;
+    CHAM_tile_t *tileA;
 
     tileA = cti_interface_get(descr[0]);
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &bigM, &m0, &n0, &seed );
-    TCORE_zplrnt( m, n, tileA, bigM, m0, n0, seed );
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_zplrnt( clargs.m, clargs.n, tileA,
+                  clargs.bigM, clargs.m0, clargs.n0, clargs.seed );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(zplrnt, cl_zplrnt_cpu_func)
+CODELETS_CPU( zplrnt, cl_zplrnt_cpu_func )
 
 void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
                          int m, int n, const CHAM_desc_t *A, int Am, int An,
                          int bigM, int m0, int n0, unsigned long long int seed )
 {
+    struct cl_zplrnt_args_s clargs = {
+        .m     = m,
+        .n     = n,
+        .tileA = A->get_blktile( A, Am, An ),
+        .bigM  = bigM,
+        .m0    = m0,
+        .n0    = n0,
+        .seed  = seed,
+    };
+    void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
+    int                      workerid;
+    char                    *cl_name = "zplrnt";
 
-    struct starpu_codelet *codelet = &cl_zplrnt;
-    void (*callback)(void*) = options->profiling ? cl_zplrnt_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
-
+    /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_W(A, Am, An);
     CHAMELEON_END_ACCESS_DECLARATION;
 
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_zplrnt_callback : NULL;
+
+    /* Fix the worker id */
+    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    /* Insert the task */
     rt_starpu_insert_task(
-        codelet,
-        STARPU_VALUE,    &m,                      sizeof(int),
-        STARPU_VALUE,    &n,                      sizeof(int),
-        STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE, &bigM,                      sizeof(int),
-        STARPU_VALUE,   &m0,                      sizeof(int),
-        STARPU_VALUE,   &n0,                      sizeof(int),
-        STARPU_VALUE, &seed,   sizeof(unsigned long long int),
-        STARPU_PRIORITY,    options->priority,
-        STARPU_CALLBACK,    callback,
+        &cl_zplrnt,
+        /* Task codelet arguments */
+        STARPU_VALUE, &clargs, sizeof(struct cl_zplrnt_args_s),
+        STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zplrnt",
+        STARPU_NAME,              cl_name,
 #endif
-        0);
+
+        0 );
 }

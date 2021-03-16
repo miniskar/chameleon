@@ -21,30 +21,38 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#if !defined(CHAMELEON_SIMULATION)
-static void cl_ztradd_cpu_func(void *descr[], void *cl_arg)
-{
+struct cl_ztradd_args_s {
     cham_uplo_t uplo;
     cham_trans_t trans;
-    int M;
-    int N;
+    int m;
+    int n;
     CHAMELEON_Complex64_t alpha;
     CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t beta;
     CHAM_tile_t *tileB;
+};
+
+#if !defined(CHAMELEON_SIMULATION)
+static void
+cl_ztradd_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_ztradd_args_s clargs;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &M, &N, &alpha, &beta);
-    TCORE_ztradd(uplo, trans, M, N, alpha, tileA, beta, tileB);
-    return;
+
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_ztradd( clargs.uplo, clargs.trans, clargs.m, clargs.n,
+                  clargs.alpha, tileA, clargs.beta, tileB );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(ztradd, cl_ztradd_cpu_func)
+CODELETS_CPU( ztradd, cl_ztradd_cpu_func )
 
 void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int nb,
@@ -56,34 +64,54 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                                     beta, B, Bm, Bn );
     }
 
-    struct starpu_codelet *codelet = &cl_ztradd;
-    void (*callback)(void*) = options->profiling ? cl_zgeadd_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
-    int accessB = ( beta == 0. ) ? STARPU_W : STARPU_RW;
+    struct cl_ztradd_args_s clargs = {
+        .uplo  = uplo,
+        .trans = trans,
+        .m     = m,
+        .n     = n,
+        .alpha = alpha,
+        .tileA = A->get_blktile( A, Am, An ),
+        .beta  = beta,
+        .tileB = B->get_blktile( B, Bm, Bn ),
+    };
+    void (*callback)(void*);
+    RUNTIME_request_t       *request  = options->request;
+    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
+    int                      workerid, accessB;
+    char                    *cl_name = "ztradd";
 
+    /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_ztradd_callback : NULL;
+
+    /* Fix the worker id */
+    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    /* Reduce the B access if needed */
+    accessB = ( beta == 0. ) ? STARPU_W : STARPU_RW;
+
+    /* Insert the task */
     rt_starpu_insert_task(
-        codelet,
-        STARPU_VALUE,    &uplo,               sizeof(int),
-        STARPU_VALUE,    &trans,              sizeof(int),
-        STARPU_VALUE,    &m,                  sizeof(int),
-        STARPU_VALUE,    &n,                  sizeof(int),
-        STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_VALUE,    &beta,               sizeof(CHAMELEON_Complex64_t),
-        accessB,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_PRIORITY,  options->priority,
-        STARPU_CALLBACK,  callback,
+        &cl_ztradd,
+        /* Task codelet arguments */
+        STARPU_VALUE, &clargs, sizeof(struct cl_ztradd_args_s),
+        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        accessB,       RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "ztradd",
+        STARPU_NAME,              cl_name,
 #endif
-        0);
+
+        0 );
 
     (void)nb;
 }
