@@ -700,7 +700,7 @@ void CHAMELEON_ZGELS_TILE_ASYNC(cham_trans_t *trans, CHAM_desc_t *A, CHAM_desc_t
 { *info = CHAMELEON_zgels_Tile_Async(*trans, A, T, B, sequence, request); }
 
 void CHAMELEON_ZGEMM_TILE_ASYNC(cham_trans_t *transA, cham_trans_t *transB, CHAMELEON_Complex64_t *alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t *beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
-{ *info = CHAMELEON_zgemm_Tile_Async(*transA, *transB, *alpha, A, B, *beta, C, sequence, request); }
+{ *info = CHAMELEON_zgemm_Tile_Async(*transA, *transB, *alpha, A, B, *beta, C, NULL, sequence, request); }
 
 void CHAMELEON_ZGEQRF_TILE_ASYNC(CHAM_desc_t *A, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
 { *info = CHAMELEON_zgeqrf_Tile_Async(A, T, sequence, request); }

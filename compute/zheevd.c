@@ -340,6 +340,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     CHAM_desc_t descQ2l, descQ2t;
     CHAM_desc_t descVl, descVt;
     CHAM_desc_t *subA, *subQ, *subT;
+    void *gemm_ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -470,6 +471,11 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     chameleon_zlap2tile( chamctxt, &descVl, &descVt, ChamDescInput, ChamUpperLower,
                          V, NB, NB, N, N, N, N, sequence, request );
 
+    /* Workspaces used for gemm */
+    gemm_ws = CHAMELEON_zgemm_WS_Alloc( ChamNoTrans, ChamNoTrans,
+                                        &descQ2t, &descVt,
+                                        &descA );
+
     if (uplo == ChamLower)
     {
 #if defined(CHAMELEON_COPY_DIAG)
@@ -489,7 +495,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
                            sequence, request );
 
         /* Compute the final eigenvectors A = (Q1 * Q2) * V */
-        chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
+        chameleon_pzgemm( gemm_ws, ChamNoTrans, ChamNoTrans,
                           1.0, &descQ2t, &descVt,
                           0.0, &descA,
                           sequence, request );
@@ -513,7 +519,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
                            sequence, request );
 
         /* Compute the final eigenvectors A =  (Q1^h * Q2) * V */
-        chameleon_pzgemm( ChamNoTrans, ChamNoTrans,
+        chameleon_pzgemm( gemm_ws, ChamNoTrans, ChamNoTrans,
                           1.0, &descQ2t, &descVt,
                           0.0, &descA,
                           sequence, request );
@@ -527,6 +533,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
+    CHAMELEON_zgemm_WS_Free( gemm_ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descQ2l, &descQ2t );
     chameleon_ztile2lap_cleanup( chamctxt, &descVl, &descVt );
 

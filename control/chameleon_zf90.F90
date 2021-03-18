@@ -1956,7 +1956,7 @@ module chameleon_z
   end interface
 
   interface
-     function CHAMELEON_zgemm_Tile_Async_c(transA,transB,alpha,A,B,beta,C,sequence,request) &
+     function CHAMELEON_zgemm_Tile_Async_c(transA,transB,alpha,A,B,beta,C,WS,sequence,request) &
           & bind(c, name='CHAMELEON_zgemm_Tile_Async')
        use iso_c_binding
        implicit none
@@ -1968,6 +1968,7 @@ module chameleon_z
        type(c_ptr), value :: B
        complex(kind=c_double_complex), value :: beta
        type(c_ptr), value :: C
+       type(c_ptr), value :: WS
        type(c_ptr), value :: sequence
        type(c_ptr), value :: request
      end function CHAMELEON_zgemm_Tile_Async_c
@@ -4643,7 +4644,7 @@ contains
     info = CHAMELEON_zgels_Tile_Async_c(trans,A,T,B,sequence,request)
   end subroutine CHAMELEON_zgels_Tile_Async
 
-  subroutine CHAMELEON_zgemm_Tile_Async(transA,transB,alpha,A,B,beta,C,sequence,request,info)
+  subroutine CHAMELEON_zgemm_Tile_Async(transA,transB,alpha,A,B,beta,C,WS,sequence,request,info)
     use iso_c_binding
     implicit none
     integer(kind=c_int), intent(out) :: info
@@ -4654,9 +4655,10 @@ contains
     type(c_ptr), value :: A ! Arg managed by CHAMELEON: opaque to Fortran
     type(c_ptr), value :: B ! Arg managed by CHAMELEON: opaque to Fortran
     type(c_ptr), value :: C ! Arg managed by CHAMELEON: opaque to Fortran
+    type(c_ptr), value :: WS ! Arg managed by CHAMELEON: opaque to Fortran
     type(c_ptr), value :: sequence ! Arg managed by CHAMELEON: opaque to Fortran
     type(c_ptr), value :: request ! Arg managed by CHAMELEON: opaque to Fortran
-    info = CHAMELEON_zgemm_Tile_Async_c(transA,transB,alpha,A,B,beta,C,sequence,request)
+    info = CHAMELEON_zgemm_Tile_Async_c(transA,transB,alpha,A,B,beta,C,WS,sequence,request)
   end subroutine CHAMELEON_zgemm_Tile_Async
 
   subroutine CHAMELEON_zgeqrf_Tile_Async(A,T,sequence,request,info)

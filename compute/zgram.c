@@ -23,6 +23,89 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
+ *  CHAMELEON_zgram_WS_Alloc - Allocate the required workspaces for asynchronous gram
+ *
+ *******************************************************************************
+ *
+ * @param[in] A
+ *          The descriptor of the matrix A.
+ *
+ *
+ *******************************************************************************
+ *
+ * @retval An allocated opaque pointer to use in CHAMELEON_zgram_Tile_Async()
+ * and to free with CHAMELEON_zgram_WS_Free().
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zgram_Tile_Async
+ * @sa CHAMELEON_zgram_WS_Free
+ *
+ */
+void *CHAMELEON_zgram_WS_Alloc( const CHAM_desc_t *A )
+{
+    CHAM_context_t *chamctxt;
+    struct chameleon_pzgram_s *options;
+    int workmt, worknt;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        return NULL;
+    }
+
+    options = calloc( 1, sizeof(struct chameleon_pzgram_s) );
+
+    workmt = chameleon_max( A->mt, A->p );
+    worknt = chameleon_max( A->nt, A->q );
+
+    chameleon_desc_init( &(options->Wcol), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamRealDouble, 2, A->nb, 2*A->nb,
+                         2*workmt, A->n, 0, 0,
+                         2*workmt, A->n, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    chameleon_desc_init( &(options->Welt), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamRealDouble, 2, 1, 2,
+                         2, worknt, 0, 0,
+                         2, worknt, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    return (void*)options;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Free the allocated workspaces for asynchronous gemm
+ *
+ *******************************************************************************
+ *
+ * @param[in,out] user_ws
+ *          On entry, the opaque pointer allocated by CHAMELEON_zgram_WS_Alloc()
+ *          On exit, all data are freed.
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zgram_Tile_Async
+ * @sa CHAMELEON_zgram_WS_Alloc
+ *
+ */
+void CHAMELEON_zgram_WS_Free( void *user_ws )
+{
+    struct chameleon_pzgram_s *ws = (struct chameleon_pzgram_s*)user_ws;
+
+    chameleon_desc_destroy( &(ws->Wcol) );
+    chameleon_desc_destroy( &(ws->Welt) );
+    free( ws );
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
  *  CHAMELEON_zgram replace a general matrix by the Gram matrix inplace
  *
  *    \f[
@@ -61,6 +144,7 @@ int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA 
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t descAl, descAt;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -98,7 +182,8 @@ int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA 
                          A, NB, NB, LDA, N, N, N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zgram_Tile_Async( uplo, &descAt, sequence, &request );
+    ws = CHAMELEON_zgram_WS_Alloc( &descAt );
+    CHAMELEON_zgram_Tile_Async( uplo, &descAt, ws, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -107,6 +192,7 @@ int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA 
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
+    CHAMELEON_zgram_WS_Free( ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
     status = sequence->status;
@@ -146,6 +232,7 @@ int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -154,11 +241,13 @@ int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_zgram_Tile_Async( uplo, A, sequence, &request );
-
-    CHAMELEON_Desc_Flush( A, sequence );
+    ws = CHAMELEON_zgram_WS_Alloc( A );
+    CHAMELEON_zgram_Tile_Async( uplo, A, ws, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
+
+    CHAMELEON_zgram_WS_Free( ws );
+
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
     return status;
@@ -189,10 +278,11 @@ int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
  * @sa CHAMELEON_sgram_Tile_Async
  *
  */
-int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A,
+int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, void *user_ws,
                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
+    struct chameleon_pzgram_s *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -230,7 +320,20 @@ int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzgram( uplo, A, sequence, request );
+    if ( user_ws == NULL ) {
+        ws = CHAMELEON_zgram_WS_Alloc( A );
+    }
+    else {
+        ws = user_ws;
+    }
+
+    chameleon_pzgram( ws, uplo, A, sequence, request );
+
+    if ( user_ws == NULL ) {
+        CHAMELEON_Desc_Flush( A, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        CHAMELEON_zgram_WS_Free( ws );
+    }
 
     return CHAMELEON_SUCCESS;
 }

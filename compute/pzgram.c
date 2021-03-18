@@ -136,13 +136,12 @@ chameleon_pzgram_internal( cham_uplo_t uplo,
 /**
  *
  */
-void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+void chameleon_pzgram( struct chameleon_pzgram_s *ws, cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
-    CHAM_desc_t Wcol;
-    CHAM_desc_t Welt;
-    int workmt, worknt;
+    CHAM_desc_t *Wcol = &(ws->Wcol);
+    CHAM_desc_t *Welt = &(ws->Welt);
     int m, n, tempmm, tempnn;
 
     chamctxt = chameleon_context_self();
@@ -151,54 +150,34 @@ void chameleon_pzgram( cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *seq
     }
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
-    workmt = chameleon_max( A->mt, A->p );
-    worknt = chameleon_max( A->nt, A->q );
-
-    RUNTIME_options_ws_alloc( &options, 1, 0 );
-
-    chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, 2, A->nb, 2*A->nb,
-                         2*workmt, A->n, 0, 0, 2*workmt, A->n, A->p, A->q,
-                         NULL, NULL, NULL );
-
-    chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, 2, 1, 2,
-                         2, worknt, 0, 0, 2, worknt, A->p, A->q,
-                         NULL, NULL, NULL );
-
     /* Initialize Wcol */
-    for(m = 0; m < Wcol.mt; m++) {
-        tempmm = m == Wcol.mt-1 ? Wcol.m-m*Wcol.mb : Wcol.mb;
-        for(n = 0; n < Wcol.nt; n++) {
-            tempnn = n == Wcol.nt-1 ? Wcol.n-n*Wcol.nb : Wcol.nb;
+    for(m = 0; m < Wcol->mt; m++) {
+        tempmm = m == Wcol->mt-1 ? Wcol->m-m*Wcol->mb : Wcol->mb;
+        for(n = 0; n < Wcol->nt; n++) {
+            tempnn = n == Wcol->nt-1 ? Wcol->n-n*Wcol->nb : Wcol->nb;
             INSERT_TASK_dlaset(
                 &options,
                 ChamUpperLower, tempmm, tempnn,
                 -1., -1.,
-                W( &Wcol, m, n ) );
+                W( Wcol, m, n ) );
         }
     }
     /* Initialize Welt */
-    for(m = 0; m < Welt.mt; m++) {
-        tempmm = m == Welt.mt-1 ? Welt.m-m*Welt.mb : Welt.mb;
-        for(n = 0; n < Welt.nt; n++) {
-            tempnn = n == Welt.nt-1 ? Welt.n-n*Welt.nb : Welt.nb;
+    for(m = 0; m < Welt->mt; m++) {
+        tempmm = m == Welt->mt-1 ? Welt->m-m*Welt->mb : Welt->mb;
+        for(n = 0; n < Welt->nt; n++) {
+            tempnn = n == Welt->nt-1 ? Welt->n-n*Welt->nb : Welt->nb;
             INSERT_TASK_dlaset(
                 &options,
                 ChamUpperLower, tempmm, tempnn,
                 -1., -1.,
-                W( &Welt, m, n ) );
+                W( Welt, m, n ) );
         }
     }
 
-    chameleon_pzgram_internal( uplo, A, &Wcol, &Welt, &options );
+    chameleon_pzgram_internal( uplo, A, Wcol, Welt, &options );
 
-    CHAMELEON_Desc_Flush( &Wcol, sequence );
-    CHAMELEON_Desc_Flush( &Welt, sequence );
-    CHAMELEON_Desc_Flush( A, sequence );
-    RUNTIME_sequence_wait( chamctxt, sequence );
-
-    chameleon_desc_destroy( &Wcol );
-    chameleon_desc_destroy( &Welt );
-
-    RUNTIME_options_ws_free(&options);
+    CHAMELEON_Desc_Flush( Wcol, sequence );
+    CHAMELEON_Desc_Flush( Welt, sequence );
     RUNTIME_options_finalize(&options, chamctxt);
 }
