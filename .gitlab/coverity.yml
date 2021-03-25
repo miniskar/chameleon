@@ -1,6 +1,6 @@
 ---
 coverity:
-  image: hpclib/hiepacs
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: analyse
   tags: ["large"]
   dependencies: []

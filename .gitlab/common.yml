@@ -17,7 +17,7 @@
     - schedules
 
 .build_script_template:
-  image: hpclib/hiepacs
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: build
   tags: ["large"]
   script:
@@ -41,7 +41,7 @@
     - schedules
 
 .test_script_template:
-  image: hpclib/hiepacs
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: test
   tags: ["large"]
   script:
