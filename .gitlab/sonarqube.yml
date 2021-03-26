@@ -1,7 +1,7 @@
 sonarqube:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: analyse
-  tags: ["large"]
+  tags: ["linux"]
   artifacts:
     name: chameleon_analysis
     expire_in: 1 week

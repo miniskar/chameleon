@@ -88,3 +88,23 @@ test_starpu_mpi_z:
     CATEGORY: mpi
     PRECISION: z
     TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+
+test_starpu_shm_s_macosx:
+  stage: test
+  tags: ['macosx']
+  except:
+    - schedules
+  needs: [build_starpu_macosx]
+  dependencies:
+    - build_starpu_macosx
+  artifacts:
+    untracked: true
+    name: build_starpu_macosx
+    expire_in: 48 hours
+  variables:
+    VERSION: starpu
+  script:
+    - cd build-starpu && ctest -V -R test_shm_s
+                               -D ExperimentalTest
+                               -D ExperimentalCoverage
+                               -D ExperimentalSubmit

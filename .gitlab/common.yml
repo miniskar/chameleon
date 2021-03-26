@@ -19,7 +19,7 @@
 .build_script_template:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: build
-  tags: ["large"]
+  tags: ["linux"]
   script:
     - export LOGNAME=chameleon_${VERSION}.log
     - echo $LOGNAME
@@ -43,7 +43,7 @@
 .test_script_template:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: test
-  tags: ["large"]
+  tags: ["linux"]
   script:
     - export LOGNAME=chameleon_${VERSION}_${CATEGORY}_${PRECISION}
     - echo $LOGNAME
