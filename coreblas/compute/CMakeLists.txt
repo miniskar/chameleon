@@ -138,7 +138,7 @@ target_include_directories(coreblas PUBLIC
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
 if( CHAMELEON_USE_HMAT )
-  target_link_libraries(coreblas PUBLIC HMAT::hmat-oss )
+  target_link_libraries(coreblas PUBLIC HMAT::hmat )
 endif()
 
 target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)

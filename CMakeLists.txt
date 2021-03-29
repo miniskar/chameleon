@@ -198,7 +198,7 @@ if (CHAMELEON_ENABLE_CUDA AND NOT CHAMELEON_USE_CUDA)
 endif()
 
 # Enable Hmat-OSS kernels
-option(CHAMELEON_USE_HMAT "Enable hmat-oss kernels" OFF)
+option(CHAMELEON_USE_HMAT "Enable hmat kernels" OFF)
 
 option(CHAMELEON_RUNTIME_SYNC "Enable synchronous task submission when available to debug the code without parallelism" OFF)
 if (CHAMELEON_RUNTIME_SYNC)
@@ -271,14 +271,11 @@ add_subdirectory(hqr)
 if ( CHAMELEON_USE_HMAT )
   find_package(HMAT REQUIRED)
   if(HMAT_FOUND)
-    # hmat-oss target is not correctly defined
-    add_library(HMAT::hmat-oss INTERFACE IMPORTED)
-
-    set_target_properties(HMAT::hmat-oss PROPERTIES
+    set_target_properties(HMAT::hmat PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${HMAT_INCLUDE_DIRS}"
       INTERFACE_COMPILE_DEFINITIONS "${HMAT_DEFINITIONS}"
       INTERFACE_LINK_DIRECTORIES "${HMAT_LIBRARY_DIRS}"
-      INTERFACE_LINK_LIBRARIES "hmat-oss"
+      INTERFACE_LINK_LIBRARIES "hmat"
       )
     message( STATUS "HMAT: Found" )
   else()
