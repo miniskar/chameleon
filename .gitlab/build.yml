@@ -59,3 +59,19 @@ build_starpu_simgrid:
     SIMU: simu
     BUILD_OPTIONS: "-DCHAMELEON_SIMULATION=ON -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=OFF"
     VERSION: starpu_simgrid
+
+build_starpu_macosx:
+  stage: build
+  tags: ['macosx']
+  except:
+    - schedules
+  artifacts:
+    untracked: true
+    name: build_starpu_macosx
+    expire_in: 48 hours
+  variables:
+    VERSION: starpu
+  script:
+    - tools/build_macosx.sh
+
+

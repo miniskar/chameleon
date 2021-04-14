@@ -2,7 +2,7 @@
 coverity:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: analyse
-  tags: ["large"]
+  tags: ["linux"]
   dependencies: []
   artifacts:
     name: chameleon_coverity
