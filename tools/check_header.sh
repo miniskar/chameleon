@@ -4,10 +4,10 @@
 #  @copyright 2016-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
-#  @version 1.0.0
+#  @version 1.1.0
 #  @author Florent Pruvost
 #  @author Mathieu Faverge
-#  @date 2020-03-03
+#  @date 2021-04-20
 #
 # This script check that basic informations is present and correct in
 # headers of source files.
@@ -169,14 +169,18 @@ check_header()
 files=$( git ls-files                     |
              grep -v "^\."                |
              grep -v ".*\.md"             |
-             grep -v LICENSE              |
+             grep -v ChangeLog            |
+             grep -v LICENCE              |
              grep -v ".*\.cmake"          |
              grep -v "testing/lin"        |
              grep -v doc/                 |
              grep -v CTest                |
              grep -v cblas.h              |
-             grep -v lapacke.h            |
+             grep -v "lapacke.*\.h"       |
+             grep -v ".*eztrace_module$"  |
              grep -v "simucore/perfmodels/\.starpu" |
+             grep -v "\.xml"              |
+             grep -v "input/.*\.in"       |
              grep -v "\.org"              )
 if [ $# -gt 0 ]
 then
