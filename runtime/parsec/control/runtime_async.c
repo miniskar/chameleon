@@ -4,17 +4,17 @@
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon PaRSEC asynchronous routines
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2020-04-22
  *
  */
 #include <stdlib.h>

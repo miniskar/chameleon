@@ -2,17 +2,17 @@
  *
  * @file testing_zgenm2.c
  *
- * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgenm2 testing
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
- * @date 2020-10-05
+ * @date 2020-12-01
  * @precisions normal z -> c d s
  *
  */

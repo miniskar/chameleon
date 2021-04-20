@@ -2,17 +2,17 @@
  *
  * @file starpu/cham_tile_interface.h
  *
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Header to describe the Chameleon tile interface in StarPU
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
- * @date 2020-03-03
+ * @date 2020-07-01
  *
  */
 #ifndef _cham_tile_interface_h_
