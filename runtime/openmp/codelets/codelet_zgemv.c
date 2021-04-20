@@ -2,16 +2,16 @@
  *
  * @file openmp/codelet_zgemv.c
  *
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgemv OpenMP codelet
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mathieu Faverge
- * @date 2020-10-06
+ * @date 2020-10-12
  * @precisions normal z -> c d s
  *
  */

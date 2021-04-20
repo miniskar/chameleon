@@ -2,16 +2,18 @@
  *
  * @file testing_zgemm.c
  *
- * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgemm testing
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Lucas Barros de Assis
- * @date 2020-03-03
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @date 2020-11-19
  * @precisions normal z -> c d s
  *
  */

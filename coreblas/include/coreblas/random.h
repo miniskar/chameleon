@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon coreblas random number generator
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Piotr Luszczek
  * @author Mathieu Faverge
- * @date 2020-10-06
+ * @date 2020-10-10
  * @precisions normal z -> c d s
  *
  */

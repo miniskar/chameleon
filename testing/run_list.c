@@ -2,14 +2,16 @@
  *
  * @file run_list.c
  *
- * @copyright 2019-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  ***
  *
  * @brief Chameleon auxiliary routines for testing structures
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Lucas Barros de Assis
+ * @author Mathieu Faverge
+ * @author Philippe Swartvagher
  * @date 2020-03-03
  *
  */

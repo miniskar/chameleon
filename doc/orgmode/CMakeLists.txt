@@ -14,9 +14,10 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.0.0
+# @version 1.1.0
 #  @author Florent Pruvost
-#  @date 2019-03-20
+#  @author Mathieu Faverge
+#  @date 2021-01-04
 #
 ###
 

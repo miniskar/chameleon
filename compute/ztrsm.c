@@ -4,19 +4,20 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon ztrsm wrappers
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2020-03-03
+ * @author Florent Pruvost
+ * @date 2020-03-11
  * @precisions normal z -> s d c
  *
  */

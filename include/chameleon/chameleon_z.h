@@ -4,14 +4,14 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon CHAMELEON_complex64_t wrappers
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
@@ -20,7 +20,8 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2020-03-03
+ * @author Florent Pruvost
+ * @date 2021-03-17
  * @precisions normal z -> c d s
  *
  */

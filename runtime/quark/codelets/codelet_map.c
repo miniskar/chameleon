@@ -2,7 +2,7 @@
  *
  * @file quark/codelet_map.c
  *
- * @copyright 2018-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2018-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***

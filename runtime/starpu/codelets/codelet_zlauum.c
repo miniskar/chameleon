@@ -4,21 +4,23 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zlauum StarPU codelet
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
- * @date 2020-03-03
+ * @author Florent Pruvost
+ * @author Samuel Thibault
+ * @date 2021-03-16
  * @precisions normal z -> c d s
  *
  */
