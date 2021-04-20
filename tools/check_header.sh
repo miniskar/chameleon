@@ -1,17 +1,18 @@
 #
 #  @file check_header.sh
 #
-#  @copyright 2016-2020 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#  @copyright 2016-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
 #  @version 1.0.0
+#  @author Florent Pruvost
 #  @author Mathieu Faverge
 #  @date 2020-03-03
 #
 # This script check that basic informations is present and correct in
 # headers of source files.
 #
-#!/bin/sh
+#!/usr/bin/env sh
 header=1
 
 print_header()
@@ -26,18 +27,18 @@ print_header()
 check_header_file()
 {
     filename=$1
-    basename=`basename $filename .in`
+    basename=$( basename $filename .in )
 
     if [ "$basename" != "CMakeLists.txt" ]
     then
-        toto=`grep " @file $basename" $filename`
+        toto=$( grep " @file $basename" $filename )
         if [ $? -ne 0 ]
         then
-            toto=`grep " @file .*/$basename" $filename`
+            toto=$( grep " @file .*/$basename" $filename )
         fi
         if [ $? -ne 0 ]
         then
-            toto=`grep " @file chameleon_$basename" $filename`
+            toto=$( grep " @file chameleon_$basename" $filename )
         fi
 
         if [ $? -ne 0 ]
@@ -51,13 +52,10 @@ check_header_file()
 check_header_copyright()
 {
     filename=$1
-    basename=`basename $filename`
+    basename=$( basename $filename )
 
-    toto=`grep -E " @copyright [0-9]{4}-2020 Bordeaux INP" $filename`
-    if [ $? -ne 0 ]
-    then
-        toto=`grep -E " @copyright 2020      Bordeaux INP" $filename`
-    fi
+    year=$( date +%Y )
+    toto=$( grep -E " @copyright [0-9]{4}-$year Bordeaux INP" $filename )
 
     if [ $? -ne 0 ]
     then
@@ -69,9 +67,9 @@ check_header_copyright()
 check_header_version()
 {
     filename=$1
-    basename=`basename $filename`
+    basename=$( basename $filename )
 
-    toto=`grep -E " @version [0-9]\.[0-9]\.[0-9]" $filename`
+    toto=$( grep -E " @version [0-9]\.[0-9]\.[0-9]" $filename )
     if [ $? -ne 0 ]
     then
         print_header $filename
@@ -82,9 +80,9 @@ check_header_version()
 check_header_author()
 {
     filename=$1
-    basename=`basename $filename`
+    basename=$( basename $filename )
 
-    toto=`grep -E " @author " $filename`
+    toto=$( grep -E " @author " $filename )
     if [ $? -ne 0 ]
     then
         print_header $filename
@@ -95,9 +93,9 @@ check_header_author()
 check_header_date()
 {
     filename=$1
-    basename=`basename $filename`
+    basename=$( basename $filename )
 
-    toto=`grep -E " @date [0-9]{4}-[01][0-9]-[0-3][0-9]" $filename`
+    toto=$( grep -E " @date [0-9]{4}-[01][0-9]-[0-3][0-9]" $filename )
     if [ $? -ne 0 ]
     then
         print_header $filename
@@ -108,28 +106,28 @@ check_header_date()
 check_header_define()
 {
     filename=$1
-    basename=`basename $filename`
+    basename=$( basename $filename )
 
     case $basename in
         *.h)
-            n=`basename $basename .h | awk '{print tolower($0)}'`
+            n=$( basename $basename .h | awk '{print tolower($0)}' )
 
             macro="_${n}_h_"
             err=0
 
-            toto=`grep "#ifndef .*$macro" $filename`
+            toto=$( grep "#ifndef .*$macro" $filename )
             ret=$?
             err=$((err + ret))
 
             if [ $ret -eq 0 ]
             then
-                macro=`grep "#ifndef" $filename | sed 's/#ifndef //'`
+                macro=$( grep "#ifndef" $filename | sed 's/#ifndef //' )
             fi
-            toto=`grep "#define $macro" $filename`
+            toto=$( grep "#define $macro" $filename )
             ret=$?
             err=$((err + ret))
 
-            toto=`grep "#endif /\* $macro \*/" $filename`
+            toto=$( grep "#endif /\* $macro \*/" $filename )
             ret=$?
             err=$((err + ret))
 
@@ -160,16 +158,26 @@ check_header()
     check_header_file $1
     check_header_copyright $1
     check_header_version $1
-#    check_header_author $1
-#    check_header_date $1
+    check_header_author $1
+    check_header_date $1
     check_header_define $1
 }
 
 #
 # Check headers
 #
-files=`git ls-files | grep -v "^\." | grep -v ".*\.md" | grep -v LICENSE | grep -v ".*\.cmake" | grep -v "testing/lin" | grep -v doc/ | grep -v CTest | grep -v cblas.h | grep -v lapacke.h | grep -v "simucore/perfmodels/\.starpu" | grep -v "\.org"`
-
+files=$( git ls-files                     |
+             grep -v "^\."                |
+             grep -v ".*\.md"             |
+             grep -v LICENSE              |
+             grep -v ".*\.cmake"          |
+             grep -v "testing/lin"        |
+             grep -v doc/                 |
+             grep -v CTest                |
+             grep -v cblas.h              |
+             grep -v lapacke.h            |
+             grep -v "simucore/perfmodels/\.starpu" |
+             grep -v "\.org"              )
 if [ $# -gt 0 ]
 then
     files=$*

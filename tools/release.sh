@@ -1,5 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
+###
+#
+#  @file release.sh
+#  @copyright 2013-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                       Univ. Bordeaux. All rights reserved.
+#
+#  @brief Script to generate the release when pushing a branch and tag of the same name
+#
+#  @version 1.1.0
+#  @author Florent Pruvost
+#  @author Mathieu Faverge
+#  @date 2021-04-07
+#
+###
 
+#
+# Steps to do the release:
+#    - Update information in the code (see update_release.sh)
+#    - Update the ChangeLog
+#    - Push the hash on solverstack as:
+#          - a tag named vx.x.x
+#          - a branch named release-x.x.x (will trigger the CI to generate the release)
+#
 changelog=""
 function gen_changelog()
 {
@@ -18,7 +40,7 @@ function gen_changelog()
         #echo $line
     done
 
-    changelog="${changelog}\n__WARNING__: Download the source archive by clicking on the link __Download release__ above, please do not consider the link Source code to get all submodules.\n"
+    changelog="$changelog\nWARNING: Download the source archive by clicking on the link __Download release__ above, please do not consider the automatic Source code links as they are missing the submodules.\n"
 }
 
 release=""
@@ -39,10 +61,6 @@ then
     exit 1
 fi
 
-# extract the change log from ChangeLog
-gen_changelog
-echo $changelog
-
 # generate the archive
 wget https://raw.githubusercontent.com/Kentzo/git-archive-all/master/git_archive_all.py
 python3 git_archive_all.py --force-submodules chameleon-$RELEASE_NAME.tar.gz
@@ -50,6 +68,10 @@ python3 git_archive_all.py --force-submodules chameleon-$RELEASE_NAME.tar.gz
 # upload the source archive
 GETURL=`echo curl --request POST --header \"PRIVATE-TOKEN: $RELEASE_TOKEN\" --form \"file=\@chameleon-$RELEASE_NAME.tar.gz\" https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/uploads`
 MYURL=`eval $GETURL | jq .url | sed "s#\"##g"`
+
+# extract the change log from ChangeLog
+gen_changelog
+echo $changelog
 
 # Try to remove the release if it already exists
 curl --request DELETE --header "PRIVATE-TOKEN: $RELEASE_TOKEN" https://gitlab.inria.fr/api/v4/projects/$CI_PROJECT_ID/releases/v$RELEASE_NAME
