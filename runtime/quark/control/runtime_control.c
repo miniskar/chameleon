@@ -14,6 +14,9 @@
  * @version 1.1.0
  * @author Vijay Joshi
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Samuel Thibault
  * @date 2020-04-22
  *
  */

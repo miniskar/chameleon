@@ -13,6 +13,7 @@
  *
  * @version 1.1.0
  * @author Reazul Hoque
+ * @author Mathieu Faverge
  * @date 2020-09-11
  * @precisions normal z -> c d s
  *

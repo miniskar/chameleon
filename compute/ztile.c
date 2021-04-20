@@ -15,6 +15,7 @@
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
  * @date 2020-04-22
  * @precisions normal z -> s d c
  *

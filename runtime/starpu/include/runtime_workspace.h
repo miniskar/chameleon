@@ -13,6 +13,8 @@
  *
  * @version 1.0.0
  * @author Cedric Augonnet
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-03-03
  *
  */

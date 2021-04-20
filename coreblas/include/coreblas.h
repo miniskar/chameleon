@@ -14,6 +14,10 @@
  * @version 1.0.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
+ * @author Florent Pruvost
+ * @author Guillaume Sylvand
+ * @author Mathieu Faverge
+ * @author Raphael Boucherie
  * @date 2020-03-03
  *
  */

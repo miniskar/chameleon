@@ -22,6 +22,10 @@
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
+#  @author Nathalie Furmento
+#  @author Philippe Virouleau
+#  @author Raphael Boucherie
+#  @author Samuel Thibault
 #  @date 2021-02-22
 #
 ###

@@ -16,6 +16,7 @@
  * @author Hatem Ltaief
  * @author Gregoire Pichon
  * @author Mathieu Faverge
+ * @author Raphael Boucherie
  * @date 2020-03-03
  * @precisions normal z -> s d c
  *

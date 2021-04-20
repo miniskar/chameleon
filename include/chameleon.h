@@ -16,6 +16,7 @@
  * @author Cedric Augonnet
  * @author Cedric Castagnede
  * @author Florent Pruvost
+ * @author Philippe Virouleau
  * @date 2021-03-16
  *
  */

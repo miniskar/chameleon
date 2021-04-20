@@ -14,6 +14,9 @@
  * @version 1.0.0
  * @author Jakub Kurzak
  * @author Piotr Luszczek
+ * @author Florent Pruvost
+ * @author Guillaume Sylvand
+ * @author Mathieu Faverge
  * @date 2020-03-03
  *
  */

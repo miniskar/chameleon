@@ -16,6 +16,8 @@
  * @author Piotr Luszczek
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-03-03
  *
  */

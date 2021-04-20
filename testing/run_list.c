@@ -10,6 +10,8 @@
  *
  * @version 1.1.0
  * @author Lucas Barros de Assis
+ * @author Mathieu Faverge
+ * @author Philippe Swartvagher
  * @date 2020-03-03
  *
  */

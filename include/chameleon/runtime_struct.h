@@ -15,6 +15,8 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Philippe Virouleau
  * @date 2020-10-15
  *
  */

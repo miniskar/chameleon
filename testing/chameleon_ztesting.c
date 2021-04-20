@@ -15,6 +15,7 @@
  * @author Mathieu Faverge
  * @author Cédric Castagnède
  * @author Lucas Barros de Assis
+ * @author Florent Pruvost
  * @date 2020-10-15
  * @precisions normal z -> c d s
  *

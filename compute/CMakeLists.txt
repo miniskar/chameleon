@@ -21,6 +21,9 @@
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
+#  @author Florent Pruvost
+#  @author Guillaume Sylvand
+#  @author Raphael Boucherie
 #  @date 2021-01-11
 #
 ###

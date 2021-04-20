@@ -13,6 +13,7 @@
  *
  * @version 1.1.0
  * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-09-11
  *
  */

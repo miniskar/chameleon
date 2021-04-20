@@ -22,6 +22,7 @@
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
+#  @author Guillaume Sylvand
 #  @date 2021-01-11
 #
 ###

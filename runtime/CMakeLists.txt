@@ -21,6 +21,8 @@
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
+#  @author Florent Pruvost
+#  @author Philippe Virouleau
 #  @date 2020-10-12
 #
 ###

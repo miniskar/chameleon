@@ -11,6 +11,7 @@
  *
  * @version 1.1.0
  * @author Mathieu Faverge
+ * @author Florent Pruvost
  * @date 2021-01-11
  *
  */

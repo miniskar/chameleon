@@ -14,6 +14,8 @@
  * @version 1.0.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
+ * @author Guillaume Sylvand
+ * @author Samuel Thibault
  * @date 2020-03-03
  *
  */

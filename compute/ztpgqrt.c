@@ -14,6 +14,7 @@
  *
  * @version 1.0.0
  * @author Mathieu Faverge
+ * @author Raphael Boucherie
  * @date 2020-01-07
  * @precisions normal z -> s d c
  *

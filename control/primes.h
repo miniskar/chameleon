@@ -13,6 +13,7 @@
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
  * @date 2020-03-03
  *
  * This work is the implementation of an inplace transformation

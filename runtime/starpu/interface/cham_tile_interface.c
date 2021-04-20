@@ -12,6 +12,7 @@
  * @version 1.1.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
+ * @author Samuel Thibault
  * @date 2021-03-16
  *
  */

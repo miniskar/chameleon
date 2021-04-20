@@ -13,6 +13,8 @@
  *
  * @version 1.1.0
  * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Samuel Thibault
  * @date 2021-01-11
  * @precisions normal z -> c d s
  *

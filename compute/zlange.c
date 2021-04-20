@@ -15,6 +15,7 @@
  * @version 1.1.0
  * @author Mathieu Faverge
  * @author Hatem Ltaief
+ * @author Florent Pruvost
  * @date 2020-10-15
  * @precisions normal z -> s d c
  *

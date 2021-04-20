@@ -15,6 +15,9 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Lucas Barros de Assis
+ * @author Thomas Mijieux
  * @date 2020-10-12
  *
  */

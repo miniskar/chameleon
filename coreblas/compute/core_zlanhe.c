@@ -17,6 +17,7 @@
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
+ * @author Florent Pruvost
  * @date 2020-03-03
  * @precisions normal z -> c
  *

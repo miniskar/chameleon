@@ -15,6 +15,8 @@
  * @author Jakub Kurzak
  * @author Piotr Luszczek
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-03-03
  *
  */

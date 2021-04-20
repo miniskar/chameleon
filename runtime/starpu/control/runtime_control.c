@@ -15,6 +15,9 @@
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Philippe Swartvagher
+ * @author Samuel Thibault
  * @date 2020-07-01
  *
  */

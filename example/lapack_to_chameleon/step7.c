@@ -14,6 +14,8 @@
  * @version 1.0.0
  * @author Florent Pruvost
  * @author Guillaume Sylvand
+ * @author Mathieu Faverge
+ * @author Philippe Virouleau
  * @date 2020-03-03
  *
  */

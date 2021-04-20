@@ -16,6 +16,8 @@
  * @author Mathieu Faverge
  * @author Azzam Haidar
  * @author Lucas Barros de Assis
+ * @author Florent Pruvost
+ * @author Samuel Thibault
  * @date 2021-01-11
  * @precisions normal z -> c d s
  *

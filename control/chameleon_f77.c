@@ -15,6 +15,8 @@
  * @author Bilel Hadri
  * @author Cedric Castagnede
  * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Philippe Virouleau
  * @date 2020-03-12
  *
  */

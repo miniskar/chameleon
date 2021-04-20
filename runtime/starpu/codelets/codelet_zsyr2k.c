@@ -18,6 +18,7 @@
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
+ * @author Florent Pruvost
  * @date 2021-01-11
  * @precisions normal z -> c d s
  *

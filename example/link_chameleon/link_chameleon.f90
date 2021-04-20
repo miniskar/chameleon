@@ -11,6 +11,7 @@
 !
 ! @version 1.0.0
 ! @author Florent Pruvost
+! @author Mathieu Faverge
 ! @date 2020-03-03
 program fortran_example
     implicit none

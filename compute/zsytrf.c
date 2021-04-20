@@ -14,6 +14,7 @@
  * @version 1.0.0
  * @author Florent Pruvost
  * @author Marc Sergent
+ * @author Mathieu Faverge
  * @date 2020-03-03
  * @precisions normal z -> c
  *

@@ -14,6 +14,7 @@
  * @version 1.0.0
  * @author Reazul Hoque
  * @author Guillaume Sylvand
+ * @author Mathieu Faverge
  * @date 2020-03-03
  * @precisions normal z -> c d s
  *

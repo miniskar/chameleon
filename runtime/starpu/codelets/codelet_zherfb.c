@@ -14,6 +14,8 @@
  * @version 1.1.0
  * @author Hatem Ltaief
  * @author Lucas Barros de Assis
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2021-01-11
  * @precisions normal z -> c d s
  *

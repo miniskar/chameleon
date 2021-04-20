@@ -15,6 +15,9 @@
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
+ * @author Florent Pruvost
+ * @author Lucas Barros de Assis
+ * @author Samuel Thibault
  * @date 2021-01-11
  * @precisions normal z -> c d s
  *

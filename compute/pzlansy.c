@@ -16,6 +16,7 @@
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
+ * @author Florent Pruvost
  * @date 2020-03-03
  * @precisions normal z -> c d s
  *

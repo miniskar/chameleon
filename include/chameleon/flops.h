@@ -14,6 +14,7 @@
  * @version 1.1.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Lucas Barros de Assis
  * @date 2020-11-19
  *
  */

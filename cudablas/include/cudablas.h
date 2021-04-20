@@ -13,6 +13,8 @@
  *
  * @version 1.0.0
  * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Nathalie Furmento
  * @date 2020-03-03
  * @precisions normal z -> c d s
  *

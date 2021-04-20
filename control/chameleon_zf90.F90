@@ -14,6 +14,7 @@
 ! @author Mathieu Faverge
 ! @author Emmanuel Agullo
 ! @author Cedric Castagnede
+! @author Florent Pruvost
 ! @date 2021-03-17
 ! @precisions normal z -> c d s
 !

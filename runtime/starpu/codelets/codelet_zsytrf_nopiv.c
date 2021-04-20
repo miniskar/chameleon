@@ -20,6 +20,7 @@
  * @author Florent Pruvost
  * @author Marc Sergent
  * @author Lucas Barros de Assis
+ * @author Samuel Thibault
  * @date 2021-01-11
  * @precisions normal z -> c
  *

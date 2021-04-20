@@ -15,6 +15,8 @@
  * @author Jakub Kurzak
  * @author Vijay Joshi
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-04-22
  *
  */

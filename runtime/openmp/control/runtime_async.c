@@ -14,6 +14,8 @@
  * @version 1.1.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Philippe Virouleau
  * @date 2020-04-22
  *
  */

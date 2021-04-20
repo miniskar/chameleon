@@ -14,6 +14,8 @@
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Samuel Thibault
  * @date 2020-04-22
  *
  */

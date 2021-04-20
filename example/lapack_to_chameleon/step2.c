@@ -13,6 +13,8 @@
  *
  * @version 1.1.0
  * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Philippe Virouleau
  * @date 2020-03-12
  *
  */

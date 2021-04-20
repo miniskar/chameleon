@@ -19,6 +19,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Marc Sergent
+ * @author Samuel Thibault
  * @date 2020-03-03
  * @precisions normal z -> c
  *

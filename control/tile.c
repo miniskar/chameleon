@@ -14,6 +14,9 @@
  * @version 1.1.0
  * @author Jakub Kurzak
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Guillaume Sylvand
+ * @author Mathieu Faverge
  * @date 2020-03-12
  *
  ***

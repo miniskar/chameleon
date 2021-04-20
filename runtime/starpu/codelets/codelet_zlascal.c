@@ -14,6 +14,9 @@
  * @version 1.1.0
  * @author Dalal Sukkari
  * @author Lucas Barros de Assis
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Samuel Thibault
  * @date 2021-03-16
  * @precisions normal z -> c d s
  *

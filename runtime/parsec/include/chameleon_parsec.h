@@ -14,6 +14,8 @@
  * @version 1.0.0
  * @author Mathieu Faverge
  * @author Reazul Hoque
+ * @author Florent Pruvost
+ * @author Samuel Thibault
  * @date 2020-03-03
  *
  */

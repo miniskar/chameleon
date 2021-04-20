@@ -22,6 +22,7 @@
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Lucas Barros de Assis
+#  @author Florent Pruvost
 #  @date 2021-01-04
 #
 ###

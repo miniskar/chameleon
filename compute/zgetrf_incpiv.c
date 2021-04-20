@@ -18,6 +18,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
+ * @author Florent Pruvost
  * @date 2020-01-07
  * @precisions normal z -> s d c
  *

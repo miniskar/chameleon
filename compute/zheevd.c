@@ -14,6 +14,8 @@
  * @version 1.1.0
  * @author Azzam Haidar
  * @author Hatem Ltaief
+ * @author Mathieu Faverge
+ * @author Raphael Boucherie
  * @date 2021-03-17
  * @precisions normal z -> s d c
  *

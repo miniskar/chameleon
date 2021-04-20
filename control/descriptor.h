@@ -15,6 +15,10 @@
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Guillaume Sylvand
+ * @author Raphael Boucherie
+ * @author Samuel Thibault
  * @date 2020-03-03
  *
  */

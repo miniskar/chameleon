@@ -12,6 +12,7 @@
  * @version 1.1.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2020-11-19
  * @precisions normal z -> c d s
  *

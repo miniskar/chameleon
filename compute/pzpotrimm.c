@@ -17,6 +17,8 @@
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Ali M Charara
+ * @author Florent Pruvost
+ * @author Samuel Thibault
  * @date 2020-03-03
  * @precisions normal z -> s d c
  *

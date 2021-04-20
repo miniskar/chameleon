@@ -11,6 +11,8 @@
 !
 ! @version 1.1.0
 ! @author Numerical Algorithm Group
+! @author Florent Pruvost
+! @author Mathieu Faverge
 ! @date 2020-04-22
 !
 ! -- Inria
