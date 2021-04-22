@@ -34,6 +34,11 @@ set(ZHDR
   coreblas/coreblas_zc.h
   coreblas/coreblas_ztile.h
 )
+if( CHAMELEON_USE_HMAT )
+  list( APPEND ZHDR
+    coreblas/hmat_z.h )
+endif()
+
 precisions_rules_py(
   COREBLAS_HDRS_GENERATED "${ZHDR}"
   TARGETDIR  coreblas
@@ -49,6 +54,10 @@ set(COREBLAS_HDRS
     coreblas/lapacke_mangling.h
     coreblas/random.h
     )
+if( CHAMELEON_USE_HMAT )
+  list( APPEND COREBLAS_HDRS
+    coreblas/hmat.h )
+endif()
 
 # Add generated headers
 # ---------------------

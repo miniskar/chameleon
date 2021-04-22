@@ -105,6 +105,10 @@ set(ZSRC
     core_zunmqr.c
     core_ztile.c
     )
+if( CHAMELEON_USE_HMAT )
+  list( APPEND ZSRC
+    hmat_z.c )
+endif()
 
 precisions_rules_py(COREBLAS_SRCS_GENERATED "${ZSRC}"
                     PRECISIONS "${CHAMELEON_PRECISION}")
@@ -132,6 +136,10 @@ target_include_directories(coreblas PUBLIC
   $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+
+if( CHAMELEON_USE_HMAT )
+  target_link_libraries(coreblas PUBLIC HMAT::hmat )
+endif()
 
 target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)
 target_link_libraries(coreblas PRIVATE MORSE::CBLAS)

@@ -52,6 +52,7 @@ subs = {
         ('ChamPattern',          'ChamRealFloat',        'ChamRealDouble',       'ChamRealFloat',       r'\bChamRealDouble'    ),
         ('int',                  'float',                'double',               'complex32',             'complex64'          ),
         ('Int',                  'Float',                'Double',               'Complex32',             'Complex64'          ),
+        ('Int',                  'HMAT_SIMPLE_PRECISION','HMAT_DOUBLE_PRECISION','HMAT_SIMPLE_COMPLEX',   'HMAT_DOUBLE_COMPLEX'),
 
         # ----- Additional BLAS
         ('',                     'sTile',                'dTile',                'cTile',                'zTile'               ),
@@ -102,5 +103,7 @@ subs = {
       # ('',                     'stesting',             'dtesting',             'ctesting',             'ztesting'            ),
       # ('',                     'SAUXILIARY',           'DAUXILIARY',           'CAUXILIARY',           'ZAUXILIARY'          ),
       # ('',                     'sbuild',               'dbuild',               'cbuild',               'zbuild'              ),
+        # Hmat-OSS kernels
+        ('hmat_p',               'hmat_s',               'hmat_d',               'hmat_c',               'hmat_z'              ),
     ]
 }
