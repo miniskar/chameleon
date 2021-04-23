@@ -289,6 +289,8 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};chameleon_sources" C
 # Compile step
 # ------------
 add_library(chameleon ${CHAMELEON_SRCS} ${CHAMELEON_SRCSF})
+add_library(CHAMELEON::chameleon ALIAS chameleon)
+
 set_target_properties(chameleon PROPERTIES VERSION ${CHAMELEON_VERSION})
 set_target_properties(chameleon PROPERTIES SOVERSION ${CHAMELEON_VERSION_MAJOR})
 
