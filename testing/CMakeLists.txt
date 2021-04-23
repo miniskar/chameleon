@@ -169,6 +169,23 @@ include(CTestLists.cmake)
 # copy input files
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/input DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+if ( CHAMELEON_USE_HMAT AND (NOT CHAMELEON_SIMULATION) AND CHAMELEON_USE_MPI )
+
+  add_subdirectory( test_fembem )
+
+  add_test( testBEM_cham_gemv_c test_fembem/test_FEMBEM --bem -nbpts 1500 -c -gemvchameleon  )
+  add_test( testBEM_cham_gemv_d test_fembem/test_FEMBEM --bem -nbpts 1500 -d -gemvchameleon  )
+  add_test( testBEM_cham_posv_c test_fembem/test_FEMBEM --bem -nbpts  800 -c -solvechameleon )
+  add_test( testBEM_cham_gesv_s test_fembem/test_FEMBEM --bem -nbpts 1000 -s -solvechameleon --nosym)
+  add_test( testBEM_cham_gesv_z test_fembem/test_FEMBEM --bem -nbpts  900 -z -solvechameleon --nosym)
+
+  add_test( testBEM_hcham_gesv_s test_fembem/test_FEMBEM  --bem -nbpts 4000 -s -solvehchameleon --nosym -check_result)
+  add_test( testBEM_hcham_gesv_d test_fembem/test_FEMBEM  --bem -nbpts 3000 -d -solvehchameleon --nosym -check_result)
+  add_test( testBEM_hcham_gesv_c test_fembem/test_FEMBEM  --bem -nbpts 2000 -c -solvehchameleon --nosym -check_result)
+  add_test( testBEM_hcham_gesv_z test_fembem/test_FEMBEM  --bem -nbpts 1500 -z -solvehchameleon --nosym -check_result)
+
+endif()
+
 ###
 ### END CMakeLists.txt
 ###
