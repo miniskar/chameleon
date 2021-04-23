@@ -199,6 +199,9 @@ endif()
 
 # Enable Hmat-OSS kernels
 option(CHAMELEON_USE_HMAT "Enable hmat kernels" OFF)
+cmake_dependent_option(CHAMELEON_HMAT_EXTERNAL
+                    "Use external hmat-oss library" OFF
+                    "CHAMELEON_USE_HMAT" OFF)
 
 option(CHAMELEON_RUNTIME_SYNC "Enable synchronous task submission when available to debug the code without parallelism" OFF)
 if (CHAMELEON_RUNTIME_SYNC)
@@ -269,17 +272,23 @@ add_subdirectory(hqr)
 # Build dependency HMAT-OSS library #
 #####################################
 if ( CHAMELEON_USE_HMAT )
-  find_package(HMAT REQUIRED)
-  if(HMAT_FOUND)
-    set_target_properties(HMAT::hmat PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HMAT_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${HMAT_DEFINITIONS}"
-      INTERFACE_LINK_DIRECTORIES "${HMAT_LIBRARY_DIRS}"
-      INTERFACE_LINK_LIBRARIES "hmat"
-      )
-    message( STATUS "HMAT: Found" )
+  if ( CHAMELEON_HMAT_EXTERNAL )
+    find_package(HMAT REQUIRED)
+    if(HMAT_FOUND)
+      if( NOT TARGET HMAT::hmat )
+        set_target_properties(HMAT::hmat PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${HMAT_INCLUDE_DIRS}"
+          INTERFACE_COMPILE_DEFINITIONS "${HMAT_DEFINITIONS}"
+          INTERFACE_LINK_DIRECTORIES "${HMAT_LIBRARY_DIRS}"
+          INTERFACE_LINK_LIBRARIES "hmat"
+          )
+      endif()
+      message( STATUS "HMAT: Found" )
+    else()
+      message( ERROR "HMAT: Not found" )
+    endif()
   else()
-    message( ERROR "HMAT: Not found" )
+    message( STATUS "HMAT: Use internal HMat-OSS" )
   endif()
 endif()
 
