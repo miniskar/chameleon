@@ -7,3 +7,9 @@
 [submodule "doc/orgmode/org-html-themes"]
 	path = doc/orgmode/org-html-themes
 	url = https://github.com/fniessen/org-html-themes.git
+[submodule "coreblas/hmat-oss"]
+	path = coreblas/hmat-oss
+	url = https://github.com/jeromerobert/hmat-oss.git
+[submodule "testing/test_fembem"]
+	path = testing/test_fembem
+	url = https://gitlab.inria.fr/solverstack/test_fembem.git

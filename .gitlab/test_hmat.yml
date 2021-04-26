@@ -1,0 +1,34 @@
+---
+.test_hmat_template:
+  extends: .test_script_template
+  needs: [build_hmat]
+  dependencies:
+    - build_hmat
+  artifacts:
+    name: test_hmat
+    expire_in: 48 hours
+    paths:
+      - build_hmat
+      - chameleon_hmat_*.log
+      - chameleon_hmat_*.lcov
+      - bis_chameleon_hmat_*.lcov
+    reports:
+      junit: report.xml
+
+.test_hmat_template_master: &test_hmat_master
+  extends:
+    - .test_hmat_template
+    - .only-master
+
+.test_hmat_template_branches: &test_hmat_branches
+  extends:
+    - .test_hmat_template
+    - .only-branches
+
+test_hmat:
+  <<: *test_hmat_branches
+  variables:
+    VERSION: hmat
+    CATEGORY: none
+    PRECISION: all
+    TESTS_RESTRICTION: "-R \"testBEM_\""

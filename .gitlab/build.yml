@@ -74,4 +74,15 @@ build_starpu_macosx:
   script:
     - tools/build_macosx.sh
 
+build_hmat:
+  extends: .build_script_template
+  artifacts:
+    name: build_hmat
+    expire_in: 48 hours
+    paths:
+      - build-hmat
+      - chameleon_hmat.log
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_USE_CUDA=OFF -DCHAMELEON_USE_MPI=ON -DCHAMELEON_USE_HMAT=ON"
+    VERSION: hmat
 
