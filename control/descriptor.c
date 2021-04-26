@@ -194,38 +194,45 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 
     memset( desc, 0, sizeof(CHAM_desc_t) );
 
+    assert( i == 0 );
+    assert( j == 0 );
+    assert( bsiz == (mb * nb) );
+
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
         chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    // If one of the function get_* is NULL, we switch back to the default, like in chameleon_desc_init()
+    /* If one of the function get_* is NULL, we switch back to the default */
     desc->get_blktile = chameleon_desc_gettile;
     desc->get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
     desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
     desc->get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
-    // Matrix properties
+
+    /* Matrix properties */
     desc->dtyp = dtyp;
-    // Should be given as parameter to follow get_blkaddr (unused)
-    desc->styp = ChamCCRB;
+    /* Should be given as parameter to follow get_blkaddr (unused) */
+    desc->styp = (get_blkaddr == chameleon_getaddr_cm ) ? ChamCM : ChamCCRB;
     desc->mb   = mb;
     desc->nb   = nb;
-    desc->bsiz = bsiz;
-    // Large matrix parameters
-    desc->lm = lm;
-    desc->ln = ln;
-    // Large matrix derived parameters
-    desc->lmt = (lm%mb==0) ? (lm/mb) : (lm/mb+1);
-    desc->lnt = (ln%nb==0) ? (ln/nb) : (ln/nb+1);
-    // Submatrix parameters
-    desc->i = i;
-    desc->j = j;
+    desc->bsiz = mb * nb;
+
+    /* Matrix parameters */
+    desc->i = 0;
+    desc->j = 0;
     desc->m = m;
     desc->n = n;
-    // Submatrix derived parameters
-    desc->mt = (m == 0) ? 0 : (i+m-1)/mb - i/mb + 1;
-    desc->nt = (n == 0) ? 0 : (j+n-1)/nb - j/nb + 1;
+
+    /* Matrix stride parameters */
+    desc->lm = m;
+    desc->ln = n;
+
+    /* Matrix derived parameters */
+    desc->mt  = chameleon_ceil( m, mb );
+    desc->nt  = chameleon_ceil( n, nb );
+    desc->lmt = desc->mt;
+    desc->lnt = desc->nt;
 
     desc->id = nbdesc;
     nbdesc++;
@@ -233,14 +240,20 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 
     desc->myrank = RUNTIME_comm_rank( chamctxt );
 
-    // Grid size
+    /* Grid size */
     desc->p = p;
     desc->q = q;
 
-    // Local dimensions in tiles
+    /* Local dimensions in tiles */
     if ( desc->myrank < (p*q) ) {
-        desc->llmt = (desc->lmt + p - 1) / p;
-        desc->llnt = (desc->lnt + q - 1) / q;
+        int gmt, gnt;
+
+        /* Compute the fictive full number of tiles to derivate the local leading dimension */
+        gmt = chameleon_ceil( lm, mb );
+        gnt = chameleon_ceil( ln, nb );
+
+        desc->llmt = chameleon_ceil( gmt, p );
+        desc->llnt = chameleon_ceil( gnt, q );
 
         // Local dimensions
         if ( ((desc->lmt-1) % p) == (desc->myrank / q) ) {
@@ -255,8 +268,8 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
             desc->lln  =  desc->llnt * nb;
         }
 
-        desc->llm1 = (desc->llm/mb);
-        desc->lln1 = (desc->lln/nb);
+        desc->llm1 = desc->llm / mb;
+        desc->lln1 = desc->lln / nb;
     } else {
         desc->llmt = 0;
         desc->llnt = 0;
@@ -326,13 +339,13 @@ CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, 
     CHAM_desc_t *descB = malloc(sizeof(CHAM_desc_t));
     int mb, nb;
 
-    if ( (descA->i + i + m) > descA->lm ) {
+    if ( (descA->i + i + m) > descA->m ) {
         chameleon_error("chameleon_desc_submatrix", "The number of rows (i+m) of the submatrix doesn't fit in the parent matrix");
-        assert((descA->i + i + m) > descA->lm);
+        assert((descA->i + i + m) > descA->m);
     }
-    if ( (descA->j + j + n) > descA->ln ) {
+    if ( (descA->j + j + n) > descA->n ) {
         chameleon_error("chameleon_desc_submatrix", "The number of rows (j+n) of the submatrix doesn't fit in the parent matrix");
-        assert((descA->j + j + n) > descA->ln);
+        assert((descA->j + j + n) > descA->n);
     }
 
     memcpy( descB, descA, sizeof(CHAM_desc_t) );
