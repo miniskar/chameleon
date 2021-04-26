@@ -126,6 +126,10 @@ static inline int chameleon_min( int a, int b ) {
     if ( a < b ) return a; else return b;
 }
 
+static inline int chameleon_ceil( int a, int b ) {
+    return ( a + b - 1 ) / b;
+}
+
 typedef double cham_fixdbl_t;
 
 END_C_DECLS
