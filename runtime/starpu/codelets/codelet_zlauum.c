@@ -39,7 +39,6 @@ cl_zlauum_cpu_func(void *descr[], void *cl_arg)
 {
     struct cl_zlauum_args_s clargs;
     CHAM_tile_t *tileA;
-    int info = 0;
 
     tileA = cti_interface_get(descr[0]);
 
