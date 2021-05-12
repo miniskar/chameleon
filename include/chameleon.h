@@ -140,6 +140,7 @@ int CHAMELEON_Desc_Acquire( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Release( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Flush  ( const CHAM_desc_t        *desc,
                             const RUNTIME_sequence_t *sequence );
+void CHAMELEON_Desc_Print( const CHAM_desc_t *desc );
 
 /* Workspaces */
 int CHAMELEON_Dealloc_Workspace (CHAM_desc_t **desc);

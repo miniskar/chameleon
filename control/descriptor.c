@@ -976,3 +976,48 @@ void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
     RUNTIME_comm_set_tag_sizes( user_tag_width, user_tag_sep );
     return;
 }
+
+static void
+chameleon_desc_print( const CHAM_desc_t *desc, int shift )
+{
+    intptr_t base = (intptr_t)desc->mat;
+    int m, n;
+
+    for ( n=0; n<desc->nt; n++ ) {
+        for ( m=0; m<desc->mt; m++ ) {
+            const CHAM_tile_t *tile;
+            const CHAM_desc_t *tiledesc;
+            intptr_t ptr;
+
+            tile     = desc->get_blktile( desc, m, n );
+            tiledesc = tile->mat;
+
+            ptr = ( tile->format == CHAMELEON_TILE_DESC ) ? (intptr_t)(tiledesc->mat) : (intptr_t)(tile->mat);
+
+            fprintf( stdout, "%*s%s(%3d,%3d): %d * %d / ld = %d / offset= %ld\n",
+                     shift, " ", desc->name, m, n, tile->m, tile->n, tile->ld, ptr - base );
+
+            if ( tile->format == CHAMELEON_TILE_DESC ) {
+                chameleon_desc_print( tiledesc, shift+2 );
+            }
+        }
+    }
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ *  @brief Print descriptor structure for debug purpose
+ *
+ ******************************************************************************
+ *
+ * @param[in] desc
+ *          The input desc for which to describe to print the tile structure
+ */
+void
+CHAMELEON_Desc_Print( const CHAM_desc_t *desc )
+{
+    chameleon_desc_print( desc, 2 );
+}

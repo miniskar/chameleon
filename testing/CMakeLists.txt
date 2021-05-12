@@ -45,6 +45,7 @@ set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};testing_include" CAC
 set(ZSRC
   chameleon_ztesting.c
   testing_zcheck.c
+  testing_zprint.c
   ##################
   # LAPACK
   ##################
