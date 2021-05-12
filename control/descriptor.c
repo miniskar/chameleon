@@ -866,6 +866,10 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **descptr)
             if ( tile->format == CHAMELEON_TILE_DESC ) {
                 CHAM_desc_t *tiledesc = tile->mat;
 
+                /* Recursive names are allocated internally, we need to free them */
+                if ( tiledesc->name ) {
+                    free( (void*)(tiledesc->name) );
+                }
                 CHAMELEON_Desc_Destroy( &tiledesc );
                 assert( tiledesc == NULL );
             }

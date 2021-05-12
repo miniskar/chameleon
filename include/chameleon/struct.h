@@ -67,6 +67,7 @@ typedef int          (*blkrankof_fct_t)( const CHAM_desc_t*, int, int );
 typedef CHAM_tile_t* (*blktile_fct_t)  ( const CHAM_desc_t*, int, int );
 
 struct chameleon_desc_s {
+    const char *name;
     // function to get chameleon tiles address
     blktile_fct_t  get_blktile;
     // function to get chameleon tiles address
