@@ -22,9 +22,19 @@
  */
 #include "coreblas.h"
 #include <stdarg.h>
+#include <stdlib.h>
 
 int _coreblas_silent = 0;
 static int coreblas_gemm3m_enabled = 0;
+
+__attribute__((unused)) __attribute__((constructor)) static void
+__coreblas_lib_init()
+{
+    char *silent = getenv("CHAMELEON_COREBLAS_SILENT");
+    if ( silent && !(strcmp( silent, "0" ) == 0) ) {
+        _coreblas_silent = 1;
+    }
+}
 
 #if defined(CHAMELEON_KERNELS_TRACE)
 void __coreblas_kernel_trace( const char *func, ... )
