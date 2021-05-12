@@ -208,6 +208,11 @@ if (CHAMELEON_RUNTIME_SYNC)
     message("-- ${BoldGreen}CHAMELEON_RUNTIME_SYNC is set to ON, turn it OFF to avoid synchronisation in the tasks submission${ColourReset}")
 endif()
 
+option(CHAMELEON_KERNELS_TRACE "Enable kernel traces to debug the task execution order" OFF)
+if (CHAMELEON_KERNELS_TRACE)
+    message("-- ${BoldGreen}CHAMELEON_KERNELS_TRACE is set to ON, turn it OFF to get better perfomance${ColourReset}")
+endif()
+
 # Options to enable/disable doc, examples, and testings
 # -----------------------------------------------------
 option(CHAMELEON_ENABLE_DOC      "Enable documentation build"  OFF)

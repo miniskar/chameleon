@@ -35,6 +35,9 @@ BEGIN_C_DECLS
 #define CHAMELEON_TILE_HMAT     (1 << 2)
 
 typedef struct chameleon_tile_s {
+#if defined(CHAMELEON_KERNELS_TRACE)
+    char  *name;
+#endif
     int8_t format;
     int    m, n, ld;
     void  *mat;

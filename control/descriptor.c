@@ -26,6 +26,7 @@
  * @brief Group descriptor routines exposed to users
  *
  */
+#define _GNU_SOURCE 1
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -71,6 +72,17 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
     }
 
     if ( desc->tiles ) {
+#if defined(CHAMELEON_KERNELS_TRACE)
+        CHAM_tile_t *tile = desc->tiles;
+        int ii, jj;
+        for( jj=0; jj<desc->lnt; jj++ ) {
+            for( ii=0; ii<desc->lmt; ii++, tile++ ) {
+                if ( tile->name ) {
+                    free( tile->name );
+                }
+            }
+        }
+#endif
         free( desc->tiles );
     }
     return CHAMELEON_SUCCESS;
@@ -92,6 +104,9 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc )
             tile->n   = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
             tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
             tile->ld  = desc->get_blkldd( desc, ii );
+#if defined(CHAMELEON_KERNELS_TRACE)
+            asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj);
+#endif
         }
     }
 }
