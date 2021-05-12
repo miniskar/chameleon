@@ -27,6 +27,7 @@
  *
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include "control/common.h"
@@ -838,9 +839,11 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat )
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
+int CHAMELEON_Desc_Destroy(CHAM_desc_t **descptr)
 {
     CHAM_context_t *chamctxt;
+    CHAM_desc_t *desc;
+    int m, n;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -848,14 +851,30 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    if (*desc == NULL) {
+    if ((descptr == NULL) || (*descptr == NULL)) {
         chameleon_error("CHAMELEON_Desc_Destroy", "attempting to destroy a NULL descriptor");
         return CHAMELEON_ERR_UNALLOCATED;
     }
 
-    chameleon_desc_destroy( *desc );
-    free(*desc);
-    *desc = NULL;
+    desc = *descptr;
+    for ( n=0; n<desc->nt; n++ ) {
+        for ( m=0; m<desc->mt; m++ ) {
+            CHAM_tile_t *tile;
+
+            tile = desc->get_blktile( desc, m, n );
+
+            if ( tile->format == CHAMELEON_TILE_DESC ) {
+                CHAM_desc_t *tiledesc = tile->mat;
+
+                CHAMELEON_Desc_Destroy( &tiledesc );
+                assert( tiledesc == NULL );
+            }
+        }
+    }
+
+    chameleon_desc_destroy( desc );
+    free(desc);
+    *descptr = NULL;
     return CHAMELEON_SUCCESS;
 }
 
