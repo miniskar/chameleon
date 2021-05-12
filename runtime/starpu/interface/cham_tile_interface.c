@@ -291,9 +291,16 @@ cti_display( starpu_data_handle_t handle, FILE *f )
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
         starpu_data_get_interface_on_node(handle, STARPU_MAIN_RAM);
 
+#if defined(CHAMELEON_KERNELS_TRACE)
+    fprintf( f, "%s{.m=%u,.n=%u}",
+             cham_tile_interface->tile.name,
+             cham_tile_interface->tile.m,
+             cham_tile_interface->tile.n );
+#else
     fprintf( f, "%u\t%u\t",
              cham_tile_interface->tile.m,
              cham_tile_interface->tile.n );
+#endif
 }
 
 static int
