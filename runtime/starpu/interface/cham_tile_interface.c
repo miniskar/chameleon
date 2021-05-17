@@ -19,7 +19,6 @@
 #include "chameleon_starpu.h"
 #if defined(CHAMELEON_USE_HMAT)
 #include "coreblas/hmat.h"
-#endif
 
 static inline void
 cti_hmat_destroy( starpu_cham_tile_interface_t *cham_tile_interface )
@@ -47,7 +46,7 @@ static inline size_t
 cti_get_hmat_required_size( starpu_cham_tile_interface_t *cham_tile_interface )
 {
     size_t size = 0;
-#if defined(CHAMELEON_USE_HMAT)
+
     if ( (cham_tile_interface->tile.format & CHAMELEON_TILE_HMAT) &&
          (cham_tile_interface->tile.mat != NULL ) )
     {
@@ -68,10 +67,15 @@ cti_get_hmat_required_size( starpu_cham_tile_interface_t *cham_tile_interface )
             STARPU_ASSERT_MSG( 0, "cti_get_hmat_required_size(cham_tile_interface): unknown flttype\n" );
         }
     }
-#endif
-    (void)cham_tile_interface;
+
     return size;
 }
+#else
+static inline size_t
+cti_get_hmat_required_size( starpu_cham_tile_interface_t *cham_tile_interface  __attribute__((unused)) ) {
+    return 0;
+}
+#endif
 
 static inline CHAM_tile_t *
 cti_handle_get( starpu_data_handle_t handle )
@@ -287,9 +291,16 @@ cti_display( starpu_data_handle_t handle, FILE *f )
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
         starpu_data_get_interface_on_node(handle, STARPU_MAIN_RAM);
 
+#if defined(CHAMELEON_KERNELS_TRACE)
+    fprintf( f, "%s{.m=%u,.n=%u}",
+             cham_tile_interface->tile.name,
+             cham_tile_interface->tile.m,
+             cham_tile_interface->tile.n );
+#else
     fprintf( f, "%u\t%u\t",
              cham_tile_interface->tile.m,
              cham_tile_interface->tile.n );
+#endif
 }
 
 static int
@@ -454,7 +465,6 @@ cti_peek_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t cou
         starpu_data_get_interface_on_node(handle, node);
 
     char *tmp = ptr;
-    size_t size;
 
 #if defined(CHAMELEON_USE_MPI_DATATYPES)
     /*
@@ -467,6 +477,7 @@ cti_peek_data( starpu_data_handle_t handle, unsigned node, void *ptr, size_t cou
 #else
     {
         CHAM_tile_t dsttile;
+        size_t size;
 
         /* Extract the size of the information to unpack */
         memcpy( &size, tmp, sizeof(size_t) );

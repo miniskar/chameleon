@@ -34,6 +34,8 @@
 
 /* Debug scheduling engine */
 #cmakedefine CHAMELEON_RUNTIME_SYNC
+/* Debug coreblas execution order if not provided by the runtime */
+#cmakedefine CHAMELEON_KERNELS_TRACE
 
 /* Communication engine */
 #cmakedefine CHAMELEON_USE_MPI
@@ -84,6 +86,12 @@
 #else
 #define BEGIN_C_DECLS /* empty */
 #define END_C_DECLS   /* empty */
+#endif
+
+#ifdef _MSC_VER
+#define __chameleon_func__ __FUNCTION__
+#else
+#define __chameleon_func__ __func__
 #endif
 
 #endif /* CHAMELEON_CONFIG_H_HAS_BEEN_INCLUDED */

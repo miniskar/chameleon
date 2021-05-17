@@ -36,6 +36,7 @@ set(CHAMELEON_CONTROL
     ../control/context.c
     ../control/control.c
     ../control/descriptor.c
+    ../control/descriptor_rec.c
     ../control/workspace.c
     ../control/tile.c
     ../control/chameleon_f77.c

@@ -241,8 +241,8 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
         for (n = 0; n < lnt; n++) {
             for (m = 0; m < lmt; m++)
             {
-                if (*handle != NULL) {
-                    starpu_data_unregister(*handle);
+                if ( *handle != NULL ) {
+                    starpu_data_unregister_submit(*handle);
                     *handle = NULL;
                 }
                 handle++;
@@ -384,12 +384,25 @@ void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
 {
     int64_t mm = m + (A->i / A->mb);
     int64_t nn = n + (A->j / A->nb);
-
+    int64_t shift = ((int64_t)A->lmt) * nn + mm;
     starpu_data_handle_t *handle = A->schedopt;
-    handle += ((int64_t)A->lmt) * nn + mm;
+    CHAM_tile_t          *tile   = A->tiles;
+    handle += shift;
+    tile   += shift;
 
     if (*handle == NULL) {
         return;
+    }
+
+    /*
+     * TODO: check later, a better check would be to check if we
+     * partitionned the handle or not
+     *
+     * Right now, we can't flush a partitionned handle, we would need to
+     * unpartition first, so we flush only the children.
+     */
+    if ( tile->format & CHAMELEON_TILE_DESC ) {
+        CHAMELEON_Desc_Flush( tile->mat, sequence );
     }
 
 #if defined(CHAMELEON_USE_MPI)

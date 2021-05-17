@@ -87,6 +87,21 @@ extern char *chameleon_lapack_constants[];
 void set_coreblas_gemm3m_enabled( int v );
 int  get_coreblas_gemm3m_enabled( void );
 
+
+#if defined(CHAMELEON_KERNELS_TRACE)
+
+void __coreblas_kernel_trace( const char *func, ... );
+#define coreblas_kernel_trace( ... )                                    \
+    do {                                                                \
+        __coreblas_kernel_trace( __chameleon_func__, ##__VA_ARGS__, NULL );  \
+    } while(0)
+
+#else
+
+#define coreblas_kernel_trace( ... ) do {} while(0)
+
+#endif
+
 END_C_DECLS
 
 #endif /* _coreblas_h_ */

@@ -26,7 +26,9 @@
  * @brief Group descriptor routines exposed to users
  *
  */
+#define _GNU_SOURCE 1
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include "control/common.h"
@@ -70,6 +72,17 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
     }
 
     if ( desc->tiles ) {
+#if defined(CHAMELEON_KERNELS_TRACE)
+        CHAM_tile_t *tile = desc->tiles;
+        int ii, jj;
+        for( jj=0; jj<desc->lnt; jj++ ) {
+            for( ii=0; ii<desc->lmt; ii++, tile++ ) {
+                if ( tile->name ) {
+                    free( tile->name );
+                }
+            }
+        }
+#endif
         free( desc->tiles );
     }
     return CHAMELEON_SUCCESS;
@@ -91,6 +104,9 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc )
             tile->n   = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
             tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
             tile->ld  = desc->get_blkldd( desc, ii );
+#if defined(CHAMELEON_KERNELS_TRACE)
+            asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj);
+#endif
         }
     }
 }
@@ -194,38 +210,45 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 
     memset( desc, 0, sizeof(CHAM_desc_t) );
 
+    assert( i == 0 );
+    assert( j == 0 );
+    assert( bsiz == (mb * nb) );
+
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
         chameleon_error("CHAMELEON_Desc_Create", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    // If one of the function get_* is NULL, we switch back to the default, like in chameleon_desc_init()
+    /* If one of the function get_* is NULL, we switch back to the default */
     desc->get_blktile = chameleon_desc_gettile;
     desc->get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
     desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
     desc->get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
-    // Matrix properties
+
+    /* Matrix properties */
     desc->dtyp = dtyp;
-    // Should be given as parameter to follow get_blkaddr (unused)
-    desc->styp = ChamCCRB;
+    /* Should be given as parameter to follow get_blkaddr (unused) */
+    desc->styp = (get_blkaddr == chameleon_getaddr_cm ) ? ChamCM : ChamCCRB;
     desc->mb   = mb;
     desc->nb   = nb;
-    desc->bsiz = bsiz;
-    // Large matrix parameters
-    desc->lm = lm;
-    desc->ln = ln;
-    // Large matrix derived parameters
-    desc->lmt = (lm%mb==0) ? (lm/mb) : (lm/mb+1);
-    desc->lnt = (ln%nb==0) ? (ln/nb) : (ln/nb+1);
-    // Submatrix parameters
-    desc->i = i;
-    desc->j = j;
+    desc->bsiz = mb * nb;
+
+    /* Matrix parameters */
+    desc->i = 0;
+    desc->j = 0;
     desc->m = m;
     desc->n = n;
-    // Submatrix derived parameters
-    desc->mt = (m == 0) ? 0 : (i+m-1)/mb - i/mb + 1;
-    desc->nt = (n == 0) ? 0 : (j+n-1)/nb - j/nb + 1;
+
+    /* Matrix stride parameters */
+    desc->lm = m;
+    desc->ln = n;
+
+    /* Matrix derived parameters */
+    desc->mt  = chameleon_ceil( m, mb );
+    desc->nt  = chameleon_ceil( n, nb );
+    desc->lmt = desc->mt;
+    desc->lnt = desc->nt;
 
     desc->id = nbdesc;
     nbdesc++;
@@ -233,14 +256,20 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 
     desc->myrank = RUNTIME_comm_rank( chamctxt );
 
-    // Grid size
+    /* Grid size */
     desc->p = p;
     desc->q = q;
 
-    // Local dimensions in tiles
+    /* Local dimensions in tiles */
     if ( desc->myrank < (p*q) ) {
-        desc->llmt = (desc->lmt + p - 1) / p;
-        desc->llnt = (desc->lnt + q - 1) / q;
+        int gmt, gnt;
+
+        /* Compute the fictive full number of tiles to derivate the local leading dimension */
+        gmt = chameleon_ceil( lm, mb );
+        gnt = chameleon_ceil( ln, nb );
+
+        desc->llmt = chameleon_ceil( gmt, p );
+        desc->llnt = chameleon_ceil( gnt, q );
 
         // Local dimensions
         if ( ((desc->lmt-1) % p) == (desc->myrank / q) ) {
@@ -255,8 +284,8 @@ int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
             desc->lln  =  desc->llnt * nb;
         }
 
-        desc->llm1 = (desc->llm/mb);
-        desc->lln1 = (desc->lln/nb);
+        desc->llm1 = desc->llm / mb;
+        desc->lln1 = desc->lln / nb;
     } else {
         desc->llmt = 0;
         desc->llnt = 0;
@@ -326,13 +355,13 @@ CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, 
     CHAM_desc_t *descB = malloc(sizeof(CHAM_desc_t));
     int mb, nb;
 
-    if ( (descA->i + i + m) > descA->lm ) {
+    if ( (descA->i + i + m) > descA->m ) {
         chameleon_error("chameleon_desc_submatrix", "The number of rows (i+m) of the submatrix doesn't fit in the parent matrix");
-        assert((descA->i + i + m) > descA->lm);
+        assert((descA->i + i + m) > descA->m);
     }
-    if ( (descA->j + j + n) > descA->ln ) {
+    if ( (descA->j + j + n) > descA->n ) {
         chameleon_error("chameleon_desc_submatrix", "The number of rows (j+n) of the submatrix doesn't fit in the parent matrix");
-        assert((descA->j + j + n) > descA->ln);
+        assert((descA->j + j + n) > descA->n);
     }
 
     memcpy( descB, descA, sizeof(CHAM_desc_t) );
@@ -825,9 +854,11 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat )
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
+int CHAMELEON_Desc_Destroy(CHAM_desc_t **descptr)
 {
     CHAM_context_t *chamctxt;
+    CHAM_desc_t *desc;
+    int m, n;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -835,14 +866,34 @@ int CHAMELEON_Desc_Destroy(CHAM_desc_t **desc)
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    if (*desc == NULL) {
+    if ((descptr == NULL) || (*descptr == NULL)) {
         chameleon_error("CHAMELEON_Desc_Destroy", "attempting to destroy a NULL descriptor");
         return CHAMELEON_ERR_UNALLOCATED;
     }
 
-    chameleon_desc_destroy( *desc );
-    free(*desc);
-    *desc = NULL;
+    desc = *descptr;
+    for ( n=0; n<desc->nt; n++ ) {
+        for ( m=0; m<desc->mt; m++ ) {
+            CHAM_tile_t *tile;
+
+            tile = desc->get_blktile( desc, m, n );
+
+            if ( tile->format == CHAMELEON_TILE_DESC ) {
+                CHAM_desc_t *tiledesc = tile->mat;
+
+                /* Recursive names are allocated internally, we need to free them */
+                if ( tiledesc->name ) {
+                    free( (void*)(tiledesc->name) );
+                }
+                CHAMELEON_Desc_Destroy( &tiledesc );
+                assert( tiledesc == NULL );
+            }
+        }
+    }
+
+    chameleon_desc_destroy( desc );
+    free(desc);
+    *descptr = NULL;
     return CHAMELEON_SUCCESS;
 }
 
@@ -939,4 +990,49 @@ int CHAMELEON_Desc_Flush( const CHAM_desc_t        *desc,
 void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
     RUNTIME_comm_set_tag_sizes( user_tag_width, user_tag_sep );
     return;
+}
+
+static void
+chameleon_desc_print( const CHAM_desc_t *desc, int shift )
+{
+    intptr_t base = (intptr_t)desc->mat;
+    int m, n;
+
+    for ( n=0; n<desc->nt; n++ ) {
+        for ( m=0; m<desc->mt; m++ ) {
+            const CHAM_tile_t *tile;
+            const CHAM_desc_t *tiledesc;
+            intptr_t ptr;
+
+            tile     = desc->get_blktile( desc, m, n );
+            tiledesc = tile->mat;
+
+            ptr = ( tile->format == CHAMELEON_TILE_DESC ) ? (intptr_t)(tiledesc->mat) : (intptr_t)(tile->mat);
+
+            fprintf( stdout, "%*s%s(%3d,%3d): %d * %d / ld = %d / offset= %ld\n",
+                     shift, " ", desc->name, m, n, tile->m, tile->n, tile->ld, ptr - base );
+
+            if ( tile->format == CHAMELEON_TILE_DESC ) {
+                chameleon_desc_print( tiledesc, shift+2 );
+            }
+        }
+    }
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ *  @brief Print descriptor structure for debug purpose
+ *
+ ******************************************************************************
+ *
+ * @param[in] desc
+ *          The input desc for which to describe to print the tile structure
+ */
+void
+CHAMELEON_Desc_Print( const CHAM_desc_t *desc )
+{
+    chameleon_desc_print( desc, 2 );
 }

@@ -140,6 +140,7 @@ int CHAMELEON_Desc_Acquire( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Release( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Flush  ( const CHAM_desc_t        *desc,
                             const RUNTIME_sequence_t *sequence );
+void CHAMELEON_Desc_Print( const CHAM_desc_t *desc );
 
 /* Workspaces */
 int CHAMELEON_Dealloc_Workspace (CHAM_desc_t **desc);
@@ -162,6 +163,10 @@ int CHAMELEON_Sequence_Flush   (RUNTIME_sequence_t *sequence, RUNTIME_request_t 
 int CHAMELEON_Request_Create  (RUNTIME_request_t **request);
 int CHAMELEON_Request_Destroy (RUNTIME_request_t *request);
 int CHAMELEON_Request_Set     (RUNTIME_request_t *request, int param, int value);
+
+int  CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
+                                      int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
+                                      blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
 
 /**
  *

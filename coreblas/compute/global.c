@@ -20,7 +20,50 @@
  * @date 2020-03-03
  *
  */
+#include "coreblas.h"
+#include <stdarg.h>
+#include <stdlib.h>
+
+int _coreblas_silent = 0;
 static int coreblas_gemm3m_enabled = 0;
+
+__attribute__((unused)) __attribute__((constructor)) static void
+__coreblas_lib_init()
+{
+    char *silent = getenv("CHAMELEON_COREBLAS_SILENT");
+    if ( silent && !(strcmp( silent, "0" ) == 0) ) {
+        _coreblas_silent = 1;
+    }
+}
+
+#if defined(CHAMELEON_KERNELS_TRACE)
+void __coreblas_kernel_trace( const char *func, ... )
+{
+    char output[1024];
+    int first = 1;
+    int size = 0;
+    int len = 1024;
+    va_list va_list;
+    const CHAM_tile_t *tile;
+
+    if (_coreblas_silent) {
+        return;
+    }
+
+    size += snprintf( output, len, "[coreblas] Execute %s(", func );
+
+    va_start( va_list, func );
+    while((tile = va_arg(va_list, const CHAM_tile_t*)) != 0) {
+        size += snprintf( output+size, len-size, "%s%s",
+                          first ? "" : ", ",
+                          tile->name );
+    }
+    va_end( va_list );
+
+    fprintf( stderr, "%s)\n", output );
+    fflush(stderr);
+}
+#endif
 
 void
 set_coreblas_gemm3m_enabled( int v ) {
