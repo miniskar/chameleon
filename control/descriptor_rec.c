@@ -36,11 +36,11 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
     assert( (mb[0] > 0) && (nb[0] > 0) );
 
     /* Create the current layer descriptor */
-    rc = CHAMELEON_Desc_Create_User( descptr, mat, dtyp, mb[0], nb[0], mb[0] * nb[0],
-                                     lm, ln, 0, 0, m, n, 1, 1,
-                                     get_blkaddr, get_blkldd, get_rankof );
-    desc = *descptr;
-    desc->name = name;
+    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
+    rc = chameleon_desc_init_internal( desc, name, mat, dtyp, mb[0], nb[0],
+                                       lm, ln, m, n, 1, 1,
+                                       get_blkaddr, get_blkldd, get_rankof );
+    *descptr = desc;
 
     if ( rc != CHAMELEON_SUCCESS ) {
         return rc;

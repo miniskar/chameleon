@@ -48,16 +48,32 @@ inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 /**
  *  Data distributions
  */
-int          chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
-int          chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
+int chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
+int chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
 
-int          chameleon_desc_init     ( CHAM_desc_t *desc, void *mat,
+int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat,
+                                  cham_flttype_t dtyp, int mb, int nb,
+                                  int lm, int ln, int m, int n, int p, int q,
+                                  void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
+                                  int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
+                                  int   (*get_rankof) ( const CHAM_desc_t*, int, int ) );
+
+
+static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
                                        cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                        int lm, int ln, int i, int j,
                                        int m,  int n,  int p, int q,
                                        void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                        int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                       int   (*get_rankof) ( const CHAM_desc_t*, int, int ) );
+                                       int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
+{
+    assert( i == 0 );
+    assert( j == 0 );
+    assert( mb * nb == bsiz );
+    return chameleon_desc_init_internal( desc, NULL, mat, dtyp, mb, nb, lm, ln, m, n, p, q,
+                                         get_blkaddr, get_blkldd, get_rankof );
+}
+
 CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
 void         chameleon_desc_destroy  ( CHAM_desc_t *desc );
 int          chameleon_desc_check    ( const CHAM_desc_t *desc );
