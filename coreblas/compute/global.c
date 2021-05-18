@@ -57,6 +57,7 @@ void __coreblas_kernel_trace( const char *func, ... )
         size += snprintf( output+size, len-size, "%s%s",
                           first ? "" : ", ",
                           tile->name );
+        first = 0;
     }
     va_end( va_list );
 
