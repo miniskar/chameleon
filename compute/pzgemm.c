@@ -291,7 +291,7 @@ chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    if ( ws->summa )
+    if ( ws && ws->summa )
     {
         chameleon_pzgemm_summa( chamctxt, transA, transB, alpha, A, B, beta, C,
                                 &(ws->WA), &(ws->WB), &options );

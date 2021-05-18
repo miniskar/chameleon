@@ -142,6 +142,9 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  *
  ******************************************************************************
  *
+ * @param[in] name
+ *          Name of the descriptor for debug purpose.
+ *
  * @param[in] dtyp
  *          Data type of the matrix:
  *          @arg ChamRealFloat:     single precision real (S),
@@ -155,20 +158,11 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  * @param[in] nb
  *          Number of columns in a tile.
  *
- * @param[in] bsiz
- *          Size in number of elements of each tile, including internal padding.
- *
  * @param[in] lm
  *          Number of rows of the entire matrix.
  *
  * @param[in] ln
  *          Number of columns of the entire matrix.
- *
- * @param[in] i
- *          Row index to the beginning of the submatrix.
- *
- * @param[in] j
- *          Column indes to the beginning of the submatrix.
  *
  * @param[in] m
  *          Number of rows of the submatrix.
@@ -197,22 +191,19 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
  * @return  The descriptor with the matrix description parameters set.
  *
  */
-int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
-                         cham_flttype_t dtyp, int mb, int nb, int bsiz,
-                         int lm, int ln, int i, int j,
-                         int m,  int n,  int p, int q,
-                         blkaddr_fct_t   get_blkaddr,
-                         blkldd_fct_t    get_blkldd,
-                         blkrankof_fct_t get_rankof)
+int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat,
+                                  cham_flttype_t dtyp, int mb, int nb,
+                                  int lm, int ln, int m, int n, int p, int q,
+                                  blkaddr_fct_t   get_blkaddr,
+                                  blkldd_fct_t    get_blkldd,
+                                  blkrankof_fct_t get_rankof )
 {
     CHAM_context_t *chamctxt;
     int rc = CHAMELEON_SUCCESS;
 
     memset( desc, 0, sizeof(CHAM_desc_t) );
 
-    assert( i == 0 );
-    assert( j == 0 );
-    assert( bsiz == (mb * nb) );
+    desc->name = name;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
