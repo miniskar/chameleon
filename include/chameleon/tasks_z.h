@@ -429,8 +429,21 @@ INSERT_TASK_zttmqr( const RUNTIME_option_t *options,
 }
 
 /**
- * Gram prototype
+ * Centered-Scaled and Gram prototype
  */
+void INSERT_TASK_zgesum( const RUNTIME_option_t *options,
+                        cham_store_t storev, int m, int n,
+                        const CHAM_desc_t *A, int Am, int An,
+                        const CHAM_desc_t *SUMS, int SUMSm, int SUMSn );
+void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
+                         int center, int scale, cham_store_t axis,
+                         int m, int n, int mt, int nt,
+                         const CHAM_desc_t *Gi, int Gim, int Gin,
+                         const CHAM_desc_t *Gj, int Gjm, int Gjn,
+                         const CHAM_desc_t *G, int Gm, int Gn,
+                         const CHAM_desc_t *Di, int Dim, int Din,
+                         const CHAM_desc_t *Dj, int Djm, int Djn,
+                         CHAM_desc_t *A, int Am, int An );
 void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         cham_uplo_t uplo,
                         int m, int n, int mt, int nt,

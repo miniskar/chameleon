@@ -1,0 +1,110 @@
+/**
+ *
+ * @file starpu/codelet_zcesca.c
+ *
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon zcesca StarPU codelet
+ *
+ * @version 1.1.0
+ * @author Florent Pruvost
+ * @date 2021-05-07
+ * @precisions normal z -> c d s
+ *
+ */
+#include "chameleon_starpu.h"
+#include "runtime_codelet_z.h"
+
+struct cl_zcesca_args_s {
+    int center;
+    int scale;
+    cham_store_t axis;
+    int m;
+    int n;
+    int mt;
+    int nt;
+};
+
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zcesca_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_zcesca_args_s clargs;
+    CHAM_tile_t *Gi;
+    CHAM_tile_t *Gj;
+    CHAM_tile_t *G;
+    CHAM_tile_t *Di;
+    CHAM_tile_t *Dj;
+    CHAM_tile_t *A;
+
+    Gi = cti_interface_get(descr[0]);
+    Gj = cti_interface_get(descr[1]);
+    G  = cti_interface_get(descr[2]);
+    Di = cti_interface_get(descr[3]);
+    Dj = cti_interface_get(descr[4]);
+    A  = cti_interface_get(descr[5]);
+
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_zcesca( clargs.center, clargs.scale, clargs.axis,
+                  clargs.m, clargs.n, clargs.mt, clargs.nt,
+                  Gi, Gj, G, Di, Dj, A );
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zcesca, cl_zcesca_cpu_func)
+
+void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
+                         int center, int scale, cham_store_t axis,
+                         int m, int n, int mt, int nt,
+                         const CHAM_desc_t *Gi, int Gim, int Gin,
+                         const CHAM_desc_t *Gj, int Gjm, int Gjn,
+                         const CHAM_desc_t *G, int Gm, int Gn,
+                         const CHAM_desc_t *Di, int Dim, int Din,
+                         const CHAM_desc_t *Dj, int Djm, int Djn,
+                         CHAM_desc_t *A, int Am, int An )
+{
+    struct cl_zcesca_args_s clargs = {
+        .center = center,
+        .scale  = scale,
+        .axis   = axis,
+        .m      = m,
+        .n      = n,
+        .mt     = mt,
+        .nt     = nt
+    };
+    struct starpu_codelet *codelet = &cl_zcesca;
+    void (*callback)(void*) = options->profiling ? cl_zcesca_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(Gi, Gim, Gin);
+    CHAMELEON_ACCESS_R(Gj, Gjm, Gjn);
+    CHAMELEON_ACCESS_R(G, Gm, Gn);
+    CHAMELEON_ACCESS_R(Di, Dim, Din);
+    CHAMELEON_ACCESS_R(Dj, Djm, Djn);
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    rt_starpu_insert_task(
+        codelet,
+        STARPU_VALUE, &clargs, sizeof(struct cl_zcesca_args_s),
+        STARPU_R,        RTBLKADDR(Gi, CHAMELEON_Complex64_t, Gim, Gin),
+        STARPU_R,        RTBLKADDR(Gj, CHAMELEON_Complex64_t, Gjm, Gjn),
+        STARPU_R,        RTBLKADDR(G, CHAMELEON_Complex64_t, Gm, Gn),
+        STARPU_R,        RTBLKADDR(Di, double, Dim, Din),
+        STARPU_R,        RTBLKADDR(Dj, double, Djm, Djn),
+        STARPU_RW,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_PRIORITY, options->priority,
+        STARPU_CALLBACK, callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zcesca",
+#endif
+        0);
+}

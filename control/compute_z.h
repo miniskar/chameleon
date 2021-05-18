@@ -34,6 +34,18 @@ struct chameleon_pzgemm_s {
     CHAM_desc_t WA;
     CHAM_desc_t WB;
 };
+
+/**
+ * @brief Data structure to handle the Centering-Scaled workspaces
+ */
+struct chameleon_pzcesca_s {
+    CHAM_desc_t Wgcol;
+    CHAM_desc_t Wgrow;
+    CHAM_desc_t Wgelt;
+    CHAM_desc_t Wdcol;
+    CHAM_desc_t Wdrow;
+};
+
 /**
  * @brief Data structure to handle the GRAM workspaces
  */
@@ -155,6 +167,10 @@ void chameleon_pztpqrt_param( int genD, cham_uplo_t uplo, int K,
                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
+/**
+ * Centered-Scaled function prototypes
+ */
+void chameleon_pzcesca( struct chameleon_pzcesca_s *ws, int center, int scale, cham_store_t axis, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 /**
  * Gram function prototypes
  */

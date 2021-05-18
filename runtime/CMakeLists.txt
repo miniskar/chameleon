@@ -102,8 +102,10 @@ set(CODELETS_ZSRC
     ##################
     codelets/codelet_zbuild.c
     ##################
-    # GRAM
+    # CENTERED-SCALED and GRAM
     ##################
+    codelets/codelet_zgesum.c
+    codelets/codelet_zcesca.c
     codelets/codelet_zgram.c
     )
 

@@ -101,6 +101,8 @@ set(ZSRC
   testing_zgepdf_qdwh.c
   testing_zgepdf_qr.c
   testing_zplrnk.c
+  testing_zcesca.c
+  testing_zgram.c
   )
 
 

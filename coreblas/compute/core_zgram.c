@@ -67,7 +67,7 @@
  *
  * @param[in,out] A
  *         On entry, the M-by-N tile A.
- *         On exit, updated by the application of L.
+ *         On exit, updated by the Gram matrix coefficients.
  *
  * @param[in] LDA
  *         The leading dimension of the array A.  LDA >= max(1,M).

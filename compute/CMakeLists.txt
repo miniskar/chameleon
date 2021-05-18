@@ -235,6 +235,11 @@ set(ZSRC
     zbuild.c
     pzbuild.c
     ##################
+    # Center-Scaled
+    ##################
+    zcesca.c
+    pzcesca.c
+    ##################
     # Gram
     ##################
     zgram.c

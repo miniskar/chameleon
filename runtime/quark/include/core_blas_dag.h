@@ -97,6 +97,9 @@
 #define DAG_CORE_TRSSQ      DAG_SET_PROPERTIES( "TRSSQ"    , "white"    )
 #define DAG_CORE_PLSSQ      DAG_SET_PROPERTIES( "PLSSQ"    , "white"    )
 #define DAG_CORE_PLSSQ2     DAG_SET_PROPERTIES( "PLSSQ2"   , "white"    )
+
+#define DAG_CORE_GESUM      DAG_SET_PROPERTIES( "GESUM"    , "white"    )
+#define DAG_CORE_CESCA      DAG_SET_PROPERTIES( "CESCA"    , "orange"   )
 #define DAG_CORE_GRAM       DAG_SET_PROPERTIES( "GRAM"     , "orange"   )
 
 #endif /* _core_blas_dag_h_ */

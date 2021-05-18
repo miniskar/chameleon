@@ -80,6 +80,8 @@ int  TCORE_ztsmqr_hetra1( cham_side_t side, cham_trans_t trans, int m1, int n1, 
 int  TCORE_ztstrf( int M, int N, int IB, int NB, CHAM_tile_t *U, CHAM_tile_t *A, CHAM_tile_t *L, int *IPIV, CHAMELEON_Complex64_t *WORK, int LDWORK, int *INFO );
 int  TCORE_zunmlq( cham_side_t side, cham_trans_t trans, int M, int N, int IB, int K, const CHAM_tile_t *V, const CHAM_tile_t *T, CHAM_tile_t *C, CHAMELEON_Complex64_t *WORK, int LDWORK );
 int  TCORE_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K, int IB, const CHAM_tile_t *V, const CHAM_tile_t *T, CHAM_tile_t *C, CHAMELEON_Complex64_t *WORK, int LDWORK );
-int TCORE_zgram( cham_uplo_t uplo, int M, int N, int Mt, int Nt, const CHAM_tile_t *Di, const CHAM_tile_t *Dj, const CHAM_tile_t *D, CHAM_tile_t *A );
+int  TCORE_zgesum( cham_store_t storev, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *sum );
+int  TCORE_zcesca( int center, int scale, cham_store_t axis, int M, int N, int Mt, int Nt, const CHAM_tile_t *Gi, const CHAM_tile_t *Gj, const CHAM_tile_t *G, const CHAM_tile_t *Di, const CHAM_tile_t *Dj, CHAM_tile_t *A );
+int  TCORE_zgram( cham_uplo_t uplo, int M, int N, int Mt, int Nt, const CHAM_tile_t *Di, const CHAM_tile_t *Dj, const CHAM_tile_t *D, CHAM_tile_t *A );
 
 #endif /* _coreblas_ztile_h_ */

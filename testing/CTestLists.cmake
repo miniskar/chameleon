@@ -66,6 +66,8 @@ if (NOT CHAMELEON_SIMULATION)
       gels_hqr )
     set( TESTS ${TESTS}
       genm2 gepdf_qr gepdf_qdwh )
+    set( TESTS ${TESTS}
+      cesca gram )
 
     foreach(cat ${TEST_CATEGORIES})
       foreach(gpus ${N_GPUS})
