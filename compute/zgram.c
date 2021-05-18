@@ -80,7 +80,7 @@ void *CHAMELEON_zgram_WS_Alloc( const CHAM_desc_t *A )
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- * @brief Free the allocated workspaces for asynchronous gemm
+ * @brief Free the allocated workspaces for asynchronous gram
  *
  *******************************************************************************
  *
@@ -154,13 +154,20 @@ int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA 
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     /* Check input arguments */
+    if ((uplo != ChamUpper) &&
+        (uplo != ChamLower) &&
+        (uplo != ChamUpperLower))
+    {
+        chameleon_error("CHAMELEON_zgram", "illegal value of uplo");
+        return -1;
+    }
     if (N < 0) {
         chameleon_error("CHAMELEON_zgram", "illegal value of N");
-        return -1;
+        return -2;
     }
     if (LDA < chameleon_max(1, N)) {
         chameleon_error("CHAMELEON_zgram", "illegal value of LDA");
-        return -3;
+        return -4;
     }
 
     /* Quick return */
@@ -241,10 +248,20 @@ int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A )
         chameleon_fatal_error("CHAMELEON_zgram_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    /* Check input arguments */
+    if ((uplo != ChamUpper) &&
+        (uplo != ChamLower) &&
+        (uplo != ChamUpperLower))
+    {
+        chameleon_error("CHAMELEON_zgram_Tile", "illegal value of uplo");
+        return -1;
+    }
     chameleon_sequence_create( chamctxt, &sequence );
 
     ws = CHAMELEON_zgram_WS_Alloc( A );
     CHAMELEON_zgram_Tile_Async( uplo, A, ws, sequence, &request );
+
+    CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
 
@@ -288,15 +305,23 @@ int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, void *user_ws,
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgram_Tile", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_zgram_Tile_Async", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    /* Check input arguments */
+    if ((uplo != ChamUpper) &&
+        (uplo != ChamLower) &&
+        (uplo != ChamUpperLower))
+    {
+        chameleon_error("CHAMELEON_zgram_Tile_Async", "illegal value of uplo");
+        return -1;
+    }
     if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgram_Tile", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_zgram_Tile_Async", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgram_Tile", "NULL request");
+        chameleon_fatal_error("CHAMELEON_zgram_Tile_Async", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */

@@ -1,0 +1,79 @@
+/**
+ *
+ * @file starpu/codelet_zgesum.c
+ *
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon zgesum StarPU codelet
+ *
+ * @version 1.1.0
+ * @author Florent Pruvost
+ * @date 2021-05-7
+ * @precisions normal z -> c d s
+ *
+ */
+#include "chameleon_starpu.h"
+#include "runtime_codelet_z.h"
+
+struct cl_zgesum_args_s {
+    cham_store_t storev;
+    int m;
+    int n;
+};
+
+#if !defined(CHAMELEON_SIMULATION)
+static void cl_zgesum_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_zgesum_args_s clargs;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileW;
+
+    tileA = cti_interface_get(descr[0]);
+    tileW = cti_interface_get(descr[1]);
+
+    starpu_codelet_unpack_args( cl_arg, &clargs );
+    TCORE_zgesum( clargs.storev, clargs.m, clargs.n, tileA, tileW );
+}
+#endif /* !defined(CHAMELEON_SIMULATION) */
+
+/*
+ * Codelet definition
+ */
+CODELETS_CPU(zgesum, cl_zgesum_cpu_func)
+
+void INSERT_TASK_zgesum( const RUNTIME_option_t *options,
+                         cham_store_t storev, int m, int n,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *SUMS, int SUMSm, int SUMSn )
+{
+    struct cl_zgesum_args_s clargs = {
+        .storev = storev,
+        .m      = m,
+        .n      = n
+    };
+    struct starpu_codelet *codelet = &cl_zgesum;
+    void (*callback)(void*) = options->profiling ? cl_zgesum_callback : NULL;
+    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
+    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_RW(SUMS, SUMSm, SUMSn);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    rt_starpu_insert_task(
+        codelet,
+        STARPU_VALUE, &clargs, sizeof(struct cl_zgesum_args_s),
+        STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,       RTBLKADDR(SUMS, CHAMELEON_Complex64_t, SUMSm, SUMSn),
+        STARPU_PRIORITY, options->priority,
+        STARPU_CALLBACK, callback,
+        STARPU_EXECUTE_ON_WORKER, workerid,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME, "zgesum",
+#endif
+        0);
+}

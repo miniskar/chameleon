@@ -122,6 +122,12 @@ CODELETS_HEADER(dzasum);
  */
 CODELETS_HEADER(zplrnt);
 CODELETS_HEADER(zbuild);
+
+/*
+ * centered-scaled and gram functions
+ */
+CODELETS_HEADER(zgesum);
+CODELETS_HEADER(zcesca);
 CODELETS_HEADER(zgram);
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

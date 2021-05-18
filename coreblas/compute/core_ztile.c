@@ -1008,6 +1008,39 @@ TCORE_zunmqr( cham_side_t            side,
 }
 
 int
+TCORE_zgesum( cham_store_t storev, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *sum )
+{
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( sum->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return CORE_zgesum( storev, M, N, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( sum ) );
+}
+
+int
+TCORE_zcesca( int center,
+              int scale,
+              cham_store_t axis,
+              int                M,
+              int                N,
+              int                Mt,
+              int                Nt,
+              const CHAM_tile_t *Gi,
+              const CHAM_tile_t *Gj,
+              const CHAM_tile_t *G,
+              const CHAM_tile_t *Di,
+              const CHAM_tile_t *Dj,
+              CHAM_tile_t *      A )
+{
+    assert( Gi->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( Gj->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( G->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( Di->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( Dj->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return CORE_zcesca(
+        center, scale, axis, M, N, Mt, Nt, CHAM_tile_get_ptr( Gi ), Gi->ld, CHAM_tile_get_ptr( Gj ), Gj->ld, CHAM_tile_get_ptr( G ), CHAM_tile_get_ptr( Di ), Di->ld, CHAM_tile_get_ptr( Dj ), Dj->ld, CHAM_tile_get_ptr( A ), A->ld );
+}
+
+int
 TCORE_zgram( cham_uplo_t        uplo,
              int                M,
              int                N,

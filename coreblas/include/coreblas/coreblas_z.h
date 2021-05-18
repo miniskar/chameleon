@@ -372,8 +372,21 @@ int  CORE_zunmqr(cham_side_t side, cham_trans_t trans,
                  CHAMELEON_Complex64_t *WORK, int LDWORK);
 
 /**
- * Gram prototypes
+ * Centered-Scale and Gram prototypes
  */
+int CORE_zgesum( cham_store_t storev, int M, int N,
+                 const CHAMELEON_Complex64_t *A, int LDA,
+                 CHAMELEON_Complex64_t *sum );
+int CORE_zcesca( int center, int scale,
+                 cham_store_t axis,
+                 int M, int N,
+                 int Mt, int Nt,
+                 const CHAMELEON_Complex64_t *Gi, int LDGI,
+                 const CHAMELEON_Complex64_t *Gj, int LDGJ,
+                 const CHAMELEON_Complex64_t *G,
+                 const double *Di, int LDDI,
+                 const double *Dj, int LDDJ,
+                 CHAMELEON_Complex64_t *A, int LDA );
 int CORE_zgram( cham_uplo_t uplo, int M, int N, int Mt, int Nt,
                 const double *Di, int LDDI,
                 const double *Dj, int LDDJ,

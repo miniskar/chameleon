@@ -23,6 +23,8 @@ _extra_blas = [
     ('',                     'sgenm2',               'dgenm2',               'cgenm2',               'zgenm2'              ),
     ('',                     'slag2c_fake',          'dlag2z_fake',          'slag2c',               'dlag2z'              ),
     ('',                     'sgepdf',               'dgepdf',               'cgepdf',               'zgepdf'              ),
+    ('',                     'scesca',               'dcesca',               'ccesca',               'zcesca'              ),
+    ('',                     'sgesum',               'dgesum',               'cgesum',               'zgesum'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]

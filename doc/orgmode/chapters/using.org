@@ -768,6 +768,11 @@
      * *EVD/SVD*
        * gesvd: singular value decomposition
        * heevd: eigenvalues/eigenvectors computation with A Hermitian
+    * *Specific Matrix transformation for Data Analysis*
+      * cesca: centered-scaled matrix transformation, pretreatment algorithm
+        for Principal Component Analysis
+      * gram: Gram matrix transformation, pretreatment algorithm for
+        Multidimensional Scaling
      * *Extra routines*
        * *Norms*
          * lange: compute norm of a matrix (Max, One, Inf, Frobenius)

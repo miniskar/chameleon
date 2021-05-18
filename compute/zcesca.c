@@ -1,0 +1,457 @@
+/**
+ *
+ * @file zcesca.c
+ *
+ * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon zcesca wrappers
+ *
+ * @version 1.1.0
+ * @author Florent Pruvost
+ * @date 2021-05-07
+ * @precisions normal z -> s d c z
+ *
+ */
+#include "control/common.h"
+#include <stdlib.h>
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ *  CHAMELEON_zcesca_WS_Alloc - Allocate the required workspaces for asynchronous center
+ *
+ *******************************************************************************
+ *
+ * @param[in] A
+ *          The descriptor of the matrix A.
+ *
+ *******************************************************************************
+ *
+ * @retval An allocated opaque pointer to use in CHAMELEON_zcesca_Tile_Async()
+ * and to free with CHAMELEON_zcesca_WS_Free().
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zcesca_Tile_Async
+ * @sa CHAMELEON_zcesca_WS_Free
+ *
+ */
+void *CHAMELEON_zcesca_WS_Alloc( const CHAM_desc_t *A )
+{
+    CHAM_context_t *chamctxt;
+    struct chameleon_pzcesca_s *options;
+    int workmt, worknt;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        return NULL;
+    }
+
+    options = calloc( 1, sizeof(struct chameleon_pzcesca_s) );
+
+    workmt = chameleon_max( A->mt, A->p );
+    worknt = chameleon_max( A->nt, A->q );
+
+    chameleon_desc_init( &(options->Wgcol), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamComplexDouble, 1, A->nb, A->nb,
+                         workmt, A->n, 0, 0,
+                         workmt, A->n, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    chameleon_desc_init( &(options->Wgrow), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamComplexDouble, A->mb, 1, A->mb,
+                         A->m, worknt, 0, 0,
+                         A->m, worknt, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    chameleon_desc_init( &(options->Wgelt), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamComplexDouble, 1, 1, 1,
+                         1, worknt, 0, 0,
+                         1, worknt, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    chameleon_desc_init( &(options->Wdcol), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamRealDouble, 2, A->nb, 2*A->nb,
+                         2*workmt, A->n, 0, 0,
+                         2*workmt, A->n, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    chameleon_desc_init( &(options->Wdrow), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamRealDouble, A->mb, 2, 2*A->mb,
+                         A->m, 2*worknt, 0, 0,
+                         A->m, 2*worknt, A->p, A->q,
+                         NULL, NULL, NULL );
+
+    return (void*)options;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Free the allocated workspaces for asynchronous center
+ *
+ *******************************************************************************
+ *
+ * @param[in,out] user_ws
+ *          On entry, the opaque pointer allocated by CHAMELEON_zcesca_WS_Alloc()
+ *          On exit, all data are freed.
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zcesca_Tile_Async
+ * @sa CHAMELEON_zcesca_WS_Alloc
+ *
+ */
+void CHAMELEON_zcesca_WS_Free( void *user_ws )
+{
+    struct chameleon_pzcesca_s *ws = (struct chameleon_pzcesca_s*)user_ws;
+
+    chameleon_desc_destroy( &(ws->Wgcol) );
+    chameleon_desc_destroy( &(ws->Wgrow) );
+    chameleon_desc_destroy( &(ws->Wgelt) );
+    chameleon_desc_destroy( &(ws->Wdcol) );
+    chameleon_desc_destroy( &(ws->Wdrow) );
+    free( ws );
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ *  CHAMELEON_zcesca replace a general matrix by the Centered-Scaled matrix inplace
+ *
+ *  Considering a matrix A of size m x n, \f[A = (a_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f]
+ *  Lets
+ *  \f[g_i = \frac{1}{n} \sum_j a_{ij} \\
+ *     g_j = \frac{1}{m} \sum_i a_{ij} \\
+ *     g   = \frac{1}{mn} \sum_{i,j} a_{ij}\f]
+ *  A centered rowwise gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ *  \f[ \bar{a}_{i,j} = a_{i,j} - g_i \f]
+ *  A centered columnwise gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ *  \f[ \bar{a}_{i,j} = a_{i,j} - g_j \f]
+ *  A bicentered gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ *  \f[ \bar{a}_{i,j} = a_{i,j} - g_i - g_j + g \f]
+ * Lets
+ * \f[d_i = || a_{i*} || = \sqrt{ \sum_j a_{ij}²} \\
+ *    d_j = || a_{*j} || = \sqrt{ \sum_i a_{ij}²} \f]
+ * A scaled rowwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ * \f[ a_{i*}' = \frac{a_{i*}}{d_i} \f]
+ * A scaled columnwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ * \f[ a_{*j}' = \frac{a_{*j}}{d_j} \f]
+ *
+ *******************************************************************************
+ *
+ * @param[in] center
+ *          1 if A must be centered, else 0.
+ *
+ * @param[in] scale
+ *          1 if A must be scaled, else 0.
+ *
+ * @param[in] axis
+ *          Specifies the axis over which to center and or scale.
+ *            = ChamColumnwise: centered column-wise
+ *            = ChamRowwise: centered row-wise
+ *            = ChamEltwise: bi-centered (only compatible if center=1 and scale=0)
+ *
+ * @param[in] M
+ *          The number of rows of the overall matrix.  M >= 0.
+ *
+ * @param[in] N
+ *         The number of columns of the overall matrix.  N >= 0.
+ *
+ * @param[in] A
+ *          The M-by-N matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the array A. LDA >= max(1,M).
+ *
+ *******************************************************************************
+ *
+* @retval CHAMELEON_SUCCESS successful exit
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zcesca_Tile
+ * @sa CHAMELEON_zcesca_Tile_Async
+ * @sa CHAMELEON_scesca
+ *
+ */
+int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHAMELEON_Complex64_t *A, int LDA )
+{
+    int NB;
+    int status;
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t descAl, descAt;
+    void *ws;
+
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zcesca", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+    /* Check input arguments */
+    if ( (center != 0) && (center != 1) ) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of center");
+        return -1;
+    }
+    if ( (scale != 0) && (scale != 1) ) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of scale");
+        return -2;
+    }
+    if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of axis");
+        return -3;
+    }
+    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
+        return -3;
+    }
+    if (M < 0) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of M");
+        return -4;
+    }
+    if (N < 0) {
+        chameleon_error("CHAMELEON_zcesca", "Illegal value of N");
+        return -5;
+    }
+    if (LDA < chameleon_max(1, M)) {
+        chameleon_error("CHAMELEON_zcesca", "illegal value of LDA");
+        return -7;
+    }
+
+    /* Quick return */
+    if (N == 0)
+        return CHAMELEON_SUCCESS;
+
+    /* Tune NB depending on M, N & NRHS; Set NBNB */
+    status = chameleon_tune(CHAMELEON_FUNC_DGEMM, M, N, 0);
+    if (status != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zcesca", "chameleon_tune() failed");
+        return status;
+    }
+
+    /* Set NT */
+    NB = CHAMELEON_NB;
+
+    chameleon_sequence_create( chamctxt, &sequence );
+
+    /* Submit the matrix conversion */
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
+                         A, NB, NB, LDA, N, N, N, sequence, &request );
+
+    /* Call the tile interface */
+    ws = CHAMELEON_zcesca_WS_Alloc( &descAt );
+    CHAMELEON_zcesca_Tile_Async( center, scale, axis, &descAt, ws, sequence, &request );
+
+    /* Submit the matrix conversion back */
+    chameleon_ztile2lap( chamctxt, &descAl, &descAt,
+                         ChamDescInout, ChamUpperLower, sequence, &request );
+
+    chameleon_sequence_wait( chamctxt, sequence );
+
+    /* Cleanup the temporary data */
+    CHAMELEON_zcesca_WS_Free( ws );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
+
+    status = sequence->status;
+    chameleon_sequence_destroy( chamctxt, sequence );
+    return status;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t_Tile
+ *
+ *  CHAMELEON_zcesca_Tile - Tile equivalent of CHAMELEON_zcesca().
+ *  Operates on matrices stored by tiles.
+ *  All matrices are passed through descriptors.
+ *  All dimensions are taken from the descriptors.
+ *
+ *******************************************************************************
+ *
+ * @param[in] center
+ *          1 if A must be centered, else 0.
+ *
+ * @param[in] scale
+ *          1 if A must be scaled, else 0.
+ *
+ * @param[in] axis
+ *          Specifies the axis over which to center and or scale.
+ *            = ChamColumnwise: centered column-wise
+ *            = ChamRowwise: centered row-wise
+ *            = ChamEltwise: bi-centered (only compatible if center=1 and scale=0)
+ *
+ * @param[in] A
+ *          The M-by-N matrix A.
+ *
+ *******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zcesca
+ * @sa CHAMELEON_zcesca_Tile_Async
+ * @sa CHAMELEON_scesca_Tile
+ *
+ */
+int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A )
+{
+    CHAM_context_t *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    int status;
+    void *ws;
+
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zcesca_Tile", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+
+    /* Check input arguments */
+    if ( (center != 0) && (center != 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of center");
+        return -1;
+    }
+    if ( (scale != 0) && (scale != 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of scale");
+        return -2;
+    }
+    if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of axis");
+        return -3;
+    }
+    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
+        return -3;
+    }
+
+    chameleon_sequence_create( chamctxt, &sequence );
+
+    ws = CHAMELEON_zcesca_WS_Alloc( A );
+    CHAMELEON_zcesca_Tile_Async( center, scale, axis, A, ws, sequence, &request );
+
+    CHAMELEON_Desc_Flush( A, sequence );
+
+    chameleon_sequence_wait( chamctxt, sequence );
+
+    CHAMELEON_zcesca_WS_Free( ws );
+
+    status = sequence->status;
+    chameleon_sequence_destroy( chamctxt, sequence );
+    return status;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t_Tile_Async
+ *
+ *  CHAMELEON_zcesca_Tile_Async - Non-blocking equivalent of CHAMELEON_zcesca_Tile().
+ *  May return before the computation is finished.
+ *  Allows for pipelining of operations at runtime.
+ *
+ *******************************************************************************
+ *
+ * @param[in] sequence
+ *          Identifies the sequence of function calls that this call belongs to
+ *          (for completion checks and exception handling purposes).
+ *
+ * @param[out] request
+ *          Identifies this function call (for exception handling purposes).
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zcesca
+ * @sa CHAMELEON_zcesca_Tile
+ * @sa CHAMELEON_scesca_Tile_Async
+ *
+ */
+int CHAMELEON_zcesca_Tile_Async( int center, int scale, cham_store_t axis, CHAM_desc_t *A, void *user_ws,
+                                 RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+{
+    CHAM_context_t *chamctxt;
+    struct chameleon_pzcesca_s *ws;
+
+    /* Check input arguments */
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_zcesca_Tile_Async", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+    if ( (center != 0) && (center != 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of center");
+        return -1;
+    }
+    if ( (scale != 0) && (scale != 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of scale");
+        return -2;
+    }
+    if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of axis");
+        return -3;
+    }
+    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
+        return -3;
+    }
+    if (sequence == NULL) {
+        chameleon_fatal_error("CHAMELEON_zcesca_Tile_Async", "NULL sequence");
+        return CHAMELEON_ERR_UNALLOCATED;
+    }
+    if (request == NULL) {
+        chameleon_fatal_error("CHAMELEON_zcesca_Tile_Async", "NULL request");
+        return CHAMELEON_ERR_UNALLOCATED;
+    }
+    /* Check sequence status */
+    if (sequence->status == CHAMELEON_SUCCESS) {
+        request->status = CHAMELEON_SUCCESS;
+    }
+    else {
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+    }
+
+    /* Check descriptors for correctness */
+    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "invalid descriptor");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    }
+    /* Check input arguments */
+    if (A->nb != A->mb) {
+        chameleon_error("CHAMELEON_zcesca_Tile_Async", "only square tiles supported");
+        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    }
+    /* Quick return */
+    if (chameleon_min(A->m, A->n) == 0) {
+        return CHAMELEON_SUCCESS;
+    }
+
+    if ( user_ws == NULL ) {
+        ws = CHAMELEON_zcesca_WS_Alloc( A );
+    }
+    else {
+        ws = user_ws;
+    }
+
+    chameleon_pzcesca( ws, center, scale, axis, A, sequence, request );
+
+    if ( user_ws == NULL ) {
+        CHAMELEON_Desc_Flush( A, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        CHAMELEON_zcesca_WS_Free( ws );
+    }
+
+    return CHAMELEON_SUCCESS;
+}

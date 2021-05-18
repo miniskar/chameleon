@@ -35,6 +35,7 @@ set(ZSRC
     core_dlag2z.c
     core_dzasum.c
     core_zaxpy.c
+    core_zcesca.c
     core_zgeadd.c
     core_zlascal.c
     core_zlatm1.c
@@ -43,6 +44,7 @@ set(ZSRC
     core_zgemm.c
     core_zgeqrt.c
     core_zgesplit.c
+    core_zgesum.c
     core_zgessm.c
     core_zgessq.c
     core_zgetf2_nopiv.c
