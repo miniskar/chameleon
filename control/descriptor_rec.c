@@ -68,13 +68,13 @@ chameleon_recdesc_create_partial( const char *name, CHAM_desc_t **descptr, void 
 
             /* WARNING: This is for test purpose */
             /* Let's recurse only on one third of tiles */
-            /* if ( random() % 3 ) { */
-            /*     continue; */
-            /* } */
+            if ( random() % 3 ) {
+                continue;
+            }
 
             /* WARNING: This is for test purpose */
             /* Partitionning only the very first tile */
-            if ( !(m == n) ) continue;
+            /* if ( !(m == n) ) continue; */
             /* if (!((m == 0) && (n == 0))) continue; */
             /* if (!((m == 2) && (n == 0)) && !((m == 2) && (n == 1)) && !((m == 3) && (n == 1))) continue; */
             /* if (!((m == 2) && (n == 0)) && !((m == 2) && (n == 1)) && !((m == 2) && (n == 2))) continue; */
@@ -159,12 +159,12 @@ chameleon_recdesc_create_full( const char *name, CHAM_desc_t **descptr, void *ma
 
             chameleon_asprintf( &subname, "%s[%d,%d]", name, m, n );
 
-            rc = chameleon_recdesc_create( subname, &tiledesc, tile->mat,
-                                           desc->dtyp, mb, nb,
-                                           tile->ld, tempnn, /* Abuse as ln is not used */
-                                           tempmm, tempnn,
-                                           1, 1,             /* can recurse only on local data */
-                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
+            rc = chameleon_recdesc_create_full( subname, &tiledesc, tile->mat,
+                                                desc->dtyp, mb, nb,
+                                                tile->ld, tempnn, /* Abuse as ln is not used */
+                                                tempmm, tempnn,
+                                                1, 1,             /* can recurse only on local data */
+                                                chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
 
             tile->format = CHAMELEON_TILE_DESC;
             tile->mat    = tiledesc;
@@ -181,7 +181,8 @@ chameleon_recdesc_create_full( const char *name, CHAM_desc_t **descptr, void *ma
 int
 CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
                                  int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
-                                 blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
+                                 blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof,
+                                 const char *name )
 {
     /*
      * The first layer must be allocated, otherwise we will give unitialized
@@ -190,9 +191,27 @@ CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_
     assert( (mat != CHAMELEON_MAT_ALLOC_TILE) &&
             (mat != CHAMELEON_MAT_OOC) );
 
-    return chameleon_recdesc_create( "A", descptr, mat, dtyp,
+    return chameleon_recdesc_create( name, descptr, mat, dtyp,
                                      mb, nb, lm, ln, m, n, p, q,
                                      get_blkaddr, get_blkldd, get_rankof );
+}
+
+int
+CHAMELEON_Recursive_Desc_Create_Full( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
+                                      int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
+                                      blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof,
+                                      const char *name )
+{
+    /*
+     * The first layer must be allocated, otherwise we will give unitialized
+     * pointers to the lower layers
+     */
+    assert( (mat != CHAMELEON_MAT_ALLOC_TILE) &&
+            (mat != CHAMELEON_MAT_OOC) );
+
+    return chameleon_recdesc_create_full( name, descptr, mat, dtyp,
+                                          mb, nb, lm, ln, m, n, p, q,
+                                          get_blkaddr, get_blkldd, get_rankof );
 }
 
 void
