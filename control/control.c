@@ -113,9 +113,7 @@ int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
     }
 #endif
 
-    RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
-
-    return CHAMELEON_SUCCESS;
+    return RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
 }
 
 /**

@@ -523,7 +523,12 @@ int main (int argc, char **argv) {
     profile   = parameters_getvalue_int( "profile" );
     forcegpu  = parameters_getvalue_int( "forcegpu" );
 
-    CHAMELEON_Init( ncores, ngpus );
+    rc = CHAMELEON_Init( ncores, ngpus );
+
+    if ( rc != CHAMELEON_SUCCESS ) {
+        fprintf( stderr, "CHAMELEON_Init failed and returned %d.\n", rc );
+        return EXIT_FAILURE;
+    }
 
     /* Set ncores to the right value */
     if ( ncores == -1 ) {
