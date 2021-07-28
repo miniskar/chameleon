@@ -61,10 +61,9 @@ build_starpu_simgrid:
     VERSION: starpu_simgrid
 
 build_starpu_macosx:
+  extends: .only-master
   stage: build
   tags: ['macosx']
-  except:
-    - schedules
   artifacts:
     untracked: true
     name: build_starpu_macosx
