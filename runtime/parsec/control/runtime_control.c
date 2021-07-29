@@ -34,7 +34,8 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncudas,
                   int nthreads_per_worker )
 {
-    int hres = -1, default_ncores = -1;
+    int hres = CHAMELEON_ERR_NOT_INITIALIZED;
+    int default_ncores = -1;
     int *argc = (int *)malloc(sizeof(int));
     *argc = 0;
 
@@ -45,10 +46,10 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     chamctxt->parallel_enabled = CHAMELEON_TRUE;
     chamctxt->schedopt = (void *)parsec_init(default_ncores, argc, NULL);
 
-    if(NULL != chamctxt->schedopt) {
+    if ( NULL != chamctxt->schedopt ) {
         chamctxt->nworkers = ncpus;
         chamctxt->nthreads_per_worker = nthreads_per_worker;
-        hres = 0;
+        hres = CHAMELEON_SUCCESS;
     }
 
     free(argc);

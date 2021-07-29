@@ -17,7 +17,5 @@ coverage:
     - for name in $( ls -1 bis_chameleon_*.lcov | grep -v simgrid); do export INPUT_FILES="$INPUT_FILES -a $name"; done
     - lcov $INPUT_FILES -o bis_chameleon.lcov
     - lcov --summary bis_chameleon.lcov
-  except:
-    - master
-    - /^ci-.*$/
-    - schedules
+  only:
+    - merge_requests

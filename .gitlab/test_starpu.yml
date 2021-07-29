@@ -90,10 +90,9 @@ test_starpu_mpi_z:
     TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
 
 test_starpu_shm_s_macosx:
+  extends: .only-master
   stage: test
   tags: ['macosx']
-  except:
-    - schedules
   needs: [build_starpu_macosx]
   dependencies:
     - build_starpu_macosx

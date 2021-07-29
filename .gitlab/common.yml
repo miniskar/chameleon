@@ -3,21 +3,26 @@
 #
 ---
 .only-master:
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  interruptible: true
   only:
-    - master@solverstack/chameleon
-    - /^ci-.*$/
-
-.only-branches:
-  only:
-    - branches
     - master@solverstack/chameleon
     - /^ci-.*$/
   except:
-    - master
+    - schedules
+
+.only-branches:
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  interruptible: true
+  only:
+    - merge_requests
+    - master@solverstack/chameleon
+    - /^ci-.*$/
+  except:
     - schedules
 
 .build_script_template:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  extends: .only-branches
   stage: build
   tags: ["linux"]
   script:
@@ -41,7 +46,6 @@
     - schedules
 
 .test_script_template:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: test
   tags: ["linux"]
   script:
@@ -62,8 +66,6 @@
     - lcov --directory build-$VERSION --capture --output-file ./${LOGNAME}.lcov
     - (cd build-$VERSION && lcov --directory . --capture --output-file ../bis_${LOGNAME}.lcov)
     - xsltproc -o report.xml /home/gitlab/ctest-to-junit.xsl build-$VERSION/Testing/**/Test.xml
-  except:
-    - schedules
 
 .bench_plafrim_common:
   only:

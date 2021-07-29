@@ -137,7 +137,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_RW(C, Cm, Cn);
     CHAMELEON_END_ACCESS_DECLARATION;
 
-    /* Callback fro profiling information */
+    /* Callback for profiling information */
     callback = options->profiling ? cl_zgemm_callback : NULL;
 
     /* Fix the worker id */

@@ -32,7 +32,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncudas,
                   int nthreads_per_worker )
 {
-    int hres = -1;
+    int hres = CHAMELEON_ERR_NOT_INITIALIZED;
     if ( ncudas > 0 ) {
         chameleon_warning( "RUNTIME_init_scheduler(quark)", "GPUs are not supported for now");
     }
@@ -46,7 +46,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     if(NULL != chamctxt->schedopt) {
         chamctxt->nworkers = ncpus;
         chamctxt->nthreads_per_worker = nthreads_per_worker;
-        hres = 0;
+        hres = CHAMELEON_SUCCESS;
     }
 
     return hres;

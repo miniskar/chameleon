@@ -113,8 +113,8 @@ RUNTIME_disable( void *runtime_ctxt, int option );
  *            defines a better binding of the workers.
  *            -1 to disable, or > 0 to enable.
  *
- * @retval -1 on failure to initialize the runtime.
- * @retval >0 on success to initialize the runtime.
+ * @retval CHAMELEON_SUCCESS on success to initialize the runtime.
+ * @retval CHAMELEON_ERR_NOT_INITIALIZED on failure to initialize the runtime.
  *
  */
 int

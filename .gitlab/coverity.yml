@@ -1,6 +1,6 @@
 ---
 coverity:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  extends: .only-master
   stage: analyse
   tags: ["linux"]
   dependencies: []
@@ -23,7 +23,3 @@ coverity:
            --form version="`git rev-parse --short HEAD`"
            --form description=""
            https://scan.coverity.com/builds?project=Chameleon
-  only:
-    - master@solverstack/chameleon
-  except:
-    - schedules

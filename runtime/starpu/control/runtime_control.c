@@ -33,7 +33,8 @@
  */
 static int chameleon_starpu_init( starpu_conf_t *conf )
 {
-    int hres;
+    int hres = CHAMELEON_SUCCESS;
+    int rc;
 
 #if defined(STARPU_USE_FXT)
     starpu_fxt_autostart_profiling(0);
@@ -48,21 +49,23 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
 #  endif
 
 #  if defined(HAVE_STARPU_MPI_INIT_CONF)
-        hres = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);
+        rc = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);
 #  else
-        hres = starpu_init(conf);
-        if (hres < 0) {
-            return hres;
+        rc = starpu_init(conf);
+        if (rc < 0) {
+            return CHAMELEON_ERR_NOT_INITIALIZED;
         }
         starpu_mpi_init(NULL, NULL, !flag);
 #  endif
     }
 #else
 
-    hres = starpu_init(conf);
+    rc = starpu_init(conf);
 
 #endif
-
+    if ( rc == -ENODEV ) {
+        hres = CHAMELEON_ERR_NOT_INITIALIZED;
+    }
     return hres;
 }
 
@@ -72,7 +75,8 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                   int nthreads_per_worker )
 {
     starpu_conf_t *conf = (starpu_conf_t*)(chamctxt->schedopt);
-    int hres = -1;
+    int hres = CHAMELEON_ERR_NOT_INITIALIZED;
+    int rc = 0;
 
     /* StarPU was already initialized by an external library */
     if (conf == NULL) {

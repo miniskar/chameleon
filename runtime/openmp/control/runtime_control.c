@@ -31,7 +31,6 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                   int ncudas,
                   int nthreads_per_worker )
 {
-    int hres = 0;
     if ( ncudas > 0 ) {
         chameleon_warning( "RUNTIME_init_scheduler(OpenMP)", "GPUs are not supported for now");
     }
@@ -43,7 +42,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
     chamctxt->nworkers = ncpus;
     chamctxt->nthreads_per_worker = nthreads_per_worker;
 
-    return hres;
+    return CHAMELEON_SUCCESS;
 }
 
 /**
