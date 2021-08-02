@@ -357,8 +357,8 @@ int CHAMELEON_zbuild_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, void *user_dat
 /**
  * Centered-Scaled function prototypes
  */
-int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHAMELEON_Complex64_t *A, int LDA );
-int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A );
+int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC );
+int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A, CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC );
 int CHAMELEON_zcesca_Tile_Async( int center, int scale, cham_store_t axis, CHAM_desc_t *A, void *user_ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 /**
  * Gram function prototypes

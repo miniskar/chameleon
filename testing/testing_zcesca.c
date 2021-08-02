@@ -63,7 +63,7 @@ testing_zcesca( run_arg_list_t *args, int check )
 
     /* Compute the centered-scaled matrix transformation */
     START_TIMING( t );
-    hres = CHAMELEON_zcesca_Tile( 1, 1, ChamColumnwise, descA );
+    hres = CHAMELEON_zcesca_Tile( 1, 1, ChamColumnwise, descA, NULL, NULL );
     STOP_TIMING( t );
     gflops = flops * 1.e-9 / t;
     run_arg_add_fixdbl( args, "time", t );
