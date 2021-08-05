@@ -126,7 +126,9 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zcesca replace a general matrix by the Centered-Scaled matrix inplace
+ *  CHAMELEON_zcesca replace a general matrix by the Centered-Scaled matrix inplace.
+ *  This algorithm is used as a pretreatment of a Principal Component Algorithm
+ *  (PCA) or a Correspondence analysis (COA).
  *
  *  Considering a matrix A of size m x n, \f[A = (a_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f]
  *  Lets
@@ -147,6 +149,22 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  * A scaled columnwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
  * \f[ a_{*j}' = \frac{a_{*j}}{d_j} \f]
  *
+ * This function can also be used to compute a pretreatment of a Correspondence analysis (COA).
+ * To use it set center = 1, scale = 1, axis = ChamEltwise.
+ * A on entry is a contingency table. For this pre-treatment we need to work on
+ * the frequencies table (each value of A is divided by the global sum)
+ * In this case lets
+ * \f[r_i = \sum_j a_{ij} \\
+ *    c_j = \sum_i a_{ij} \\
+ *    sg  = \sum_{i,j} a_{ij} \f]
+ *
+ * A transformed gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ * \f[ \bar{a}_{i,j} = \frac{a_{i,j}-r_i*c_j/sg}{ \sqrt{r_i*c_j} } \f]
+ *
+ * It also gives \f[ r_i \f] and \f[ c_j \f]
+ * in vectors SR and SC useful in the post-treatment of the COA.
+ * SR and SC must be already allocated.
+ *
  *******************************************************************************
  *
  * @param[in] center
@@ -159,7 +177,9 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  *          Specifies the axis over which to center and or scale.
  *            = ChamColumnwise: centered column-wise
  *            = ChamRowwise: centered row-wise
- *            = ChamEltwise: bi-centered (only compatible if center=1 and scale=0)
+ *            = ChamEltwise:
+ *              bi-centered if center=1 and scale=0
+ *              COA if center=1 and scale=1
  *
  * @param[in] M
  *          The number of rows of the overall matrix.  M >= 0.
@@ -167,11 +187,17 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  * @param[in] N
  *         The number of columns of the overall matrix.  N >= 0.
  *
- * @param[in] A
+ * @param[in,out] A
  *          The M-by-N matrix A.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
+ *
+ * @param[out] SR
+ *          The vector of size M containing the \f[ r_i \f]
+ *
+ * @param[out] SC
+ *          The vector of size N containing the \f[ c_j \f]
  *
  *******************************************************************************
  *
@@ -184,7 +210,9 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  * @sa CHAMELEON_scesca
  *
  */
-int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHAMELEON_Complex64_t *A, int LDA )
+int CHAMELEON_zcesca(int center, int scale, cham_store_t axis,
+                     int M, int N, CHAMELEON_Complex64_t *A, int LDA,
+                     CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC)
 {
     int NB;
     int status;
@@ -192,7 +220,7 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     CHAM_desc_t descAl, descAt;
-    void *ws;
+    struct chameleon_pzcesca_s *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -210,10 +238,6 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
     }
     if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
         chameleon_error("CHAMELEON_zcesca", "Illegal value of axis");
-        return -3;
-    }
-    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
-        chameleon_error("CHAMELEON_zcesca", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
         return -3;
     }
     if (M < 0) {
@@ -246,8 +270,8 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
     chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                         A, NB, NB, LDA, N, N, N, sequence, &request );
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
+                         A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     ws = CHAMELEON_zcesca_WS_Alloc( &descAt );
@@ -255,9 +279,17 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                         ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInput, ChamUpperLower, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
+
+    /* pre-coa case : save the sums over rows and columns */
+    if ( (center == 1) && (scale == 1) && (axis == ChamEltwise) ) {
+        CHAM_desc_t *descSR = chameleon_desc_submatrix( &(ws->Wgrow), 0, 0, M, 1 );
+        CHAM_desc_t *descSC = chameleon_desc_submatrix( &(ws->Wgcol), 0, 0, 1, N );
+        CHAMELEON_zDesc2Lap( ChamUpperLower, descSR, SR, M );
+        CHAMELEON_zDesc2Lap( ChamUpperLower, descSC, SC, 1 );
+    }
 
     /* Cleanup the temporary data */
     CHAMELEON_zcesca_WS_Free( ws );
@@ -290,10 +322,18 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
  *          Specifies the axis over which to center and or scale.
  *            = ChamColumnwise: centered column-wise
  *            = ChamRowwise: centered row-wise
- *            = ChamEltwise: bi-centered (only compatible if center=1 and scale=0)
+ *            = ChamEltwise:
+ *              bi-centered if center=1 and scale=0
+ *              pre-coa if center=1 and scale=1
  *
- * @param[in] A
+ * @param[in,out] A
  *          The M-by-N matrix A.
+ *
+ * @param[out] SR
+ *          The vector of size M containing the \f[ r_i \f]
+ *
+ * @param[out] SC
+ *          The vector of size N containing the \f[ c_j \f]
  *
  *******************************************************************************
  *
@@ -306,13 +346,14 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis, int M, int N, CHA
  * @sa CHAMELEON_scesca_Tile
  *
  */
-int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A )
+int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A,
+                           CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC)
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
-    void *ws;
+    struct chameleon_pzcesca_s *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -333,10 +374,6 @@ int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t
         chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of axis");
         return -3;
     }
-    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
-        chameleon_error("CHAMELEON_zcesca_Tile", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
-        return -3;
-    }
 
     chameleon_sequence_create( chamctxt, &sequence );
 
@@ -346,6 +383,14 @@ int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t
     CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
+
+    /* pre-coa case : save the sums over rows and columns */
+    if ( (center == 1) && (scale == 1) && (axis == ChamEltwise) ) {
+        CHAM_desc_t *descSR = chameleon_desc_submatrix( &(ws->Wgrow), 0, 0, A->lm, 1 );
+        CHAM_desc_t *descSC = chameleon_desc_submatrix( &(ws->Wgcol), 0, 0, 1, A->ln );
+        CHAMELEON_zDesc2Lap( ChamUpperLower, descSR, SR, A->lm );
+        CHAMELEON_zDesc2Lap( ChamUpperLower, descSC, SC, 1 );
+    }
 
     CHAMELEON_zcesca_WS_Free( ws );
 
@@ -401,10 +446,6 @@ int CHAMELEON_zcesca_Tile_Async( int center, int scale, cham_store_t axis, CHAM_
     }
     if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
         chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of axis");
-        return -3;
-    }
-    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
-        chameleon_error("CHAMELEON_zcesca_Tile_Async", "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
         return -3;
     }
     if (sequence == NULL) {

@@ -43,6 +43,15 @@
  * A scaled columnwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
  * \f[ a_{*j}' = \frac{a_{*j}}{d_j} \f]
  *
+ * This function can also be used to compute a pretreatment of a Correspondence analysis (COA).
+ * To use it set center = 1, scale = 1, axis = ChamEltwise.
+ * In this case lets
+ * \f[r_i = \sum_j a_{ij} \\
+ *    c_j = \sum_i a_{ij} \\
+ *    sg  = \sum_{i,j} a_{ij}\f]
+ * A transformed gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
+ * \f[ \bar{a}_{i,j} = \frac{a_{i,j}-r_i*c_j/sg}{ \sqrt{r_i*c_j} } \f]
+ *
  *******************************************************************************
  *
  * @param[in] center
@@ -55,7 +64,9 @@
  *          Specifies the axis over which to center and or scale.
  *            = ChamColumnwise: centered column-wise
  *            = ChamRowwise: centered row-wise
- *            = ChamEltwise: bi-centered (only compatible if center=1 and scale=0)
+ *            = ChamEltwise:
+ *              bi-centered if center=1 and scale=0
+ *              COA if center=1 and scale=1
  *
  * @param[in] M
  *          The number of rows of the overall matrix.  M >= 0.
@@ -122,7 +133,7 @@ int CORE_zcesca( int center, int scale,
                  CHAMELEON_Complex64_t *A, int LDA )
 {
     int i, j;
-    CHAMELEON_Complex64_t gi, gj, g;
+    CHAMELEON_Complex64_t gi, gj, g, rc, sqrc;
     double di, dj;
 
     /* Check input arguments */
@@ -136,10 +147,6 @@ int CORE_zcesca( int center, int scale,
     }
     if ( (axis != ChamColumnwise) && (axis != ChamRowwise) && (axis != ChamEltwise) ) {
         coreblas_error(3, "Illegal value of axis");
-        return -3;
-    }
-    if ( (axis == ChamEltwise) && (center == 1) && (scale == 1) ) {
-        coreblas_error(3, "Illegal value of axis and/or scale, center=1 and axis=ChamEltwise (i.e. bi-centered) must not be used with scale=1");
         return -3;
     }
     if (M < 0) {
@@ -187,46 +194,64 @@ int CORE_zcesca( int center, int scale,
         return CHAMELEON_SUCCESS;
     }
 
-    if ( (center == 1) && (axis == ChamEltwise) ) {
-        /* overall mean of values */
-        g =  G[0] / ( (double)M * (double)N );
-    }
+    if ( !( (center == 1) && (scale == 1) && (axis == ChamEltwise) ) ) {
+        /* PCA case i.e. centered-scaled or bi-centering */
 
-    for(j = 0; j < Nt; j++) {
-        if ( (center == 1) && ( (axis == ChamColumnwise) || (axis == ChamEltwise) ) ) {
-            /* mean of values of the column */
-            gj = Gj[j*LDGJ] / ((double)M);
+        if ( (center == 1) && (axis == ChamEltwise) ) {
+            /* overall mean of values */
+            g =  G[0] / ( (double)M * (double)N );
         }
-        if ( (scale == 1) && (axis == ChamColumnwise) ) {
-            /* norm 2 of the column */
-            dj = Dj[j*LDDJ];
-        }
-        for(i = 0; i < Mt; i++) {
-            if ( (center == 1) && ( (axis == ChamRowwise) || (axis == ChamEltwise) ) ) {
-                /* mean of values of the row */
-                gi = Gi[i] / ((double)N);
-                /* compute centered matrix factor */
-                A[j*LDA+i] -= gi;
-            }
+
+        for(j = 0; j < Nt; j++) {
             if ( (center == 1) && ( (axis == ChamColumnwise) || (axis == ChamEltwise) ) ) {
-                /* compute centered matrix factor */
-                A[j*LDA+i] -= gj;
-            }
-            if ( (center == 1) && (axis == ChamEltwise) ) {
-                /* compute centered matrix factor */
-                A[j*LDA+i] += g;
+                /* mean of values of the column */
+                gj = Gj[j*LDGJ] / ((double)M);
             }
             if ( (scale == 1) && (axis == ChamColumnwise) ) {
-                /* compute scaled matrix factor */
-                A[j*LDA+i] /= dj;
+                /* norm 2 of the column */
+                dj = Dj[j*LDDJ];
             }
-            if ( (scale == 1) && (axis == ChamRowwise) ) {
-                /* norm 2 of the row */
-                di = Di[i];
-                /* compute scaled matrix factor */
-                A[j*LDA+i] /= di;
+            for(i = 0; i < Mt; i++) {
+                if ( (center == 1) && ( (axis == ChamRowwise) || (axis == ChamEltwise) ) ) {
+                    /* mean of values of the row */
+                    gi = Gi[i] / ((double)N);
+                    /* compute centered matrix factor */
+                    A[j*LDA+i] -= gi;
+                }
+                if ( (center == 1) && ( (axis == ChamColumnwise) || (axis == ChamEltwise) ) ) {
+                    /* compute centered matrix factor */
+                    A[j*LDA+i] -= gj;
+                }
+                if ( (center == 1) && (axis == ChamEltwise) ) {
+                    /* compute centered matrix factor */
+                    A[j*LDA+i] += g;
+                }
+                if ( (scale == 1) && (axis == ChamColumnwise) ) {
+                    /* compute scaled matrix factor */
+                    A[j*LDA+i] /= dj;
+                }
+                if ( (scale == 1) && (axis == ChamRowwise) ) {
+                    /* norm 2 of the row */
+                    di = Di[i];
+                    /* compute scaled matrix factor */
+                    A[j*LDA+i] /= di;
+                }
             }
         }
+
+    } else {
+        /* COA case */
+
+        /* update the matrix */
+        for(j = 0; j < Nt; j++) {
+            for(i = 0; i < Mt; i++) {
+                rc = Gi[i] * Gj[j];
+                sqrc = sqrt(rc);
+                A[j*LDA + i] -= Gi[i] * Gj[j] / G[0];
+                A[j*LDA + i] /= sqrc;
+            }
+        }
+
     }
 
     return CHAMELEON_SUCCESS;
