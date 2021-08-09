@@ -28,7 +28,7 @@ CORE_zgesum_col( int M, int N,
                  CHAMELEON_Complex64_t *sum )
 {
     int i, j;
-    CHAMELEON_Complex64_t *ptr = A;
+    const CHAMELEON_Complex64_t *ptr = A;
     for(j=0; j<N; j++) {
         for(i=0; i<M; i++) {
             sum[j] += *ptr;
@@ -47,7 +47,7 @@ CORE_zgesum_row( int M, int N,
                  CHAMELEON_Complex64_t *sum )
 {
     int i, j;
-    CHAMELEON_Complex64_t *ptr = A;
+    const CHAMELEON_Complex64_t *ptr = A;
     for(j=0; j<N; j++) {
         for(i=0; i<M; i++) {
             sum[i] += *ptr;
@@ -66,7 +66,7 @@ CORE_zgesum_elt( int M, int N,
                  CHAMELEON_Complex64_t *sum )
 {
     int i, j;
-    CHAMELEON_Complex64_t *ptr = A;
+    const CHAMELEON_Complex64_t *ptr = A;
     for(j=0; j<N; j++) {
         for(i=0; i<M; i++) {
             sum[0] += *ptr;
