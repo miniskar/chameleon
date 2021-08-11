@@ -40,26 +40,28 @@ flops_zgenm2( int M, int N )
 int
 testing_zgenm2( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
+    int      minMN  = chameleon_min( M, N );
+    double   cond   = run_arg_get_double( args, "cond", 1.e16 );
+    int      mode   = run_arg_get_int( args, "mode", 4 );
+    double   tol    = 1.e-1;
+
+    /* Descriptors */
     double       norm;
     CHAM_desc_t *descA;
     double      *D, dmax = 1.;
-
-    /* Reads arguments */
-    intptr_t        mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int             nb     = run_arg_get_int( args, "nb", 320 );
-    int             P      = parameters_getvalue_int( "P" );
-    int             N      = run_arg_get_int( args, "N", 1000 );
-    int             M      = run_arg_get_int( args, "M", N );
-    int             LDA    = run_arg_get_int( args, "LDA", M );
-    int             seedA  = run_arg_get_int( args, "seedA", random() );
-    int             Q      = parameters_compute_q( P );
-    int             minMN  = chameleon_min( M, N );
-    double          cond   = run_arg_get_double( args, "cond", 1.e16 );
-    int             mode   = run_arg_get_int( args, "mode", 4 );
-    double          tol    = 1.e-1;
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgenm2( M, N );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -92,15 +94,19 @@ testing_zgenm2( run_arg_list_t *args, int check )
     }
 
     /* Calculates the norm */
-    START_TIMING( t );
-    norm = CHAMELEON_zgenm2_Tile( tol, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( norm >= 0. ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgenm2_Tile_Async( tol, descA, &norm,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        norm = CHAMELEON_zgenm2_Tile( tol, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgenm2( M, N ) );
 
     /* Checks the solution */
-    hres = 0;
     if ( check ) {
         double res = fabs(dmax - norm) / (dmax * tol);
 
@@ -130,13 +136,13 @@ void testing_zgenm2_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgenm2_init( void )
 {
-    test_zgenm2.name        = "zgenm2";
-    test_zgenm2.helper      = "General matrix two-norm estimator";
-    test_zgenm2.params      = zgenm2_params;
-    test_zgenm2.output      = zgenm2_output;
-    test_zgenm2.outchk      = zgenm2_outchk;
-    test_zgenm2.fptr        = testing_zgenm2;
-    test_zgenm2.next        = NULL;
+    test_zgenm2.name   = "zgenm2";
+    test_zgenm2.helper = "General matrix two-norm estimator";
+    test_zgenm2.params = zgenm2_params;
+    test_zgenm2.output = zgenm2_output;
+    test_zgenm2.outchk = zgenm2_outchk;
+    test_zgenm2.fptr   = testing_zgenm2;
+    test_zgenm2.next   = NULL;
 
     testing_register( &test_zgenm2 );
 }

@@ -24,10 +24,11 @@
 int
 testing_zgeqrf_hqr( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descTS, *descTT;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -42,9 +43,9 @@ testing_zgeqrf_hqr( run_arg_list_t *args, int check )
     int      domino = run_arg_get_int( args, "domino", -1 );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgeqrf( M, N );
 
+    /* Descriptors */
+    CHAM_desc_t    *descA, *descTS, *descTT;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
 
@@ -69,12 +70,19 @@ testing_zgeqrf_hqr( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgeqrf_param_Tile( &qrtree, descA, descTS, descTT );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgeqrf_param_Tile_Async( &qrtree, descA, descTS, descTT,
+                                                  test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTS, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTT, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgeqrf_param_Tile( &qrtree, descA, descTS, descTT );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgeqrf( M, N ) );
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
@@ -103,8 +111,8 @@ testing_zgeqrf_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgeqrf_hqr;
-const char *zgeqrf_hqr_params[] = { "mtxfmt", "nb", "ib",   "m",    "n",      "lda",   "qra",
-                                    "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
+const char *zgeqrf_hqr_params[] = { "mtxfmt", "nb",   "ib",   "m",      "n",     "lda", "qra",
+                                    "qrp",    "llvl", "hlvl", "domino", "seedA", NULL };
 const char *zgeqrf_hqr_output[] = { NULL };
 const char *zgeqrf_hqr_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
@@ -115,13 +123,13 @@ void testing_zgeqrf_hqr_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgeqrf_hqr_init( void )
 {
-    test_zgeqrf_hqr.name        = "zgeqrf_hqr";
-    test_zgeqrf_hqr.helper      = "General QR factorization with hierachical reduction trees";
-    test_zgeqrf_hqr.params      = zgeqrf_hqr_params;
-    test_zgeqrf_hqr.output      = zgeqrf_hqr_output;
-    test_zgeqrf_hqr.outchk      = zgeqrf_hqr_outchk;
-    test_zgeqrf_hqr.fptr        = testing_zgeqrf_hqr;
-    test_zgeqrf_hqr.next        = NULL;
+    test_zgeqrf_hqr.name   = "zgeqrf_hqr";
+    test_zgeqrf_hqr.helper = "General QR factorization with hierachical reduction trees";
+    test_zgeqrf_hqr.params = zgeqrf_hqr_params;
+    test_zgeqrf_hqr.output = zgeqrf_hqr_output;
+    test_zgeqrf_hqr.outchk = zgeqrf_hqr_outchk;
+    test_zgeqrf_hqr.fptr   = testing_zgeqrf_hqr;
+    test_zgeqrf_hqr.next   = NULL;
 
     testing_register( &test_zgeqrf_hqr );
 }

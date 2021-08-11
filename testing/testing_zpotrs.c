@@ -25,10 +25,11 @@
 int
 testing_zpotrs( run_arg_list_t *args, int check )
 {
-    int          hres;
-    CHAM_desc_t *descA, *descX;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -40,8 +41,9 @@ testing_zpotrs( run_arg_list_t *args, int check )
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         seedB  = run_arg_get_int( args, "seedB", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zpotrs( N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -59,12 +61,18 @@ testing_zpotrs( run_arg_list_t *args, int check )
     assert( hres == 0 );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres += CHAMELEON_zpotrs_Tile( uplo, descA, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres += CHAMELEON_zpotrs_Tile_Async( uplo, descA, descX,
+                                             test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres += CHAMELEON_zpotrs_Tile( uplo, descA, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrs( N, NRHS ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -87,7 +95,8 @@ testing_zpotrs( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpotrs;
-const char *zpotrs_params[] = { "mtxfmt", "nb","uplo", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zpotrs_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
+                                "lda",    "ldb", "seedA", "seedB", NULL };
 const char *zpotrs_output[] = { NULL };
 const char *zpotrs_outchk[] = { "RETURN", NULL };
 
@@ -98,13 +107,13 @@ void testing_zpotrs_init( void ) __attribute__( ( constructor ) );
 void
 testing_zpotrs_init( void )
 {
-    test_zpotrs.name        = "zpotrs";
-    test_zpotrs.helper      = "Hermitian positive definite solve (Cholesky)";
-    test_zpotrs.params      = zpotrs_params;
-    test_zpotrs.output      = zpotrs_output;
-    test_zpotrs.outchk      = zpotrs_outchk;
-    test_zpotrs.fptr        = testing_zpotrs;
-    test_zpotrs.next        = NULL;
+    test_zpotrs.name   = "zpotrs";
+    test_zpotrs.helper = "Hermitian positive definite solve (Cholesky)";
+    test_zpotrs.params = zpotrs_params;
+    test_zpotrs.output = zpotrs_output;
+    test_zpotrs.outchk = zpotrs_outchk;
+    test_zpotrs.fptr   = testing_zpotrs;
+    test_zpotrs.next   = NULL;
 
     testing_register( &test_zpotrs );
 }

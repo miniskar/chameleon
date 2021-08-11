@@ -24,10 +24,11 @@
 int
 testing_ztrtri( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -37,8 +38,9 @@ testing_ztrtri( run_arg_list_t *args, int check )
     int         LDA    = run_arg_get_int( args, "LDA", N );
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_ztrtri( N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -50,12 +52,17 @@ testing_ztrtri( run_arg_list_t *args, int check )
     CHAMELEON_zplghe_Tile( (double)N, uplo, descA, seedA );
 
     /* Calculates the inversed matrices */
-    START_TIMING( t );
-    hres = CHAMELEON_ztrtri_Tile( uplo, diag, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_ztrtri_Tile_Async( uplo, diag, descA,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_ztrtri_Tile( uplo, diag, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_ztrtri( N ) );
 
     /* Checks the inverse */
     if ( check ) {
@@ -73,7 +80,7 @@ testing_ztrtri( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztrtri;
-const char *ztrtri_params[] = { "mtxfmt", "nb","uplo", "diag", "n", "lda", "seedA", NULL };
+const char *ztrtri_params[] = { "mtxfmt", "nb", "uplo", "diag", "n", "lda", "seedA", NULL };
 const char *ztrtri_output[] = { NULL };
 const char *ztrtri_outchk[] = { "RETURN", NULL };
 
@@ -84,13 +91,13 @@ void testing_ztrtri_init( void ) __attribute__( ( constructor ) );
 void
 testing_ztrtri_init( void )
 {
-    test_ztrtri.name        = "ztrtri";
-    test_ztrtri.helper      = "Triangular matrix inversion";
-    test_ztrtri.params      = ztrtri_params;
-    test_ztrtri.output      = ztrtri_output;
-    test_ztrtri.outchk      = ztrtri_outchk;
-    test_ztrtri.fptr        = testing_ztrtri;
-    test_ztrtri.next        = NULL;
+    test_ztrtri.name   = "ztrtri";
+    test_ztrtri.helper = "Triangular matrix inversion";
+    test_ztrtri.params = ztrtri_params;
+    test_ztrtri.output = ztrtri_output;
+    test_ztrtri.outchk = ztrtri_outchk;
+    test_ztrtri.fptr   = testing_ztrtri;
+    test_ztrtri.next   = NULL;
 
     testing_register( &test_ztrtri );
 }

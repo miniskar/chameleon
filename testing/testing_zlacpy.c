@@ -55,10 +55,11 @@ flops_zlacpy( cham_uplo_t uplo, int M, int N )
 int
 testing_zlacpy( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descB;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -69,8 +70,9 @@ testing_zlacpy( run_arg_list_t *args, int check )
     int         LDB    = run_arg_get_int( args, "LDB", M );
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlacpy( uplo, M, N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descB;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -86,12 +88,18 @@ testing_zlacpy( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descB, seedA + 1 );
 
     /* Makes a copy of descA to descB */
-    START_TIMING( t );
-    hres = CHAMELEON_zlacpy_Tile( uplo, descA, descB );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlacpy_Tile_Async( uplo, descA, descB,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zlacpy_Tile( uplo, descA, descB );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlacpy( uplo, M, N ) );
 
     /* Checks their differences */
     if ( check ) {
@@ -105,7 +113,7 @@ testing_zlacpy( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlacpy;
-const char *zlacpy_params[] = { "mtxfmt", "nb","uplo", "m", "n", "lda", "ldb", "seedA", NULL };
+const char *zlacpy_params[] = { "mtxfmt", "nb", "uplo", "m", "n", "lda", "ldb", "seedA", NULL };
 const char *zlacpy_output[] = { NULL };
 const char *zlacpy_outchk[] = { "RETURN", NULL };
 
@@ -116,13 +124,13 @@ void testing_zlacpy_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlacpy_init( void )
 {
-    test_zlacpy.name        = "zlacpy";
-    test_zlacpy.helper      = "General matrix copy";
-    test_zlacpy.params      = zlacpy_params;
-    test_zlacpy.output      = zlacpy_output;
-    test_zlacpy.outchk      = zlacpy_outchk;
-    test_zlacpy.fptr        = testing_zlacpy;
-    test_zlacpy.next        = NULL;
+    test_zlacpy.name   = "zlacpy";
+    test_zlacpy.helper = "General matrix copy";
+    test_zlacpy.params = zlacpy_params;
+    test_zlacpy.output = zlacpy_output;
+    test_zlacpy.outchk = zlacpy_outchk;
+    test_zlacpy.fptr   = testing_zlacpy;
+    test_zlacpy.next   = NULL;
 
     testing_register( &test_zlacpy );
 }

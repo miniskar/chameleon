@@ -25,11 +25,11 @@
 int
 testing_zsyrk( run_arg_list_t *args, int check )
 {
-    int          Am, An;
-    int          hres = 0;
-    CHAM_desc_t *descA, *descC, *descCinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
@@ -45,8 +45,10 @@ testing_zsyrk( run_arg_list_t *args, int check )
     int                   seedA = run_arg_get_int( args, "seedA", random() );
     int                   seedC = run_arg_get_int( args, "seedC", random() );
     int                   Q     = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zsyrk( K, N );
+
+    /* Descriptors */
+    int          Am, An;
+    CHAM_desc_t *descA, *descC, *descCinit;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -75,12 +77,18 @@ testing_zsyrk( run_arg_list_t *args, int check )
     CHAMELEON_zplgsy_Tile( bump, uplo, descC, seedC );
 
     /* Calculates the product */
-    START_TIMING( t );
-    hres = CHAMELEON_zsyrk_Tile( uplo, trans, alpha, descA, beta, descC );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zsyrk_Tile_Async( uplo, trans, alpha, descA, beta, descC,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zsyrk_Tile( uplo, trans, alpha, descA, beta, descC );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zsyrk( K, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -88,8 +96,8 @@ testing_zsyrk( run_arg_list_t *args, int check )
             &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
         CHAMELEON_zplgsy_Tile( bump, uplo, descCinit, seedC );
 
-        hres +=
-            check_zsyrk( args, ChamSymmetric, uplo, trans, alpha, descA, NULL, beta, descCinit, descC );
+        hres += check_zsyrk( args, ChamSymmetric, uplo, trans, alpha, descA, NULL,
+                             beta, descCinit, descC );
 
         CHAMELEON_Desc_Destroy( &descCinit );
     }
@@ -101,8 +109,8 @@ testing_zsyrk( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsyrk;
-const char *zsyrk_params[] = { "mtxfmt", "nb",   "trans", "uplo",  "n",     "k",    "lda", "ldc",
-                               "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+const char *zsyrk_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",     "k",    "lda",
+                               "ldc",    "alpha", "beta",  "seedA", "seedC", "bump", NULL };
 const char *zsyrk_output[] = { NULL };
 const char *zsyrk_outchk[] = { "RETURN", NULL };
 
@@ -113,13 +121,13 @@ void testing_zsyrk_init( void ) __attribute__( ( constructor ) );
 void
 testing_zsyrk_init( void )
 {
-    test_zsyrk.name        = "zsyrk";
-    test_zsyrk.helper      = "Symmetrix matrix-matrix rank k update";
-    test_zsyrk.params      = zsyrk_params;
-    test_zsyrk.output      = zsyrk_output;
-    test_zsyrk.outchk      = zsyrk_outchk;
-    test_zsyrk.fptr        = testing_zsyrk;
-    test_zsyrk.next        = NULL;
+    test_zsyrk.name   = "zsyrk";
+    test_zsyrk.helper = "Symmetrix matrix-matrix rank k update";
+    test_zsyrk.params = zsyrk_params;
+    test_zsyrk.output = zsyrk_output;
+    test_zsyrk.outchk = zsyrk_outchk;
+    test_zsyrk.fptr   = testing_zsyrk;
+    test_zsyrk.next   = NULL;
 
     testing_register( &test_zsyrk );
 }

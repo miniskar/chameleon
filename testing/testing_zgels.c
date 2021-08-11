@@ -37,10 +37,11 @@ flops_zgels( cham_trans_t trans, int M, int N, int NRHS )
 int
 testing_zgels( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descX, *descT;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          ib     = run_arg_get_int( args, "ib", 48 );
@@ -56,8 +57,9 @@ testing_zgels( run_arg_list_t *args, int check )
     int          seedA  = run_arg_get_int( args, "seedA", random() );
     int          seedB  = run_arg_get_int( args, "seedB", random() );
     int          Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgels( trans, M, N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX, *descT;
 
     /* Make sure trans is only Notrans or ConjTrans */
     trans = ( trans == ChamNoTrans ) ? trans : ChamConjTrans;
@@ -85,12 +87,19 @@ testing_zgels( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     /* Computes the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgels_Tile( trans, descA, descT, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgels_Tile_Async( trans, descA, descT, descX,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgels_Tile( trans, descA, descT, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgels( trans, M, N, NRHS ) );
 
     if ( check ) {
         CHAM_desc_t *descA0, *descB;
@@ -131,8 +140,8 @@ testing_zgels( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgels;
-const char *zgels_params[] = { "mtxfmt", "nb", "ib",  "trans", "m",     "n",     "k",
-                               "lda", "ldb", "qra",    "seedA", "seedB", NULL };
+const char *zgels_params[] = { "mtxfmt", "nb",  "ib",  "trans", "m",     "n", "k",
+                               "lda",    "ldb", "qra", "seedA", "seedB", NULL };
 const char *zgels_output[] = { NULL };
 const char *zgels_outchk[] = { "RETURN", NULL };
 
@@ -143,13 +152,13 @@ void testing_zgels_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgels_init( void )
 {
-    test_zgels.name        = "zgels";
-    test_zgels.helper      = "Linear least squares with general matrix";
-    test_zgels.params      = zgels_params;
-    test_zgels.output      = zgels_output;
-    test_zgels.outchk      = zgels_outchk;
-    test_zgels.fptr        = testing_zgels;
-    test_zgels.next        = NULL;
+    test_zgels.name   = "zgels";
+    test_zgels.helper = "Linear least squares with general matrix";
+    test_zgels.params = zgels_params;
+    test_zgels.output = zgels_output;
+    test_zgels.outchk = zgels_outchk;
+    test_zgels.fptr   = testing_zgels;
+    test_zgels.next   = NULL;
 
     testing_register( &test_zgels );
 }

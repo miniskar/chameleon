@@ -25,7 +25,7 @@ static cham_fixdbl_t
 flops_zlanhe( cham_normtype_t ntype, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double coefabs = 1.;
+    double        coefabs = 1.;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
@@ -49,11 +49,11 @@ flops_zlanhe( cham_normtype_t ntype, int N )
 int
 testing_zlanhe( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    double       norm;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int             async     = parameters_getvalue_int( "async" );
     intptr_t        mtxfmt    = parameters_getvalue_int( "mtxfmt" );
     int             nb        = run_arg_get_int( args, "nb", 320 );
     int             P         = parameters_getvalue_int( "P" );
@@ -64,8 +64,10 @@ testing_zlanhe( run_arg_list_t *args, int check )
     int             seedA     = run_arg_get_int( args, "seedA", random() );
     double          bump      = testing_dalea();
     int             Q         = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlanhe( norm_type, N );
+
+    /* Descriptors */
+    double       norm;
+    CHAM_desc_t *descA;
 
     bump = run_arg_get_double( args, "bump", bump );
 
@@ -79,12 +81,17 @@ testing_zlanhe( run_arg_list_t *args, int check )
     CHAMELEON_zplghe_Tile( bump, uplo, descA, seedA );
 
     /* Calculates the norm */
-    START_TIMING( t );
-    norm = CHAMELEON_zlanhe_Tile( norm_type, uplo, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( norm >= 0. ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlanhe_Tile_Async( norm_type, uplo, descA, &norm,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        norm = CHAMELEON_zlanhe_Tile( norm_type, uplo, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlanhe( norm_type, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -97,7 +104,7 @@ testing_zlanhe( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlanhe;
-const char *zlanhe_params[] = { "mtxfmt", "nb","norm", "uplo", "n", "lda", "seedA", "bump", NULL };
+const char *zlanhe_params[] = { "mtxfmt", "nb", "norm", "uplo", "n", "lda", "seedA", "bump", NULL };
 const char *zlanhe_output[] = { NULL };
 const char *zlanhe_outchk[] = { "RETURN", NULL };
 
@@ -108,13 +115,13 @@ void testing_zlanhe_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlanhe_init( void )
 {
-    test_zlanhe.name        = "zlanhe";
-    test_zlanhe.helper      = "Hermitian matrix norm";
-    test_zlanhe.params      = zlanhe_params;
-    test_zlanhe.output      = zlanhe_output;
-    test_zlanhe.outchk      = zlanhe_outchk;
-    test_zlanhe.fptr        = testing_zlanhe;
-    test_zlanhe.next        = NULL;
+    test_zlanhe.name   = "zlanhe";
+    test_zlanhe.helper = "Hermitian matrix norm";
+    test_zlanhe.params = zlanhe_params;
+    test_zlanhe.output = zlanhe_output;
+    test_zlanhe.outchk = zlanhe_outchk;
+    test_zlanhe.fptr   = testing_zlanhe;
+    test_zlanhe.next   = NULL;
 
     testing_register( &test_zlanhe );
 }

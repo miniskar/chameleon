@@ -25,11 +25,11 @@
 int
 testing_zunmqr_hqr( run_arg_list_t *args, int check )
 {
-    int          Am;
-    int          hres;
-    CHAM_desc_t *descA, *descTS, *descTT, *descC;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          ib     = run_arg_get_int( args, "ib", 48 );
@@ -49,9 +49,10 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
     int          seedA  = run_arg_get_int( args, "seedA", random() );
     int          seedC  = run_arg_get_int( args, "seedC", random() );
     int          Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zunmqr( side, M, N, K );
 
+    /* Descriptors */
+    int             Am;
+    CHAM_desc_t    *descA, *descTS, *descTT, *descC;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
 
@@ -86,12 +87,20 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
     assert( hres == 0 );
 
     /* Computes unmqr_hqr */
-    START_TIMING( t );
-    hres += CHAMELEON_zunmqr_param_Tile( &qrtree, side, trans, descA, descTS, descTT, descC );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres += CHAMELEON_zunmqr_param_Tile_Async( &qrtree, side, trans, descA, descTS, descTT, descC,
+                                                   test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTS, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres += CHAMELEON_zunmqr_param_Tile( &qrtree, side, trans, descA, descTS, descTT, descC );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zunmqr( side, M, N, K ) );
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
@@ -120,9 +129,9 @@ testing_zunmqr_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zunmqr_hqr;
-const char *zunmqr_hqr_params[] = { "mtxfmt", "nb",  "ib",     "side",  "trans", "m",   "n",
-                                    "k",    "lda",    "ldc",   "qra",   "qrp", "llvl",
-                                    "hlvl", "domino", "seedA", "seedC", NULL };
+const char *zunmqr_hqr_params[] = { "mtxfmt", "nb",   "ib",     "side",  "trans", "m",
+                                    "n",      "k",    "lda",    "ldc",   "qra",   "qrp",
+                                    "llvl",   "hlvl", "domino", "seedA", "seedC", NULL };
 const char *zunmqr_hqr_output[] = { NULL };
 const char *zunmqr_hqr_outchk[] = { "RETURN", NULL };
 
@@ -138,8 +147,8 @@ testing_zunmqr_hqr_init( void )
     test_zunmqr_hqr.params = zunmqr_hqr_params;
     test_zunmqr_hqr.output = zunmqr_hqr_output;
     test_zunmqr_hqr.outchk = zunmqr_hqr_outchk;
-    test_zunmqr_hqr.fptr = testing_zunmqr_hqr;
-    test_zunmqr_hqr.next = NULL;
+    test_zunmqr_hqr.fptr   = testing_zunmqr_hqr;
+    test_zunmqr_hqr.next   = NULL;
 
     testing_register( &test_zunmqr_hqr );
 }

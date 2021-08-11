@@ -31,10 +31,11 @@ flops_zgesv( int N, int NRHS )
 int
 testing_zgesv( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descX;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      P      = parameters_getvalue_int( "P" );
@@ -45,8 +46,9 @@ testing_zgesv( run_arg_list_t *args, int check )
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgesv( N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -61,12 +63,18 @@ testing_zgesv( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgesv_nopiv_Tile( descA, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgesv_nopiv_Tile_Async( descA, descX,
+                                                 test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgesv_nopiv_Tile( descA, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgesv( N, NRHS ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -83,7 +91,8 @@ testing_zgesv( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descA0, seedA );
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
-        hres += check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, descX, descB );
+        hres +=
+            check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, descX, descB );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descB );
@@ -96,7 +105,7 @@ testing_zgesv( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgesv;
-const char *zgesv_params[] = { "mtxfmt", "nb","n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zgesv_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
 const char *zgesv_output[] = { NULL };
 const char *zgesv_outchk[] = { "RETURN", NULL };
 
@@ -107,13 +116,13 @@ void testing_zgesv_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgesv_init( void )
 {
-    test_zgesv.name        = "zgesv";
-    test_zgesv.helper      = "General linear system solve (LU without pivoting)";
-    test_zgesv.params      = zgesv_params;
-    test_zgesv.output      = zgesv_output;
-    test_zgesv.outchk      = zgesv_outchk;
-    test_zgesv.fptr        = testing_zgesv;
-    test_zgesv.next        = NULL;
+    test_zgesv.name   = "zgesv";
+    test_zgesv.helper = "General linear system solve (LU without pivoting)";
+    test_zgesv.params = zgesv_params;
+    test_zgesv.output = zgesv_output;
+    test_zgesv.outchk = zgesv_outchk;
+    test_zgesv.fptr   = testing_zgesv;
+    test_zgesv.next   = NULL;
 
     testing_register( &test_zgesv );
 }

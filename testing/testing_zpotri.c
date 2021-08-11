@@ -26,10 +26,11 @@
 int
 testing_zpotri( run_arg_list_t *args, int check )
 {
-    int          hres;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -38,8 +39,9 @@ testing_zpotri( run_arg_list_t *args, int check )
     int         LDA    = run_arg_get_int( args, "LDA", N );
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zpotri( N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -54,13 +56,16 @@ testing_zpotri( run_arg_list_t *args, int check )
     assert( hres == 0 );
 
     /* Calculates the inversed matrix */
-    START_TIMING( t );
-    hres += CHAMELEON_zpotri_Tile( uplo, descA );
-    STOP_TIMING( t );
-
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres += CHAMELEON_zpotri_Tile_Async( uplo, descA, test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres += CHAMELEON_zpotri_Tile( uplo, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotri( N ) );
 
     /* Check the inverse */
     if ( check ) {
@@ -78,7 +83,7 @@ testing_zpotri( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpotri;
-const char *zpotri_params[] = { "mtxfmt", "nb","uplo", "n", "lda", "seedA", NULL };
+const char *zpotri_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zpotri_output[] = { NULL };
 const char *zpotri_outchk[] = { "RETURN", NULL };
 
@@ -89,13 +94,13 @@ void testing_zpotri_init( void ) __attribute__( ( constructor ) );
 void
 testing_zpotri_init( void )
 {
-    test_zpotri.name        = "zpotri";
-    test_zpotri.helper      = "Hermitian positive definite matrix inversion";
-    test_zpotri.params      = zpotri_params;
-    test_zpotri.output      = zpotri_output;
-    test_zpotri.outchk      = zpotri_outchk;
-    test_zpotri.fptr        = testing_zpotri;
-    test_zpotri.next        = NULL;
+    test_zpotri.name   = "zpotri";
+    test_zpotri.helper = "Hermitian positive definite matrix inversion";
+    test_zpotri.params = zpotri_params;
+    test_zpotri.output = zpotri_output;
+    test_zpotri.outchk = zpotri_outchk;
+    test_zpotri.fptr   = testing_zpotri;
+    test_zpotri.next   = NULL;
 
     testing_register( &test_zpotri );
 }

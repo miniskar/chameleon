@@ -32,10 +32,11 @@ flops_zgelqs()
 int
 testing_zgelqs( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA1, *descA2, *descB1, *descB2, *descT, *descQ, *descX;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -49,8 +50,9 @@ testing_zgelqs( run_arg_list_t *args, int check )
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgelqs();
+
+    /* Descriptors */
+    CHAM_desc_t *descA1, *descA2, *descB1, *descB2, *descT, *descQ, *descX;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
@@ -110,8 +112,8 @@ testing_zgelqs( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgelqs;
-const char *zgelqs_params[] = { "mtxfmt", "nb", "ib", "m",     "n",     "k", "lda",
-                                "ldb", "qra", "seedA", "seedB", NULL };
+const char *zgelqs_params[] = { "mtxfmt", "nb",  "ib",  "m",     "n",     "k",
+                                "lda",    "ldb", "qra", "seedA", "seedB", NULL };
 const char *zgelqs_output[] = { NULL };
 const char *zgelqs_outchk[] = { "RETURN", NULL };
 
@@ -122,13 +124,13 @@ void testing_zgelqs_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgelqs_init( void )
 {
-    test_zgelqs.name        = "zgelqs";
-    test_zgelqs.helper      = "General LQ solve";
-    test_zgelqs.params      = zgelqs_params;
-    test_zgelqs.output      = zgelqs_output;
-    test_zgelqs.outchk      = zgelqs_outchk;
-    test_zgelqs.fptr        = testing_zgelqs;
-    test_zgelqs.next        = NULL;
+    test_zgelqs.name   = "zgelqs";
+    test_zgelqs.helper = "General LQ solve";
+    test_zgelqs.params = zgelqs_params;
+    test_zgelqs.output = zgelqs_output;
+    test_zgelqs.outchk = zgelqs_outchk;
+    test_zgelqs.fptr   = testing_zgelqs;
+    test_zgelqs.next   = NULL;
 
     testing_register( &test_zgelqs );
 }

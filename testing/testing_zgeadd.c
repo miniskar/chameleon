@@ -38,11 +38,11 @@ flops_zgeadd( int M, int N )
 int
 testing_zgeadd( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    int          Am, An;
-    CHAM_desc_t *descA, *descB;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
     /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
@@ -56,11 +56,13 @@ testing_zgeadd( run_arg_list_t *args, int check )
     int          Q      = parameters_compute_q( P );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgeadd( M, N );
+
+    /* Descriptors */
+    int          Am, An;
+    CHAM_desc_t *descA, *descB;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
-    beta  = run_arg_get_complex64( args, "beta",  beta  );
+    beta  = run_arg_get_complex64( args, "beta", beta );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -84,12 +86,18 @@ testing_zgeadd( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descB, seedB );
 
     /* Compute the sum */
-    START_TIMING( t );
-    hres = CHAMELEON_zgeadd_Tile( trans, alpha, descA, beta, descB );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgeadd_Tile_Async( trans, alpha, descA, beta, descB,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgeadd_Tile( trans, alpha, descA, beta, descB );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgeadd( M, N ) );
 
     /* Check the solution */
     if ( check ) {
@@ -108,8 +116,8 @@ testing_zgeadd( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgeadd;
-const char *zgeadd_params[] = { "mtxfmt", "nb",   "trans", "m",     "n",     "lda", "ldb",
-                                "alpha", "beta",  "seedA", "seedB", NULL };
+const char *zgeadd_params[] = { "mtxfmt", "nb",    "trans", "m",     "n",     "lda",
+                                "ldb",    "alpha", "beta",  "seedA", "seedB", NULL };
 const char *zgeadd_output[] = { NULL };
 const char *zgeadd_outchk[] = { "RETURN", NULL };
 
@@ -120,13 +128,13 @@ void testing_zgeadd_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgeadd_init( void )
 {
-    test_zgeadd.name        = "zgeadd";
-    test_zgeadd.helper      = "General matrix-matrix addition";
-    test_zgeadd.params      = zgeadd_params;
-    test_zgeadd.output      = zgeadd_output;
-    test_zgeadd.outchk      = zgeadd_outchk;
-    test_zgeadd.fptr        = testing_zgeadd;
-    test_zgeadd.next        = NULL;
+    test_zgeadd.name   = "zgeadd";
+    test_zgeadd.helper = "General matrix-matrix addition";
+    test_zgeadd.params = zgeadd_params;
+    test_zgeadd.output = zgeadd_output;
+    test_zgeadd.outchk = zgeadd_outchk;
+    test_zgeadd.fptr   = testing_zgeadd;
+    test_zgeadd.next   = NULL;
 
     testing_register( &test_zgeadd );
 }

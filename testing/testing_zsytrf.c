@@ -24,10 +24,11 @@
 int
 testing_zsytrf( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -36,8 +37,9 @@ testing_zsytrf( run_arg_list_t *args, int check )
     int         LDA    = run_arg_get_int( args, "LDA", N );
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zpotrf( N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -49,12 +51,16 @@ testing_zsytrf( run_arg_list_t *args, int check )
     CHAMELEON_zplgsy_Tile( (double)N, uplo, descA, seedA );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zsytrf_Tile( uplo, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zsytrf_Tile_Async( uplo, descA, test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zsytrf_Tile( uplo, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrf( N ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -72,7 +78,7 @@ testing_zsytrf( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsytrf;
-const char *zsytrf_params[] = { "mtxfmt", "nb","uplo", "n", "lda", "seedA", NULL };
+const char *zsytrf_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zsytrf_output[] = { NULL };
 const char *zsytrf_outchk[] = { "RETURN", NULL };
 
@@ -83,13 +89,13 @@ void testing_zsytrf_init( void ) __attribute__( ( constructor ) );
 void
 testing_zsytrf_init( void )
 {
-    test_zsytrf.name        = "zsytrf";
-    test_zsytrf.helper      = "Symmetric trinagular factorization";
-    test_zsytrf.params      = zsytrf_params;
-    test_zsytrf.output      = zsytrf_output;
-    test_zsytrf.outchk      = zsytrf_outchk;
-    test_zsytrf.fptr        = testing_zsytrf;
-    test_zsytrf.next        = NULL;
+    test_zsytrf.name   = "zsytrf";
+    test_zsytrf.helper = "Symmetric trinagular factorization";
+    test_zsytrf.params = zsytrf_params;
+    test_zsytrf.output = zsytrf_output;
+    test_zsytrf.outchk = zsytrf_outchk;
+    test_zsytrf.fptr   = testing_zsytrf;
+    test_zsytrf.next   = NULL;
 
     testing_register( &test_zsytrf );
 }
