@@ -217,6 +217,26 @@ void        run_list_destroy( run_list_elt_t *run );
 
 void testing_register( testing_t *test );
 
+
+/**
+ * @brief Define the data associated to a single run of a testing
+ */
+struct testing_;
+typedef struct testing_ testing_t;
+typedef int (*test_fct_t)( run_arg_list_t *, int );
+
+typedef struct testdata_ {
+    run_arg_list_t     *args;     /**< The parameters of the test           */
+    int                 hres;     /**< The returned value of the test       */
+    cham_fixdbl_t       texec;    /**< The execution time of test           */
+    cham_fixdbl_t       tsub;     /**< The task submission tome of the test */
+    RUNTIME_sequence_t *sequence; /**< The sequence to run the test if splitsub */
+    RUNTIME_request_t  request;   /**< The request to run the test if splitsub  */
+} testdata_t;
+
+void testing_start( testdata_t *tdata );
+void testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
+
 /**
  * @brief Macros to enable distributed synchronization if necessary
  */
