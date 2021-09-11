@@ -237,26 +237,4 @@ typedef struct testdata_ {
 void testing_start( testdata_t *tdata );
 void testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
 
-/**
- * @brief Macros to enable distributed synchronization if necessary
- */
-#if defined(CHAMELEON_USE_MPI)
-#define START_DISTRIBUTED()  CHAMELEON_Distributed_start();
-#define STOP_DISTRIBUTED()   CHAMELEON_Distributed_stop();
-#else
-#define START_DISTRIBUTED()  do {} while(0);
-#define STOP_DISTRIBUTED()   do {} while(0);
-#endif
-
-/**
- * @brief Macros to start/stop timers with necessary synchronizations
- */
-#define START_TIMING( _t_ )                     \
-    START_DISTRIBUTED();                        \
-    (_t_) = RUNTIME_get_time();
-
-#define STOP_TIMING( _t_ )                      \
-    STOP_DISTRIBUTED();                         \
-    (_t_) = RUNTIME_get_time() - (_t_);         \
-
 #endif /* _testings_h_ */
