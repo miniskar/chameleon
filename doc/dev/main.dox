@@ -7,7 +7,7 @@ as well as the source code organization.
 
 To get information about the Chameleon project, installation guide and
 usage examples please refer to the [user's
-guide](https://solverstack.gitlabpages.inria.fr/chameleon/users_guide.html).
+guide](https://solverstack.gitlabpages.inria.fr/chameleon/index.html).
 
 Chameleon user's API is mostly composed of linear algebra routines of
 the form **CHAMELEON_name[_Tile[_Async]]** where *name* follows the

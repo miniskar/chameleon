@@ -142,8 +142,8 @@ void CHAMELEON_zcesca_WS_Free( void *user_ws )
  *  A bicentered gives \f[\bar{A} = (\bar{a}_{i,j})_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
  *  \f[ \bar{a}_{i,j} = a_{i,j} - g_i - g_j + g \f]
  * Lets
- * \f[d_i = || a_{i*} || = \sqrt{ \sum_j a_{ij}²} \\
- *    d_j = || a_{*j} || = \sqrt{ \sum_i a_{ij}²} \f]
+ * \f[d_i = || a_{i*} || = \sqrt{ \sum_j a_{ij}^2} \\
+ *    d_j = || a_{*j} || = \sqrt{ \sum_i a_{ij}^2} \f]
  * A scaled rowwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
  * \f[ a_{i*}' = \frac{a_{i*}}{d_i} \f]
  * A scaled columnwise gives \f[A' = (a_{i,j}')_{1 \leq i \leq m, 1 \leq j \leq n}\f] such that
