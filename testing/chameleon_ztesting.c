@@ -44,7 +44,8 @@ static parameter_t parameters[] = {
     { "mtxfmt",   "Change the way the matrix is stored (0: global, 1: tiles, 2: OOC)", -32, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "splitsub", "Wait for whole graph submission before execution", 'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "async",    "Switch to the Async interface",            's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "splitsub", "Split the task submission and execution stages", 'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
@@ -179,6 +180,16 @@ void print_usage( const char* prog_name )
                 "  will run one gemm with three matrices of size 2000x2000 each and a tile size of 200.\n"
                 "  The output will be in the human readable format\n"
                 "\n", prog_name );
+        printf( "Remarks about timing:\n"
+                "  Timings are reported respectively as 'tsub' for the graph submission time, and 'time'\n"
+                "  for the execution time.\n"
+                "  By default the synchronous tile interface is used to perform the timings. 'tsub' is null.\n"
+                "  If the --async option is enabled, then the _Async interface is called. 'tsub' reports\n"
+                "  the task submission time, and 'time' the execution time that includes 'tsub'.\n"
+                "  If the --splitsub option is enabled, then the _Async interface is called and task\n"
+                "  submission is fully performed before starting the computation. 'tsub' reports the\n"
+                "  task submission time, and 'time' the execution time excluding 'tsub'.\n"
+                "  Note that the 'gflops' field is always computed with 'time'\n" );
     }
 }
 
@@ -469,6 +480,25 @@ void parameters_parser( int argc, char **argv )
     if ( longopts != NULL ) {
         free( longopts );
     }
+
+    /* Force Async if splitsub is enabled */
+    {
+        int splitsub = parameters_getvalue_int( "splitsub" );
+
+        if ( splitsub ) {
+            param = parameters_get( 's' );
+            if ( param == NULL ) {
+                print_usage(argv[0]);
+                exit(1);
+            }
+            parameters_addvalues( param, NULL );
+
+#if defined(CHAMELEON_RUNTIME_SYNC)
+            fprintf( stderr, "Spliting the submission and the execution stages is not possible when the option CHAMELEON_RUNTIME_SYNC is enabled\n" );
+            exit(0);
+#endif
+        }
+    }
 }
 
 void
@@ -499,8 +529,9 @@ void
 testing_start( testdata_t *tdata )
 {
     int splitsub = parameters_getvalue_int( "splitsub" );
+    int async    = parameters_getvalue_int( "async" ) || splitsub;
 
-    tdata->sequence = NULL;
+    tdata->sequence         = NULL;
     tdata->request.status   = 0;
     tdata->request.schedopt = NULL;
 
@@ -508,26 +539,33 @@ testing_start( testdata_t *tdata )
     CHAMELEON_Distributed_start();
 #endif
 
-    if ( splitsub ) {
+    if ( async ) {
         CHAMELEON_Sequence_Create( &(tdata->sequence) );
+    }
+
+    if ( splitsub ) {
         CHAMELEON_Pause();
     }
 
     /* Register starting time */
-    tdata->tsub = RUNTIME_get_time();
+    tdata->tsub  = RUNTIME_get_time();
     tdata->texec = tdata->tsub;
 }
 
 void
 testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
 {
-    int splitsub = parameters_getvalue_int( "splitsub" );
     cham_fixdbl_t t0, t1, t2, gflops;
 
+    int splitsub = parameters_getvalue_int( "splitsub" );
+    int async    = parameters_getvalue_int( "async" ) || splitsub;
+
     /* Submission is done, we need to start the computations */
-    if ( splitsub ) {
+    if ( async ) {
         tdata->tsub = RUNTIME_get_time();
-        CHAMELEON_Resume();
+        if ( splitsub ) {
+            CHAMELEON_Resume();
+        }
         CHAMELEON_Sequence_Wait( tdata->sequence );
         CHAMELEON_Sequence_Destroy( tdata->sequence );
     }
@@ -545,8 +583,12 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
      * => tsub  = t1 - t0
      */
     tdata->tsub  = t1 - t0;
-    tdata->texec = t2 - t1;
-
+    if ( splitsub ) {
+        tdata->texec = t2 - t1;
+    }
+    else {
+        tdata->texec = t2 - t0;
+    }
     gflops = flops * 1.e-9 / tdata->texec;
     run_arg_add_fixdbl( tdata->args, "time", tdata->texec );
     run_arg_add_fixdbl( tdata->args, "tsub", tdata->tsub );
