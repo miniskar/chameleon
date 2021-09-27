@@ -33,8 +33,8 @@ cmake_minimum_required(VERSION 3.1)
 #      Compilation of documentation         #
 #                                           #
 #############################################
-add_subdirectory(doxygen)
-add_subdirectory(orgmode)
+add_subdirectory(dev)
+add_subdirectory(user)
 ###
 ### END CMakeLists.txt
 ###

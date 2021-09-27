@@ -48,21 +48,21 @@ if(DOXYGEN_EXECUTABLE)
 
     # Doxygen documentation
     # ---------------------
-    add_custom_command(OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/out/index.html
+    add_custom_command(OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/index.html
                        COMMAND ${DOXYGEN_EXECUTABLE}
                        ARGS    ${CMAKE_CURRENT_BINARY_DIR}/chameleon.dox
                        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/chameleon.dox
                                ${CMAKE_CURRENT_SOURCE_DIR}/main.dox
                       )
     add_custom_target(doxygen-out ALL
-                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/out/index.html
+                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/index.html
                               chameleon_all_sources
                               )
 
     # Installation for html version
     # -----------------------------
-    install(DIRECTORY   ${CMAKE_CURRENT_BINARY_DIR}/out/html
-            DESTINATION share/chameleon/doxygen/dev)
+    install(DIRECTORY   ${CMAKE_CURRENT_BINARY_DIR}/html
+            DESTINATION share/chameleon/doc/dev)
 
 else()
     message(STATUS "Looking for doxygen - not found")

@@ -1,0 +1,821 @@
+# This file is part of the Chameleon User's Guide.
+# Copyright (C) 2017 Inria
+# See the file ../users_guide.org for copying conditions.
+
+Chameleon is written in C and depends on a couple of external
+libraries that must be installed on the system.
+# , it provides an interface to be called from Fortran
+
+Chameleon can be built and installed on UNIX systems (Linux) by the
+standard means of [[http://www.cmake.org/][CMake]].  General information about CMake, as well as
+installation binaries and CMake source code are available from [[http://www.cmake.org/cmake/resources/software.html][here]].
+
+To get support to install a full distribution Chameleon + dependencies
+we encourage users to use [[sec:ug:guix][GNU Guix]] or [[sec:ug:spack][Spack]].
+
+Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and [[sec:ug:brew][MacOSX]].
+
+*** Getting Chameleon
+    <<sec:ug:git>>
+
+    The latest official release tarballs of Chameleon sources are
+    available for download from the [[https://gitlab.inria.fr/solverstack/chameleon/tags][gitlab tags page]].
+
+    The latest development state is available on [[https://gitlab.inria.fr/solverstack/chameleon][gitlab]]. You need [[https://git-scm.com/downloads][Git]]
+    #+begin_src
+    git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git
+    #+end_src
+
+*** Prerequisites for installing Chameleon
+    <<sec:ug:prereq>>
+
+    To install Chameleon's libraries, header files, and executables, one
+    needs:
+    - CMake (version 2.8 minimum): the build system
+    - C and Fortran compilers: GNU compiler suite, Clang, Intel or IBM
+      can be used
+    - python: to generate files in the different precisions
+    - external libraries: this depends on the configuration, by default
+      the required libraries are
+      - runtimes: [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]] or [[http://icl.utk.edu/parsec/][PaRSEC]] or [[http://icl.cs.utk.edu/quark/][QUARK]] or [[https://www.openmp.org/][OpenMP]]
+      - kernels : CBLAS, LAPACKE (with TMG). These are C interfaces to
+        Fortran kernels BLAS and LAPACK. There exist several providers
+        that can be used with Chameleon (Intel MKL, Netlib, OpenBLAS,
+        BLIS/FLAME)
+
+    Optional libraries:
+    - cuda: [[https://developer.nvidia.com/cuda-downloads][cuda]], [[http://docs.nvidia.com/cuda/cublas/][cublas]] (comes with cuda)
+    - mpi: [[http://www.open-mpi.org/][openmpi]], [[https://www.mpich.org/][mpich]], [[https://software.intel.com/en-us/mpi-library][intelmpi]]
+
+    These packages must be installed on the system before trying to
+    configure/build chameleon.  Please look at the distrib/ directory
+    which gives some hints for the installation of dependencies for
+    Unix systems.
+
+    We give here some examples for a Debian system:
+    #+begin_src
+
+    # Update Debian packages list
+    sudo apt-get update
+    # Install BLAS/LAPACK, can be OpenBLAS, Intel MKL, Netlib LAPACK
+    sudo apt-get install -y libopenblas-dev liblapacke-dev
+    # or sudo apt-get install -y libmkl-dev
+    # or sudo apt-get install -y liblapack-dev liblapacke-dev
+    # Install OpenMPI
+    sudo apt-get install -y libopenmpi-dev
+    # Install StarPU
+    sudo apt-get install libstarpu-dev
+
+    # Optionnaly to make some specific developments, the following may be installed
+    # Install hwloc (used by StarPU or QUARK, already a dependency of OpenMPI)
+    sudo apt-get install -y libhwloc-dev
+    # install EZTrace, usefull to export some nice execution traces
+    with all runtimes
+    sudo apt-get install -y libeztrace-dev
+    # install FxT, usefull to export some nice execution traces with StarPU
+    sudo apt-get install -y libfxt-dev
+    # Install cuda and cuBLAS: only if you have a GPU cuda compatible
+    sudo apt-get install -y nvidia-cuda-toolkit nvidia-cuda-dev
+
+    # If you prefer a specific version of StarPU, install it yourself, e.g.
+    # Install StarPU (with MPI and FxT enabled)
+    mkdir -p $HOME/install
+    cd $HOME/install
+    wget https://files.inria.fr/starpu/starpu-1.3.7/starpu-1.3.7.tar.gz
+    tar xvzf starpu-1.3.7.tar.gz
+    cd starpu-1.3.7/
+    ./configure --prefix=/usr/local --with-fxt=/usr/lib/x86_64-linux-gnu/
+    make -j5
+    sudo make install
+
+    # Install PaRSEC: to be used in place of StarPU
+    mkdir -p $HOME/install
+    cd $HOME/install
+    git clone https://bitbucket.org/mfaverge/parsec.git
+    cd parsec
+    git checkout mymaster
+    git submodule update
+    mkdir -p build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON
+    make -j5
+    sudo make install
+
+    # Install QUARK: to be used in place of StarPU
+    mkdir -p $HOME/install
+    cd $HOME/install
+    git clone https://github.com/ecrc/quark
+    cd quark/
+    sed -i -e "s#prefix=.*#prefix=/usr/local#g" make.inc
+    sed -i -e "s#CFLAGS=.*#CFLAGS= -O2 -DADD_ -fPIC#g" make.inc
+    make
+    sudo make install
+    #+end_src
+
+    See also our script example in the [[https://gitlab.inria.fr/solverstack/chameleon/-/blob/master/distrib/debian/install_dependencies.sh][distrib/debian]] sub-directory.
+
+**** Known issues
+     - we need the lapacke interface to tmg routines and symbol like
+       ~LAPACKE_dlatms_work~ should be defined in the lapacke
+       library. Make sure the Debian packages /libopenblas-dev/ and
+       /liblapacke-dev/ (no problem with Intel MKL) do provide the tmg
+       interface. If not you can possibly update your distribution or
+       install the lapacke interface library in another way, by
+       yourself from source or with [[https://gitlab.inria.fr/solverstack/spack-repo][Spack]], or with [[https://gitlab.inria.fr/guix-hpc/guix-hpc-non-free][Guix-HPC]],...
+**** Some details about dependencies
+***** BLAS implementation
+      [[http://www.netlib.org/blas/][BLAS]] (Basic Linear Algebra Subprograms), are a de facto standard
+      for basic linear algebra operations such as vector and matrix
+      multiplication.  FORTRAN implementation of BLAS is available from
+      Netlib.  Also, C implementation of BLAS is included in GSL (GNU
+      Scientific Library).  Both these implementations are reference
+      implementation of BLAS, are not optimized for modern processor
+      architectures and provide an order of magnitude lower performance
+      than optimized implementations.  Highly optimized implementations
+      of BLAS are available from many hardware vendors, such as Intel
+      MKL, IBM ESSL and AMD ACML.  Fast implementations are also
+      available as academic packages, such as ATLAS and OpenBLAS.  The
+      standard interface to BLAS is the FORTRAN interface.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with the reference BLAS from NETLIB, OpenBLAS and Intel MKL.
+***** CBLAS
+      [[http://www.netlib.org/blas/#_cblas][CBLAS]] is a C language interface to BLAS.  Most commercial and
+      academic implementations of BLAS also provide CBLAS.  Netlib
+      provides a reference implementation of CBLAS on top of FORTRAN
+      BLAS (Netlib CBLAS).  Since GSL is implemented in C, it naturally
+      provides CBLAS.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested with
+      the reference CBLAS from NETLIB, OpenBLAS and Intel MKL.
+***** LAPACK implementation
+      [[http://www.netlib.org/lapack/][LAPACK]] (Linear Algebra PACKage) is a software library for
+      numerical linear algebra, a successor of LINPACK and EISPACK and
+      a predecessor of Chameleon.  LAPACK provides routines for solving
+      linear systems of equations, linear least square problems,
+      eigenvalue problems and singular value problems.  Most commercial
+      and academic BLAS packages also provide some LAPACK routines.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with the reference LAPACK from NETLIB, OpenBLAS and Intel MKL.
+***** LAPACKE
+      [[http://www.netlib.org/lapack/][LAPACKE]] is a C language interface to LAPACK (or CLAPACK).  It is
+      produced by Intel in coordination with the LAPACK team and is
+      available in source code from Netlib in its original version
+      (Netlib LAPACKE) and from Chameleon website in an extended
+      version (LAPACKE for Chameleon).  In addition to implementing the
+      C interface, LAPACKE also provides routines which automatically
+      handle workspace allocation, making the use of LAPACK much more
+      convenient.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with the reference LAPACKE from NETLIB, OpenBLAS and Intel
+      MKL. In addition the LAPACKE library *must* be configured to
+      provide the interface with the TMG routines and symbols like
+      ~LAPACKE_dlatms_work~ should be defined.
+***** libtmg
+      [[http://www.netlib.org/lapack/][libtmg]] is a component of the LAPACK library, containing routines
+      for generation of input matrices for testing and timing of
+      LAPACK.  The testing and timing suites of LAPACK require libtmg,
+      but not the library itself. Note that the LAPACK library can be
+      built and used without libtmg.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with the reference TMGLIB from NETLIB, OpenBLAS and Intel MKL.
+***** StarPU
+      [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]] is a task programming library for hybrid architectures.
+      StarPU handles run-time concerns such as:
+      * Task dependencies
+      * Optimized heterogeneous scheduling
+      * Optimized data transfers and replication between main memory
+        and discrete memories
+      * Optimized cluster communications
+
+      StarPU can be used to benefit from GPUs and distributed-memory
+      environment. Note StarPU is enabled by default.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with StarPU-1.1, 1.2 and 1.3 releases.
+***** PaRSEC
+      [[http://icl.utk.edu/parsec/][PaRSEC]] is a generic framework for architecture aware scheduling
+      and management of micro-tasks on distributed many-core
+      heterogeneous architectures. It can be used with MPI and Cuda.
+
+      *Caution about the compatibility:* Chameleon is compatible with
+      this version
+      https://bitbucket.org/mfaverge/parsec/branch/mymaster.
+***** QUARK
+      [[http://icl.cs.utk.edu/quark/][QUARK]] (QUeuing And Runtime for Kernels) provides a library that
+      enables the dynamic execution of tasks with data dependencies in
+      a multi-core, multi-socket, shared-memory environment. When
+      Chameleon is linked with QUARK, it is not possible to exploit
+      neither CUDA (for GPUs) nor MPI (distributed-memory environment).
+      You can use PaRSEC or StarPU to do so.
+
+      *Caution about the compatibility:* Chameleon has been mainly tested
+      with the QUARK library coming from https://github.com/ecrc/quark.
+***** EZTrace
+      This library provides efficient modules for recording
+      traces. Chameleon can trace kernels execution on CPU workers
+      thanks to EZTrace and produce .paje files. EZTrace also provides
+      integrated modules to trace MPI calls and/or memory usage. See
+      how to use this feature here [[sec:trace_ezt][Execution trace using EZTrace]]. To
+      trace kernels execution on all kind of workers, such as CUDA, We
+      recommend to use the internal tracing support of the runtime
+      system used done by the underlying runtime.  See how to use this
+      feature here [[sec:trace_fxt][Execution trace using StarPU/FxT]].
+***** hwloc
+      [[http://www.open-mpi.org/projects/hwloc/][hwloc]] (Portable Hardware Locality) is a software package for
+      accessing the topology of a multicore system including components
+      like: cores, sockets, caches and NUMA nodes. The topology
+      discovery library, ~hwloc~, is strongly recommended to be used
+      through the runtime system. It allows to increase performance,
+      and to perform some topology aware scheduling. ~hwloc~ is available
+      in major distributions and for most OSes and can be downloaded
+      from http://www.open-mpi.org/software/hwloc.
+
+      *Caution about the compatibility:* hwloc should be compatible with
+      the runtime system used.
+***** OpenMPI
+      [[http://www.open-mpi.org/][OpenMPI]] is an open source Message Passing Interface
+      implementation for execution on multiple nodes with
+      distributed-memory environment.  MPI can be enabled only if the
+      runtime system chosen is StarPU (default).  To use MPI through
+      StarPU, it is necessary to compile StarPU with MPI enabled.
+
+      *Caution about the compatibility:* OpenMPI should be built with the
+      --enable-mpi-thread-multiple option.
+***** Nvidia CUDA Toolkit
+      [[https://developer.nvidia.com/cuda-toolkit][Nvidia CUDA Toolkit]] provides a comprehensive development
+      environment for C and C++ developers building GPU-accelerated
+      applications.  Chameleon can use a set of low level optimized
+      kernels coming from cuBLAS to accelerate computations on GPUs.
+      The [[http://docs.nvidia.com/cuda/cublas/][cuBLAS]] library is an implementation of BLAS (Basic Linear
+      Algebra Subprograms) on top of the Nvidia CUDA runtime.  cuBLAS
+      is normaly distributed with Nvidia CUDA Toolkit.  CUDA/cuBLAS can
+      be enabled in Chameleon only if the runtime system chosen is
+      StarPU (default).  To use CUDA through StarPU, it is necessary to
+      compile StarPU with CUDA enabled.
+
+      *Caution about the compatibility:* your compiler must be compatible
+      with CUDA.
+*** Build and install Chameleon with CMake
+    <<sec:ug:cmake>>
+    Compilation of Chameleon libraries and executables are done with
+    CMake (http://www.cmake.org/). This version has been tested with
+    CMake 3.10.2 but any version superior to 2.8 should be fine.
+
+    Here the steps to configure, build, test and install
+    1. configure:
+       #+begin_src
+       cmake path/to/chameleon -DOPTION1= -DOPTION2= ...
+       # see the "Configuration options" section to get list of options
+       # see the "Dependencies detection" for details about libraries detection
+       #+end_src
+    2. build:
+       #+begin_src
+       make
+       # do not hesitate to use -j[ncores] option to speedup the compilation
+       #+end_src
+    3. test (optional, required CHAMELEON_ENABLE_TESTING=ON):
+       #+begin_src
+       make test
+       # or
+       ctest
+       #+end_src
+    4. install (optional):
+       #+begin_src
+       make install
+       #+end_src
+       Do not forget to specify the install directory with
+       *-DCMAKE_INSTALL_PREFIX* at configure.
+       #+begin_example
+       cmake /home/jdoe/chameleon -DCMAKE_INSTALL_PREFIX=/home/jdoe/install/chameleon
+       #+end_example
+       Note that the install process is optional. You are free to use
+       Chameleon binaries compiled in the build directory.
+**** Configuration options
+     You can optionally activate some options at cmake configure (like CUDA, MPI, ...)
+     invoking ~cmake path/to/your/CMakeLists.txt -DOPTION1= -DOPTION2= ...~
+     #+begin_src
+     cmake /home/jdoe/chameleon/ -DCMAKE_BUILD_TYPE=Debug \
+                                 -DCMAKE_INSTALL_PREFIX=/home/jdoe/install/ \
+                                 -DCHAMELEON_USE_CUDA=ON \
+                                 -DCHAMELEON_USE_MPI=ON \
+                                 -DBLA_VENDOR=Intel10_64lp \
+                                 -DCHAMELEON_ENABLE_TRACING=ON
+     #+end_src
+
+     You can get the full list of options with *-L[A][H]* options of cmake command
+     #+begin_src
+     cmake -LH /home/jdoe/chameleon/
+     #+end_src
+
+     You can also set the options thanks to the *ccmake* interface.
+
+***** Native CMake options (non-exhaustive list)
+      * *CMAKE_BUILD_TYPE=Debug|Release|RelWithDebInfo|MinSizeRel*:
+        level of compiler optimization, enable/disable debug
+        information
+      * *CMAKE_INSTALL_PREFIX=path/to/your/install/dir*: where headers,
+        libraries, executables, etc, will be copied when invoking make
+        install
+      * *BUILD_SHARED_LIBS=ON|OFF*: indicate wether or not CMake has to
+        build Chameleon static (~OFF~) or shared (~ON~) libraries.
+      * *CMAKE_C_COMPILER=gcc|icc|...*: to choose the C compilers
+        if several exist in the environment
+      * *CMAKE_Fortran_COMPILER=gfortran|ifort|...*: to choose the
+        Fortran compilers if several exist in the environment
+
+***** Related to specific modules (find_package) to find external libraries
+      * *BLA_VENDOR=All|OpenBLAS|Generic|Intel10_64lp|Intel10_64lp_seq|FLAME*:
+        to use intel mkl for example, see the list of BLA_VENDOR in
+        FindBLAS.cmake in cmake_modules/morse_cmake/modules/find
+
+      Libraries detected with an official cmake module (see module
+      files in CMAKE_ROOT/Modules/): BLAS - LAPACK - CUDA - MPI -
+      OpenMP - Threads.
+
+      Libraries detected with our cmake modules (see module files in
+      cmake_modules/morse_cmake/modules/find/ directory of Chameleon
+      sources): CBLAS - EZTRACE - FXT - HWLOC - LAPACKE - PARSEC -
+      QUARK - SIMGRID - STARPU.
+
+***** Chameleon specific options
+      * *CHAMELEON_SCHED=STARPU|PARSEC|QUARK|OPENMP* (default STARPU): to
+        link respectively with StarPU, PaRSEC, Quark, OpenMP library
+        (runtime system)
+      * *CHAMELEON_USE_MPI=ON|OFF* (default OFF): to link with MPI
+        library (message passing implementation for use of multiple
+        nodes with distributed memory), can only be used with StarPU
+        and PaRSEC
+      * *CHAMELEON_USE_CUDA=ON|OFF* (default OFF): to link with CUDA
+        runtime (implementation paradigm for accelerated codes on GPUs)
+        and cuBLAS library (optimized BLAS kernels on GPUs), can only
+        be used with StarPU and PaRSEC
+      * *CHAMELEON_ENABLE_DOC=ON|OFF* (default OFF): to control build of
+        the documentation contained in doc/ sub-directory
+      * *CHAMELEON_ENABLE_EXAMPLE=ON|OFF* (default ON): to control build
+        of the examples executables (API usage) contained in example/
+        sub-directory
+      * *CHAMELEON_ENABLE_PRUNING_STATS=ON|OFF* (default OFF)
+      * *CHAMELEON_ENABLE_TESTING=ON|OFF* (default ON): to control build
+        of testing executables (timer and numerical check) contained in testing/
+        sub-directory
+      * *CHAMELEON_SIMULATION=ON|OFF* (default OFF): to enable
+        simulation mode, means Chameleon will not really execute tasks,
+        see details in section [[sec:simu][Use simulation mode with
+        StarPU-SimGrid]]. This option must be used with StarPU compiled
+        with [[http://simgrid.gforge.inria.fr/][SimGrid]] allowing to guess the execution time on any
+        architecture. This feature should be used to make experiments
+        on the scheduler behaviors and performances not to produce
+        solutions of linear systems.
+      * *CHAMELEON_USE_MIGRATE=ON|OFF* (default OFF): enables the data
+        migration in QR algorithms
+
+**** Dependencies detection
+     <<sec:depdet>>
+
+     You have different choices to detect dependencies on your system,
+     either by setting some environment variables containing paths to
+     the libs and headers or by specifying them directly at cmake
+     configure. Different cases:
+
+     1) detection of dependencies through environment variables:
+        - LD_LIBRARY_PATH (DYLD_LIBRARY_PATH on Mac OSX) should contain
+          the list of paths where to find the libraries:
+          #+begin_src
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:install/path/to/your/lib
+          #+end_src
+        - INCLUDE (or CPATH, or C_INCLUDE_PATH)should contain the list
+          of paths where to find the header files of libraries
+          #+begin_src
+          export INCLUDE=$INCLUDE:install/path/to/your/headers
+          #+end_src
+     2) detection with user's given paths:
+        - you can specify the path at cmake configure by invoking
+          #+begin_example
+          cmake path/to/your/CMakeLists.txt -DLIB_DIR=path/to/your/lib
+          #+end_example
+          where LIB stands for the name of the lib to look for, /e.g./
+          #+begin_src
+          cmake path/to/your/CMakeLists.txt -DQUARK_DIR=path/to/quarkdir \
+                                            -DCBLAS_DIR= ...
+          #+end_src
+          it is also possible to specify headers and library directories
+          separately
+          #+begin_src
+          cmake path/to/your/CMakeLists.txt \
+                -DQUARK_INCDIR=path/to/quark/include \
+                -DQUARK_LIBDIR=path/to/quark/lib
+          #+end_src
+     3) detection with custom environment variables: all variables like
+        _DIR, _INCDIR, _LIBDIR can be set as environment variables
+        instead of CMake options, there will be read
+     4) using [[https://www.freedesktop.org/wiki/Software/pkg-config/][pkg-config]] for libraries that provide .pc files
+        - update your *PKG_CONFIG_PATH* to the paths where to find .pc
+          files of installed external libraries like hwloc, starpu, some
+          blas/lapack, etc
+
+     Note that PaRSEC and StarPU are only detected with pkg-config
+     mechanism because it is always provided and this avoids errors.
+*** Distribution Debian
+    <<sec:ug:debian>>
+    Download one of the available package for your distribution here
+    https://gitlab.inria.fr/solverstack/chameleon/-/packages, then
+    install as follows
+    #+begin_src sh
+    sudo apt-get install ./chameleon_1.1.0-1_amd64.deb -y
+    #+end_src
+    Chameleon will be installed on your system meaning you can use
+    drivers for performance tests
+    #+begin_src sh
+    mpiexec -n 2 chameleon_stesting -t 2 -o gemm -n 1000
+    #+end_src
+    and use Chameleon library in your own project
+    #+begin_src sh
+    # example usage: use chameleon library in your own cmake project (we provide a CHAMELEONConfig.cmake)
+    git clone https://gitlab.inria.fr/solverstack/distrib.git
+    cd distrib/cmake/test/chameleon && mkdir build && cd build && cmake .. && make && ./test_chameleon
+
+    # example usage: use chameleon library in your own not cmake project
+    # use pkg-config to get compiler flags and linking
+    pkg-config --cflags chameleon
+    pkg-config --libs chameleon
+    # if there are static libraries use the --static option of pkg-config
+    #+end_src
+
+    Do not hesitate to send an [[mailto:florent.pruvost@inria.fr][email]] if you need a package for your
+    Debian distribution.
+*** Distribution of Chameleon using GNU Guix
+    <<sec:ug:guix>>
+
+    We provide [[http://guix.gnu.org/][Guix]] packages to install Chameleon with its dependencies
+    in a reproducible way on GNU/Linux systems. For MacOSX please refer
+    to the next sections about Brew or Spack packaging.
+
+    If you are "root" on the system you can install Guix and directly
+    use it to install the libraries. On supercomputers your are not
+    root on you may still be able to use it if Docker or Singularity
+    are available on the machine because Chameleon can be packaged as
+    Docker/Singularity images with Guix.
+
+**** Installing Guix
+     Guix requires a running GNU/Linux system, GNU tar and Xz.
+
+     #+begin_src sh
+     gpg --keyserver pgp.mit.edu --recv-keys 3CE464558A84FDC69DB40CFB090B11993D9AEBB5
+     wget https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh
+     chmod +x guix-install.sh
+     sudo ./guix-install.sh
+     #+end_src
+
+     The Chameleon packages are not official Guix packages. It is then
+     necessary to add a channel to get additional packages.  Create a
+     ~/.config/guix/channels.scm file with the following snippet:
+     #+begin_example
+     (cons (channel
+         (name 'guix-hpc-non-free)
+         (url "https://gitlab.inria.fr/guix-hpc/guix-hpc-non-free.git"))
+       %default-channels)
+     #+end_example
+
+     Update guix package definition
+     #+begin_src sh
+     guix pull
+     #+end_src
+
+     Update new guix in the path
+     #+begin_src sh
+     PATH="$HOME/.config/guix/current/bin${PATH:+:}$PATH"
+     hash guix
+     #+end_src
+
+     For further shell sessions, add this to the ~/.bash_profile file
+     #+begin_example
+     export PATH="$HOME/.config/guix/current/bin${PATH:+:}$PATH"
+     export GUIX_LOCPATH="$HOME/.guix-profile/lib/locale"
+     #+end_example
+
+     Chameleon packages are now available
+     #+begin_src sh
+     guix search ^chameleon
+     #+end_src
+
+     Refer to the [[https://guix.gnu.org/manual/en/guix.html#Invoking-guix-package][official documentation of Guix]] to learn the basic
+     commands.
+
+**** Installing Chameleon with Guix
+
+     Standard Chameleon, last release
+     #+begin_src sh
+     guix install chameleon
+     #+end_src
+
+     Notice that there exist several build variants
+     - chameleon (default) : with starpu - with mpi - with OpenBlas
+     - chameleon-mkl-mt : default version but with Intel MKL multithreaded to replace OpenBlas
+     - chameleon-cuda : with starpu - with mpi - with cuda
+     - chameleon-cuda-mkl-mt : with starpu - with mpi - with cuda - with Intel MKL multithreaded to replace OpenBlas
+     - chameleon-simgrid : with starpu - with mpi - with simgrid
+     - chameleon-openmp : with openmp - without mpi
+     - chameleon-parsec : with parsec - without mpi
+     - chameleon-quark : with quark - without mpi
+
+
+     Change the version
+     #+begin_src sh
+     guix install chameleon --with-branch=chameleon=master
+     guix install chameleon --with-commit=chameleon=b31d7575fb7d9c0e1ba2d8ec633e16cb83778e8b
+     guix install chameleon --with-git-url=chameleon=https://gitlab.inria.fr/fpruvost/chameleon.git
+     guix install chameleon --with-git-url=chameleon=$HOME/git/chameleon
+     #+end_src
+
+     Notice also that default mpi is OpenMPI and default blas/lapack is
+     Openblas. This can be changed with a [[https://guix.gnu.org/manual/en/guix.html#Package-Transformation-Options][transformation option]].
+
+     Change some dependencies
+     #+begin_src sh
+     # install chameleon with intel mkl to replace openblas, nmad to replace openmpi and starpu with fxt
+     guix install chameleon --with-input=openblas=mkl --with-input=openmpi=nmad --with-input=starpu=starpu-fxt
+     #+end_src
+
+**** Generate a Chameleon Docker image with Guix
+
+     To install Chameleon and its dependencies within a docker image
+     (OpenMPI stack)
+     #+begin_src sh
+     docker_chameleon=`guix pack -f docker chameleon chameleon --with-branch=chameleon=master --with-input=openblas=mkl mkl starpu hwloc openmpi openssh slurm bash coreutils inetutils util-linux procps git grep tar sed gzip which gawk perl emacs-minimal vim gcc-toolchain make cmake pkg-config -S /bin=bin --entry-point=/bin/bash`
+     # Load the generated tarball as a docker image
+     docker_chameleon_tag=`docker load --input $docker_chameleon | grep "Loaded image: " | cut -d " " -f 3-`
+     # Change tag name, see the existing image name with "docker images" command, then change to a more simple name
+     docker tag $docker_chameleon_tag guix/chameleon-tmp
+     #+end_src
+
+     Create a Dockerfile inheriting from the image (renamed
+     =guix/chameleon= here):
+
+     #+begin_src sh :eval no :tangle Dockerfile :export none
+     FROM guix/chameleon-tmp
+
+     # Create a directory for user 1000
+     RUN mkdir -p /builds
+     RUN chown -R 1000 /builds
+
+     ENTRYPOINT ["/bin/bash", "-l"]
+
+     # Enter the image as user 1000 in /builds
+     USER 1000
+     WORKDIR /builds
+     ENV HOME /builds
+     #+end_src
+
+     Then create the final docker image from this docker file.
+
+     #+begin_src sh
+     docker build -t guix/chameleon .
+     #+end_src
+
+     Test the image
+     #+begin_src sh
+     docker run -it guix/chameleon
+     # test starpu
+     STARPU=`pkg-config --variable=prefix libstarpu`
+     mpiexec -np 4 $STARPU/lib/starpu/mpi/comm
+     # test chameleon
+     CHAMELEON=`pkg-config --variable=prefix chameleon`
+     mpiexec -np 2 $CHAMELEON/bin/chameleon_stesting -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+     #+end_src
+
+**** Generate a Chameleon Singularity image with Guix
+
+     To package Chameleon and its dependencies within a singularity image
+     (OpenMPI stack)
+     #+begin_src sh
+     singularity_chameleon=`guix pack -f squashfs chameleon --with-branch=chameleon=master --with-input=openblas=mkl mkl starpu hwloc openmpi openssh slurm hdf5 zlib bash coreutils inetutils util-linux procps git grep tar sed gzip which gawk perl emacs-minimal vim gcc-toolchain make cmake pkg-config -S /bin=bin --entry-point=/bin/bash`
+     cp $singularity_chameleon chameleon-pack.gz.squashfs
+     # copy the singularity image on the supercomputer, e.g. 'supercomputer'
+     scp chameleon-pack.gz.squashfs supercomputer:
+     #+end_src
+
+     On a machine where Singularity is installed Chameleon can then be
+     called as follows
+     #+begin_src sh
+     # at least openmpi and singularity are required here, e.g. module add openmpi singularity
+     mpiexec -np 2 singularity exec chameleon-pack.gz.squashfs /bin/chameleon_stesting -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+     #+end_src
+
+*** Distribution of Chameleon using Spack
+    <<sec:ug:spack>>
+
+**** Installing Spack
+
+     To get support to install a full distribution on Linux or MacOS X,
+     Chameleon plus dependencies, we encourage users to use
+     [[https://spack.io/][Spack]]. Please refer to our [[https://gitlab.inria.fr/solverstack/spack-repo/blob/master/README.org][Spack Repository]].
+
+     #+begin_src sh
+     git clone https://github.com/llnl/spack.git
+     export SPACK_ROOT=$PWD/spack
+     cd spack/
+     git checkout v0.16.0
+     . $SPACK_ROOT/share/spack/setup-env.sh
+     git clone https://gitlab.inria.fr/solverstack/spack-repo.git ./var/spack/repos/solverstack
+     spack repo add ./var/spack/repos/solverstack
+     #+end_src
+
+     Chameleon is then available
+     #+begin_src sh
+     spack info chameleon
+     spack spec chameleon
+     #+end_src
+
+     Refer to te [[https://spack.readthedocs.io/en/latest/basic_usage.html][official documentation of Spack]] to learn the basic
+     commands.
+
+**** Installing Chameleon with Spack
+
+     Standard Chameleon, last state on the 'master' branch
+     #+begin_src sh
+     spack install -v chameleon
+     # chameleon is installed here:
+     spack location -i chameleon
+     #+end_src
+
+     Notice that there exist several build variants
+     - chameleon (default) : with starpu - with mpi
+     - tune the build type (CMake) with build_type=RelWithDebInfo|Debug|Release
+     - enable/disable shared libraries with +/- shared
+     - enable/disable mpi with +/- mpi
+     - enable/disable cuda with +/- cuda
+     - enable/disable fxt with +/- fxt
+     - enable/disable simgrid with +/- simgrid
+     - +openmp~starpu : with openmp - without starpu
+     - +quark~starpu : with quark - without starpu
+
+     Change the version
+     #+begin_src sh
+     spack install -v chameleon@1.0.0
+     #+end_src
+
+     Notice also that default mpi is OpenMPI and default blas/lapack is
+     Openblas. This can be changed by adding some [[https://spack.readthedocs.io/en/latest/basic_usage.html#constraining-virtual-packages][constraints on
+     virtual packages]].
+
+     Change some dependencies
+     #+begin_src sh
+     # see lapack providers
+     spack providers lapack
+     # see mpi providers
+     spack providers mpi
+     # install chameleon with intel mkl to replace openblas
+     spack install -v chameleon ^intel-mkl
+     # install chameleon with nmad to replace openmpi
+     spack install -v chameleon ^nmad
+     #+end_src
+*** Distribution Brew for Mac OS X
+    <<sec:ug:brew>>
+
+    We provide some [[https://brew.sh/][brew]] packages here
+    https://gitlab.inria.fr/solverstack/brew-repo (under construction).
+
+*** Linking an external application with Chameleon libraries
+    <<sec:ug:link>>
+    Compilation and link with Chameleon libraries have been tested with
+    the GNU compiler suite ~gcc/gfortran~ and the Intel compiler suite
+    ~icc/ifort~.
+
+**** For CMake projects
+     A CHAMELEONConfig.cmake file is provided at installation, stored
+     in <prefix>/lib/cmake/chameleon, so that users in cmake project
+     can use through the variable CHAMELEON_ROOT (set it as environment
+     or CMake variable).
+
+     #+begin_src
+     sudo apt-get update
+     sudo apt-get install -y libopenblas-dev liblapacke-dev libstarpu-dev
+     git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git
+     cd chameleon && mkdir -p build && cd build
+     CHAMELEON_ROOT=$PWD/install
+     cmake .. -DCMAKE_INSTALL_PREFIX=$CHAMELEON_ROOT && make -j5 install
+     # chameleon is installed in $CHAMELEON_ROOT
+
+     # if your work in a cmake project you can use the CHAMELEONConfig.cmake file
+     # installed under <prefix>/lib/cmake/chameleon/ by setting your
+     # CMAKE_PREFIX_PATH with the path of installation. In your cmake project, use
+     # find_package(CHAMELEON) and link your libraries and/or executables with the
+     # library target MORSE::CHAMELEON
+     cmake . -DCMAKE_PREFIX_PATH=$CHAMELEON_ROOT
+     #+end_src
+**** For non CMake projects
+     The compiler, linker flags that are necessary to build an
+     application using Chameleon are given through the [[https://www.freedesktop.org/wiki/Software/pkg-config/][pkg-config]]
+     mechanism.
+     #+begin_src
+     sudo apt-get update
+     sudo apt-get install -y libopenblas-dev liblapacke-dev libstarpu-dev
+     git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git
+     cd chameleon && mkdir -p build && cd build
+     CHAMELEON_ROOT=$PWD/install
+     cmake .. -DCMAKE_INSTALL_PREFIX=$CHAMELEON_ROOT && make -j5 install
+     # chameleon is installed in $CHAMELEON_ROOT
+
+     export PKG_CONFIG_PATH=$CHAMELEON_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
+     pkg-config --cflags chameleon
+     pkg-config --libs chameleon
+     pkg-config --libs --static chameleon
+
+     # use it in your configure/make
+     #+end_src
+     The .pc files required are located in the sub-directory
+     ~lib/pkgconfig~ of your Chameleon install directory.
+
+**** Static linking in C
+     Lets imagine you have a file ~main.c~ that you want to link with
+     Chameleon static libraries.  Lets consider
+     ~/home/yourname/install/chameleon~ is the install directory
+     of Chameleon containing sub-directories ~include/~ and
+     ~lib/~.  Here could be your compilation command with gcc
+     compiler:
+     #+begin_src
+     gcc -I/home/yourname/install/chameleon/include -o main.o -c main.c
+     #+end_src
+     Now if you want to link your application with Chameleon static libraries, you
+     could do:
+     #+begin_src
+     gcc main.o -o main                                         \
+     /home/yourname/install/chameleon/lib/libchameleon.a        \
+     /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
+     /home/yourname/install/chameleon/lib/libcoreblas.a         \
+     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+     #+end_src
+     As you can see in this example, we also link with some dynamic
+     libraries *starpu-1.2*, *Intel MKL* libraries (for
+     BLAS/LAPACK/CBLAS/LAPACKE), *pthread*, *m* (math) and *rt*. These
+     libraries will depend on the configuration of your Chameleon
+     build.  You can find these dependencies in .pc files we generate
+     during compilation and that are installed in the sub-directory
+     ~lib/pkgconfig~ of your Chameleon install directory.  Note also that
+     you could need to specify where to find these libraries with *-L*
+     option of your compiler/linker.
+
+     Before to run your program, make sure that all shared libraries
+     paths your executable depends on are known.  Enter ~ldd main~
+     to check.  If some shared libraries paths are missing append them
+     in the LD_LIBRARY_PATH (for Linux systems) environment
+     variable (DYLD_LIBRARY_PATH on Mac).
+
+**** Dynamic linking in C
+     For dynamic linking (need to build Chameleon with CMake option
+     BUILD_SHARED_LIBS=ON) it is similar to static compilation/link but
+     instead of specifying path to your static libraries you indicate
+     the path to dynamic libraries with *-L* option and you give
+     the name of libraries with *-l* option like this:
+     #+begin_src
+     gcc main.o -o main \
+     -L/home/yourname/install/chameleon/lib \
+     -lchameleon -lchameleon_starpu -lcoreblas \
+     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+     #+end_src
+     Note that an update of your environment variable LD_LIBRARY_PATH
+     (DYLD_LIBRARY_PATH on Mac) with the path of the libraries could be
+     required before executing
+     #+begin_src
+     export LD_LIBRARY_PATH=path/to/libs:path/to/chameleon/lib
+     #+end_src
+
+ # # *** Build a Fortran program with Chameleon                         :noexport:
+ # #
+ # #     Chameleon provides a Fortran interface to user functions. Example:
+ # #     #+begin_src
+ # #     call chameleon_version(major, minor, patch) !or
+ # #     call CHAMELEON_VERSION(major, minor, patch)
+ # #     #+end_src
+ # #
+ # #     Build and link are very similar to the C case.
+ # #
+ # #     Compilation example:
+ # #     #+begin_src
+ # #     gfortran -o main.o -c main.f90
+ # #     #+end_src
+ # #
+ # #     Static linking example:
+ # #     #+begin_src
+ # #     gfortran main.o -o main                                    \
+ # #     /home/yourname/install/chameleon/lib/libchameleon.a        \
+ # #     /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
+ # #     /home/yourname/install/chameleon/lib/libcoreblas.a         \
+ # #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+ # #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+ # #     #+end_src
+ # #
+ # #     Dynamic linking example:
+ # #     #+begin_src
+ # #     gfortran main.o -o main                          \
+ # #     -L/home/yourname/install/chameleon/lib           \
+ # #     -lchameleon -lchameleon_starpu -lcoreblas        \
+ # #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+ # #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
+ # #     #+end_src
