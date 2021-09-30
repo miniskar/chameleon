@@ -25,11 +25,11 @@
 int
 testing_zhemm( run_arg_list_t *args, int check )
 {
-    int          Am;
-    int          hres = 0;
-    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int                   async  = parameters_getvalue_int( "async" );
     intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int                   nb     = run_arg_get_int( args, "nb", 320 );
     int                   P      = parameters_getvalue_int( "P" );
@@ -46,11 +46,13 @@ testing_zhemm( run_arg_list_t *args, int check )
     int                   seedB  = run_arg_get_int( args, "seedB", random() );
     int                   seedC  = run_arg_get_int( args, "seedC", random() );
     double                bump   = testing_dalea();
-    bump                         = run_arg_get_double( args, "bump", bump );
     int                   Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zhemm( side, M, N );
 
+    /* Descriptors */
+    int          Am;
+    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+
+    bump  = run_arg_get_double( args, "bump", bump );
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
 
@@ -78,12 +80,19 @@ testing_zhemm( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descC, seedC );
 
     /* Calculates the product */
-    START_TIMING( t );
-    hres = CHAMELEON_zhemm_Tile( side, uplo, alpha, descA, descB, beta, descC );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zhemm_Tile_Async( side, uplo, alpha, descA, descB, beta, descC,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zhemm_Tile( side, uplo, alpha, descA, descB, beta, descC );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zhemm( side, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -105,8 +114,8 @@ testing_zhemm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zhemm;
-const char *zhemm_params[] = { "mtxfmt", "nb",   "side", "uplo",  "m",     "n",     "lda",  "ldb", "ldc",
-                               "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
+const char *zhemm_params[] = { "mtxfmt", "nb",    "side", "uplo",  "m",     "n",     "lda",  "ldb",
+                               "ldc",    "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
 const char *zhemm_output[] = { NULL };
 const char *zhemm_outchk[] = { "RETURN", NULL };
 
@@ -117,13 +126,13 @@ void testing_zhemm_init( void ) __attribute__( ( constructor ) );
 void
 testing_zhemm_init( void )
 {
-    test_zhemm.name        = "zhemm";
-    test_zhemm.helper      = "Hermitian matrix-matrix multiply";
-    test_zhemm.params      = zhemm_params;
-    test_zhemm.output      = zhemm_output;
-    test_zhemm.outchk      = zhemm_outchk;
-    test_zhemm.fptr        = testing_zhemm;
-    test_zhemm.next        = NULL;
+    test_zhemm.name   = "zhemm";
+    test_zhemm.helper = "Hermitian matrix-matrix multiply";
+    test_zhemm.params = zhemm_params;
+    test_zhemm.output = zhemm_output;
+    test_zhemm.outchk = zhemm_outchk;
+    test_zhemm.fptr   = testing_zhemm;
+    test_zhemm.next   = NULL;
 
     testing_register( &test_zhemm );
 }

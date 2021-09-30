@@ -25,11 +25,11 @@
 int
 testing_zher2k( run_arg_list_t *args, int check )
 {
-    int          Am, An;
-    int          hres = 0;
-    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
     /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
@@ -46,11 +46,13 @@ testing_zher2k( run_arg_list_t *args, int check )
     int                   seedB = run_arg_get_int( args, "seedB", random() );
     int                   seedC = run_arg_get_int( args, "seedC", random() );
     double                bump  = testing_dalea();
-    bump                        = run_arg_get_double( args, "bump", bump );
-    int    Q                    = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zher2k( K, N );
+    int                   Q     = parameters_compute_q( P );
 
+    /* Descriptors */
+    int          Am, An;
+    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+
+    bump  = run_arg_get_double( args, "bump", bump );
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_double( args, "beta", beta );
 
@@ -80,12 +82,19 @@ testing_zher2k( run_arg_list_t *args, int check )
     CHAMELEON_zplghe_Tile( bump, uplo, descC, seedC );
 
     /* Calculate the product */
-    START_TIMING( t );
-    hres = CHAMELEON_zher2k_Tile( uplo, trans, alpha, descA, descB, beta, descC );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zher2k_Tile_Async( uplo, trans, alpha, descA, descB, beta, descC,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zher2k_Tile( uplo, trans, alpha, descA, descB, beta, descC );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zher2k( K, N ) );
 
     /* Check the solution */
     if ( check ) {
@@ -107,8 +116,9 @@ testing_zher2k( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zher2k;
-const char *zher2k_params[] = { "mtxfmt", "nb",   "trans", "uplo",  "n",     "k",     "lda",  "ldb", "ldc",
-                                "alpha", "beta",  "seedA", "seedB", "seedC", "bump", NULL };
+const char *zher2k_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",    "k",
+                                "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
+                                "seedB",  "seedC", "bump",  NULL };
 const char *zher2k_output[] = { NULL };
 const char *zher2k_outchk[] = { "RETURN", NULL };
 
@@ -119,13 +129,13 @@ void testing_zher2k_init( void ) __attribute__( ( constructor ) );
 void
 testing_zher2k_init( void )
 {
-    test_zher2k.name        = "zher2k";
-    test_zher2k.helper      = "Hermitian matrix-matrix rank 2k update";
-    test_zher2k.params      = zher2k_params;
-    test_zher2k.output      = zher2k_output;
-    test_zher2k.outchk      = zher2k_outchk;
-    test_zher2k.fptr        = testing_zher2k;
-    test_zher2k.next        = NULL;
+    test_zher2k.name   = "zher2k";
+    test_zher2k.helper = "Hermitian matrix-matrix rank 2k update";
+    test_zher2k.params = zher2k_params;
+    test_zher2k.output = zher2k_output;
+    test_zher2k.outchk = zher2k_outchk;
+    test_zher2k.fptr   = testing_zher2k;
+    test_zher2k.next   = NULL;
 
     testing_register( &test_zher2k );
 }

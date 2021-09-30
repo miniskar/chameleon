@@ -37,20 +37,23 @@ flops_zcesca( int M, int N )
 int
 testing_zcesca( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
     /* Read arguments */
-    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int          nb     = run_arg_get_int( args, "nb", 320 );
-    int          P      = parameters_getvalue_int( "P" );
-    int          N      = run_arg_get_int( args, "N", 1000 );
-    int          M      = run_arg_get_int( args, "M", N );
-    int          LDA    = run_arg_get_int( args, "LDA", M );
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zcesca( M, N );
+    int      async  = parameters_getvalue_int( "async" );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
+    void        *ws = NULL;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -61,13 +64,26 @@ testing_zcesca( run_arg_list_t *args, int check )
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
+    if ( async ) {
+        ws = CHAMELEON_zcesca_WS_Alloc( descA );
+    }
+
     /* Compute the centered-scaled matrix transformation */
-    START_TIMING( t );
-    hres = CHAMELEON_zcesca_Tile( 1, 1, ChamColumnwise, descA, NULL, NULL );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zcesca_Tile_Async( 1, 1, ChamColumnwise, descA, ws,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zcesca_Tile( 1, 1, ChamColumnwise, descA, NULL, NULL );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zcesca( M, N ) );
+
+    if ( ws != NULL ) {
+        CHAMELEON_zgemm_WS_Free( ws );
+    }
 
     CHAMELEON_Desc_Destroy( &descA );
 
@@ -86,13 +102,13 @@ void testing_zcesca_init( void ) __attribute__( ( constructor ) );
 void
 testing_zcesca_init( void )
 {
-    test_zcesca.name        = "zcesca";
-    test_zcesca.helper      = "General centered-scaled matrix transformation";
-    test_zcesca.params      = zcesca_params;
-    test_zcesca.output      = zcesca_output;
-    test_zcesca.outchk      = zcesca_outchk;
-    test_zcesca.fptr        = testing_zcesca;
-    test_zcesca.next        = NULL;
+    test_zcesca.name   = "zcesca";
+    test_zcesca.helper = "General centered-scaled matrix transformation";
+    test_zcesca.params = zcesca_params;
+    test_zcesca.output = zcesca_output;
+    test_zcesca.outchk = zcesca_outchk;
+    test_zcesca.fptr   = testing_zcesca;
+    test_zcesca.next   = NULL;
 
     testing_register( &test_zcesca );
 }

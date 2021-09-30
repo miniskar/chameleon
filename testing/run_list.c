@@ -695,7 +695,7 @@ const char *common_input[]  = { "threads", "gpus", "P", "Q", NULL };
 /**
  * @brief The common output parameters to all tests
  */
-const char *common_output[] = { "time", "gflops", NULL };
+const char *common_output[] = { "tsub", "time", "gflops", NULL };
 
 /**
  ********************************************************************************

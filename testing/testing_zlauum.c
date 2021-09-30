@@ -31,10 +31,11 @@ flops_zlauum( int N )
 int
 testing_zlauum( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -43,8 +44,9 @@ testing_zlauum( run_arg_list_t *args, int check )
     int         LDA    = run_arg_get_int( args, "LDA", N );
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlauum( N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -56,12 +58,16 @@ testing_zlauum( run_arg_list_t *args, int check )
     CHAMELEON_zplghe_Tile( 0., uplo, descA, seedA );
 
     /* Calculates the matrix product */
-    START_TIMING( t );
-    hres = CHAMELEON_zlauum_Tile( uplo, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlauum_Tile_Async( uplo, descA, test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zlauum_Tile( uplo, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlauum( N ) );
 
     if ( check ) {
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
@@ -78,7 +84,7 @@ testing_zlauum( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlauum;
-const char *zlauum_params[] = { "mtxfmt", "nb","uplo", "n", "lda", "seedA", NULL };
+const char *zlauum_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zlauum_output[] = { NULL };
 const char *zlauum_outchk[] = { "RETURN", NULL };
 
@@ -89,13 +95,13 @@ void testing_zlauum_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlauum_init( void )
 {
-    test_zlauum.name        = "zlauum";
-    test_zlauum.helper      = "Trianguilar in-place matrix-matrix computation for Cholesky inversion";
-    test_zlauum.params      = zlauum_params;
-    test_zlauum.output      = zlauum_output;
-    test_zlauum.outchk      = zlauum_outchk;
-    test_zlauum.fptr        = testing_zlauum;
-    test_zlauum.next        = NULL;
+    test_zlauum.name   = "zlauum";
+    test_zlauum.helper = "Trianguilar in-place matrix-matrix computation for Cholesky inversion";
+    test_zlauum.params = zlauum_params;
+    test_zlauum.output = zlauum_output;
+    test_zlauum.outchk = zlauum_outchk;
+    test_zlauum.fptr   = testing_zlauum;
+    test_zlauum.next   = NULL;
 
     testing_register( &test_zlauum );
 }

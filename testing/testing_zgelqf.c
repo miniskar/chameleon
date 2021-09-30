@@ -24,10 +24,11 @@
 int
 testing_zgelqf( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descT;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -38,8 +39,9 @@ testing_zgelqf( run_arg_list_t *args, int check )
     int      RH     = run_arg_get_int( args, "qra", 4 );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgelqf( M, N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descT;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
@@ -61,12 +63,17 @@ testing_zgelqf( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgelqf_Tile( descA, descT );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgelqf_Tile_Async( descA, descT, test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descT, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgelqf_Tile( descA, descT );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgelqf( M, N ) );
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
@@ -93,7 +100,7 @@ testing_zgelqf( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgelqf;
-const char *zgelqf_params[] = { "mtxfmt", "nb","ib", "m", "n", "lda", "qra", "seedA", NULL };
+const char *zgelqf_params[] = { "mtxfmt", "nb", "ib", "m", "n", "lda", "qra", "seedA", NULL };
 const char *zgelqf_output[] = { NULL };
 const char *zgelqf_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
@@ -104,13 +111,13 @@ void testing_zgelqf_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgelqf_init( void )
 {
-    test_zgelqf.name        = "zgelqf";
-    test_zgelqf.helper      = "General LQ factorization";
-    test_zgelqf.params      = zgelqf_params;
-    test_zgelqf.output      = zgelqf_output;
-    test_zgelqf.outchk      = zgelqf_outchk;
-    test_zgelqf.fptr        = testing_zgelqf;
-    test_zgelqf.next        = NULL;
+    test_zgelqf.name   = "zgelqf";
+    test_zgelqf.helper = "General LQ factorization";
+    test_zgelqf.params = zgelqf_params;
+    test_zgelqf.output = zgelqf_output;
+    test_zgelqf.outchk = zgelqf_outchk;
+    test_zgelqf.fptr   = testing_zgelqf;
+    test_zgelqf.next   = NULL;
 
     testing_register( &test_zgelqf );
 }

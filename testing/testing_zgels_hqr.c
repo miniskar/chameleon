@@ -37,10 +37,11 @@ flops_zgels_hqr( cham_trans_t trans, int M, int N, int NRHS )
 int
 testing_zgels_hqr( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descX, *descTS, *descTT;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          ib     = run_arg_get_int( args, "ib", 48 );
@@ -60,9 +61,9 @@ testing_zgels_hqr( run_arg_list_t *args, int check )
     int          seedA  = run_arg_get_int( args, "seedA", random() );
     int          seedB  = run_arg_get_int( args, "seedB", random() );
     int          Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgels_hqr( trans, M, N, NRHS );
 
+    /* Descriptors */
+    CHAM_desc_t    *descA, *descX, *descTS, *descTT;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
 
@@ -83,20 +84,28 @@ testing_zgels_hqr( run_arg_list_t *args, int check )
     matrix.nodes = P * Q;
     matrix.p     = P;
 
-    libhqr_init_hqr(
-        &qrtree, ( M >= N ) ? LIBHQR_QR : LIBHQR_LQ, &matrix, llvl, hlvl, qr_a, qr_p, domino, 0 );
+    libhqr_init_hqr( &qrtree, ( M >= N ) ? LIBHQR_QR : LIBHQR_LQ, &matrix,
+                     llvl, hlvl, qr_a, qr_p, domino, 0 );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     /* Computes the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgels_param_Tile( &qrtree, trans, descA, descTS, descTT, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgels_param_Tile_Async( &qrtree, trans, descA, descTS, descTT, descX,
+                                                 test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTS, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgels_param_Tile( &qrtree, trans, descA, descTS, descTT, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgels_hqr( trans, M, N, NRHS ) );
 
     if ( check ) {
         CHAM_desc_t *descA0, *descB;
@@ -139,9 +148,9 @@ testing_zgels_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgels_hqr;
-const char *zgels_hqr_params[] = { "mtxfmt", "nb",  "ib",     "trans", "m",     "n",   "k",
-                                   "lda",  "ldb",    "qra",    "qra",   "qrp", "llvl",
-                                   "hlvl", "domino", "seedA", "seedB", NULL };
+const char *zgels_hqr_params[] = { "mtxfmt", "nb",   "ib",     "trans", "m",     "n",
+                                   "k",      "lda",  "ldb",    "qra",   "qra",   "qrp",
+                                   "llvl",   "hlvl", "domino", "seedA", "seedB", NULL };
 const char *zgels_hqr_output[] = { NULL };
 const char *zgels_hqr_outchk[] = { "RETURN", NULL };
 
@@ -152,13 +161,14 @@ void testing_zgels_hqr_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgels_hqr_init( void )
 {
-    test_zgels_hqr.name   = "zgels_hqr";
-    test_zgels_hqr.helper = "Linear least squares with general matrix using hierarchical reduction trees";
+    test_zgels_hqr.name = "zgels_hqr";
+    test_zgels_hqr.helper =
+        "Linear least squares with general matrix using hierarchical reduction trees";
     test_zgels_hqr.params = zgels_hqr_params;
     test_zgels_hqr.output = zgels_hqr_output;
     test_zgels_hqr.outchk = zgels_hqr_outchk;
-    test_zgels_hqr.fptr = testing_zgels_hqr;
-    test_zgels_hqr.next = NULL;
+    test_zgels_hqr.fptr   = testing_zgels_hqr;
+    test_zgels_hqr.next   = NULL;
 
     testing_register( &test_zgels_hqr );
 }

@@ -26,7 +26,7 @@ static cham_fixdbl_t
 flops_zlange( cham_normtype_t ntype, int M, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double coefabs = 1.;
+    double        coefabs = 1.;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
@@ -52,11 +52,11 @@ flops_zlange( cham_normtype_t ntype, int M, int N )
 int
 testing_zlange( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    double       norm;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int             async     = parameters_getvalue_int( "async" );
     intptr_t        mtxfmt    = parameters_getvalue_int( "mtxfmt" );
     int             nb        = run_arg_get_int( args, "nb", 320 );
     int             P         = parameters_getvalue_int( "P" );
@@ -66,8 +66,10 @@ testing_zlange( run_arg_list_t *args, int check )
     int             LDA       = run_arg_get_int( args, "LDA", M );
     int             seedA     = run_arg_get_int( args, "seedA", random() );
     int             Q         = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlange( norm_type, M, N );
+
+    /* Descriptors */
+    double       norm;
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -79,16 +81,22 @@ testing_zlange( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Calculates the norm */
-    START_TIMING( t );
-    norm = CHAMELEON_zlange_Tile( norm_type, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( norm >= 0. ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlange_Tile_Async( norm_type, descA, &norm,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        norm = CHAMELEON_zlange_Tile( norm_type, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlange( norm_type, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm( args, ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, descA );
+        hres = check_znorm( args, ChamGeneral, norm_type, ChamUpperLower,
+                            ChamNonUnit, norm, descA );
     }
 
     CHAMELEON_Desc_Destroy( &descA );
@@ -97,7 +105,7 @@ testing_zlange( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlange;
-const char *zlange_params[] = { "mtxfmt", "nb","norm", "m", "n", "lda", "seedA", NULL };
+const char *zlange_params[] = { "mtxfmt", "nb", "norm", "m", "n", "lda", "seedA", NULL };
 const char *zlange_output[] = { NULL };
 const char *zlange_outchk[] = { "RETURN", NULL };
 
@@ -108,13 +116,13 @@ void testing_zlange_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlange_init( void )
 {
-    test_zlange.name        = "zlange";
-    test_zlange.helper      = "General matrix norm";
-    test_zlange.params      = zlange_params;
-    test_zlange.output      = zlange_output;
-    test_zlange.outchk      = zlange_outchk;
-    test_zlange.fptr        = testing_zlange;
-    test_zlange.next        = NULL;
+    test_zlange.name   = "zlange";
+    test_zlange.helper = "General matrix norm";
+    test_zlange.params = zlange_params;
+    test_zlange.output = zlange_output;
+    test_zlange.outchk = zlange_outchk;
+    test_zlange.fptr   = testing_zlange;
+    test_zlange.next   = NULL;
 
     testing_register( &test_zlange );
 }

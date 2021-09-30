@@ -24,10 +24,11 @@
 int
 testing_zgetrf( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      P      = parameters_getvalue_int( "P" );
@@ -36,8 +37,9 @@ testing_zgetrf( run_arg_list_t *args, int check )
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgetrf( M, N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -49,12 +51,16 @@ testing_zgetrf( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zgetrf_nopiv_Tile( descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgetrf_nopiv_Tile_Async( descA, test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgetrf_nopiv_Tile( descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgetrf( M, N ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -72,7 +78,7 @@ testing_zgetrf( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgetrf;
-const char *zgetrf_params[] = { "mtxfmt", "nb","m", "n", "lda", "seedA", NULL };
+const char *zgetrf_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", NULL };
 const char *zgetrf_output[] = { NULL };
 const char *zgetrf_outchk[] = { "||A||", "||A-fact(A)||", "RETURN", NULL };
 
@@ -83,13 +89,13 @@ void testing_zgetrf_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgetrf_init( void )
 {
-    test_zgetrf.name        = "zgetrf";
-    test_zgetrf.helper      = "General factorization (LU without pivoting)";
-    test_zgetrf.params      = zgetrf_params;
-    test_zgetrf.output      = zgetrf_output;
-    test_zgetrf.outchk      = zgetrf_outchk;
-    test_zgetrf.fptr        = testing_zgetrf;
-    test_zgetrf.next        = NULL;
+    test_zgetrf.name   = "zgetrf";
+    test_zgetrf.helper = "General factorization (LU without pivoting)";
+    test_zgetrf.params = zgetrf_params;
+    test_zgetrf.output = zgetrf_output;
+    test_zgetrf.outchk = zgetrf_outchk;
+    test_zgetrf.fptr   = testing_zgetrf;
+    test_zgetrf.next   = NULL;
 
     testing_register( &test_zgetrf );
 }

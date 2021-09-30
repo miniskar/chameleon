@@ -25,10 +25,11 @@
 int
 testing_zsytrs( run_arg_list_t *args, int check )
 {
-    int          hres;
-    CHAM_desc_t *descA, *descX;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -40,8 +41,9 @@ testing_zsytrs( run_arg_list_t *args, int check )
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         seedB  = run_arg_get_int( args, "seedB", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = 0;  // flops_zsytrs( N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -59,12 +61,18 @@ testing_zsytrs( run_arg_list_t *args, int check )
     assert( hres == 0 );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres += CHAMELEON_zsytrs_Tile( uplo, descA, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres += CHAMELEON_zsytrs_Tile_Async( uplo, descA, descX,
+                                             test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres += CHAMELEON_zsytrs_Tile( uplo, descA, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, 0 /*flops_zsytrs( N, NRHS )*/ );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -87,7 +95,8 @@ testing_zsytrs( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsytrs;
-const char *zsytrs_params[] = { "mtxfmt", "nb","uplo", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zsytrs_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
+                                "lda",    "ldb", "seedA", "seedB", NULL };
 const char *zsytrs_output[] = { NULL };
 const char *zsytrs_outchk[] = { "RETURN", NULL };
 
@@ -98,13 +107,13 @@ void testing_zsytrs_init( void ) __attribute__( ( constructor ) );
 void
 testing_zsytrs_init( void )
 {
-    test_zsytrs.name        = "zsytrs";
-    test_zsytrs.helper      = "Symmetric triangular solve";
-    test_zsytrs.params      = zsytrs_params;
-    test_zsytrs.output      = zsytrs_output;
-    test_zsytrs.outchk      = zsytrs_outchk;
-    test_zsytrs.fptr        = testing_zsytrs;
-    test_zsytrs.next        = NULL;
+    test_zsytrs.name   = "zsytrs";
+    test_zsytrs.helper = "Symmetric triangular solve";
+    test_zsytrs.params = zsytrs_params;
+    test_zsytrs.output = zsytrs_output;
+    test_zsytrs.outchk = zsytrs_outchk;
+    test_zsytrs.fptr   = testing_zsytrs;
+    test_zsytrs.next   = NULL;
 
     testing_register( &test_zsytrs );
 }

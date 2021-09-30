@@ -217,26 +217,24 @@ void        run_list_destroy( run_list_elt_t *run );
 
 void testing_register( testing_t *test );
 
-/**
- * @brief Macros to enable distributed synchronization if necessary
- */
-#if defined(CHAMELEON_USE_MPI)
-#define START_DISTRIBUTED()  CHAMELEON_Distributed_start();
-#define STOP_DISTRIBUTED()   CHAMELEON_Distributed_stop();
-#else
-#define START_DISTRIBUTED()  do {} while(0);
-#define STOP_DISTRIBUTED()   do {} while(0);
-#endif
 
 /**
- * @brief Macros to start/stop timers with necessary synchronizations
+ * @brief Define the data associated to a single run of a testing
  */
-#define START_TIMING( _t_ )                     \
-    START_DISTRIBUTED();                        \
-    (_t_) = RUNTIME_get_time();
+struct testing_;
+typedef struct testing_ testing_t;
+typedef int (*test_fct_t)( run_arg_list_t *, int );
 
-#define STOP_TIMING( _t_ )                      \
-    STOP_DISTRIBUTED();                         \
-    (_t_) = RUNTIME_get_time() - (_t_);         \
+typedef struct testdata_ {
+    run_arg_list_t     *args;     /**< The parameters of the test           */
+    int                 hres;     /**< The returned value of the test       */
+    cham_fixdbl_t       texec;    /**< The execution time of test           */
+    cham_fixdbl_t       tsub;     /**< The task submission tome of the test */
+    RUNTIME_sequence_t *sequence; /**< The sequence to run the test if splitsub */
+    RUNTIME_request_t  request;   /**< The request to run the test if splitsub  */
+} testdata_t;
+
+void testing_start( testdata_t *tdata );
+void testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
 
 #endif /* _testings_h_ */

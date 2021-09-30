@@ -25,10 +25,11 @@
 int
 testing_zgeqrs( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descX, *descT;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -42,8 +43,9 @@ testing_zgeqrs( run_arg_list_t *args, int check )
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgeqrs( M, N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX, *descT;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
@@ -77,12 +79,19 @@ testing_zgeqrs( run_arg_list_t *args, int check )
     /* Calculates the solution */
     hres = CHAMELEON_zgeqrf_Tile( descA, descT );
 
-    START_TIMING( t );
-    hres = CHAMELEON_zgeqrs_Tile( descA, descT, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgeqrs_Tile_Async( descA, descT, descX,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgeqrs_Tile( descA, descT, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgeqrs( M, N, NRHS ) );
 
     /* Checks the factorisation, orthogonality and residue */
     if ( check ) {
@@ -110,8 +119,8 @@ testing_zgeqrs( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgeqrs;
-const char *zgeqrs_params[] = { "mtxfmt", "nb", "ib", "m",     "n",     "k", "lda",
-                                "ldb", "qra", "seedA", "seedB", NULL };
+const char *zgeqrs_params[] = { "mtxfmt", "nb",  "ib",  "m",     "n",     "k",
+                                "lda",    "ldb", "qra", "seedA", "seedB", NULL };
 const char *zgeqrs_output[] = { NULL };
 const char *zgeqrs_outchk[] = { "RETURN", NULL };
 
@@ -122,13 +131,13 @@ void testing_zgeqrs_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgeqrs_init( void )
 {
-    test_zgeqrs.name        = "zgeqrs";
-    test_zgeqrs.helper      = "General QR solve";
-    test_zgeqrs.params      = zgeqrs_params;
-    test_zgeqrs.output      = zgeqrs_output;
-    test_zgeqrs.outchk      = zgeqrs_outchk;
-    test_zgeqrs.fptr        = testing_zgeqrs;
-    test_zgeqrs.next        = NULL;
+    test_zgeqrs.name   = "zgeqrs";
+    test_zgeqrs.helper = "General QR solve";
+    test_zgeqrs.params = zgeqrs_params;
+    test_zgeqrs.output = zgeqrs_output;
+    test_zgeqrs.outchk = zgeqrs_outchk;
+    test_zgeqrs.fptr   = testing_zgeqrs;
+    test_zgeqrs.next   = NULL;
 
     testing_register( &test_zgeqrs );
 }

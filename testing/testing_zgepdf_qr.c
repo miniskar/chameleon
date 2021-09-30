@@ -31,32 +31,34 @@
 static cham_fixdbl_t
 flops_zgepdf_qr( int M, int N )
 {
-    double flops = flops_zgeqrf( M+N, N ) + flops_zungqr( M+N, N, N );
+    double flops = flops_zgeqrf( M + N, N ) + flops_zungqr( M + N, N, N );
     return flops;
 }
 
 int
 testing_zgepdf_qr( run_arg_list_t *args, int check )
 {
-    int           hres = 0;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int                   async  = parameters_getvalue_int( "async" );
+    intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int                   nb     = run_arg_get_int( args, "nb", 320 );
+    int                   ib     = run_arg_get_int( args, "ib", 48 );
+    int                   P      = parameters_getvalue_int( "P" );
+    int                   N      = run_arg_get_int( args, "N", 1000 );
+    int                   M      = run_arg_get_int( args, "M", N );
+    int                   LDA    = run_arg_get_int( args, "LDA", M );
+    int                   seedA  = run_arg_get_int( args, "seedA", random() );
+    int                   Q      = parameters_compute_q( P );
+    CHAMELEON_Complex64_t alpha  = testing_zalea();
+
+    /* Descriptors */
     CHAM_desc_t  *descA1, *descA2, *descQ1, *descQ2;
     CHAM_desc_t  *TS1, *TT1, *TS2, *TT2;
     libhqr_tree_t qrtreeT, qrtreeB;
-
-    /* Reads arguments */
-    intptr_t        mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int             nb     = run_arg_get_int( args, "nb", 320 );
-    int             ib     = run_arg_get_int( args, "ib", 48 );
-    int             P      = parameters_getvalue_int( "P" );
-    int             N      = run_arg_get_int( args, "N", 1000 );
-    int             M      = run_arg_get_int( args, "M", N );
-    int             LDA    = run_arg_get_int( args, "LDA", M );
-    int             seedA  = run_arg_get_int( args, "seedA", random() );
-    int             Q      = parameters_compute_q( P );
-    CHAMELEON_Complex64_t alpha = testing_zalea();
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgepdf_qr( M, N );
-    int zqdwh_opt_id = 1;
+    int           zqdwh_opt_id = 1;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
 
@@ -65,14 +67,18 @@ testing_zgepdf_qr( run_arg_list_t *args, int check )
 
     if ( N > M ) {
         if ( CHAMELEON_Comm_rank() == 0 ) {
-            fprintf( stderr, "SKIPPED: The QR factorization for Polar Decomposition is performed only when M >= N\n" );
+            fprintf( stderr,
+                     "SKIPPED: The QR factorization for Polar Decomposition is performed only when "
+                     "M >= N\n" );
         }
         return -1;
     }
 
-    if ( (N % nb) != 0 ) {
+    if ( ( N % nb ) != 0 ) {
         if ( CHAMELEON_Comm_rank() == 0 ) {
-            fprintf( stderr, "SKIPPED: The QR factorization for Polar Decomposition supports only multiple of nb\n" );
+            fprintf( stderr,
+                     "SKIPPED: The QR factorization for Polar Decomposition supports only multiple "
+                     "of nb\n" );
         }
         return -1;
     }
@@ -102,39 +108,42 @@ testing_zgepdf_qr( run_arg_list_t *args, int check )
         libhqr_matrix_t mat = {
             .mt    = descA1->mt,
             .nt    = descA1->nt,
-            .nodes = descA1->p * descA1-> q,
+            .nodes = descA1->p * descA1->q,
             .p     = descA1->p,
         };
 
         /* Tree for the top matrix */
         libhqr_init_hqr( &qrtreeT, LIBHQR_QR, &mat,
-                         -1,    /*low level tree   */
-                         -1,    /* high level tree */
-                         -1,    /* TS tree size    */
+                         -1,        /*low level tree   */
+                         -1,        /* high level tree */
+                         -1,        /* TS tree size    */
                          descA1->p, /* High level size */
-                         -1,    /* Domino */
-                         0      /* TSRR (unstable) */ );
+                         -1,        /* Domino */
+                         0          /* TSRR (unstable) */ );
 
         /* Tree for the bottom matrix */
         mat.mt = descA2->mt;
         mat.nt = descA2->nt;
-        libhqr_init_tphqr( &qrtreeB, LIBHQR_TSQR,
-                           mat.mt, zqdwh_opt_id ? (mat.nt-1) : 0, &mat,
-                           /* high level tree (Could be greedy, but flat should reduce the volume of comm) */
-                           LIBHQR_FLAT_TREE,
-                           -1,   /* TS tree size    */
-                           descA2->p /* High level size */ );
+        libhqr_init_tphqr(
+            &qrtreeB, LIBHQR_TSQR, mat.mt, zqdwh_opt_id ? (mat.nt - 1) : 0, &mat,
+            /* high level tree (Could be greedy, but flat should reduce the volume of comm) */
+            LIBHQR_FLAT_TREE,
+            -1,       /* TS tree size    */
+            descA2->p /* High level size */ );
     }
 
-    /* Calculates the norm */
-    START_TIMING( t );
-    hres = CHAMELEON_zgepdf_qr_Tile( 1, 1, &qrtreeT, &qrtreeB,
-                                     descA1, TS1, TT1, descQ1,
-                                     descA2, TS2, TT2, descQ2 );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    /* Calculates the solution */
+    testing_start( &test_data );
+    if ( async ) {
+        assert( 0 );
+    }
+    else {
+        hres = CHAMELEON_zgepdf_qr_Tile( 1, 1, &qrtreeT, &qrtreeB,
+                                         descA1, TS1, TT1, descQ1,
+                                         descA2, TS2, TT2, descQ2 );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgepdf_qr( M, N ) );
 
     CHAMELEON_Dealloc_Workspace( &TS1 );
     CHAMELEON_Dealloc_Workspace( &TS2 );
@@ -145,7 +154,6 @@ testing_zgepdf_qr( run_arg_list_t *args, int check )
     libhqr_finalize( &qrtreeB );
 
     /* Checks the solution */
-    hres = 0;
     if ( check ) {
         CHAM_desc_t *descA01, *descA02;
         descA01 = CHAMELEON_Desc_Copy( descA1, NULL );

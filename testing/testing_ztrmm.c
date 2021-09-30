@@ -25,11 +25,11 @@
 int
 testing_ztrmm( run_arg_list_t *args, int check )
 {
-    int          Bm, Bn;
-    int          hres = 0;
-    CHAM_desc_t *descA, *descB, *descBinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int                   async  = parameters_getvalue_int( "async" );
     intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int                   nb     = run_arg_get_int( args, "nb", 320 );
     int                   P      = parameters_getvalue_int( "P" );
@@ -45,8 +45,10 @@ testing_ztrmm( run_arg_list_t *args, int check )
     int                   seedA  = run_arg_get_int( args, "seedA", random() );
     int                   seedB  = run_arg_get_int( args, "seedB", random() );
     int                   Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_ztrmm( side, N, K );
+
+    /* Descriptors */
+    int          Bm, Bn;
+    CHAM_desc_t *descA, *descB, *descBinit;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
 
@@ -73,12 +75,18 @@ testing_ztrmm( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descB, seedB );
 
     /* Calculates the product */
-    START_TIMING( t );
-    hres = CHAMELEON_ztrmm_Tile( side, uplo, trans, diag, alpha, descA, descB );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_ztrmm_Tile_Async( side, uplo, trans, diag, alpha, descA, descB,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_ztrmm_Tile( side, uplo, trans, diag, alpha, descA, descB );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_ztrmm( side, N, K ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -86,7 +94,8 @@ testing_ztrmm( run_arg_list_t *args, int check )
             &descBinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
         CHAMELEON_zplrnt_Tile( descBinit, seedB );
 
-        hres += check_ztrmm( args, CHECK_TRMM, side, uplo, trans, diag, alpha, descA, descB, descBinit );
+        hres += check_ztrmm( args, CHECK_TRMM, side, uplo, trans, diag,
+                             alpha, descA, descB, descBinit );
 
         CHAMELEON_Desc_Destroy( &descBinit );
     }
@@ -98,8 +107,8 @@ testing_ztrmm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztrmm;
-const char *ztrmm_params[] = { "mtxfmt", "nb", "trans", "side",  "uplo",  "diag",  "n", "k",
-                               "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
+const char *ztrmm_params[] = { "mtxfmt", "nb",  "trans", "side",  "uplo",  "diag",  "n",
+                               "k",      "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
 const char *ztrmm_output[] = { NULL };
 const char *ztrmm_outchk[] = { "RETURN", NULL };
 
@@ -110,13 +119,13 @@ void testing_ztrmm_init( void ) __attribute__( ( constructor ) );
 void
 testing_ztrmm_init( void )
 {
-    test_ztrmm.name        = "ztrmm";
-    test_ztrmm.helper      = "Triangular matrix-matrix multiply";
-    test_ztrmm.params      = ztrmm_params;
-    test_ztrmm.output      = ztrmm_output;
-    test_ztrmm.outchk      = ztrmm_outchk;
-    test_ztrmm.fptr        = testing_ztrmm;
-    test_ztrmm.next        = NULL;
+    test_ztrmm.name   = "ztrmm";
+    test_ztrmm.helper = "Triangular matrix-matrix multiply";
+    test_ztrmm.params = ztrmm_params;
+    test_ztrmm.output = ztrmm_output;
+    test_ztrmm.outchk = ztrmm_outchk;
+    test_ztrmm.fptr   = testing_ztrmm;
+    test_ztrmm.next   = NULL;
 
     testing_register( &test_ztrmm );
 }

@@ -24,8 +24,8 @@
 static cham_fixdbl_t
 flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
 {
-    cham_fixdbl_t flops = 0.;
-    double coefabs = 1.;
+    cham_fixdbl_t flops   = 0.;
+    double        coefabs = 1.;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
@@ -70,11 +70,11 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
 int
 testing_zlantr( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    double       norm;
-    CHAM_desc_t *descA;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int             async     = parameters_getvalue_int( "async" );
     intptr_t        mtxfmt    = parameters_getvalue_int( "mtxfmt" );
     int             nb        = run_arg_get_int( args, "nb", 320 );
     int             P         = parameters_getvalue_int( "P" );
@@ -86,8 +86,10 @@ testing_zlantr( run_arg_list_t *args, int check )
     int             LDA       = run_arg_get_int( args, "LDA", M );
     int             seedA     = run_arg_get_int( args, "seedA", random() );
     int             Q         = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlantr( norm_type, uplo, M, N );
+
+    /* Descriptors */
+    double       norm;
+    CHAM_desc_t *descA;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -99,12 +101,17 @@ testing_zlantr( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Calculates the norm */
-    START_TIMING( t );
-    norm = CHAMELEON_zlantr_Tile( norm_type, uplo, diag, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( norm >= 0. ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlantr_Tile_Async( norm_type, uplo, diag, descA, &norm,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        norm = CHAMELEON_zlantr_Tile( norm_type, uplo, diag, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlantr( norm_type, uplo, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -117,7 +124,8 @@ testing_zlantr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlantr;
-const char *zlantr_params[] = { "mtxfmt", "nb","norm", "uplo", "diag", "m", "n", "lda", "seedA", NULL };
+const char *zlantr_params[] = { "mtxfmt", "nb", "norm", "uplo",  "diag",
+                                "m",      "n",  "lda",  "seedA", NULL };
 const char *zlantr_output[] = { NULL };
 const char *zlantr_outchk[] = { "RETURN", NULL };
 
@@ -128,13 +136,13 @@ void testing_zlantr_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlantr_init( void )
 {
-    test_zlantr.name        = "zlantr";
-    test_zlantr.helper      = "Triangular matrix norm";
-    test_zlantr.params      = zlantr_params;
-    test_zlantr.output      = zlantr_output;
-    test_zlantr.outchk      = zlantr_outchk;
-    test_zlantr.fptr        = testing_zlantr;
-    test_zlantr.next        = NULL;
+    test_zlantr.name   = "zlantr";
+    test_zlantr.helper = "Triangular matrix norm";
+    test_zlantr.params = zlantr_params;
+    test_zlantr.output = zlantr_output;
+    test_zlantr.outchk = zlantr_outchk;
+    test_zlantr.fptr   = testing_zlantr;
+    test_zlantr.next   = NULL;
 
     testing_register( &test_zlantr );
 }

@@ -76,7 +76,6 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 {
     starpu_conf_t *conf = (starpu_conf_t*)(chamctxt->schedopt);
     int hres = CHAMELEON_ERR_NOT_INITIALIZED;
-    int rc = 0;
 
     /* StarPU was already initialized by an external library */
     if (conf == NULL) {

@@ -24,10 +24,11 @@
 int
 testing_zungqr( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descT, *descQ;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -39,8 +40,9 @@ testing_zungqr( run_arg_list_t *args, int check )
     int      RH     = run_arg_get_int( args, "qra", 0 );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zungqr( M, N, K );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descT, *descQ;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
@@ -79,12 +81,19 @@ testing_zungqr( run_arg_list_t *args, int check )
     hres = CHAMELEON_zgeqrf_Tile( descA, descT );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    CHAMELEON_zungqr_Tile( descA, descT, descQ );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zungqr_Tile_Async( descA, descT, descQ, test_data.sequence,
+                                            &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descQ, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zungqr_Tile( descA, descT, descQ );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zungqr( M, N, K ) );
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
@@ -105,7 +114,7 @@ testing_zungqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zungqr;
-const char *zungqr_params[] = { "mtxfmt", "nb","ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
+const char *zungqr_params[] = { "mtxfmt", "nb", "ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
 const char *zungqr_output[] = { NULL };
 const char *zungqr_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
@@ -116,13 +125,13 @@ void testing_zungqr_init( void ) __attribute__( ( constructor ) );
 void
 testing_zungqr_init( void )
 {
-    test_zungqr.name        = "zungqr";
-    test_zungqr.helper      = "Q generation (QR)";
-    test_zungqr.params      = zungqr_params;
-    test_zungqr.output      = zungqr_output;
-    test_zungqr.outchk      = zungqr_outchk;
-    test_zungqr.fptr        = testing_zungqr;
-    test_zungqr.next        = NULL;
+    test_zungqr.name   = "zungqr";
+    test_zungqr.helper = "Q generation (QR)";
+    test_zungqr.params = zungqr_params;
+    test_zungqr.output = zungqr_output;
+    test_zungqr.outchk = zungqr_outchk;
+    test_zungqr.fptr   = testing_zungqr;
+    test_zungqr.next   = NULL;
 
     testing_register( &test_zungqr );
 }

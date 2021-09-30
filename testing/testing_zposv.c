@@ -32,10 +32,11 @@ flops_zposv( int N, int NRHS )
 int
 testing_zposv( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descX;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int         async  = parameters_getvalue_int( "async" );
     intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int         nb     = run_arg_get_int( args, "nb", 320 );
     int         P      = parameters_getvalue_int( "P" );
@@ -47,8 +48,9 @@ testing_zposv( run_arg_list_t *args, int check )
     int         seedA  = run_arg_get_int( args, "seedA", random() );
     int         seedB  = run_arg_get_int( args, "seedB", random() );
     int         Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zposv( N, NRHS );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descX;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -63,12 +65,18 @@ testing_zposv( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    hres = CHAMELEON_zposv_Tile( uplo, descA, descX );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zposv_Tile_Async( uplo, descA, descX,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descX, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zposv_Tile( uplo, descA, descX );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zposv( N, NRHS ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -98,7 +106,8 @@ testing_zposv( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zposv;
-const char *zposv_params[] = { "mtxfmt", "nb","uplo", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
+const char *zposv_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
+                               "lda",    "ldb", "seedA", "seedB", NULL };
 const char *zposv_output[] = { NULL };
 const char *zposv_outchk[] = { "RETURN", NULL };
 
@@ -109,13 +118,13 @@ void testing_zposv_init( void ) __attribute__( ( constructor ) );
 void
 testing_zposv_init( void )
 {
-    test_zposv.name        = "zposv";
-    test_zposv.helper      = "Hermitian positive definite linear system solve (Cholesky)";
-    test_zposv.params      = zposv_params;
-    test_zposv.output      = zposv_output;
-    test_zposv.outchk      = zposv_outchk;
-    test_zposv.fptr        = testing_zposv;
-    test_zposv.next        = NULL;
+    test_zposv.name   = "zposv";
+    test_zposv.helper = "Hermitian positive definite linear system solve (Cholesky)";
+    test_zposv.params = zposv_params;
+    test_zposv.output = zposv_output;
+    test_zposv.outchk = zposv_outchk;
+    test_zposv.fptr   = testing_zposv;
+    test_zposv.next   = NULL;
 
     testing_register( &test_zposv );
 }

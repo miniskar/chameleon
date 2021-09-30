@@ -25,7 +25,7 @@ static cham_fixdbl_t
 flops_zlascal( cham_uplo_t uplo, int M, int N )
 {
     cham_fixdbl_t flops = 0.;
-    int    minMN = chameleon_min( M, N );
+    int           minMN = chameleon_min( M, N );
     switch ( uplo ) {
         case ChamUpper:
             flops = ( minMN * ( minMN + 1 ) / 2 ) + M * chameleon_max( 0, N - M );
@@ -49,10 +49,11 @@ flops_zlascal( cham_uplo_t uplo, int M, int N )
 int
 testing_zlascal( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descAinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int                   async  = parameters_getvalue_int( "async" );
     intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int                   nb     = run_arg_get_int( args, "nb", 320 );
     int                   P      = parameters_getvalue_int( "P" );
@@ -63,8 +64,9 @@ testing_zlascal( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t alpha  = run_arg_get_complex64( args, "alpha", 1. );
     int                   seedA  = run_arg_get_int( args, "seedA", random() );
     int                   Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zlascal( uplo, M, N );
+
+    /* Descriptors */
+    CHAM_desc_t *descA, *descAinit;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -76,12 +78,17 @@ testing_zlascal( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
 
     /* Scales the matrix */
-    START_TIMING( t );
-    hres = CHAMELEON_zlascal_Tile( uplo, alpha, descA );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zlascal_Tile_Async( uplo, alpha, descA,
+                                             test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zlascal_Tile( uplo, alpha, descA );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlascal( uplo, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -100,7 +107,7 @@ testing_zlascal( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlascal;
-const char *zlascal_params[] = { "mtxfmt", "nb","uplo", "m", "n", "lda", "alpha", "seedA", NULL };
+const char *zlascal_params[] = { "mtxfmt", "nb", "uplo", "m", "n", "lda", "alpha", "seedA", NULL };
 const char *zlascal_output[] = { NULL };
 const char *zlascal_outchk[] = { "RETURN", NULL };
 
@@ -111,13 +118,13 @@ void testing_zlascal_init( void ) __attribute__( ( constructor ) );
 void
 testing_zlascal_init( void )
 {
-    test_zlascal.name        = "zlascal";
-    test_zlascal.helper      = "General matrix scaling";
-    test_zlascal.params      = zlascal_params;
-    test_zlascal.output      = zlascal_output;
-    test_zlascal.outchk      = zlascal_outchk;
-    test_zlascal.fptr        = testing_zlascal;
-    test_zlascal.next        = NULL;
+    test_zlascal.name   = "zlascal";
+    test_zlascal.helper = "General matrix scaling";
+    test_zlascal.params = zlascal_params;
+    test_zlascal.output = zlascal_output;
+    test_zlascal.outchk = zlascal_outchk;
+    test_zlascal.fptr   = testing_zlascal;
+    test_zlascal.next   = NULL;
 
     testing_register( &test_zlascal );
 }

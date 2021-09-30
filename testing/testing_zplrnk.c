@@ -25,23 +25,23 @@
 int
 testing_zplrnk( run_arg_list_t *args, int check )
 {
-    static int   run_id = 0;
-    int          hres   = 0;
-    CHAM_desc_t *descC;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
-    int             nb    = run_arg_get_int( args, "nb", 320 );
-    int             P     = parameters_getvalue_int( "P" );
-    int             N     = run_arg_get_int( args, "N", 1000 );
-    int             M     = run_arg_get_int( args, "M", N );
-    int             K     = run_arg_get_int( args, "K", N );
-    int             LDC   = run_arg_get_int( args, "LDC", M );
-    int             seedA = run_arg_get_int( args, "seedA", random() );
-    int             seedB = run_arg_get_int( args, "seedB", random() );
-    int             Q     = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    /* We consider the gemm cost used in this operation as the cost */
-    cham_fixdbl_t flops = flops_zgemm( M, N, K );
+    /* Read arguments */
+    int async = parameters_getvalue_int( "async" );
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int P     = parameters_getvalue_int( "P" );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int K     = run_arg_get_int( args, "K", N );
+    int LDC   = run_arg_get_int( args, "LDC", M );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+    int seedB = run_arg_get_int( args, "seedB", random() );
+    int Q     = parameters_compute_q( P );
+
+    /* Descriptors */
+    CHAM_desc_t *descC;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -50,12 +50,17 @@ testing_zplrnk( run_arg_list_t *args, int check )
         &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
 
     /* Calculates the random rank-k matrix */
-    START_TIMING( t );
-    hres = CHAMELEON_zplrnk_Tile( K, descC, seedA, seedB );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zplrnk_Tile_Async( K, descC, seedA, seedB,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zplrnk_Tile( K, descC, seedA, seedB );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgemm( M, N, K ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -64,7 +69,6 @@ testing_zplrnk( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descC );
 
-    run_id++;
     return hres;
 }
 
@@ -80,13 +84,13 @@ void testing_zplrnk_init( void ) __attribute__( ( constructor ) );
 void
 testing_zplrnk_init( void )
 {
-    test_zplrnk.name        = "zplrnk";
-    test_zplrnk.helper      = "General rank-k matrix generation";
-    test_zplrnk.params      = zplrnk_params;
-    test_zplrnk.output      = zplrnk_output;
-    test_zplrnk.outchk      = zplrnk_outchk;
-    test_zplrnk.fptr        = testing_zplrnk;
-    test_zplrnk.next        = NULL;
+    test_zplrnk.name   = "zplrnk";
+    test_zplrnk.helper = "General rank-k matrix generation";
+    test_zplrnk.params = zplrnk_params;
+    test_zplrnk.output = zplrnk_output;
+    test_zplrnk.outchk = zplrnk_outchk;
+    test_zplrnk.fptr   = testing_zplrnk;
+    test_zplrnk.next   = NULL;
 
     testing_register( &test_zplrnk );
 }

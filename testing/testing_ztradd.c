@@ -25,7 +25,7 @@ static cham_fixdbl_t
 flops_ztradd( cham_uplo_t uplo, int M, int N )
 {
     cham_fixdbl_t flops = 0.;
-    int    minMN = chameleon_min( M, N );
+    int           minMN = chameleon_min( M, N );
     switch ( uplo ) {
         case ChamUpper:
             flops = ( minMN * ( minMN + 1 ) / 2 ) + M * chameleon_max( 0, N - M );
@@ -51,11 +51,11 @@ flops_ztradd( cham_uplo_t uplo, int M, int N )
 int
 testing_ztradd( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    int          Am, An;
-    CHAM_desc_t *descA, *descB;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
@@ -70,8 +70,10 @@ testing_ztradd( run_arg_list_t *args, int check )
     int                   seedA = run_arg_get_int( args, "seedA", random() );
     int                   seedB = run_arg_get_int( args, "seedB", random() );
     int                   Q     = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_ztradd( uplo, M, N );
+
+    /* Descriptors */
+    int          Am, An;
+    CHAM_desc_t *descA, *descB;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -114,12 +116,18 @@ testing_ztradd( run_arg_list_t *args, int check )
     }
 
     /* Calculates the sum */
-    START_TIMING( t );
-    hres = CHAMELEON_ztradd_Tile( uplo, trans, alpha, descA, beta, descB );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_ztradd_Tile_Async( uplo, trans, alpha, descA, beta, descB,
+                                            test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_ztradd_Tile( uplo, trans, alpha, descA, beta, descB );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_ztradd( uplo, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -143,8 +151,8 @@ testing_ztradd( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztradd;
-const char *ztradd_params[] = { "mtxfmt", "nb", "trans", "uplo", "m",     "n",     "lda",
-                                "ldb", "alpha", "beta", "seedA", "seedB", NULL };
+const char *ztradd_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "m",     "n", "lda",
+                                "ldb",    "alpha", "beta",  "seedA", "seedB", NULL };
 const char *ztradd_output[] = { NULL };
 const char *ztradd_outchk[] = { "RETURN", NULL };
 
@@ -155,13 +163,13 @@ void testing_ztradd_init( void ) __attribute__( ( constructor ) );
 void
 testing_ztradd_init( void )
 {
-    test_ztradd.name        = "ztradd";
-    test_ztradd.helper      = "Triangular matrix-matrix addition";
-    test_ztradd.params      = ztradd_params;
-    test_ztradd.output      = ztradd_output;
-    test_ztradd.outchk      = ztradd_outchk;
-    test_ztradd.fptr        = testing_ztradd;
-    test_ztradd.next        = NULL;
+    test_ztradd.name   = "ztradd";
+    test_ztradd.helper = "Triangular matrix-matrix addition";
+    test_ztradd.params = ztradd_params;
+    test_ztradd.output = ztradd_output;
+    test_ztradd.outchk = ztradd_outchk;
+    test_ztradd.fptr   = testing_ztradd;
+    test_ztradd.next   = NULL;
 
     testing_register( &test_ztradd );
 }

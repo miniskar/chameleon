@@ -25,11 +25,11 @@
 int
 testing_zgemm( run_arg_list_t *args, int check )
 {
-    int          Am, An, Bm, Bn;
-    int          hres = 0;
-    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
     /* Read arguments */
+    int          async  = parameters_getvalue_int( "async" );
     intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
@@ -47,8 +47,11 @@ testing_zgemm( run_arg_list_t *args, int check )
     int                   seedB = run_arg_get_int( args, "seedB", random() );
     int                   seedC = run_arg_get_int( args, "seedC", random() );
     int                   Q     = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zgemm( M, N, K );
+
+    /* Descriptors */
+    int          Am, An, Bm, Bn;
+    CHAM_desc_t *descA, *descB, *descC, *descCinit;
+    void        *ws = NULL;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -86,13 +89,28 @@ testing_zgemm( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descB, seedB );
     CHAMELEON_zplrnt_Tile( descC, seedC );
 
+    if ( async ) {
+        ws = CHAMELEON_zgemm_WS_Alloc( transA, transB, descA, descB, descC );
+    }
+
     /* Calculate the product */
-    START_TIMING( t );
-    hres = CHAMELEON_zgemm_Tile( transA, transB, alpha, descA, descB, beta, descC );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zgemm_Tile_Async( transA, transB, alpha, descA, descB, beta, descC, ws,
+                                           test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descB, test_data.sequence );
+        CHAMELEON_Desc_Flush( descC, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zgemm_Tile( transA, transB, alpha, descA, descB, beta, descC );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgemm( M, N, K ) );
+
+    if ( ws != NULL ) {
+        CHAMELEON_zgemm_WS_Free( ws );
+    }
 
     /* Check the solution */
     if ( check ) {
@@ -113,8 +131,9 @@ testing_zgemm( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgemm;
-const char *zgemm_params[] = { "mtxfmt", "nb", "transA", "transB", "m",     "n",     "k",     "lda", "ldb",
-                               "ldc", "alpha",  "beta",   "seedA", "seedB", "seedC", NULL };
+const char *zgemm_params[] = { "mtxfmt", "nb",    "transA", "transB", "m",     "n",
+                               "k",      "lda",   "ldb",    "ldc",    "alpha", "beta",
+                               "seedA",  "seedB", "seedC",  NULL };
 const char *zgemm_output[] = { NULL };
 const char *zgemm_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
@@ -125,13 +144,13 @@ void testing_zgemm_init( void ) __attribute__( ( constructor ) );
 void
 testing_zgemm_init( void )
 {
-    test_zgemm.name        = "zgemm";
-    test_zgemm.helper      = "General matrix-matrix multiply";
-    test_zgemm.params      = zgemm_params;
-    test_zgemm.output      = zgemm_output;
-    test_zgemm.outchk      = zgemm_outchk;
-    test_zgemm.fptr        = testing_zgemm;
-    test_zgemm.next        = NULL;
+    test_zgemm.name   = "zgemm";
+    test_zgemm.helper = "General matrix-matrix multiply";
+    test_zgemm.params = zgemm_params;
+    test_zgemm.output = zgemm_output;
+    test_zgemm.outchk = zgemm_outchk;
+    test_zgemm.fptr   = testing_zgemm;
+    test_zgemm.next   = NULL;
 
     testing_register( &test_zgemm );
 }

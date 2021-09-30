@@ -24,10 +24,11 @@
 int
 testing_zungqr_hqr( run_arg_list_t *args, int check )
 {
-    int          hres   = 0;
-    CHAM_desc_t *descA, *descTS, *descTT, *descQ;
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
 
-    /* Reads arguments */
+    /* Read arguments */
+    int      async  = parameters_getvalue_int( "async" );
     intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int      nb     = run_arg_get_int( args, "nb", 320 );
     int      ib     = run_arg_get_int( args, "ib", 48 );
@@ -43,9 +44,9 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
     int      domino = run_arg_get_int( args, "domino", -1 );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      Q      = parameters_compute_q( P );
-    cham_fixdbl_t t, gflops;
-    cham_fixdbl_t flops = flops_zungqr( M, N, K );
 
+    /* Descriptors */
+    CHAM_desc_t    *descA, *descTS, *descTT, *descQ;
     libhqr_tree_t   qrtree;
     libhqr_matrix_t matrix;
 
@@ -87,12 +88,20 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
     hres = CHAMELEON_zgeqrf_param_Tile( &qrtree, descA, descTS, descTT );
 
     /* Calculates the solution */
-    START_TIMING( t );
-    CHAMELEON_zungqr_param_Tile( &qrtree, descA, descTS, descTT, descQ );
-    STOP_TIMING( t );
-    gflops = flops * 1.e-9 / t;
-    run_arg_add_fixdbl( args, "time", t );
-    run_arg_add_fixdbl( args, "gflops", ( hres == CHAMELEON_SUCCESS ) ? gflops : -1. );
+    testing_start( &test_data );
+    if ( async ) {
+        hres = CHAMELEON_zungqr_param_Tile_Async( &qrtree, descA, descTS, descTT, descQ,
+                                                  test_data.sequence, &test_data.request );
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTS, test_data.sequence );
+        CHAMELEON_Desc_Flush( descTT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descQ, test_data.sequence );
+    }
+    else {
+        hres = CHAMELEON_zungqr_param_Tile( &qrtree, descA, descTS, descTT, descQ );
+    }
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zungqr( M, N, K ) );
 
     /* Checks the factorisation and orthogonality */
     if ( check ) {
@@ -115,8 +124,8 @@ testing_zungqr_hqr( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zungqr_hqr;
-const char *zungqr_hqr_params[] = { "mtxfmt", "nb", "ib",   "m",    "n",      "k",     "lda", "qra",
-                                    "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
+const char *zungqr_hqr_params[] = { "mtxfmt", "nb",  "ib",   "m",    "n",      "k",     "lda",
+                                    "qra",    "qrp", "llvl", "hlvl", "domino", "seedA", NULL };
 const char *zungqr_hqr_output[] = { NULL };
 const char *zungqr_hqr_outchk[] = { "||A||", "||I-QQ'||", "||A-fact(A)||", "RETURN", NULL };
 
@@ -127,13 +136,13 @@ void testing_zungqr_hqr_init( void ) __attribute__( ( constructor ) );
 void
 testing_zungqr_hqr_init( void )
 {
-    test_zungqr_hqr.name        = "zungqr_hqr";
-    test_zungqr_hqr.helper      = "Q generation with hierarchical reduction trees (QR)";
-    test_zungqr_hqr.params      = zungqr_hqr_params;
-    test_zungqr_hqr.output      = zungqr_hqr_output;
-    test_zungqr_hqr.outchk      = zungqr_hqr_outchk;
-    test_zungqr_hqr.fptr        = testing_zungqr_hqr;
-    test_zungqr_hqr.next        = NULL;
+    test_zungqr_hqr.name   = "zungqr_hqr";
+    test_zungqr_hqr.helper = "Q generation with hierarchical reduction trees (QR)";
+    test_zungqr_hqr.params = zungqr_hqr_params;
+    test_zungqr_hqr.output = zungqr_hqr_output;
+    test_zungqr_hqr.outchk = zungqr_hqr_outchk;
+    test_zungqr_hqr.fptr   = testing_zungqr_hqr;
+    test_zungqr_hqr.next   = NULL;
 
     testing_register( &test_zungqr_hqr );
 }
