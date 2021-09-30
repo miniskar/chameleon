@@ -184,9 +184,12 @@ void print_usage( const char* prog_name )
                 "  Timings are reported respectively as 'tsub' for the graph submission time, and 'time'\n"
                 "  for the execution time.\n"
                 "  By default the synchronous tile interface is used to perform the timings. 'tsub' is null.\n"
-                "  If the --async option is enabled, then the _Async interface is called. 'tsub' reports\n"
-                "  the task submission time, and 'time' the execution time that includes 'tsub'.\n"
-                "  If the --splitsub option is enabled, then the _Async interface is called and task\n"
+                "  If the --async option is enabled, then the asynchronous interface is called. 'tsub' reports
+"
+                "  the task submission time, and 'time' the execution time that includes 'tsub'.
+"
+                "  If the --splitsub option is enabled, then the asynchronous interface is called and task
+"
                 "  submission is fully performed before starting the computation. 'tsub' reports the\n"
                 "  task submission time, and 'time' the execution time excluding 'tsub'.\n"
                 "  Note that the 'gflops' field is always computed with 'time'\n" );
