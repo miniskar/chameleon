@@ -233,33 +233,41 @@ inline static int chameleon_desc_islocal( const CHAM_desc_t *A, int m, int n )
  * CHAMELEON_ACCESS_RW(C, Cm, Cn)
  * CHAMELEON_END_ACCESS_DECLARATION
  */
-#define CHAMELEON_BEGIN_ACCESS_DECLARATION { \
-    unsigned __chameleon_need_submit = 0; \
+#define CHAMELEON_BEGIN_ACCESS_DECLARATION {    \
+    unsigned __chameleon_need_exec = 0;         \
+    unsigned __chameleon_need_submit = 0;       \
     RUNTIME_BEGIN_ACCESS_DECLARATION
 
-#define CHAMELEON_ACCESS_R(A, Am, An) do { \
-    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
-    RUNTIME_ACCESS_R(A, Am, An); \
-} while(0)
+#define CHAMELEON_ACCESS_R(A, Am, An) do {                              \
+        if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
+        RUNTIME_ACCESS_R(A, Am, An);                                    \
+    } while(0)
 
-#define CHAMELEON_ACCESS_W(A, Am, An) do { \
-    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
-    RUNTIME_ACCESS_W(A, Am, An); \
-} while(0)
+#define CHAMELEON_ACCESS_W(A, Am, An) do {              \
+        if (chameleon_desc_islocal(A, Am, An)) {        \
+            __chameleon_need_exec = 1;                  \
+            __chameleon_need_submit = 1;                \
+        }                                               \
+        RUNTIME_ACCESS_W(A, Am, An);                    \
+    } while(0)
 
-#define CHAMELEON_ACCESS_RW(A, Am, An) do { \
-    if (chameleon_desc_islocal(A, Am, An)) __chameleon_need_submit = 1; \
-    RUNTIME_ACCESS_RW(A, Am, An); \
-} while(0)
+#define CHAMELEON_ACCESS_RW(A, Am, An) do {             \
+        if (chameleon_desc_islocal(A, Am, An)) {        \
+            __chameleon_need_exec = 1;                  \
+            __chameleon_need_submit = 1;                \
+        }                                               \
+        RUNTIME_ACCESS_RW(A, Am, An);                   \
+    } while(0)
 
-#define CHAMELEON_RANK_CHANGED(rank) do {\
-    __chameleon_need_submit = 1; \
-    RUNTIME_RANK_CHANGED(rank); \
-} while (0)
+#define CHAMELEON_RANK_CHANGED(rank) do {       \
+        __chameleon_need_submit = 1;            \
+        RUNTIME_RANK_CHANGED(rank);             \
+    } while (0)
 
-#define CHAMELEON_END_ACCESS_DECLARATION \
-    RUNTIME_END_ACCESS_DECLARATION; \
-    if (!__chameleon_need_submit) return; \
+#define CHAMELEON_END_ACCESS_DECLARATION        \
+    RUNTIME_END_ACCESS_DECLARATION;             \
+    if (!__chameleon_need_submit) return;       \
+    (void)__chameleon_need_exec;                \
 }
 
 #ifdef __cplusplus
