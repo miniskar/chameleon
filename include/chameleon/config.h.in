@@ -70,6 +70,13 @@
 /* chameleon runtime starpu */
 #cmakedefine CHAMELEON_ENABLE_PRUNING_STATS
 
+#cmakedefine HAVE_FALLTHROUGH
+#if defined(HAVE_FALLTHROUGH)
+#define chameleon_attr_fallthrough __attribute__((fallthrough))
+#else
+#define chameleon_attr_fallthrough do {} while(0)
+#endif
+
 #ifdef BEGIN_C_DECLS
 #undef BEGIN_C_DECLS
 #endif
