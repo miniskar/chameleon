@@ -104,6 +104,5 @@ test_starpu_shm_s_macosx:
     VERSION: starpu
   script:
     - cd build-starpu && ctest -V -R test_shm_s
-                               -D ExperimentalTest
-                               -D ExperimentalCoverage
-                               -D ExperimentalSubmit
+                               -T Test
+                               -T Coverage

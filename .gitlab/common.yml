@@ -36,8 +36,7 @@
        cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS &&
        scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
        ctest --no-compress-output -V -j 5
-             -D ExperimentalBuild
-             -D ExperimentalSubmit
+             -T Build
              | tee ../${LOGNAME})
     - (cd build-$VERSION &&
        make install | tee -a ../${LOGNAME} &&
@@ -59,9 +58,8 @@
     - (cd build-$VERSION &&
        eval "ctest --no-compress-output -V
              $TESTS_RESTRICTION
-             -D ExperimentalTest
-             -D ExperimentalCoverage
-             -D ExperimentalSubmit
+             -T Test
+             -T Coverage
              | tee -a ../${LOGNAME}.log")
     - lcov --directory build-$VERSION --capture --output-file ./${LOGNAME}.lcov
     - (cd build-$VERSION && lcov --directory . --capture --output-file ../bis_${LOGNAME}.lcov)
