@@ -37,4 +37,7 @@ void INSERT_TASK_zgelqt( const RUNTIME_option_t *options,
       TCORE_zlaset( ChamUpperLower, ib, m, 0., 0., tileT );
       TCORE_zgelqt( m, n, ib, tileA, tileT, TAU, work );
     }
+
+    (void)options;
+    (void)nb;
 }

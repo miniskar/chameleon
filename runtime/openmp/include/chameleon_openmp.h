@@ -21,8 +21,8 @@
 #ifndef _chameleon_openmp_h_
 #define _chameleon_openmp_h_
 
-#include "coreblas.h"
 #include "control/common.h"
+#include "coreblas.h"
 #include <omp.h>
 
 #endif /* _chameleon_openmp_h_ */

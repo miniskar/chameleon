@@ -29,4 +29,7 @@ void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( trans, m, n, alpha, beta, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_zgeadd( trans, m, n, alpha, tileA, beta, tileB );
+
+    (void)options;
+    (void)nb;
 }

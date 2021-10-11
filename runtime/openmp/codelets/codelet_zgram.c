@@ -37,4 +37,6 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
 #pragma omp task firstprivate( uplo, m, n, mt, nt, tileDi, tileDj, tileD, tileA ) depend( in:tileDi[0], tileDj[0], tileD[0] ) depend( inout:tileA[0] )
     TCORE_zgram( uplo, m, n, mt, nt,
                  tileDi, tileDj, tileD, tileA );
+
+    (void)options;
 }

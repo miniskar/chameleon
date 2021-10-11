@@ -27,7 +27,7 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
                          const CHAM_desc_t *G,  int Gm,  int Gn,
                          const CHAM_desc_t *Di, int Dim, int Din,
                          const CHAM_desc_t *Dj, int Djm, int Djn,
-                               CHAM_desc_t *A,  int Am,  int An )
+                         CHAM_desc_t *A,  int Am,  int An )
 {
     CHAM_tile_t *tileGi = Gi->get_blktile( Gi, Gim, Gin );
     CHAM_tile_t *tileGj = Gj->get_blktile( Gj, Gjm, Gjn );
@@ -39,4 +39,6 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
 #pragma omp task firstprivate( center, scale, axis, m, n, mt, nt, tileGi, tileGj, tileG, tileDi, tileDj, tileA ) depend( in:tileGi[0], tileGj[0], tileG[0], tileDi[0], tileDj[0] ) depend( inout:tileA[0] )
     TCORE_zcesca( center, scale, axis, m, n, mt, nt,
                   tileGi, tileGj, tileG, tileDi, tileDj, tileA );
+
+    (void)options;
 }

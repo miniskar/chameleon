@@ -19,7 +19,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdlib.h>
 #include "chameleon_openmp.h"
 
 void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *chamctxt,
@@ -46,7 +45,7 @@ void RUNTIME_options_finalize( RUNTIME_option_t *option, CHAM_context_t *chamctx
 
 int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, size_t host_size )
 {
-    if (worker_size > 0) {
+    if ( worker_size > 0 ) {
         /*
          * NOTE: we set the size, but instead of doing a malloc shared by multiple workers,
          * we just create a VLA in the relevant codelets, within the task's body.
@@ -54,6 +53,7 @@ int RUNTIME_options_ws_alloc( RUNTIME_option_t *options, size_t worker_size, siz
          */
         options->ws_wsize = worker_size;
     }
+    (void)host_size;
     return CHAMELEON_SUCCESS;
 }
 

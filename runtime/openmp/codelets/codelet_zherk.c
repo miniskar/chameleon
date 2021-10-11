@@ -33,4 +33,7 @@ void INSERT_TASK_zherk( const RUNTIME_option_t *options,
         n, k,
         alpha, tileA,
         beta, tileC );
+
+    (void)options;
+    (void)nb;
 }

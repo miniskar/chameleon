@@ -31,4 +31,6 @@ void INSERT_TASK_dlag2z( const RUNTIME_option_t *options,
 
 #pragma omp task firstprivate( uplo, m, n, tileA, tileB ) depend( in:tileA[0] ) depend( out:tileB[0] )
     TCORE_dlag2z( uplo, m, n, tileA, tileB );
+
+    (void)options;
 }

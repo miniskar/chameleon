@@ -38,6 +38,9 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
 
         CORE_zlacpy( uplo, m, n, A + displA, tileA->ld, B + displB, tileB->ld );
     }
+
+    (void)options;
+    (void)nb;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,

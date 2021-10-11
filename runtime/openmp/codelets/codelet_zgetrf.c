@@ -28,6 +28,12 @@ void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
 {
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     int info = 0;
+
 #pragma omp task firstprivate( m, n, tileA, IPIV, info ) depend( out:IPIV[0] ) depend( inout:tileA[0] )
     TCORE_zgetrf( m, n, tileA, IPIV, &info );
+
+    (void)options;
+    (void)nb;
+    (void)check_info;
+    (void)iinfo;
 }

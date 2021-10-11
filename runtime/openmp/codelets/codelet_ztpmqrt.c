@@ -38,4 +38,7 @@ void INSERT_TASK_ztpmqrt( const RUNTIME_option_t *options,
         TCORE_ztpmqrt( side, trans, M, N, K, L, ib,
                       tileV, tileT, tileA, tileB, tmp );
     }
+
+    (void)options;
+    (void)nb;
 }

@@ -29,4 +29,7 @@ void INSERT_TASK_zlascal( const RUNTIME_option_t *options,
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 #pragma omp task firstprivate( uplo, m, n, alpha, tileA ) depend( inout:tileA[0] )
     TCORE_zlascal( uplo, m, n, alpha, tileA );
+
+    (void)options;
+    (void)nb;
 }

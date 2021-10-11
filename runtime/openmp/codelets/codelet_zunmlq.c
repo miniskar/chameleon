@@ -37,4 +37,7 @@ void INSERT_TASK_zunmlq( const RUNTIME_option_t *options,
       TCORE_zunmlq( side, trans, m, n, k, ib,
                   tileA, tileT, tileC, work, nb );
     }
+
+    (void)options;
+    (void)nb;
 }

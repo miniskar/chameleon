@@ -29,5 +29,6 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( M, alpha, incA, incB, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_zaxpy( M, alpha, tileA, incA, tileB, incB );
-}
 
+    (void)options;
+}

@@ -21,7 +21,7 @@
 #include "coreblas/coreblas_ztile.h"
 
 void INSERT_TASK_zlansy( const RUNTIME_option_t *options,
-                         cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
+                         cham_normtype_t norm, cham_uplo_t uplo, int n, int nb,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
@@ -29,9 +29,12 @@ void INSERT_TASK_zlansy( const RUNTIME_option_t *options,
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
     int ws_size = options->ws_wsize;
 
-#pragma omp task firstprivate( ws_size, norm, uplo, N, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
+#pragma omp task firstprivate( ws_size, norm, uplo, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     {
         double work[ws_size];
-        TCORE_zlansy( norm, uplo, N, tileA, work, tileB->mat );
+        TCORE_zlansy( norm, uplo, n, tileA, work, tileB->mat );
     }
+
+    (void)options;
+    (void)nb;
 }

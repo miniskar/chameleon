@@ -21,23 +21,26 @@
 #include "coreblas/coreblas_ztile.h"
 
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
-                         cham_normtype_t norm, int M, int N, int NB,
+                         cham_normtype_t norm, int m, int n, int nb,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
     int ws_size = options->ws_wsize;
-#pragma omp task firstprivate( ws_size, M, N, tileA, tileB, options ) depend( in:tileA[0] ) depend( inout:tileB[0] )
+#pragma omp task firstprivate( ws_size, m, n, tileA, tileB, options ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     {
         double work[ws_size];
-        TCORE_zlange( norm, M, N, tileA, work, tileB->mat );
+        TCORE_zlange( norm, m, n, tileA, work, tileB->mat );
     }
+
+    (void)options;
+    (void)nb;
 }
 
 void INSERT_TASK_zlange_max( const RUNTIME_option_t *options,
-                           const CHAM_desc_t *A, int Am, int An,
-                           const CHAM_desc_t *B, int Bm, int Bn )
+                             const CHAM_desc_t *A, int Am, int An,
+                             const CHAM_desc_t *B, int Bm, int Bn )
 {
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
@@ -53,4 +56,6 @@ void INSERT_TASK_zlange_max( const RUNTIME_option_t *options,
             B[0] = A[0];
         }
     }
+
+    (void)options;
 }

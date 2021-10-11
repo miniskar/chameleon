@@ -36,4 +36,7 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
         alpha, tileA,
         tileB,
         beta, tileC );
+
+    (void)options;
+    (void)nb;
 }

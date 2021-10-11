@@ -37,4 +37,9 @@ void INSERT_TASK_ztstrf( const RUNTIME_option_t *options,
       CHAMELEON_Complex64_t work[ws_size];
       TCORE_ztstrf( m, n, ib, nb, tileU, tileA, tileL, IPIV, work, nb, &iinfo );
     }
+
+    (void)options;
+    (void)nb;
+    (void)check_info;
+    (void)iinfo;
 }

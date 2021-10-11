@@ -29,4 +29,8 @@ void INSERT_TASK_zgetrf_nopiv( const RUNTIME_option_t *options,
     int info = 0;
 #pragma omp task firstprivate( m, n, ib, tileA, info ) depend( inout:tileA[0] )
     TCORE_zgetrf_nopiv( m, n, ib, tileA, &info );
+
+    (void)options;
+    (void)nb;
+    (void)iinfo;
 }

@@ -28,4 +28,5 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         op_fct( A, uplo, Am, An, tileA, op_args );
     }
 
+    (void)options;
 }
