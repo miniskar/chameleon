@@ -19,7 +19,6 @@
  * @date 2020-12-01
  *
  */
-#include <stdlib.h>
 #include "chameleon_starpu.h"
 
 /**

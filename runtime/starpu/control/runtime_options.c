@@ -19,8 +19,6 @@
  * @date 2020-01-07
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "chameleon_starpu.h"
 
 void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *chamctxt,

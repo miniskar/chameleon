@@ -23,8 +23,6 @@
  * @brief Group routines exposed to users about specific workspaces management
  *
  */
-
-#include <stdlib.h>
 #include "control/common.h"
 #include "control/auxiliary.h"
 #include "control/workspace.h"

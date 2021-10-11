@@ -24,7 +24,6 @@
  * @precisions normal z -> c d s
  *
  */
-#include <stdlib.h>
 #include "control/common.h"
 #include "control/chameleon_f77.h"
 

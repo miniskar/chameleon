@@ -70,6 +70,9 @@ static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
     assert( i == 0 );
     assert( j == 0 );
     assert( mb * nb == bsiz );
+    (void)bsiz;
+    (void)i;
+    (void)j;
     return chameleon_desc_init_internal( desc, NULL, mat, dtyp, mb, nb, lm, ln, m, n, p, q,
                                          get_blkaddr, get_blkldd, get_rankof );
 }
@@ -138,6 +141,7 @@ inline static void *chameleon_getaddr_cm(const CHAM_desc_t *A, int m, int n)
 inline static void *chameleon_getaddr_diag( const CHAM_desc_t *A, int m, int n )
 {
     assert( m == n );
+    (void)n;
     return chameleon_getaddr_ccrb( A, m, 0 );
 }
 

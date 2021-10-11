@@ -105,7 +105,7 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc )
             tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
             tile->ld  = desc->get_blkldd( desc, ii );
 #if defined(CHAMELEON_KERNELS_TRACE)
-            asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj);
+            chameleon_asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj );
 #endif
         }
     }
@@ -128,6 +128,7 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
 {
     int mm = m + A->i / A->mb;
     assert( m == n );
+    (void)n;
     return (mm % A->p) * A->q + (mm % A->q);
 }
 

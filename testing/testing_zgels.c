@@ -17,11 +17,11 @@
  * @precisions normal z -> c d s
  *
  */
+#include "../control/common.h"
 #include <chameleon.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
-#include "../control/common.h"
 
 static cham_fixdbl_t
 flops_zgels( cham_trans_t trans, int M, int N, int NRHS )

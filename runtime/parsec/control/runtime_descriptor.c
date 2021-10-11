@@ -229,11 +229,9 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
     data_collection->vpid_of_key = chameleon_parsec_vpid_of_key;
 #if defined(PARSEC_PROF_TRACE)
     {
-        int rc;
         data_collection->key_to_string = chameleon_parsec_key_to_string;
         data_collection->key           = NULL;
-        rc = asprintf(&(data_collection->key_dim), "(%d, %d)", mdesc->lmt, mdesc->lnt);
-        (void)rc;
+        chameleon_asprintf(&(data_collection->key_dim), "(%d, %d)", mdesc->lmt, mdesc->lnt);
     }
 #endif
     data_collection->memory_registration_status = MEMORY_STATUS_UNREGISTERED;

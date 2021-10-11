@@ -136,6 +136,9 @@ int CORE_zcesca( int center, int scale,
     CHAMELEON_Complex64_t gi, gj, g, rc, sqrc;
     double di, dj;
 
+    gj = 0.;
+    dj = 0.;
+
     /* Check input arguments */
     if ( (center != 0) && (center != 1) ) {
         coreblas_error(1, "Illegal value of center");

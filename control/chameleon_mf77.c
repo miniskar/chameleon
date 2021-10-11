@@ -19,7 +19,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdlib.h>
 #include "control/common.h"
 
 #define CHAMELEON_ZCGESV           CHAMELEON_FNAME(zcgesv,   ZCGESV)
