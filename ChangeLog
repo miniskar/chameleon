@@ -40,7 +40,7 @@ chameleon-1.0.0
 - StarPU: Fix conflict between environment variable and chameleon_init.
 - StarPU/simGrid: Update performance models
 - Traces: Upgrade of the EZtrace module for the new interface
-- Traces: Removal of the CAHMALEON_ENABLE_TRACING option
+- Traces: Removal of the CHAMELEON_ENABLE_TRACING option
 - Upgrade cmake_module
   - Integrate new precision generation scripts (Support for python 3)
   - Integrate CMAKE_BUILD_TYPE list with sanitizers detection
