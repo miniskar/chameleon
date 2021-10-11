@@ -188,26 +188,33 @@ int  CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flt
  *
  */
 #if defined(CHAMELEON_SCHED_OPENMP)
-#define CHAMELEON_Init(nworkers, ncudas)\
-    __chameleon_init(nworkers, ncudas);\
+#define CHAMELEON_Init( _nworkers_, _ncudas_ )           \
+    __chameleon_init( (_nworkers_), (_ncudas_) );       \
+    _Pragma("omp parallel")                                    \
+    _Pragma("omp master")                                      \
+    {
+
+#define CHAMELEON_InitPar( _nworkers_, _ncudas_, _nthreads_per_worker_ ) \
+    __chameleon_initpar( (_nworkers_), (_ncudas_), (_nthreads_per_worker_) ); \
     _Pragma("omp parallel")\
     _Pragma("omp master")\
     {
-#define CHAMELEON_InitPar(nworkers, ncudas, nthreads_per_worker)\
-    __chameleon_initpar(nworkers, ncudas, nthreads_per_worker);\
-    _Pragma("omp parallel")\
-    _Pragma("omp master")\
-    {
-#define CHAMELEON_Finalize()\
-    }\
+
+#define CHAMELEON_Finalize()                    \
+    }                                           \
     __chameleon_finalize();
+
 #else
-#define CHAMELEON_Init(nworkers, ncudas)\
-  __chameleon_init(nworkers, ncudas);
-#define CHAMELEON_InitPar(nworkers, ncudas, nthreads_per_worker)\
-  __chameleon_initpar(nworkers, ncudas, nthreads_per_worker);
-#define CHAMELEON_Finalize()\
-  __chameleon_finalize();
+
+#define CHAMELEON_Init( _nworkers_, _ncudas_ )            \
+    __chameleon_init( (_nworkers_), (_ncudas_) );
+
+#define CHAMELEON_InitPar( _nworkers_, _ncudas_, _nthreads_per_worker_ ) \
+    __chameleon_initpar( (_nworkers_), (_ncudas_), (_nthreads_per_worker_) );
+
+#define CHAMELEON_Finalize()                    \
+    __chameleon_finalize();
+
 #endif
 
 END_C_DECLS

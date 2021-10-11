@@ -629,7 +629,7 @@ int main (int argc, char **argv) {
 
     if ( rc != CHAMELEON_SUCCESS ) {
         fprintf( stderr, "CHAMELEON_Init failed and returned %d.\n", rc );
-        return EXIT_FAILURE;
+        goto end;
     }
 
     /* Set ncores to the right value */
@@ -656,7 +656,7 @@ int main (int argc, char **argv) {
             fprintf( stderr,
                      "--forcegpu can't be enable without GPU (-g 0).\n"
                      "  Please specify a larger number of GPU or disable this option\n" );
-            return EXIT_FAILURE;
+            goto end;
         }
         RUNTIME_zlocality_allrestrict( RUNTIME_CUDA );
     }
@@ -712,6 +712,8 @@ int main (int argc, char **argv) {
     }
     free( runlist );
 
+  end:
+    ;/* OpenMP end */
     CHAMELEON_Finalize();
     parameters_destroy();
 

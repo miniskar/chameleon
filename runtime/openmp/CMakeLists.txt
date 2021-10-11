@@ -129,7 +129,7 @@ target_include_directories(chameleon_openmp PRIVATE
   $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>
   $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/coreblas/include>)
 
-target_link_libraries(chameleon_openmp PRIVATE OpenMP::OpenMP_C)
+target_link_libraries(chameleon_openmp PUBLIC OpenMP::OpenMP_C)
 target_link_libraries(chameleon_openmp PRIVATE coreblas)
 target_link_libraries(chameleon_openmp PRIVATE MORSE::M)
 
