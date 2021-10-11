@@ -87,6 +87,7 @@ testing_zgram( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
 
+    (void)check;
     return hres;
 }
 

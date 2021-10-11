@@ -51,7 +51,7 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
     /* Create the current layer descriptor */
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     rc = chameleon_desc_init_internal( desc, name, mat, dtyp, mb[0], nb[0],
-                                       lm, ln, m, n, 1, 1,
+                                       lm, ln, m, n, p, q,
                                        get_blkaddr, get_blkldd, get_rankof );
     *descptr = desc;
 

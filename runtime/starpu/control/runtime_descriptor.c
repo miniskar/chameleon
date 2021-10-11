@@ -210,7 +210,7 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
             chameleon_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
             return;
         }
-        assert( (lmt*lnt) <= (1UL<<tag_sep) );
+        assert( ((uintptr_t)(lnt*lmt)) <= ((uintptr_t)(1UL<<tag_sep)) );
 
         if ( ((uintptr_t)desc->id) >= (uintptr_t)(1UL<<(tag_width-tag_sep)) ) {
             chameleon_fatal_error("RUNTIME_desc_create", "Number of descriptor available in MPI mode out of stock");

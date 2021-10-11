@@ -186,7 +186,7 @@ cti_free_data_on_node( void *data_interface, unsigned node )
     else
 #endif
     {
-        assert( (intptr_t)(cham_tile_interface->tile.mat) == cham_tile_interface->dev_handle );
+        assert( (uintptr_t)(cham_tile_interface->tile.mat) == cham_tile_interface->dev_handle );
     }
 
     starpu_free_on_node( node, cham_tile_interface->dev_handle, cham_tile_interface->allocsize );
@@ -334,6 +334,8 @@ cti_pack_data_hmat( starpu_cham_tile_interface_t *cham_tile_interface,
 {
 #if !defined(CHAMELEON_USE_HMAT)
     assert( 0 );
+    (void)cham_tile_interface;
+    (void)ptr;
 #else
     hmat_matrix_t *mat = cham_tile_interface->tile.mat;
     STARPU_ASSERT_MSG( mat != NULL, "cti_pack_data_hmat: Try to pack a NULL pointer\n" );
@@ -433,6 +435,8 @@ cti_unpack_data_hmat( starpu_cham_tile_interface_t *cham_tile_interface,
     assert( cham_tile_interface->tile.format & CHAMELEON_TILE_HMAT );
 #if !defined(CHAMELEON_USE_HMAT)
     assert( 0 );
+    (void)cham_tile_interface;
+    (void)ptr;
 #else
     hmat_matrix_t *mat = NULL;
     switch( cham_tile_interface->flttype ) {

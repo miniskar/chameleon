@@ -304,6 +304,7 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
             break;
         }
         /* Otherwise we switch back to the full allocation */
+        chameleon_attr_fallthrough;
 
     case (intptr_t)CHAMELEON_MAT_ALLOC_GLOBAL:
         rc = chameleon_desc_mat_alloc( desc );

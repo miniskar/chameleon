@@ -128,6 +128,7 @@ testing_zprint( run_arg_list_t *args, int check )
     run_arg_add_fixdbl( args, "time", 1. );
     run_arg_add_fixdbl( args, "gflops", 1. );
 
+    (void)check;
     return hres;
 }
 
