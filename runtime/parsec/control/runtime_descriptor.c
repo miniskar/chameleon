@@ -19,7 +19,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdlib.h>
 #include "chameleon_parsec.h"
 #include <parsec/data.h>
 #include <parsec/datatype.h>
@@ -280,7 +279,8 @@ void RUNTIME_desc_create( CHAM_desc_t *mdesc )
             case ChamRealDouble:    datatype = parsec_datatype_double_t; break;
             case ChamComplexFloat:  datatype = parsec_datatype_complex_t; break;
             case ChamComplexDouble: datatype = parsec_datatype_double_complex_t; break;
-            default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type"); break;
+            default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type");
+                return;
             }
 
             /* Register the new arena */

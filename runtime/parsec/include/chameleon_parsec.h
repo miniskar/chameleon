@@ -22,14 +22,11 @@
 #ifndef _chameleon_parsec_h_
 #define _chameleon_parsec_h_
 
+#include "control/common.h"
+
 #include <parsec.h>
 #include <parsec/interfaces/superscalar/insert_function.h>
 #include <parsec/data_dist/matrix/matrix.h>
-
-/* Undefined PaRSEC definition of BLKLDD */
-#undef BLKLDD
-
-#include "control/common.h"
 
 struct chameleon_parsec_desc_s {
     parsec_data_collection_t super;

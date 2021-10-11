@@ -56,7 +56,7 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlascal_parsec, options->priority, "lascal",
-        sizeof(int),        &uplo,  VALUE,
+        sizeof(cham_uplo_t),        &uplo,  VALUE,
         sizeof(int),               &m,     VALUE,
         sizeof(int),               &n,     VALUE,
         sizeof(CHAMELEON_Complex64_t), &alpha, VALUE,

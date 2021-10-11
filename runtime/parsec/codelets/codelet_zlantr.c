@@ -26,7 +26,9 @@ static inline int
 CORE_zlantr_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
-    cham_normtype_t norm, uplo, diag;
+    cham_normtype_t norm;
+    cham_uplo_t uplo;
+    cham_diag_t diag;
     int M;
     int N;
     CHAMELEON_Complex64_t *A;
@@ -55,9 +57,9 @@ void INSERT_TASK_zlantr(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlantr_parsec, options->priority, "lantr",
-        sizeof(int), &norm,       VALUE,
-        sizeof(int), &uplo,       VALUE,
-        sizeof(int), &diag,       VALUE,
+        sizeof(cham_normtype_t), &norm,       VALUE,
+        sizeof(cham_uplo_t), &uplo,       VALUE,
+        sizeof(cham_diag_t), &diag,       VALUE,
         sizeof(int), &M,          VALUE,
         sizeof(int), &N,          VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,

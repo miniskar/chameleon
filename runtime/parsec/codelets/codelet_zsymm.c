@@ -65,8 +65,8 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zsymm_parsec, options->priority, "symm",
-        sizeof(int),     &side,              VALUE,
-        sizeof(int),     &uplo,              VALUE,
+        sizeof(cham_side_t),     &side,              VALUE,
+        sizeof(cham_uplo_t),     &uplo,              VALUE,
         sizeof(int),            &m,                 VALUE,
         sizeof(int),            &n,                 VALUE,
         sizeof(CHAMELEON_Complex64_t),  &alpha,         VALUE,

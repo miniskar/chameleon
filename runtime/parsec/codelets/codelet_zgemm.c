@@ -72,8 +72,8 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zgemm_parsec, options->priority, "Gemm",
-        sizeof(int),    &transA,                           VALUE,
-        sizeof(int),    &transB,                           VALUE,
+        sizeof(cham_trans_t),    &transA,                           VALUE,
+        sizeof(cham_trans_t),    &transB,                           VALUE,
         sizeof(int),           &m,                                VALUE,
         sizeof(int),           &n,                                VALUE,
         sizeof(int),           &k,                                VALUE,

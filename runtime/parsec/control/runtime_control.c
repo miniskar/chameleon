@@ -18,8 +18,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "chameleon_parsec.h"
 
 #if defined(CHAMELEON_USE_MPI)

@@ -17,8 +17,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "chameleon_parsec.h"
 
 void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,

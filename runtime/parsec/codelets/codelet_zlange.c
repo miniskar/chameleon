@@ -55,7 +55,7 @@ void INSERT_TASK_zlange(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlange_parsec, options->priority, "lange",
-        sizeof(int),            &norm,          VALUE,
+        sizeof(cham_normtype_t),            &norm,          VALUE,
         sizeof(int),                   &M,             VALUE,
         sizeof(int),                   &N,             VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,

@@ -81,8 +81,6 @@ CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, 
 void         chameleon_desc_destroy  ( CHAM_desc_t *desc );
 int          chameleon_desc_check    ( const CHAM_desc_t *desc );
 
-#define BLKLDD(A, k) A->get_blkldd( A, k )
-
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
  */

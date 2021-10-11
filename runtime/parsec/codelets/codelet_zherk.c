@@ -60,8 +60,8 @@ void INSERT_TASK_zherk(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zherk_parsec, options->priority, "herk",
-        sizeof(int),    &uplo,                             VALUE,
-        sizeof(int),    &trans,                            VALUE,
+        sizeof(cham_uplo_t),    &uplo,                             VALUE,
+        sizeof(cham_trans_t),    &trans,                            VALUE,
         sizeof(int),           &n,                                VALUE,
         sizeof(int),           &k,                                VALUE,
         sizeof(double),        &alpha,                            VALUE,

@@ -26,7 +26,10 @@ static inline int
 CORE_ztrsm_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
-    cham_side_t side, uplo, trans, diag;
+    cham_side_t side;
+    cham_uplo_t uplo;
+    cham_trans_t trans;
+    cham_diag_t diag;
     int tempmm, nb, ldak, ldam;
     CHAMELEON_Complex64_t alpha;
     CHAMELEON_Complex64_t *T;
@@ -55,12 +58,12 @@ void INSERT_TASK_ztrsm(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztrsm_parsec, options->priority, "Trsm",
-        sizeof(int),    &side,                     VALUE,
-        sizeof(int),    &uplo,                     VALUE,
-        sizeof(int),    &transA,                   VALUE,
-        sizeof(int),    &diag,                     VALUE,
-        sizeof(int),           &m,                        VALUE,
-        sizeof(int),           &n,                        VALUE,
+        sizeof(cham_side_t),  &side,                     VALUE,
+        sizeof(cham_uplo_t),  &uplo,                     VALUE,
+        sizeof(cham_trans_t), &transA,                   VALUE,
+        sizeof(cham_diag_t),  &diag,                     VALUE,
+        sizeof(int),          &m,                        VALUE,
+        sizeof(int),          &n,                        VALUE,
         sizeof(CHAMELEON_Complex64_t),           &alpha,      VALUE,
         PASSED_BY_REF,     RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int), &(tileA->ld), VALUE,

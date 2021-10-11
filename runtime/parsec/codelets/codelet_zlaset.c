@@ -53,7 +53,7 @@ void INSERT_TASK_zlaset(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlaset_parsec, options->priority, "laset",
-        sizeof(int),              &uplo,        VALUE,
+        sizeof(cham_uplo_t),              &uplo,        VALUE,
         sizeof(int),                     &M,           VALUE,
         sizeof(int),                     &N,           VALUE,
         sizeof(CHAMELEON_Complex64_t),       &alpha,       VALUE,

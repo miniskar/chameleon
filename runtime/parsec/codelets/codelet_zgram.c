@@ -97,7 +97,7 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
     if (ptrDi == ptrDj) {
         parsec_dtd_taskpool_insert_task(
             PARSEC_dtd_taskpool, CORE_zsygram_parsec, options->priority, "sygram",
-            sizeof(int),   &uplo, VALUE,
+            sizeof(cham_uplo_t),   &uplo, VALUE,
             sizeof(int),   &m,    VALUE,
             sizeof(int),   &n,    VALUE,
             sizeof(int),   &mt,   VALUE,
@@ -111,7 +111,7 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
     } else {
         parsec_dtd_taskpool_insert_task(
             PARSEC_dtd_taskpool, CORE_zgegram_parsec, options->priority, "gegram",
-            sizeof(int),   &uplo, VALUE,
+            sizeof(cham_uplo_t),   &uplo, VALUE,
             sizeof(int),   &m,    VALUE,
             sizeof(int),   &n,    VALUE,
             sizeof(int),   &mt,   VALUE,
