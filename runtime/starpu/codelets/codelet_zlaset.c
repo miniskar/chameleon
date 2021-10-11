@@ -39,13 +39,12 @@ struct cl_zlaset_args_s {
 static void
 cl_zlaset_cpu_func( void *descr[], void *cl_arg )
 {
-    struct cl_zlaset_args_s clargs;
+    struct cl_zlaset_args_s *clargs = (struct cl_zlaset_args_s *)cl_arg;
     CHAM_tile_t *tileA;
 
     tileA = cti_interface_get(descr[0]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_zlaset( clargs.uplo, clargs.m, clargs.n, clargs.alpha, clargs.beta, tileA );
+    TCORE_zlaset( clargs->uplo, clargs->m, clargs->n, clargs->alpha, clargs->beta, tileA );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -59,24 +58,29 @@ void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
                          const CHAM_desc_t *A, int Am, int An )
 {
-    struct cl_zlaset_args_s clargs = {
-        .uplo  = uplo,
-        .m     = m,
-        .n     = n,
-        .alpha = alpha,
-        .beta  = beta,
-        .tileA = A->get_blktile( A, Am, An ),
-    };
+    struct cl_zlaset_args_s *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid;
+    int                      exec = 0;
     char                    *cl_name = "zlaset";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_W(A, Am, An);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zlaset_args_s ) );
+        clargs->uplo  = uplo;
+        clargs->m     = m;
+        clargs->n     = n;
+        clargs->alpha = alpha;
+        clargs->beta  = beta;
+        clargs->tileA = A->get_blktile( A, Am, An );
+    }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_zlaset_callback : NULL;
@@ -88,7 +92,7 @@ void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_zlaset,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_zlaset_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zlaset_args_s),
         STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
 
         /* Common task arguments */

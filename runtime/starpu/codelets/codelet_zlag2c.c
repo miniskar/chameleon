@@ -38,7 +38,6 @@ static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-
     starpu_codelet_unpack_args(cl_arg, &m, &n);
     TCORE_zlag2c( m, n, tileA, tileB);
 }
@@ -95,7 +94,6 @@ static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
-
 
     starpu_codelet_unpack_args(cl_arg, &m, &n);
     TCORE_clag2z( m, n, tileA, tileB);

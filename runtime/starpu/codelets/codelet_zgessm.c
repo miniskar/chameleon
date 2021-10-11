@@ -43,7 +43,6 @@ static void cl_zgessm_cpu_func(void *descr[], void *cl_arg)
     tileD = cti_interface_get(descr[1]);
     tileA = cti_interface_get(descr[2]);
 
-
     starpu_codelet_unpack_args(cl_arg, &m, &n, &k, &ib, &IPIV);
     TCORE_zgessm(m, n, k, ib, IPIV, tileD, tileA);
 }

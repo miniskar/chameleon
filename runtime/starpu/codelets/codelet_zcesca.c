@@ -31,7 +31,7 @@ struct cl_zcesca_args_s {
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zcesca_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_zcesca_args_s clargs;
+    struct cl_zcesca_args_s *clargs = (struct cl_zcesca_args_s *)cl_arg;
     CHAM_tile_t *Gi;
     CHAM_tile_t *Gj;
     CHAM_tile_t *G;
@@ -46,9 +46,8 @@ static void cl_zcesca_cpu_func(void *descr[], void *cl_arg)
     Dj = cti_interface_get(descr[4]);
     A  = cti_interface_get(descr[5]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_zcesca( clargs.center, clargs.scale, clargs.axis,
-                  clargs.m, clargs.n, clargs.mt, clargs.nt,
+    TCORE_zcesca( clargs->center, clargs->scale, clargs->axis,
+                  clargs->m, clargs->n, clargs->mt, clargs->nt,
                   Gi, Gj, G, Di, Dj, A );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -68,19 +67,12 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
                          const CHAM_desc_t *Dj, int Djm, int Djn,
                          CHAM_desc_t *A, int Am, int An )
 {
-    struct cl_zcesca_args_s clargs = {
-        .center = center,
-        .scale  = scale,
-        .axis   = axis,
-        .m      = m,
-        .n      = n,
-        .mt     = mt,
-        .nt     = nt
-    };
+    struct cl_zcesca_args_s *clargs = NULL;
     struct starpu_codelet *codelet = &cl_zcesca;
     void (*callback)(void*) = options->profiling ? cl_zcesca_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int exec = 0;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(Gi, Gim, Gin);
@@ -89,11 +81,23 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_R(Di, Dim, Din);
     CHAMELEON_ACCESS_R(Dj, Djm, Djn);
     CHAMELEON_ACCESS_RW(A, Am, An);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zcesca_args_s ) );
+        clargs->center = center;
+        clargs->scale  = scale;
+        clargs->axis   = axis;
+        clargs->m      = m;
+        clargs->n      = n;
+        clargs->mt     = mt;
+        clargs->nt     = nt;
+    }
 
     rt_starpu_insert_task(
         codelet,
-        STARPU_VALUE, &clargs, sizeof(struct cl_zcesca_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zcesca_args_s),
         STARPU_R,        RTBLKADDR(Gi, CHAMELEON_Complex64_t, Gim, Gin),
         STARPU_R,        RTBLKADDR(Gj, CHAMELEON_Complex64_t, Gjm, Gjn),
         STARPU_R,        RTBLKADDR(G, CHAMELEON_Complex64_t, Gm, Gn),

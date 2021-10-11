@@ -19,6 +19,7 @@
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
+ * @author Gwenole Lucas
  * @date 2021-03-16
  * @precisions normal z -> c d s
  *
@@ -43,7 +44,7 @@ struct cl_zgemm_args_s {
 static void
 cl_zgemm_cpu_func( void *descr[], void *cl_arg )
 {
-    struct cl_zgemm_args_s clargs;
+    struct cl_zgemm_args_s *clargs = (struct cl_zgemm_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     CHAM_tile_t *tileC;
@@ -52,18 +53,17 @@ cl_zgemm_cpu_func( void *descr[], void *cl_arg )
     tileB = cti_interface_get(descr[1]);
     tileC = cti_interface_get(descr[2]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_zgemm( clargs.transA, clargs.transB,
-                 clargs.m, clargs.n, clargs.k,
-                 clargs.alpha, tileA, tileB,
-                 clargs.beta,  tileC );
+    TCORE_zgemm( clargs->transA, clargs->transB,
+                 clargs->m, clargs->n, clargs->k,
+                 clargs->alpha, tileA, tileB,
+                 clargs->beta,  tileC );
 }
 
 #ifdef CHAMELEON_USE_CUDA
 static void
-cl_zgemm_cuda_func( void *descr[], void *_cl_arg )
+cl_zgemm_cuda_func( void *descr[], void *cl_arg )
 {
-    struct cl_zgemm_args_s clargs;
+    struct cl_zgemm_args_s *clargs = (struct cl_zgemm_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     CHAM_tile_t *tileC;
@@ -72,17 +72,19 @@ cl_zgemm_cuda_func( void *descr[], void *_cl_arg )
     tileB = cti_interface_get(descr[1]);
     tileC = cti_interface_get(descr[2]);
 
-    starpu_codelet_unpack_args( _cl_arg, &clargs );
-
     RUNTIME_getStream( stream );
 
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileC->format & CHAMELEON_TILE_FULLRANK );
+
     CUDA_zgemm(
-        clargs.transA, clargs.transB,
-        clargs.m, clargs.n, clargs.k,
-        (cuDoubleComplex*)&(clargs.alpha),
+        clargs->transA, clargs->transB,
+        clargs->m, clargs->n, clargs->k,
+        (cuDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
         tileB->mat, tileB->ld,
-        (cuDoubleComplex*)&(clargs.beta),
+        (cuDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
         stream );
 
@@ -112,22 +114,12 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
                                     beta, C, Cm, Cn );
     }
 
-    struct cl_zgemm_args_s clargs = {
-        .transA = transA,
-        .transB = transB,
-        .m      = m,
-        .n      = n,
-        .k      = k,
-        .alpha  = alpha,
-        .tileA  = A->get_blktile( A, Am, An ),
-        .tileB  = B->get_blktile( B, Bm, Bn ),
-        .beta   = beta,
-        .tileC  = C->get_blktile( C, Cm, Cn )
-    };
+    struct cl_zgemm_args_s  *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid, accessC;
+    int                      exec = 0;
     char                    *cl_name = "zgemm";
 
     /* Handle cache */
@@ -135,7 +127,22 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_R(B, Bm, Bn);
     CHAMELEON_ACCESS_RW(C, Cm, Cn);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zgemm_args_s ) );
+        clargs->transA = transA;
+        clargs->transB = transB;
+        clargs->m      = m;
+        clargs->n      = n;
+        clargs->k      = k;
+        clargs->alpha  = alpha;
+        clargs->tileA  = A->get_blktile( A, Am, An );
+        clargs->tileB  = B->get_blktile( B, Bm, Bn );
+        clargs->beta   = beta;
+        clargs->tileC  = C->get_blktile( C, Cm, Cn );
+    }
 
     /* Callback for profiling information */
     callback = options->profiling ? cl_zgemm_callback : NULL;
@@ -150,10 +157,12 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_zgemm,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_zgemm_args_s),
-        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,      RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        accessC,       RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zgemm_args_s),
+
+        /* Task handles */
+        STARPU_R, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R, RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        accessC,  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

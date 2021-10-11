@@ -27,15 +27,14 @@ struct cl_zgesum_args_s {
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgesum_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_zgesum_args_s clargs;
+    struct cl_zgesum_args_s *clargs = (struct cl_zgesum_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileW;
 
     tileA = cti_interface_get(descr[0]);
     tileW = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_zgesum( clargs.storev, clargs.m, clargs.n, tileA, tileW );
+    TCORE_zgesum( clargs->storev, clargs->m, clargs->n, tileA, tileW );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -49,24 +48,29 @@ void INSERT_TASK_zgesum( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SUMS, int SUMSm, int SUMSn )
 {
-    struct cl_zgesum_args_s clargs = {
-        .storev = storev,
-        .m      = m,
-        .n      = n
-    };
+    struct cl_zgesum_args_s *clargs = NULL;
     struct starpu_codelet *codelet = &cl_zgesum;
     void (*callback)(void*) = options->profiling ? cl_zgesum_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
     int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int exec = 0;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(SUMS, SUMSm, SUMSn);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zgesum_args_s ) );
+        clargs->storev = storev;
+        clargs->m      = m;
+        clargs->n      = n;
+    }
 
     rt_starpu_insert_task(
         codelet,
-        STARPU_VALUE, &clargs, sizeof(struct cl_zgesum_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zgesum_args_s),
         STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_RW,       RTBLKADDR(SUMS, CHAMELEON_Complex64_t, SUMSm, SUMSn),
         STARPU_PRIORITY, options->priority,

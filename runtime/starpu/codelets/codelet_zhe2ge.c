@@ -35,7 +35,6 @@ static void cl_zhe2ge_cpu_func(void *descr[], void *cl_arg)
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-
     starpu_codelet_unpack_args(cl_arg, &uplo, &M, &N);
     TCORE_zhe2ge(uplo, M, N, tileA, tileB);
 }

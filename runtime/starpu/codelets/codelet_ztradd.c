@@ -38,16 +38,15 @@ struct cl_ztradd_args_s {
 static void
 cl_ztradd_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_ztradd_args_s clargs;
+    struct cl_ztradd_args_s *clargs = (struct cl_ztradd_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_ztradd( clargs.uplo, clargs.trans, clargs.m, clargs.n,
-                  clargs.alpha, tileA, clargs.beta, tileB );
+    TCORE_ztradd( clargs->uplo, clargs->trans, clargs->m, clargs->n,
+                  clargs->alpha, tileA, clargs->beta, tileB );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -66,27 +65,32 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
                                     beta, B, Bm, Bn );
     }
 
-    struct cl_ztradd_args_s clargs = {
-        .uplo  = uplo,
-        .trans = trans,
-        .m     = m,
-        .n     = n,
-        .alpha = alpha,
-        .tileA = A->get_blktile( A, Am, An ),
-        .beta  = beta,
-        .tileB = B->get_blktile( B, Bm, Bn ),
-    };
+    struct cl_ztradd_args_s *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid, accessB;
+    int                      exec = 0;
     char                    *cl_name = "ztradd";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_ztradd_args_s ) );
+        clargs->uplo  = uplo;
+        clargs->trans = trans;
+        clargs->m     = m;
+        clargs->n     = n;
+        clargs->alpha = alpha;
+        clargs->tileA = A->get_blktile( A, Am, An );
+        clargs->beta  = beta;
+        clargs->tileB = B->get_blktile( B, Bm, Bn );
+    }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztradd_callback : NULL;
@@ -101,7 +105,7 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_ztradd,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_ztradd_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_ztradd_args_s),
         STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         accessB,       RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
 

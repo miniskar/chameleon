@@ -41,17 +41,16 @@ struct cl_ztrtri_args_s {
 static void
 cl_ztrtri_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_ztrtri_args_s clargs;
+    struct cl_ztrtri_args_s *clargs = (struct cl_ztrtri_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     int info = 0;
 
     tileA = cti_interface_get(descr[0]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_ztrtri( clargs.uplo, clargs.diag, clargs.n, tileA, &info );
+    TCORE_ztrtri( clargs->uplo, clargs->diag, clargs->n, tileA, &info );
 
-    if ( (clargs.sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
-        RUNTIME_sequence_flush( NULL, clargs.sequence, clargs.request, clargs.iinfo+info );
+    if ( (clargs->sequence->status == CHAMELEON_SUCCESS) && (info != 0) ) {
+        RUNTIME_sequence_flush( NULL, clargs->sequence, clargs->request, clargs->iinfo+info );
     }
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -66,25 +65,30 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An,
                          int iinfo )
 {
-    struct cl_ztrtri_args_s clargs = {
-        .uplo     = uplo,
-        .diag     = diag,
-        .n        = n,
-        .tileA    = A->get_blktile( A, Am, An ),
-        .iinfo    = iinfo,
-        .sequence = options->sequence,
-        .request  = options->request,
-    };
+    struct cl_ztrtri_args_s *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid;
+    int                      exec = 0;
     char                    *cl_name = "ztrtri";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_ztrtri_args_s ) );
+        clargs->uplo     = uplo;
+        clargs->diag     = diag;
+        clargs->n        = n;
+        clargs->tileA    = A->get_blktile( A, Am, An );
+        clargs->iinfo    = iinfo;
+        clargs->sequence = options->sequence;
+        clargs->request  = options->request;
+    }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrtri_callback : NULL;
@@ -96,7 +100,7 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_ztrtri,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_ztrtri_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_ztrtri_args_s),
         STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
 
         /* Common task arguments */
