@@ -20,6 +20,9 @@
 #include "control/common.h"
 #include "chameleon/runtime.h"
 
+static int level = 0;
+static int mglobal = -1, nglobal = -2;
+
 static int
 chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
                           int *mb, int *nb,
@@ -27,7 +30,7 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
                           blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
 
 #define chameleon_recdesc_create_partial chameleon_recdesc_create
-//#define chameleon_recdesc_create_full chameleon_recdesc_create
+/* #define chameleon_recdesc_create_full chameleon_recdesc_create */
 
 static int
 chameleon_recdesc_create_partial( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
@@ -68,28 +71,31 @@ chameleon_recdesc_create_partial( const char *name, CHAM_desc_t **descptr, void 
 
             /* WARNING: This is for test purpose */
             /* Let's recurse only on one third of tiles */
-            if ( random() % 3 ) {
-                continue;
-            }
+            /* if ( random() % 3 ) { */
+            /*     continue; */
+            /* } */
 
             /* WARNING: This is for test purpose */
-            /* Partitionning only the very first tile */
-            /* if ( !(m == n) ) continue; */
-            /* if (!((m == 0) && (n == 0))) continue; */
-            /* if (!((m == 2) && (n == 0)) && !((m == 2) && (n == 1)) && !((m == 3) && (n == 1))) continue; */
-            /* if (!((m == 2) && (n == 0)) && !((m == 2) && (n == 1)) && !((m == 2) && (n == 2))) continue; */
+            if ( level >= 1 && mglobal != nglobal ) continue;
+            if ( !(m == n) && !(m == n+1) ) continue;
 
             tile = desc->get_blktile( desc, m, n );
             tempmm = m == desc->mt-1 ? desc->m - m * desc->mb : desc->mb;
             tempnn = n == desc->nt-1 ? desc->n - n * desc->nb : desc->nb;
             asprintf( &subname, "%s[%d,%d]", name, m, n );
 
+            if (level == 0) {
+                mglobal = m;
+                nglobal = n;
+            }
+            level++;
             rc = chameleon_recdesc_create( subname, &tiledesc, tile->mat,
                                            desc->dtyp, mb, nb,
                                            tile->ld, tempnn, /* Abuse as ln is not used */
                                            tempmm, tempnn,
                                            1, 1,             /* can recurse only on local data */
                                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
+            level--;
 
             tile->format = CHAMELEON_TILE_DESC;
             tile->mat = tiledesc;
