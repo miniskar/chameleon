@@ -22,10 +22,10 @@
 
 int CUDA_zhemm(cham_side_t side, cham_uplo_t uplo,
                int m, int n,
-               cuDoubleComplex *alpha,
+               const cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
                const cuDoubleComplex *B, int ldb,
-               cuDoubleComplex *beta,
+               const cuDoubleComplex *beta,
                cuDoubleComplex *C, int ldc,
                CUBLAS_STREAM_PARAM)
 {

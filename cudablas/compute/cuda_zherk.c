@@ -22,9 +22,9 @@
 
 int CUDA_zherk( cham_uplo_t uplo, cham_trans_t trans,
                 int n, int k,
-                double *alpha,
+                const double *alpha,
                 const cuDoubleComplex *A, int lda,
-                double *beta,
+                const double *beta,
                 cuDoubleComplex *B, int ldb,
                 CUBLAS_STREAM_PARAM)
 {

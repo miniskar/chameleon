@@ -22,10 +22,10 @@
 
 int CUDA_zgemm(cham_trans_t transa, cham_trans_t transb,
                int m, int n, int k,
-               cuDoubleComplex *alpha,
+               const cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
                const cuDoubleComplex *B, int ldb,
-               cuDoubleComplex *beta,
+               const cuDoubleComplex *beta,
                cuDoubleComplex *C, int ldc,
                CUBLAS_STREAM_PARAM)
 {

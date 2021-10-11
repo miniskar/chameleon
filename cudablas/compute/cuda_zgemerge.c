@@ -23,12 +23,13 @@
 int
 CUDA_zgemerge( cham_side_t side, cham_diag_t diag,
                int M, int N,
-               cuDoubleComplex *A, int LDA,
+               const cuDoubleComplex *A, int LDA,
                cuDoubleComplex *B, int LDB,
                CUBLAS_STREAM_PARAM)
 {
     int i;
-    cuDoubleComplex *cola, *colb;
+    const cuDoubleComplex *cola;
+    cuDoubleComplex       *colb;
 
     if (M < 0) {
         return -1;
