@@ -102,6 +102,7 @@ int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
     unsigned long long int ran;
     int i;
     double alpha, temp;
+    CHAMELEON_Complex64_t ctemp;
 
     /*
      * Quick return if possible
@@ -234,8 +235,8 @@ int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
 #if defined(PRECISION_z) || defined(PRECISION_c)
             double t1 = CORE_dlaran( &ran );
             double t2 = CORE_dlaran( &ran );
-            temp = sqrt( -2 * log( t1 ) ) * exp( I * 2. * M_PI * t2 );
-            D[i] = D[i] * ( temp / cabs(temp) );
+            ctemp = sqrt( -2 * log( t1 ) ) * exp( I * 2. * M_PI * t2 );
+            D[i] = D[i] * ( ctemp / cabs(ctemp) );
 #else
             if ( CORE_dlaran( &ran ) > .5 ) {
                 D[i] = -D[i];
@@ -249,9 +250,9 @@ int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
      */
     if ( MODE < 0 ) {
         for( i=0; i<N/2; i++ ) {
-            temp = D[i];
-            D[i] = D[N-1-i];
-            D[N-1-i] = temp;
+            ctemp    = D[i];
+            D[i]     = D[N-1-i];
+            D[N-1-i] = ctemp;
         }
     }
 
