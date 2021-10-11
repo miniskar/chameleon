@@ -117,20 +117,29 @@ CHAMELEON_Tile_to_Lapack( CHAM_desc_t *A, void *Af77, int LDA )
 int CHAMELEON_Lap2Desc( cham_uplo_t uplo, void *Af77, int LDA, CHAM_desc_t *A )
 {
     switch( A->dtyp ) {
+#if defined(PRECISION_z)
     case ChamComplexDouble:
         return CHAMELEON_zLap2Desc( uplo, (CHAMELEON_Complex64_t *)Af77, LDA, A );
         break;
+#endif
+#if defined(PRECISION_c)
     case ChamComplexFloat:
         return CHAMELEON_cLap2Desc( uplo, (CHAMELEON_Complex32_t *)Af77, LDA, A );
         break;
+#endif
+#if defined(PRECISION_s)
     case ChamRealFloat:
         return CHAMELEON_sLap2Desc( uplo, (float *)Af77, LDA, A );
         break;
+#endif
+#if defined(PRECISION_d)
     case ChamRealDouble:
-    default:
         return CHAMELEON_dLap2Desc( uplo, (double *)Af77, LDA, A );
+        break;
+#endif
+    default:
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
-    return CHAMELEON_ERR_ILLEGAL_VALUE;
 }
 
 /**
@@ -164,18 +173,27 @@ int CHAMELEON_Lap2Desc( cham_uplo_t uplo, void *Af77, int LDA, CHAM_desc_t *A )
 int CHAMELEON_Desc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, void *Af77, int LDA )
 {
     switch( A->dtyp ) {
+#if defined(PRECISION_z)
     case ChamComplexDouble:
         return CHAMELEON_zDesc2Lap( uplo, A, (CHAMELEON_Complex64_t *)Af77, LDA );
         break;
+#endif
+#if defined(PRECISION_c)
     case ChamComplexFloat:
         return CHAMELEON_cDesc2Lap( uplo, A, (CHAMELEON_Complex32_t *)Af77, LDA );
         break;
+#endif
+#if defined(PRECISION_s)
     case ChamRealFloat:
         return CHAMELEON_sDesc2Lap( uplo, A, (float *)Af77, LDA );
         break;
+#endif
+#if defined(PRECISION_d)
     case ChamRealDouble:
-    default:
         return CHAMELEON_dDesc2Lap( uplo, A, (double *)Af77, LDA );
+        break;
+#endif
+    default:
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
-    return CHAMELEON_ERR_ILLEGAL_VALUE;
 }

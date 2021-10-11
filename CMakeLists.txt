@@ -108,6 +108,24 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 set( RP_CHAMELEON_DICTIONNARY ${CMAKE_SOURCE_DIR}/cmake_modules/local_subs.py )
 set( RP_CHAMELEON_PRECISIONS  "s;d;c;z" )
 include(RulesPrecisions)
+# Check that at least one option CHAMELEON_PREC_ is set to ON
+# count number of CHAMELEON_PREC_ sets to ON
+math(EXPR number_of_active_prec 0)
+set(CHAMELEON_PRECISIONS "")
+foreach (prec ${RP_CHAMELEON_PRECISIONS})
+    string(TOUPPER ${prec} PREC)
+    if (CHAMELEON_PREC_${PREC})
+        math(EXPR number_of_active_prec "${number_of_active_prec}+1")
+        list(APPEND CHAMELEON_PRECISIONS ${PREC})
+    endif()
+endforeach()
+message("-- ${BoldGreen}Floating point precisions enabled (${number_of_active_prec}): ${CHAMELEON_PRECISIONS}.")
+if (number_of_active_prec STREQUAL 0)
+    message(FATAL_ERROR
+            "Number of active precision is ${number_of_active_prec}, "
+            "the user should activate at least one precision in the list: "
+            "CHAMELEON_PREC_S;CHAMELEON_PREC_D;CHAMELEON_PREC_C;CHAMELEON_PREC_Z.")
+endif()
 
 # Options to select the runtime
 # -----------------------------
