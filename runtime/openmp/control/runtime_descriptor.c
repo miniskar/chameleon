@@ -19,7 +19,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdlib.h>
 #include "chameleon_openmp.h"
 
 void RUNTIME_comm_set_tag_sizes( int user_tag_width,

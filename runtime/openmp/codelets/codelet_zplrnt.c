@@ -27,4 +27,6 @@ void INSERT_TASK_zplrnt( const RUNTIME_option_t *options,
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 #pragma omp task firstprivate( m, n, tileA, bigM, m0, n0, seed ) depend( inout:tileA[0] )
     TCORE_zplrnt( m, n, tileA, bigM, m0, n0, seed );
+
+    (void)options;
 }

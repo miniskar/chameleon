@@ -28,4 +28,6 @@ void INSERT_TASK_zgesum( const RUNTIME_option_t *options,
     CHAM_tile_t *tileScaleSum = SUMS->get_blktile( SUMS, SUMSm, SUMSn );
 #pragma omp task firstprivate( storev, m, n, tileA, tileScaleSum ) depend( in:tileA[0] ) depend( inout:tileScaleSum[0] )
     TCORE_zgesum( storev, m, n, tileA, tileScaleSum );
+
+    (void)options;
 }

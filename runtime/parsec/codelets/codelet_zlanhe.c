@@ -54,8 +54,8 @@ void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlanhe_parsec, options->priority, "LANHE",
-        sizeof(int),            &norm,          VALUE,
-        sizeof(int),            &uplo,          VALUE,
+        sizeof(cham_normtype_t),            &norm,          VALUE,
+        sizeof(cham_uplo_t),            &uplo,          VALUE,
         sizeof(int),                   &N,             VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INPUT,
         sizeof(int), &(tileA->ld),           VALUE,

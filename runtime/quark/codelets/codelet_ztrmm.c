@@ -70,4 +70,6 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),                 INPUT,
         sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),                 INOUT,
         0);
+
+    (void)nb;
 }

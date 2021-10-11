@@ -61,8 +61,8 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztrtri_parsec, options->priority, "trtri",
-        sizeof(int),                 &uplo,                  VALUE,
-        sizeof(int),                 &diag,                  VALUE,
+        sizeof(cham_uplo_t),                 &uplo,                  VALUE,
+        sizeof(cham_diag_t),                 &diag,                  VALUE,
         sizeof(int),                 &n,                     VALUE,
         PASSED_BY_REF,               RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int), &(tileA->ld), VALUE,

@@ -21,11 +21,13 @@
 #include "coreblas/coreblas_ztile.h"
 
 void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int M, int N,
+                         cham_uplo_t uplo, int m, int n,
                          CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t beta,
                          const CHAM_desc_t *A, int Am, int An )
 {
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
-#pragma omp task firstprivate( uplo, M, N, alpha, beta, tileA ) depend( inout:tileA[0] )
-    TCORE_zlaset( uplo, M, N, alpha, beta, tileA );
+#pragma omp task firstprivate( uplo, m, n, alpha, beta, tileA ) depend( inout:tileA[0] )
+    TCORE_zlaset( uplo, m, n, alpha, beta, tileA );
+
+    (void)options;
 }

@@ -19,7 +19,6 @@
  * @date 2020-04-22
  *
  */
-#include <stdlib.h>
 #include "chameleon_starpu.h"
 
 /**
@@ -36,7 +35,7 @@ int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
 /**
  *  Destroy a sequence
  */
-int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
+int RUNTIME_sequence_destroy( CHAM_context_t     *chamctxt,
                               RUNTIME_sequence_t *sequence )
 {
     (void)chamctxt;
@@ -47,7 +46,7 @@ int RUNTIME_sequence_destroy( CHAM_context_t  *chamctxt,
 /**
  *  Wait for the completion of a sequence
  */
-int RUNTIME_sequence_wait( CHAM_context_t  *chamctxt,
+int RUNTIME_sequence_wait( CHAM_context_t     *chamctxt,
                            RUNTIME_sequence_t *sequence )
 {
     (void)chamctxt;
@@ -73,7 +72,7 @@ int RUNTIME_sequence_wait( CHAM_context_t  *chamctxt,
 /**
  *  Terminate a sequence
  */
-void RUNTIME_sequence_flush( CHAM_context_t  *chamctxt,
+void RUNTIME_sequence_flush( CHAM_context_t     *chamctxt,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request,
                              int status )
@@ -88,7 +87,7 @@ void RUNTIME_sequence_flush( CHAM_context_t  *chamctxt,
 /**
  *  Create a request
  */
-int RUNTIME_request_create( CHAM_context_t  *chamctxt,
+int RUNTIME_request_create( CHAM_context_t    *chamctxt,
                             RUNTIME_request_t *request )
 {
     (void)chamctxt;

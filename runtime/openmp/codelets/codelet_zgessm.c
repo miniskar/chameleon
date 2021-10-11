@@ -29,6 +29,13 @@ void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
 {
     CHAM_tile_t *tileD = D->get_blktile( D, Dm, Dn );
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
+
 #pragma omp task firstprivate( m, n, k, ib, IPIV, tileD, tileA ) depend( in:tileD[0] ) depend( inout:tileA[0] )
     TCORE_zgessm( m, n, k, ib, IPIV, tileD, tileA );
+
+    (void)options;
+    (void)nb;
+    (void)L;
+    (void)Lm;
+    (void)Ln;
 }

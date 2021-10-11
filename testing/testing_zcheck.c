@@ -18,6 +18,7 @@
  * @precisions normal z -> c d s
  *
  */
+#include "../control/common.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +34,6 @@
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #endif
-#include "../control/common.h"
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>

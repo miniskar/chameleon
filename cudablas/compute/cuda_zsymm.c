@@ -20,14 +20,14 @@
  */
 #include "cudablas.h"
 
-int CUDA_zsymm(cham_side_t side, cham_uplo_t uplo,
-               int m, int n,
-               cuDoubleComplex *alpha,
-        const cuDoubleComplex *A, int lda,
-               const cuDoubleComplex *B, int ldb,
-               cuDoubleComplex *beta,
-               cuDoubleComplex *C, int ldc,
-               CUBLAS_STREAM_PARAM)
+int CUDA_zsymm( cham_side_t side, cham_uplo_t uplo,
+                int m, int n,
+                const cuDoubleComplex *alpha,
+                const cuDoubleComplex *A, int lda,
+                const cuDoubleComplex *B, int ldb,
+                const cuDoubleComplex *beta,
+                cuDoubleComplex *C, int ldc,
+                CUBLAS_STREAM_PARAM )
 {
     cublasZsymm(CUBLAS_HANDLE
                 chameleon_cublas_const(side), chameleon_cublas_const(uplo),

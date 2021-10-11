@@ -29,7 +29,9 @@
 static void cl_zlantr_cpu_func(void *descr[], void *cl_arg)
 {
     CHAM_tile_t *tilenormA;
-    cham_normtype_t norm, uplo, diag;
+    cham_normtype_t norm;
+    cham_uplo_t     uplo;
+    cham_diag_t     diag;
     int M, N;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tilework;

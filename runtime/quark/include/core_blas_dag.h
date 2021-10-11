@@ -22,9 +22,9 @@
 #define _core_blas_dag_h_
 
 #if defined(QUARK_DOT_DAG_ENABLE) /* || 1 */
-#define DAG_SET_PROPERTIES( _name, _color )                            \
-  QUARK_Task_Flag_Set(task_flags, TASK_LABEL, (intptr_t)(_name));      \
-  QUARK_Task_Flag_Set(task_flags, TASK_COLOR, (intptr_t)(_color));
+#define DAG_SET_PROPERTIES( _name, _color )                             \
+    QUARK_Task_Flag_Set( (Quark_Task_Flags*)opt, TASK_LABEL, (intptr_t)(_name)  ); \
+    QUARK_Task_Flag_Set( (Quark_Task_Flags*)opt, TASK_COLOR, (intptr_t)(_color) );
 #else
 #define DAG_SET_PROPERTIES( _name, _color )
 #endif

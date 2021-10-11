@@ -42,4 +42,7 @@ void INSERT_TASK_ztsmlq_hetra1( const RUNTIME_option_t *options,
       TCORE_ztsmlq_hetra1( side, trans, m1, n1, m2, n2, k,
                          ib, tileA1, tileA2, tileV, tileT, work, ldwork );
     }
+
+    (void)options;
+    (void)nb;
 }

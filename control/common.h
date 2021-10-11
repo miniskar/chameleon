@@ -25,6 +25,15 @@
 #ifndef _chameleon_common_h_
 #define _chameleon_common_h_
 
+#define _GNU_SOURCE 1
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+
+/**
+ *  Chameleon header files
+ */
+#include "chameleon.h"
 
 #if defined( _WIN32 ) || defined( _WIN64 )
 #include <io.h>
@@ -62,11 +71,6 @@
 #ifndef LAPACK_NAME
 #define LAPACK_NAME(a, b) lapackef77_##a
 #endif
-
-/**
- *  Chameleon header files
- */
-#include "chameleon.h"
 
 #include "control/global.h"
 #include "control/auxiliary.h"
@@ -117,6 +121,22 @@ void chameleon_pzlag2c(CHAM_context_t *chamctxt);
 void chameleon_pslag2d(CHAM_context_t *chamctxt);
 void chameleon_pclag2z(CHAM_context_t *chamctxt);
 */
+
+#if defined(__GNUC__)
+static inline void chameleon_asprintf( char **strp, const char *fmt, ... ) __attribute__((format(printf,2,3)));
+#endif
+static inline void chameleon_asprintf( char **strp, const char *fmt, ... )
+{
+    va_list ap;
+    int rc;
+
+    va_start( ap, fmt );
+    rc = asprintf( strp, fmt, ap );
+    va_end(ap);
+
+    assert( rc != -1 );
+    (void)rc;
+}
 
 #ifdef __cplusplus
 }

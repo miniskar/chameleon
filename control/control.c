@@ -26,10 +26,6 @@
  * @brief Group routines exposed to users to control CHAMELEON state
  *
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "control/auxiliary.h"
 #include "control/common.h"
 #include "chameleon/runtime.h"
 

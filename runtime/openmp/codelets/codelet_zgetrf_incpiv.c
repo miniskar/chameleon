@@ -31,4 +31,12 @@ void INSERT_TASK_zgetrf_incpiv( const RUNTIME_option_t *options,
     int info = 0;
 #pragma omp task firstprivate( m, n, ib, tileA, IPIV, info ) depend( out:IPIV[0] ) depend( inout:tileA[0] )
     TCORE_zgetrf_incpiv( m, n, ib, tileA, IPIV, &info );
+
+    (void)options;
+    (void)nb;
+    (void)L;
+    (void)Lm;
+    (void)Ln;
+    (void)check_info;
+    (void)iinfo;
 }

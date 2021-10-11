@@ -33,4 +33,7 @@ void INSERT_TASK_zher2k( const RUNTIME_option_t *options,
 #pragma omp task firstprivate( uplo, trans, n, k, alpha, tileA, tileB, beta, tileC ) depend( in:tileA[0], tileB[0] ) depend( inout:tileC[0] )
     TCORE_zher2k( uplo, trans,
                 n, k, alpha, tileA, tileB, beta, tileC );
+
+    (void)options;
+    (void)nb;
 }

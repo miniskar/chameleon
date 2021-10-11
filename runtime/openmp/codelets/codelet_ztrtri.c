@@ -29,4 +29,7 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 #pragma omp task firstprivate( uplo, diag, n, tileA, iinfo ) depend( inout:tileA[0] )
     TCORE_ztrtri( uplo, diag, n, tileA, &iinfo );
+
+    (void)options;
+    (void)nb;
 }

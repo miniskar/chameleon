@@ -33,7 +33,7 @@ testing_zhemm( run_arg_list_t *args, int check )
     intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int                   nb     = run_arg_get_int( args, "nb", 320 );
     int                   P      = parameters_getvalue_int( "P" );
-    cham_side_t           side   = run_arg_get_uplo( args, "side", ChamLeft );
+    cham_side_t           side   = run_arg_get_side( args, "side", ChamLeft );
     cham_uplo_t           uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
     int                   N      = run_arg_get_int( args, "N", 1000 );
     int                   M      = run_arg_get_int( args, "M", N );

@@ -17,7 +17,6 @@
  * @date 2020-03-03
  *
  */
-#include <stdlib.h>
 #include "chameleon_parsec.h"
 
 /**
@@ -59,6 +58,8 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
     default:
         return;
     }
+
+    (void)runtime_ctxt;
     return;
 }
 
@@ -82,5 +83,7 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
     default:
         return;
     }
+
+    (void)runtime_ctxt;
     return;
 }

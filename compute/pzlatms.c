@@ -63,6 +63,7 @@ zlaset_diag( const CHAM_desc_t *descA,
         A += lda + 1;
     }
 
+    (void)uplo;
     return 0;
 }
 

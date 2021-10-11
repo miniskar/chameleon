@@ -30,4 +30,6 @@ void INSERT_TASK_ztrssq( const RUNTIME_option_t *options,
     CHAM_tile_t *tileW = W->get_blktile( W, Wm, Wn );
 #pragma omp task firstprivate( uplo, diag, m, n, tileA, tileW ) depend( in:tileA[0] ) depend( inout:tileW[0] )
     TCORE_ztrssq( uplo, diag, m, n, tileA, tileW );
+
+    (void)options;
 }

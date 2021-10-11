@@ -23,9 +23,6 @@
  */
 //ALLOC_WS :  A->mb
 //WS_ADD :  A->mb
-
-#include <stdlib.h>
-#include <math.h>
 #include "control/common.h"
 
 #define A( m, n )        A,     (m), (n)

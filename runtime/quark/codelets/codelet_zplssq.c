@@ -18,7 +18,6 @@
  * @precisions normal z -> c d s
  *
  */
-#include <math.h>
 #include "chameleon_quark.h"
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_ztile.h"

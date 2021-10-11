@@ -19,7 +19,6 @@
  * @precisions normal z -> c d s
  *
  */
-#include <math.h>
 #include "chameleon_parsec.h"
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"

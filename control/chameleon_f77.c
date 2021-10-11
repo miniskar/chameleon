@@ -20,7 +20,6 @@
  * @date 2020-03-12
  *
  */
-#include <stdlib.h>
 #include "control/common.h"
 #include "chameleon.h"
 #include "chameleon_f77.h"

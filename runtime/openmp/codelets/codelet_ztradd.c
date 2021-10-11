@@ -30,4 +30,7 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
 
 #pragma omp task firstprivate( uplo, trans, m, n, alpha, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_ztradd( uplo, trans, m, n, alpha, tileA, beta, tileB );
+
+    (void)options;
+    (void)nb;
 }

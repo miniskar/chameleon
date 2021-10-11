@@ -17,7 +17,6 @@
  * @precisions normal z -> c d s
  *
  */
-#include <math.h>
 #include "chameleon_openmp.h"
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_ztile.h"
@@ -35,6 +34,8 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 
 #pragma omp task firstprivate( storev, M, N ) depend( in: tileIN[0] ) depend( inout: tileOUT[0] )
     CORE_zplssq( storev, M, N, tileIN->mat, tileOUT->mat );
+
+    (void)options;
 }
 
 void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
@@ -46,4 +47,6 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
 
 #pragma omp task firstprivate( N ) depend( inout: tileRESULT[0] )
     CORE_zplssq2( N, tileRESULT->mat );
+
+    (void)options;
 }

@@ -36,4 +36,7 @@ void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
 #pragma omp task firstprivate( m1, n1, m2, n2, k, ib, tileA1, tileA2, tileL1, tileL2, IPIV ) \
     depend( inout:tileA1[0], tileA2[0] ) depend( in:tileL1[0], tileL2[0] )
     TCORE_zssssm( m1, n1, m2, n2, k, ib, tileA1, tileA2, tileL1, tileL2, IPIV );
+
+    (void)options;
+    (void)nb;
 }

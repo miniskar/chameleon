@@ -29,6 +29,9 @@ void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
     CHAMELEON_Complex32_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_zlag2c( m, n, tileA, tileB );
+
+    (void)options;
+    (void)nb;
 }
 
 void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
@@ -40,4 +43,7 @@ void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_clag2z( m, n, tileA, tileB );
+
+    (void)options;
+    (void)nb;
 }

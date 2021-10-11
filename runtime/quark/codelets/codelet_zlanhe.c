@@ -37,21 +37,23 @@ void CORE_zlanhe_quark(Quark *quark)
     TCORE_zlanhe( norm, uplo, N, tileA, work, tileNorm->mat );
 }
 
-void INSERT_TASK_zlanhe(const RUNTIME_option_t *options,
-                       cham_normtype_t norm, cham_uplo_t uplo, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlanhe( const RUNTIME_option_t *options,
+                         cham_normtype_t norm, cham_uplo_t uplo, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LANHE;
-    int szeW = chameleon_max( 1, N );
+    int szeW = chameleon_max( 1, n );
     QUARK_Insert_Task(
         opt->quark, CORE_zlanhe_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &norm,  VALUE,
         sizeof(int),              &uplo,  VALUE,
-        sizeof(int),                     &N,     VALUE,
+        sizeof(int),                     &n,     VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(double)*szeW,             NULL,   SCRATCH,
         sizeof(void*), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
         0);
+
+    (void)nb;
 }

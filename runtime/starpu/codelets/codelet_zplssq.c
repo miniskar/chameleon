@@ -21,7 +21,6 @@
  * @precisions normal z -> c d s
  *
  */
-#include <math.h>
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 

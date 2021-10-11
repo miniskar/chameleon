@@ -30,4 +30,6 @@ void INSERT_TASK_zgessq( const RUNTIME_option_t *options,
     CHAM_tile_t *tileScaleSum = SCALESUMSQ->get_blktile( SCALESUMSQ, SCALESUMSQm, SCALESUMSQn );
 #pragma omp task firstprivate( storev, m, n, tileA, tileScaleSum ) depend( in:tileA[0] ) depend( inout:tileScaleSum[0] )
     TCORE_zgessq( storev, m, n, tileA, tileScaleSum );
+
+    (void)options;
 }

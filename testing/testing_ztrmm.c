@@ -34,7 +34,7 @@ testing_ztrmm( run_arg_list_t *args, int check )
     int                   nb     = run_arg_get_int( args, "nb", 320 );
     int                   P      = parameters_getvalue_int( "P" );
     cham_trans_t          trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
-    cham_side_t           side   = run_arg_get_uplo( args, "side", ChamLeft );
+    cham_side_t           side   = run_arg_get_side( args, "side", ChamLeft );
     cham_uplo_t           uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
     cham_diag_t           diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
     int                   N      = run_arg_get_int( args, "N", 1000 );

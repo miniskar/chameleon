@@ -22,9 +22,9 @@
 
 int CUDA_zsyrk(cham_uplo_t uplo, cham_trans_t trans,
                int n, int k,
-               cuDoubleComplex *alpha,
+               const cuDoubleComplex *alpha,
                const cuDoubleComplex *A, int lda,
-               cuDoubleComplex *beta,
+               const cuDoubleComplex *beta,
                cuDoubleComplex *C, int ldc,
                CUBLAS_STREAM_PARAM)
 {

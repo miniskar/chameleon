@@ -26,9 +26,12 @@ void INSERT_TASK_zpotrf( const RUNTIME_option_t *options,
                        const CHAM_desc_t *A, int Am, int An,
                        int iinfo )
 {
-    ( void )nb;
     int info = 0;
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 #pragma omp task firstprivate( uplo, n, info, tileA ) depend( inout:tileA[0] )
     TCORE_zpotrf( uplo, n, tileA, &info );
+
+    (void)options;
+    (void)nb;
+    (void)iinfo;
 }

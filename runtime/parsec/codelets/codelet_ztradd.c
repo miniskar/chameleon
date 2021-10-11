@@ -116,8 +116,8 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztradd_parsec, options->priority, "tradd",
-        sizeof(int),        &uplo,  VALUE,
-        sizeof(int),        &trans, VALUE,
+        sizeof(cham_uplo_t),        &uplo,  VALUE,
+        sizeof(cham_trans_t),        &trans, VALUE,
         sizeof(int),               &m,     VALUE,
         sizeof(int),               &n,     VALUE,
         sizeof(CHAMELEON_Complex64_t), &alpha, VALUE,

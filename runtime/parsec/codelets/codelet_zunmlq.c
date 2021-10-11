@@ -65,8 +65,8 @@ void INSERT_TASK_zunmlq(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zunmlq_parsec, options->priority, "unmlq",
-        sizeof(int),                 &side,              VALUE,
-        sizeof(int),                 &trans,             VALUE,
+        sizeof(cham_side_t),                 &side,              VALUE,
+        sizeof(cham_trans_t),                 &trans,             VALUE,
         sizeof(int),                        &m,                 VALUE,
         sizeof(int),                        &n,                 VALUE,
         sizeof(int),                        &k,                 VALUE,

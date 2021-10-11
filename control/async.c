@@ -24,7 +24,6 @@
  * @brief Group routines exposed to users to handle asynchronous tasks execution
  *
  */
-#include <stdlib.h>
 #include "control/common.h"
 #include "chameleon/runtime.h"
 

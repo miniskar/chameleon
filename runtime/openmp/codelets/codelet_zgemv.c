@@ -34,4 +34,6 @@ INSERT_TASK_zgemv( const RUNTIME_option_t *options,
     TCORE_zgemv( trans,  m, n,
                  alpha, tileA, tileX, incX,
                  beta,  tileY, incY );
+
+    (void)options;
 }

@@ -24,7 +24,7 @@ int CUDA_ztrmm(
     cham_side_t side, cham_uplo_t uplo,
     cham_trans_t transa, cham_diag_t diag,
     int m, int n,
-    cuDoubleComplex *alpha,
+    const cuDoubleComplex *alpha,
     const cuDoubleComplex *A, int lda,
     cuDoubleComplex *B, int ldb,
     CUBLAS_STREAM_PARAM)

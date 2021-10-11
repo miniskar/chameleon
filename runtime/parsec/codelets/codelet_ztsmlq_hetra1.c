@@ -76,8 +76,8 @@ void INSERT_TASK_ztsmlq_hetra1(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_ztsmlq_hetra1_parsec, options->priority, "tsmlq_hetra1",
-        sizeof(int), &side,   VALUE,
-        sizeof(int), &trans,  VALUE,
+        sizeof(cham_side_t), &side,   VALUE,
+        sizeof(cham_trans_t), &trans,  VALUE,
         sizeof(int),        &m1,     VALUE,
         sizeof(int),        &n1,     VALUE,
         sizeof(int),        &m2,     VALUE,

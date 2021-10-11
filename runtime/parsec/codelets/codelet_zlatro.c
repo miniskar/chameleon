@@ -57,8 +57,8 @@ void INSERT_TASK_zlatro(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zlatro_parsec, options->priority, "latro",
-        sizeof(int), &uplo,  VALUE,
-        sizeof(int), &trans, VALUE,
+        sizeof(cham_uplo_t), &uplo,  VALUE,
+        sizeof(cham_trans_t), &trans, VALUE,
         sizeof(int),        &m,     VALUE,
         sizeof(int),        &n,     VALUE,
         PASSED_BY_REF,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,

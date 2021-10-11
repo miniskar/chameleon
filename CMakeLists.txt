@@ -503,12 +503,31 @@ else (NOT CHAMELEON_SIMULATION)
 
 endif(NOT CHAMELEON_SIMULATION)
 
-# getopt
+# Check for getopt
+# ----------------
 unset(CMAKE_REQUIRED_LIBRARIES)
 check_include_files(getopt.h CHAMELEON_HAVE_GETOPT_H)
 if (CHAMELEON_HAVE_GETOPT_H)
   check_function_exists(getopt_long CHAMELEON_HAVE_GETOPT_LONG)
 endif()
+
+# Check for attribute fallthrough
+# -------------------------------
+check_c_source_compiles("
+#include <stdarg.h>
+int main(void) {
+  int a = 2;
+  switch( a ){
+  case 0:
+     __attribute__((fallthrough));
+  default:
+      ;
+  }
+  return 0;
+}
+"
+  HAVE_FALLTHROUGH
+  )
 
 # Add option to exploit cublas API v2
 # -----------------------------------

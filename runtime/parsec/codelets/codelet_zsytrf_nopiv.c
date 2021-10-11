@@ -51,7 +51,7 @@ void INSERT_TASK_zsytrf_nopiv(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zsytrf_nopiv_parsec, options->priority, "sytrf_nopiv",
-        sizeof(int),              &uplo,                VALUE,
+        sizeof(cham_uplo_t),              &uplo,                VALUE,
         sizeof(int),                     &n,                   VALUE,
         PASSED_BY_REF,         RTBLKADDR( A, CHAMELEON_Complex64_t, Am, An ), chameleon_parsec_get_arena_index( A ) | INOUT | AFFINITY,
         sizeof(int), &(tileA->ld), VALUE,

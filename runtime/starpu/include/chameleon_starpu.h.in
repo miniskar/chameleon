@@ -23,7 +23,7 @@
 #ifndef _chameleon_starpu_h_
 #define _chameleon_starpu_h_
 
-#include "chameleon/config.h"
+#include "control/common.h"
 
 /* StarPU options */
 #cmakedefine HAVE_STARPU_IDLE_PREFETCH

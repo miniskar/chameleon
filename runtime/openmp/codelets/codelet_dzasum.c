@@ -30,6 +30,6 @@ void INSERT_TASK_dzasum( const RUNTIME_option_t *options,
 
 #pragma omp task firstprivate( storev, uplo, M, N, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_dzasum( storev, uplo, M, N, tileA, tileB->mat );
+
+    (void)options;
 }
-
-

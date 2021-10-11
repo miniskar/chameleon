@@ -37,4 +37,7 @@ void INSERT_TASK_zherfb( const RUNTIME_option_t *options,
       CHAMELEON_Complex64_t work[ws_size];
       TCORE_zherfb( uplo, n, k, ib, nb, tileA, tileT, tileC, work, nb );
     }
+
+    (void)options;
+    (void)nb;
 }

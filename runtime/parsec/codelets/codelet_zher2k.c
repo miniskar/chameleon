@@ -65,8 +65,8 @@ void INSERT_TASK_zher2k(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zher2k_parsec, options->priority, "her2k",
-        sizeof(int),                 &uplo,     VALUE,
-        sizeof(int),                 &trans,    VALUE,
+        sizeof(cham_uplo_t),                 &uplo,     VALUE,
+        sizeof(cham_trans_t),                 &trans,    VALUE,
         sizeof(int),                        &n,        VALUE,
         sizeof(int),                        &k,        VALUE,
         sizeof(CHAMELEON_Complex64_t),          &alpha,    VALUE,

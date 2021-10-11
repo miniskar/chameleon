@@ -60,8 +60,8 @@ void INSERT_TASK_zsyrk(const RUNTIME_option_t *options,
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_zsyrk_parsec, options->priority, "syrk",
-        sizeof(int),    &uplo,                              VALUE,
-        sizeof(int),    &trans,                             VALUE,
+        sizeof(cham_uplo_t),    &uplo,                              VALUE,
+        sizeof(cham_trans_t),    &trans,                             VALUE,
         sizeof(int),           &n,                                 VALUE,
         sizeof(int),           &k,                                 VALUE,
         sizeof(CHAMELEON_Complex64_t),           &alpha,               VALUE,

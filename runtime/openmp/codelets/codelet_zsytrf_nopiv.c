@@ -28,4 +28,8 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
 #pragma omp task firstprivate( uplo, n, tileA ) depend( inout:tileA[0] )
     TCORE_zsytf2_nopiv( uplo, n, tileA );
+
+    (void)options;
+    (void)nb;
+    (void)iinfo;
 }

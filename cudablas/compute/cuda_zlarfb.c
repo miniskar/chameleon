@@ -42,7 +42,8 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
     double mzone = -1.0;
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
-    cham_trans_t transT, uplo, notransV, transV;
+    cham_trans_t transT, notransV, transV;
+    cham_uplo_t  uplo;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {

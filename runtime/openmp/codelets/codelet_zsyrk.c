@@ -26,7 +26,6 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                       CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn )
 {
-    ( void )nb;
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     CHAM_tile_t *tileC = C->get_blktile( C, Cm, Cn );
 #pragma omp task firstprivate( uplo, trans, n, k, alpha, tileA, beta, tileC ) depend( in:tileA[0] ) depend( inout:tileC[0] )
@@ -34,4 +33,7 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
         n, k,
         alpha, tileA,
         beta, tileC );
+
+    (void)options;
+    (void)nb;
 }

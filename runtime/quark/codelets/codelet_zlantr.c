@@ -25,7 +25,9 @@
 void CORE_zlantr_quark(Quark *quark)
 {
     CHAM_tile_t *tileNorm;
-    cham_normtype_t norm, uplo, diag;
+    cham_normtype_t norm;
+    cham_uplo_t     uplo;
+    cham_diag_t     diag;
     int M;
     int N;
     CHAM_tile_t *tileA;
@@ -35,24 +37,26 @@ void CORE_zlantr_quark(Quark *quark)
     TCORE_zlantr( norm, uplo, diag, M, N, tileA, work, tileNorm->mat );
 }
 
-void INSERT_TASK_zlantr(const RUNTIME_option_t *options,
-                       cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
-                       int M, int N, int NB,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
+                         cham_normtype_t norm, cham_uplo_t uplo, cham_diag_t diag,
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LANTR;
-    int szeW = chameleon_max( 1, N );
+    int szeW = chameleon_max( 1, n );
     QUARK_Insert_Task(
         opt->quark, CORE_zlantr_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &norm,  VALUE,
         sizeof(int),              &uplo,  VALUE,
         sizeof(int),              &diag,  VALUE,
-        sizeof(int),                     &M,     VALUE,
-        sizeof(int),                     &N,     VALUE,
+        sizeof(int),                     &m,     VALUE,
+        sizeof(int),                     &n,     VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(double)*szeW,             NULL,   SCRATCH,
         sizeof(void*), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
         0);
+
+    (void)nb;
 }
