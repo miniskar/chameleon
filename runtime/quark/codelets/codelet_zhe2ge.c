@@ -36,7 +36,7 @@ static inline void CORE_zhe2ge_quark(Quark *quark)
 
 void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
                          cham_uplo_t uplo,
-                         int m, int n, int mb,
+                         int m, int n, int nb,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
@@ -49,4 +49,6 @@ void INSERT_TASK_zhe2ge( const RUNTIME_option_t *options,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn), OUTPUT,
         0);
+
+    (void)nb;
 }

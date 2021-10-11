@@ -38,22 +38,24 @@ void CORE_zlange_quark(Quark *quark)
 }
 
 void INSERT_TASK_zlange(const RUNTIME_option_t *options,
-                       cham_normtype_t norm, int M, int N, int NB,
+                       cham_normtype_t norm, int m, int n, int nb,
                        const CHAM_desc_t *A, int Am, int An,
                        const CHAM_desc_t *B, int Bm, int Bn)
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LANGE;
-    int szeW = chameleon_max( M, N );
+    int szeW = chameleon_max( m, n );
     QUARK_Insert_Task(
         opt->quark, CORE_zlange_quark, (Quark_Task_Flags*)opt,
         sizeof(int),              &norm,  VALUE,
-        sizeof(int),                     &M,     VALUE,
-        sizeof(int),                     &N,     VALUE,
+        sizeof(int),                     &m,     VALUE,
+        sizeof(int),                     &n,     VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INPUT,
         sizeof(double)*szeW,             NULL,   SCRATCH,
         sizeof(void*), RTBLKADDR(B, double, Bm, Bn), OUTPUT,
         0);
+
+    (void)nb;
 }
 
 void CORE_zlange_max_quark(Quark *quark)

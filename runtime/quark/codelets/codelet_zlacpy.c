@@ -64,6 +64,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         sizeof(int),                     &displB, VALUE,
         sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             OUTPUT,
         0);
+    (void)nb;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,

@@ -36,15 +36,17 @@ void CORE_zlauum_quark(Quark *quark)
     TCORE_zlauum(uplo, N, tileA);
 }
 
-void INSERT_TASK_zlauum(const RUNTIME_option_t *options,
-                       cham_uplo_t uplo, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An)
+void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LAUUM;
     QUARK_Insert_Task(opt->quark, CORE_zlauum_quark, (Quark_Task_Flags*)opt,
         sizeof(int),                &uplo,  VALUE,
-        sizeof(int),                        &n,     VALUE,
+        sizeof(int),                &n,     VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INOUT,
         0);
+
+    (void)nb;
 }

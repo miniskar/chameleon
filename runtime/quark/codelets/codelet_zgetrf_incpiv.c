@@ -69,4 +69,8 @@ void INSERT_TASK_zgetrf_incpiv(const RUNTIME_option_t *options,
         sizeof(int),                        &iinfo,         VALUE,
         0);
 
+    (void)L;
+    (void)Lm;
+    (void)Ln;
+    (void)nb;
 }

@@ -60,4 +60,6 @@ void INSERT_TASK_zlascal(const RUNTIME_option_t *options,
         sizeof(CHAMELEON_Complex64_t),       &alpha, VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An), INOUT,
         0);
+
+    (void)nb;
 }

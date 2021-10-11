@@ -20,8 +20,6 @@
  * @date 2020-04-22
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "chameleon_quark.h"
 
 /**

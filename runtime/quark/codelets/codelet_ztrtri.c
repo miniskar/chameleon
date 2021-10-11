@@ -62,4 +62,6 @@ void INSERT_TASK_ztrtri(const RUNTIME_option_t *options,
         sizeof(RUNTIME_request_t*),            &(options->request),   VALUE,
         sizeof(int),                        &iinfo,     VALUE,
         0);
+
+    (void)nb;
 }
