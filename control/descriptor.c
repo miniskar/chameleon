@@ -987,24 +987,38 @@ static void
 chameleon_desc_print( const CHAM_desc_t *desc, int shift )
 {
     intptr_t base = (intptr_t)desc->mat;
-    int m, n;
+    int m, n, rank;
+    CHAM_context_t *chamctxt = chameleon_context_self();
+
+    rank = CHAMELEON_Comm_rank();
 
     for ( n=0; n<desc->nt; n++ ) {
         for ( m=0; m<desc->mt; m++ ) {
             const CHAM_tile_t *tile;
             const CHAM_desc_t *tiledesc;
             intptr_t ptr;
+            int      trank;
 
+            trank    = desc->get_rankof( desc, m, n );
             tile     = desc->get_blktile( desc, m, n );
             tiledesc = tile->mat;
 
             ptr = ( tile->format == CHAMELEON_TILE_DESC ) ? (intptr_t)(tiledesc->mat) : (intptr_t)(tile->mat);
 
-            fprintf( stdout, "%*s%s(%3d,%3d): %d * %d / ld = %d / offset= %ld\n",
-                     shift, " ", desc->name, m, n, tile->m, tile->n, tile->ld, ptr - base );
+            if ( trank == rank ) {
+                fprintf( stdout, "[%2d]%*s%s(%3d,%3d): %d * %d / ld = %d / offset= %ld\n",
+                         rank, shift, " ", desc->name, m, n, tile->m, tile->n, tile->ld, ptr - base );
 
-            if ( tile->format == CHAMELEON_TILE_DESC ) {
-                chameleon_desc_print( tiledesc, shift+2 );
+                if ( tile->format == CHAMELEON_TILE_DESC ) {
+                    chameleon_desc_print( tiledesc, shift+2 );
+                }
+            }
+            else {
+                assert( ptr == 0 );
+            }
+
+            if ( chamctxt->scheduler != RUNTIME_SCHED_OPENMP ) {
+                RUNTIME_barrier(chamctxt);
             }
         }
     }

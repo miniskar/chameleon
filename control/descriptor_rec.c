@@ -29,8 +29,21 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
                           int lm, int ln, int m, int n, int p, int q,
                           blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
 {
-    CHAM_desc_t *desc;
+    CHAM_context_t *chamctxt;
+    CHAM_desc_t    *desc;
     int rc;
+
+    *descptr = NULL;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        chameleon_error( "CHAMELEON_Recursive_Desc_Create", "CHAMELEON not initialized" );
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+    if ( chamctxt->scheduler != RUNTIME_SCHED_STARPU ) {
+        chameleon_error( "CHAMELEON_Recursive_Desc_Create", "CHAMELEON Recursive descriptors only available with StaRPU" );
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
 
     /* Let's make sure we have at least one couple (mb, nb) defined */
     assert( (mb[0] > 0) && (nb[0] > 0) );

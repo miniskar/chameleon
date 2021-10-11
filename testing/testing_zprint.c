@@ -52,7 +52,7 @@ chameleon_getblkldd_cm( const CHAM_desc_t *A, int m )
 int
 testing_zprint( run_arg_list_t *args, int check )
 {
-    int hres = 0;
+    int rc, hres = 0;
 
     /* Read arguments */
     intptr_t mtxfmt    = parameters_getvalue_int( "mtxfmt" );
@@ -73,38 +73,57 @@ testing_zprint( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     fprintf( stdout, "--- Tile layout ---\n" );
-    CHAMELEON_Desc_Create(
+    rc = CHAMELEON_Desc_Create(
         &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
 
-    CHAMELEON_Desc_Print( descA );
+    if ( rc == CHAMELEON_SUCCESS ) {
+        CHAMELEON_Desc_Print( descA );
+    }
+    else {
+        fprintf( stdout, "--- Tile layout (FAILED)---\n" );
+        hres++;
+    }
 
     CHAMELEON_Desc_Destroy( &descA );
 
-    fprintf( stdout, "--- Lapacke layout ---\n" );
-    CHAMELEON_Desc_Create_User(
+    fprintf( stdout, "--- Lapack layout ---\n" );
+    rc = CHAMELEON_Desc_Create_User(
         &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q,
         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
-    CHAMELEON_Desc_Print( descA );
+    if ( rc == CHAMELEON_SUCCESS ) {
+        CHAMELEON_Desc_Print( descA );
+    }
+    else {
+        fprintf( stdout, "--- Lapack layout (FAILED)---\n" );
+        hres++;
+    }
     CHAMELEON_Desc_Destroy( &descA );
 
-    fprintf( stdout, "--- Recursive layout (Tile)---\n" );
-    CHAMELEON_Recursive_Desc_Create(
-        &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
-        list_nb, list_nb, LDA, N, M, N, P, Q,
-        NULL, NULL, NULL );
+    if ( CHAMELEON_Comm_size() == 0 )
+    {
+        fprintf( stdout, "--- Recursive layout (Tile)---\n" );
+        rc = CHAMELEON_Recursive_Desc_Create(
+            &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
+            list_nb, list_nb, LDA, N, M, N, P, Q,
+            NULL, NULL, NULL );
 
-    CHAMELEON_Desc_Print( descA );
-    CHAMELEON_Desc_Destroy( &descA );
+        if ( rc == CHAMELEON_SUCCESS ) {
+            CHAMELEON_Desc_Print( descA );
+        }
+        CHAMELEON_Desc_Destroy( &descA );
 
-    fprintf( stdout, "--- Recursive layout (Lapack) ---\n" );
-    CHAMELEON_Recursive_Desc_Create(
-        &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
-        list_nb, list_nb, LDA, N, M, N, P, Q,
-        chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+        fprintf( stdout, "--- Recursive layout (Lapack) ---\n" );
+        rc = CHAMELEON_Recursive_Desc_Create(
+            &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
+            list_nb, list_nb, LDA, N, M, N, P, Q,
+            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
-    CHAMELEON_Desc_Print( descA );
-    CHAMELEON_Desc_Destroy( &descA );
+        if ( rc == CHAMELEON_SUCCESS ) {
+            CHAMELEON_Desc_Print( descA );
+        }
+        CHAMELEON_Desc_Destroy( &descA );
+    }
 
     run_arg_add_fixdbl( args, "time", 1. );
     run_arg_add_fixdbl( args, "gflops", 1. );
