@@ -604,8 +604,8 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
             uint32_t src_offset = y * ld_src;
             uint32_t dst_offset = y * ld_dst;
 
-            if ( starpu_interface_copy( (uintptr_t) srcmat, src_offset, src_node,
-                                        (uintptr_t) dstmat, dst_offset, dst_node,
+            if ( starpu_interface_copy( (uintptr_t) src_mat, src_offset, src_node,
+                                        (uintptr_t) dst_mat, dst_offset, dst_node,
                                         m * elemsize, async_data ) )
             {
                 ret = -EAGAIN;
