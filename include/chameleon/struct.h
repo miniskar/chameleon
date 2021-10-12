@@ -158,6 +158,20 @@ CHAM_tile_get_ptr( const CHAM_tile_t *tile )
     return tile->mat;
 }
 
+static inline const char *
+CHAM_tile_get_typestr( const CHAM_tile_t *tile )
+{
+    if ( tile->format & CHAMELEON_TILE_DESC ) {
+        return "Desc";
+    }
+
+    if ( tile->format & CHAMELEON_TILE_HMAT ) {
+        return "HMat";
+    }
+
+    return "Full";
+}
+
 END_C_DECLS
 
 #endif /* _chameleon_struct_h_ */
