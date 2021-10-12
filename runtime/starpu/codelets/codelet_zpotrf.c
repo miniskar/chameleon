@@ -57,7 +57,11 @@ cl_zpotrf_cpu_func(void *descr[], void *cl_arg)
 /*
  * Codelet definition
  */
+#if defined(CHAMELEON_SIMULATION) && defined(CHAMELEON_SIMULATION_EXTENDED)
+CODELETS( zpotrf, cl_zpotrf_cpu_func, cl_zpotrf_cuda_func, STARPU_CUDA_ASYNC )
+#else
 CODELETS_CPU( zpotrf, cl_zpotrf_cpu_func )
+#endif
 
 void INSERT_TASK_zpotrf( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, int n, int nb,
