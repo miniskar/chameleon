@@ -19,6 +19,7 @@
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
+ * @author Gwenole Lucas
  * @date 2021-03-16
  * @precisions normal z -> c d s
  *
@@ -42,37 +43,34 @@ struct cl_ztrsm_args_s {
 static void
 cl_ztrsm_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_ztrsm_args_s clargs;
+    struct cl_ztrsm_args_s *clargs = (struct cl_ztrsm_args_s*)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_ztrsm( clargs.side, clargs.uplo, clargs.transA, clargs.diag,
-                 clargs.m, clargs.n, clargs.alpha, tileA, tileB );
+    TCORE_ztrsm( clargs->side, clargs->uplo, clargs->transA, clargs->diag,
+                 clargs->m, clargs->n, clargs->alpha, tileA, tileB );
 }
 
 #ifdef CHAMELEON_USE_CUDA
 static void
 cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
 {
-    struct cl_ztrsm_args_s clargs;
+    struct cl_ztrsm_args_s *clargs = (struct cl_ztrsm_args_s*)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-
     RUNTIME_getStream(stream);
 
     CUDA_ztrsm(
-        clargs.side, clargs.uplo, clargs.transA, clargs.diag,
-        clargs.m, clargs.n,
-        (cuDoubleComplex*)&(clargs.alpha),
+        clargs->side, clargs->uplo, clargs->transA, clargs->diag,
+        clargs->m, clargs->n,
+        (cuDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
         tileB->mat, tileB->ld,
         stream );
@@ -97,28 +95,33 @@ void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                         const CHAM_desc_t *B, int Bm, int Bn )
 {
-    struct cl_ztrsm_args_s clargs = {
-        .side   = side,
-        .uplo   = uplo,
-        .transA = transA,
-        .diag   = diag,
-        .m      = m,
-        .n      = n,
-        .alpha  = alpha,
-        .tileA  = A->get_blktile( A, Am, An ),
-        .tileB  = B->get_blktile( B, Bm, Bn ),
-    };
+    struct cl_ztrsm_args_s  *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid;
+    int                      exec = 0;
     char                    *cl_name = "ztrsm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_RW(B, Bm, Bn);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_ztrsm_args_s ) );
+        clargs->side   = side;
+        clargs->uplo   = uplo;
+        clargs->transA = transA;
+        clargs->diag   = diag;
+        clargs->m      = m;
+        clargs->n      = n;
+        clargs->alpha  = alpha;
+        clargs->tileA  = A->get_blktile( A, Am, An );
+        clargs->tileB  = B->get_blktile( B, Bm, Bn );
+    }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrsm_callback : NULL;
@@ -130,7 +133,7 @@ void INSERT_TASK_ztrsm( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_ztrsm,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_ztrsm_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_ztrsm_args_s),
         STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
 

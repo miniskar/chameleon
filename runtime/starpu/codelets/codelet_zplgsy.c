@@ -41,14 +41,13 @@ struct cl_zplgsy_args_s {
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zplgsy_cpu_func(void *descr[], void *cl_arg)
 {
-    struct cl_zplgsy_args_s clargs;
+    struct cl_zplgsy_args_s *clargs = (struct cl_zplgsy_args_s *)cl_arg;
     CHAM_tile_t *tileA;
 
     tileA = cti_interface_get(descr[0]);
 
-    starpu_codelet_unpack_args( cl_arg, &clargs );
-    TCORE_zplgsy( clargs.bump, clargs.m, clargs.n, tileA,
-                  clargs.bigM, clargs.m0, clargs.n0, clargs.seed );
+    TCORE_zplgsy( clargs->bump, clargs->m, clargs->n, tileA,
+                  clargs->bigM, clargs->m0, clargs->n0, clargs->seed );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -61,26 +60,31 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
                          CHAMELEON_Complex64_t bump, int m, int n, const CHAM_desc_t *A, int Am, int An,
                          int bigM, int m0, int n0, unsigned long long int seed )
 {
-    struct cl_zplgsy_args_s clargs = {
-        .bump  = bump,
-        .m     = m,
-        .n     = n,
-        .tileA = A->get_blktile( A, Am, An ),
-        .bigM  = bigM,
-        .m0    = m0,
-        .n0    = n0,
-        .seed  = seed,
-    };
+    struct cl_zplgsy_args_s *clargs = NULL;
     void (*callback)(void*);
     RUNTIME_request_t       *request  = options->request;
     starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
     int                      workerid;
+    int                      exec = 0;
     char                    *cl_name = "zplgsy";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_W(A, Am, An);
+    exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zplgsy_args_s ) );
+        clargs->bump  = bump;
+        clargs->m     = m;
+        clargs->n     = n;
+        clargs->tileA = A->get_blktile( A, Am, An );
+        clargs->bigM  = bigM;
+        clargs->m0    = m0;
+        clargs->n0    = n0;
+        clargs->seed  = seed;
+    }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_zplgsy_callback : NULL;
@@ -92,7 +96,7 @@ void INSERT_TASK_zplgsy( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         &cl_zplgsy,
         /* Task codelet arguments */
-        STARPU_VALUE, &clargs, sizeof(struct cl_zplgsy_args_s),
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zplgsy_args_s),
         STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
 
         /* Common task arguments */
