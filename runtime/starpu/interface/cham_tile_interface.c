@@ -536,10 +536,18 @@ static starpu_ssize_t
 cti_describe( void *data_interface, char *buf, size_t size )
 {
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *) data_interface;
+#if defined(CHAMELEON_KERNELS_TRACE)
+    return snprintf( buf, size, "M%ux%ux%u %s",
+                     (unsigned) cham_tile_interface->tile.m,
+                     (unsigned) cham_tile_interface->tile.n,
+                     (unsigned) cham_tile_interface->flttype,
+                     cham_tile_interface->tile.name);
+#else
     return snprintf( buf, size, "M%ux%ux%u",
                      (unsigned) cham_tile_interface->tile.m,
                      (unsigned) cham_tile_interface->tile.n,
                      (unsigned) cham_tile_interface->flttype );
+#endif
 }
 
 static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
@@ -554,11 +562,23 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
     size_t ld_dst = cham_tile_dst->tile.ld;
     int ret = 0;
 
+    void *src_mat = CHAM_tile_get_ptr( &(cham_tile_src->tile) );
+    void *dst_mat = CHAM_tile_get_ptr( &(cham_tile_dst->tile) );
+
+#if defined(CHAMELEON_KERNELS_TRACE)
+    fprintf( stderr,
+             "[ANY->ANY] src(%s, type:%s, m=%d, n=%d, ld=%d, ptr:%p) dest(%s, type:%s, m=%d, n=%d, ld=%d, ptr:%p)\n",
+             cham_tile_src->tile.name, CHAM_tile_get_typestr( &(cham_tile_src->tile) ),
+             cham_tile_src->tile.m, cham_tile_src->tile.n, cham_tile_src->tile.ld, src_mat,
+             cham_tile_dst->tile.name, CHAM_tile_get_typestr( &(cham_tile_dst->tile) ),
+             cham_tile_dst->tile.m, cham_tile_dst->tile.n, cham_tile_dst->tile.ld, dst_mat );
+#endif
+
 #if defined(HAVE_STARPU_INTERFACE_COPY2D)
     ld_src *= elemsize;
     ld_dst *= elemsize;
-    if (starpu_interface_copy2d( (uintptr_t) cham_tile_src->tile.mat, 0, src_node,
-                                 (uintptr_t) cham_tile_dst->tile.mat, 0, dst_node,
+    if (starpu_interface_copy2d( (uintptr_t) src_mat, 0, src_node,
+                                 (uintptr_t) dst_mat, 0, dst_node,
                                  m * elemsize, n, ld_src, ld_dst, async_data ) ) {
         ret = -EAGAIN;
     }
@@ -566,8 +586,8 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
     if ( (ld_src == m) && (ld_dst == m) )
     {
         /* Optimize unpartitioned and y-partitioned cases */
-        if ( starpu_interface_copy( (uintptr_t) cham_tile_src->tile.mat, 0, src_node,
-                                    (uintptr_t) cham_tile_dst->tile.mat, 0, dst_node,
+        if ( starpu_interface_copy( (uintptr_t) src_mat, 0, src_node,
+                                    (uintptr_t) dst_mat, 0, dst_node,
                                     m * n * elemsize, async_data ) )
         {
             ret = -EAGAIN;
@@ -584,8 +604,8 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
             uint32_t src_offset = y * ld_src;
             uint32_t dst_offset = y * ld_dst;
 
-            if ( starpu_interface_copy( (uintptr_t) cham_tile_src->tile.mat, src_offset, src_node,
-                                        (uintptr_t) cham_tile_dst->tile.mat, dst_offset, dst_node,
+            if ( starpu_interface_copy( (uintptr_t) srcmat, src_offset, src_node,
+                                        (uintptr_t) dstmat, dst_offset, dst_node,
                                         m * elemsize, async_data ) )
             {
                 ret = -EAGAIN;
@@ -649,6 +669,9 @@ starpu_cham_tile_register( starpu_data_handle_t *handleptr,
     memcpy( &(cham_tile_interface.tile), tile, sizeof( CHAM_tile_t ) );
 
     if ( tile->format & CHAMELEON_TILE_FULLRANK ) {
+        cham_tile_interface.allocsize = tile->m * tile->n * elemsize;
+    }
+    else if ( tile->format & CHAMELEON_TILE_DESC ) { /* Needed in case starpu ask for it */
         cham_tile_interface.allocsize = tile->m * tile->n * elemsize;
     }
     else if ( tile->format & CHAMELEON_TILE_HMAT ) {

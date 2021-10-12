@@ -82,6 +82,14 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
     /* Fix the worker id */
     workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
+#if defined(CHAMELEON_KERNELS_TRACE)
+    {
+        char *cl_fullname;
+        chameleon_asprintf( &cl_fullname, "%s( %s )", cl_name, clargs->tileA->name );
+        cl_name = cl_fullname;
+    }
+#endif
+
     /* Insert the task */
     rt_starpu_insert_task(
         &cl_zlauum,

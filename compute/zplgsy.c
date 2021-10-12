@@ -272,7 +272,7 @@ int CHAMELEON_zplgsy_Tile_Async( CHAMELEON_Complex64_t  bump,
     if (chameleon_min( A->m, A->n ) == 0)
         return CHAMELEON_SUCCESS;
 
-    chameleon_pzplgsy( bump, uplo, A, seed, sequence, request );
+    chameleon_pzplgsy( bump, uplo, A, A->m, A->i, A->j, seed, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

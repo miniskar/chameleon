@@ -28,7 +28,7 @@
  *  chameleon_pzplgsy - Generate a random symmetric (positive definite if 'bump' is large enough) half-matrix by tiles.
  */
 void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_t *A,
-                        unsigned long long int seed,
+                        int bigM, int m0, int n0, unsigned long long int seed,
                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
@@ -56,7 +56,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                 INSERT_TASK_zplgsy(
                     &options,
                     bump, tempmm, tempnn, A(m, n),
-                    A->m, m*A->mb, n*A->nb, seed );
+                    bigM, m*A->mb + m0, n*A->nb + n0, seed );
             }
         }
         break;
@@ -72,7 +72,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                 INSERT_TASK_zplgsy(
                     &options,
                     bump, tempmm, tempnn, A(m, n),
-                    A->m, m*A->mb, n*A->nb, seed );
+                    bigM, m*A->mb + m0, n*A->nb + n0, seed );
             }
         }
         break;
@@ -89,7 +89,7 @@ void chameleon_pzplgsy( CHAMELEON_Complex64_t bump, cham_uplo_t uplo, CHAM_desc_
                 INSERT_TASK_zplgsy(
                     &options,
                     bump, tempmm, tempnn, A(m, n),
-                    A->m, m*A->mb, n*A->nb, seed );
+                    bigM, m*A->mb + m0, n*A->nb + n0, seed );
             }
         }
     }

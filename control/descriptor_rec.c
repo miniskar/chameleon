@@ -17,10 +17,7 @@
  * @date 2020-03-03
  *
  */
-#define _GNU_SOURCE 1
 #include "control/common.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "chameleon/runtime.h"
 
 static int
