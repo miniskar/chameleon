@@ -279,6 +279,9 @@ cmake_dependent_option( CHAMELEON_BUBBLE_PROFILE
   "CHAMELEON_USE_BUBBLE" OFF )
 
 if ( CHAMELEON_USE_BUBBLE )
+  if ( CHAMELEON_USE_MPI )
+    message( FATAL_ERROR "For now, bubbles are incompatibles with MPI. Please disable MPI or the bubbles\n   -DCHAMELEON_USE_MPI=OFF or -DCHAMELEON_USE_BUBBLE=OFF" )
+  endif()
   if ( BUILD_SHARED_LIBS )
     message( WARNING "Shared libraries are not available when compiling with Bubbles (Force static libraries)" )
   endif()
