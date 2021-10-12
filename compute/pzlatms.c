@@ -181,7 +181,7 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
         /* U is of size A->m by min(A->m, A->n) */
         chameleon_zdesc_copy_and_restrict( A, &descU, A->m, minmn );
 
-        chameleon_pzplrnt( &descU, seed, sequence, request );
+        chameleon_pzplrnt( &descU, descU.m, 0, 0, seed, sequence, request );
 
         /* Shift the seed to generate the next random unitary matrix */
 #if !defined(CHAMELEON_SIMULATION)
@@ -257,7 +257,7 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
         /* V is of size min(A->m, A->n) by A->n */
         chameleon_zdesc_copy_and_restrict( A, &descV, minmn, A->n );
 
-        chameleon_pzplrnt( &descV, seed, sequence, request );
+        chameleon_pzplrnt( &descV, descV.m, 0, 0, seed, sequence, request );
 
         /* Apply a QR factorization */
         mat.mt    = descV.mt;

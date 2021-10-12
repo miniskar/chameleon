@@ -270,7 +270,7 @@ int CHAMELEON_zplghe_Tile_Async( double                 bump,
     if (chameleon_min( A->m, A->n ) == 0)
         return CHAMELEON_SUCCESS;
 
-    chameleon_pzplghe( bump, uplo, A, seed, sequence, request );
+    chameleon_pzplghe( bump, uplo, A, A->m, A->i, A->j, seed, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }

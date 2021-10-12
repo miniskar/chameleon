@@ -28,8 +28,9 @@
 /**
  *  chameleon_pzplghe - Generate a random matrix by tiles.
  */
-void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
-                    RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+void chameleon_pzplrnt( CHAM_desc_t *A,
+                        int bigM, int m0, int n0, unsigned long long int seed,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -52,7 +53,7 @@ void chameleon_pzplrnt( CHAM_desc_t *A, unsigned long long int seed,
             INSERT_TASK_zplrnt(
                 &options,
                 tempmm, tempnn, A(m, n),
-                A->m, m*A->mb, n*A->nb, seed );
+                bigM, m*A->mb + m0, n*A->nb + n0, seed );
         }
     }
     RUNTIME_options_finalize(&options, chamctxt);

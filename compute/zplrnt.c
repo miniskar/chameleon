@@ -261,7 +261,7 @@ int CHAMELEON_zplrnt_Tile_Async( CHAM_desc_t     *A,
     if (chameleon_min( A->m, A->n ) == 0)
         return CHAMELEON_SUCCESS;
 
-    chameleon_pzplrnt( A, seed, sequence, request );
+    chameleon_pzplrnt( A, A->m, A->i, A->j, seed, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }
