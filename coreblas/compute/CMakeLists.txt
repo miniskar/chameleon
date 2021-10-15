@@ -27,6 +27,8 @@
 #
 ###
 
+option( CHAMELEON_NO_KERNELS "Do not call the numerical kernels" OFF)
+
 # Generate the chameleon sources for all possible precisions
 # ------------------------------------------------------
 
@@ -105,11 +107,20 @@ set(ZSRC
     core_zttqrt.c
     core_zunmlq.c
     core_zunmqr.c
-    core_ztile.c
     )
 if( CHAMELEON_USE_HMAT )
   list( APPEND ZSRC
     hmat_z.c )
+endif()
+
+if ( CHAMELEON_NO_KERNELS )
+  list( APPEND ZSRC
+    core_ztile_empty.c
+    )
+else()
+  list( APPEND ZSRC
+    core_ztile.c
+    )
 endif()
 
 precisions_rules_py(COREBLAS_SRCS_GENERATED "${ZSRC}"
