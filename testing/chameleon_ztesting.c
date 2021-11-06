@@ -45,6 +45,7 @@ static parameter_t parameters[] = {
     { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "async",    "Switch to the Async interface",            's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "generic",  "Switch to the generic interface",          -35, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "splitsub", "Split the task submission and execution stages", 'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
@@ -597,7 +598,7 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
 
 int main (int argc, char **argv) {
 
-    int ncores, ngpus, human, check, i, niter;
+    int ncores, ngpus, human, generic, check, i, niter;
     int trace, nowarmup, profile, forcegpu;
     int rc, info = 0;
     int run_id = 0;
@@ -618,11 +619,12 @@ int main (int argc, char **argv) {
     ngpus     = parameters_getvalue_int( "gpus"     );
     check     = parameters_getvalue_int( "check"    );
     human     = parameters_getvalue_int( "human"    );
+    generic   = parameters_getvalue_int( "generic"  );
     func_name = parameters_getvalue_str( "op"       );
     niter     = parameters_getvalue_int( "niter"    );
     trace     = parameters_getvalue_int( "trace"    );
     nowarmup  = parameters_getvalue_int( "nowarmup" );
-    profile   = parameters_getvalue_int( "profile" );
+    profile   = parameters_getvalue_int( "profile"  );
     forcegpu  = parameters_getvalue_int( "forcegpu" );
 
     rc = CHAMELEON_Init( ncores, ngpus );
@@ -676,6 +678,10 @@ int main (int argc, char **argv) {
     /* Start tracing */
     if ( trace ) {
         CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
+    }
+
+    if ( generic ) { 
+        CHAMELEON_Enable( CHAMELEON_GENERIC );
     }
 
     /* Perform all runs */
