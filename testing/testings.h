@@ -46,6 +46,7 @@ typedef enum valtype_ {
     TestSide,
     TestJob,
     TestNormtype,
+    TestRec,
     TestString,
 } valtype_e;
 
@@ -60,6 +61,7 @@ union val_u {
     cham_side_t           side;
     cham_job_t            job;
     cham_normtype_t       ntype;
+    cham_rec_t            rec;
     CHAMELEON_Complex64_t zval;
     CHAMELEON_Complex32_t cval;
     double                dval;
@@ -169,6 +171,7 @@ val_t pread_diag     ( const char *str );
 val_t pread_side     ( const char *str );
 val_t pread_job      ( const char *str );
 val_t pread_norm     ( const char *str );
+val_t pread_rec      ( const char *str );
 val_t pread_string   ( const char *str );
 
 #define pread_fixdbl pread_double
@@ -186,6 +189,7 @@ char *sprint_diag     ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_side     ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_job      ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_norm     ( val_t val, int human, int nbchar, char *str_in );
+char *sprint_rec      ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_string   ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_check    ( val_t val, int human, int nbchar, char *str_in );
 
@@ -210,6 +214,7 @@ cham_diag_t           run_arg_get_diag     ( run_arg_list_t *arglist, const char
 cham_side_t           run_arg_get_side     ( run_arg_list_t *arglist, const char *name, cham_side_t           defval );
 cham_job_t            run_arg_get_job      ( run_arg_list_t *arglist, const char *name, cham_job_t            defval );
 cham_normtype_t       run_arg_get_ntype    ( run_arg_list_t *arglist, const char *name, cham_normtype_t       defval );
+cham_rec_t            run_arg_get_rec      ( run_arg_list_t *arglist, const char *name, cham_rec_t            defval );
 
 int run_arg_add_int   ( run_arg_list_t *arglist, const char *name, int    defval );
 int run_arg_add_double( run_arg_list_t *arglist, const char *name, double defval );

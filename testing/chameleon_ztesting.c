@@ -75,9 +75,10 @@ parameter_t parameters[] = {
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
     { "ib", "Inner tile size ib", 'i', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 2, TestValInt, {0}, NULL, pread_int, sprint_int },
 
-    { "l1", "Size of the first level of recursion",  '1', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "l2", "Size of the second level of recursion", '2', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "l3", "Size of the third level of recursion",  '3', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "rec", "Algorithm used to recursively tile the matrix", 'R', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 6, TestRec,    {0}, NULL, pread_rec, sprint_rec },
+    { "l1",  "Size of the first level of recursion",          '1', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "l2",  "Size of the second level of recursion",         '2', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "l3",  "Size of the third level of recursion",          '3', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
 #endif
 
     { "lda", "Leading dimension of the matrix A", 'A', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },

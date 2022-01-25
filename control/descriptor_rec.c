@@ -20,22 +20,86 @@
 #include "control/common.h"
 #include "chameleon/runtime.h"
 
-static int level = 0;
-static int mglobal = -1, nglobal = -2;
-
 static int
 chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
-                          int *mb, int *nb,
-                          int lm, int ln, int m, int n, int p, int q,
-                          blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
+                          cham_rec_t rec, int *mb, int *nb, int lm, int ln, int m, int n, int p, int q, int i0, int j0,
+                          blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
+{
+    CHAM_desc_t *desc;
+    int rc;
+    int i, j; /* Used when rec=diag */
 
-#define chameleon_recdesc_create_partial chameleon_recdesc_create
-/* #define chameleon_recdesc_create_full chameleon_recdesc_create */
+    /* Let's make sure we have at least one couple (mb, nb) defined */
+    assert( (mb[0] > 0) && (nb[0] > 0) );
+
+    /* Create the current layer descriptor */
+    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
+    rc = chameleon_desc_init_internal( desc, name, mat, dtyp, mb[0], nb[0],
+                                       lm, ln, m, n, p, q,
+                                       get_blkaddr, get_blkldd, get_rankof );
+    *descptr = desc;
+
+    if ( rc != CHAMELEON_SUCCESS ) {
+        return rc;
+    }
+
+    /* Move to the next tile size to recurse */
+    mb++;
+    nb++;
+    if ( (mb[0] <= 0) || (nb[0] <= 0) ) {
+        return CHAMELEON_SUCCESS;
+    }
+
+    for ( n=0; n<desc->nt; n++ ) {
+        j = j0 * desc->nt + n; /* Used when rec = diag */
+        for ( m=0; m<desc->mt; m++ ) {
+            i = i0 * desc->mt + m; /* Used when rec = diag */
+            CHAM_desc_t *tiledesc;
+            CHAM_tile_t *tile;
+            int tempmm, tempnn;
+            char *subname;
+
+            switch (rec) {
+            case ChamRecFull:
+                break;
+            case ChamRecRandom:
+                if ( random() % 3 ) continue;
+                break;
+            case ChamRecDiag:
+                if ( abs( i - j ) > 1 ) continue;
+                break;
+            default:
+                return CHAMELEON_ERR_UNEXPECTED;
+            }
+
+            tile = desc->get_blktile( desc, m, n );
+            tempmm = m == desc->mt-1 ? desc->m - m * desc->mb : desc->mb;
+            tempnn = n == desc->nt-1 ? desc->n - n * desc->nb : desc->nb;
+            chameleon_asprintf( &subname, "%s[%d,%d]", name, m, n );
+
+            rc = chameleon_recdesc_create( subname, &tiledesc, tile->mat,
+                                           desc->dtyp, rec, mb, nb,
+                                           tile->ld, tempnn, /* Abuse as ln is not used */
+                                           tempmm, tempnn,
+                                           1, 1,             /* can recurse only on local data */
+                                           i, j,             /* Used when rec = diag */
+                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
+
+            tile->format = CHAMELEON_TILE_DESC;
+            tile->mat = tiledesc;
+
+            if ( rc != CHAMELEON_SUCCESS ) {
+                return rc;
+            }
+        }
+    }
+
+    return CHAMELEON_SUCCESS;
+}
 
 static int
 chameleon_recdesc_create_diag( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
-                               int *mb, int *nb,
-                               int lm, int ln, int m, int n, int p, int q, int i0, int j0,
+                               int *mb, int *nb, int lm, int ln, int m, int n, int p, int q, int i0, int j0,
                                blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
 {
     CHAM_desc_t *desc;
@@ -80,11 +144,6 @@ chameleon_recdesc_create_diag( const char *name, CHAM_desc_t **descptr, void *ma
             tempnn = n == desc->nt-1 ? desc->n - n * desc->nb : desc->nb;
             asprintf( &subname, "%s[%d,%d]", name, m, n );
 
-            if (level == 0) {
-                mglobal = m;
-                nglobal = n;
-            }
-            level++;
             rc = chameleon_recdesc_create_diag( subname, &tiledesc, tile->mat,
                                                 desc->dtyp, mb, nb,
                                                 tile->ld, tempnn, /* Abuse as ln is not used */
@@ -92,84 +151,6 @@ chameleon_recdesc_create_diag( const char *name, CHAM_desc_t **descptr, void *ma
                                                 1, 1,             /* can recurse only on local data */
                                                 i, j,
                                                 chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
-            level--;
-
-            tile->format = CHAMELEON_TILE_DESC;
-            tile->mat = tiledesc;
-
-            if ( rc != CHAMELEON_SUCCESS ) {
-                return rc;
-            }
-        }
-    }
-
-    return CHAMELEON_SUCCESS;
-}
-
-static int
-chameleon_recdesc_create_partial( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
-                                  int *mb, int *nb,
-                                  int lm, int ln, int m, int n, int p, int q,
-                                  blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
-{
-    CHAM_desc_t *desc;
-    int rc;
-
-    /* Let's make sure we have at least one couple (mb, nb) defined */
-    assert( (mb[0] > 0) && (nb[0] > 0) );
-
-    /* Create the current layer descriptor */
-    desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
-    rc = chameleon_desc_init_internal( desc, name, mat, dtyp, mb[0], nb[0],
-                                       lm, ln, m, n, p, q,
-                                       get_blkaddr, get_blkldd, get_rankof );
-    *descptr = desc;
-
-    if ( rc != CHAMELEON_SUCCESS ) {
-        return rc;
-    }
-
-    /* Move to the next tile size to recurse */
-    mb++;
-    nb++;
-    if ( (mb[0] <= 0) || (nb[0] <= 0) ) {
-        return CHAMELEON_SUCCESS;
-    }
-
-    for ( n=0; n<desc->nt; n++ ) {
-        for ( m=0; m<desc->mt; m++ ) {
-            CHAM_desc_t *tiledesc;
-            CHAM_tile_t *tile;
-            int tempmm, tempnn;
-            char *subname;
-
-            /* WARNING: This is for test purpose */
-            /* Let's recurse only on one third of tiles */
-            /* if ( random() % 3 ) { */
-            /*     continue; */
-            /* } */
-
-            /* WARNING: This is for test purpose */
-            if ( level >= 1 && mglobal != nglobal ) continue;
-            if ( !(m == n) && !(m == n+1) ) continue;
-
-            tile = desc->get_blktile( desc, m, n );
-            tempmm = m == desc->mt-1 ? desc->m - m * desc->mb : desc->mb;
-            tempnn = n == desc->nt-1 ? desc->n - n * desc->nb : desc->nb;
-            asprintf( &subname, "%s[%d,%d]", name, m, n );
-
-            if (level == 0) {
-                mglobal = m;
-                nglobal = n;
-            }
-            level++;
-            rc = chameleon_recdesc_create( subname, &tiledesc, tile->mat,
-                                           desc->dtyp, mb, nb,
-                                           tile->ld, tempnn, /* Abuse as ln is not used */
-                                           tempmm, tempnn,
-                                           1, 1,             /* can recurse only on local data */
-                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
-            level--;
 
             tile->format = CHAMELEON_TILE_DESC;
             tile->mat = tiledesc;
@@ -259,7 +240,7 @@ chameleon_recdesc_create_full( const char *name, CHAM_desc_t **descptr, void *ma
 }
 
 int
-CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
+CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, cham_rec_t rec,
                                  int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
                                  blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof,
                                  const char *name )
@@ -271,8 +252,8 @@ CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_
     assert( (mat != CHAMELEON_MAT_ALLOC_TILE) &&
             (mat != CHAMELEON_MAT_OOC) );
 
-    return chameleon_recdesc_create( name, descptr, mat, dtyp,
-                                     mb, nb, lm, ln, m, n, p, q,
+    return chameleon_recdesc_create( name, descptr, mat, dtyp, rec,
+                                     mb, nb, lm, ln, m, n, p, q, 0, 0,
                                      get_blkaddr, get_blkldd, get_rankof );
 }
 
@@ -289,9 +270,11 @@ CHAMELEON_Recursive_Desc_Create_Full( CHAM_desc_t **descptr, void *mat, cham_flt
     assert( (mat != CHAMELEON_MAT_ALLOC_TILE) &&
             (mat != CHAMELEON_MAT_OOC) );
 
-    return chameleon_recdesc_create_full( name, descptr, mat, dtyp,
-                                          mb, nb, lm, ln, m, n, p, q,
-                                          get_blkaddr, get_blkldd, get_rankof );
+    cham_rec_t rec = ChamRecFull;
+
+    return chameleon_recdesc_create( name, descptr, mat, dtyp, rec,
+                                     mb, nb, lm, ln, m, n, p, q, 0, 0,
+                                     get_blkaddr, get_blkldd, get_rankof );
 }
 
 int
@@ -307,9 +290,11 @@ CHAMELEON_Recursive_Desc_Create_Diag( CHAM_desc_t **descptr, void *mat, cham_flt
     assert( (mat != CHAMELEON_MAT_ALLOC_TILE) &&
             (mat != CHAMELEON_MAT_OOC) );
 
-    return chameleon_recdesc_create_diag( name, descptr, mat, dtyp,
-                                          mb, nb, lm, ln, m, n, p, q, 0, 0,
-                                          get_blkaddr, get_blkldd, get_rankof );
+    cham_rec_t rec = ChamRecDiag;
+
+    return chameleon_recdesc_create( name, descptr, mat, dtyp, rec,
+                                     mb, nb, lm, ln, m, n, p, q, 0, 0,
+                                     get_blkaddr, get_blkldd, get_rankof );
 }
 
 void
