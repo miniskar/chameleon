@@ -73,6 +73,7 @@ set(ZSRC
   testing_ztrtri.c
   testing_zlauum.c
   testing_zpotri.c
+  testing_zpoinv.c
   testing_zsytrf.c
   testing_zsytrs.c
   testing_zsysv.c

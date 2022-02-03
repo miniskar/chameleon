@@ -166,6 +166,7 @@ set(ZSRC
     zpotrf.c
     zsytrf.c
     zpotri.c
+    zpoinv.c
     zpotrimm.c
     zpotrs.c
     zsytrs.c

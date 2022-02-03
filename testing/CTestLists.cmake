@@ -40,7 +40,7 @@ if (NOT CHAMELEON_SIMULATION)
     set( TESTS ${TESTS}
       potrf potrs posv trtri lauum )
     if ( NOT CHAMELEON_SCHED_PARSEC )
-      set( TESTS ${TESTS} potri )
+      set( TESTS ${TESTS} potri poinv)
     endif()
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS}
