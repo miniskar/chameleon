@@ -96,9 +96,6 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
 {
     struct cl_ztrmm_args_s *clargs = NULL;
     void (*callback)(void*);
-    RUNTIME_request_t       *request  = options->request;
-    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
-    int                      workerid;
     int                      exec = 0;
     char                    *cl_name = "ztrmm";
 
@@ -125,9 +122,6 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrmm_callback : NULL;
 
-    /* Fix the worker id */
-    workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
-
 #if defined(CHAMELEON_KERNELS_TRACE)
     {
         char *cl_fullname;
@@ -147,7 +141,7 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif

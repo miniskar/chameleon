@@ -70,8 +70,6 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
     struct cl_zcesca_args_s *clargs = NULL;
     struct starpu_codelet *codelet = &cl_zcesca;
     void (*callback)(void*) = options->profiling ? cl_zcesca_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
     int exec = 0;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -106,7 +104,7 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
         STARPU_RW,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zcesca",
 #endif

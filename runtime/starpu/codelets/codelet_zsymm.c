@@ -114,8 +114,6 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zsymm;
     void (*callback)(void*) = options->profiling ? cl_zsymm_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
     int accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -137,7 +135,7 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
         accessC,                RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zsymm",
 #endif

@@ -58,8 +58,6 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(  IN,  INm,  INn  );
@@ -75,7 +73,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
         STARPU_RW, RTBLKADDR( OUT, double, OUTm, OUTn ),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zplssq",
 #endif
@@ -109,8 +107,6 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
 {
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW( RESULT, RESULTm, RESULTn );
@@ -122,7 +118,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
         STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zplssq2",
 #endif

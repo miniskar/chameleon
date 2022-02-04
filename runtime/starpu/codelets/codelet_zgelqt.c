@@ -68,8 +68,6 @@ void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zgelqt;
     void (*callback)(void*) = options->profiling ? cl_zgelqt_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
     CHAMELEON_starpu_ws_t *h_work = (CHAMELEON_starpu_ws_t*)(options->ws_host);
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -90,7 +88,7 @@ void INSERT_TASK_zgelqt(const RUNTIME_option_t *options,
         STARPU_VALUE,    &h_work,            sizeof(CHAMELEON_starpu_ws_t *),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zgelqt",
 #endif

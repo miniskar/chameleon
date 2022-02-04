@@ -61,8 +61,6 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_zlag2c;
     void (*callback)(void*) = options->profiling ? cl_zlag2c_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
@@ -77,7 +75,7 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
         STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlag2c",
 #endif
@@ -113,8 +111,6 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
     (void)nb;
     struct starpu_codelet *codelet = &cl_clag2z;
     void (*callback)(void*) = options->profiling ? cl_clag2z_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R( A, Am, An );
@@ -129,7 +125,7 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
         STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "clag2z",
 #endif
