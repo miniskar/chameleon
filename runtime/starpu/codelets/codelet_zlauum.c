@@ -80,7 +80,7 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
     callback = options->profiling ? cl_zlauum_callback : NULL;
 
     /* Fix the worker id */
-    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
 #if defined(CHAMELEON_KERNELS_TRACE)
     {

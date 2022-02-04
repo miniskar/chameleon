@@ -59,7 +59,7 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zplssq;
     void (*callback)(void*) = options->profiling ? cl_zplssq_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(  IN,  INm,  INn  );
@@ -110,7 +110,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
     struct starpu_codelet *codelet = &cl_zplssq2;
     void (*callback)(void*) = options->profiling ? cl_zplssq2_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW( RESULT, RESULTm, RESULTn );

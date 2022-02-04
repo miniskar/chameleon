@@ -59,7 +59,7 @@ void INSERT_TASK_zlantr( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zlantr;
     void (*callback)(void*) = options->profiling ? cl_zlange_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);

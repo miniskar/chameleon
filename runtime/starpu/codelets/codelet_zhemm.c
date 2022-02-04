@@ -115,7 +115,7 @@ void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zhemm;
     void (*callback)(void*) = options->profiling ? cl_zhemm_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
     int accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

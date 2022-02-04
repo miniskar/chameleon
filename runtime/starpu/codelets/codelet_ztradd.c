@@ -96,7 +96,7 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
     callback = options->profiling ? cl_ztradd_callback : NULL;
 
     /* Fix the worker id */
-    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
 
     /* Reduce the B access if needed */
     accessB = ( beta == 0. ) ? STARPU_W : STARPU_RW;

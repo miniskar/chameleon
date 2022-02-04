@@ -71,7 +71,7 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zcesca;
     void (*callback)(void*) = options->profiling ? cl_zcesca_callback : NULL;
     starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
+    int workerid = (schedopt == NULL) ? options->workerid : schedopt->workerid;
     int exec = 0;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
