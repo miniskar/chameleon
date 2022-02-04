@@ -25,26 +25,28 @@ static cham_fixdbl_t
 flops_zlansy( cham_normtype_t ntype, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double        coefabs = 1.;
+    cham_fixdbl_t coefabs = 1.;
+    cham_fixdbl_t size;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
 
+    size = ( (cham_fixdbl_t)N * ( (cham_fixdbl_t)N + 1. ) ) / 2.;
     switch ( ntype ) {
         case ChamMaxNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2.;
+            flops = coefabs * size;
             break;
         case ChamOneNorm:
         case ChamInfNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2. + N * ( N - 1 );
+            flops = coefabs * size + N * ( N - 1 );
             break;
         case ChamFrobeniusNorm:
-            flops = ( coefabs + 1. ) * ( N * ( N + 1 ) ) / 2.;
+            flops = ( coefabs + 1. ) * size;
             break;
         default:;
     }
-    return sizeof( CHAMELEON_Complex64_t ) * (double)N * (double)N / 2.;
-    //return flops;
+    (void)flops;
+    return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
 int
