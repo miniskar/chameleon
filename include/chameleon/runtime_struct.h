@@ -83,6 +83,7 @@ typedef struct runtime_option_s {
     int                 profiling; /**< Enable/Disable the profiling of the submitted tasks      */
     int                 parallel;  /**< Enable/Disable the parallel version of submitted tasks   */
     int                 priority;  /**< Define the submitted task priority                       */
+    int                 workerid;  /**< Define the prefered worker id to perform the tasks       */
     size_t              ws_wsize;  /**< Define the worker workspace size                         */
     size_t              ws_hsize;  /**< Define the host workspace size for hybrid CPU/GPU kernel */
     void               *ws_worker; /**< Pointer to the worker workspace (structure)              */
