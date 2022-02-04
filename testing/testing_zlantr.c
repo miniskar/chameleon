@@ -68,7 +68,7 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
 }
 
 int
-testing_zlantr( run_arg_list_t *args, int check )
+testing_zlantr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -141,7 +141,8 @@ testing_zlantr_init( void )
     test_zlantr.params = zlantr_params;
     test_zlantr.output = zlantr_output;
     test_zlantr.outchk = zlantr_outchk;
-    test_zlantr.fptr   = testing_zlantr;
+    test_zlantr.fptr_desc = testing_zlantr_desc;
+    test_zlantr.fptr_std  = NULL;
     test_zlantr.next   = NULL;
 
     testing_register( &test_zlantr );

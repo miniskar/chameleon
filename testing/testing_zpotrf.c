@@ -22,7 +22,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zpotrf( run_arg_list_t *args, int check )
+testing_zpotrf_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -78,6 +78,51 @@ testing_zpotrf( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zpotrf_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zpotrf( uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrf( N ) );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA * N * sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+
+        // hres += check_zxxtrf( args, ChamHermitian, uplo, A0, A );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zpotrf;
 const char *zpotrf_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zpotrf_output[] = { NULL };
@@ -95,7 +140,8 @@ testing_zpotrf_init( void )
     test_zpotrf.params = zpotrf_params;
     test_zpotrf.output = zpotrf_output;
     test_zpotrf.outchk = zpotrf_outchk;
-    test_zpotrf.fptr   = testing_zpotrf;
+    test_zpotrf.fptr_desc = testing_zpotrf_desc;
+    test_zpotrf.fptr_std  = testing_zpotrf_std;
     test_zpotrf.next   = NULL;
 
     testing_register( &test_zpotrf );

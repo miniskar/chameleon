@@ -30,7 +30,7 @@ flops_zgelqs()
 }
 
 int
-testing_zgelqs( run_arg_list_t *args, int check )
+testing_zgelqs_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -129,7 +129,8 @@ testing_zgelqs_init( void )
     test_zgelqs.params = zgelqs_params;
     test_zgelqs.output = zgelqs_output;
     test_zgelqs.outchk = zgelqs_outchk;
-    test_zgelqs.fptr   = testing_zgelqs;
+    test_zgelqs.fptr_desc = testing_zgelqs_desc;
+    test_zgelqs.fptr_std  = NULL;
     test_zgelqs.next   = NULL;
 
     testing_register( &test_zgelqs );

@@ -53,7 +53,7 @@ flops_zlacpy( cham_uplo_t uplo, int M, int N )
 }
 
 int
-testing_zlacpy( run_arg_list_t *args, int check )
+testing_zlacpy_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -129,7 +129,8 @@ testing_zlacpy_init( void )
     test_zlacpy.params = zlacpy_params;
     test_zlacpy.output = zlacpy_output;
     test_zlacpy.outchk = zlacpy_outchk;
-    test_zlacpy.fptr   = testing_zlacpy;
+    test_zlacpy.fptr_desc = testing_zlacpy_desc;
+    test_zlacpy.fptr_std  = NULL;
     test_zlacpy.next   = NULL;
 
     testing_register( &test_zlacpy );

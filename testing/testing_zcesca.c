@@ -35,7 +35,7 @@ flops_zcesca( int M, int N )
 }
 
 int
-testing_zcesca( run_arg_list_t *args, int check )
+testing_zcesca_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -108,7 +108,8 @@ testing_zcesca_init( void )
     test_zcesca.params = zcesca_params;
     test_zcesca.output = zcesca_output;
     test_zcesca.outchk = zcesca_outchk;
-    test_zcesca.fptr   = testing_zcesca;
+    test_zcesca.fptr_desc = testing_zcesca_desc;
+    test_zcesca.fptr_std  = NULL;
     test_zcesca.next   = NULL;
 
     testing_register( &test_zcesca );

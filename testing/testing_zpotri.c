@@ -24,7 +24,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zpotri( run_arg_list_t *args, int check )
+testing_zpotri_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -99,7 +99,8 @@ testing_zpotri_init( void )
     test_zpotri.params = zpotri_params;
     test_zpotri.output = zpotri_output;
     test_zpotri.outchk = zpotri_outchk;
-    test_zpotri.fptr   = testing_zpotri;
+    test_zpotri.fptr_desc = testing_zpotri_desc;
+    test_zpotri.fptr_std  = NULL;
     test_zpotri.next   = NULL;
 
     testing_register( &test_zpotri );

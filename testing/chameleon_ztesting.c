@@ -44,9 +44,10 @@ static parameter_t parameters[] = {
     { "mtxfmt",   "Change the way the matrix is stored (0: global, 1: tiles, 2: OOC)", -32, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "async",    "Switch to the Async interface",            's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "generic",  "Switch to the generic interface",          -35, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "splitsub", "Split the task submission and execution stages", 'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "async",    "Switch to the Async interface",                        's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "splitsub", "Split the task submission and execution stages",       'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "generic",  "Switch to the non optimized generic algorithms",       -35, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "api",      "Select the API to test (0: Descriptors, 1: Standard)", -36, PARAM_OPTION, 1, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
@@ -599,7 +600,7 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
 int main (int argc, char **argv) {
 
     int ncores, ngpus, human, generic, check, i, niter;
-    int trace, nowarmup, profile, forcegpu;
+    int trace, nowarmup, profile, forcegpu, api;
     int rc, info = 0;
     int run_id = 0;
     char *func_name;
@@ -626,11 +627,13 @@ int main (int argc, char **argv) {
     nowarmup  = parameters_getvalue_int( "nowarmup" );
     profile   = parameters_getvalue_int( "profile"  );
     forcegpu  = parameters_getvalue_int( "forcegpu" );
+    api       = parameters_getvalue_int( "api" );
 
     rc = CHAMELEON_Init( ncores, ngpus );
 
     if ( rc != CHAMELEON_SUCCESS ) {
         fprintf( stderr, "CHAMELEON_Init failed and returned %d.\n", rc );
+        info = 1;
         goto end;
     }
 
@@ -644,6 +647,13 @@ int main (int argc, char **argv) {
     /* Binds the right function to be called and builds the parameters combinations */
     test = testing_gettest( argv[0], func_name );
     free(func_name);
+    test_fct_t fptr = (api == 0) ? test->fptr_desc : test->fptr_std;
+    if ( fptr == NULL ) {
+        fprintf( stderr, "The %s API is not available for function %s\n",
+                 (api == 0) ? "descriptor" : "standard", func_name );
+        info = 1;
+        goto end;
+    }
 
     /* Generate the cartesian product of the parameters */
     runlist = run_list_generate( test->params );
@@ -658,6 +668,7 @@ int main (int argc, char **argv) {
             fprintf( stderr,
                      "--forcegpu can't be enable without GPU (-g 0).\n"
                      "  Please specify a larger number of GPU or disable this option\n" );
+            info = 1;
             goto end;
         }
         RUNTIME_zlocality_allrestrict( RUNTIME_CUDA );
@@ -666,7 +677,7 @@ int main (int argc, char **argv) {
     /* Warmup */
     if ( !nowarmup ) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-        test->fptr( &copy, check );
+        fptr( &copy, check );
         run_arg_list_destroy( &copy );
     }
 
@@ -680,7 +691,7 @@ int main (int argc, char **argv) {
         CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
     }
 
-    if ( generic ) { 
+    if ( generic ) {
         CHAMELEON_Enable( CHAMELEON_GENERIC );
     }
 
@@ -688,7 +699,7 @@ int main (int argc, char **argv) {
     while ( run != NULL ) {
         for(i=0; i<niter; i++) {
             run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-            rc = test->fptr( &copy, check );
+            rc = fptr( &copy, check );
 
             /* If rc < 0, we skipped the test */
             if ( rc >= 0 ) {

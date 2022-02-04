@@ -36,7 +36,7 @@ flops_zgeadd( int M, int N )
 }
 
 int
-testing_zgeadd( run_arg_list_t *args, int check )
+testing_zgeadd_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -133,7 +133,8 @@ testing_zgeadd_init( void )
     test_zgeadd.params = zgeadd_params;
     test_zgeadd.output = zgeadd_output;
     test_zgeadd.outchk = zgeadd_outchk;
-    test_zgeadd.fptr   = testing_zgeadd;
+    test_zgeadd.fptr_desc = testing_zgeadd_desc;
+    test_zgeadd.fptr_std  = NULL;
     test_zgeadd.next   = NULL;
 
     testing_register( &test_zgeadd );

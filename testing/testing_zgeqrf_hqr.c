@@ -22,7 +22,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgeqrf_hqr( run_arg_list_t *args, int check )
+testing_zgeqrf_hqr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -128,7 +128,8 @@ testing_zgeqrf_hqr_init( void )
     test_zgeqrf_hqr.params = zgeqrf_hqr_params;
     test_zgeqrf_hqr.output = zgeqrf_hqr_output;
     test_zgeqrf_hqr.outchk = zgeqrf_hqr_outchk;
-    test_zgeqrf_hqr.fptr   = testing_zgeqrf_hqr;
+    test_zgeqrf_hqr.fptr_desc = testing_zgeqrf_hqr_desc;
+    test_zgeqrf_hqr.fptr_std  = NULL;
     test_zgeqrf_hqr.next   = NULL;
 
     testing_register( &test_zgeqrf_hqr );

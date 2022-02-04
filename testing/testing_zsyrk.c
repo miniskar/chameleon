@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zsyrk( run_arg_list_t *args, int check )
+testing_zsyrk_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -126,7 +126,8 @@ testing_zsyrk_init( void )
     test_zsyrk.params = zsyrk_params;
     test_zsyrk.output = zsyrk_output;
     test_zsyrk.outchk = zsyrk_outchk;
-    test_zsyrk.fptr   = testing_zsyrk;
+    test_zsyrk.fptr_desc = testing_zsyrk_desc;
+    test_zsyrk.fptr_std  = NULL;
     test_zsyrk.next   = NULL;
 
     testing_register( &test_zsyrk );

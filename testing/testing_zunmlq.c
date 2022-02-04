@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zunmlq( run_arg_list_t *args, int check )
+testing_zunmlq_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -136,7 +136,8 @@ testing_zunmlq_init( void )
     test_zunmlq.params = zunmlq_params;
     test_zunmlq.output = zunmlq_output;
     test_zunmlq.outchk = zunmlq_outchk;
-    test_zunmlq.fptr   = testing_zunmlq;
+    test_zunmlq.fptr_desc = testing_zunmlq_desc;
+    test_zunmlq.fptr_std  = NULL;
     test_zunmlq.next   = NULL;
 
     testing_register( &test_zunmlq );

@@ -47,7 +47,7 @@ flops_zlascal( cham_uplo_t uplo, int M, int N )
 }
 
 int
-testing_zlascal( run_arg_list_t *args, int check )
+testing_zlascal_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -123,7 +123,8 @@ testing_zlascal_init( void )
     test_zlascal.params = zlascal_params;
     test_zlascal.output = zlascal_output;
     test_zlascal.outchk = zlascal_outchk;
-    test_zlascal.fptr   = testing_zlascal;
+    test_zlascal.fptr_desc = testing_zlascal_desc;
+    test_zlascal.fptr_std  = NULL;
     test_zlascal.next   = NULL;
 
     testing_register( &test_zlascal );

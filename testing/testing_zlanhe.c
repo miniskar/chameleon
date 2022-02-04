@@ -47,7 +47,7 @@ flops_zlanhe( cham_normtype_t ntype, int N )
 }
 
 int
-testing_zlanhe( run_arg_list_t *args, int check )
+testing_zlanhe_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -120,7 +120,8 @@ testing_zlanhe_init( void )
     test_zlanhe.params = zlanhe_params;
     test_zlanhe.output = zlanhe_output;
     test_zlanhe.outchk = zlanhe_outchk;
-    test_zlanhe.fptr   = testing_zlanhe;
+    test_zlanhe.fptr_desc = testing_zlanhe_desc;
+    test_zlanhe.fptr_std  = NULL;
     test_zlanhe.next   = NULL;
 
     testing_register( &test_zlanhe );

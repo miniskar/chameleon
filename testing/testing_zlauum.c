@@ -29,7 +29,7 @@ flops_zlauum( int N )
 }
 
 int
-testing_zlauum( run_arg_list_t *args, int check )
+testing_zlauum_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -100,7 +100,8 @@ testing_zlauum_init( void )
     test_zlauum.params = zlauum_params;
     test_zlauum.output = zlauum_output;
     test_zlauum.outchk = zlauum_outchk;
-    test_zlauum.fptr   = testing_zlauum;
+    test_zlauum.fptr_desc = testing_zlauum_desc;
+    test_zlauum.fptr_std  = NULL;
     test_zlauum.next   = NULL;
 
     testing_register( &test_zlauum );

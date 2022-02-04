@@ -46,11 +46,12 @@ flops_zlange( cham_normtype_t ntype, int M, int N )
             break;
         default:;
     }
-    return flops;
+    return sizeof( CHAMELEON_Complex64_t ) * (double)M * (double)N;
+    //return flops;
 }
 
 int
-testing_zlange( run_arg_list_t *args, int check )
+testing_zlange_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -121,7 +122,8 @@ testing_zlange_init( void )
     test_zlange.params = zlange_params;
     test_zlange.output = zlange_output;
     test_zlange.outchk = zlange_outchk;
-    test_zlange.fptr   = testing_zlange;
+    test_zlange.fptr_desc = testing_zlange_desc;
+    test_zlange.fptr_std  = NULL;
     test_zlange.next   = NULL;
 
     testing_register( &test_zlange );

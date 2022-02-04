@@ -22,7 +22,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_ztrtri( run_arg_list_t *args, int check )
+testing_ztrtri_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -96,7 +96,8 @@ testing_ztrtri_init( void )
     test_ztrtri.params = ztrtri_params;
     test_ztrtri.output = ztrtri_output;
     test_ztrtri.outchk = ztrtri_outchk;
-    test_ztrtri.fptr   = testing_ztrtri;
+    test_ztrtri.fptr_desc = testing_ztrtri_desc;
+    test_ztrtri.fptr_std  = NULL;
     test_ztrtri.next   = NULL;
 
     testing_register( &test_ztrtri );

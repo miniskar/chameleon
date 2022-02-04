@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgetrs( run_arg_list_t *args, int check )
+testing_zgetrs_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -111,7 +111,8 @@ testing_zgetrs_init( void )
     test_zgetrs.params = zgetrs_params;
     test_zgetrs.output = zgetrs_output;
     test_zgetrs.outchk = zgetrs_outchk;
-    test_zgetrs.fptr   = testing_zgetrs;
+    test_zgetrs.fptr_desc = testing_zgetrs_desc;
+    test_zgetrs.fptr_std  = NULL;
     test_zgetrs.next   = NULL;
 
     testing_register( &test_zgetrs );

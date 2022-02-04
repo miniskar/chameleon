@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zunmqr_hqr( run_arg_list_t *args, int check )
+testing_zunmqr_hqr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -147,7 +147,8 @@ testing_zunmqr_hqr_init( void )
     test_zunmqr_hqr.params = zunmqr_hqr_params;
     test_zunmqr_hqr.output = zunmqr_hqr_output;
     test_zunmqr_hqr.outchk = zunmqr_hqr_outchk;
-    test_zunmqr_hqr.fptr   = testing_zunmqr_hqr;
+    test_zunmqr_hqr.fptr_desc = testing_zunmqr_hqr_desc;
+    test_zunmqr_hqr.fptr_std  = NULL;
     test_zunmqr_hqr.next   = NULL;
 
     testing_register( &test_zunmqr_hqr );

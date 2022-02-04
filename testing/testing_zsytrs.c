@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zsytrs( run_arg_list_t *args, int check )
+testing_zsytrs_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -112,7 +112,8 @@ testing_zsytrs_init( void )
     test_zsytrs.params = zsytrs_params;
     test_zsytrs.output = zsytrs_output;
     test_zsytrs.outchk = zsytrs_outchk;
-    test_zsytrs.fptr   = testing_zsytrs;
+    test_zsytrs.fptr_desc = testing_zsytrs_desc;
+    test_zsytrs.fptr_std  = NULL;
     test_zsytrs.next   = NULL;
 
     testing_register( &test_zsytrs );

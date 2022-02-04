@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgemm( run_arg_list_t *args, int check )
+testing_zgemm_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -149,7 +149,8 @@ testing_zgemm_init( void )
     test_zgemm.params = zgemm_params;
     test_zgemm.output = zgemm_output;
     test_zgemm.outchk = zgemm_outchk;
-    test_zgemm.fptr   = testing_zgemm;
+    test_zgemm.fptr_desc = testing_zgemm_desc;
+    test_zgemm.fptr_std  = NULL;
     test_zgemm.next   = NULL;
 
     testing_register( &test_zgemm );

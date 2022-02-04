@@ -23,7 +23,7 @@
 #include "control/common.h"
 
 int
-testing_zgeqrs( run_arg_list_t *args, int check )
+testing_zgeqrs_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -136,7 +136,8 @@ testing_zgeqrs_init( void )
     test_zgeqrs.params = zgeqrs_params;
     test_zgeqrs.output = zgeqrs_output;
     test_zgeqrs.outchk = zgeqrs_outchk;
-    test_zgeqrs.fptr   = testing_zgeqrs;
+    test_zgeqrs.fptr_desc = testing_zgeqrs_desc;
+    test_zgeqrs.fptr_std  = NULL;
     test_zgeqrs.next   = NULL;
 
     testing_register( &test_zgeqrs );
