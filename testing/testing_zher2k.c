@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zher2k( run_arg_list_t *args, int check )
+testing_zher2k_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -134,7 +134,8 @@ testing_zher2k_init( void )
     test_zher2k.params = zher2k_params;
     test_zher2k.output = zher2k_output;
     test_zher2k.outchk = zher2k_outchk;
-    test_zher2k.fptr   = testing_zher2k;
+    test_zher2k.fptr_desc = testing_zher2k_desc;
+    test_zher2k.fptr_std  = NULL;
     test_zher2k.next   = NULL;
 
     testing_register( &test_zher2k );

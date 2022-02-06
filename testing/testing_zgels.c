@@ -35,7 +35,7 @@ flops_zgels( cham_trans_t trans, int M, int N, int NRHS )
 }
 
 int
-testing_zgels( run_arg_list_t *args, int check )
+testing_zgels_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -157,7 +157,8 @@ testing_zgels_init( void )
     test_zgels.params = zgels_params;
     test_zgels.output = zgels_output;
     test_zgels.outchk = zgels_outchk;
-    test_zgels.fptr   = testing_zgels;
+    test_zgels.fptr_desc = testing_zgels_desc;
+    test_zgels.fptr_std  = NULL;
     test_zgels.next   = NULL;
 
     testing_register( &test_zgels );

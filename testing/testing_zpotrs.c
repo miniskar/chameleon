@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zpotrs( run_arg_list_t *args, int check )
+testing_zpotrs_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -112,7 +112,8 @@ testing_zpotrs_init( void )
     test_zpotrs.params = zpotrs_params;
     test_zpotrs.output = zpotrs_output;
     test_zpotrs.outchk = zpotrs_outchk;
-    test_zpotrs.fptr   = testing_zpotrs;
+    test_zpotrs.fptr_desc = testing_zpotrs_desc;
+    test_zpotrs.fptr_std  = NULL;
     test_zpotrs.next   = NULL;
 
     testing_register( &test_zpotrs );

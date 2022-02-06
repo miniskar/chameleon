@@ -30,7 +30,7 @@ flops_zposv( int N, int NRHS )
 }
 
 int
-testing_zposv( run_arg_list_t *args, int check )
+testing_zposv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -123,7 +123,8 @@ testing_zposv_init( void )
     test_zposv.params = zposv_params;
     test_zposv.output = zposv_output;
     test_zposv.outchk = zposv_outchk;
-    test_zposv.fptr   = testing_zposv;
+    test_zposv.fptr_desc = testing_zposv_desc;
+    test_zposv.fptr_std  = NULL;
     test_zposv.next   = NULL;
 
     testing_register( &test_zposv );

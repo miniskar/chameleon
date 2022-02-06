@@ -26,31 +26,34 @@ static cham_fixdbl_t
 flops_zlange( cham_normtype_t ntype, int M, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double        coefabs = 1.;
+    cham_fixdbl_t coefabs = 1.;
+    cham_fixdbl_t size;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
 
+    size = (cham_fixdbl_t)M * (cham_fixdbl_t)N;
     switch ( ntype ) {
         case ChamMaxNorm:
-            flops = coefabs * M * N;
+            flops = coefabs * size;
             break;
         case ChamOneNorm:
-            flops = coefabs * M * N + M * ( N - 1 );
+            flops = coefabs * size + M * ( N - 1 );
             break;
         case ChamInfNorm:
-            flops = coefabs * M * N + N * ( M - 1 );
+            flops = coefabs * size + N * ( M - 1 );
             break;
         case ChamFrobeniusNorm:
-            flops = ( coefabs + 1. ) * M * N;
+            flops = ( coefabs + 1. ) * size;
             break;
         default:;
     }
-    return flops;
+    (void)flops;
+    return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
 int
-testing_zlange( run_arg_list_t *args, int check )
+testing_zlange_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -121,7 +124,8 @@ testing_zlange_init( void )
     test_zlange.params = zlange_params;
     test_zlange.output = zlange_output;
     test_zlange.outchk = zlange_outchk;
-    test_zlange.fptr   = testing_zlange;
+    test_zlange.fptr_desc = testing_zlange_desc;
+    test_zlange.fptr_std  = NULL;
     test_zlange.next   = NULL;
 
     testing_register( &test_zlange );

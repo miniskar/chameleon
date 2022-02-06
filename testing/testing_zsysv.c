@@ -29,7 +29,7 @@ flops_zsysv( int N, int NRHS )
 }
 
 int
-testing_zsysv( run_arg_list_t *args, int check )
+testing_zsysv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -122,7 +122,8 @@ testing_zsysv_init( void )
     test_zsysv.params = zsysv_params;
     test_zsysv.output = zsysv_output;
     test_zsysv.outchk = zsysv_outchk;
-    test_zsysv.fptr   = testing_zsysv;
+    test_zsysv.fptr_desc = testing_zsysv_desc;
+    test_zsysv.fptr_std  = NULL;
     test_zsysv.next   = NULL;
 
     testing_register( &test_zsysv );

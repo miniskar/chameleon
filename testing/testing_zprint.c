@@ -50,7 +50,7 @@ chameleon_getblkldd_cm( const CHAM_desc_t *A, int m )
 }
 
 int
-testing_zprint( run_arg_list_t *args, int check )
+testing_zprint_desc( run_arg_list_t *args, int check )
 {
     int rc, hres = 0;
 
@@ -149,7 +149,8 @@ testing_zprint_init( void )
     test_zprint.params = zprint_params;
     test_zprint.output = zprint_output;
     test_zprint.outchk = zprint_outchk;
-    test_zprint.fptr   = testing_zprint;
+    test_zprint.fptr_desc = testing_zprint_desc;
+    test_zprint.fptr_std  = NULL;
     test_zprint.next   = NULL;
 
     testing_register( &test_zprint );

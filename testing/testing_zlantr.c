@@ -25,7 +25,8 @@ static cham_fixdbl_t
 flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double        coefabs = 1.;
+    cham_fixdbl_t coefabs = 1.;
+    cham_fixdbl_t size;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
@@ -33,25 +34,25 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
     switch ( uplo ) {
         case ChamUpper:
             if ( N > M ) {
-                flops = ( M * ( M + 1 ) / 2 ) + M * ( N - M );
+                size = ( M * ( M + 1 ) / 2 ) + M * ( N - M );
             }
             else {
-                flops = N * ( N + 1 ) / 2;
+                size = N * ( N + 1 ) / 2;
             }
             break;
         case ChamLower:
             if ( M > N ) {
-                flops = ( N * ( N + 1 ) / 2 ) + N * ( M - N );
+                size = ( N * ( N + 1 ) / 2 ) + N * ( M - N );
             }
             else {
-                flops = M * ( M + 1 ) / 2;
+                size = M * ( M + 1 ) / 2;
             }
             break;
         case ChamUpperLower:
         default:
-            flops = M * N;
+            size = M * N;
     }
-    flops *= coefabs;
+    flops = size * coefabs;
 
     switch ( ntype ) {
         case ChamOneNorm:
@@ -61,14 +62,18 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
             flops += M;
             break;
         case ChamMaxNorm:
+            break;
         case ChamFrobeniusNorm:
+            flops += size;
+            break;
         default:;
     }
-    return flops;
+    (void)flops;
+    return size;
 }
 
 int
-testing_zlantr( run_arg_list_t *args, int check )
+testing_zlantr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -141,7 +146,8 @@ testing_zlantr_init( void )
     test_zlantr.params = zlantr_params;
     test_zlantr.output = zlantr_output;
     test_zlantr.outchk = zlantr_outchk;
-    test_zlantr.fptr   = testing_zlantr;
+    test_zlantr.fptr_desc = testing_zlantr_desc;
+    test_zlantr.fptr_std  = NULL;
     test_zlantr.next   = NULL;
 
     testing_register( &test_zlantr );

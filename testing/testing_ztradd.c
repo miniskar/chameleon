@@ -49,7 +49,7 @@ flops_ztradd( cham_uplo_t uplo, int M, int N )
 }
 
 int
-testing_ztradd( run_arg_list_t *args, int check )
+testing_ztradd_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -168,7 +168,8 @@ testing_ztradd_init( void )
     test_ztradd.params = ztradd_params;
     test_ztradd.output = ztradd_output;
     test_ztradd.outchk = ztradd_outchk;
-    test_ztradd.fptr   = testing_ztradd;
+    test_ztradd.fptr_desc = testing_ztradd_desc;
+    test_ztradd.fptr_std  = NULL;
     test_ztradd.next   = NULL;
 
     testing_register( &test_ztradd );

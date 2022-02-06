@@ -25,29 +25,32 @@ static cham_fixdbl_t
 flops_zlansy( cham_normtype_t ntype, int N )
 {
     cham_fixdbl_t flops   = 0.;
-    double        coefabs = 1.;
+    cham_fixdbl_t coefabs = 1.;
+    cham_fixdbl_t size;
 #if defined( PRECISION_z ) || defined( PRECISION_c )
     coefabs = 3.;
 #endif
 
+    size = ( (cham_fixdbl_t)N * ( (cham_fixdbl_t)N + 1. ) ) / 2.;
     switch ( ntype ) {
         case ChamMaxNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2.;
+            flops = coefabs * size;
             break;
         case ChamOneNorm:
         case ChamInfNorm:
-            flops = coefabs * ( N * ( N + 1 ) ) / 2. + N * ( N - 1 );
+            flops = coefabs * size + N * ( N - 1 );
             break;
         case ChamFrobeniusNorm:
-            flops = ( coefabs + 1. ) * ( N * ( N + 1 ) ) / 2.;
+            flops = ( coefabs + 1. ) * size;
             break;
         default:;
     }
-    return flops;
+    (void)flops;
+    return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
 int
-testing_zlansy( run_arg_list_t *args, int check )
+testing_zlansy_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -120,7 +123,8 @@ testing_zlansy_init( void )
     test_zlansy.params = zlansy_params;
     test_zlansy.output = zlansy_output;
     test_zlansy.outchk = zlansy_outchk;
-    test_zlansy.fptr   = testing_zlansy;
+    test_zlansy.fptr_desc = testing_zlansy_desc;
+    test_zlansy.fptr_std  = NULL;
     test_zlansy.next   = NULL;
 
     testing_register( &test_zlansy );

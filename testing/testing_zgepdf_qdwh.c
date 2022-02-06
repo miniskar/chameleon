@@ -28,7 +28,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgepdf_qdwh( run_arg_list_t *args, int check )
+testing_zgepdf_qdwh_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -137,7 +137,8 @@ testing_zgepdf_qdwh_init( void )
     test_zgepdf_qdwh.params = zgepdf_qdwh_params;
     test_zgepdf_qdwh.output = zgepdf_qdwh_output;
     test_zgepdf_qdwh.outchk = zgepdf_qdwh_outchk;
-    test_zgepdf_qdwh.fptr   = testing_zgepdf_qdwh;
+    test_zgepdf_qdwh.fptr_desc = testing_zgepdf_qdwh_desc;
+    test_zgepdf_qdwh.fptr_std  = NULL;
     test_zgepdf_qdwh.next   = NULL;
 
     testing_register( &test_zgepdf_qdwh );

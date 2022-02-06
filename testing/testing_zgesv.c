@@ -29,7 +29,7 @@ flops_zgesv( int N, int NRHS )
 }
 
 int
-testing_zgesv( run_arg_list_t *args, int check )
+testing_zgesv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -121,7 +121,8 @@ testing_zgesv_init( void )
     test_zgesv.params = zgesv_params;
     test_zgesv.output = zgesv_output;
     test_zgesv.outchk = zgesv_outchk;
-    test_zgesv.fptr   = testing_zgesv;
+    test_zgesv.fptr_desc = testing_zgesv_desc;
+    test_zgesv.fptr_std  = NULL;
     test_zgesv.next   = NULL;
 
     testing_register( &test_zgesv );

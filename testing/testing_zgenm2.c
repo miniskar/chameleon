@@ -38,7 +38,7 @@ flops_zgenm2( int M, int N )
 }
 
 int
-testing_zgenm2( run_arg_list_t *args, int check )
+testing_zgenm2_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -141,7 +141,8 @@ testing_zgenm2_init( void )
     test_zgenm2.params = zgenm2_params;
     test_zgenm2.output = zgenm2_output;
     test_zgenm2.outchk = zgenm2_outchk;
-    test_zgenm2.fptr   = testing_zgenm2;
+    test_zgenm2.fptr_desc = testing_zgenm2_desc;
+    test_zgenm2.fptr_std  = NULL;
     test_zgenm2.next   = NULL;
 
     testing_register( &test_zgenm2 );

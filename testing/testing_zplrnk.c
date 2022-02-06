@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zplrnk( run_arg_list_t *args, int check )
+testing_zplrnk_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -89,7 +89,8 @@ testing_zplrnk_init( void )
     test_zplrnk.params = zplrnk_params;
     test_zplrnk.output = zplrnk_output;
     test_zplrnk.outchk = zplrnk_outchk;
-    test_zplrnk.fptr   = testing_zplrnk;
+    test_zplrnk.fptr_desc = testing_zplrnk_desc;
+    test_zplrnk.fptr_std  = NULL;
     test_zplrnk.next   = NULL;
 
     testing_register( &test_zplrnk );

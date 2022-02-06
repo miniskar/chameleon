@@ -36,7 +36,7 @@ flops_zgepdf_qr( int M, int N )
 }
 
 int
-testing_zgepdf_qr( run_arg_list_t *args, int check )
+testing_zgepdf_qr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -192,7 +192,8 @@ testing_zgepdf_qr_init( void )
     test_zgepdf_qr.params = zgepdf_qr_params;
     test_zgepdf_qr.output = zgepdf_qr_output;
     test_zgepdf_qr.outchk = zgepdf_qr_outchk;
-    test_zgepdf_qr.fptr   = testing_zgepdf_qr;
+    test_zgepdf_qr.fptr_desc = testing_zgepdf_qr_desc;
+    test_zgepdf_qr.fptr_std  = NULL;
     test_zgepdf_qr.next   = NULL;
 
     testing_register( &test_zgepdf_qr );

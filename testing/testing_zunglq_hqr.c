@@ -22,7 +22,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zunglq_hqr( run_arg_list_t *args, int check )
+testing_zunglq_hqr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -141,7 +141,8 @@ testing_zunglq_hqr_init( void )
     test_zunglq_hqr.params = zunglq_hqr_params;
     test_zunglq_hqr.output = zunglq_hqr_output;
     test_zunglq_hqr.outchk = zunglq_hqr_outchk;
-    test_zunglq_hqr.fptr   = testing_zunglq_hqr;
+    test_zunglq_hqr.fptr_desc = testing_zunglq_hqr_desc;
+    test_zunglq_hqr.fptr_std  = NULL;
     test_zunglq_hqr.next   = NULL;
 
     testing_register( &test_zunglq_hqr );

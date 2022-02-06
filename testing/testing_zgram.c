@@ -35,7 +35,7 @@ flops_zgram( int N )
 }
 
 int
-testing_zgram( run_arg_list_t *args, int check )
+testing_zgram_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -108,7 +108,8 @@ testing_zgram_init( void )
     test_zgram.params = zgram_params;
     test_zgram.output = zgram_output;
     test_zgram.outchk = zgram_outchk;
-    test_zgram.fptr   = testing_zgram;
+    test_zgram.fptr_desc = testing_zgram_desc;
+    test_zgram.fptr_std  = NULL;
     test_zgram.next   = NULL;
 
     testing_register( &test_zgram );

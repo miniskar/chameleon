@@ -32,7 +32,7 @@ flops_zpoinv( int N )
 }
 
 int
-testing_zpoinv( run_arg_list_t *args, int check )
+testing_zpoinv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -104,7 +104,8 @@ testing_zpoinv_init( void )
     test_zpoinv.params = zpoinv_params;
     test_zpoinv.output = zpoinv_output;
     test_zpoinv.outchk = zpoinv_outchk;
-    test_zpoinv.fptr   = testing_zpoinv;
+    test_zpoinv.fptr_desc = testing_zpoinv_desc;
+    test_zpoinv.fptr_std  = NULL;
     test_zpoinv.next   = NULL;
 
     testing_register( &test_zpoinv );

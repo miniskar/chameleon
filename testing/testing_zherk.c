@@ -24,7 +24,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zherk( run_arg_list_t *args, int check )
+testing_zherk_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -127,7 +127,8 @@ testing_zherk_init( void )
     test_zherk.params = zherk_params;
     test_zherk.output = zherk_output;
     test_zherk.outchk = zherk_outchk;
-    test_zherk.fptr   = testing_zherk;
+    test_zherk.fptr_desc = testing_zherk_desc;
+    test_zherk.fptr_std  = NULL;
     test_zherk.next   = NULL;
 
     testing_register( &test_zherk );

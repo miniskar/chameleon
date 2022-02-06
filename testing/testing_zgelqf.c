@@ -22,7 +22,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgelqf( run_arg_list_t *args, int check )
+testing_zgelqf_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -116,7 +116,8 @@ testing_zgelqf_init( void )
     test_zgelqf.params = zgelqf_params;
     test_zgelqf.output = zgelqf_output;
     test_zgelqf.outchk = zgelqf_outchk;
-    test_zgelqf.fptr   = testing_zgelqf;
+    test_zgelqf.fptr_desc = testing_zgelqf_desc;
+    test_zgelqf.fptr_std  = NULL;
     test_zgelqf.next   = NULL;
 
     testing_register( &test_zgelqf );

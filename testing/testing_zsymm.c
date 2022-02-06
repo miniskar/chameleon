@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zsymm( run_arg_list_t *args, int check )
+testing_zsymm_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -131,7 +131,8 @@ testing_zsymm_init( void )
     test_zsymm.params = zsymm_params;
     test_zsymm.output = zsymm_output;
     test_zsymm.outchk = zsymm_outchk;
-    test_zsymm.fptr   = testing_zsymm;
+    test_zsymm.fptr_desc = testing_zsymm_desc;
+    test_zsymm.fptr_std  = NULL;
     test_zsymm.next   = NULL;
 
     testing_register( &test_zsymm );

@@ -35,7 +35,7 @@ flops_zgels_hqr( cham_trans_t trans, int M, int N, int NRHS )
 }
 
 int
-testing_zgels_hqr( run_arg_list_t *args, int check )
+testing_zgels_hqr_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -167,7 +167,8 @@ testing_zgels_hqr_init( void )
     test_zgels_hqr.params = zgels_hqr_params;
     test_zgels_hqr.output = zgels_hqr_output;
     test_zgels_hqr.outchk = zgels_hqr_outchk;
-    test_zgels_hqr.fptr   = testing_zgels_hqr;
+    test_zgels_hqr.fptr_desc = testing_zgels_hqr_desc;
+    test_zgels_hqr.fptr_std  = NULL;
     test_zgels_hqr.next   = NULL;
 
     testing_register( &test_zgels_hqr );

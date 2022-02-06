@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_ztrmm( run_arg_list_t *args, int check )
+testing_ztrmm_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -124,7 +124,8 @@ testing_ztrmm_init( void )
     test_ztrmm.params = ztrmm_params;
     test_ztrmm.output = ztrmm_output;
     test_ztrmm.outchk = ztrmm_outchk;
-    test_ztrmm.fptr   = testing_ztrmm;
+    test_ztrmm.fptr_desc = testing_ztrmm_desc;
+    test_ztrmm.fptr_std  = NULL;
     test_ztrmm.next   = NULL;
 
     testing_register( &test_ztrmm );
