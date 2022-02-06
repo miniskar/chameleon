@@ -51,8 +51,6 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zaxpy;
     void (*callback)(void*) = options->profiling ? cl_zaxpy_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     if ( alpha == 0. ) {
         return;
@@ -73,7 +71,7 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
             STARPU_VALUE,    &incB,                        sizeof(int),
             STARPU_PRIORITY, options->priority,
             STARPU_CALLBACK, callback,
-            STARPU_EXECUTE_ON_WORKER, workerid,
+            STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
             STARPU_NAME, "zaxpy",
 #endif

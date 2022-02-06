@@ -116,9 +116,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
 
     struct cl_zgemm_args_s  *clargs = NULL;
     void (*callback)(void*);
-    RUNTIME_request_t       *request  = options->request;
-    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
-    int                      workerid, accessC;
+    int                      accessC;
     int                      exec = 0;
     char                    *cl_name = "zgemm";
 
@@ -147,9 +145,6 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     /* Callback for profiling information */
     callback = options->profiling ? cl_zgemm_callback : NULL;
 
-    /* Fix the worker id */
-    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
-
     /* Reduce the C access if needed */
     accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
@@ -175,7 +170,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif

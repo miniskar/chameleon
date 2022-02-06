@@ -55,8 +55,6 @@ void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
 
     struct starpu_codelet *codelet = &cl_zlaset2;
     void (*callback)(void*) = options->profiling ? cl_zlaset2_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_W(A, Am, An);
@@ -71,7 +69,7 @@ void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
         STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zlaset2",
 #endif

@@ -63,8 +63,6 @@ CODELETS_CPU(zbuild, cl_zbuild_cpu_func)
 
     struct starpu_codelet *codelet = &cl_zbuild;
     void (*callback)(void*) = options->profiling ? cl_zbuild_callback : NULL;
-    starpu_option_request_t* schedopt = (starpu_option_request_t *)(options->request->schedopt);
-    int workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
     int row_min, row_max, col_min, col_max;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -86,7 +84,7 @@ CODELETS_CPU(zbuild, cl_zbuild_cpu_func)
         STARPU_VALUE,    &user_build_callback,          sizeof(void*),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zbuild",
 #endif

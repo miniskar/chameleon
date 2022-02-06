@@ -21,18 +21,19 @@
  */
 #include "chameleon_openmp.h"
 
-void RUNTIME_options_init( RUNTIME_option_t *option, CHAM_context_t *chamctxt,
+void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    option->sequence  = sequence;
-    option->request   = request;
-    option->profiling = CHAMELEON_PROFILING == CHAMELEON_TRUE;
-    option->parallel  = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
-    option->priority  = RUNTIME_PRIORITY_MIN;
-    option->ws_wsize  = 0;
-    option->ws_hsize  = 0;
-    option->ws_worker = NULL;
-    option->ws_host   = NULL;
+    options->sequence  = sequence;
+    options->request   = request;
+    options->profiling = CHAMELEON_PROFILING == CHAMELEON_TRUE;
+    options->parallel  = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
+    options->priority  = RUNTIME_PRIORITY_MIN;
+    options->workerid  = -1;
+    options->ws_wsize  = 0;
+    options->ws_hsize  = 0;
+    options->ws_worker = NULL;
+    options->ws_host   = NULL;
     return;
 }
 

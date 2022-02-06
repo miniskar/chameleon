@@ -62,9 +62,6 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
 {
     struct cl_zplghe_args_s *clargs = NULL;
     void (*callback)(void*);
-    RUNTIME_request_t       *request  = options->request;
-    starpu_option_request_t *schedopt = (starpu_option_request_t *)(request->schedopt);
-    int                      workerid;
     int                      exec = 0;
     char                    *cl_name = "zplghe";
 
@@ -89,9 +86,6 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
     /* Callback fro profiling information */
     callback = options->profiling ? cl_zplghe_callback : NULL;
 
-    /* Fix the worker id */
-    workerid = (schedopt == NULL) ? -1 : schedopt->workerid;
-
     /* Insert the task */
     rt_starpu_insert_task(
         &cl_zplghe,
@@ -102,7 +96,7 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
-        STARPU_EXECUTE_ON_WORKER, workerid,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif
