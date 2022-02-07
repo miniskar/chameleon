@@ -2,7 +2,7 @@
  *
  * @file testing_zherk.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,12 +13,12 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @author Alycia Lisito
+ * @date 2022-02-04
  * @precisions normal z -> z c
  *
  */
 #include <chameleon.h>
-#include <chameleon/flops.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
@@ -105,6 +105,78 @@ testing_zherk_desc( run_arg_list_t *args, int check )
 
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descC );
+
+    return hres;
+}
+
+int
+testing_zherk_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t  uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          K     = run_arg_get_int( args, "K", N );
+    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int          LDC   = run_arg_get_int( args, "LDC", N );
+    double       alpha = testing_dalea();
+    double       beta  = testing_dalea();
+    double       bump  = testing_dalea();
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedC = run_arg_get_int( args, "seedC", random() );
+
+
+    /* Descriptors */
+    int                    Am, An;
+    CHAMELEON_Complex64_t *A, *C, *Cinit;
+
+    alpha = run_arg_get_double( args, "alpha", alpha );
+    beta  = run_arg_get_double( args, "beta", beta );
+    bump  = run_arg_get_double( args, "bump", bump );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Calculates the dimensions according to the transposition */
+    if ( trans == ChamNoTrans ) {
+        Am = N;
+        An = K;
+    }
+    else {
+        Am = K;
+        An = N;
+    }
+
+    /* Creates the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
+    CHAMELEON_zplghe( bump, uplo, N, C, LDC, seedC );
+
+    /* Calculates the product */
+    testing_start( &test_data );
+    hres = CHAMELEON_zherk( uplo, trans, N, K, alpha, A, LDA, beta, C, LDC );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zherk( K, N ) );
+
+    /* Checks the solution */
+    if ( check ) {
+        Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplghe( bump, uplo, N, Cinit, LDC, seedC );
+
+        // hres += check_zsyrk( args, ChamHermitian, uplo, trans, alpha, descA, NULL,
+        //                      beta, descCinit, descC );
+
+        free( Cinit );
+    }
+
+    free( A );
+    free( C );
 
     return hres;
 }

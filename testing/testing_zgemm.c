@@ -2,7 +2,7 @@
  *
  * @file testing_zgemm.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,7 +13,8 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @author Alycia Lisito
+ * @date 2022-02-04
  * @precisions normal z -> c d s
  *
  */
@@ -130,6 +131,88 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgemm_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
+    cham_trans_t transB = run_arg_get_trans( args, "transB", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          K      = run_arg_get_int( args, "K", N );
+    int          LDA    = run_arg_get_int( args, "LDA", ( ( transA == ChamNoTrans ) ? M : K ) );
+    int          LDB    = run_arg_get_int( args, "LDB", ( ( transB == ChamNoTrans ) ? K : N ) );
+    int          LDC    = run_arg_get_int( args, "LDC", M );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    CHAMELEON_Complex64_t beta  = testing_zalea();
+    int                   seedA = run_arg_get_int( args, "seedA", random() );
+    int                   seedB = run_arg_get_int( args, "seedB", random() );
+    int                   seedC = run_arg_get_int( args, "seedC", random() );
+
+    /* Descriptors */
+    int                    Am, An, Bm, Bn;
+    CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
+
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Calculate the dimensions according to the transposition */
+    if ( transA == ChamNoTrans ) {
+        Am = M;
+        An = K;
+    }
+    else {
+        Am = K;
+        An = M;
+    }
+    if ( transB == ChamNoTrans ) {
+        Bm = K;
+        Bn = N;
+    }
+    else {
+        Bm = N;
+        Bn = K;
+    }
+
+    /* Create the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*Bn*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fill the matrices with random values */
+    CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
+    CHAMELEON_zplrnt( Bm, Bn, B, LDB, seedB );
+    CHAMELEON_zplrnt( M, N, C, LDC, seedC );
+
+    /* Calculate the product */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgemm( transA, transB, M, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgemm( M, N, K ) );
+
+    /* Check the solution */
+    if ( check ) {
+        Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplrnt( M, N, Cinit, LDC, seedC );
+
+        // hres += check_zgemm( args, transA, transB, alpha, descA, descB, beta, descCinit, descC );
+
+        free( Cinit );
+    }
+
+    free( A );
+    free( B );
+    free( C );
+
+    return hres;
+}
+
 testing_t   test_zgemm;
 const char *zgemm_params[] = { "mtxfmt", "nb",    "transA", "transB", "m",     "n",
                                "k",      "lda",   "ldb",    "ldc",    "alpha", "beta",
@@ -150,7 +233,7 @@ testing_zgemm_init( void )
     test_zgemm.output = zgemm_output;
     test_zgemm.outchk = zgemm_outchk;
     test_zgemm.fptr_desc = testing_zgemm_desc;
-    test_zgemm.fptr_std  = NULL;
+    test_zgemm.fptr_std  = testing_zgemm_std;
     test_zgemm.next   = NULL;
 
     testing_register( &test_zgemm );

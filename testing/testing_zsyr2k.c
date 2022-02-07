@@ -2,7 +2,7 @@
  *
  * @file testing_zsyr2k.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,7 +13,8 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @author Alycia Lisito
+ * @date 2022-02-04
  * @precisions normal z -> z c d s
  *
  */
@@ -115,6 +116,82 @@ testing_zsyr2k_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zsyr2k_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int                   N     = run_arg_get_int( args, "N", 1000 );
+    int                   K     = run_arg_get_int( args, "K", N );
+    int                   LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int                   LDB   = run_arg_get_int( args, "LDB", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int                   LDC   = run_arg_get_int( args, "LDC", N );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    CHAMELEON_Complex64_t beta  = testing_zalea();
+    int                   seedA = run_arg_get_int( args, "seedA", random() );
+    int                   seedB = run_arg_get_int( args, "seedB", random() );
+    int                   seedC = run_arg_get_int( args, "seedC", random() );
+    double                bump  = testing_dalea();
+
+    /* Descriptors */
+    int                    Am, An;
+    CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
+
+    bump  = run_arg_get_double( args, "bump", bump );
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Calculate the dimensions according to the transposition */
+    if ( trans == ChamNoTrans ) {
+        Am = N;
+        An = K;
+    }
+    else {
+        Am = K;
+        An = N;
+    }
+
+    /* Create the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*An*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fill the matrix with random values */
+    CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
+    CHAMELEON_zplrnt( Am, An, B, LDB, seedB );
+    CHAMELEON_zplgsy( bump, uplo, N, C, LDC, seedC );
+
+    /* Calculate the product */
+    testing_start( &test_data );
+    hres = CHAMELEON_zsyr2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zher2k( K, N ) );
+
+    /* Check the solution */
+    if ( check ) {
+        Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplgsy( bump, uplo, N, Cinit, LDC, seedC );
+
+        // hres += check_zsyrk( args, ChamSymmetric, uplo, trans, alpha, descA, descB,
+        //                      beta, descCinit, descC );
+
+        free( Cinit );
+    }
+
+    free( A );
+    free( B );
+    free( C );
+
+    return hres;
+}
+
 testing_t   test_zsyr2k;
 const char *zsyr2k_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",    "k",
                                 "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
@@ -135,7 +212,7 @@ testing_zsyr2k_init( void )
     test_zsyr2k.output = zsyr2k_output;
     test_zsyr2k.outchk = zsyr2k_outchk;
     test_zsyr2k.fptr_desc = testing_zsyr2k_desc;
-    test_zsyr2k.fptr_std  = NULL;
+    test_zsyr2k.fptr_std  = testing_zsyr2k_std;
     test_zsyr2k.next   = NULL;
 
     testing_register( &test_zsyr2k );
