@@ -2,7 +2,7 @@
  *
  * @file testing_zpotri.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,7 +13,8 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @author Alycia Lisito
+ * @date 2022-02-07
  * @precisions normal z -> c d s
  *
  */
@@ -82,6 +83,54 @@ testing_zpotri_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zpotri_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Create the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Initialise the matrix with the random values */
+    CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
+
+    hres = CHAMELEON_zpotrf( uplo, N, A, LDA );
+    assert( hres == 0 );
+
+    /* Calculates the inversed matrix */
+    testing_start( &test_data );
+    hres += CHAMELEON_zpotri( uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotri( N ) );
+
+    /* Check the inverse */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+
+        // hres += check_ztrtri( args, ChamHermitian, uplo, ChamNonUnit, descA0, descA );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zpotri;
 const char *zpotri_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zpotri_output[] = { NULL };
@@ -100,7 +149,7 @@ testing_zpotri_init( void )
     test_zpotri.output = zpotri_output;
     test_zpotri.outchk = zpotri_outchk;
     test_zpotri.fptr_desc = testing_zpotri_desc;
-    test_zpotri.fptr_std  = NULL;
+    test_zpotri.fptr_std  = testing_zpotri_std;
     test_zpotri.next   = NULL;
 
     testing_register( &test_zpotri );
