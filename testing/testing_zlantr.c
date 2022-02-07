@@ -2,7 +2,7 @@
  *
  * @file testing_zlantr.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -12,7 +12,8 @@
  * @version 1.1.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @author Alycia Lisito
+ * @date 2022-02-07
  * @precisions normal z -> c d s
  *
  */
@@ -128,6 +129,49 @@ testing_zlantr_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zlantr_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int             nb        = run_arg_get_int( args, "nb", 320 );
+    cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
+    cham_uplo_t     uplo      = run_arg_get_uplo( args, "uplo", ChamUpper );
+    cham_diag_t     diag      = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int             N         = run_arg_get_int( args, "N", 1000 );
+    int             M         = run_arg_get_int( args, "M", N );
+    int             LDA       = run_arg_get_int( args, "LDA", M );
+    int             seedA     = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrix */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Calculates the norm */
+    testing_start( &test_data );
+    CHAMELEON_zlantr( norm_type, uplo, diag, M, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlantr( norm_type, uplo, M, N ) );
+
+    /* Checks the solution */
+    if ( check ) {
+        // hres = check_znorm( args, ChamTriangular, norm_type, uplo, diag, norm, descA );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zlantr;
 const char *zlantr_params[] = { "mtxfmt", "nb", "norm", "uplo",  "diag",
                                 "m",      "n",  "lda",  "seedA", NULL };
@@ -147,7 +191,7 @@ testing_zlantr_init( void )
     test_zlantr.output = zlantr_output;
     test_zlantr.outchk = zlantr_outchk;
     test_zlantr.fptr_desc = testing_zlantr_desc;
-    test_zlantr.fptr_std  = NULL;
+    test_zlantr.fptr_std  = testing_zlantr_std;
     test_zlantr.next   = NULL;
 
     testing_register( &test_zlantr );
