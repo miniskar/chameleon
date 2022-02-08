@@ -8,6 +8,7 @@
 coverage:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: analyse
+  tags: ["docker"]
   script:
     - tools/coverage.sh
   only:
