@@ -146,6 +146,7 @@ testing_zlantr_std( run_arg_list_t *args, int check )
     int             seedA     = run_arg_get_int( args, "seedA", random() );
 
     /* Descriptors */
+    double norm;
     CHAMELEON_Complex64_t *A;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
@@ -158,13 +159,13 @@ testing_zlantr_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    CHAMELEON_zlantr( norm_type, uplo, diag, M, N, A, LDA );
+    norm = CHAMELEON_zlantr( norm_type, uplo, diag, M, N, A, LDA );
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlantr( norm_type, uplo, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        // hres = check_znorm( args, ChamTriangular, norm_type, uplo, diag, norm, descA );
+        hres = check_znorm_std( ChamTriangular, norm_type, uplo, diag, norm, M, N, A, LDA );
     }
 
     free( A );

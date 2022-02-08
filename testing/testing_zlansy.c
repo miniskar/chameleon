@@ -123,6 +123,7 @@ testing_zlansy_std( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t bump      = testing_zalea();
 
     /* Descriptors */
+    double norm;
     CHAMELEON_Complex64_t *A;
 
     bump = run_arg_get_complex64( args, "bump", bump );
@@ -137,13 +138,13 @@ testing_zlansy_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    CHAMELEON_zlansy( norm_type, uplo, N, A, LDA );
+    norm = CHAMELEON_zlansy( norm_type, uplo, N, A, LDA );
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlansy( norm_type, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        // hres = check_znorm( args, ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, descA );
+        hres = check_znorm_std( ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
 
     free( A );
