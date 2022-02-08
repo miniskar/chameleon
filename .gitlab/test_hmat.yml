@@ -11,7 +11,6 @@
       - build_hmat
       - chameleon_hmat_*.log
       - chameleon_hmat_*.lcov
-      - bis_chameleon_hmat_*.lcov
     reports:
       junit: report.xml
 

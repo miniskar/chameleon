@@ -11,7 +11,6 @@
       - build_openmp
       - chameleon_openmp_*.log
       - chameleon_openmp_*.lcov
-      - bis_chameleon_openmp_*.lcov
     reports:
       junit: report.xml
 

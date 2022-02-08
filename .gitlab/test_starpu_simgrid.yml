@@ -11,7 +11,6 @@
       - build_starpu_simgrid
       - chameleon_starpu_simgrid_*.log
       - chameleon_starpu_simgrid_*.lcov
-      - bis_chameleon_starpu_simgrid_*.lcov
     reports:
       junit: report.xml
 
