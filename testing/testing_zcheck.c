@@ -2,7 +2,7 @@
  *
  * @file testing_zcheck.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -14,7 +14,8 @@
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
- * @date 2020-12-01
+ * @author Alycia Lisito
+ * @date 2022-02-08
  * @precisions normal z -> c d s
  *
  */
@@ -168,14 +169,75 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
  *
  *******************************************************************************
  */
+
+int check_znorm_std( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
+                     cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA )
+{
+    int info_solution  = 0;
+    double *work       = (double*) malloc(chameleon_max(M, N)*sizeof(double));
+    double norm_lapack;
+    double result;
+    double eps         = LAPACKE_dlamch_work('e');
+
+    /* Computes the norm with the LAPACK function */
+    switch (matrix_type) {
+    case ChamGeneral:
+        norm_lapack = LAPACKE_zlange_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), M, N, A, LDA, work );
+        break;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    case ChamHermitian:
+        norm_lapack = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), M, A, LDA, work );
+        break;
+#endif
+    case ChamSymmetric:
+        norm_lapack = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), M, A, LDA, work );
+        break;
+    case ChamTriangular:
+        norm_lapack = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), chameleon_lapack_const(diag), M, N, A, LDA, work );
+        break;
+    default:
+        fprintf(stderr, "check_znorm: mtxtype(%d) unsupported\n", matrix_type );
+        free( work );
+        return 1;
+    }
+
+    /* Compares the norms */
+    result = fabs( norm_cham - norm_lapack ) / ( norm_lapack * eps );
+
+    switch(norm_type) {
+    case ChamInfNorm:
+        /* Sum order on the line can differ */
+        result = result / (double)N;
+        break;
+    case ChamOneNorm:
+        /* Sum order on the column can differ */
+        result = result / (double)M;
+        break;
+    case ChamFrobeniusNorm:
+        /* Sum order on every element can differ */
+        result = result / ((double)M * (double)N);
+        break;
+    case ChamMaxNorm:
+    default:
+        /* result should be perfectly equal */
+        ;
+    }
+
+    info_solution = ( result < 1 ) ? 0 : 1;
+
+    free(work);
+
+    return info_solution;
+}
+
 int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                  cham_diag_t diag, double norm_cham, CHAM_desc_t *descA )
 {
-    int info_solution = 0;
-    int M = descA->m;
-    int N = descA->n;
-    int LDA = descA->m;
-    int rank = CHAMELEON_Comm_rank();
+    int info_solution        = 0;
+    int M                    = descA->m;
+    int N                    = descA->n;
+    int LDA                  = descA->m;
+    int rank                 = CHAMELEON_Comm_rank();
     CHAMELEON_Complex64_t *A = NULL;
 
     if ( rank == 0 ) {
@@ -184,61 +246,8 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
 
     /* Converts the matrix to LAPACK layout in order to use the LAPACK norm function */
     CHAMELEON_zDesc2Lap( uplo, descA, A, LDA );
-
     if ( rank == 0 ) {
-        double *work = (double*) malloc(chameleon_max(M, N)*sizeof(double));
-        double norm_lapack;
-        double result;
-        double eps = LAPACKE_dlamch_work('e');
-
-        /* Computes the norm with the LAPACK function */
-        switch (matrix_type) {
-        case ChamGeneral:
-            norm_lapack = LAPACKE_zlange_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), M, N, A, LDA, work );
-            break;
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        case ChamHermitian:
-            norm_lapack = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), M, A, LDA, work );
-            break;
-#endif
-        case ChamSymmetric:
-            norm_lapack = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), M, A, LDA, work );
-            break;
-        case ChamTriangular:
-            norm_lapack = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), chameleon_lapack_const(diag), M, N, A, LDA, work );
-            break;
-        default:
-            fprintf(stderr, "check_znorm: mtxtype(%d) unsupported\n", matrix_type );
-            free( work );
-            return 1;
-        }
-
-        /* Compares the norms */
-        result = fabs( norm_cham - norm_lapack ) / ( norm_lapack * eps );
-
-        switch(norm_type) {
-        case ChamInfNorm:
-            /* Sum order on the line can differ */
-            result = result / (double)N;
-            break;
-        case ChamOneNorm:
-            /* Sum order on the column can differ */
-            result = result / (double)M;
-            break;
-        case ChamFrobeniusNorm:
-            /* Sum order on every element can differ */
-            result = result / ((double)M * (double)N);
-            break;
-        case ChamMaxNorm:
-        default:
-            /* result should be perfectly equal */
-            ;
-        }
-
-        info_solution = ( result < 1 ) ? 0 : 1;
-
-        free(work);
-        free(A);
+        info_solution = check_znorm_std( matrix_type, norm_type, uplo, diag, norm_cham, M, N, A, LDA );
     }
 
     /* Broadcasts the result from the main processus */
