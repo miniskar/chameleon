@@ -2,7 +2,7 @@
  *
  * @file testing_zposv.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,7 +13,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @date 2022-02-07
  * @precisions normal z -> c d s
  *
  */
@@ -105,6 +105,67 @@ testing_zposv_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zposv_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         LDB   = run_arg_get_int( args, "LDB", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+    int         seedB = run_arg_get_int( args, "seedB", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *X;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
+    CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zposv( uplo, N, NRHS, A, LDA, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zposv( N, NRHS ) );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *X0  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+        /* Check the factorization */
+        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+
+        // hres += check_zxxtrf( args, ChamHermitian, uplo, descA0, descA );
+
+        /* Check the solve */
+        CHAMELEON_zplrnt( N, NRHS, X0, LDB, seedB );
+
+        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+        // hres += check_zsolve( args, ChamHermitian, ChamNoTrans, uplo, descA0, descX, descB );
+
+        free( A0 );
+        free( X0 );
+    }
+
+    free( A );
+    free( X );
+
+    return hres;
+}
+
 testing_t   test_zposv;
 const char *zposv_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                "lda",    "ldb", "seedA", "seedB", NULL };
@@ -124,7 +185,7 @@ testing_zposv_init( void )
     test_zposv.output = zposv_output;
     test_zposv.outchk = zposv_outchk;
     test_zposv.fptr_desc = testing_zposv_desc;
-    test_zposv.fptr_std  = NULL;
+    test_zposv.fptr_std  = testing_zposv_std;
     test_zposv.next   = NULL;
 
     testing_register( &test_zposv );
