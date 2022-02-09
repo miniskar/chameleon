@@ -201,7 +201,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Cinit, LDC, seedC );
 
-        // hres += check_zgemm( args, transA, transB, alpha, descA, descB, beta, descCinit, descC );
+        hres += check_zgemm_std( args, transA, transB, alpha, M, N, K, A, LDA, B, LDB, beta, Cinit, C, LDC );
 
         free( Cinit );
     }
