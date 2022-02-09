@@ -1,7 +1,7 @@
+---
 sonarqube:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: analyse
-  tags: ["linux"]
+  tags: ["docker","linux"]
   artifacts:
     name: chameleon_analysis
     expire_in: 1 week
@@ -15,8 +15,5 @@ sonarqube:
   script:
     - cat *.log > chameleon_build.log
     - ./tools/analysis.sh
-  only:
-    - master@solverstack/chameleon
-    - /^ci-.*$/
-  except:
-    - schedules
+  extends:
+    - .only-master

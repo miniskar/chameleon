@@ -32,14 +32,7 @@ TOOLSDIR=$(dirname $0)
 $TOOLSDIR/find_sources.sh
 
 # Generate coverage xml output
-INPUT_FILES=""
-for name in $( ls -1 chameleon_*.lcov | grep -v simgrid)
-do
-    INPUT_FILES="$INPUT_FILES -a $name";
-done
-lcov $INPUT_FILES -o chameleon.lcov
-lcov --summary chameleon.lcov
-
+$TOOLSDIR/coverage.sh
 python3 /usr/local/lib/python3.8/dist-packages/lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 
 # Undefine this because not relevant in our configuration

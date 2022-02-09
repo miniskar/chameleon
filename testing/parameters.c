@@ -312,7 +312,6 @@ parameters_read_file( const char  *filename )
     char        *line_read, *line;
     char        *name, *values;
     size_t       len = 256;
-    ssize_t      nbread;
     parameter_t *param;
 
     fp = fopen( filename, "r" );
@@ -325,7 +324,7 @@ parameters_read_file( const char  *filename )
     len = 256;
     line_read = malloc( len * sizeof( char ) );
 
-    while ( (nbread = getline( &line_read, &len, fp )) != -1 )
+    while ( getline( &line_read, &len, fp ) != -1 )
     {
         line = line_read;
 

@@ -62,7 +62,6 @@
              -T Coverage
              | tee -a ../${LOGNAME}.log")
     - lcov --directory build-$VERSION --capture --output-file ./${LOGNAME}.lcov
-    - (cd build-$VERSION && lcov --directory . --capture --output-file ../bis_${LOGNAME}.lcov)
     - xsltproc -o report.xml /home/gitlab/ctest-to-junit.xsl build-$VERSION/Testing/**/Test.xml
 
 .bench_plafrim_common:
