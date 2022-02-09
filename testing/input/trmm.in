@@ -4,8 +4,8 @@
 # TRMM
 # nb: Tile size
 # ib: Inner tile size
-# n: Order of the matrix A
-# k: the number of columns of the matrix B if side = ChamLeft and the number of rows of the matrix B if side = ChamRight
+# m: Number of rows of the matrix B and order of the matrix A if side = ChamLeft
+# n: Number of columns of the matrix B and order of the matrix A if side = ChamRight
 # lda: Leading dimension of matrix A
 # ldb: Leading dimension of matrix B
 # uplo: Matrix part to be considered (0: Upper, 1: Lower)
@@ -18,8 +18,8 @@ alpha = 0., 3.45
 op = trmm
 nb = 16, 17
 ib = 8
+m = 13, 21, 33
 n = 15, 19, 35
-k = 13, 21, 33
 lda = 38
 ldb = 37
 uplo = 0,1
