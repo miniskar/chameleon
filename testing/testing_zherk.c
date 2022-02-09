@@ -152,7 +152,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
-    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
@@ -169,8 +169,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplghe( bump, uplo, N, Cinit, LDC, seedC );
 
-        // hres += check_zsyrk( args, ChamHermitian, uplo, trans, alpha, descA, NULL,
-        //                      beta, descCinit, descC );
+        hres += check_zsyrk_std( args, ChamHermitian, uplo, trans, N, K, alpha, A, NULL, LDA, beta, Cinit, C, LDC );
 
         free( Cinit );
     }

@@ -161,11 +161,11 @@ testing_zher2k_std( run_arg_list_t *args, int check )
     /* Create the matrices */
     A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
     B = malloc( LDB*An*sizeof(CHAMELEON_Complex64_t) );
-    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt( Am, An, B, LDA, seedA );
-    CHAMELEON_zplrnt( K, An, B, LDB, seedB );
+    CHAMELEON_zplrnt( K,  An, B, LDB, seedB );
     CHAMELEON_zplghe( bump, uplo, N, C, LDC, seedC );
 
     /* Calculate the product */
@@ -179,8 +179,7 @@ testing_zher2k_std( run_arg_list_t *args, int check )
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplghe( bump, uplo, N, Cinit, LDC, seedC );
 
-        // hres += check_zsyrk( args, ChamHermitian, uplo, trans, alpha, descA, descB,
-        //                      beta, descCinit, descC );
+        hres += check_zsyrk_std( args, ChamHermitian, uplo, trans, N, K, alpha, A, B, LDA, beta, Cinit, C, LDC );
 
         free( Cinit );
     }
