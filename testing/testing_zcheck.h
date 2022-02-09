@@ -2,7 +2,7 @@
  *
  * @file testing_zcheck.h
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -14,7 +14,8 @@
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
- * @date 2020-12-01
+ * @author Alycia Lisito
+ * @date 2022-02-08
  * @precisions normal z -> c d s
  *
  */
@@ -36,6 +37,8 @@
 #if defined(CHAMELEON_SIMULATION)
 
 static inline int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB ) { return 0; }
+static inline int check_znorm_std     ( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
+                                        cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA ) { return 0; }
 static inline int check_znorm         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_normtype_t norm_type, cham_uplo_t uplo,
                                         cham_diag_t diag, double norm_cham, CHAM_desc_t *descA ) { return 0; }
 static inline int check_zsum          ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
@@ -77,6 +80,8 @@ static inline int check_zxxpd         ( run_arg_list_t *args,
 #else /* !defined(CHAMELEON_SIMULATION) */
 
 int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB );
+int check_znorm_std     ( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
+                          cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA );
 int check_znorm         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_normtype_t norm_type, cham_uplo_t uplo,
                           cham_diag_t diag, double norm_cham, CHAM_desc_t *descA );
 int check_zsum          ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,

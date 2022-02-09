@@ -123,6 +123,7 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
     double          bump      = testing_dalea();
 
     /* Descriptors */
+    double norm;
     CHAMELEON_Complex64_t *A;
 
     bump = run_arg_get_complex64( args, "bump", bump );
@@ -137,13 +138,13 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    CHAMELEON_zlanhe( norm_type, uplo, N, A, LDA ); 
+    norm = CHAMELEON_zlanhe( norm_type, uplo, N, A, LDA ); 
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlanhe( norm_type, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        // hres = check_znorm( args, ChamHermitian, norm_type, uplo, ChamNonUnit, norm, descA );
+        hres = check_znorm_std( ChamHermitian, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
 
     free( A );

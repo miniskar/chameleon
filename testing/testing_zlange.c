@@ -123,6 +123,7 @@ testing_zlange_std( run_arg_list_t *args, int check )
     int             seedA     = run_arg_get_int( args, "seedA", random() );
 
     /* Descriptors */
+    double norm;
     CHAMELEON_Complex64_t *A;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
@@ -135,14 +136,13 @@ testing_zlange_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    CHAMELEON_zlange( norm_type, M, N, A, LDA ); 
+    norm = CHAMELEON_zlange( norm_type, M, N, A, LDA ); 
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlange( norm_type, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        // hres = check_znorm( args, ChamGeneral, norm_type, ChamUpperLower,
-        //                     ChamNonUnit, norm, descA );
+        hres = check_znorm_std( ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, M, N, A, LDA );
     }
 
     free( A );
