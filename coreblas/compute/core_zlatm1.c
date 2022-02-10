@@ -130,7 +130,7 @@ int CORE_zlatm1( int MODE, double COND, int IRSIGN, cham_dist_t DIST,
         coreblas_error(3, "illegal value of COND");
         return -3;
     }
-    if ( ( (MODE != -6) || (MODE != 6) ) &&
+    if ( ( (MODE == -6) || (MODE == 6) ) &&
          ( (DIST < ChamDistUniform) || (DIST > ChamDistSymmetric) ) )
     {
         coreblas_error(4, "illegal value of DIST");

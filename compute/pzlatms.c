@@ -155,6 +155,7 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
                 if ( alloc_d ) {
                     free( D );
                 }
+                return;
             }
         }
     }
