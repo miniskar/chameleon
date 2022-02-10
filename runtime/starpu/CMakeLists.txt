@@ -28,6 +28,8 @@
 ###
 cmake_minimum_required(VERSION 3.1)
 
+include(CheckStructHasMember)
+
 set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "necessary STARPU API version")
 
 find_package(STARPU ${CHAMELEON_STARPU_VERSION} REQUIRED)
@@ -38,6 +40,7 @@ if ( STARPU_FOUND )
   message("-- ${Blue}Add definition CHAMELEON_SCHED_STARPU"
     " - Activate StarPU in Chameleon${ColourReset}")
   get_target_property(CMAKE_REQUIRED_LIBRARIES MORSE::STARPU INTERFACE_LINK_LIBRARIES)
+  get_target_property(CMAKE_REQUIRED_INCLUDES  MORSE::STARPU INTERFACE_INCLUDE_DIRECTORIES)
   check_function_exists(starpu_data_idle_prefetch_on_node HAVE_STARPU_IDLE_PREFETCH)
   if ( HAVE_STARPU_IDLE_PREFETCH )
     message("-- ${Blue}Add definition HAVE_STARPU_IDLE_PREFETCH${ColourReset}")
@@ -69,6 +72,10 @@ if ( STARPU_FOUND )
   check_function_exists(starpu_data_peek HAVE_STARPU_DATA_PEEK)
   if ( HAVE_STARPU_DATA_PEEK )
     message("-- ${Blue}Add definition HAVE_STARPU_DATA_PEEK${ColourReset}")
+  endif()
+  check_struct_has_member( "struct starpu_data_interface_ops" reuse_data_on_node "starpu_data_interfaces.h" HAVE_STARPU_REUSE_DATA_ON_NODE LANGUAGE "C" )
+  if ( HAVE_STARPU_REUSE_DATA_ON_NODE )
+    message("-- ${Blue}Add definition HAVE_STARPU_REUSE_DATA_ON_NODE${ColourReset}")
   endif()
 
   if (CHAMELEON_USE_MPI)
@@ -120,6 +127,7 @@ if ( STARPU_FOUND )
     endif()
   endif()
   unset(CMAKE_REQUIRED_LIBRARIES)
+  unset(CMAKE_REQUIRED_INCLUDES)
 endif ( STARPU_FOUND )
 
 configure_file("include/chameleon_starpu.h.in"
