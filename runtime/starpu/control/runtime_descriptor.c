@@ -329,18 +329,19 @@ void RUNTIME_flush()
 /**
  * Different implementations of the flush call based on StarPU version
  */
-#ifdef HAVE_STARPU_DATA_WONT_USE
+#if defined(HAVE_STARPU_DATA_WONT_USE)
 
 static inline void
 chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
     starpu_data_wont_use( handle );
 }
 
-#elif defined HAVE_STARPU_IDLE_PREFETCH
+#elif defined(HAVE_STARPU_IDLE_PREFETCH)
 
 static inline void
-chameleon_starpu_data_flush( starpu_data_handle_t handle)
+chameleon_starpu_data_flush( void *_handle)
 {
+    starpu_data_handle_t handle = (starpu_data_handle_t)_handle;
     starpu_data_idle_prefetch_on_node(handle, STARPU_MAIN_RAM, 1);
     starpu_data_release_on_node(handle, -1);
 }

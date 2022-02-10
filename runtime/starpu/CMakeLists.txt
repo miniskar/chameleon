@@ -28,6 +28,7 @@
 ###
 cmake_minimum_required(VERSION 3.1)
 
+include(CheckSymbolExists)
 include(CheckStructHasMember)
 
 set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "necessary STARPU API version")
@@ -39,8 +40,7 @@ find_package(STARPU ${CHAMELEON_STARPU_VERSION} REQUIRED)
 if ( STARPU_FOUND )
   message("-- ${Blue}Add definition CHAMELEON_SCHED_STARPU"
     " - Activate StarPU in Chameleon${ColourReset}")
-  get_target_property(CMAKE_REQUIRED_LIBRARIES MORSE::STARPU INTERFACE_LINK_LIBRARIES)
-  get_target_property(CMAKE_REQUIRED_INCLUDES  MORSE::STARPU INTERFACE_INCLUDE_DIRECTORIES)
+  morse_cmake_required_set( STARPU )
   check_function_exists(starpu_data_idle_prefetch_on_node HAVE_STARPU_IDLE_PREFETCH)
   if ( HAVE_STARPU_IDLE_PREFETCH )
     message("-- ${Blue}Add definition HAVE_STARPU_IDLE_PREFETCH${ColourReset}")
@@ -80,7 +80,6 @@ if ( STARPU_FOUND )
 
   if (CHAMELEON_USE_MPI)
     # Add MPI in case StarPU don't have a public dependency on it
-    set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES};MPI::MPI_C")
     check_function_exists(starpu_mpi_init_conf HAVE_STARPU_MPI_INIT_CONF)
     if ( HAVE_STARPU_MPI_INIT_CONF )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_INIT_CONF${ColourReset}")
@@ -126,8 +125,7 @@ if ( STARPU_FOUND )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_COMM_GET_ATTR${ColourReset}")
     endif()
   endif()
-  unset(CMAKE_REQUIRED_LIBRARIES)
-  unset(CMAKE_REQUIRED_INCLUDES)
+  morse_cmake_required_unset()
 endif ( STARPU_FOUND )
 
 configure_file("include/chameleon_starpu.h.in"
@@ -153,6 +151,7 @@ set(RUNTIME_HDRS
   include/runtime_codelets.h
   include/runtime_profiling.h
   include/runtime_workspace.h
+  include/cham_tile_interface.h
   )
 
 # Add generated headers
