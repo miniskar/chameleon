@@ -136,6 +136,25 @@ inline static void *chameleon_getaddr_cm(const CHAM_desc_t *A, int m, int n)
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
  */
+inline static size_t chameleon_getaddr_cm_offset(const CHAM_desc_t *A, int m, int n, size_t ld)
+{
+    size_t mm = m + A->i / A->mb;
+    size_t nn = n + A->j / A->nb;
+    size_t offset = 0;
+
+#if defined(CHAMELEON_USE_MPI)
+    assert( A->myrank == A->get_rankof( A, mm, nn) );
+    mm = mm / A->p;
+    nn = nn / A->q;
+#endif
+
+    offset = (size_t)(ld * A->nb) * nn + (size_t)(A->mb) * mm;
+    return offset;
+}
+
+/**
+ *  Internal function to return address of block (m,n) with m,n = block indices
+ */
 inline static void *chameleon_getaddr_diag( const CHAM_desc_t *A, int m, int n )
 {
     assert( m == n );

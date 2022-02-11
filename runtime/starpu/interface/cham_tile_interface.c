@@ -164,9 +164,10 @@ cti_allocate_data_on_node( void *data_interface, unsigned node )
     }
 
     /* update the data properly */
-    cham_tile_interface->tile.mat   = (void*)addr;
-    cham_tile_interface->tile.ld    = ld;
-    cham_tile_interface->dev_handle = handle;
+    cham_tile_interface->tile.format = CHAMELEON_TILE_FULLRANK;
+    cham_tile_interface->tile.mat    = (void*)addr;
+    cham_tile_interface->tile.ld     = ld;
+    cham_tile_interface->dev_handle  = handle;
 
     return allocated_memory;
 }
@@ -205,9 +206,10 @@ cti_reuse_data_on_node( void *dst_data_interface, const void *cached_interface, 
         (starpu_cham_tile_interface_t *) cached_interface;
 
     /* update the data properly */
-    dst_cham_tile->tile.mat   = cached_cham_tile->tile.mat;
-    dst_cham_tile->tile.ld    = dst_cham_tile->tile.m;
-    dst_cham_tile->dev_handle = cached_cham_tile->dev_handle;
+    dst_cham_tile->tile.format = CHAMELEON_TILE_FULLRANK;
+    dst_cham_tile->tile.mat    = cached_cham_tile->tile.mat;
+    dst_cham_tile->tile.ld     = dst_cham_tile->tile.m;
+    dst_cham_tile->dev_handle  = cached_cham_tile->dev_handle;
 }
 #endif
 
@@ -631,7 +633,7 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
 
             if ( starpu_interface_copy( (uintptr_t) src_mat, src_offset, src_node,
                                         (uintptr_t) dst_mat, dst_offset, dst_node,
-                                        m * elemsize, async_data ) )
+                                        m, async_data ) )
             {
                 ret = -EAGAIN;
             }
@@ -639,7 +641,7 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
     }
 #endif
 
-    starpu_interface_data_copy( src_node, dst_node, (size_t) n*m*elemsize );
+    starpu_interface_data_copy( src_node, dst_node, m * n );
 
     return ret;
 }
@@ -651,11 +653,11 @@ static int cti_copy_ram_to_cuda_async( void *src_interface, unsigned src_node,
     starpu_cham_tile_interface_t *cham_tile_src = (starpu_cham_tile_interface_t *) src_interface;
     starpu_cham_tile_interface_t *cham_tile_dst = (starpu_cham_tile_interface_t *) dst_interface;
     size_t elemsize = CHAMELEON_Element_Size( cham_tile_src->flttype );
-    size_t m = cham_tile_src->tile.m;
-    size_t n = cham_tile_src->tile.n;
-    size_t ld_src = cham_tile_src->tile.ld;
-    size_t ld_dst = m;
-    int ret = 0;
+    size_t m        = cham_tile_src->tile.m;
+    size_t n        = cham_tile_src->tile.n;
+    size_t ld_src   = cham_tile_src->tile.ld;
+    size_t ld_dst   = m;
+    int    ret      = 0;
 
     void *src_mat = CHAM_tile_get_ptr( &(cham_tile_src->tile) );
     void *dst_mat = cham_tile_dst->tile.mat;
@@ -670,14 +672,15 @@ static int cti_copy_ram_to_cuda_async( void *src_interface, unsigned src_node,
 #endif
 
     cham_tile_dst->tile.format = CHAMELEON_TILE_FULLRANK;
-    cham_tile_dst->tile.ld = m;
+    cham_tile_dst->tile.ld     = m;
 
+    m      = m      * elemsize;
+    ld_src = ld_src * elemsize;
+    ld_dst = ld_dst * elemsize;
 #if defined(HAVE_STARPU_INTERFACE_COPY2D)
-    ld_src *= elemsize;
-    ld_dst *= elemsize;
     if (starpu_interface_copy2d( (uintptr_t) src_mat, 0, src_node,
                                  (uintptr_t) dst_mat, 0, dst_node,
-                                 m * elemsize, n, ld_src, ld_dst, stream ) ) {
+                                 m, n, ld_src, ld_dst, stream ) ) {
         ret = -EAGAIN;
     }
 #else
@@ -686,7 +689,7 @@ static int cti_copy_ram_to_cuda_async( void *src_interface, unsigned src_node,
         /* Optimize unpartitioned and y-partitioned cases */
         if ( starpu_interface_copy( (uintptr_t) src_mat, 0, src_node,
                                     (uintptr_t) dst_mat, 0, dst_node,
-                                    m * n * elemsize, stream ) )
+                                    m * n, stream ) )
         {
             ret = -EAGAIN;
 	}
@@ -694,9 +697,6 @@ static int cti_copy_ram_to_cuda_async( void *src_interface, unsigned src_node,
     else
     {
         unsigned y;
-        ld_src *= elemsize;
-        ld_dst *= elemsize;
-
         for (y = 0; y < n; y++)
         {
             uint32_t src_offset = y * ld_src;
@@ -723,14 +723,20 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
     starpu_cham_tile_interface_t *cham_tile_src = (starpu_cham_tile_interface_t *) src_interface;
     starpu_cham_tile_interface_t *cham_tile_dst = (starpu_cham_tile_interface_t *) dst_interface;
     size_t elemsize = CHAMELEON_Element_Size( cham_tile_src->flttype );
-    size_t m = cham_tile_src->tile.m;
-    size_t n = cham_tile_src->tile.n;
-    size_t ld_src = cham_tile_src->tile.ld;
-    size_t ld_dst = m;
-    int ret = 0;
+    size_t m        = cham_tile_src->tile.m;
+    size_t n        = cham_tile_src->tile.n;
+    size_t ld_src   = cham_tile_src->tile.ld;
+    size_t ld_dst   = cham_tile_dst->tile.ld;
+    int    ret      = 0;
 
     void *src_mat = cham_tile_src->tile.mat;
     void *dst_mat = cham_tile_dst->tile.mat;
+
+    assert( ld_src >= m );
+    assert( ld_dst >= m );
+
+    assert( m == cham_tile_dst->tile.m );
+    assert( n == cham_tile_dst->tile.n );
 
 #if defined(CHAMELEON_KERNELS_TRACE)
     fprintf( stderr,
@@ -741,17 +747,15 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
              cham_tile_dst->tile.m, cham_tile_dst->tile.n, cham_tile_dst->tile.ld, dst_mat );
 #endif
 
-    cham_tile_dst->tile.format = CHAMELEON_TILE_FULLRANK;
-    cham_tile_dst->tile.ld = m;
-
     assert( !(cham_tile_src->tile.format & CHAMELEON_TILE_DESC) );
 
+    m      = m      * elemsize;
+    ld_src = ld_src * elemsize;
+    ld_dst = ld_dst * elemsize;
 #if defined(HAVE_STARPU_INTERFACE_COPY2D)
-    ld_src *= elemsize;
-    ld_dst *= elemsize;
     if (starpu_interface_copy2d( (uintptr_t) src_mat, 0, src_node,
                                  (uintptr_t) dst_mat, 0, dst_node,
-                                 m * elemsize, n, ld_src, ld_dst, stream ) ) {
+                                 m, n, ld_src, ld_dst, stream ) ) {
         ret = -EAGAIN;
     }
 #else
@@ -760,7 +764,7 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
         /* Optimize unpartitioned and y-partitioned cases */
         if ( starpu_interface_copy( (uintptr_t) src_mat, 0, src_node,
                                     (uintptr_t) dst_mat, 0, dst_node,
-                                    m * n * elemsize, stream ) )
+                                    m * n, stream ) )
         {
             ret = -EAGAIN;
 	}
@@ -768,9 +772,6 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
     else
     {
         unsigned y;
-        ld_src *= elemsize;
-        ld_dst *= elemsize;
-
         for (y = 0; y < n; y++)
         {
             uint32_t src_offset = y * ld_src;
@@ -778,7 +779,7 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
 
             if ( starpu_interface_copy( (uintptr_t) src_mat, src_offset, src_node,
                                         (uintptr_t) dst_mat, dst_offset, dst_node,
-                                        m * elemsize, stream ) )
+                                        m, stream ) )
             {
                 ret = -EAGAIN;
             }
@@ -786,7 +787,7 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
     }
 #endif
 
-    starpu_interface_data_copy( src_node, dst_node, (size_t) n*m*elemsize );
+    starpu_interface_data_copy( src_node, dst_node, m * n );
 
     assert( !(cham_tile_dst->tile.format & CHAMELEON_TILE_DESC) );
 
@@ -797,11 +798,11 @@ static int cti_copy_cuda_to_cuda_async( void *src_interface, unsigned src_node,
 static const struct starpu_data_copy_methods cti_copy_methods =
 {
     .any_to_any         = cti_copy_any_to_any,
-#ifdef CHAMELEON_USE_CUDA
-    .ram_to_cuda_async  = cti_copy_ram_to_cuda_async,
-    .cuda_to_ram_async  = cti_copy_cuda_to_ram_async,
-    .cuda_to_cuda_async = cti_copy_cuda_to_cuda_async
-#endif
+/* #ifdef CHAMELEON_USE_CUDA */
+/*     .ram_to_cuda_async  = cti_copy_ram_to_cuda_async, */
+/*     .cuda_to_ram_async  = cti_copy_cuda_to_ram_async, */
+/*     .cuda_to_cuda_async = cti_copy_cuda_to_cuda_async */
+/* #endif */
 };
 
 struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
