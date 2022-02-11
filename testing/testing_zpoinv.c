@@ -122,7 +122,7 @@ testing_zpoinv_std( run_arg_list_t *args, int check )
         CHAMELEON_Complex64_t *A0 = malloc( LDA * N * sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
 
-        // hres += check_ztrtri( args, ChamHermitian, uplo, ChamNonUnit, descA0, descA );
+        hres += check_ztrtri_std( args, ChamHermitian, uplo, ChamNonUnit, N, A0, A, LDA );
 
         free( A0 );
     }

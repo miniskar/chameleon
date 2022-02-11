@@ -142,22 +142,22 @@ testing_zposv_std( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_Complex64_t *X0  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
         /* Check the factorization */
         CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
 
-        // hres += check_zxxtrf( args, ChamHermitian, uplo, descA0, descA );
+        hres += check_zxxtrf_std( args, ChamHermitian, uplo, N, NRHS, A0, A, LDA );
 
         /* Check the solve */
-        CHAMELEON_zplrnt( N, NRHS, X0, LDB, seedB );
+        CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );
 
         CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
-        // hres += check_zsolve( args, ChamHermitian, ChamNoTrans, uplo, descA0, descX, descB );
+        hres += check_zsolve_std( args, ChamHermitian, ChamNoTrans, uplo, N, NRHS, A0, LDA, X, B, LDB );
 
         free( A0 );
-        free( X0 );
+        free( B );
     }
 
     free( A );
@@ -170,7 +170,7 @@ testing_t   test_zposv;
 const char *zposv_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                "lda",    "ldb", "seedA", "seedB", NULL };
 const char *zposv_output[] = { NULL };
-const char *zposv_outchk[] = { "RETURN", NULL };
+const char *zposv_outchk[] = { "||A||", "||A-fact(A)||", "||X||", "||B||", "||Ax-b||", "||Ax-b||/N/eps/(||A||||x||+||b||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

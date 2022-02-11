@@ -117,7 +117,7 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    A = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
     X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
@@ -135,16 +135,16 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_Complex64_t *X0  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
         CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
-        CHAMELEON_zplrnt( N, NRHS, X0, LDB, seedB );
+        CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );
 
-        // hres += check_zsolve( args, ChamHermitian, ChamNoTrans, uplo, descA0, descX, descB );
+        hres += check_zsolve_std( args, ChamHermitian, ChamNoTrans, uplo, N, NRHS, A0, LDA, X, B, LDB );
 
         free( A0 );
-        free( X0 );
+        free( B );
     }
 
     free( A );
