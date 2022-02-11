@@ -89,6 +89,44 @@ if (NOT CHAMELEON_SIMULATION)
     endforeach()
   endforeach()
 
+  foreach(prec ${RP_CHAMELEON_PRECISIONS})
+    set (CMD ./chameleon_${prec}testing)
+
+    #
+    # Create the list of test based on precision and runtime
+    #
+    set( TESTS lange lantr lansy )
+    if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+      set( TESTS ${TESTS} lanhe )
+    endif()
+    set( TESTS ${TESTS}
+      gemm symm syrk syr2k trmm trsm )
+    if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
+      set( TESTS ${TESTS}
+        hemm herk her2k )
+    endif()
+    set( TESTS ${TESTS}
+      potrf potrs posv )
+    if ( NOT CHAMELEON_SCHED_PARSEC )
+      set( TESTS ${TESTS} potri poinv)
+    endif()
+
+    list(REMOVE_ITEM TEST_CATEGORIES mpi)
+
+    foreach(cat ${TEST_CATEGORIES})
+      foreach(gpus ${N_GPUS})
+
+        if (${gpus} EQUAL 1)
+          set(cat ${cat}_gpu)
+        endif()
+
+        foreach(test ${TESTS})
+          add_test(test_${cat}_${prec}${test}_std ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in --api=1 )
+        endforeach()
+      endforeach()
+    endforeach()
+  endforeach()
+
 else (NOT CHAMELEON_SIMULATION)
 
   # constraints for which we have perfmodels in simucore/perfmodels/
