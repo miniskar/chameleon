@@ -573,11 +573,11 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
     starpu_cham_tile_interface_t *cham_tile_src = (starpu_cham_tile_interface_t *) src_interface;
     starpu_cham_tile_interface_t *cham_tile_dst = (starpu_cham_tile_interface_t *) dst_interface;
     size_t elemsize = CHAMELEON_Element_Size( cham_tile_src->flttype );
-    size_t m = cham_tile_src->tile.m;
-    size_t n = cham_tile_src->tile.n;
-    size_t ld_src = cham_tile_src->tile.ld;
-    size_t ld_dst = cham_tile_dst->tile.ld;
-    int ret = 0;
+    size_t m        = cham_tile_src->tile.m;
+    size_t n        = cham_tile_src->tile.n;
+    size_t ld_src   = cham_tile_src->tile.ld;
+    size_t ld_dst   = cham_tile_dst->tile.ld;
+    int    ret      = 0;
 
     void *src_mat = CHAM_tile_get_ptr( &(cham_tile_src->tile) );
     void *dst_mat = CHAM_tile_get_ptr( &(cham_tile_dst->tile) );

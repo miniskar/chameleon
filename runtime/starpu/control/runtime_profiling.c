@@ -46,6 +46,7 @@ void RUNTIME_iteration_push( CHAM_context_t *chamctxt, unsigned long iteration )
 #if defined(HAVE_STARPU_ITERATION_PUSH)
     starpu_iteration_push(iteration);
 #endif
+    (void)iteration;
 }
 
 void RUNTIME_iteration_pop( CHAM_context_t *chamctxt )
