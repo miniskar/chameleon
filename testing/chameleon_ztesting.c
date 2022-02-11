@@ -627,7 +627,7 @@ int main (int argc, char **argv) {
     nowarmup  = parameters_getvalue_int( "nowarmup" );
     profile   = parameters_getvalue_int( "profile"  );
     forcegpu  = parameters_getvalue_int( "forcegpu" );
-    api       = parameters_getvalue_int( "api" );
+    api       = parameters_getvalue_int( "api"      );
 
     rc = CHAMELEON_Init( ncores, ngpus );
 
