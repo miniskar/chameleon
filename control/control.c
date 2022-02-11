@@ -96,7 +96,17 @@ int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
       MPI_Initialized( &flag );
       chamctxt->mpi_outer_init = flag;
       if ( !flag ) {
-          MPI_Init_thread( NULL, NULL, MPI_THREAD_MULTIPLE, &provided );
+          /* MPI_THREAD_SERIALIZED should be enough.
+           * In testings, only StarPU's internal thread performs
+           * communications, and *then* Chameleon performs communications in
+           * the check step. */
+          const int required = MPI_THREAD_SERIALIZED;
+          if ( MPI_Init_thread( NULL, NULL, required, &provided ) != MPI_SUCCESS) {
+             chameleon_fatal_error("CHAMELEON_Init", "MPI_Init_thread() failed");
+          }
+          if ( provided < required ) {
+             chameleon_fatal_error("CHAMELEON_Init", "MPI_Init_thread() was not able to provide the requested thread support");
+          }
       }
     }
 #  endif
