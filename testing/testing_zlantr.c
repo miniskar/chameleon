@@ -165,7 +165,7 @@ testing_zlantr_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm_std( ChamTriangular, norm_type, uplo, diag, norm, M, N, A, LDA );
+        hres = check_znorm_std( args, ChamTriangular, norm_type, uplo, diag, norm, M, N, A, LDA );
     }
 
     free( A );
