@@ -138,39 +138,7 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
     return info_solution;
 }
 
-/**
- ********************************************************************************
- *
- * @ingroup testing
- *
- * @brief Compares the Chameleon computed norm with a Lapack computed one.
- *
- *******************************************************************************
- *
- * @param[in] matrix_type
- *          Wether it is a general, triangular or symmetric matrix.
- *
- * @param[in] norm_type
- *          Wether it should compare a Max, One, Inf or Frobenius norm.
- *
- * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
- *
- * @param[in] diag
- *          Wether it is a unitary diagonal matrix or not.
- *
- * @param[in] norm_cham
- *          The Chameleon computed norm.
- *
- * @param[in] descA
- *          The matrix descriptor.
- *
- * @retval 0 successfull comparison
- *
- *******************************************************************************
- */
-
-int check_znorm_std( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
+int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                      cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA )
 {
     int info_solution  = 0;
@@ -227,9 +195,41 @@ int check_znorm_std( cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham
 
     free(work);
 
+    (void)args;
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares the Chameleon computed norm with a Lapack computed one.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Wether it is a general, triangular or symmetric matrix.
+ *
+ * @param[in] norm_type
+ *          Wether it should compare a Max, One, Inf or Frobenius norm.
+ *
+ * @param[in] uplo
+ *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *
+ * @param[in] diag
+ *          Wether it is a unitary diagonal matrix or not.
+ *
+ * @param[in] norm_cham
+ *          The Chameleon computed norm.
+ *
+ * @param[in] descA
+ *          The matrix descriptor.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                  cham_diag_t diag, double norm_cham, CHAM_desc_t *descA )
 {
@@ -247,7 +247,7 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
     /* Converts the matrix to LAPACK layout in order to use the LAPACK norm function */
     CHAMELEON_zDesc2Lap( uplo, descA, A, LDA );
     if ( rank == 0 ) {
-        info_solution = check_znorm_std( matrix_type, norm_type, uplo, diag, norm_cham, M, N, A, LDA );
+        info_solution = check_znorm_std( args, matrix_type, norm_type, uplo, diag, norm_cham, M, N, A, LDA );
     }
 
     /* Broadcasts the result from the main processus */
@@ -454,43 +454,6 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
     return info_solution;
 }
 
-/**
- ********************************************************************************
- *
- * @ingroup testing
- *
- * @brief Compares a Chameleon computed product with a core function computed one.
- *
- *******************************************************************************
- *
- * @param[in] transA
- *          Wether the first product element is transposed, conjugate transposed or not transposed.
- *
- * @param[in] transB
- *          Wether the second product element is transposed, conjugate transposed or not transposed.
- *
- * @param[in] alpha
- *          The scalar alpha.
- *
- * @param[in] descA
- *          The descriptor of the matrix A.
- *
- * @param[in] descBref
- *          The descriptor of the matrix B.
- *
- * @param[in] beta
- *          The scalar beta.
- *
- * @param[in] descCref
- *          The descriptor of the matrix C.
- *
- * @param[in] descC
- *          The matrix descriptor of the Chameleon computed result alpha*A*B+beta*C.
- *
- * @retval 0 successfull comparison
- *
- *******************************************************************************
- */
 int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, int M, int N, int K, CHAMELEON_Complex64_t *A, int LDA,
                      CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC )
 {
@@ -544,6 +507,44 @@ int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t tra
 
     return info_solution;
 }
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares a Chameleon computed product with a core function computed one.
+ *
+ *******************************************************************************
+ *
+ * @param[in] transA
+ *          Wether the first product element is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] transB
+ *          Wether the second product element is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] descA
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] descBref
+ *          The descriptor of the matrix B.
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in] descCref
+ *          The descriptor of the matrix C.
+ *
+ * @param[in] descC
+ *          The matrix descriptor of the Chameleon computed result alpha*A*B+beta*C.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                  CHAM_desc_t *descB, CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
@@ -589,9 +590,9 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
     CHAMELEON_zDesc2Lap( ChamUpperLower, descC,    C,    LDC );
 
     if ( rank == 0 ) {
-       
+
         info_solution = check_zgemm_std( args, transA, transB, alpha, M, N, K, A, LDA, B, LDB, beta, Cref, C, LDC );
-        
+
         free(A);
         free(B);
         free(C);
@@ -603,6 +604,88 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
+    (void)args;
+    return info_solution;
+}
+
+int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t side, cham_uplo_t uplo, int M, int N,
+                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, int LDB,
+                     CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC )
+{
+    int info_solution = 0;
+    int An;
+    double Anorm, Bnorm, Crefnorm, Cchamnorm, Clapacknorm, Rnorm, result;
+    CHAMELEON_Complex64_t mzone = -1.0;
+    double *work;
+    char normTypeA, normTypeB;
+
+    if ( side == ChamLeft ) {
+        normTypeA = 'I';
+        normTypeB = 'O';
+        An = M;
+    }
+    else {
+        normTypeA = '0';
+        normTypeB = 'I';
+        An = N;
+    }
+
+    work = malloc( sizeof(double) * An );
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    if ( matrix_type == ChamHermitian ) {
+        Anorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, normTypeA, chameleon_lapack_const(uplo), An, A, LDA, work );
+    }
+    else
+#endif
+    {
+        Anorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, normTypeA, chameleon_lapack_const(uplo), An, A, LDA, work );
+    }
+    Bnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, B, LDB );
+    free( work );
+
+    /* Computes the norms for comparing */
+    Crefnorm  = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
+    Cchamnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, C,    LDC, NULL );
+
+    double eps = LAPACKE_dlamch_work('e');
+
+    /* Makes the multiplication with the core function */
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    if ( matrix_type == ChamHermitian ) {
+        cblas_zhemm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
+                        M, N, CBLAS_SADDR(alpha),
+                        A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC );
+    }
+    else
+#endif
+    {
+        cblas_zsymm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB,
+                     CBLAS_SADDR(beta), Cref, LDC );
+    }
+    cblas_zaxpy(LDC * N, CBLAS_SADDR(mzone), C, 1, Cref, 1);
+
+    /* Computes the norm with the core function's result */
+    Clapacknorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
+    Rnorm       = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
+
+    if ( ( alpha != 0. ) || (beta != 0. ) ) {
+        result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * An * eps);
+    }
+    else {
+        result = Rnorm;
+    }
+
+    /* Verifies if the result is inside a threshold */
+    if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+        info_solution = 1;
+    }
+    else {
+        info_solution = 0 ;
+    }
+
+    (void)Clapacknorm;
+    (void)Cchamnorm;
+    (void)matrix_type;
     (void)args;
     return info_solution;
 }
@@ -649,56 +732,30 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
     int info_solution = 0;
+    int M             = descC->m;
+    int N             = descC->n;
+    int LDB           = M;
+    int LDC           = M;
+    int rank          = CHAMELEON_Comm_rank();
     int An, LDA;
-    int M = descC->m;
-    int N = descC->n;
-    int LDB = M;
-    int LDC = M;
-    int rank = CHAMELEON_Comm_rank();
-    double Anorm, Bnorm, Crefnorm, Cchamnorm, Clapacknorm, Rnorm, result;
     CHAMELEON_Complex64_t *A    = NULL;
     CHAMELEON_Complex64_t *B    = NULL;
     CHAMELEON_Complex64_t *Cref = NULL;
     CHAMELEON_Complex64_t *C    = NULL;
-    CHAMELEON_Complex64_t mzone = -1.0;
 
     if ( side == ChamLeft ) {
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        if ( matrix_type == ChamHermitian ) {
-            Anorm = CHAMELEON_zlanhe_Tile(ChamInfNorm, uplo, descA);
-        }
-        else
-#endif
-        {
-            Anorm = CHAMELEON_zlansy_Tile(ChamInfNorm, uplo, descA);
-        }
-        Bnorm = CHAMELEON_zlange_Tile(ChamOneNorm, descB);
         LDA = M;
         An  = M;
     } else {
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        if ( matrix_type == ChamHermitian ) {
-            Anorm = CHAMELEON_zlanhe_Tile(ChamOneNorm, uplo, descA);
-        }
-        else
-#endif
-        {
-            Anorm = CHAMELEON_zlansy_Tile(ChamOneNorm, uplo, descA);
-        }
-        Bnorm = CHAMELEON_zlange_Tile(ChamInfNorm, descB);
         LDA = N;
         An  = N;
     }
 
-    /* Computes the norms for comparing */
-    Crefnorm  = CHAMELEON_zlange_Tile( ChamMaxNorm, descCref );
-    Cchamnorm = CHAMELEON_zlange_Tile( ChamMaxNorm, descC    );
-
     if ( rank == 0 ) {
-        A    = (CHAMELEON_Complex64_t *)malloc(LDA * An * sizeof(CHAMELEON_Complex64_t));
-        B    = (CHAMELEON_Complex64_t *)malloc(LDB * N  * sizeof(CHAMELEON_Complex64_t));
-        Cref = (CHAMELEON_Complex64_t *)malloc(LDC * N  * sizeof(CHAMELEON_Complex64_t));
-        C    = (CHAMELEON_Complex64_t *)malloc(LDC * N  * sizeof(CHAMELEON_Complex64_t));
+        A    = ( CHAMELEON_Complex64_t * ) malloc( LDA*An*sizeof( CHAMELEON_Complex64_t ) );
+        B    = ( CHAMELEON_Complex64_t * ) malloc( LDB*N *sizeof( CHAMELEON_Complex64_t ) );
+        Cref = ( CHAMELEON_Complex64_t * ) malloc( LDC*N *sizeof( CHAMELEON_Complex64_t ) );
+        C    = ( CHAMELEON_Complex64_t * ) malloc( LDC*N *sizeof( CHAMELEON_Complex64_t ) );
     }
 
     /* Creates the LAPACK version of the matrices */
@@ -708,43 +765,9 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
     CHAMELEON_zDesc2Lap( ChamUpperLower, descC,    C,    LDC );
 
     if ( rank == 0 ) {
-        double eps = LAPACKE_dlamch_work('e');
-
-        /* Makes the multiplication with the core function */
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        if ( matrix_type == ChamHermitian ) {
-            cblas_zhemm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
-                         M, N, CBLAS_SADDR(alpha),
-                         A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC );
-        }
-        else
-#endif
-        {
-            cblas_zsymm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
-                         M, N, CBLAS_SADDR(alpha),
-                         A, LDA, B, LDB, CBLAS_SADDR(beta), Cref, LDC );
-        }
-        cblas_zaxpy(LDC * N, CBLAS_SADDR(mzone), C, 1, Cref, 1);
-
-        /* Computes the norm with the core function's result */
-        Clapacknorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
-        Rnorm       = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
-
-        if ( ( alpha != 0. ) || (beta != 0. ) ) {
-            result = Rnorm / ((cabs(alpha) * max(Anorm, Bnorm) + cabs(beta) * Crefnorm) * An * eps);
-        }
-        else {
-            result = Rnorm;
-        }
-
-        /* Verifies if the result is inside a threshold */
-        if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-            info_solution = 1;
-        }
-        else {
-            info_solution= 0 ;
-        }
-
+        info_solution = check_zsymm_std( args, matrix_type, side, uplo,
+                                         M, N, alpha, A, LDA, B, LDB,
+                                         beta, Cref, C, LDC );
         free(A);
         free(B);
         free(C);
@@ -756,8 +779,107 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
-    (void)Clapacknorm;
-    (void)Cchamnorm;
+    (void)args;
+    return info_solution;
+}
+
+int check_zsyrk_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha,
+                     CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *B, int LDA, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref,
+                     CHAMELEON_Complex64_t *C, int LDC )
+{
+    int     info_solution = 0;
+    double  Anorm, Bnorm, Crefnorm, Cchamnorm, Clapacknorm, Rnorm, result;
+    double *work = malloc(sizeof(double)*N);
+
+    Bnorm = 0.;
+    if ( trans == ChamNoTrans ) {
+        Anorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'I', N, K, A, LDA );
+        if ( B != NULL ) {
+            Bnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'I', N, K, B, LDA );
+        }
+    }
+    else {
+        Anorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'O', K, N, A, LDA );
+        if ( B != NULL ) {
+            Bnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'O', K, N, B, LDA );
+        }
+    }
+
+    /* Computes the norms for comparing */
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    if ( matrix_type == ChamHermitian ) {
+        Crefnorm  = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
+        Cchamnorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, C,    LDC, work );
+    }
+    else
+#endif
+    {
+        Crefnorm  = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
+        Cchamnorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, C,    LDC, work );
+    }
+
+    double eps = LAPACKE_dlamch_work('e');
+    double ABnorm;
+
+    /* Makes the multiplication with the core function */
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    if ( matrix_type == ChamHermitian ) {
+        if ( B == NULL ) {
+            cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                            N, K, creal(alpha), A, LDA, creal(beta), Cref, LDC );
+            ABnorm = Anorm * Anorm;
+        }
+        else {
+            cblas_zher2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                            N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, creal(beta), Cref, LDC );
+            ABnorm = 2. * Anorm * Bnorm;
+        }
+
+        Clapacknorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
+    }
+    else
+#endif
+    {
+        if ( B == NULL ) {
+            cblas_zsyrk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                            N, K, CBLAS_SADDR(alpha), A, LDA, CBLAS_SADDR(beta), Cref, LDC );
+            ABnorm = Anorm * Anorm;
+        }
+        else {
+            cblas_zsyr2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                            N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, CBLAS_SADDR(beta), Cref, LDC );
+            ABnorm = 2. * Anorm * Bnorm;
+        }
+
+        Clapacknorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
+    }
+
+    CORE_ztradd( uplo, ChamNoTrans, N, N,
+                    -1.,  C,    LDC,
+                    1.,  Cref, LDC );
+
+    /* Computes the norm with the core function's result */
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    if ( matrix_type == ChamHermitian ) {
+        Rnorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
+    }
+    else
+#endif
+    {
+        Rnorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
+    }
+    result = Rnorm / ((ABnorm + Crefnorm) * K * eps);
+
+    /* Verifies if the result is inside a threshold */
+    if ( isinf(Clapacknorm) || isinf(Cchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+        info_solution = 1;
+    }
+    else {
+        info_solution = 0;
+    }
+
+    free(work);
+
     (void)matrix_type;
     (void)args;
     return info_solution;
@@ -804,47 +926,24 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB,
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC )
 {
-    int LDA, info_solution = 0;
-    int An, K, N = descC->n;
-    int LDC = N;
-    int rank = CHAMELEON_Comm_rank();
-    double Anorm, Bnorm, Crefnorm, Cchamnorm, Clapacknorm, Rnorm, result;
+    int LDA, info_solution      = 0;
+    int An, K, N                = descC->n;
+    int LDC                     = N;
+    int rank                    = CHAMELEON_Comm_rank();
     CHAMELEON_Complex64_t *A    = NULL;
     CHAMELEON_Complex64_t *B    = NULL;
     CHAMELEON_Complex64_t *Cref = NULL;
     CHAMELEON_Complex64_t *C    = NULL;
 
-    Bnorm = 0.;
     if ( trans == ChamNoTrans ) {
-        Anorm = CHAMELEON_zlange_Tile( ChamInfNorm, descA );
-        if ( descB != NULL ) {
-            Bnorm = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
-        }
-        K = descA->n;
+        K   = descA->n;
         LDA = N;
         An  = K;
     }
     else {
-        Anorm = CHAMELEON_zlange_Tile( ChamOneNorm, descA );
-        if ( descB != NULL ) {
-            Bnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descB );
-        }
-        K = descA->m;
+        K   = descA->m;
         LDA = K;
         An  = N;
-    }
-
-    /* Computes the norms for comparing */
-#if defined(PRECISION_z) || defined(PRECISION_c)
-    if ( matrix_type == ChamHermitian ) {
-        Crefnorm  = CHAMELEON_zlanhe_Tile( ChamInfNorm, uplo, descCref );
-        Cchamnorm = CHAMELEON_zlanhe_Tile( ChamInfNorm, uplo, descC    );
-    }
-    else
-#endif
-    {
-        Crefnorm  = CHAMELEON_zlansy_Tile( ChamInfNorm, uplo, descCref );
-        Cchamnorm = CHAMELEON_zlansy_Tile( ChamInfNorm, uplo, descC    );
     }
 
     if ( rank == 0 ) {
@@ -865,68 +964,9 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     }
 
     if ( rank == 0 ) {
-        double eps = LAPACKE_dlamch_work('e');
-        double ABnorm;
-        double *work = malloc(sizeof(double)*N);
 
-        /* Makes the multiplication with the core function */
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        if ( matrix_type == ChamHermitian ) {
-            if ( descB == NULL ) {
-                cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                             N, K, creal(alpha), A, LDA, creal(beta), Cref, LDC );
-                ABnorm = Anorm * Anorm;
-            }
-            else {
-                cblas_zher2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                              N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, creal(beta), Cref, LDC );
-                ABnorm = 2. * Anorm * Bnorm;
-            }
+        info_solution = check_zsyrk_std( args, matrix_type, uplo, trans, N, K, alpha, A, B, LDA, beta, Cref, C, LDC );
 
-            Clapacknorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
-        }
-        else
-#endif
-        {
-            if ( descB == NULL ) {
-                cblas_zsyrk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                             N, K, CBLAS_SADDR(alpha), A, LDA, CBLAS_SADDR(beta), Cref, LDC );
-                ABnorm = Anorm * Anorm;
-            }
-            else {
-                cblas_zsyr2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                              N, K, CBLAS_SADDR(alpha), A, LDA, B, LDA, CBLAS_SADDR(beta), Cref, LDC );
-                ABnorm = 2. * Anorm * Bnorm;
-            }
-
-            Clapacknorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, Cref, LDC, work );
-        }
-
-        CORE_ztradd( uplo, ChamNoTrans, N, N,
-                     -1.,  C,    LDC,
-                      1.,  Cref, LDC );
-
-        /* Computes the norm with the core function's result */
-#if defined(PRECISION_z) || defined(PRECISION_c)
-        if ( matrix_type == ChamHermitian ) {
-            Rnorm = LAPACKE_zlanhe_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
-        }
-        else
-#endif
-        {
-            Rnorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), N, Cref, LDC, NULL );
-        }
-        result = Rnorm / ((ABnorm + Crefnorm) * K * eps);
-
-        /* Verifies if the result is inside a threshold */
-        if ( isinf(Clapacknorm) || isinf(Cchamnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-            info_solution = 1;
-        }
-        else {
-            info_solution = 0;
-        }
-
-        free(work);
         free(A);
         free(C);
         free(Cref);
@@ -940,7 +980,75 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
-    (void)matrix_type;
+    (void)args;
+    return info_solution;
+}
+
+int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag, int M, int N,
+                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, CHAMELEON_Complex64_t *Bref, int LDB )
+{
+    int info_solution           = 0;
+    int An                      = M;
+    double Anorm, Bnorm, Brefnorm, Rnorm, result;
+    CHAMELEON_Complex64_t mzone = -1.0;
+    char    normTypeA, normTypeB;
+    double *work;
+    double  eps = LAPACKE_dlamch_work('e');
+
+    /* Computes the norms for comparing */
+    if ( side == ChamLeft ) {
+        normTypeA = 'O';
+        if ( trans == ChamNoTrans ) {
+            normTypeA = 'I';
+        }
+        normTypeB = 'O';
+        An  = M;
+        LDA = M;
+    }
+    else {
+        normTypeA = '0';
+        if ( trans != ChamNoTrans ) {
+            normTypeA = 'I';
+        }
+        normTypeB = 'I';
+        An  = N;
+        LDA = N;
+    }
+
+    work  = malloc( sizeof(double) * An );
+    Anorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, normTypeA,
+                                 chameleon_lapack_const(uplo), chameleon_lapack_const(diag),
+                                 An, An, A, LDA, work );
+    free( work );
+
+    Brefnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, Bref, LDB );
+    Bnorm    = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, B,    LDB );
+
+    /* Makes the multiplication with the core function */
+    if (check_func == CHECK_TRMM) {
+        cblas_ztrmm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
+    }
+    else {
+        cblas_ztrsm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
+                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
+    }
+
+    /* Computes the norm with the core function's result */
+    cblas_zaxpy( LDB * N, CBLAS_SADDR(mzone), B, 1, Bref, 1 );
+    Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, NULL );
+
+    result = Rnorm / ((Anorm + Brefnorm) * An * eps);
+
+    /* Verifies if the result is inside a threshold */
+    if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+        info_solution = 1;
+    }
+    else {
+        info_solution = 0;
+    }
+
+    (void)Bnorm;
     (void)args;
     return info_solution;
 }
@@ -991,36 +1099,22 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
 int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
                  CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB, CHAM_desc_t *descBref )
 {
-    int info_solution = 0;
-    int M = descB->m;
-    int N = descB->n;
-    int An, LDA, LDB = M;
-    int rank = CHAMELEON_Comm_rank();
-    double Anorm, Bnorm, Brefnorm, Rnorm, result;
+    int info_solution           = 0;
+    int M                       = descB->m;
+    int N                       = descB->n;
+    int An, LDA, LDB            = M;
+    int rank                    = CHAMELEON_Comm_rank();
     CHAMELEON_Complex64_t *A    = NULL;
     CHAMELEON_Complex64_t *Bref = NULL;
     CHAMELEON_Complex64_t *B    = NULL;
-    CHAMELEON_Complex64_t mzone = -1.0;
 
-    /* Computes the norms for comparing */
-    if ( ((side == ChamLeft)  && (trans == ChamNoTrans)) ||
-         ((side == ChamRight) && (trans != ChamNoTrans)) ) {
-        Anorm = CHAMELEON_zlantr_Tile( ChamInfNorm, uplo, diag, descA );
-    }
-    else {
-        Anorm = CHAMELEON_zlantr_Tile( ChamOneNorm, uplo, diag, descA );
-    }
     if ( side == ChamLeft ) {
-        An = M;
+        An  = M;
         LDA = M;
-        Brefnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descBref );
-        Bnorm    = CHAMELEON_zlange_Tile( ChamOneNorm, descB );
     }
     else {
-        An = N;
+        An  = N;
         LDA = N;
-        Brefnorm = CHAMELEON_zlange_Tile( ChamInfNorm, descBref );
-        Bnorm    = CHAMELEON_zlange_Tile( ChamInfNorm, descB );
     }
 
     if ( rank == 0 ) {
@@ -1030,36 +1124,13 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
     }
 
     /* Creates the LAPACK version of the matrices */
-    CHAMELEON_zDesc2Lap( uplo,           descA,    A,    LDA);
-    CHAMELEON_zDesc2Lap( ChamUpperLower, descB,    B,    LDB);
-    CHAMELEON_zDesc2Lap( ChamUpperLower, descBref, Bref, LDB);
+    CHAMELEON_zDesc2Lap( uplo,           descA,    A,    LDA );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descB,    B,    LDB );
+    CHAMELEON_zDesc2Lap( ChamUpperLower, descBref, Bref, LDB );
 
     if ( rank == 0 ) {
-        double eps = LAPACKE_dlamch_work('e');
 
-        /* Makes the multiplication with the core function */
-        if (check_func == CHECK_TRMM) {
-            cblas_ztrmm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                        (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
-        }
-        else {
-            cblas_ztrsm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                        (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
-        }
-
-        /* Computes the norm with the core function's result */
-        cblas_zaxpy( LDB * N, CBLAS_SADDR(mzone), B, 1, Bref, 1 );
-        Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, NULL );
-
-        result = Rnorm / ((Anorm + Brefnorm) * An * eps);
-
-        /* Verifies if the result is inside a threshold */
-        if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-            info_solution = 1;
-        }
-        else {
-            info_solution = 0;
-        }
+        info_solution = check_ztrmm_std( args, check_func, side, uplo, trans, diag, M, N, alpha, A, LDA, B, Bref, LDB );
 
         free(A);
         free(B);
@@ -1071,7 +1142,6 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
     MPI_Bcast(&info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD);
 #endif
 
-    (void)Bnorm;
     (void)args;
     return info_solution;
 }
@@ -1176,7 +1246,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
  *******************************************************************************
  */
 int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo,
-                   CHAM_desc_t *descA, CHAM_desc_t *descLU )
+                  CHAM_desc_t *descA, CHAM_desc_t *descLU )
 {
     int info_local, info_global;
     int M = descA->m;

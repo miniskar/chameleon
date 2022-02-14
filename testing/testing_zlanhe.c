@@ -138,13 +138,13 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    norm = CHAMELEON_zlanhe( norm_type, uplo, N, A, LDA ); 
+    norm = CHAMELEON_zlanhe( norm_type, uplo, N, A, LDA );
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlanhe( norm_type, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm_std( ChamHermitian, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
+        hres = check_znorm_std( args, ChamHermitian, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
 
     free( A );

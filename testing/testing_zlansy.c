@@ -144,7 +144,7 @@ testing_zlansy_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm_std( ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
+        hres = check_znorm_std( args, ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
 
     free( A );

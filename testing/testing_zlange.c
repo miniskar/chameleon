@@ -136,13 +136,13 @@ testing_zlange_std( run_arg_list_t *args, int check )
 
     /* Calculates the norm */
     testing_start( &test_data );
-    norm = CHAMELEON_zlange( norm_type, M, N, A, LDA ); 
+    norm = CHAMELEON_zlange( norm_type, M, N, A, LDA );
     test_data.hres = hres;
     testing_stop( &test_data, flops_zlange( norm_type, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
-        hres = check_znorm_std( ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, M, N, A, LDA );
+        hres = check_znorm_std( args, ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, M, N, A, LDA );
     }
 
     free( A );

@@ -128,7 +128,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     A = malloc( LDA*Ak*sizeof(CHAMELEON_Complex64_t) );
-    B = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
     /* We bump a little bit the diagonal to make it stable */
@@ -146,8 +146,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
         Binit = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Binit, LDB, seedB );
 
-        // hres += check_ztrmm( args, CHECK_TRSM, side, uplo, trans, diag,
-        //                      alpha, descA, descB, descBinit );
+        hres += check_ztrmm_std( args, CHECK_TRSM, side, uplo, trans, diag, M, N, alpha, A, LDA, B, Binit, LDB );
 
         free( Binit );
     }

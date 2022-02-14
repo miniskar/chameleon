@@ -156,8 +156,8 @@ testing_zhemm_std( run_arg_list_t *args, int check )
 
     /* Create the matrices */
     A = malloc( LDA*Am*sizeof(CHAMELEON_Complex64_t) );
-    B = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
-    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplghe( bump, uplo, N, A, LDA, seedA );
@@ -175,8 +175,7 @@ testing_zhemm_std( run_arg_list_t *args, int check )
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Cinit, LDC, seedC );
 
-        // hres += check_zsymm( args, ChamHermitian, side, uplo, alpha, descA, descB,
-        //                      beta, descCinit, descC );
+        hres += check_zsymm_std( args, ChamHermitian, side, uplo, M, N, alpha, A, LDA, B, LDB, beta, Cinit, C, LDC );
 
         free( Cinit );
     }
