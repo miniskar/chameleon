@@ -299,7 +299,7 @@ cti_alloc_compare(void *data_interface_a, void *data_interface_b)
     starpu_cham_tile_interface_t *cham_tile_b = (starpu_cham_tile_interface_t *) data_interface_b;
 
     /* Two matrices are considered compatible if they have the same allocated size */
-    return ( cham_tile_a->allocsize   == cham_tile_b->allocsize   );
+    return ( cham_tile_a->allocsize == cham_tile_b->allocsize );
 }
 
 static void
@@ -584,6 +584,9 @@ static int cti_copy_any_to_any( void *src_interface, unsigned src_node,
 
     assert( ld_src >= m );
     assert( ld_dst >= m );
+
+    assert( m == cham_tile_dst->tile.m );
+    assert( n == cham_tile_dst->tile.n );
 
 #if defined(CHAMELEON_KERNELS_TRACE)
     fprintf( stderr,
