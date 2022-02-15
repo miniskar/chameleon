@@ -172,6 +172,9 @@ int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_norm
     /* Compares the norms */
     result = fabs( norm_cham - norm_lapack ) / ( norm_lapack * eps );
 
+    run_arg_add_double( args, "||A||", norm_cham );
+    run_arg_add_double( args, "||B||", norm_lapack );
+
     switch(norm_type) {
     case ChamInfNorm:
         /* Sum order on the line can differ */
@@ -187,15 +190,20 @@ int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_norm
         break;
     case ChamMaxNorm:
     default:
+#if defined(PRECISION_z) || defined(PRECISION_c)
+        /* Add a factor two to macth different implementation of cabs */
+        result = result / 2;
+#else
         /* result should be perfectly equal */
+#endif
         ;
     }
 
+    run_arg_add_double( args, "||R||", result );
     info_solution = ( result < 1 ) ? 0 : 1;
 
     free(work);
 
-    (void)args;
     return info_solution;
 }
 
@@ -625,7 +633,7 @@ int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side
         An = M;
     }
     else {
-        normTypeA = '0';
+        normTypeA = 'O';
         normTypeB = 'I';
         An = N;
     }
@@ -1349,6 +1357,33 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
     return info_global;
 }
 
+int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo, int M, int N,
+                      CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *LU, int LDA )
+{
+    int info_global;
+    CHAM_desc_t *descA, *descLU;
+    int      P      = parameters_getvalue_int( "P" );
+    int      Q      = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+
+    CHAMELEON_Desc_Create(
+        &descA,  (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+    CHAMELEON_Desc_Create(
+        &descLU, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+
+    CHAMELEON_zLap2Desc( uplo, A,  LDA, descA  );
+    CHAMELEON_zLap2Desc( uplo, LU, LDA, descLU );
+
+    info_global = check_zxxtrf( args, mtxtype, uplo, descA, descLU );
+
+    CHAMELEON_Desc_Destroy( &descA  );
+    CHAMELEON_Desc_Destroy( &descLU );
+
+    (void)args;
+    return info_global;
+}
+
 /**
  ********************************************************************************
  *
@@ -1418,6 +1453,12 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
     Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descB );
     result = Rnorm / ( Anorm * Xnorm * chameleon_max( M, N ) * eps );
 
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||X||", Xnorm );
+    run_arg_add_double( args, "||B||", Bnorm );
+    run_arg_add_double( args, "||Ax-b||", Rnorm );
+    run_arg_add_double( args, "||Ax-b||/N/eps/(||A||||x||+||b||", result );
+
     if (  isnan(Xnorm) || isinf(Xnorm) || isnan(result) || isinf(result) || (result > 60.0) ) {
         info_local = 1;
     }
@@ -1433,6 +1474,37 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
 #endif
 
     (void)Bnorm;
+    (void)args;
+    return info_global;
+}
+
+int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo, int N, int NRHS,
+                      CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *X, CHAMELEON_Complex64_t *B, int LDB )
+{
+    int info_global;
+    CHAM_desc_t *descA, *descB, *descX;
+    int      P      = parameters_getvalue_int( "P" );
+    int      Q      = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+
+    CHAMELEON_Desc_Create(
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N,    0, 0, N, N,    P, Q );
+    CHAMELEON_Desc_Create(
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
+    CHAMELEON_Desc_Create(
+        &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
+
+    CHAMELEON_zLap2Desc( uplo, A, LDA, descA );
+    CHAMELEON_zLap2Desc( uplo, B, LDB, descB );
+    CHAMELEON_zLap2Desc( uplo, X, LDB, descX );
+
+    info_global = check_zsolve( args, mtxtype, trans, uplo, descA, descX, descB );
+
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descB );
+    CHAMELEON_Desc_Destroy( &descX );
+
     (void)args;
     return info_global;
 }
@@ -1586,6 +1658,33 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
 #else
     info_global = info_local;
 #endif
+
+    (void)args;
+    return info_global;
+}
+
+int check_ztrtri_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_diag_t diag,
+                      int N, CHAMELEON_Complex64_t *A0, CHAMELEON_Complex64_t *Ai, int LDA )
+{
+    int info_global;
+    CHAM_desc_t *descA0, *descAi;
+    int      P      = parameters_getvalue_int( "P" );
+    int      Q      = parameters_compute_q( P );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+
+    CHAMELEON_Desc_Create(
+        &descA0, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+    CHAMELEON_Desc_Create(
+        &descAi, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+
+    CHAMELEON_zLap2Desc( uplo, A0, LDA, descA0 );
+    CHAMELEON_zLap2Desc( uplo, Ai, LDA, descAi );
+
+    info_global = check_ztrtri( args, matrix_type, uplo, diag, descA0, descAi );
+
+    CHAMELEON_Desc_Destroy( &descA0 );
+    CHAMELEON_Desc_Destroy( &descAi );
 
     (void)args;
     return info_global;

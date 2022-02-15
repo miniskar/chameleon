@@ -177,7 +177,7 @@ testing_t   test_zlantr;
 const char *zlantr_params[] = { "mtxfmt", "nb", "norm", "uplo",  "diag",
                                 "m",      "n",  "lda",  "seedA", NULL };
 const char *zlantr_output[] = { NULL };
-const char *zlantr_outchk[] = { "RETURN", NULL };
+const char *zlantr_outchk[] = { "||A||", "||B||", "||R||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function
