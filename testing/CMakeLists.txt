@@ -106,6 +106,7 @@ set(ZSRC_WO_STDAPI
   testing_zrecursive.c
   testing_zrecpotrf.c
   testing_zrecpotri.c
+  testing_zrecpoinv.c
   testing_zrecgemm.c
   testing_zrecgemm_R.c
   testing_zrecgemm_RW.c
