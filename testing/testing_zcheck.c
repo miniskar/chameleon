@@ -2415,7 +2415,7 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
  *
  * @ingroup testing
  *
- * @brief Checks if .
+ * @brief TODO
  *
  *******************************************************************************
  *
@@ -2426,7 +2426,7 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
  *          The descriptor of the matrix A.
  *
  * @param[in] Bnorm
- *          The .
+ *          TODO
  *
  * @param[in] descR
  *          The descriptor of the matrix R.
@@ -2501,7 +2501,7 @@ int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
  *
  * @ingroup testing
  *
- * @brief Checks if .
+ * @brief TODO
  *
  *******************************************************************************
  *
@@ -2512,7 +2512,7 @@ int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
  *          The descriptor of the matrix A.
  *
  * @param[in] Bnorm
- *          The .
+ *          TODO
  *
  * @param[in] descR
  *          The descriptor of the matrix R.
@@ -2586,7 +2586,7 @@ int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
  *
  * @ingroup testing
  *
- * @brief Checks if .
+ * @brief TODO
  *
  *******************************************************************************
  *
