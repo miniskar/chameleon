@@ -9,7 +9,7 @@
 # K: Number of columns of matrix A and rows of Matrix B
 # LDA: Leading dimension of matrix A
 # LDB: Leading dimension of matrix B
-# trans: Wether the system involves A (ChamNoTrans) or A^H *ChamTransConj). Currently only ChamNoTrans is supported.
+# trans: Whether the system involves A (ChamNoTrans) or A^H *ChamTransConj). Currently only ChamNoTrans is supported.
 # qra: Size of TS domain
 # qrp: Size of high level tree for distributed mode
 # llvl: Tree used for low level reduction insides nodes
