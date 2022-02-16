@@ -47,6 +47,7 @@ static void cl_zherfb_cpu_func(void *descr[], void *cl_arg)
 #if defined(CHAMELEON_USE_CUDA)
 static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     cham_uplo_t uplo;
     int n, k, ib, nb;
     CHAM_tile_t *tileA;
@@ -54,8 +55,6 @@ static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
     CHAM_tile_t *tileC;
     CHAM_tile_t *tileW;
     int ldW;
-
-    RUNTIME_getStream(stream);
 
     tileA = cti_interface_get(descr[0]);
     tileT = cti_interface_get(descr[1]);
@@ -68,11 +67,7 @@ static void cl_zherfb_cuda_func(void *descr[], void *cl_arg)
                  tileA->mat, tileA->ld,
                  tileT->mat, tileT->ld,
                  tileC->mat, tileC->ld,
-                 tileW->mat, ldW, stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
+                 tileW->mat, ldW, handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */

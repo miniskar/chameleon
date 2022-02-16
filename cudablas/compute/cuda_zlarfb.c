@@ -30,7 +30,7 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
              const cuDoubleComplex *T, int LDT,
                    cuDoubleComplex *C, int LDC,
                    cuDoubleComplex *WORK, int LDWORK,
-             CUBLAS_STREAM_PARAM )
+             cublasHandle_t handle )
 {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     cuDoubleComplex zzero = make_cuDoubleComplex(0.0, 0.0);
@@ -42,8 +42,9 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
     double mzone = -1.0;
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
-    cham_trans_t transT, notransV, transV;
-    cham_uplo_t  uplo;
+    cublasStatus_t rc;
+    cham_trans_t   transT, notransV, transV;
+    cham_uplo_t    uplo;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -103,54 +104,58 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
         // Comments assume H C. When forming H^H C, T gets transposed via transT.
 
         // W = C^H V
-        cublasZgemm( CUBLAS_HANDLE
-                     chameleon_cublas_const(ChamConjTrans), chameleon_cublas_const(notransV),
-                     N, K, M,
-                     CUBLAS_SADDR(zone),  C, LDC,
-                                          V, LDV,
-                     CUBLAS_SADDR(zzero), WORK, LDWORK );
+        rc = cublasZgemm( handle,
+                          chameleon_cublas_const(ChamConjTrans), chameleon_cublas_const(notransV),
+                          N, K, M,
+                          CUBLAS_SADDR(zone),  C, LDC,
+                                               V, LDV,
+                          CUBLAS_SADDR(zzero), WORK, LDWORK );
+        assert( rc == CUBLAS_STATUS_SUCCESS );
 
         // W = W T^H = C^H V T^H
         CUDA_ztrmm( ChamRight, uplo, transT, ChamNonUnit,
                     N, K,
                     &zone, T,    LDT,
                            WORK, LDWORK,
-                    CUBLAS_STREAM_VALUE );
+                    handle );
 
         // C = C - V W^H = C - V T V^H C = (I - V T V^H) C = H C
-        cublasZgemm( CUBLAS_HANDLE
-                     chameleon_cublas_const(notransV), chameleon_cublas_const(ChamConjTrans),
-                     M, N, K,
-                     CUBLAS_SADDR(mzone), V,    LDV,
-                                          WORK, LDWORK,
-                     CUBLAS_SADDR(zone),  C,    LDC );
+        rc = cublasZgemm( handle,
+                          chameleon_cublas_const(notransV), chameleon_cublas_const(ChamConjTrans),
+                          M, N, K,
+                          CUBLAS_SADDR(mzone), V,    LDV,
+                                               WORK, LDWORK,
+                          CUBLAS_SADDR(zone),  C,    LDC );
+        assert( rc == CUBLAS_STATUS_SUCCESS );
     }
     else {
         // Form C H or C H^H
         // Comments assume C H. When forming C H^H, T gets transposed via trans.
 
         // W = C V
-        cublasZgemm( CUBLAS_HANDLE
-                     chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(notransV),
-                     M, K, N,
-                     CUBLAS_SADDR(zone),  C, LDC,
-                                          V, LDV,
-                     CUBLAS_SADDR(zzero), WORK, LDWORK );
+        rc = cublasZgemm( handle,
+                          chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(notransV),
+                          M, K, N,
+                          CUBLAS_SADDR(zone),  C, LDC,
+                                               V, LDV,
+                          CUBLAS_SADDR(zzero), WORK, LDWORK );
+        assert( rc == CUBLAS_STATUS_SUCCESS );
 
         // W = W T = C V T
         CUDA_ztrmm( ChamRight, uplo, trans, ChamNonUnit,
                     M, K,
                     &zone, T,    LDT,
                            WORK, LDWORK,
-                    CUBLAS_STREAM_VALUE );
+                    handle );
 
         // C = C - W V^H = C - C V T V^H = C (I - V T V^H) = C H
-        cublasZgemm( CUBLAS_HANDLE
-                     chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transV),
-                     M, N, K,
-                     CUBLAS_SADDR(mzone), WORK, LDWORK,
-                                          V,    LDV,
-                     CUBLAS_SADDR(zone),  C,    LDC );
+        rc = cublasZgemm( handle,
+                          chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transV),
+                          M, N, K,
+                          CUBLAS_SADDR(mzone), WORK, LDWORK,
+                                               V,    LDV,
+                          CUBLAS_SADDR(zone),  C,    LDC );
+        assert( rc == CUBLAS_STATUS_SUCCESS );
     }
     return CHAMELEON_SUCCESS;
 }

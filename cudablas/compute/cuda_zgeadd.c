@@ -19,10 +19,6 @@
  */
 #include "cudablas.h"
 
-#if !defined(CHAMELEON_USE_CUBLAS_V2)
-#error "This file requires cublas api v2 support"
-#endif
-
 /**
  ******************************************************************************
  *
@@ -76,22 +72,24 @@
  * @retval <0 if -i, the i-th argument had an illegal value
  *
  */
-int CUDA_zgeadd(cham_trans_t trans,
-                int m, int n,
-                const cuDoubleComplex *alpha,
-                const cuDoubleComplex *A, int lda,
-                const cuDoubleComplex *beta,
-                cuDoubleComplex *B, int ldb,
-                CUBLAS_STREAM_PARAM)
+int CUDA_zgeadd( cham_trans_t trans,
+                 int m, int n,
+                 const cuDoubleComplex *alpha,
+                 const cuDoubleComplex *A, int lda,
+                 const cuDoubleComplex *beta,
+                 cuDoubleComplex *B, int ldb,
+                 cublasHandle_t handle )
 {
-    cublasZgeam(CUBLAS_HANDLE
-                chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
-                m, n,
-                CUBLAS_VALUE(alpha), A, lda,
-                CUBLAS_VALUE(beta),  B, ldb,
-                B, ldb);
+    cublasStatus_t rc;
 
-    assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
+    rc = cublasZgeam( handle,
+                      chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
+                      m, n,
+                      CUBLAS_VALUE(alpha), A, lda,
+                      CUBLAS_VALUE(beta),  B, ldb,
+                      B, ldb );
 
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }

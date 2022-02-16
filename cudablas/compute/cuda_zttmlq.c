@@ -20,17 +20,17 @@
  */
 #include "cudablas.h"
 
-int CUDA_zttmlq(
-        cham_side_t side, cham_trans_t trans,
-        int M1, int N1,
-        int M2, int N2,
-        int K, int IB,
-              cuDoubleComplex *A1,    int LDA1,
-              cuDoubleComplex *A2,    int LDA2,
-        const cuDoubleComplex *V,     int LDV,
-        const cuDoubleComplex *T,     int LDT,
-              cuDoubleComplex *WORK,  int LWORK,
-        CUBLAS_STREAM_PARAM)
+int
+CUDA_zttmlq( cham_side_t side, cham_trans_t trans,
+             int M1, int N1,
+             int M2, int N2,
+             int K, int IB,
+             cuDoubleComplex *A1,    int LDA1,
+             cuDoubleComplex *A2,    int LDA2,
+             const cuDoubleComplex *V,     int LDV,
+             const cuDoubleComplex *T,     int LDT,
+             cuDoubleComplex *WORK,  int LWORK,
+             cublasHandle_t handle )
 {
     int i, i1, i3;
     int kb, l;
@@ -134,7 +134,7 @@ int CUDA_zttmlq(
             A2, LDA2,
             V + i,       LDV,
             T + LDT * i, LDT,
-            WORK, LWORK, CUBLAS_STREAM_VALUE );
+            WORK, LWORK, handle );
     }
     return CHAMELEON_SUCCESS;
 }

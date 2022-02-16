@@ -59,13 +59,12 @@ static void
 cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
 {
     struct cl_ztrsm_args_s *clargs = (struct cl_ztrsm_args_s*)cl_arg;
+    cublasHandle_t          handle = starpu_cublas_get_local_handle();
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
-
-    RUNTIME_getStream(stream);
 
     CUDA_ztrsm(
         clargs->side, clargs->uplo, clargs->transA, clargs->diag,
@@ -73,13 +72,7 @@ cl_ztrsm_cuda_func(void *descr[], void *cl_arg)
         (cuDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
         tileB->mat, tileB->ld,
-        stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
-
-    return;
+        handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */

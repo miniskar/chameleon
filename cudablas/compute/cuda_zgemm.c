@@ -20,22 +20,26 @@
  */
 #include "cudablas.h"
 
-int CUDA_zgemm(cham_trans_t transa, cham_trans_t transb,
-               int m, int n, int k,
-               const cuDoubleComplex *alpha,
-               const cuDoubleComplex *A, int lda,
-               const cuDoubleComplex *B, int ldb,
-               const cuDoubleComplex *beta,
-               cuDoubleComplex *C, int ldc,
-               CUBLAS_STREAM_PARAM)
+int
+CUDA_zgemm( cham_trans_t transa, cham_trans_t transb,
+            int m, int n, int k,
+            const cuDoubleComplex *alpha,
+            const cuDoubleComplex *A, int lda,
+            const cuDoubleComplex *B, int ldb,
+            const cuDoubleComplex *beta,
+            cuDoubleComplex *C, int ldc,
+            cublasHandle_t handle )
 {
-    cublasZgemm(CUBLAS_HANDLE
-                chameleon_cublas_const(transa), chameleon_cublas_const(transb),
-                m, n, k,
-                CUBLAS_VALUE(alpha), A, lda,
-                                     B, ldb,
-                CUBLAS_VALUE(beta),  C, ldc);
+    cublasStatus_t rc;
 
-    assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
+    rc = cublasZgemm( handle,
+                      chameleon_cublas_const(transa), chameleon_cublas_const(transb),
+                      m, n, k,
+                      CUBLAS_VALUE(alpha), A, lda,
+                                           B, ldb,
+                      CUBLAS_VALUE(beta),  C, ldc);
+
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }

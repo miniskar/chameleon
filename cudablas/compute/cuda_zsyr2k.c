@@ -20,24 +20,26 @@
  */
 #include "cudablas.h"
 
-int CUDA_zsyr2k(
-        cham_uplo_t uplo, cham_trans_t trans,
-        int n, int k,
-        const cuDoubleComplex *alpha,
-        const cuDoubleComplex *A, int lda,
-        const cuDoubleComplex *B, int ldb,
-        const cuDoubleComplex *beta,
-        cuDoubleComplex *C, int ldc,
-        CUBLAS_STREAM_PARAM)
+int
+CUDA_zsyr2k( cham_uplo_t uplo, cham_trans_t trans,
+             int n, int k,
+             const cuDoubleComplex *alpha,
+             const cuDoubleComplex *A, int lda,
+             const cuDoubleComplex *B, int ldb,
+             const cuDoubleComplex *beta,
+             cuDoubleComplex *C, int ldc,
+             cublasHandle_t handle )
 {
-    cublasZsyr2k(CUBLAS_HANDLE
-                 chameleon_cublas_const(uplo), chameleon_cublas_const(trans),
-                 n, k,
-                 CUBLAS_VALUE(alpha), A, lda,
-                                      B, ldb,
-                 CUBLAS_VALUE(beta),  C, ldc);
+    cublasStatus_t rc;
 
-    assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
+    rc = cublasZsyr2k( handle,
+                       chameleon_cublas_const(uplo), chameleon_cublas_const(trans),
+                       n, k,
+                       CUBLAS_VALUE(alpha), A, lda,
+                                            B, ldb,
+                       CUBLAS_VALUE(beta),  C, ldc );
 
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }

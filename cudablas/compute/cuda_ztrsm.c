@@ -20,22 +20,25 @@
  */
 #include "cudablas.h"
 
-int CUDA_ztrsm(cham_side_t side, cham_uplo_t uplo,
-               cham_trans_t transa, cham_diag_t diag,
-               int m, int n,
-               const cuDoubleComplex *alpha,
-               const cuDoubleComplex *A, int lda,
-               cuDoubleComplex *B, int ldb,
-               CUBLAS_STREAM_PARAM)
+int
+CUDA_ztrsm( cham_side_t side, cham_uplo_t uplo,
+            cham_trans_t transa, cham_diag_t diag,
+            int m, int n,
+            const cuDoubleComplex *alpha,
+            const cuDoubleComplex *A, int lda,
+            cuDoubleComplex *B, int ldb,
+            cublasHandle_t handle )
 {
-    cublasZtrsm(CUBLAS_HANDLE
-        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
-        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
-        m, n,
-        CUBLAS_VALUE(alpha), A, lda,
-        B, ldb);
+    cublasStatus_t rc;
 
-    assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
+    rc = cublasZtrsm( handle,
+                      chameleon_cublas_const(side), chameleon_cublas_const(uplo),
+                      chameleon_cublas_const(transa), chameleon_cublas_const(diag),
+                      m, n,
+                      CUBLAS_VALUE(alpha), A, lda,
+                      B, ldb );
 
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }

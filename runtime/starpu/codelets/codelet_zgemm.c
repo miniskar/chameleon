@@ -64,6 +64,7 @@ static void
 cl_zgemm_cuda_func( void *descr[], void *cl_arg )
 {
     struct cl_zgemm_args_s *clargs = (struct cl_zgemm_args_s *)cl_arg;
+    cublasHandle_t          handle = starpu_cublas_get_local_handle();
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     CHAM_tile_t *tileC;
@@ -71,8 +72,6 @@ cl_zgemm_cuda_func( void *descr[], void *cl_arg )
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
     tileC = cti_interface_get(descr[2]);
-
-    RUNTIME_getStream( stream );
 
     assert( tileA->format & CHAMELEON_TILE_FULLRANK );
     assert( tileB->format & CHAMELEON_TILE_FULLRANK );
@@ -86,11 +85,7 @@ cl_zgemm_cuda_func( void *descr[], void *cl_arg )
         tileB->mat, tileB->ld,
         (cuDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
-        stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
+        handle );
 
     return;
 }

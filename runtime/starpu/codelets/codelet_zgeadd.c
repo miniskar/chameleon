@@ -44,9 +44,10 @@ static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
     return;
 }
 
-#ifdef CHAMELEON_USE_CUBLAS_V2
+#ifdef CHAMELEON_USE_CUBLAS
 static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     cham_trans_t trans;
     int M;
     int N;
@@ -59,28 +60,20 @@ static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
     tileB = cti_interface_get(descr[1]);
     starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta );
 
-    RUNTIME_getStream( stream );
-
-    CUDA_zgeadd(
-        trans,
-        M, N,
-        &alpha, tileA->mat, tileA->ld,
-        &beta,  tileB->mat, tileB->ld,
-        stream);
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
+    CUDA_zgeadd( trans, M, N,
+                 &alpha, tileA->mat, tileA->ld,
+                 &beta,  tileB->mat, tileB->ld,
+                 handle );
 
     return;
 }
-#endif /* defined(CHAMELEON_USE_CUBLAS_V2) */
+#endif /* defined(CHAMELEON_USE_CUBLAS) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-#if defined(CHAMELEON_USE_CUBLAS_V2)
+#if defined(CHAMELEON_USE_CUBLAS)
 CODELETS(zgeadd, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
 #else
 CODELETS_CPU(zgeadd, cl_zgeadd_cpu_func)

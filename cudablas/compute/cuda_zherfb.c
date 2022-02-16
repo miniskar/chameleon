@@ -27,7 +27,7 @@ CUDA_zherfb( cham_uplo_t uplo, int n,
              const cuDoubleComplex *T, int ldt,
              cuDoubleComplex *C, int ldc,
              cuDoubleComplex *WORK, int ldwork,
-             CUBLAS_STREAM_PARAM )
+             cublasHandle_t handle )
 {
     /* Check input arguments */
     if ((uplo != ChamUpper) && (uplo != ChamLower)) {
@@ -67,21 +67,21 @@ CUDA_zherfb( cham_uplo_t uplo, int n,
         /* Left */
         CUDA_zunmqrt( ChamLeft, ChamConjTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
-                      CUBLAS_STREAM_VALUE );
+                      handle );
         /* Right */
         CUDA_zunmqrt( ChamRight, ChamNoTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
-                      CUBLAS_STREAM_VALUE );
+                      handle );
     }
     else {
         /* Right */
         CUDA_zunmlqt( ChamRight, ChamConjTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
-                      CUBLAS_STREAM_VALUE );
+                      handle );
         /* Left */
         CUDA_zunmlqt( ChamLeft, ChamNoTrans, n, n, k, ib,
                       A, lda, T, ldt, C, ldc, WORK, ldwork,
-                      CUBLAS_STREAM_VALUE );
+                      handle );
     }
     return 0;
 }

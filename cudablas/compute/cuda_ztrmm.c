@@ -20,40 +20,27 @@
  */
 #include "cudablas.h"
 
-int CUDA_ztrmm(
-    cham_side_t side, cham_uplo_t uplo,
-    cham_trans_t transa, cham_diag_t diag,
-    int m, int n,
-    const cuDoubleComplex *alpha,
-    const cuDoubleComplex *A, int lda,
-    cuDoubleComplex *B, int ldb,
-    CUBLAS_STREAM_PARAM)
+int
+CUDA_ztrmm( cham_side_t side, cham_uplo_t uplo,
+            cham_trans_t transa, cham_diag_t diag,
+            int m, int n,
+            const cuDoubleComplex *alpha,
+            const cuDoubleComplex *A, int lda,
+            cuDoubleComplex *B, int ldb,
+            cublasHandle_t handle )
 {
+    cublasStatus_t rc;
 
-#if defined(CHAMELEON_USE_CUBLAS_V2)
+    rc = cublasZtrmm( handle,
+                      chameleon_cublas_const(side), chameleon_cublas_const(uplo),
+                      chameleon_cublas_const(transa), chameleon_cublas_const(diag),
+                      m, n,
+                      CUBLAS_VALUE(alpha), A, lda,
+                      B, ldb,
+                      B, ldb );
 
-    cublasZtrmm(
-        CUBLAS_HANDLE
-        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
-        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
-        m, n,
-        CUBLAS_VALUE(alpha), A, lda,
-        B, ldb,
-        B, ldb);
-
-#else
-
-    cublasZtrmm(
-        CUBLAS_HANDLE
-        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
-        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
-        m, n,
-        CUBLAS_VALUE(alpha), A, lda,
-                             B, ldb);
-#endif
-
-    assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
-
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }
 

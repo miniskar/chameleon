@@ -51,6 +51,7 @@ static void cl_ztpmlqt_cpu_func(void *descr[], void *cl_arg)
 #if defined(CHAMELEON_USE_CUDA)
 static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     cham_side_t side;
     cham_trans_t trans;
     int M;
@@ -73,19 +74,13 @@ static void cl_ztpmlqt_cuda_func(void *descr[], void *cl_arg)
 
     starpu_codelet_unpack_args( cl_arg, &side, &trans, &M, &N, &K, &L, &ib, &lwork );
 
-    RUNTIME_getStream(stream);
-
     CUDA_ztpmlqt(
             side, trans, M, N, K, L, ib,
             tileV->mat, tileV->ld,
             tileT->mat, tileT->ld,
             tileA->mat, tileA->ld,
             tileB->mat, tileB->ld,
-            tileW->mat, lwork, stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
+            tileW->mat, lwork, handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
