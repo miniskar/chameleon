@@ -21,15 +21,6 @@ int CUDA_cgemerge(
         void *A, void* LDA,
         void *B, void* LDB,
         void* stream);
-int CUDA_cgemm_V2(
-        void* transa, void* transb,
-        int m, int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_cgemm(
         void* transa, void* transb,
         int m, int n, int k,
@@ -69,15 +60,6 @@ int CUDA_cgetrf_nopiv(
         void* m, void* n,
         void *dA, void* ldda,
         void* info);
-int CUDA_chemm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_chemm(
         void* side, void* uplo,
         int m, int n,
@@ -85,15 +67,6 @@ int CUDA_chemm(
         const void *A, int lda,
         const void *B, int ldb,
         void *beta,
-        void *C, int ldc,
-        void* stream);
-int CUDA_cher2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        float *beta,
         void *C, int ldc,
         void* stream);
 int CUDA_cher2k(
@@ -104,14 +77,6 @@ int CUDA_cher2k(
         const void *B, int ldb,
         float *beta,
         void *C, int ldc,
-        void* stream);
-int CUDA_cherk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        float *alpha,
-        const void *A, int lda,
-        float *beta,
-        void *B, int ldb,
         void* stream);
 int CUDA_cherk(
         void* uplo, void* trans,
@@ -148,27 +113,9 @@ int CUDA_cssssm(
         void *dL1, void* lddl1,
         void *dL2, void* lddl2,
         void* *IPIV, void* info);
-int CUDA_csymm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_csymm(
         void* side, void* uplo,
         int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
-int CUDA_csyr2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
         void *alpha,
         const void *A, int lda,
         const void *B, int ldb,
@@ -184,14 +131,6 @@ int CUDA_csyr2k(
         void *beta,
         void *C, int ldc,
         void* stream);
-int CUDA_csyrk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_csyrk(
         void* uplo, void* trans,
         int n, int k,
@@ -200,28 +139,11 @@ int CUDA_csyrk(
         void *beta,
         void *C, int ldc,
         void* stream);
-int CUDA_ctrmm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *C, int ldc,
-        void* stream);
 int CUDA_ctrmm(
         void* side, void* uplo,
         void* transa, void* diag,
         int m, int n,
         void *alpha,
-        const void *A, int lda,
-        void *B, int ldb,
-        void* stream);
-int CUDA_ctrsm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        const void *alpha,
         const void *A, int lda,
         void *B, int ldb,
         void* stream);
@@ -352,15 +274,6 @@ int CUDA_dgemerge(
         double *A, void* LDA,
         double *B, void* LDB,
         void* stream);
-int CUDA_dgemm_V2(
-        void* transa, void* transb,
-        int m, int n, int k,
-        double *alpha,
-        const double *A, int lda,
-        const double *B, int ldb,
-        double *beta,
-        double *C, int ldc,
-        void* stream);
 int CUDA_dgemm(
         void* transa, void* transb,
         int m, int n, int k,
@@ -400,27 +313,9 @@ int CUDA_dgetrf_nopiv(
         void* m, void* n,
         double *dA, void* ldda,
         void* info);
-int CUDA_dsymm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        double *alpha,
-        const double *A, int lda,
-        const double *B, int ldb,
-        double *beta,
-        double *C, int ldc,
-        void* stream);
 int CUDA_dsymm(
         void* side, void* uplo,
         int m, int n,
-        double *alpha,
-        const double *A, int lda,
-        const double *B, int ldb,
-        double *beta,
-        double *C, int ldc,
-        void* stream);
-int CUDA_dsyr2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
         double *alpha,
         const double *A, int lda,
         const double *B, int ldb,
@@ -435,14 +330,6 @@ int CUDA_dsyr2k(
         const double *B, int ldb,
         double *beta,
         double *C, int ldc,
-        void* stream);
-int CUDA_dsyrk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        double *alpha,
-        const double *A, int lda,
-        double *beta,
-        double *B, int ldb,
         void* stream);
 int CUDA_dsyrk(
         void* uplo, void* trans,
@@ -479,28 +366,11 @@ int CUDA_dssssm(
         double *dL1, void* lddl1,
         double *dL2, void* lddl2,
         void* *IPIV, void* info);
-int CUDA_dtrmm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        double *alpha,
-        const double *A, int lda,
-        const double *B, int ldb,
-        double *C, int ldc,
-        void* stream);
 int CUDA_dtrmm(
         void* side, void* uplo,
         void* transa, void* diag,
         int m, int n,
         double *alpha,
-        const double *A, int lda,
-        double *B, int ldb,
-        void* stream);
-int CUDA_dtrsm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        const double *alpha,
         const double *A, int lda,
         double *B, int ldb,
         void* stream);
@@ -631,15 +501,6 @@ int CUDA_sgemerge(
         float *A, void* LDA,
         float *B, void* LDB,
         void* stream);
-int CUDA_sgemm_V2(
-        void* transa, void* transb,
-        int m, int n, int k,
-        float *alpha,
-        const float *A, int lda,
-        const float *B, int ldb,
-        float *beta,
-        float *C, int ldc,
-        void* stream);
 int CUDA_sgemm(
         void* transa, void* transb,
         int m, int n, int k,
@@ -679,27 +540,9 @@ int CUDA_sgetrf_nopiv(
         void* m, void* n,
         float *dA, void* ldda,
         void* info);
-int CUDA_ssymm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        float *alpha,
-        const float *A, int lda,
-        const float *B, int ldb,
-        float *beta,
-        float *C, int ldc,
-        void* stream);
 int CUDA_ssymm(
         void* side, void* uplo,
         int m, int n,
-        float *alpha,
-        const float *A, int lda,
-        const float *B, int ldb,
-        float *beta,
-        float *C, int ldc,
-        void* stream);
-int CUDA_ssyr2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
         float *alpha,
         const float *A, int lda,
         const float *B, int ldb,
@@ -714,14 +557,6 @@ int CUDA_ssyr2k(
         const float *B, int ldb,
         float *beta,
         float *C, int ldc,
-        void* stream);
-int CUDA_ssyrk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        float *alpha,
-        const float *A, int lda,
-        float *beta,
-        float *B, int ldb,
         void* stream);
 int CUDA_ssyrk(
         void* uplo, void* trans,
@@ -758,28 +593,11 @@ int CUDA_sssssm(
         float *dL1, void* lddl1,
         float *dL2, void* lddl2,
         void* *IPIV, void* info);
-int CUDA_strmm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        float *alpha,
-        const float *A, int lda,
-        const float *B, int ldb,
-        float *C, int ldc,
-        void* stream);
 int CUDA_strmm(
         void* side, void* uplo,
         void* transa, void* diag,
         int m, int n,
         float *alpha,
-        const float *A, int lda,
-        float *B, int ldb,
-        void* stream);
-int CUDA_strsm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        const float *alpha,
         const float *A, int lda,
         float *B, int ldb,
         void* stream);
@@ -910,15 +728,6 @@ int CUDA_zgemerge(
         void *A, void* LDA,
         void *B, void* LDB,
         void* stream);
-int CUDA_zgemm_V2(
-        void* transa, void* transb,
-        int m, int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_zgemm(
         void* transa, void* transb,
         int m, int n, int k,
@@ -958,15 +767,6 @@ int CUDA_zgetrf_nopiv(
         void* m, void* n,
         void *dA, void* ldda,
         void* info);
-int CUDA_zhemm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_zhemm(
         void* side, void* uplo,
         int m, int n,
@@ -974,15 +774,6 @@ int CUDA_zhemm(
         const void *A, int lda,
         const void *B, int ldb,
         void *beta,
-        void *C, int ldc,
-        void* stream);
-int CUDA_zher2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        double *beta,
         void *C, int ldc,
         void* stream);
 int CUDA_zher2k(
@@ -993,14 +784,6 @@ int CUDA_zher2k(
         const void *B, int ldb,
         double *beta,
         void *C, int ldc,
-        void* stream);
-int CUDA_zherk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        double *alpha,
-        const void *A, int lda,
-        double *beta,
-        void *B, int ldb,
         void* stream);
 int CUDA_zherk(
         void* uplo, void* trans,
@@ -1037,27 +820,9 @@ int CUDA_zssssm(
         void *dL1, void* lddl1,
         void *dL2, void* lddl2,
         void* *IPIV, void* info);
-int CUDA_zsymm_V2(
-        void* side, void* uplo,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_zsymm(
         void* side, void* uplo,
         int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
-int CUDA_zsyr2k_V2(
-        void* uplo, void* trans,
-        int n, int k,
         void *alpha,
         const void *A, int lda,
         const void *B, int ldb,
@@ -1073,14 +838,6 @@ int CUDA_zsyr2k(
         void *beta,
         void *C, int ldc,
         void* stream);
-int CUDA_zsyrk_V2(
-        void* uplo, void* trans,
-        int n, int k,
-        void *alpha,
-        const void *A, int lda,
-        void *beta,
-        void *C, int ldc,
-        void* stream);
 int CUDA_zsyrk(
         void* uplo, void* trans,
         int n, int k,
@@ -1089,28 +846,11 @@ int CUDA_zsyrk(
         void *beta,
         void *C, int ldc,
         void* stream);
-int CUDA_ztrmm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        void *alpha,
-        const void *A, int lda,
-        const void *B, int ldb,
-        void *C, int ldc,
-        void* stream);
 int CUDA_ztrmm(
         void* side, void* uplo,
         void* transa, void* diag,
         int m, int n,
         void *alpha,
-        const void *A, int lda,
-        void *B, int ldb,
-        void* stream);
-int CUDA_ztrsm_V2(
-        void* side, void* uplo,
-        void* transa, void* diag,
-        int m, int n,
-        const void *alpha,
         const void *A, int lda,
         void *B, int ldb,
         void* stream);
