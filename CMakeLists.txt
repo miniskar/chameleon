@@ -520,12 +520,6 @@ int main(void) {
   HAVE_FALLTHROUGH
   )
 
-# Add option to exploit cublas API v2
-# -----------------------------------
-cmake_dependent_option(CHAMELEON_USE_CUBLAS_V2
-  "Enable cublas API v2" ON
-  "CHAMELEON_USE_CUDA;CHAMELEON_SCHED_STARPU" OFF)
-
 # Fix a problem on Mac OS X when building shared libraries
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")

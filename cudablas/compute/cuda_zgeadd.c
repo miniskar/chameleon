@@ -19,10 +19,6 @@
  */
 #include "cudablas.h"
 
-#if !defined(CHAMELEON_USE_CUBLAS_V2)
-#error "This file requires cublas api v2 support"
-#endif
-
 /**
  ******************************************************************************
  *

@@ -29,6 +29,7 @@
 # ------------------------------------------------------
 set(CUDABLAS_SRCS_GENERATED "")
 set(ZSRC
+    cuda_zgeadd.c
     cuda_zgemerge.c
     cuda_zgemm.c
     cuda_zhemm.c
@@ -51,13 +52,6 @@ set(ZSRC
     cuda_zunmlqt.c
     cuda_zunmqrt.c
     )
-
-if( CHAMELEON_USE_CUBLAS_V2 )
-  set(ZSRC
-    ${ZSRC}
-    cuda_zgeadd.c
-    )
-endif( CHAMELEON_USE_CUBLAS_V2 )
 
 # Former MAGMA files that are no longer supported
 # if( CHAMELEON_USE_MAGMA )
@@ -83,14 +77,8 @@ precisions_rules_py(
 
 set(CUDABLAS_SRCS
   ${CUDABLAS_SRCS_GENERATED}
+  cudaglobal.c
   )
-
-if (CHAMELEON_USE_CUBLAS_V2)
-  set(CUDABLAS_SRCS
-    ${CUDABLAS_SRCS}
-    cudaglobal.c
-    )
-endif (CHAMELEON_USE_CUBLAS_V2)
 
 # Force generation of sources
 # ---------------------------

@@ -48,12 +48,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
-#if defined(CHAMELEON_USE_CUBLAS_V2)
 #include <cublas.h>
 #include <cublas_v2.h>
-#else
-#include <cublas.h>
-#endif
 #endif
 
 #if defined(CHAMELEON_USE_OPENCL) && !defined(CHAMELEON_SIMULATION)

@@ -36,8 +36,6 @@
 #include <cuda.h>
 #include <cuComplex.h>
 
-#if defined(CHAMELEON_USE_CUBLAS_V2)
-
 #include <cublas.h>
 #include <cublas_v2.h>
 
@@ -49,18 +47,6 @@
 #define CUBLAS_GET_STREAM                       \
     cudaStream_t stream;                        \
     cublasGetStream( handle, &stream )
-
-#else
-
-#include <cublas.h>
-#define CUBLAS_STREAM_PARAM cudaStream_t stream
-#define CUBLAS_STREAM_VALUE stream
-#define CUBLAS_HANDLE
-#define CUBLAS_SADDR(_a_) (_a_)
-#define CUBLAS_VALUE(_a_) (*(_a_))
-#define CUBLAS_GET_STREAM
-
-#endif /* defined(CHAMELEON_USE_CUBLAS_V2) */
 
 /**
  * CHAMELEON types and constants
@@ -95,12 +81,7 @@ extern char *chameleon_lapack_constants[];
 #define chameleon_lapack_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
 
 extern int chameleon_cublas_constants[];
-
-#if defined(CHAMELEON_USE_CUBLAS_V2)
 #define chameleon_cublas_const(chameleon_const) chameleon_cublas_constants[chameleon_const]
-#else
-#define chameleon_cublas_const(chameleon_const) chameleon_lapack_constants[chameleon_const][0]
-#endif
 
 END_C_DECLS
 

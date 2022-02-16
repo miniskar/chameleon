@@ -44,7 +44,7 @@ static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
     return;
 }
 
-#ifdef CHAMELEON_USE_CUBLAS_V2
+#ifdef CHAMELEON_USE_CUBLAS
 static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
 {
     cham_trans_t trans;
@@ -74,13 +74,13 @@ static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
 
     return;
 }
-#endif /* defined(CHAMELEON_USE_CUBLAS_V2) */
+#endif /* defined(CHAMELEON_USE_CUBLAS) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-#if defined(CHAMELEON_USE_CUBLAS_V2)
+#if defined(CHAMELEON_USE_CUBLAS)
 CODELETS(zgeadd, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
 #else
 CODELETS_CPU(zgeadd, cl_zgeadd_cpu_func)

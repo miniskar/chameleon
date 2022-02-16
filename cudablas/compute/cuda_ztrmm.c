@@ -30,8 +30,6 @@ int CUDA_ztrmm(
     CUBLAS_STREAM_PARAM)
 {
 
-#if defined(CHAMELEON_USE_CUBLAS_V2)
-
     cublasZtrmm(
         CUBLAS_HANDLE
         chameleon_cublas_const(side), chameleon_cublas_const(uplo),
@@ -40,17 +38,6 @@ int CUDA_ztrmm(
         CUBLAS_VALUE(alpha), A, lda,
         B, ldb,
         B, ldb);
-
-#else
-
-    cublasZtrmm(
-        CUBLAS_HANDLE
-        chameleon_cublas_const(side), chameleon_cublas_const(uplo),
-        chameleon_cublas_const(transa), chameleon_cublas_const(diag),
-        m, n,
-        CUBLAS_VALUE(alpha), A, lda,
-                             B, ldb);
-#endif
 
     assert( CUBLAS_STATUS_SUCCESS == cublasGetError() );
 
