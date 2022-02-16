@@ -1289,7 +1289,6 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
                                  An, An, A, LDA, work );
     free( work );
 
-    //Brefnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, Bref, LDB );
     Bnorm    = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, B,    LDB );
 
     /* Makes the multiplication with the core function */
