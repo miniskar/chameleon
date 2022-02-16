@@ -57,6 +57,7 @@ cl_zsyrk_cpu_func(void *descr[], void *cl_arg)
 static void
 cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     struct cl_zsyrk_args_s *clargs = (struct cl_zsyrk_args_s *)cl_arg;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileC;
@@ -64,21 +65,13 @@ cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
     tileA = cti_interface_get(descr[0]);
     tileC = cti_interface_get(descr[1]);
 
-    RUNTIME_getStream(stream);
-
     CUDA_zsyrk(
         clargs->uplo, clargs->trans, clargs->n, clargs->k,
         (cuDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
         (cuDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
-        stream );
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
-
-    return;
+        handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */

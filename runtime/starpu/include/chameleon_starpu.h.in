@@ -126,14 +126,6 @@ typedef struct starpu_option_request_s {
 #endif
 
 /*
- * cuBLAS API - StarPU enable the support for cublas handle
- */
-#if defined(CHAMELEON_USE_CUDA)
-#define RUNTIME_getStream(_stream_)                             \
-    cublasHandle_t _stream_ = starpu_cublas_get_local_handle();
-#endif
-
-/*
  * Enable codelets names
  */
 #if (STARPU_MAJOR_VERSION > 1) || ((STARPU_MAJOR_VERSION == 1) && (STARPU_MINOR_VERSION > 1))

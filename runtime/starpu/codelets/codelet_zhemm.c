@@ -54,6 +54,7 @@ static void cl_zhemm_cpu_func(void *descr[], void *cl_arg)
 #ifdef CHAMELEON_USE_CUDA
 static void cl_zhemm_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     cham_side_t side;
     cham_uplo_t uplo;
     int M;
@@ -70,21 +71,13 @@ static void cl_zhemm_cuda_func(void *descr[], void *cl_arg)
 
     starpu_codelet_unpack_args(cl_arg, &side, &uplo, &M, &N, &alpha, &beta);
 
-    RUNTIME_getStream(stream);
-
     CUDA_zhemm(
         side, uplo,
         M, N,
         &alpha, tileA->mat, tileA->ld,
                 tileB->mat, tileB->ld,
         &beta,  tileC->mat, tileC->ld,
-        stream);
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
-
-    return;
+        handle );
 }
 #endif /* CHAMELEON_USE_CUDA */
 #endif /* !defined(CHAMELEON_SIMULATION) */

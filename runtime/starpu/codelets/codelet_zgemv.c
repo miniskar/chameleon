@@ -47,6 +47,7 @@ static void cl_zgemv_cpu_func(void *descr[], void *cl_arg)
 #if defined(CHAMELEON_USE_CUDA) & 0
 static void cl_zgemv_cuda_func(void *descr[], void *cl_arg)
 {
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
     cham_trans_t transA;
     cham_trans_t transB;
     int m;
@@ -64,20 +65,13 @@ static void cl_zgemv_cuda_func(void *descr[], void *cl_arg)
 
     starpu_codelet_unpack_args(cl_arg, &transA, &transB, &m, &n, &k, &alpha, &beta);
 
-    RUNTIME_getStream( stream );
-
     CUDA_zgemv(
         transA, transB,
         m, n, k,
         &alpha, tileA->mat, tileA->ld,
                 tileB->mat, tileB->ld,
         &beta,  tileC->mat, tileC->ld,
-        stream);
-
-#ifndef STARPU_CUDA_ASYNC
-    cudaStreamSynchronize( stream );
-#endif
-
+        handle );
     return;
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
