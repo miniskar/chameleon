@@ -194,6 +194,11 @@ int CHAMELEON_Pause(void)
         chameleon_error("CHAMELEON_Pause()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    if ( chamctxt->runtime_paused ) {
+        chameleon_warning("CHAMELEON_Pause()", "CHAMELEON already paused");
+        return CHAMELEON_SUCCESS;
+    }
+    chamctxt->runtime_paused = CHAMELEON_TRUE;
     RUNTIME_pause(chamctxt);
     return CHAMELEON_SUCCESS;
 }
@@ -217,6 +222,11 @@ int CHAMELEON_Resume(void)
         chameleon_error("CHAMELEON_Resume()", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    if ( !chamctxt->runtime_paused ) {
+        chameleon_warning("CHAMELEON_Resume()", "CHAMELEON was already resumed");
+        return CHAMELEON_SUCCESS;
+    }
+    chamctxt->runtime_paused = CHAMELEON_FALSE;
     RUNTIME_resume(chamctxt);
     return CHAMELEON_SUCCESS;
 }

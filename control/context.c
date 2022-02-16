@@ -77,6 +77,8 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->progress_enabled   = CHAMELEON_FALSE;
     chamctxt->generic_enabled    = CHAMELEON_FALSE;
 
+    chamctxt->runtime_paused     = CHAMELEON_FALSE;
+
     chamctxt->householder        = ChamFlatHouseholder;
     chamctxt->translation        = ChamOutOfPlace;
 
