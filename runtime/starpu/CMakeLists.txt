@@ -125,6 +125,14 @@ if ( STARPU_FOUND )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_COMM_GET_ATTR${ColourReset}")
     endif()
   endif()
+
+  if (CHAMELEON_USE_CUDA AND NOT CHAMELEON_SIMULATION)
+    check_function_exists(starpu_cublas_get_local_handle HAVE_STARPU_CUBLAS_GET_LOCAL_HANDLE)
+    if ( NOT HAVE_STARPU_CUBLAS_GET_LOCAL_HANDLE )
+      message(FATAL_ERROR "The detected StarPU library does not include cublas support. Please disable CHAMELEON_USE_CUDA or provide a StarPU library with cublas support.")
+    endif()
+  endif()
+
   morse_cmake_required_unset()
 endif ( STARPU_FOUND )
 
