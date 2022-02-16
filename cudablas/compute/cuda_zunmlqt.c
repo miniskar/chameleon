@@ -21,13 +21,13 @@
 #include "cudablas.h"
 
 int
-CUDA_zunmlqt(cham_side_t side, cham_trans_t trans,
-             int M, int N, int K, int IB,
-             const cuDoubleComplex *A,    int LDA,
-             const cuDoubleComplex *T,    int LDT,
-             cuDoubleComplex *C,    int LDC,
-             cuDoubleComplex *WORK, int LDWORK,
-             CUBLAS_STREAM_PARAM )
+CUDA_zunmlqt( cham_side_t side, cham_trans_t trans,
+              int M, int N, int K, int IB,
+              const cuDoubleComplex *A,    int LDA,
+              const cuDoubleComplex *T,    int LDT,
+              cuDoubleComplex *C,    int LDC,
+              cuDoubleComplex *WORK, int LDWORK,
+              cublasHandle_t handle )
 {
     int i, kb;
     int i1, i3;
@@ -122,7 +122,7 @@ CUDA_zunmlqt(cham_side_t side, cham_trans_t trans,
                      A + LDA * i  + i,  LDA,
                      T + LDT * i,       LDT,
                      C + LDC * jc + ic, LDC,
-                     WORK, LDWORK, CUBLAS_STREAM_VALUE);
+                     WORK, LDWORK, handle );
     }
     return CHAMELEON_SUCCESS;
 }

@@ -146,7 +146,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
              const cuDoubleComplex *V, int LDV,
              const cuDoubleComplex *T, int LDT,
                    cuDoubleComplex *WORK, int LWORK,
-             CUBLAS_STREAM_PARAM )
+             cublasHandle_t handle )
 {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     cuDoubleComplex zzero = make_cuDoubleComplex(0.0, 0.0);
@@ -159,14 +159,12 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
 #endif /* defined(PRECISION_z) || defined(PRECISION_c) */
 
     cuDoubleComplex *workW, *workC, *workV;
-    int ldW, ldC, ldV;
-    int j;
-    cham_trans_t transW;
-    cham_trans_t transA2;
-    int wssize = 0;
-    int wrsize = 0;
-
-    CUBLAS_GET_STREAM;
+    cublasStatus_t   rc;
+    cudaStream_t     stream;
+    int              j, ldW, ldC, ldV;
+    cham_trans_t     transW, transA2;
+    int              wssize = 0;
+    int              wrsize = 0;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -218,6 +216,8 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
     if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0)) {
         return CHAMELEON_SUCCESS;
     }
+
+    cublasGetStream( handle, &stream );
 
     if (direct == ChamDirForward) {
 
@@ -307,12 +307,13 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
             transW  = storev == ChamColumnwise ? ChamConjTrans : ChamNoTrans;
             transA2 = storev == ChamColumnwise ? ChamNoTrans : ChamConjTrans;
 
-            cublasZgemm( CUBLAS_HANDLE
-                         chameleon_cublas_const(transW), chameleon_cublas_const(ChamNoTrans),
-                         K, N1, M2,
-                         CUBLAS_SADDR(zone), workV /* M2*K  */, ldV,
-                                             A2    /* M2*N2 */, LDA2,
-                         CUBLAS_SADDR(zone), workW /* K *N2 */, ldW );
+            rc = cublasZgemm( handle,
+                              chameleon_cublas_const(transW), chameleon_cublas_const(ChamNoTrans),
+                              K, N1, M2,
+                              CUBLAS_SADDR(zone), workV /* M2*K  */, ldV,
+                                                  A2    /* M2*N2 */, LDA2,
+                              CUBLAS_SADDR(zone), workW /* K *N2 */, ldW );
+            assert( rc == CUBLAS_STATUS_SUCCESS );
 
             if ( workC == NULL ) {
                 /* W = op(T) * W */
@@ -320,48 +321,52 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                             K, N2,
                             &zone, T,     LDT,
                                    workW, ldW,
-                            CUBLAS_STREAM_VALUE );
+                            handle );
 
                 /* A1 = A1 - W = A1 - op(T) * W */
                 for(j = 0; j < N1; j++) {
-                    cublasZaxpy( CUBLAS_HANDLE
-                                 K, CUBLAS_SADDR(mzone),
-                                 workW + ldW  * j, 1,
-                                 A1    + LDA1 * j, 1 );
+                    rc = cublasZaxpy( handle,
+                                      K, CUBLAS_SADDR(mzone),
+                                      workW + ldW  * j, 1,
+                                      A1    + LDA1 * j, 1 );
+                    assert( rc == CUBLAS_STATUS_SUCCESS );
                 }
 
                 /* A2 = A2 - op(V) * W  */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(transA2), chameleon_cublas_const(ChamNoTrans),
-                             M2, N2, K,
-                             CUBLAS_SADDR(mzone), workV /* M2 * K  */, ldV,
-                                                  workW /* K  * N2 */, ldW,
-                             CUBLAS_SADDR(zone),  A2    /* M2 * N2 */, LDA2 );
+                rc = cublasZgemm( handle,
+                                  chameleon_cublas_const(transA2), chameleon_cublas_const(ChamNoTrans),
+                                  M2, N2, K,
+                                  CUBLAS_SADDR(mzone), workV /* M2 * K  */, ldV,
+                                                       workW /* K  * N2 */, ldW,
+                                  CUBLAS_SADDR(zone),  A2    /* M2 * N2 */, LDA2 );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
 
             } else {
                 /* Wc = V * op(T) */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(transA2), chameleon_cublas_const(trans),
-                             M2, K, K,
-                             CUBLAS_SADDR(zone),  workV, ldV,
-                                                  T,     LDT,
-                             CUBLAS_SADDR(zzero), workC, ldC );
+                rc = cublasZgemm( handle,
+                                  chameleon_cublas_const(transA2), chameleon_cublas_const(trans),
+                                  M2, K, K,
+                                  CUBLAS_SADDR(zone),  workV, ldV,
+                                                       T,     LDT,
+                                  CUBLAS_SADDR(zzero), workC, ldC );
 
                 /* A1 = A1 - opt(T) * W */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
-                             K, N1, K,
-                             CUBLAS_SADDR(mzone), T,     LDT,
-                                                  workW, ldW,
-                             CUBLAS_SADDR(zone),  A1,    LDA1 );
+                rc = cublasZgemm( handle,
+                                  chameleon_cublas_const(trans), chameleon_cublas_const(ChamNoTrans),
+                                  K, N1, K,
+                                  CUBLAS_SADDR(mzone), T,     LDT,
+                                                       workW, ldW,
+                                  CUBLAS_SADDR(zone),  A1,    LDA1 );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
 
                 /* A2 = A2 - Wc * W */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
-                             M2, N2, K,
-                             CUBLAS_SADDR(mzone), workC, ldC,
-                                                  workW, ldW,
-                             CUBLAS_SADDR(zone),  A2,    LDA2 );
+                rc = cublasZgemm( handle,
+                                  chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
+                                  M2, N2, K,
+                                  CUBLAS_SADDR(mzone), workC, ldC,
+                                                       workW, ldW,
+                                  CUBLAS_SADDR(zone),  A2,    LDA2 );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
             }
         }
         else {
@@ -450,12 +455,13 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
             transW  = storev == ChamColumnwise ? ChamNoTrans : ChamConjTrans;
             transA2 = storev == ChamColumnwise ? ChamConjTrans : ChamNoTrans;
 
-            cublasZgemm(CUBLAS_HANDLE
-                        chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transW),
-                        M1, K, N2,
-                        CUBLAS_SADDR(zone), A2    /* M1*N2 */, LDA2,
-                                            workV /* K *N2 */, ldV,
-                        CUBLAS_SADDR(zone), workW /* M1*K  */, ldW);
+            rc = cublasZgemm( handle,
+                              chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transW),
+                              M1, K, N2,
+                              CUBLAS_SADDR(zone), A2    /* M1*N2 */, LDA2,
+                                                  workV /* K *N2 */, ldV,
+                              CUBLAS_SADDR(zone), workW /* M1*K  */, ldW);
+            assert( rc == CUBLAS_STATUS_SUCCESS );
 
             if ( workC == NULL ) {
                 /* W = W * op(T) */
@@ -463,48 +469,53 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                             M2, K,
                             &zone, T,     LDT,
                                    workW, ldW,
-                            CUBLAS_STREAM_VALUE );
+                            handle );
 
                 /* A1 = A1 - W = A1 - W * op(T) */
                 for(j = 0; j < K; j++) {
-                    cublasZaxpy( CUBLAS_HANDLE
-                                 M1, CUBLAS_SADDR(mzone),
-                                 workW + ldW  * j, 1,
-                                 A1    + LDA1 * j, 1 );
+                    rc = cublasZaxpy( handle,
+                                      M1, CUBLAS_SADDR(mzone),
+                                      workW + ldW  * j, 1,
+                                      A1    + LDA1 * j, 1 );
+                    assert( rc == CUBLAS_STATUS_SUCCESS );
                 }
 
                 /* A2 = A2 - W * op(V)  */
-                cublasZgemm(CUBLAS_HANDLE
-                            chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transA2),
-                            M2, N2, K,
-                            CUBLAS_SADDR(mzone), workW /* M2*K  */, ldW,
-                                                 workV /* K *N2 */, ldV,
-                            CUBLAS_SADDR(zone),  A2    /* M2*N2 */, LDA2);
+                rc = cublasZgemm( handle,
+                                  chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(transA2),
+                                  M2, N2, K,
+                                  CUBLAS_SADDR(mzone), workW /* M2*K  */, ldW,
+                                                       workV /* K *N2 */, ldV,
+                                  CUBLAS_SADDR(zone),  A2    /* M2*N2 */, LDA2);
+                assert( rc == CUBLAS_STATUS_SUCCESS );
 
             } else {
                 /* A1 = A1 - W * opt(T) */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(trans),
-                             M1, K, K,
-                             CUBLAS_SADDR(mzone), workW, ldW,
-                                                  T,    LDT,
-                             CUBLAS_SADDR(zone),  A1,   LDA1 );
+                rc = cublasZgemm( handle,
+                                   chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(trans),
+                                   M1, K, K,
+                                   CUBLAS_SADDR(mzone), workW, ldW,
+                                                        T,    LDT,
+                                   CUBLAS_SADDR(zone),  A1,   LDA1 );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
 
                 /* Wc = op(T) * V */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(trans), chameleon_cublas_const(transA2),
-                             K, N2, K,
-                             CUBLAS_SADDR(zone),  T,     LDT,
-                                                  workV, ldV,
-                             CUBLAS_SADDR(zzero), workC, ldC );
+                rc = cublasZgemm( handle,
+                                   chameleon_cublas_const(trans), chameleon_cublas_const(transA2),
+                                   K, N2, K,
+                                   CUBLAS_SADDR(zone),  T,     LDT,
+                                                        workV, ldV,
+                                   CUBLAS_SADDR(zzero), workC, ldC );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
 
                 /* A2 = A2 - W * Wc */
-                cublasZgemm( CUBLAS_HANDLE
-                             chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
-                             M2, N2, K,
-                             CUBLAS_SADDR(mzone), workW, ldW,
-                                                  workC, ldC,
-                             CUBLAS_SADDR(zone),  A2,    LDA2 );
+                rc = cublasZgemm( handle,
+                                   chameleon_cublas_const(ChamNoTrans), chameleon_cublas_const(ChamNoTrans),
+                                   M2, N2, K,
+                                   CUBLAS_SADDR(mzone), workW, ldW,
+                                                        workC, ldC,
+                                   CUBLAS_SADDR(zone),  A2,    LDA2 );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
             }
         }
     }

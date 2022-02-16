@@ -25,11 +25,12 @@ CUDA_zgemerge( cham_side_t side, cham_diag_t diag,
                int M, int N,
                const cuDoubleComplex *A, int LDA,
                cuDoubleComplex *B, int LDB,
-               CUBLAS_STREAM_PARAM)
+               cublasHandle_t handle )
 {
-    int i;
     const cuDoubleComplex *cola;
     cuDoubleComplex       *colb;
+    cublasStatus_t         rc;
+    int                    i;
 
     if (M < 0) {
         return -1;
@@ -44,26 +45,23 @@ CUDA_zgemerge( cham_side_t side, cham_diag_t diag,
         return -7;
     }
 
-    CUBLAS_GET_STREAM;
-
     if (side == ChamLeft){
         for(i=0; i<N; i++){
             cola = A + i*LDA;
             colb = B + i*LDB;
-            cudaMemcpyAsync(colb , cola,
-                            (i+1)*sizeof(cuDoubleComplex),
-                            cudaMemcpyDeviceToDevice, stream);
+            rc = cublasZcopy( handle, i+1, cola, 1, colb, 1 );
+            assert( rc == CUBLAS_STATUS_SUCCESS );
         }
     }else{
         for(i=0; i<N; i++){
             cola = A + i*LDA;
             colb = B + i*LDB;
-            cudaMemcpyAsync(colb+i , cola+i,
-                            (M-i)*sizeof(cuDoubleComplex),
-                            cudaMemcpyDeviceToDevice, stream);
+            rc = cublasZcopy( handle, M-i, cola, 1, colb, 1 );
+            assert( rc == CUBLAS_STATUS_SUCCESS );
         }
     }
 
     (void)diag;
+    (void)rc;
     return CHAMELEON_SUCCESS;
 }

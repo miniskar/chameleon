@@ -21,7 +21,8 @@
 #include "cudablas.h"
 
 #if defined(CHAMELEON_USE_MAGMA)
-int CUDA_zgeqrt(
+int
+CUDA_zgeqrt(
     magma_int_t m, magma_int_t n, magma_int_t nb,
     magmaDoubleComplex *da, magma_int_t ldda,
     magmaDoubleComplex *v,  magma_int_t ldv,
@@ -32,7 +33,7 @@ int CUDA_zgeqrt(
     magmaDoubleComplex *tau,
     magmaDoubleComplex *hwork,
     magmaDoubleComplex *dwork,
-    CUstream stream)
+    CUstream stream )
 {
 #define da_ref(a_1,a_2) ( da+(a_2)*(ldda) + (a_1))
 #define v_ref(a_1,a_2)  ( v+(a_2)*(ldv) + (a_1))

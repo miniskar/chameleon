@@ -144,7 +144,7 @@ CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
                     cuDoubleComplex *A, int LDA,
                     cuDoubleComplex *B, int LDB,
                     cuDoubleComplex *WORK, int lwork,
-              CUBLAS_STREAM_PARAM )
+              cublasHandle_t handle )
 {
     int m1, n1;
 
@@ -168,14 +168,14 @@ CUDA_ztpmqrt( cham_side_t side, cham_trans_t trans,
         CUDA_ztsmqr( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
                      WORK, lwork,
-                     CUBLAS_STREAM_VALUE );
+                     handle );
     }
     /* TT case */
     else  if( L == M ) {
         CUDA_zttmqr( side, trans, m1, n1, M, N, K, IB,
                      A, LDA, B, LDB, V, LDV, T, LDT,
                      WORK, lwork,
-                     CUBLAS_STREAM_VALUE );
+                     handle );
     }
     else {
         cudablas_error(-6, "TPMQRT not available on GPU for general cases yet\n" );
