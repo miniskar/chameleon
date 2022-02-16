@@ -292,11 +292,11 @@ cti_compare( void *data_interface_a, void *data_interface_b )
         && ( cham_tile_a->flttype == cham_tile_b->flttype );
 }
 
-/* static int */
-/* cti_alloc_compare(void *data_interface_a, void *data_interface_b) */
-/* { */
-/*     starpu_cham_tile_interface_t *cham_tile_a = (starpu_cham_tile_interface_t *) data_interface_a; */
-/*     starpu_cham_tile_interface_t *cham_tile_b = (starpu_cham_tile_interface_t *) data_interface_b; */
+static int
+cti_alloc_compare(void *data_interface_a, void *data_interface_b)
+{
+    starpu_cham_tile_interface_t *cham_tile_a = (starpu_cham_tile_interface_t *) data_interface_a;
+    starpu_cham_tile_interface_t *cham_tile_b = (starpu_cham_tile_interface_t *) data_interface_b;
 
     /* Two matrices are considered compatible if they have the same allocated size */
     return ( cham_tile_a->allocsize == cham_tile_b->allocsize );
