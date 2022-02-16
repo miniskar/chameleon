@@ -53,13 +53,13 @@
  *******************************************************************************
  *
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] descA
- *          The first matrix descriptor.
+ *          The descriptor of the matrix A.
  *
- * @param[in] descA2
- *          The second matrix descriptor.
+ * @param[in] descB
+ *          The descriptor of the matrix B.
  *
  * @retval 0 successfull comparison
  *
@@ -138,6 +138,46 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares two core function computed norms.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ *
+ * @param[in] norm_type
+ *          Whether the norm is a Max, One, Inf or Frobenius norm.
+ *
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *
+ * @param[in] diag
+ *          Whether it is a unitary diagonal matrix or not.
+ *
+ * @param[in] norm_cham
+ *          The computed norm.
+ * 
+ * @param[in] M
+ *          The number of rows of the matrix A.
+ * 
+ * @param[in] N
+ *          The number of columns of the matrix A.
+ *
+ * @param[in] A
+ *          The matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                      cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA )
 {
@@ -164,7 +204,7 @@ int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_norm
         norm_lapack = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, chameleon_lapack_const(norm_type), chameleon_lapack_const(uplo), chameleon_lapack_const(diag), M, N, A, LDA, work );
         break;
     default:
-        fprintf(stderr, "check_znorm: mtxtype(%d) unsupported\n", matrix_type );
+        fprintf(stderr, "check_znorm: matrix_type(%d) unsupported\n", matrix_type );
         free( work );
         return 1;
     }
@@ -212,27 +252,27 @@ int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_norm
  *
  * @ingroup testing
  *
- * @brief Compares the Chameleon computed norm with a Lapack computed one.
+ * @brief Compares the Chameleon computed norm with a core function computed one.
  *
  *******************************************************************************
  *
  * @param[in] matrix_type
- *          Wether it is a general, triangular or symmetric matrix.
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
  *
  * @param[in] norm_type
- *          Wether it should compare a Max, One, Inf or Frobenius norm.
+ *          Whether the norm is a Max, One, Inf or Frobenius norm.
  *
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] diag
- *          Wether it is a unitary diagonal matrix or not.
+ *          Whether it is a unitary diagonal matrix or not.
  *
  * @param[in] norm_cham
  *          The Chameleon computed norm.
  *
  * @param[in] descA
- *          The matrix descriptor.
+ *          The descriptor of the matrix A.
  *
  * @retval 0 successfull comparison
  *
@@ -277,34 +317,31 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
  *******************************************************************************
  *
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or
- *          a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] trans
- *          Wether the first matrix is transposed, conjugate transposed or not
- *          transposed.
- *
- * @param[in] descA
- *          The descriptor of the matrix A.
+ *          Whether the first matrix is transposed, conjugate transposed or not transposed.
  *
  * @param[in] alpha
  *          The scalar alpha.
  *
- * @param[in] descBref
- *          The descriptor of the matrix B.
+ * @param[in] descA
+ *          The descriptor of the matrix A.
  *
  * @param[in] beta
  *          The scalar beta.
  *
+ * @param[in] descBref
+ *          The descriptor of the matrix Bref.
+ *
  * @param[in] descBcham
- *          The matrix descriptor of the Chameleon computed result A+B.
+ *          The descriptor of the matrix of the Chameleon computed result A+B.
  *
  * @retval 0 successfull comparison
  *
  *******************************************************************************
  */
-int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
-                 CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
+int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                  CHAMELEON_Complex64_t beta, CHAM_desc_t *descBref, CHAM_desc_t *descBcham )
 {
     int info_solution = 0;
@@ -409,16 +446,16 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans,
  *******************************************************************************
  *
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] alpha
  *          The scalar alpha.
  *
  * @param[in] descA1
- *          The original matrix descriptor.
+ *          The descriptor of the matrix A1.
  *
  * @param[in] descA2
- *          The scaled matrix descriptor.
+ *          The descriptor of the scaled matrix A1. 
  *
  * @retval 0 successfull comparison
  *
@@ -462,6 +499,61 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares two core function computed products.
+ *
+ *******************************************************************************
+ *
+ * @param[in] transA
+ *          Whether the first product element is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] transB
+ *          Whether the second product element is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] M
+ *          The number of rows of the matrices A and C.
+ * 
+ * @param[in] N
+ *          The number of columns of the matrices B and C.
+ * 
+ * @param[in] K
+ *          The number of columns of the matrix A and the  umber of rows of the matrxi B.
+ *
+ * @param[in] A
+ *          The matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ * 
+ * @param[in] B
+ *          The matrix B.
+ *
+ * @param[in] LDB
+ *          The leading dimension of the matrix B.
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in] Cref
+ *          The matrix Cref.
+ *
+ * @param[in] C
+ *          The matrix of the computed result alpha*A*B+beta*C.
+ * 
+ * @param[in] LDC
+ *          The leading dimension of the matrices C and Cref.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB, CHAMELEON_Complex64_t alpha, int M, int N, int K, CHAMELEON_Complex64_t *A, int LDA,
                      CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC )
 {
@@ -526,10 +618,10 @@ int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t tra
  *******************************************************************************
  *
  * @param[in] transA
- *          Wether the first product element is transposed, conjugate transposed or not transposed.
+ *          Whether the first product element is transposed, conjugate transposed or not transposed.
  *
  * @param[in] transB
- *          Wether the second product element is transposed, conjugate transposed or not transposed.
+ *          Whether the second product element is transposed, conjugate transposed or not transposed.
  *
  * @param[in] alpha
  *          The scalar alpha.
@@ -537,17 +629,17 @@ int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t tra
  * @param[in] descA
  *          The descriptor of the matrix A.
  *
- * @param[in] descBref
+ * @param[in] descB
  *          The descriptor of the matrix B.
  *
  * @param[in] beta
  *          The scalar beta.
  *
  * @param[in] descCref
- *          The descriptor of the matrix C.
+ *          The descriptor of the matrix Cref.
  *
  * @param[in] descC
- *          The matrix descriptor of the Chameleon computed result alpha*A*B+beta*C.
+ *          The descriptor of the matrix of the Chameleon computed result alpha*A*B+beta*C.
  *
  * @retval 0 successfull comparison
  *
@@ -616,6 +708,61 @@ int check_zgemm( run_arg_list_t *args, cham_trans_t transA, cham_trans_t transB,
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares two core function computed symmetric products.
+ *
+ *******************************************************************************
+ * 
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
+ * @param[in] side
+ *          Whether the symmetric matrix A appears on the left or right in the operation.
+ *
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ * 
+ * @param[in] M
+ *          The order of the matrix A and number of rows of the matrices B and C.
+ * 
+ * @param[in] N
+ *          The number of columns of the matrices B and C.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ * 
+ * @param[in] A
+ *          The symmetric matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ * 
+ * @param[in] B
+ *          The matrix B.
+ *
+ * @param[in] LDB
+ *          The leading dimension of the matrix B.
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in] Cref
+ *          The matrix Cref.
+ *
+ * @param[in] C
+ *          The matrix of the computed result alpha*A*B+beta*C or alpha*B*A+beta*C.
+ * 
+ * @param[in] LDC
+ *          The leading dimension of the matrices C and Cref.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t side, cham_uplo_t uplo, int M, int N,
                      CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, int LDB,
                      CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC )
@@ -688,7 +835,7 @@ int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side
         info_solution = 1;
     }
     else {
-        info_solution = 0 ;
+        info_solution = 0;
     }
 
     (void)Clapacknorm;
@@ -703,33 +850,36 @@ int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side
  *
  * @ingroup testing
  *
- * @brief Compares a Chameleon computed hermitian product with a core function computed one.
+ * @brief Compares a Chameleon computed symmetric product with a core function computed one.
  *
  *******************************************************************************
  *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
  * @param[in] side
- *          Wether the hermitian matrix A appears on the left or right in the operation.
+ *          Whether the symmetric matrix A appears on the left or right in the operation.
  *
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] alpha
  *          The scalar alpha.
  *
  * @param[in] descA
- *          The descriptor of the hermitian matrix A.
+ *          The descriptor of the symmetric matrix A.
  *
  * @param[in] descB
- *          The descriptor of the hermitian matrix B.
+ *          The descriptor of the matrix B.
  *
  * @param[in] beta
  *          The scalar beta.
  *
  * @param[in] descCref
- *          The descriptor of the hermitian matrix C.
+ *          The descriptor of the matrix Cref.
  *
  * @param[in] descC
- *          The matrix descriptor of the Chameleon computed result alpha*A*B+beta*C or alpha*B*A+beta*C.
+ *          The descriptor of the matrix of the Chameleon computed result alpha*A*B+beta*C or alpha*B*A+beta*C.
  *
  * @retval 0 successfull comparison
  *
@@ -791,6 +941,61 @@ int check_zsymm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side_t s
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares two core function computed matrices rank k operations.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *
+ * @param[in] trans
+ *          Whether the first product element is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] N
+ *          The order of the matrix C and number of rows of the matrices A and B.
+ * 
+ * @param[in] K
+ *          The number of columns of the matrices A and B.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ * 
+ * @param[in] A
+ *          The matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ * 
+ * @param[in] B
+ *          The matrix B - only used for her2k and syr2k.
+ *
+ * @param[in] LDB
+ *          The leading dimension of the matrix B.
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in] Cref
+ *          The symmetric matrix Cref.
+ *
+ * @param[in] C
+ *          The symmetric matrix of the computed result.
+ * 
+ * @param[in] LDC
+ *          The leading dimension of the matrices Cref and C.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zsyrk_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha,
                      CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *B, int LDA, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref,
                      CHAMELEON_Complex64_t *C, int LDC )
@@ -902,11 +1107,14 @@ int check_zsyrk_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo
  *
  *******************************************************************************
  *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
  * @param[in] uplo
- *          Wether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
  *
  * @param[in] trans
- *          Wether the first product element is transposed, conjugate transposed or not transposed.
+ *          Whether the first product element is transposed, conjugate transposed or not transposed.
  *
  * @param[in] alpha
  *          The scalar alpha.
@@ -915,16 +1123,16 @@ int check_zsyrk_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo
  *          The descriptor of the matrix A.
  *
  * @param[in] descB
- *          The descriptor of the matrix B - only used for her2k and sy2k.
+ *          The descriptor of the matrix B - only used for her2k and syr2k.
  *
  * @param[in] beta
  *          The scalar beta.
  *
  * @param[in] descCref
- *          The descriptor of the matrix C.
+ *          The descriptor of the symmetric matrix C.
  *
  * @param[in] descC
- *          The matrix descriptor of the Chameleon computed result.
+ *          The descriptor of the symmetric matrix of the Chameleon computed result.
  *
  * @retval 0 successfull comparison
  *
@@ -992,12 +1200,64 @@ int check_zsyrk( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t u
     return info_solution;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Compares two core function computed matrix triangular product.
+ *
+ *******************************************************************************
+ *
+ * @param[in] check_func
+ *          Whether it is a triangular product or a triangular linear solution.
+ *
+ * @param[in] side
+ *          Whether A appears on the left or on the right of the product.
+ *
+ * @param[in] uplo
+ *          Whether A is a upper triangular matrix or a lower triangular matrix.
+ *
+ * @param[in] trans
+ *          Whether A is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] diag
+ *          Whether A is a unitary diagonal matrix or not.
+ * 
+ * @param[in] M
+ *          The number of rows of the matrix B and the order of the matrix A if side is left.
+ * 
+ * @param[in] N
+ *          The number of columns of the matrix B and the order of the matrix A if side is right.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] A
+ *          The matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @param[in] Bref
+ *          The matrix Bref.
+ *
+ * @param[in] B
+ *          The matrix of the computed result.
+ * 
+ * @param[in] LDB
+ *          The leading dimension of the matrices Bref and B.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag, int M, int N,
-                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, CHAMELEON_Complex64_t *Bref, int LDB )
+                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *B, int LDB )
 {
     int info_solution           = 0;
     int An                      = M;
-    double Anorm, Bnorm, Brefnorm, Rnorm, result;
+    double Anorm, Bnorm, Rnorm, result;
     CHAMELEON_Complex64_t mzone = -1.0;
     char    normTypeA, normTypeB;
     double *work;
@@ -1014,7 +1274,7 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
         LDA = M;
     }
     else {
-        normTypeA = '0';
+        normTypeA = 'O';
         if ( trans != ChamNoTrans ) {
             normTypeA = 'I';
         }
@@ -1029,24 +1289,24 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
                                  An, An, A, LDA, work );
     free( work );
 
-    Brefnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, Bref, LDB );
+    //Brefnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, Bref, LDB );
     Bnorm    = LAPACKE_zlange( LAPACK_COL_MAJOR, normTypeB, M, N, B,    LDB );
 
     /* Makes the multiplication with the core function */
     if (check_func == CHECK_TRMM) {
         cblas_ztrmm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
+                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB);
     }
     else {
         cblas_ztrsm(CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
-                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, Bref, LDB);
+                    (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB);
     }
 
     /* Computes the norm with the core function's result */
-    cblas_zaxpy( LDB * N, CBLAS_SADDR(mzone), B, 1, Bref, 1 );
-    Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, NULL );
+    cblas_zaxpy( LDB * N, CBLAS_SADDR(mzone), Bref, 1, B, 1 );
+    Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, B, LDB, NULL );
 
-    result = Rnorm / ((Anorm + Brefnorm) * An * eps);
+    result = Rnorm / ((Anorm + Bnorm) * An * eps);
 
     /* Verifies if the result is inside a threshold */
     if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
@@ -1071,19 +1331,19 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
  *******************************************************************************
  *
  * @param[in] check_func
- *          Wether it is a triangular product or a triangular linear solution.
+ *          Whether it is a triangular product or a triangular linear solution.
  *
  * @param[in] side
  *          Whether A appears on the left or on the right of the product.
  *
  * @param[in] uplo
- *          Wether A is a upper triangular matrix or a lower triangular matrix.
+ *          Whether A is a upper triangular matrix or a lower triangular matrix.
  *
  * @param[in] trans
- *          Wether A is transposed, conjugate transposed or not transposed.
+ *          Whether A is transposed, conjugate transposed or not transposed.
  *
  * @param[in] diag
- *          Wether A is a unitary diagonal matrix or not.
+ *          Whether A is a unitary diagonal matrix or not.
  *
  * @param[in] alpha
  *          The scalar alpha.
@@ -1091,25 +1351,22 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
  * @param[in] descA
  *          The descriptor of the matrix A.
  *
- * @param[in] descB
- *          The descriptor of the matrix B.
- *
- * @param[in] beta
- *          The scalar beta.
- *
  * @param[in] descBref
- *          The descriptor of the Chameleon computed result.
+ *          The descriptor of the matrix Bref.
+ *
+ * @param[in] descB
+ *          The descriptor of the matrix of the Chameleon computed result.
  *
  * @retval 0 successfull comparison
  *
  *******************************************************************************
  */
 int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
-                 CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB, CHAM_desc_t *descBref )
+                 CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descBref, CHAM_desc_t *descB )
 {
     int info_solution           = 0;
-    int M                       = descB->m;
-    int N                       = descB->n;
+    int M                       = descBref->m;
+    int N                       = descBref->n;
     int An, LDA, LDB            = M;
     int rank                    = CHAMELEON_Comm_rank();
     CHAMELEON_Complex64_t *A    = NULL;
@@ -1138,7 +1395,7 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
 
     if ( rank == 0 ) {
 
-        info_solution = check_ztrmm_std( args, check_func, side, uplo, trans, diag, M, N, alpha, A, LDA, B, Bref, LDB );
+        info_solution = check_ztrmm_std( args, check_func, side, uplo, trans, diag, M, N, alpha, A, LDA, Bref, B, LDB );
 
         free(A);
         free(B);
@@ -1164,13 +1421,13 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
  *******************************************************************************
  *
  * @param[in] uplo
- *          Wether the upper or lower triangle of A is stored.
+ *          Whether the upper or lower triangle of A is stored.
  *
- * @param[in] descA1
+ * @param[in] descA
  *          The descriptor of the A matrix.
  *
- * @param[in] descA2
- *          The descriptor of the Chameleon computed result matrix.
+ * @param[in] descAAt
+ *          The descriptor of the matrix of the Chameleon computed result.
  *
  * @retval 0 successfull comparison
  *
@@ -1240,20 +1497,23 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
  *
  *******************************************************************************
  *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
  * @param[in] uplo
- *          Wether it is a upper triangular matrix or a lower triangular matrix.
+ *          Whether it is a upper triangular matrix or a lower triangular matrix.
  *
  * @param[in] descA
- *          The descriptor of the original matrix.
+ *          The descriptor of the symmetric matrix A.
  *
- * @param[in] descB
- *          The descriptor of the Chameleon factorized matrix.
+ * @param[in] descLU
+ *          The descriptor of the matrix of the Chameleon factorisation of the matrix A.
  *
  * @retval 0 successfull comparison
  *
  *******************************************************************************
  */
-int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo,
+int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo,
                   CHAM_desc_t *descA, CHAM_desc_t *descLU )
 {
     int info_local, info_global;
@@ -1275,7 +1535,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
     switch ( uplo ) {
     case ChamUpper:
 #if defined(PRECISION_z) || defined(PRECISION_c)
-        transL = (mtxtype == ChamHermitian) ? ChamConjTrans : ChamTrans;
+        transL = ( matrix_type == ChamHermitian ) ? ChamConjTrans : ChamTrans;
 #else
         transL = ChamTrans;
 #endif
@@ -1284,7 +1544,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
         break;
     case ChamLower:
 #if defined(PRECISION_z) || defined(PRECISION_c)
-        transU = (mtxtype == ChamHermitian) ? ChamConjTrans : ChamTrans;
+        transU = ( matrix_type == ChamHermitian ) ? ChamConjTrans : ChamTrans;
 #else
         transU = ChamTrans;
 #endif
@@ -1298,7 +1558,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
         CHAMELEON_zlacpy_Tile( ChamUpper, descLU, descU );
     }
 
-    switch ( mtxtype ) {
+    switch ( matrix_type ) {
     case ChamGeneral: {
         CHAM_desc_t *subL, *subU;
         subL = chameleon_desc_submatrix( descL, 0, 0, M, chameleon_min(M, N) );
@@ -1328,7 +1588,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
         break;
 
     default:
-        fprintf(stderr, "check_zxxtrf: mtxtype(%d) unsupported\n", mtxtype );
+        fprintf(stderr, "check_zxxtrf: matrix_type(%d) unsupported\n", matrix_type );
         return 1;
     }
 
@@ -1357,7 +1617,41 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo
     return info_global;
 }
 
-int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo, int M, int N,
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if a core function computed factorization is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix or a lower triangular matrix.
+ * 
+ * @param[in] M
+ *          The number of rows of the matrices A and LU.
+ * 
+ * @param[in] N
+ *          The number of columns of the matrices A and LU.
+ *
+ * @param[in] A
+ *          The symmetric matrix A.
+ *
+ * @param[in] LU
+ *          The matrix with the computed factorisation of the matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrices A and LU.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, int M, int N,
                       CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *LU, int LDA )
 {
     int info_global;
@@ -1375,7 +1669,7 @@ int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t 
     CHAMELEON_zLap2Desc( uplo, A,  LDA, descA  );
     CHAMELEON_zLap2Desc( uplo, LU, LDA, descLU );
 
-    info_global = check_zxxtrf( args, mtxtype, uplo, descA, descLU );
+    info_global = check_zxxtrf( args, matrix_type, uplo, descA, descLU );
 
     CHAMELEON_Desc_Destroy( &descA  );
     CHAMELEON_Desc_Destroy( &descLU );
@@ -1393,27 +1687,29 @@ int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t 
  *
  *******************************************************************************
  *
- * @param[in] mtxtype
- *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
  * @param[in] trans
- *          Wether the A matrix is non transposed, tranposed or conjugate transposed.
+ *          Whether the A matrix is non transposed, tranposed or conjugate transposed.
  *
  * @param[in] uplo
- *
+ *          Whether it is a upper triangular matrix or a lower triangular matrix.
+ * 
  * @param[in] descA
- *          The descriptor of the A matrix.
+ *          The descriptor of the symmetric matrix A.
  *
  * @param[in] descX
- *          The descriptor of the X matrix.
+ *          The descriptor of the matrix X.
  *
  * @param[inout] descB
- *          The descriptor of the B = A*X matrix. On exit, it contains the remainder from A*x-B.
+ *          The descriptor of the matrix B = A*X. On exit, it contains the remainder from A*x-B.
  *
  * @retval 0 successfull comparison
  *
  *******************************************************************************
  */
-int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo,
+int check_zsolve( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_trans_t trans, cham_uplo_t uplo,
                   CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB )
 {
     int info_local, info_global;
@@ -1427,7 +1723,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
     Bnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descB );
     Xnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descX );
 
-    switch ( mtxtype ) {
+    switch ( matrix_type ) {
     case ChamGeneral:
         Anorm = CHAMELEON_zlange_Tile( norm, descA );
         CHAMELEON_zgemm_Tile( trans, ChamNoTrans, -1., descA, descX, 1., descB );
@@ -1446,7 +1742,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
         break;
 
     default:
-        fprintf(stderr, "check_zsolve: mtxtype(%d) unsupported\n", mtxtype );
+        fprintf(stderr, "check_zsolve: matrix_type(%d) unsupported\n", matrix_type );
         return 1;
     }
 
@@ -1478,7 +1774,50 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t tra
     return info_global;
 }
 
-int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t trans, cham_uplo_t uplo, int N, int NRHS,
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if the  linear solution of op(A) * x = b is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ * 
+ * @param[in] trans
+ *          Whether the A matrix is non transposed, tranposed or conjugate transposed.
+ *
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix or a lower triangular matrix.
+ * 
+ * @param[in] N
+ *          The order of the matrix A and the number of rows of the matrices X and B.
+ * 
+ * @param[in] NRHS
+ *          The number of columns of the matrices X and B.
+ * 
+ * @param[in] A
+ *          The symmetric matrix A.
+ * 
+ * @param[in] LDA
+ *          The leading dimenson of the matrix A.
+ *
+ * @param[in] X
+ *          The matrix X.
+ *
+ * @param[inout] B
+ *          The matrix B = A*X. On exit, it contains the remainder from A*x-B.
+ * 
+ * @param[in] LDB
+ *          The leading dimension of the matrices X and B.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_trans_t trans, cham_uplo_t uplo, int N, int NRHS,
                       CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *X, CHAMELEON_Complex64_t *B, int LDB )
 {
     int info_global;
@@ -1499,7 +1838,7 @@ int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t
     CHAMELEON_zLap2Desc( uplo, B, LDB, descB );
     CHAMELEON_zLap2Desc( uplo, X, LDB, descX );
 
-    info_global = check_zsolve( args, mtxtype, trans, uplo, descA, descX, descB );
+    info_global = check_zsolve( args, matrix_type, trans, uplo, descA, descX, descB );
 
     CHAMELEON_Desc_Destroy( &descA );
     CHAMELEON_Desc_Destroy( &descB );
@@ -1514,24 +1853,24 @@ int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_trans_t
  *
  * @ingroup testing
  *
- * @brief Checks if the A1 matrix is the inverse of A2.
+ * @brief Checks if the matrix A0 is the inverse of Ai.
  *
  *******************************************************************************
  *
- * @param[in] is_herm
- *          Wether the matrices are hermitian.
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
  *
  * @param[in] uplo
- *          Wether they are upper triangular matrices or lower triangular matrices.
+ *          Whether they are upper triangular matrices or lower triangular matrices.
  *
  * @param[in] diag
- *          Wether they are unitary diagonal matrices or not.
+ *          Whether they are unitary diagonal matrices or not.
  *
- * @param[in] descA1
- *          The descriptor of the A1 matrix.
+ * @param[in] descA0
+ *          The descriptor of the matrix A0.
  *
- * @param[in] descX
- *          The descriptor of the A2 matrix.
+ * @param[in] descAi
+ *          The descriptor of the matrix Ai.
  *
  * @retval 0 successfull comparison
  *
@@ -1663,6 +2002,40 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if the matrix A0 is the inverse of Ai.
+ *
+ *******************************************************************************
+ *
+ * @param[in] matrix_type
+ *          Whether it is a general, triangular, hermitian or symmetric matrix.
+ *
+ * @param[in] uplo
+ *          Whether they are upper triangular matrices or lower triangular matrices.
+ *
+ * @param[in] diag
+ *          Whether they are unitary diagonal matrices or not.
+ * 
+ * @param[in] N
+ *          the order of the matrices A0 and Ai.
+ *
+ * @param[in] A0
+ *          The matrix A0.
+ *
+ * @param[in] Ai
+ *          The matrix Ai.
+ * 
+ * @param[in] LDA
+ *          The leading dimension of the matrices A0 and Ai.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_ztrtri_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_diag_t diag,
                       int N, CHAMELEON_Complex64_t *A0, CHAMELEON_Complex64_t *Ai, int LDA )
 {
@@ -1690,6 +2063,22 @@ int check_ztrtri_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_upl
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if a matrix is orthogonal.
+ *
+ *******************************************************************************
+ *
+ * @param[in] descQ
+ *          The descriptor of the matrix Q.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
 {
     int info_local, info_global;
@@ -1750,14 +2139,14 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
  *******************************************************************************
  *
  * @param[in] descA
- *          The descriptor of the initial matrix A.
+ *          The descriptor of the matrix A.
  *
  * @param[in] descAF
- *          The descriptor of the factorized matrix A.
+ *          The descriptor of the matrix of the Chameleon computed factorisation of the matrix A.
  *
  * @param[in] descQ
- *          The descriptor of the Q matrix generated with a call to ungqr and
- *          the factorized matrix A (descAF).
+ *          The descriptor of the matrix Q generated with a call to ungqr and
+ *          the computed factorisation of the matrix A (descAF).
  *
  * @retval 0 successfull comparison
  *
@@ -1856,14 +2245,14 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
  *******************************************************************************
  *
  * @param[in] descA
- *          The descriptor of the initial matrix A.
+ *          The descriptor of the matrix A.
  *
  * @param[in] descAF
- *          The descriptor of the factorized matrix A.
+ *          The descriptor of the matrix of the Chameleon computed factorisation of the matrix A.
  *
  * @param[in] descQ
- *          The descriptor of the Q matrix generated with a call to ungqr and
- *          the factorized matrix A (descAF).
+ *          The descriptor of the matrix Q generated with a call to ungqr and
+ *          the computed factorisation of the matrix A (descAF).
  *
  * @retval 0 successfull comparison
  *
@@ -1952,6 +2341,34 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if the decomposition is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] side
+ *          Whether the matrix Q appears on the left or on the right of the product.
+ *
+ * @param[in] trans
+ *          Whether the matrix Q is transposed, conjugate transposed or not transposed.
+ * 
+ * @param[in] descC
+ *          The descriptor of the matrix C.
+ *
+ * @param[in] descQ
+ *          The descriptor of the matrix Q.
+ *
+ * @param[in] descCC
+ *          The descriptor of the matrix of the Chameleon computed result.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
                CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC )
 {
@@ -1993,6 +2410,31 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if .
+ *
+ *******************************************************************************
+ *
+ * @param[in] trans
+ *          Whether the matrix A is transposed, conjugate transposed or not transposed.
+ * 
+ * @param[in] descA
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] Bnorm
+ *          The .
+ *
+ * @param[in] descR
+ *          The descriptor of the matrix R.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
 {
     int info_local, info_global, nb;
@@ -2054,6 +2496,31 @@ int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if .
+ *
+ *******************************************************************************
+ *
+ * @param[in] trans
+ *          Whether the matrix A is transposed, conjugate transposed or not transposed.
+ * 
+ * @param[in] descA
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] Bnorm
+ *          The .
+ *
+ * @param[in] descR
+ *          The descriptor of the matrix R.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR )
 {
     int info_local, info_global, nb;
@@ -2087,8 +2554,7 @@ int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
          * where R = op(A)*X - B, op(A) is A or A', and alpha = ||B||
          *
          */
-        CHAMELEON_Desc_Create( &descRR, NULL, ChamComplexDouble, nb, nb, nb*nb,
-                               NRHS, M, 0, 0, NRHS, M, descA->p, descA->q );
+        CHAMELEON_Desc_Create( &descRR, NULL, ChamComplexDouble, nb, nb, nb*nb, NRHS, M, 0, 0, NRHS, M, descA->p, descA->q );
 
         CHAMELEON_zgemm_Tile( ChamConjTrans, trans, 1., descR, descA, 0., descRR );
 
@@ -2115,6 +2581,31 @@ int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     return info_global;
 }
 
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if .
+ *
+ *******************************************************************************
+ *
+ * @param[in] trans
+ *          Whether the matrix A is transposed, conjugate transposed or not transposed.
+ * 
+ * @param[in] descA
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] descX
+ *          The descriptor of the matrix X.
+ *
+ * @param[in] descB
+ *          The descriptor of the matrix B.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
 int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB )
 {
     int info_solution;
@@ -2144,15 +2635,15 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
  *
  * @ingroup testing
  *
- * @brief Check matrix is rank K
+ * @brief Checks if the rank of the matrix A is K.
  *
  *******************************************************************************
  *
  * @param[in] K
- *          Rank of the matrix
+ *          The rank of the matrix A.
  *
  * @param[in] descA
- *          The matrix descriptor.
+ *          The descriptorof the matrix A.
  *
  * @retval 0 success, else failure
  *
@@ -2236,31 +2727,29 @@ int check_zrankk( run_arg_list_t *args, int K, CHAM_desc_t *descA )
  *******************************************************************************
  *
  * @param[in] descA1
- *          The descriptor of the top of the initial matrix A.
+ *          The descriptor of the top of the matrix A.
  *
  * @param[in] descA2
- *          The descriptor of the bottom of the initial matrix A.
+ *          The descriptor of the bottom of the matrix A.
  *
  * @param[in] descQ1
- *          The descriptor of the top of the Q matrix generated from the
- *          QR factorization of A.
+ *          The descriptor of the top of the matrix Q generated from the
+ *          QR factorization of the matrix A.
  *
  * @param[in] descQ2
- *          The descriptor of the bottom of the Q matrix generated from the
- *          QR factorization of A.
+ *          The descriptor of the bottom of the matrix Q generated from the
+ *          QR factorization of the matrix A.
  *
  * @param[in] descAF1
- *          The descriptor of the top of the QR factorization of A that holds R.
+ *          The descriptor of the top of the QR factorization of the matrix A that holds R.
  *
  * @retval 0  on success
  * @retval >0 on failure
  *
  *******************************************************************************
  */
-int check_zgepdf_qr( run_arg_list_t *args,
-                     CHAM_desc_t *descA1, CHAM_desc_t *descA2,
-                     CHAM_desc_t *descQ1, CHAM_desc_t *descQ2,
-                     CHAM_desc_t *descAF1 )
+int check_zgepdf_qr( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2, CHAM_desc_t *descQ1, 
+                     CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 )
 {
     int info_local, info_global;
     int M = (descQ1->m + descQ2->m);
@@ -2358,7 +2847,7 @@ int check_zgepdf_qr( run_arg_list_t *args,
  *******************************************************************************
  *
  * @param[in,out] descA
- *          The descriptor of the original matrix, on exit the matrix is modified.
+ *          The descriptor of the matrix A, on exit the matrix is modified.
  *
  * @param[in] descU
  *          The descriptor of the orthogonal polar factor of the decomposition.
