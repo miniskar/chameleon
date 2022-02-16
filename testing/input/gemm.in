@@ -10,8 +10,8 @@
 # LDA: Leading dimension of matrix A
 # LDB: Leading dimension of matrix B
 # LDC: Leading dimension of matrix C
-# transA: Wether the matrix A is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
-# transB: Wether the matrix B is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
+# transA: Whether the matrix A is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
+# transB: Whether the matrix B is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
 # alpha: Scalar alpha
 # beta: Scalar beta
 

@@ -8,7 +8,7 @@
 # N: Number of columns of matrix B
 # LDA: Leading dimension of matrix A
 # LDB: Leading dimension of matrix B
-# trans: Wether the matrix A is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
+# trans: Whether the matrix A is not tranposed, transposed or conjugate transposed (0: not transposed, 1: transposed, 2: conjugate transposed)
 # uplo: matrix parte to be considered (0: Upper, 1: Lower)
 # alpha: Scalar alpha
 # beta: Scalar beta

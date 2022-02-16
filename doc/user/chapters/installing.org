@@ -320,7 +320,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
       * *CMAKE_INSTALL_PREFIX=path/to/your/install/dir*: where headers,
         libraries, executables, etc, will be copied when invoking make
         install
-      * *BUILD_SHARED_LIBS=ON|OFF*: indicate wether or not CMake has to
+      * *BUILD_SHARED_LIBS=ON|OFF*: indicates whether or not CMake has to
         build Chameleon static (~OFF~) or shared (~ON~) libraries.
       * *CMAKE_C_COMPILER=gcc|icc|...*: to choose the C compilers
         if several exist in the environment

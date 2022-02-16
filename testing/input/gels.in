@@ -9,7 +9,7 @@
 # K: Number of columns of matrix A and rows of Matrix B
 # LDA: Leading dimension of matrix A
 # LDB: Leading dimension of matrix B
-# trans: Wether the system involves A (ChamNoTrans) or A^H *ChamTransConj)
+# trans: Whether the system involves A (ChamNoTrans) or A^H *ChamTransConj)
 # RH: Size of each subdomain when using RH
 
 op = gels
