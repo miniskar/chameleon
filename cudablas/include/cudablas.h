@@ -39,14 +39,8 @@
 #include <cublas.h>
 #include <cublas_v2.h>
 
-#define CUBLAS_STREAM_PARAM cublasHandle_t handle
-#define CUBLAS_STREAM_VALUE handle
-#define CUBLAS_HANDLE handle,
 #define CUBLAS_SADDR(_a_) (&(_a_))
 #define CUBLAS_VALUE(_a_) (_a_)
-#define CUBLAS_GET_STREAM                       \
-    cudaStream_t stream;                        \
-    cublasGetStream( handle, &stream )
 
 /**
  * CHAMELEON types and constants
