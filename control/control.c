@@ -137,7 +137,7 @@ int __chameleon_finalize(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Finalize", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     RUNTIME_flush();
@@ -191,9 +191,14 @@ int CHAMELEON_Pause(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Pause()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Pause", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    if ( chamctxt->runtime_paused ) {
+        chameleon_warning("CHAMELEON_Pause", "CHAMELEON already paused");
+        return CHAMELEON_SUCCESS;
+    }
+    chamctxt->runtime_paused = CHAMELEON_TRUE;
     RUNTIME_pause(chamctxt);
     return CHAMELEON_SUCCESS;
 }
@@ -214,9 +219,14 @@ int CHAMELEON_Resume(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Resume()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Resume", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    if ( !chamctxt->runtime_paused ) {
+        chameleon_warning("CHAMELEON_Resume", "CHAMELEON was already resumed");
+        return CHAMELEON_SUCCESS;
+    }
+    chamctxt->runtime_paused = CHAMELEON_FALSE;
     RUNTIME_resume(chamctxt);
     return CHAMELEON_SUCCESS;
 }
@@ -236,10 +246,10 @@ int CHAMELEON_Distributed_start(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Finalize", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_barrier (chamctxt);
+    RUNTIME_barrier( chamctxt );
     return CHAMELEON_SUCCESS;
 }
 
@@ -258,10 +268,10 @@ int CHAMELEON_Distributed_stop(void)
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Finalize()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Finalize", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_barrier (chamctxt);
+    RUNTIME_barrier( chamctxt );
     return CHAMELEON_SUCCESS;
 }
 
@@ -281,7 +291,7 @@ int CHAMELEON_Comm_size()
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Comm_size()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Comm_size", "CHAMELEON not initialized");
         return -1;
     }
 
@@ -304,7 +314,7 @@ int CHAMELEON_Comm_rank()
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_Comm_rank()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_Comm_rank", "CHAMELEON not initialized");
         return -1;
     }
 
@@ -327,7 +337,7 @@ int CHAMELEON_GetThreadNbr( )
 {
     CHAM_context_t *chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_error("CHAMELEON_GetThreadNbr()", "CHAMELEON not initialized");
+        chameleon_error("CHAMELEON_GetThreadNbr", "CHAMELEON not initialized");
         return -1;
     }
 

@@ -69,7 +69,14 @@ int chameleon_sequence_destroy(CHAM_context_t *chamctxt, RUNTIME_sequence_t *seq
  */
 int chameleon_sequence_wait(CHAM_context_t *chamctxt, RUNTIME_sequence_t *sequence)
 {
+    if ( chamctxt->runtime_paused ) {
+        chameleon_warning("chameleon_sequence_wait", "CHAMELEON was paused, so it is resumed and it will be paused after the wait");
+        RUNTIME_resume( chamctxt );
+    }
     RUNTIME_sequence_wait( chamctxt, sequence );
+    if ( chamctxt->runtime_paused ) {
+        RUNTIME_pause( chamctxt );
+    }
     return CHAMELEON_SUCCESS;
 }
 
