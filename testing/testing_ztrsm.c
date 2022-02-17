@@ -112,8 +112,8 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
     cham_diag_t           diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
     int                   N     = run_arg_get_int( args, "N", 1000 );
     int                   M     = run_arg_get_int( args, "M", N );
-    int                   Ak    = ( side == ChamLeft ) ? M : N;
-    int                   LDA   = run_arg_get_int( args, "LDA", Ak );
+    int                   An    = ( side == ChamLeft ) ? M : N;
+    int                   LDA   = run_arg_get_int( args, "LDA", An );
     int                   LDB   = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     int                   seedA = run_arg_get_int( args, "seedA", random() );
@@ -127,7 +127,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    A = malloc( LDA*Ak*sizeof(CHAMELEON_Complex64_t) );
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
     B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
@@ -137,7 +137,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
 
     /* Calculates the product */
     testing_start( &test_data );
-    hres = CHAMELEON_ztrsm( side, uplo, trans, diag, N, M, alpha, A, LDA, B, LDB );
+    hres = CHAMELEON_ztrsm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
     test_data.hres = hres;
     testing_stop( &test_data, flops_ztrsm( side, M, N ) );
 

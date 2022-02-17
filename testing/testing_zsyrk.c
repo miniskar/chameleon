@@ -168,7 +168,7 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplgsy( bump, uplo, N, Cinit, LDC, seedC );
 
-        hres += check_zsyrk_std( args, ChamSymmetric, uplo, trans, N, K, alpha, A, NULL, LDA, beta, Cinit, C, LDC );
+        hres += check_zsyrk_std( args, ChamSymmetric, uplo, trans, N, K, alpha, A, LDA, NULL, LDA, beta, Cinit, C, LDC );
 
         free( Cinit );
     }

@@ -137,7 +137,7 @@ testing_zsymm_std( run_arg_list_t *args, int check )
     double                bump  = testing_dalea();
 
     /* Descriptors */
-    int                    Am;
+    int                    An;
     CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
 
     bump  = run_arg_get_double( args, "bump", bump );
@@ -147,26 +147,21 @@ testing_zsymm_std( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Calculate the dimensions according to the side */
-    if ( side == ChamLeft ) {
-        Am = M;
-    }
-    else {
-        Am = N;
-    }
+    An = ( side == ChamLeft ) ? M : N;
 
     /* Create the matrices */
-    A = malloc( LDA*Am*sizeof(CHAMELEON_Complex64_t) );
-    B = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
-    C = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplgsy( bump, uplo, N, A, LDA, seedA );
+    CHAMELEON_zplgsy( bump, uplo, An, A, LDA, seedA );
     CHAMELEON_zplrnt( M, N, B, LDB, seedB );
     CHAMELEON_zplrnt( M, N, C, LDC, seedC );
 
     /* Calculates the product */
     testing_start( &test_data );
-    hres = CHAMELEON_zsymm( side, uplo, Am, N, alpha, A, LDA, B, LDB, beta, C, LDC );
+    hres = CHAMELEON_zsymm( side, uplo, M, N, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
     testing_stop( &test_data, flops_zsymm( side, M, N ) );
 
