@@ -26,7 +26,7 @@ static cham_fixdbl_t
 flops_zgeadd( int M, int N )
 {
     cham_fixdbl_t flops = 0.;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     /* 2 multiplications and 1 addition per element */
     flops = ( 2. * 6. + 2. ) * M * N;
 #else

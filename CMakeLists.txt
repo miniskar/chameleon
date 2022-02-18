@@ -285,6 +285,9 @@ if ( CHAMELEON_SCHED_PARSEC )
   set( CHAMELEON_COPY_DIAG OFF )
 endif()
 mark_as_advanced(CHAMELEON_COPY_DIAG)
+
+# If ON generates vendor_ztesting in testings
+option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF)
 #------------------------------------------------------------------------------
 
 ###############################################################################

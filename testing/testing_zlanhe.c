@@ -21,6 +21,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zlanhe( cham_normtype_t ntype, int N )
@@ -28,7 +32,7 @@ flops_zlanhe( cham_normtype_t ntype, int N )
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
     cham_fixdbl_t size;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 
@@ -50,6 +54,7 @@ flops_zlanhe( cham_normtype_t ntype, int N )
     return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zlanhe_desc( run_arg_list_t *args, int check )
 {
@@ -106,6 +111,7 @@ testing_zlanhe_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zlanhe_std( run_arg_list_t *args, int check )
@@ -137,6 +143,12 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( bump, uplo, N, A, LDA, seedA );
 
     /* Calculates the norm */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    norm = LAPACKE_zlanhe( LAPACK_COL_MAJOR, chameleon_lapack_const( norm_type ), uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlanhe( norm_type, N ) );
+#else
     testing_start( &test_data );
     norm = CHAMELEON_zlanhe( norm_type, uplo, N, A, LDA );
     test_data.hres = hres;
@@ -146,6 +158,7 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
     if ( check ) {
         hres = check_znorm_std( args, ChamHermitian, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
+#endif
 
     free( A );
 
@@ -153,7 +166,11 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlanhe;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zlanhe_params[] = { "norm", "uplo", "n", "lda", "seedA", "bump", NULL };
+#else
 const char *zlanhe_params[] = { "mtxfmt", "nb", "norm", "uplo", "n", "lda", "seedA", "bump", NULL };
+#endif
 const char *zlanhe_output[] = { NULL };
 const char *zlanhe_outchk[] = { "RETURN", NULL };
 
@@ -169,7 +186,11 @@ testing_zlanhe_init( void )
     test_zlanhe.params = zlanhe_params;
     test_zlanhe.output = zlanhe_output;
     test_zlanhe.outchk = zlanhe_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zlanhe.fptr_desc = NULL;
+#else
     test_zlanhe.fptr_desc = testing_zlanhe_desc;
+#endif
     test_zlanhe.fptr_std  = testing_zlanhe_std;
     test_zlanhe.next   = NULL;
 

@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_ztrmm_desc( run_arg_list_t *args, int check )
 {
@@ -103,6 +108,7 @@ testing_ztrmm_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_ztrmm_std( run_arg_list_t *args, int check )
@@ -144,6 +150,12 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M,  N,  B, LDB, seedB );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_ztrmm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, 
+                 (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB );
+    testing_stop( &test_data, flops_ztrmm( side, N, M ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_ztrmm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
     test_data.hres = hres;
@@ -158,6 +170,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
 
         free( Binit );
     }
+#endif
 
     free( A );
     free( B );
@@ -166,8 +179,13 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztrmm;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *ztrmm_params[] = { "trans", "side",  "uplo",  "diag",  "m",
+                               "n",      "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
+#else
 const char *ztrmm_params[] = { "mtxfmt", "nb",  "trans", "side",  "uplo",  "diag",  "m",
                                "n",      "lda", "ldb",   "alpha", "seedA", "seedB", NULL };
+#endif
 const char *ztrmm_output[] = { NULL };
 const char *ztrmm_outchk[] = { "RETURN", NULL };
 
@@ -183,7 +201,11 @@ testing_ztrmm_init( void )
     test_ztrmm.params = ztrmm_params;
     test_ztrmm.output = ztrmm_output;
     test_ztrmm.outchk = ztrmm_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_ztrmm.fptr_desc = NULL;
+#else
     test_ztrmm.fptr_desc = testing_ztrmm_desc;
+#endif
     test_ztrmm.fptr_std  = testing_ztrmm_std;
     test_ztrmm.next   = NULL;
 

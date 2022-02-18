@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zher2k_desc( run_arg_list_t *args, int check )
 {
@@ -115,6 +120,7 @@ testing_zher2k_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zher2k_std( run_arg_list_t *args, int check )
@@ -173,6 +179,12 @@ testing_zher2k_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( bump, uplo, N, C, LDC, seedC );
 
     /* Calculate the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zher2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K, 
+                  CBLAS_SADDR(alpha), A, LDA, B, LDB, beta, C, LDC );
+    testing_stop( &test_data, flops_zher2k( K, N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zher2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
@@ -187,6 +199,7 @@ testing_zher2k_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( B );
@@ -196,9 +209,15 @@ testing_zher2k_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zher2k;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zher2k_params[] = { "trans", "uplo",  "n",    "k",
+                                "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
+                                "seedB",  "seedC", "bump",  NULL };
+#else
 const char *zher2k_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",    "k",
                                 "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
                                 "seedB",  "seedC", "bump",  NULL };
+#endif
 const char *zher2k_output[] = { NULL };
 const char *zher2k_outchk[] = { "RETURN", NULL };
 
@@ -214,7 +233,11 @@ testing_zher2k_init( void )
     test_zher2k.params = zher2k_params;
     test_zher2k.output = zher2k_output;
     test_zher2k.outchk = zher2k_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zher2k.fptr_desc = NULL;
+#else
     test_zher2k.fptr_desc = testing_zher2k_desc;
+#endif
     test_zher2k.fptr_std  = testing_zher2k_std;
     test_zher2k.next   = NULL;
 

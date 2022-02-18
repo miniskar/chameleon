@@ -23,6 +23,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zpoinv( int N )
@@ -31,6 +35,7 @@ flops_zpoinv( int N )
     return flops;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zpoinv_desc( run_arg_list_t *args, int check )
 {
@@ -86,6 +91,7 @@ testing_zpoinv_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zpoinv_std( run_arg_list_t *args, int check )
@@ -112,6 +118,13 @@ testing_zpoinv_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
 
     /* Calculates the inversed matrix */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    hres =  LAPACKE_zpotrf( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, A, LDA );
+    hres += LAPACKE_zpotri( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpoinv( N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zpoinv( uplo, N, A, LDA );
     test_data.hres = hres;
@@ -126,6 +139,7 @@ testing_zpoinv_std( run_arg_list_t *args, int check )
 
         free( A0 );
     }
+#endif
 
     free( A );
 
@@ -133,7 +147,11 @@ testing_zpoinv_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpoinv;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zpoinv_params[] = { "uplo", "n", "lda", "seedA", NULL };
+#else
 const char *zpoinv_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
+#endif
 const char *zpoinv_output[] = { NULL };
 const char *zpoinv_outchk[] = { "RETURN", NULL };
 
@@ -149,7 +167,11 @@ testing_zpoinv_init( void )
     test_zpoinv.params = zpoinv_params;
     test_zpoinv.output = zpoinv_output;
     test_zpoinv.outchk = zpoinv_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zpoinv.fptr_desc = NULL;
+#else
     test_zpoinv.fptr_desc = testing_zpoinv_desc;
+#endif
     test_zpoinv.fptr_std  = testing_zpoinv_std;
     test_zpoinv.next   = NULL;
 

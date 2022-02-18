@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zsymm_desc( run_arg_list_t *args, int check )
 {
@@ -113,6 +118,7 @@ testing_zsymm_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zsymm_std( run_arg_list_t *args, int check )
@@ -160,6 +166,12 @@ testing_zsymm_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, C, LDC, seedC );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zsymm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, M, N,
+                 CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+    testing_stop( &test_data, flops_zsymm( side, M, N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zsymm( side, uplo, M, N, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
@@ -174,6 +186,7 @@ testing_zsymm_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( B );
@@ -183,8 +196,13 @@ testing_zsymm_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsymm;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zsymm_params[] = { "side", "uplo",  "m",     "n",     "lda",  "ldb",
+                               "ldc",    "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
+#else
 const char *zsymm_params[] = { "mtxfmt", "nb",    "side", "uplo",  "m",     "n",     "lda",  "ldb",
                                "ldc",    "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
+#endif
 const char *zsymm_output[] = { NULL };
 const char *zsymm_outchk[] = { "RETURN", NULL };
 
@@ -200,7 +218,11 @@ testing_zsymm_init( void )
     test_zsymm.params = zsymm_params;
     test_zsymm.output = zsymm_output;
     test_zsymm.outchk = zsymm_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zsymm.fptr_desc = NULL;
+#else
     test_zsymm.fptr_desc = testing_zsymm_desc;
+#endif
     test_zsymm.fptr_std  = testing_zsymm_std;
     test_zsymm.next   = NULL;
 

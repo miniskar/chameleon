@@ -21,7 +21,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zpotrf_desc( run_arg_list_t *args, int check )
 {
@@ -78,6 +83,7 @@ testing_zpotrf_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zpotrf_std( run_arg_list_t *args, int check )
@@ -104,6 +110,12 @@ testing_zpotrf_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
 
     /* Calculates the solution */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    hres = LAPACKE_zpotrf( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrf( N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zpotrf( uplo, N, A, LDA );
     test_data.hres = hres;
@@ -118,6 +130,7 @@ testing_zpotrf_std( run_arg_list_t *args, int check )
 
         free( A0 );
     }
+#endif
 
     free( A );
 
@@ -125,7 +138,11 @@ testing_zpotrf_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpotrf;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zpotrf_params[] = { "uplo", "n", "lda", "seedA", NULL };
+#else
 const char *zpotrf_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
+#endif
 const char *zpotrf_output[] = { NULL };
 const char *zpotrf_outchk[] = { "RETURN", NULL };
 
@@ -141,7 +158,11 @@ testing_zpotrf_init( void )
     test_zpotrf.params = zpotrf_params;
     test_zpotrf.output = zpotrf_output;
     test_zpotrf.outchk = zpotrf_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zpotrf.fptr_desc = NULL;
+#else
     test_zpotrf.fptr_desc = testing_zpotrf_desc;
+#endif
     test_zpotrf.fptr_std  = testing_zpotrf_std;
     test_zpotrf.next   = NULL;
 

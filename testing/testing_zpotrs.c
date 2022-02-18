@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zpotrs_desc( run_arg_list_t *args, int check )
 {
@@ -94,6 +99,7 @@ testing_zpotrs_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zpotrs_std( run_arg_list_t *args, int check )
@@ -124,10 +130,20 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
     CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
 
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    hres = LAPACKE_zpotrf( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, A, LDA );
+#else
     hres = CHAMELEON_zpotrf( uplo, N, A, LDA );
+#endif
     assert( hres == 0 );
 
     /* Calculates the solution */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    hres += LAPACKE_zpotrs( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, NRHS, A, LDA, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrs( N, NRHS ) );
+#else
     testing_start( &test_data );
     hres += CHAMELEON_zpotrs( uplo, N, NRHS, A, LDA, X, LDB );
     test_data.hres = hres;
@@ -146,6 +162,7 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
         free( A0 );
         free( B );
     }
+#endif
 
     free( A );
     free( X );
@@ -154,8 +171,13 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zpotrs;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zpotrs_params[] = { "uplo",  "n",     "nrhs",
+                                "lda",    "ldb", "seedA", "seedB", NULL };
+#else
 const char *zpotrs_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                 "lda",    "ldb", "seedA", "seedB", NULL };
+#endif
 const char *zpotrs_output[] = { NULL };
 const char *zpotrs_outchk[] = { "||A||", "||A-fact(A)||", "||X||", "||B||", "||Ax-b||", "||Ax-b||/N/eps/(||A||||x||+||b||", "RETURN", NULL };
 
@@ -171,7 +193,11 @@ testing_zpotrs_init( void )
     test_zpotrs.params = zpotrs_params;
     test_zpotrs.output = zpotrs_output;
     test_zpotrs.outchk = zpotrs_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zpotrs.fptr_desc = NULL;
+#else
     test_zpotrs.fptr_desc = testing_zpotrs_desc;
+#endif
     test_zpotrs.fptr_std  = testing_zpotrs_std;
     test_zpotrs.next   = NULL;
 

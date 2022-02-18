@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zsyr2k_desc( run_arg_list_t *args, int check )
 {
@@ -115,6 +120,7 @@ testing_zsyr2k_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zsyr2k_std( run_arg_list_t *args, int check )
@@ -173,6 +179,12 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     CHAMELEON_zplgsy( bump, uplo, N, C, LDC, seedC );
 
     /* Calculate the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zsyr2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
+                  CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+    testing_stop( &test_data, flops_zher2k( N, K ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zsyr2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
@@ -187,6 +199,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( B );
@@ -196,9 +209,15 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsyr2k;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zsyr2k_params[] = { "trans", "uplo",  "n",    "k",
+                                "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
+                                "seedB",  "seedC", "bump",  NULL };
+#else
 const char *zsyr2k_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",    "k",
                                 "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
                                 "seedB",  "seedC", "bump",  NULL };
+#endif
 const char *zsyr2k_output[] = { NULL };
 const char *zsyr2k_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
@@ -214,7 +233,11 @@ testing_zsyr2k_init( void )
     test_zsyr2k.params = zsyr2k_params;
     test_zsyr2k.output = zsyr2k_output;
     test_zsyr2k.outchk = zsyr2k_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zsyr2k.fptr_desc = NULL;
+#else
     test_zsyr2k.fptr_desc = testing_zsyr2k_desc;
+#endif
     test_zsyr2k.fptr_std  = testing_zsyr2k_std;
     test_zsyr2k.next   = NULL;
 

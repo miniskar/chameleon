@@ -22,6 +22,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zlange( cham_normtype_t ntype, int M, int N )
@@ -29,7 +33,7 @@ flops_zlange( cham_normtype_t ntype, int M, int N )
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
     cham_fixdbl_t size;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 
@@ -53,6 +57,7 @@ flops_zlange( cham_normtype_t ntype, int M, int N )
     return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zlange_desc( run_arg_list_t *args, int check )
 {
@@ -107,6 +112,7 @@ testing_zlange_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zlange_std( run_arg_list_t *args, int check )
@@ -135,6 +141,12 @@ testing_zlange_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, A, LDA, seedA );
 
     /* Calculates the norm */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    norm = LAPACKE_zlange( LAPACK_COL_MAJOR, chameleon_lapack_const( norm_type ), M, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlange( norm_type, M, N ) );
+#else
     testing_start( &test_data );
     norm = CHAMELEON_zlange( norm_type, M, N, A, LDA );
     test_data.hres = hres;
@@ -144,6 +156,7 @@ testing_zlange_std( run_arg_list_t *args, int check )
     if ( check ) {
         hres = check_znorm_std( args, ChamGeneral, norm_type, ChamUpperLower, ChamNonUnit, norm, M, N, A, LDA );
     }
+#endif
 
     free( A );
 
@@ -151,7 +164,11 @@ testing_zlange_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlange;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zlange_params[] = { "norm", "m", "n", "lda", "seedA", NULL };
+#else
 const char *zlange_params[] = { "mtxfmt", "nb", "norm", "m", "n", "lda", "seedA", NULL };
+#endif
 const char *zlange_output[] = { NULL };
 const char *zlange_outchk[] = { "RETURN", NULL };
 
@@ -167,7 +184,11 @@ testing_zlange_init( void )
     test_zlange.params = zlange_params;
     test_zlange.output = zlange_output;
     test_zlange.outchk = zlange_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zlange.fptr_desc = NULL;
+#else
     test_zlange.fptr_desc = testing_zlange_desc;
+#endif
     test_zlange.fptr_std  = testing_zlange_std;
     test_zlange.next   = NULL;
 

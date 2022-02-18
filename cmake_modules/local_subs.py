@@ -108,6 +108,8 @@ subs = {
 #        ('CORE_P',               'CORE_S',               'CORE_D',               'CORE_C',               'CORE_Z'              ),
 #        ('vec_p',                'vec_s',                'vec_d',                'vec_c',                'vec_z'               ),
 
+        # ----- Vendors Prefixes
+        ('vendor_p',             'vendor_s',             'vendor_d',             'vendor_c',             'vendor_z'            ),
         ('',                     'cublasS',              'cublasD',              'cublasC',              'cublasZ'             ),
       # ('',                     'starpu_s',             'starpu_d',             'starpu_c',             'starpu_z'            ),
       # ('',                     'STARPU_S',             'STARPU_D',             'STARPU_C',             'STARPU_Z'            ),

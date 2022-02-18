@@ -89,6 +89,7 @@ if (NOT CHAMELEON_SIMULATION)
     endforeach()
   endforeach()
 
+  # STD api tests
   foreach(prec ${RP_CHAMELEON_PRECISIONS})
     set (CMD ./chameleon_${prec}testing)
 
