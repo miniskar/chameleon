@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon CPU hmat-oss function declaration
  *
- * @version 0.9.2
+ * @version 1.2.0
  * @author Rocio Carratala-Saez
  * @author Mathieu Faverge
- * @date 2019-12-02
+ * @date 2022-02-22
  *
  */
 #ifndef _coreblas_hmat_h_

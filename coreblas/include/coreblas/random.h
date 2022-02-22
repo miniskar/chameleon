@@ -4,20 +4,23 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon coreblas random number generator
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Piotr Luszczek
  * @author Mathieu Faverge
- * @date 2020-10-10
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */
+#ifndef _chameleon_random_h_
+#define _chameleon_random_h_
+
 /*
  Rnd64seed is a global variable but it doesn't spoil thread safety. All matrix
  generating threads only read Rnd64seed. It is safe to set Rnd64seed before
@@ -96,3 +99,5 @@ CORE_zlaran( unsigned long long int *ran )
 
     return value;
 }
+
+#endif /* _chameleon_random_h_ */

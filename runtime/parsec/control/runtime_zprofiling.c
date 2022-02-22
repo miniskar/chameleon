@@ -4,17 +4,17 @@
  *
  * @copyright 2012-2017 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon PaRSEC CHAMELEON_Complex64_t kernel progiling
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "chameleon_parsec.h"

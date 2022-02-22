@@ -1,3 +1,18 @@
+"""
+ @file local_subs.py
+
+ Python Chameleon specific substitution rules for the Precision Generator script.
+
+ @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+                      Univ. Bordeaux. All rights reserved.
+
+ @version 1.2.0
+ @author Mathieu Faverge
+ @author Florent Pruvost
+ @author Nathalie Furmento
+ @date 2022-02-22
+
+"""
 _extra_blas = [
     # ----- Additional BLAS
     ('',                     'dsgesv',               'dsgesv',               'zcgesv',               'zcgesv'              ),

@@ -4,20 +4,20 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon Fortran77 interface
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Bilel Hadri
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2020-03-12
+ * @date 2022-02-22
  *
  */
 #include "control/common.h"

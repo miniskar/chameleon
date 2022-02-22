@@ -9,11 +9,12 @@
  *
  * @brief Chameleon zposv testing
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2022-02-07
+ * @author Alycia Lisito
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

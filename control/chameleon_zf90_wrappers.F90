@@ -6,16 +6,16 @@
 !  CHAMELEON is a software package provided by Univ. of Tennessee,
 !  Univ. of California Berkeley and Univ. of Colorado Denver
 !
-! @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+! @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 !                      Univ. Bordeaux. All rights reserved.
 !
-! @version 1.0.0
+! @version 1.2.0
 ! @author Numerical Algorithm Group
 ! @author Mathieu Faverge
 ! @author Emmanuel Agullo
 ! @author Cedric Castagnede
 ! @author Florent Pruvost
-! @date 2020-03-03
+! @date 2022-02-22
 ! @precisions normal z -> c d s
 !
 !

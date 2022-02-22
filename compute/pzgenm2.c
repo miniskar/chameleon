@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2016-2020 KAUST. All rights reserved.
  *
@@ -12,10 +12,10 @@
  *
  * @brief Chameleon parallel algorithm to compute 2-norm estimator.
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Dalal Sukkari
- * @date 2020-10-15
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

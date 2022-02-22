@@ -4,7 +4,7 @@
 #
 # @copyright 2009-2014 The University of Tennessee and The University of
 #                      Tennessee Research Foundation. All rights reserved.
-# @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+# @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
 ###
@@ -17,7 +17,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.1.0
+# @version 1.2.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
@@ -26,7 +26,8 @@
 #  @author Philippe Virouleau
 #  @author Raphael Boucherie
 #  @author Samuel Thibault
-#  @date 2021-02-22
+#  @author Guillaume Sylvand
+#  @date 2022-02-22
 #
 ###
 cmake_minimum_required(VERSION 3.3)
@@ -41,7 +42,7 @@ endif()
 
 # set project version number
 set(CHAMELEON_VERSION_MAJOR 1)
-set(CHAMELEON_VERSION_MINOR 1)
+set(CHAMELEON_VERSION_MINOR 2)
 set(CHAMELEON_VERSION_MICRO 0)
 set(CHAMELEON_VERSION "${CHAMELEON_VERSION_MAJOR}.${CHAMELEON_VERSION_MINOR}.${CHAMELEON_VERSION_MICRO}")
 

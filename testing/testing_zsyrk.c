@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zsyrk testing
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-04
+ * @date 2022-02-22
  * @precisions normal z -> z c d s
  *
  */

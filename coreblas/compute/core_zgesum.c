@@ -2,16 +2,17 @@
  *
  * @file core_zgesum.c
  *
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon core_zgesum CPU kernel
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Florent Pruvost
- * @date 2021-05-07
+ * @author Philippe Swartvagher
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

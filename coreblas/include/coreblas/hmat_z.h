@@ -2,16 +2,16 @@
  *
  * @file hmat_z.h
  *
- * @copyright 2019-2019 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2019-2019 Universidad Jaume I. All rights reserved.
  *
  * @brief Chameleon CPU kernel interface from CHAM_tile_t layout to the real one.
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Rocio Carratala-Saez
  * @author Mathieu Faverge
- * @date 2019-12-02
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

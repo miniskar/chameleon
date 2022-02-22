@@ -2,17 +2,17 @@
  *
  * @file pzplrnk.c
  *
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zplrnk parallel algorithm
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-10-10
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

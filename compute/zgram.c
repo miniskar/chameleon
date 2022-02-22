@@ -2,18 +2,18 @@
  *
  * @file zgram.c
  *
- * @copyright 2012-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon zgram wrappers
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Philippe Swartvagher
- * @date 2021-03-25
+ * @date 2022-02-22
  * @precisions normal z -> s d c z
  *
  */

@@ -9,13 +9,13 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2022-02-08
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

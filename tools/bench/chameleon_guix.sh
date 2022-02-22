@@ -1,5 +1,15 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+###
+#
+#  @file chameleon_guix.sh
+#  @copyright 2018-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                       Univ. Bordeaux. All rights reserved.
+#
+#  @version 1.2.0
+#  @author Florent Pruvost
+#  @date 2022-02-22
+#
+###
 set -x
 
 # Configure and Build Chameleon

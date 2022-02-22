@@ -2,16 +2,16 @@
  *
  * @file values.c
  *
- * @copyright 2019-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  ***
  *
  * @brief Chameleon testing values toutine to read/print the parameters
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "testings.h"

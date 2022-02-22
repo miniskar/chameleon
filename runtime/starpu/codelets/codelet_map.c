@@ -2,17 +2,17 @@
  *
  * @file starpu/codelet_map.c
  *
- * @copyright 2018-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2018-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief Chameleon map StarPU codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2021-01-11
+ * @date 2022-02-22
  *
  */
 #include "chameleon_starpu.h"

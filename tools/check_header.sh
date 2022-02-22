@@ -1,19 +1,20 @@
 #
 #  @file check_header.sh
 #
-#  @copyright 2016-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#  @copyright 2016-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
-#  @version 1.1.0
+#  @version 1.2.0
 #  @author Florent Pruvost
 #  @author Mathieu Faverge
-#  @date 2021-04-20
+#  @date 2022-02-22
 #
 # This script check that basic informations is present and correct in
 # headers of source files.
 #
 #!/usr/bin/env sh
 header=1
+nberr=0
 
 print_header()
 {
@@ -45,6 +46,7 @@ check_header_file()
         then
             print_header $filename
             echo -n "@file line missing or incorrect:"; grep "@file" $filename; echo ""
+            nberr=$(( nberr + 1 ))
         fi
     fi
 }
@@ -74,6 +76,7 @@ check_header_version()
     then
         print_header $filename
         echo -n "@version line missing or incorrect:"; grep "@version" $filename; echo "";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -87,6 +90,7 @@ check_header_author()
     then
         print_header $filename
         echo "@author line missing";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -100,6 +104,7 @@ check_header_date()
     then
         print_header $filename
         echo -n "@date line missing or incorrect"; grep "@date" $filename; echo "";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -137,6 +142,7 @@ check_header_define()
                 grep "#ifndef" $filename
                 grep "#define" $filename
                 grep "#endif"  $filename
+                nberr=$(( nberr + 1 ))
             fi
             ;;
         *)
@@ -160,7 +166,10 @@ check_header()
     check_header_version $1
     check_header_author $1
     check_header_date $1
-    check_header_define $1
+    if [ $1 != "include/chameleon/fortran.h" ]
+    then
+        check_header_define $1
+    fi
 }
 
 #
@@ -181,6 +190,8 @@ files=$( git ls-files                     |
              grep -v "simucore/perfmodels/\.starpu" |
              grep -v "\.xml"              |
              grep -v "input/.*\.in"       |
+             grep -v "distrib/debian/.*"  |
+             grep -v "tools/bench/jube/requirements.txt" |
              grep -v "\.org"              )
 if [ $# -gt 0 ]
 then
@@ -197,3 +208,11 @@ do
 
     check_header $f
 done
+
+if [ $nberr -gt 0 ]
+then
+    echo "${nberr} mistakes have been found in the header files."
+    exit 1
+else
+    exit 0
+fi

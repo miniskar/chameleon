@@ -2,7 +2,7 @@
  *
  * @file testing_zgepdf_qdwh.c
  *
- * @copyright 2020-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2020-2020 KAUST. All rights reserved.
  *
@@ -10,10 +10,11 @@
  *
  * @brief Chameleon zgepdf_qdwh testing
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Hatem Ltaief
- * @date 2020-12-01
+ * @author Alycia Lisito
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

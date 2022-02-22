@@ -1,4 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# @file build_macosx.sh
+#
+# @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                      Univ. Bordeaux. All rights reserved.
+#
+# @version 1.2.0
+# @author Florent Pruvost
+# @date 2022-02-22
+#
 
 # setup openblas
 . ~/.bash_profile

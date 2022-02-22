@@ -1,4 +1,15 @@
 #!/bin/sh
+#
+# @file find_sources.sh
+#
+# @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                      Univ. Bordeaux. All rights reserved.
+#
+# @version 1.2.0
+# @author Mathieu Faverge
+# @author Florent Pruvost
+# @date 2022-02-22
+#
 #set -x
 
 SRCDIR_TO_ANALYZE="build-openmp/runtime/openmp build-parsec/runtime/parsec build-quark/runtime/quark build-starpu build compute control coreblas example include runtime testing"

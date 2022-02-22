@@ -1,3 +1,15 @@
+####
+##
+##  @file GenFigures.R
+##  @copyright 2018-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+##                       Univ. Bordeaux. All rights reserved.
+##
+##  @version 1.2.0
+##  @author Mathieu Faverge
+##  @author Florent Pruvost
+##  @date 2022-02-22
+##
+####
 library(ggplot2)
 library(plyr)
 library(reshape2)
