@@ -7,14 +7,14 @@
  * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  *
  * @brief Chameleon timer
  *
  * Provide a simple timer for examples and runtimes which do not provide their
  * own timer.
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_timer_h_

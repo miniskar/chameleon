@@ -9,7 +9,7 @@
  *
  * @brief Chameleon zbuild wrappers
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
@@ -17,7 +17,7 @@
  * @author Cedric Castagnede
  * @author Guillaume Sylvand
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

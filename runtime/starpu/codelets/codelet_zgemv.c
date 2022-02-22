@@ -11,9 +11,9 @@
  *
  * @brief Chameleon zgemv StarPU codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
- * @date 2021-01-11
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

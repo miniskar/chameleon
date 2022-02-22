@@ -11,9 +11,9 @@
  *
  * @brief Chameleon zpoinv wrappers
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Alycia Lisito
- * @date 2022-02-02
+ * @date 2022-02-03
  * @precisions normal z -> s d c
  *
  */

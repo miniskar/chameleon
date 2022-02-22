@@ -11,11 +11,11 @@
  *
  * @brief Chameleon step7 example header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
- * @date 2021-01-04
+ * @date 2022-02-22
  *
  */
 #ifndef _step7_h_

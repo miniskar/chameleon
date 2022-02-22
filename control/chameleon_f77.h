@@ -11,11 +11,11 @@
  *
  * @brief Chameleon Fortran77 naming macros
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_f77_h_

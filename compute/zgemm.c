@@ -11,14 +11,14 @@
  *
  * @brief Chameleon zgemm wrappers
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2021-03-17
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

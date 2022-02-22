@@ -10,13 +10,13 @@
  ***
  *
  * @brief The common runtimes API
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2020-04-22
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_runtime_h_

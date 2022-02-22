@@ -9,10 +9,10 @@
  *
  * @brief Chameleon CPU auxiliary sumsq_update routine
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #ifndef _sumsq_update_h_

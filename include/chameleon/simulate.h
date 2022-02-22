@@ -11,10 +11,10 @@
  *
  * @brief Chameleon SimGrid simulation header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-09-11
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_simulate_h_

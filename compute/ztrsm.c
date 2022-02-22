@@ -11,13 +11,13 @@
  *
  * @brief Chameleon ztrsm wrappers
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2020-03-11
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

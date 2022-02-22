@@ -11,11 +11,11 @@
  *
  * @brief Chameleon zgebrd_ge2gb parallel algorithm
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Hatem Ltaief
  * @author Azzam Haidar
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

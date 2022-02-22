@@ -11,9 +11,9 @@
  *
  * @brief Chameleon zgesum PaRSEC codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Florent Pruvost
- * @date 2021-05-07
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

@@ -11,9 +11,9 @@
  *
  * @brief Chameleon core_ztpqrt CPU kernel
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

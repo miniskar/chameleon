@@ -11,12 +11,12 @@
  *
  * @brief Chameleon Quark runtime main header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2020-10-10
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_quark_h_

@@ -11,14 +11,14 @@
  *
  * @brief Chameleon ztrmm Quark codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2020-06-29
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

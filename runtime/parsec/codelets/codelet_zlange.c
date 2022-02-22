@@ -11,10 +11,10 @@
  *
  * @brief Chameleon zlange PaRSEC codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
- * @date 2020-09-11
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

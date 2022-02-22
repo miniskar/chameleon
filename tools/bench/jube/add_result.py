@@ -5,9 +5,9 @@
 # @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                      Univ. Bordeaux. All rights reserved.
 #
-# @version 1.0.0
+# @version 1.2.0
 # @author Florent Pruvost
-# @date 2020-03-03
+# @date 2022-02-22
 #
 from typing import Any, Dict, List, Union
 from copy import deepcopy

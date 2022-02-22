@@ -11,13 +11,13 @@
  *
  * @brief Chameleon context management routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
- * @date 2020-12-01
+ * @date 2022-02-22
  *
  ***
  *

@@ -11,11 +11,11 @@
  *
  * @brief Chameleon PaRSEC asynchronous routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-04-22
+ * @date 2022-02-22
  *
  */
 #include "chameleon_parsec.h"

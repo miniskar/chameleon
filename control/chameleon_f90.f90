@@ -9,11 +9,11 @@
 ! @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 !                      Univ. Bordeaux. All rights reserved.
 !
-! @version 1.1.0
+! @version 1.2.0
 ! @author Numerical Algorithm Group
 ! @author Florent Pruvost
 ! @author Mathieu Faverge
-! @date 2020-04-22
+! @date 2022-02-22
 !
 ! -- Inria
 ! -- (C) Copyright 2012

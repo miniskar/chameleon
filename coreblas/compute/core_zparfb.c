@@ -11,7 +11,7 @@
  *
  * @brief Chameleon core_zparfb CPU kernel
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Dulceneia Becker
@@ -19,7 +19,7 @@
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

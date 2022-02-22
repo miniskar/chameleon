@@ -17,13 +17,13 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.1.0
+# @version 1.2.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Samuel Thibault
-#  @date 2021-03-16
+#  @date 2022-02-22
 #
 ###
 cmake_minimum_required(VERSION 3.1)

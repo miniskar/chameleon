@@ -9,10 +9,10 @@
  *
  * @brief Chameleon core_zgram CPU kernel
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-03-27
+ * @date 2022-02-22
  * @precisions normal z -> s d c z
  *
  */

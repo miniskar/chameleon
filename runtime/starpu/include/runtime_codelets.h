@@ -11,12 +11,12 @@
  *
  * @brief Chameleon StarPU codelets main header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2020-06-29
+ * @date 2022-02-22
  *
  */
 #ifndef _runtime_codelets_h_

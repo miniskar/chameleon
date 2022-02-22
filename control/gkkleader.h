@@ -10,10 +10,10 @@
  ***
  *
  * @brief Chameleon InPlaceTransformation main module header
- * @version 1.0.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  * This work is the implementation of an inplace transformation
  * based on the GKK algorithm by Gustavson, Karlsson, Kagstrom

@@ -11,7 +11,7 @@
  *
  * @brief Chameleon descriptor header
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -19,7 +19,7 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_descriptor_h_

@@ -10,9 +10,9 @@
  *
  * @brief Chameleon zlatms wrappers
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
- * @date 2020-10-10
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

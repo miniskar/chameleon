@@ -12,10 +12,10 @@
  *
  * @brief Chameleon parallel algorithm to compute 2-norm estimator.
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Dalal Sukkari
- * @date 2020-10-15
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

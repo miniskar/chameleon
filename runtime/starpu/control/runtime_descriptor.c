@@ -11,7 +11,7 @@
  *
  * @brief Chameleon StarPU descriptor routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -19,7 +19,7 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2020-12-01
+ * @date 2022-02-22
  *
  */
 #include "chameleon_starpu.h"

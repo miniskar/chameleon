@@ -11,12 +11,12 @@
  *
  * @brief Chameleon PaRSEC descriptor routines
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
  * @author Guillaume Sylvand
  * @author Samuel Thibault
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "chameleon_parsec.h"

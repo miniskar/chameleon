@@ -10,10 +10,10 @@
  *
  * @brief Chameleon zgepdf_qdwh testing
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Hatem Ltaief
- * @date 2020-12-01
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

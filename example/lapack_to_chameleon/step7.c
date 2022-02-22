@@ -11,12 +11,12 @@
  *
  * @brief Chameleon step7 example
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "step7.h"

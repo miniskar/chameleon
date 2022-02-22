@@ -13,11 +13,11 @@
 #  CHAMELEON is a software package provided by Inria Bordeaux - Sud-Ouest, LaBRI,
 #  University of Bordeaux, Bordeaux INP
 #
-# @version 1.1.0
+# @version 1.2.0
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Mathieu Faverge
-#  @date 2021-01-04
+#  @date 2022-02-22
 #
 ###
 

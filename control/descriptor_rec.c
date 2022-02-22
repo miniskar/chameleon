@@ -11,10 +11,10 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "control/common.h"

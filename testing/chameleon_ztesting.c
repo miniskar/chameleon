@@ -11,12 +11,12 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cédric Castagnède
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
- * @date 2020-10-15
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

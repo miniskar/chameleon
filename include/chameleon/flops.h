@@ -11,11 +11,11 @@
  *
  *  File provided by Univ. of Tennessee,
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
- * @date 2020-11-19
+ * @date 2022-02-22
  *
  */
 /*

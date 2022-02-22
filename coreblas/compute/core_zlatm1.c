@@ -11,10 +11,10 @@
  *
  * @brief Chameleon core_dlatm1 CPU kernel
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
- * @date 2020-11-19
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

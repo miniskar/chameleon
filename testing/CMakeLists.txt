@@ -17,13 +17,13 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.1.0
+# @version 1.2.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Lucas Barros de Assis
 #  @author Florent Pruvost
-#  @date 2021-01-04
+#  @date 2022-02-22
 #
 ###
 

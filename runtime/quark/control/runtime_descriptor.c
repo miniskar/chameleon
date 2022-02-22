@@ -11,13 +11,13 @@
  *
  * @brief Chameleon Quark descriptor routines
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Vijay Joshi
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Samuel Thibault
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "chameleon_quark.h"

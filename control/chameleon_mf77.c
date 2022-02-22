@@ -11,12 +11,12 @@
  *
  * @brief Chameleon Fortran77 interface for mixed-precision computational routines
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Bilel Hadri
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "control/common.h"

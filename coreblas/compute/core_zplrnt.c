@@ -11,7 +11,7 @@
  *
  * @brief Chameleon core_zplrnt CPU kernel
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
@@ -20,7 +20,7 @@
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2020-10-10
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

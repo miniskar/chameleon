@@ -11,10 +11,10 @@
  *
  * @brief Chameleon ztradd Quark codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2020-06-29
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

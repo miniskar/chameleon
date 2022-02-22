@@ -4,10 +4,10 @@
 #  @copyright 2016-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
-#  @version 1.1.0
+#  @version 1.2.0
 #  @author Florent Pruvost
 #  @author Mathieu Faverge
-#  @date 2021-04-20
+#  @date 2022-02-22
 #
 # This script check that basic informations is present and correct in
 # headers of source files.

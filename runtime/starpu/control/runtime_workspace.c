@@ -11,11 +11,11 @@
  *
  * @brief Chameleon StarPU workspaces routines
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "chameleon_starpu.h"

@@ -11,11 +11,11 @@
  *
  * @brief Chameleon cblas header
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #ifndef _cblas_h_

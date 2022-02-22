@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlaset StarPU codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -19,7 +19,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2021-03-16
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

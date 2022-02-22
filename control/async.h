@@ -11,12 +11,12 @@
  *
  * @brief Chameleon asynchronous management header
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Jakub Kurzak
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2020-04-22
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_async_h_

@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zgeqrs wrappers
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
@@ -20,7 +20,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Raphael Boucherie
- * @date 2020-01-07
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

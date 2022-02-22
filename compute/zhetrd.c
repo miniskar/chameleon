@@ -11,13 +11,13 @@
  *
  * @brief Chameleon zhetrd wrappers
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Azzam Haidar
  * @author Hatem Ltaief
  * @author Gregoire Pichon
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */

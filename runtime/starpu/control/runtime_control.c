@@ -11,14 +11,14 @@
  *
  * @brief Chameleon StarPU control routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Swartvagher
  * @author Samuel Thibault
- * @date 2020-07-01
+ * @date 2022-02-22
  *
  */
 #include "chameleon_starpu.h"

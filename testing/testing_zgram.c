@@ -9,9 +9,9 @@
  *
  * @brief Chameleon zgram testing
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Florent Pruvost
- * @date 2021-05-10
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

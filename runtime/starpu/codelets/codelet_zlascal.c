@@ -11,13 +11,13 @@
  *
  * @brief Chameleon zlascal StarPU codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Dalal Sukkari
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Samuel Thibault
- * @date 2021-03-16
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

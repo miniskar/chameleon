@@ -11,13 +11,13 @@
  *
  * @brief Chameleon zlascal PaRSEC codelet
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @date 2020-03-03
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

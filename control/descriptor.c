@@ -11,14 +11,14 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2021-03-16
+ * @date 2022-02-22
  *
  ***
  *

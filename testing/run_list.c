@@ -8,11 +8,11 @@
  *
  * @brief Chameleon auxiliary routines for testing structures
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Philippe Swartvagher
- * @date 2020-03-03
+ * @date 2022-02-22
  *
  */
 #include "testings.h"

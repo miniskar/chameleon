@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlange StarPU codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Julien Langou
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2021-01-11
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

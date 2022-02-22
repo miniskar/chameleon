@@ -11,10 +11,10 @@
  *
  * @brief Chameleon CPU hmat-oss function declaration
  *
- * @version 0.9.2
+ * @version 1.2.0
  * @author Rocio Carratala-Saez
  * @author Mathieu Faverge
- * @date 2019-12-02
+ * @date 2022-02-22
  *
  */
 #ifndef _coreblas_hmat_h_

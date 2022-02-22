@@ -9,10 +9,10 @@
  *
  * @brief Header to describe the Chameleon tile interface in StarPU
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
- * @date 2020-07-01
+ * @date 2022-02-22
  *
  */
 #ifndef _cham_tile_interface_h_

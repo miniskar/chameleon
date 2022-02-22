@@ -9,9 +9,9 @@
  *
  * @brief Chameleon zgemv OpenMP codelet
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
- * @date 2020-10-12
+ * @date 2022-02-22
  * @precisions normal z -> c d s
  *
  */

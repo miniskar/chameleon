@@ -11,13 +11,13 @@
  *
  * @brief Runtime structures
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
- * @date 2020-10-15
+ * @date 2022-02-22
  *
  */
 #ifndef _chameleon_runtime_struct_h_

@@ -11,10 +11,10 @@
  *
  * @brief Chameleon zgeqrf_param parallel algorithm
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2020-12-01
+ * @date 2022-02-22
  * @precisions normal z -> s d c
  *
  */
