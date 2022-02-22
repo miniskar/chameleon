@@ -21,6 +21,14 @@
   except:
     - schedules
 
+preliminary_checks:
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  stage: .pre
+  script:
+    - .gitlab/check_ci.sh
+  only:
+    - merge_requests
+
 .build_script_template:
   extends: .only-branches
   stage: build

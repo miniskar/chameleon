@@ -14,6 +14,7 @@
 #
 #!/usr/bin/env sh
 header=1
+nberr=0
 
 print_header()
 {
@@ -45,6 +46,7 @@ check_header_file()
         then
             print_header $filename
             echo -n "@file line missing or incorrect:"; grep "@file" $filename; echo ""
+            nberr=$(( nberr + 1 ))
         fi
     fi
 }
@@ -74,6 +76,7 @@ check_header_version()
     then
         print_header $filename
         echo -n "@version line missing or incorrect:"; grep "@version" $filename; echo "";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -87,6 +90,7 @@ check_header_author()
     then
         print_header $filename
         echo "@author line missing";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -100,6 +104,7 @@ check_header_date()
     then
         print_header $filename
         echo -n "@date line missing or incorrect"; grep "@date" $filename; echo "";
+        nberr=$(( nberr + 1 ))
     fi
 }
 
@@ -137,6 +142,7 @@ check_header_define()
                 grep "#ifndef" $filename
                 grep "#define" $filename
                 grep "#endif"  $filename
+                nberr=$(( nberr + 1 ))
             fi
             ;;
         *)
@@ -197,3 +203,11 @@ do
 
     check_header $f
 done
+
+if [ $nberr -gt 0 ]
+then
+    echo "${nberr} mistakes have been found in the header files."
+    exit 1
+else
+    exit 0
+fi
