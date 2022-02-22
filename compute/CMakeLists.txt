@@ -24,6 +24,7 @@
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Raphael Boucherie
+#  @author Alycia Lisito
 #  @date 2022-02-22
 #
 ###

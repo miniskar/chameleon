@@ -17,6 +17,7 @@
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Samuel Thibault
+ * @author Philippe Swartvagher
  * @date 2022-02-22
  *
  */

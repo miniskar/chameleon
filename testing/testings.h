@@ -11,6 +11,7 @@
  * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
+ * @author Alycia Lisito
  * @date 2022-02-22
  *
  */

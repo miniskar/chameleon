@@ -17,6 +17,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
+ * @author Philippe Swartvagher
  * @date 2022-02-22
  *
  */

@@ -8,6 +8,8 @@
 
  @version 1.2.0
  @author Mathieu Faverge
+ @author Florent Pruvost
+ @author Nathalie Furmento
  @date 2022-02-22
 
 """

@@ -26,6 +26,7 @@
 #  @author Philippe Virouleau
 #  @author Raphael Boucherie
 #  @author Samuel Thibault
+#  @author Guillaume Sylvand
 #  @date 2022-02-22
 #
 ###
