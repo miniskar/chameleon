@@ -162,14 +162,14 @@ testing_zherk_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     hres = CHAMELEON_zherk( uplo, trans, N, K, alpha, A, LDA, beta, C, LDC );
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zherk( K, N ) );
+    testing_stop( &test_data, flops_zherk( N, K ) );
 
     /* Checks the solution */
     if ( check ) {
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplghe( bump, uplo, N, Cinit, LDC, seedC );
 
-        hres += check_zsyrk_std( args, ChamHermitian, uplo, trans, N, K, alpha, A, NULL, LDA, beta, Cinit, C, LDC );
+        hres += check_zsyrk_std( args, ChamHermitian, uplo, trans, N, K, alpha, A, LDA, NULL, LDA, beta, Cinit, C, LDC );
 
         free( Cinit );
     }
@@ -199,7 +199,7 @@ testing_zherk_init( void )
     test_zherk.output = zherk_output;
     test_zherk.outchk = zherk_outchk;
     test_zherk.fptr_desc = testing_zherk_desc;
-    test_zherk.fptr_std  = NULL;
+    test_zherk.fptr_std  = testing_zherk_std;
     test_zherk.next   = NULL;
 
     testing_register( &test_zherk );

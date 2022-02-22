@@ -157,7 +157,7 @@ testing_t   test_zpotrs;
 const char *zpotrs_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                 "lda",    "ldb", "seedA", "seedB", NULL };
 const char *zpotrs_output[] = { NULL };
-const char *zpotrs_outchk[] = { "RETURN", NULL };
+const char *zpotrs_outchk[] = { "||A||", "||A-fact(A)||", "||X||", "||B||", "||Ax-b||", "||Ax-b||/N/eps/(||A||||x||+||b||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

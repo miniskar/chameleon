@@ -139,7 +139,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     double                bump  = testing_dalea();
 
     /* Descriptors */
-    int                    Am, An;
+    int                    Am, An, Bm, Bn;
     CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
 
     bump  = run_arg_get_double( args, "bump", bump );
@@ -152,34 +152,38 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     if ( trans == ChamNoTrans ) {
         Am = N;
         An = K;
+        Bm = N;
+        Bn = K;
     }
     else {
         Am = K;
         An = N;
+        Bm = K;
+        Bn = N;
     }
 
     /* Create the matrices */
     A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
-    B = malloc( LDB*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*Bn*sizeof(CHAMELEON_Complex64_t) );
     C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
-    CHAMELEON_zplrnt( Am, An, B, LDB, seedB );
+    CHAMELEON_zplrnt( Bm, Bn, B, LDB, seedB );
     CHAMELEON_zplgsy( bump, uplo, N, C, LDC, seedC );
 
     /* Calculate the product */
     testing_start( &test_data );
     hres = CHAMELEON_zsyr2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zher2k( K, N ) );
+    testing_stop( &test_data, flops_zher2k( N, K ) );
 
     /* Check the solution */
     if ( check ) {
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplgsy( bump, uplo, N, Cinit, LDC, seedC );
 
-        hres += check_zsyrk_std( args, ChamSymmetric, uplo, trans, N, K, alpha, A, B, LDA, beta, Cinit, C, LDC );
+        hres += check_zsyrk_std( args, ChamSymmetric, uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, Cinit, C, LDC );
 
         free( Cinit );
     }
@@ -196,7 +200,7 @@ const char *zsyr2k_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",    "k"
                                 "lda",    "ldb",   "ldc",   "alpha", "beta", "seedA",
                                 "seedB",  "seedC", "bump",  NULL };
 const char *zsyr2k_output[] = { NULL };
-const char *zsyr2k_outchk[] = { "RETURN", NULL };
+const char *zsyr2k_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

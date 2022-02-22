@@ -127,7 +127,7 @@ testing_zposv_std( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    A = malloc( LDA*N   *sizeof(CHAMELEON_Complex64_t) );
     X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
@@ -148,7 +148,7 @@ testing_zposv_std( run_arg_list_t *args, int check )
         /* Check the factorization */
         CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
 
-        hres += check_zxxtrf_std( args, ChamHermitian, uplo, N, NRHS, A0, A, LDA );
+        hres += check_zxxtrf_std( args, ChamHermitian, uplo, N, N, A0, A, LDA );
 
         /* Check the solve */
         CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );

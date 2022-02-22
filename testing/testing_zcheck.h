@@ -36,6 +36,7 @@
 
 #if defined(CHAMELEON_SIMULATION)
 
+static inline int check_zmatrices_std ( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, int LDB ) { return 0; }
 static inline int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB ) { return 0; }
 static inline int check_znorm_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                                         cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA ) { return 0; }
@@ -52,8 +53,8 @@ static inline int check_zsymm_std     ( run_arg_list_t *args, cham_mtxtype_t mat
                                         CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC ) { return 0; }
 static inline int check_zsymm         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_side_t side, cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB,
                                         CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC ) { return 0; }
-static inline int check_zsyrk_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A,
-                                        CHAMELEON_Complex64_t *B, int LDA, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC ) { return 0; }
+static inline int check_zsyrk_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                                        CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC ) { return 0; }
 static inline int check_zsyrk         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                                         CHAM_desc_t *descB, CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC ) { return 0; }
 static inline int check_ztrmm_std     ( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag, int M, int N, CHAMELEON_Complex64_t alpha,
@@ -92,6 +93,7 @@ static inline int check_zxxpd         ( run_arg_list_t *args,
 
 #else /* !defined(CHAMELEON_SIMULATION) */
 
+int check_zmatrices_std ( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *B, int LDB );
 int check_zmatrices     ( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CHAM_desc_t *descB );
 int check_znorm_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype_t norm_type, cham_uplo_t uplo,
                           cham_diag_t diag, double norm_cham, int M, int N, CHAMELEON_Complex64_t *A, int LDA );
@@ -108,8 +110,8 @@ int check_zsymm_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham
                           CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC );
 int check_zsymm         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_side_t side, cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA, CHAM_desc_t *descB,
                           CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC );
-int check_zsyrk_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A,
-                          CHAMELEON_Complex64_t *B, int LDA, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC );
+int check_zsyrk_std     ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t uplo, cham_trans_t trans, int N, int K, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                          CHAMELEON_Complex64_t *B, int LDB, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Cref, CHAMELEON_Complex64_t *C, int LDC );
 int check_zsyrk         ( run_arg_list_t *args, cham_mtxtype_t mtxtype, cham_uplo_t uplo, cham_trans_t trans, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA,
                           CHAM_desc_t *descB, CHAMELEON_Complex64_t beta, CHAM_desc_t *descCref, CHAM_desc_t *descC );
 int check_ztrmm_std     ( run_arg_list_t *args, int check_func, cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag, int M, int N, CHAMELEON_Complex64_t alpha,

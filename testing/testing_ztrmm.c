@@ -40,7 +40,7 @@ testing_ztrmm_desc( run_arg_list_t *args, int check )
     cham_diag_t           diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
     int                   N      = run_arg_get_int( args, "N", 1000 );
     int                   M      = run_arg_get_int( args, "M", N );
-    int                   LDA    = run_arg_get_int( args, "LDA", N );
+    int                   LDA    = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int                   LDB    = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha  = testing_zalea();
     int                   seedA  = run_arg_get_int( args, "seedA", random() );
@@ -56,12 +56,10 @@ testing_ztrmm_desc( run_arg_list_t *args, int check )
 
     /* Calculates the dimensions according to the side */
     if ( side == ChamLeft ) {
-        LDA = M;
         CHAMELEON_Desc_Create(
             &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, M, 0, 0, M, M, P, Q );
     }
     else {
-        LDA = N;
         CHAMELEON_Desc_Create(
             &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
     }
@@ -120,14 +118,14 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     cham_diag_t           diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
     int                   N     = run_arg_get_int( args, "N", 1000 );
     int                   M     = run_arg_get_int( args, "M", N );
-    int                   LDA   = run_arg_get_int( args, "LDA", N );
+    int                   LDA   = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int                   LDB   = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     int                   seedA = run_arg_get_int( args, "seedA", random() );
     int                   seedB = run_arg_get_int( args, "seedB", random() );
 
     /* Descriptors */
-    int An;
+    int                    An;
     CHAMELEON_Complex64_t *A, *B, *Binit;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
@@ -135,19 +133,11 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Calculates the dimensions according to the side */
-    if ( side == ChamLeft ) {
-        An  = M;
-        LDA = M;
-        A   = malloc( LDA*N *sizeof(CHAMELEON_Complex64_t) );
-    }
-    else {
-        An  = N;
-        LDA = N;
-        A   = malloc( LDA*N *sizeof(CHAMELEON_Complex64_t) );
-    }
+    An = ( side == ChamLeft ) ? M : N;
 
     /* Creates the matrices */
-    B = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt( An, An, A, LDA, seedA );
@@ -155,7 +145,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
 
     /* Calculates the product */
     testing_start( &test_data );
-    hres = CHAMELEON_ztrmm( side, uplo, trans, diag, N, M, alpha, A, LDA, B, LDB );
+    hres = CHAMELEON_ztrmm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
     test_data.hres = hres;
     testing_stop( &test_data, flops_ztrmm( side, N, M ) );
 
@@ -164,7 +154,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
         Binit = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Binit, LDB, seedB );
 
-        hres += check_ztrmm_std( args, CHECK_TRMM, side, uplo, trans, diag, N, M, alpha, A, LDA, B, Binit, LDB );
+        hres += check_ztrmm_std( args, CHECK_TRMM, side, uplo, trans, diag, M, N, alpha, A, LDA, B, Binit, LDB );
 
         free( Binit );
     }
