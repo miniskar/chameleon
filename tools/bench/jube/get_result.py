@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-
+#
+# @file get_result.py
+#
+# @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                      Univ. Bordeaux. All rights reserved.
+#
+# @version 1.0.0
+# @author Florent Pruvost
+# @date 2020-03-03
+#
 import pandas
 import click
 import csv

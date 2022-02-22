@@ -1,7 +1,7 @@
 #
 #  @file check_header.sh
 #
-#  @copyright 2016-2021 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#  @copyright 2016-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
 #  @version 1.1.0
@@ -166,7 +166,10 @@ check_header()
     check_header_version $1
     check_header_author $1
     check_header_date $1
-    check_header_define $1
+    if [ $1 != "include/chameleon/fortran.h" ]
+    then
+        check_header_define $1
+    fi
 }
 
 #
@@ -187,6 +190,8 @@ files=$( git ls-files                     |
              grep -v "simucore/perfmodels/\.starpu" |
              grep -v "\.xml"              |
              grep -v "input/.*\.in"       |
+             grep -v "distrib/debian/.*"  |
+             grep -v "tools/bench/jube/requirements.txt" |
              grep -v "\.org"              )
 if [ $# -gt 0 ]
 then

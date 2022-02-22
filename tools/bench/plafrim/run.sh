@@ -1,5 +1,14 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+#
+# @file run.sh
+#
+# @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                      Univ. Bordeaux. All rights reserved.
+#
+# @version 1.0.0
+# @author Florent Pruvost
+# @date 2020-03-03
+#
 echo "######################### Chameleon benchmarks #########################"
 
 set -x

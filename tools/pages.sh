@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-
+#
+# @file pages.sh
+#
+# @copyright 2020-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                      Univ. Bordeaux. All rights reserved.
+#
+# @version 1.0.0
+# @author Florent Pruvost
+# @date 2020-03-03
+#
 CHAMELEON_SRC_DIR=${CHAMELEON_SRC_DIR:-$PWD}
 
 mkdir tmp_fig
