@@ -80,7 +80,7 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->runtime_paused     = CHAMELEON_FALSE;
 
     chamctxt->householder        = ChamFlatHouseholder;
-    chamctxt->translation        = ChamOutOfPlace;
+    chamctxt->translation        = ChamInPlace;
 
     /* Initialize scheduler */
     RUNTIME_context_create(chamctxt);
