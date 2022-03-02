@@ -44,7 +44,7 @@
       * getrs:     General triangular solve (LU without pivoting)
       * getrf:     General factorization (LU without pivoting)
       * potri:     Symmetric positive definite matrix inversion
-      * lauum:     Trianguilar in-place matrix-matrix computation for Cholesky inversion
+      * lauum:     Triangular in-place matrix-matrix computation for Cholesky inversion
       * trtri:     Triangular matrix inversion
       * posv:      Symmetric positive definite linear system solve (Cholesky)
       * potrs:     Symmetric positive definite solve (Cholesky)
