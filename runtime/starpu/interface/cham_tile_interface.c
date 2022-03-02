@@ -274,11 +274,13 @@ cti_footprint( starpu_data_handle_t handle )
     return starpu_hash_crc32c_be( tile->m, tile->n );
 }
 
+#if defined(HAVE_STARPU_REUSE_DATA_ON_NODE)
 static uint32_t
 cti_alloc_footprint( starpu_data_handle_t handle )
 {
     return starpu_hash_crc32c_be( cti_handle_get_allocsize(handle), 0 );
 }
+#endif
 
 static int
 cti_compare( void *data_interface_a, void *data_interface_b )
@@ -292,6 +294,7 @@ cti_compare( void *data_interface_a, void *data_interface_b )
         && ( cham_tile_a->flttype == cham_tile_b->flttype );
 }
 
+#if defined(HAVE_STARPU_REUSE_DATA_ON_NODE)
 static int
 cti_alloc_compare(void *data_interface_a, void *data_interface_b)
 {
@@ -301,6 +304,7 @@ cti_alloc_compare(void *data_interface_a, void *data_interface_b)
     /* Two matrices are considered compatible if they have the same allocated size */
     return ( cham_tile_a->allocsize == cham_tile_b->allocsize );
 }
+#endif
 
 static void
 cti_display( starpu_data_handle_t handle, FILE *f )
@@ -654,13 +658,13 @@ struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
 #if defined(HAVE_STARPU_REUSE_DATA_ON_NODE)
     .reuse_data_on_node    = cti_reuse_data_on_node,
     .alloc_compare         = cti_alloc_compare,
+    .alloc_footprint       = cti_alloc_footprint,
 #endif
     .to_pointer            = cti_to_pointer,
     .pointer_is_inside     = cti_pointer_is_inside,
     .get_size              = cti_get_size,
     .get_alloc_size        = cti_get_alloc_size,
     .footprint             = cti_footprint,
-    .alloc_footprint       = cti_alloc_footprint,
     .compare               = cti_compare,
     .display               = cti_display,
     .pack_data             = cti_pack_data,
