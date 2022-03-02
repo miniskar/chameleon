@@ -97,7 +97,7 @@ void
 testing_zlauum_init( void )
 {
     test_zlauum.name   = "zlauum";
-    test_zlauum.helper = "Trianguilar in-place matrix-matrix computation for Cholesky inversion";
+    test_zlauum.helper = "Triangular in-place matrix-matrix computation for Cholesky inversion";
     test_zlauum.params = zlauum_params;
     test_zlauum.output = zlauum_output;
     test_zlauum.outchk = zlauum_outchk;
