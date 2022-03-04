@@ -31,7 +31,7 @@ static cham_fixdbl_t
 flops_zgenm2( int M, int N )
 {
     double coefabs = 1.;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 

@@ -25,7 +25,7 @@ static cham_fixdbl_t
 flops_zcesca( int M, int N )
 {
     cham_fixdbl_t flops = 0.;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     /*  2 multiplications and 5 addition per element */
     flops = ( 2. * 6. + 10. ) * M * N;
 #else

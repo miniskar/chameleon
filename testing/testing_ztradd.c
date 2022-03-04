@@ -39,7 +39,7 @@ flops_ztradd( cham_uplo_t uplo, int M, int N )
             flops = M * N;
     }
 
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     /* 2 multiplications and 1 addition per element */
     flops *= ( 2. * 6. + 2. );
 #else

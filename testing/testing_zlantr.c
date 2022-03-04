@@ -21,6 +21,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
@@ -28,7 +32,7 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
     cham_fixdbl_t size;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 
@@ -73,6 +77,7 @@ flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
     return size;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zlantr_desc( run_arg_list_t *args, int check )
 {
@@ -128,6 +133,7 @@ testing_zlantr_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zlantr_std( run_arg_list_t *args, int check )
@@ -158,6 +164,12 @@ testing_zlantr_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, A, LDA, seedA );
 
     /* Calculates the norm */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    norm = LAPACKE_zlantr( LAPACK_COL_MAJOR, chameleon_lapack_const( norm_type ), uplo, diag, M, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlantr( norm_type, uplo, M, N ) );
+#else
     testing_start( &test_data );
     norm = CHAMELEON_zlantr( norm_type, uplo, diag, M, N, A, LDA );
     test_data.hres = hres;
@@ -167,6 +179,7 @@ testing_zlantr_std( run_arg_list_t *args, int check )
     if ( check ) {
         hres = check_znorm_std( args, ChamTriangular, norm_type, uplo, diag, norm, M, N, A, LDA );
     }
+#endif
 
     free( A );
 
@@ -174,8 +187,13 @@ testing_zlantr_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlantr;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zlantr_params[] = { "norm", "uplo",  "diag",
+                                "m",      "n",  "lda",  "seedA", NULL };
+#else
 const char *zlantr_params[] = { "mtxfmt", "nb", "norm", "uplo",  "diag",
                                 "m",      "n",  "lda",  "seedA", NULL };
+#endif
 const char *zlantr_output[] = { NULL };
 const char *zlantr_outchk[] = { "||A||", "||B||", "||R||", "RETURN", NULL };
 
@@ -191,7 +209,11 @@ testing_zlantr_init( void )
     test_zlantr.params = zlantr_params;
     test_zlantr.output = zlantr_output;
     test_zlantr.outchk = zlantr_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zlantr.fptr_desc = NULL;
+#else
     test_zlantr.fptr_desc = testing_zlantr_desc;
+#endif
     test_zlantr.fptr_std  = testing_zlantr_std;
     test_zlantr.next   = NULL;
 

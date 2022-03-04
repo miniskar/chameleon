@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zhemm_desc( run_arg_list_t *args, int check )
 {
@@ -113,6 +118,7 @@ testing_zhemm_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zhemm_std( run_arg_list_t *args, int check )
@@ -160,6 +166,12 @@ testing_zhemm_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, C, LDC, seedC );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zhemm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, M, N, 
+                        CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+    testing_stop( &test_data, flops_zhemm( side, M, N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zhemm( side, uplo, M, N, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
@@ -174,6 +186,7 @@ testing_zhemm_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( B );
@@ -183,8 +196,13 @@ testing_zhemm_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zhemm;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zhemm_params[] = { "side", "uplo",  "m",     "n",     "lda",  "ldb",
+                               "ldc",    "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
+#else
 const char *zhemm_params[] = { "mtxfmt", "nb",    "side", "uplo",  "m",     "n",     "lda",  "ldb",
                                "ldc",    "alpha", "beta", "seedA", "seedB", "seedC", "bump", NULL };
+#endif
 const char *zhemm_output[] = { NULL };
 const char *zhemm_outchk[] = { "RETURN", NULL };
 
@@ -200,7 +218,11 @@ testing_zhemm_init( void )
     test_zhemm.params = zhemm_params;
     test_zhemm.output = zhemm_output;
     test_zhemm.outchk = zhemm_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zhemm.fptr_desc = NULL;
+#else
     test_zhemm.fptr_desc = testing_zhemm_desc;
+#endif
     test_zhemm.fptr_std  = testing_zhemm_std;
     test_zhemm.next   = NULL;
 

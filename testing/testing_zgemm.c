@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zgemm_desc( run_arg_list_t *args, int check )
 {
@@ -130,6 +135,7 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zgemm_std( run_arg_list_t *args, int check )
@@ -191,6 +197,12 @@ testing_zgemm_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, C, LDC, seedC );
 
     /* Calculate the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K, 
+                        CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+    testing_stop( &test_data, flops_zgemm( M, N, K ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zgemm( transA, transB, M, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
     test_data.hres = hres;
@@ -205,6 +217,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( B );
@@ -214,9 +227,15 @@ testing_zgemm_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgemm;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zgemm_params[] = { "transA", "transB", "m",     "n",
+                               "k",      "lda",   "ldb",    "ldc",    "alpha", "beta",
+                               "seedA",  "seedB", "seedC",  NULL };
+#else
 const char *zgemm_params[] = { "mtxfmt", "nb",    "transA", "transB", "m",     "n",
                                "k",      "lda",   "ldb",    "ldc",    "alpha", "beta",
                                "seedA",  "seedB", "seedC",  NULL };
+#endif
 const char *zgemm_output[] = { NULL };
 const char *zgemm_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
@@ -232,7 +251,11 @@ testing_zgemm_init( void )
     test_zgemm.params = zgemm_params;
     test_zgemm.output = zgemm_output;
     test_zgemm.outchk = zgemm_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zgemm.fptr_desc = NULL;
+#else
     test_zgemm.fptr_desc = testing_zgemm_desc;
+#endif
     test_zgemm.fptr_std  = testing_zgemm_std;
     test_zgemm.next   = NULL;
 

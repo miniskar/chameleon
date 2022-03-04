@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zherk_desc( run_arg_list_t *args, int check )
 {
@@ -108,6 +113,7 @@ testing_zherk_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zherk_std( run_arg_list_t *args, int check )
@@ -159,6 +165,12 @@ testing_zherk_std( run_arg_list_t *args, int check )
     CHAMELEON_zplghe( bump, uplo, N, C, LDC, seedC );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K, 
+                 alpha, A, LDA, beta, C, LDC );
+    testing_stop( &test_data, flops_zherk( N, K ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zherk( uplo, trans, N, K, alpha, A, LDA, beta, C, LDC );
     test_data.hres = hres;
@@ -173,6 +185,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( C );
@@ -181,8 +194,13 @@ testing_zherk_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zherk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zherk_params[] = { "trans", "uplo",  "n",     "k",    "lda",
+                               "ldc",    "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+#else
 const char *zherk_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",     "k",    "lda",
                                "ldc",    "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+#endif
 const char *zherk_output[] = { NULL };
 const char *zherk_outchk[] = { "RETURN", NULL };
 
@@ -198,7 +216,11 @@ testing_zherk_init( void )
     test_zherk.params = zherk_params;
     test_zherk.output = zherk_output;
     test_zherk.outchk = zherk_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zherk.fptr_desc = NULL;
+#else
     test_zherk.fptr_desc = testing_zherk_desc;
+#endif
     test_zherk.fptr_std  = testing_zherk_std;
     test_zherk.next   = NULL;
 

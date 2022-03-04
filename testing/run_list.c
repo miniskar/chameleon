@@ -690,8 +690,11 @@ run_list_destroy( run_list_elt_t *run )
 /**
  * @brief The common input parameters to all tests
  */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *common_input[]  = { "threads", NULL };
+#else
 const char *common_input[]  = { "threads", "gpus", "P", "Q", NULL };
-
+#endif
 /**
  * @brief The common output parameters to all tests
  */

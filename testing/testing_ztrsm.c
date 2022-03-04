@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_ztrsm_desc( run_arg_list_t *args, int check )
 {
@@ -97,6 +102,7 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_ztrsm_std( run_arg_list_t *args, int check )
@@ -136,6 +142,12 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( M, N, B, LDB, seedB );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_ztrsm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, 
+                 (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB );
+    testing_stop( &test_data, flops_ztrsm( side, M, N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_ztrsm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
     test_data.hres = hres;
@@ -150,6 +162,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
 
         free( Binit );
     }
+#endif
 
     free( A );
     free( B );
@@ -158,8 +171,13 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_ztrsm;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *ztrsm_params[] = { "side", "uplo",  "trans", "diag",  "m",
+                               "n",      "lda", "ldb",  "alpha", "seedA", "seedB", NULL };
+#else
 const char *ztrsm_params[] = { "mtxfmt", "nb",  "side", "uplo",  "trans", "diag",  "m",
                                "n",      "lda", "ldb",  "alpha", "seedA", "seedB", NULL };
+#endif
 const char *ztrsm_output[] = { NULL };
 const char *ztrsm_outchk[] = { "RETURN", NULL };
 
@@ -175,7 +193,11 @@ testing_ztrsm_init( void )
     test_ztrsm.params = ztrsm_params;
     test_ztrsm.output = ztrsm_output;
     test_ztrsm.outchk = ztrsm_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_ztrsm.fptr_desc = NULL;
+#else
     test_ztrsm.fptr_desc = testing_ztrsm_desc;
+#endif
     test_ztrsm.fptr_std  = testing_ztrsm_std;
     test_ztrsm.next   = NULL;
 

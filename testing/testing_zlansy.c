@@ -21,6 +21,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zlansy( cham_normtype_t ntype, int N )
@@ -28,7 +32,7 @@ flops_zlansy( cham_normtype_t ntype, int N )
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
     cham_fixdbl_t size;
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 
@@ -50,6 +54,7 @@ flops_zlansy( cham_normtype_t ntype, int N )
     return sizeof( CHAMELEON_Complex64_t ) * size;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zlansy_desc( run_arg_list_t *args, int check )
 {
@@ -106,6 +111,7 @@ testing_zlansy_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zlansy_std( run_arg_list_t *args, int check )
@@ -137,6 +143,12 @@ testing_zlansy_std( run_arg_list_t *args, int check )
     CHAMELEON_zplgsy( bump, uplo, N, A, LDA, seedA );
 
     /* Calculates the norm */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    norm = LAPACKE_zlansy( LAPACK_COL_MAJOR, chameleon_lapack_const( norm_type ), uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlansy( norm_type, N ) );
+#else
     testing_start( &test_data );
     norm = CHAMELEON_zlansy( norm_type, uplo, N, A, LDA );
     test_data.hres = hres;
@@ -146,6 +158,7 @@ testing_zlansy_std( run_arg_list_t *args, int check )
     if ( check ) {
         hres = check_znorm_std( args, ChamSymmetric, norm_type, uplo, ChamNonUnit, norm, N, N, A, LDA );
     }
+#endif
 
     free( A );
 
@@ -153,7 +166,11 @@ testing_zlansy_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zlansy;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zlansy_params[] = { "norm", "uplo", "n", "lda", "seedA", "bump", NULL };
+#else
 const char *zlansy_params[] = { "mtxfmt", "nb", "norm", "uplo", "n", "lda", "seedA", "bump", NULL };
+#endif
 const char *zlansy_output[] = { NULL };
 const char *zlansy_outchk[] = { "RETURN", NULL };
 
@@ -169,7 +186,11 @@ testing_zlansy_init( void )
     test_zlansy.params = zlansy_params;
     test_zlansy.output = zlansy_output;
     test_zlansy.outchk = zlansy_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zlansy.fptr_desc = NULL;
+#else
     test_zlansy.fptr_desc = testing_zlansy_desc;
+#endif
     test_zlansy.fptr_std  = testing_zlansy_std;
     test_zlansy.next   = NULL;
 

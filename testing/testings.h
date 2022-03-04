@@ -25,6 +25,13 @@
 #include <math.h>
 #include <string.h>
 #include <strings.h>
+#if defined(CHAMELEON_HAVE_GETOPT_LONG)
+#include <getopt.h>
+#else
+struct option;
+#endif
+
+#define STR_MAX_LENGTH 256
 
 typedef enum valtype_ {
     TestValInt,
@@ -162,6 +169,8 @@ val_t pread_string   ( const char *str );
 
 #define pread_fixdbl pread_double
 
+void print_usage( const char* prog_name );
+
 char *sprint_int      ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_float    ( val_t val, int human, int nbchar, char *str_in );
 char *sprint_double   ( val_t val, int human, int nbchar, char *str_in );
@@ -213,12 +222,19 @@ void         parameters_addvalues( parameter_t *param, const char  *values );
 int          parameters_getvalue_int( const char *name );
 int          parameters_compute_q( int p );
 parameter_t *parameters_get( int shname );
+int          parameters_compute_q( int p );
+void         parameters_getopt_init( char *optstring, struct option **longopts );
+parameter_t *parameters_get( int shname );
+int          parameters_getvalue_int( const char *name );
+char *       parameters_getvalue_str( const char *name );
+parameter_t *parameters_getbyname( const char *name );
+void         parameters_parser( int argc, char **argv );
+void         parameters_destroy( );
 
 run_list_t *run_list_generate( const char **params );
 void        run_list_destroy( run_list_elt_t *run );
 
 void testing_register( testing_t *test );
-
 
 /**
  * @brief Define the data associated to a single run of a testing
@@ -236,7 +252,9 @@ typedef struct testdata_ {
     RUNTIME_request_t  request;   /**< The request to run the test if splitsub  */
 } testdata_t;
 
-void testing_start( testdata_t *tdata );
-void testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
+void       testing_register( testing_t *test );
+testing_t *testing_gettest( const char *prog_name, const char *func_name );
+void       testing_start( testdata_t *tdata );
+void       testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
 
 #endif /* _testings_h_ */

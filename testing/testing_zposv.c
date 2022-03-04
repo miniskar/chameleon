@@ -22,6 +22,10 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/lapacke.h>
+#include <coreblas.h>
+#endif
 
 static cham_fixdbl_t
 flops_zposv( int N, int NRHS )
@@ -30,6 +34,7 @@ flops_zposv( int N, int NRHS )
     return flops;
 }
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zposv_desc( run_arg_list_t *args, int check )
 {
@@ -105,6 +110,7 @@ testing_zposv_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zposv_std( run_arg_list_t *args, int check )
@@ -136,6 +142,12 @@ testing_zposv_std( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
 
     /* Calculates the solution */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    hres = LAPACKE_zposv( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), N, NRHS, A, LDA, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zposv( N, NRHS ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zposv( uplo, N, NRHS, A, LDA, X, LDB );
     test_data.hres = hres;
@@ -160,6 +172,7 @@ testing_zposv_std( run_arg_list_t *args, int check )
         free( A0 );
         free( B );
     }
+#endif
 
     free( A );
     free( X );
@@ -168,8 +181,13 @@ testing_zposv_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zposv;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zposv_params[] = { "uplo",  "n",     "nrhs",
+                               "lda",    "ldb", "seedA", "seedB", NULL };
+#else
 const char *zposv_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                "lda",    "ldb", "seedA", "seedB", NULL };
+#endif
 const char *zposv_output[] = { NULL };
 const char *zposv_outchk[] = { "||A||", "||A-fact(A)||", "||X||", "||B||", "||Ax-b||", "||Ax-b||/N/eps/(||A||||x||+||b||", "RETURN", NULL };
 
@@ -185,7 +203,11 @@ testing_zposv_init( void )
     test_zposv.params = zposv_params;
     test_zposv.output = zposv_output;
     test_zposv.outchk = zposv_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zposv.fptr_desc = NULL;
+#else
     test_zposv.fptr_desc = testing_zposv_desc;
+#endif
     test_zposv.fptr_std  = testing_zposv_std;
     test_zposv.next   = NULL;
 

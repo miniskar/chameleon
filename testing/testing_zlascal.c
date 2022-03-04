@@ -39,7 +39,7 @@ flops_zlascal( cham_uplo_t uplo, int M, int N )
             flops = M * N;
     }
 
-#if defined( PRECISION_z ) || defined( PRECISION_c )
+#if defined(PRECISION_z) || defined(PRECISION_c)
     /* 1 multiplications per element */
     flops *= 6.;
 #endif

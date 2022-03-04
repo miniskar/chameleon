@@ -22,7 +22,12 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+#include <coreblas/cblas.h>
+#include <coreblas.h>
+#endif
 
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
 int
 testing_zsyrk_desc( run_arg_list_t *args, int check )
 {
@@ -108,6 +113,7 @@ testing_zsyrk_desc( run_arg_list_t *args, int check )
 
     return hres;
 }
+#endif
 
 int
 testing_zsyrk_std( run_arg_list_t *args, int check )
@@ -158,6 +164,12 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
     CHAMELEON_zplgsy( bump, uplo, N, C, LDC, seedC );
 
     /* Calculates the product */
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    testing_start( &test_data );
+    cblas_zsyrk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
+                 CBLAS_SADDR(alpha), A, LDA, CBLAS_SADDR(beta), C, LDC );
+    testing_stop( &test_data, flops_zsyrk( K, N ) );
+#else
     testing_start( &test_data );
     hres = CHAMELEON_zsyrk( uplo, trans, N, K, alpha, A, LDA, beta, C, LDC );
     test_data.hres = hres;
@@ -172,6 +184,7 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
 
         free( Cinit );
     }
+#endif
 
     free( A );
     free( C );
@@ -180,8 +193,13 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zsyrk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+const char *zsyrk_params[] = { "trans", "uplo",  "n",     "k",    "lda",
+                               "ldc",    "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+#else
 const char *zsyrk_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "n",     "k",    "lda",
                                "ldc",    "alpha", "beta",  "seedA", "seedC", "bump", NULL };
+#endif
 const char *zsyrk_output[] = { NULL };
 const char *zsyrk_outchk[] = { "RETURN", NULL };
 
@@ -197,7 +215,11 @@ testing_zsyrk_init( void )
     test_zsyrk.params = zsyrk_params;
     test_zsyrk.output = zsyrk_output;
     test_zsyrk.outchk = zsyrk_outchk;
+#if defined(CHAMELEON_TESTINGS_VENDOR)
+    test_zsyrk.fptr_desc = NULL;
+#else
     test_zsyrk.fptr_desc = testing_zsyrk_desc;
+#endif
     test_zsyrk.fptr_std  = testing_zsyrk_std;
     test_zsyrk.next   = NULL;
 
