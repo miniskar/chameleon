@@ -244,13 +244,13 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
                      CHAMELEON_Complex64_t *A, int mb, int nb, int lm, int ln, int m, int n,
                      RUNTIME_sequence_t *seq, RUNTIME_request_t *req )
 {
-    /* Initialize the Lapack descriptor */
-    chameleon_desc_init( descAl, A, ChamComplexDouble, mb, nb, (mb)*(nb),
-                         lm, ln, 0, 0, m, n, 1, 1,
-                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
-    descAl->styp = ChamCM;
-
     if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
+        /* Initialize the Lapack descriptor */
+        chameleon_desc_init( descAl, A, ChamComplexDouble, mb, nb, (mb)*(nb),
+                            lm, ln, 0, 0, m, n, 1, 1,
+                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
+        descAl->styp = ChamCM;
+
         /* Initialize the tile descriptor */
         chameleon_desc_init( descAt, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, mb, nb, (mb)*(nb),
                              lm, ln, 0, 0, m, n, 1, 1,
@@ -264,17 +264,8 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
         /* Initialize the tile descriptor */
         chameleon_desc_init( descAt, A, ChamComplexDouble, mb, nb, (mb)*(nb),
                              lm, ln, 0, 0, m, n, 1, 1,
-                             chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL );
-
-        chameleon_fatal_error( "chameleon_zlap2tile", "INPLACE translation not supported yet");
-
-        if ( mode & ChamDescInput ) {
-            /* CHAMELEON_zgecfi_Async( lm, ln, A, ChamCM, mb, nb, */
-            /*                     ChamCCRB, mb, nb, seq, req ); */
-        }
-        return CHAMELEON_ERR_NOT_SUPPORTED;
+                             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
     }
-
     return CHAMELEON_SUCCESS;
 }
 
@@ -290,17 +281,8 @@ chameleon_ztile2lap( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t 
         if ( mode & ChamDescOutput ) {
             chameleon_pzlacpy( uplo, descAt, descAl, seq, req );
         }
+        RUNTIME_desc_flush( descAl, seq );
     }
-    else {
-        chameleon_fatal_error( "chameleon_ztile2lap", "INPLACE translation not supported yet");
-        if ( mode & ChamDescOutput ) {
-            /* CHAMELEON_zgecfi_Async( descAl->lm, descAl->ln, descAl->mat, */
-            /*                     ChamCCRB, descAl->mb, descAl->nb,   */
-            /*                     ChamCM, descAl->mb, descAl->nb, seq, req ); */
-        }
-        return CHAMELEON_ERR_NOT_SUPPORTED;
-    }
-    RUNTIME_desc_flush( descAl, seq );
     RUNTIME_desc_flush( descAt, seq );
 
     return CHAMELEON_SUCCESS;
@@ -314,7 +296,9 @@ static inline void
 chameleon_ztile2lap_cleanup( CHAM_context_t *chamctxt, CHAM_desc_t *descAl, CHAM_desc_t *descAt )
 {
     (void)chamctxt;
-    chameleon_desc_destroy( descAl );
+    if ( CHAMELEON_TRANSLATION == ChamOutOfPlace ) {
+        chameleon_desc_destroy( descAl );
+    }
     chameleon_desc_destroy( descAt );
 }
 
