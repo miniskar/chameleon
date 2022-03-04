@@ -31,7 +31,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
     To install Chameleon's libraries, header files, and executables, one
     needs:
-    - CMake (version 2.8 minimum): the build system
+    - CMake (version 3.3 minimum, 3.17 to compile with the H-Mat support): the build system
     - C and Fortran compilers: GNU compiler suite, Clang, Intel or IBM
       can be used
     - python: to generate files in the different precisions
@@ -263,7 +263,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     <<sec:ug:cmake>>
     Compilation of Chameleon libraries and executables are done with
     CMake (http://www.cmake.org/). This version has been tested with
-    CMake 3.10.2 but any version superior to 2.8 should be fine.
+    CMake 3.10.2 but any version superior to 3.3 should be fine,
+    unless you enable the H-Mat support that requires the minimum
+    revision to be 3.17.
 
     Here the steps to configure, build, test and install
     1. configure:
