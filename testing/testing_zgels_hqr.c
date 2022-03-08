@@ -148,6 +148,91 @@ testing_zgels_hqr_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgels_hqr_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          ib     = run_arg_get_int( args, "ib", 48 );
+    int          P      = parameters_getvalue_int( "P" );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          maxMN  = chameleon_max( M, N );
+    int          NRHS   = run_arg_get_int( args, "NRHS", 1 );
+    int          LDA    = run_arg_get_int( args, "LDA", M );
+    int          LDB    = run_arg_get_int( args, "LDB", maxMN );
+    int          qr_a   = run_arg_get_int( args, "qra", -1 );
+    int          qr_p   = run_arg_get_int( args, "qrp", -1 );
+    int          llvl   = run_arg_get_int( args, "llvl", -1 );
+    int          hlvl   = run_arg_get_int( args, "hlvl", -1 );
+    int          domino = run_arg_get_int( args, "domino", -1 );
+    int          seedA  = run_arg_get_int( args, "seedA", random() );
+    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    int          Q      = parameters_compute_q( P );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *X;
+    CHAM_desc_t           *descTS, *descTT;
+    libhqr_tree_t          qrtree;
+    libhqr_matrix_t        matrix;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+    X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descTS, P, Q );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descTT, P, Q );
+
+    /* Initialize matrix tree */
+    matrix.mt    = descTS->mt;
+    matrix.nt    = descTS->nt;
+    matrix.nodes = P * Q;
+    matrix.p     = P;
+
+    libhqr_init_hqr( &qrtree, ( M >= N ) ? LIBHQR_QR : LIBHQR_LQ, &matrix,
+                     llvl, hlvl, qr_a, qr_p, domino, 0 );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M,     N,    A, LDA, seedA );
+    CHAMELEON_zplrnt( maxMN, NRHS, X, LDB, seedB );
+
+    /* Computes the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgels_param( &qrtree, trans, M, N, NRHS, A, LDA, descTS, descTT, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgels_hqr( trans, M, N, NRHS ) );
+
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0, *B;
+
+        A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( M,     N,    A0, LDA, seedA );
+        CHAMELEON_zplrnt( maxMN, NRHS, B,  LDB, seedB );
+
+        /* Check the factorization and the residual */
+        hres = check_zgels_std( args, trans, M, N, NRHS, A0, LDA, X, LDB, B, LDB );
+
+        free( A0 );
+        free( B );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descTS );
+    CHAMELEON_Desc_Destroy( &descTT );
+    free( X );
+    libhqr_finalize( &qrtree );
+
+    return hres;
+}
+
 testing_t   test_zgels_hqr;
 const char *zgels_hqr_params[] = { "mtxfmt", "nb",   "ib",     "trans", "m",     "n",
                                    "k",      "lda",  "ldb",    "qra",   "qra",   "qrp",
@@ -169,7 +254,7 @@ testing_zgels_hqr_init( void )
     test_zgels_hqr.output = zgels_hqr_output;
     test_zgels_hqr.outchk = zgels_hqr_outchk;
     test_zgels_hqr.fptr_desc = testing_zgels_hqr_desc;
-    test_zgels_hqr.fptr_std  = NULL;
+    test_zgels_hqr.fptr_std  = testing_zgels_hqr_std;
     test_zgels_hqr.next   = NULL;
 
     testing_register( &test_zgels_hqr );

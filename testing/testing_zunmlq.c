@@ -119,6 +119,86 @@ testing_zunmlq_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zunmlq_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    int          ib    = run_arg_get_int( args, "ib", 48 );
+    int          P     = parameters_getvalue_int( "P" );
+    cham_side_t  side  = run_arg_get_side( args, "side", ChamLeft );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          M     = run_arg_get_int( args, "M", N );
+    int          K     = run_arg_get_int( args, "K", N );
+    int          LDA   = run_arg_get_int( args, "LDA", K );
+    int          LDC   = run_arg_get_int( args, "LDC", M );
+    int          RH    = run_arg_get_int( args, "qra", 4 );
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedC = run_arg_get_int( args, "seedC", random() );
+    int          Q     = parameters_compute_q( P );
+
+    /* Descriptors */
+    int                    An;
+    CHAMELEON_Complex64_t *A, *C;
+    CHAM_desc_t           *descT;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    if ( RH > 0 ) {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder );
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_SIZE, RH );
+    }
+    else {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder );
+    }
+
+    /* Calculates the dimensions according to the transposition and the side */
+    An = ( side == ChamLeft ) ? M : N;
+
+    /* Creates the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    C = malloc( LDC*N *sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( K, An, &descT, P, Q );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( K, An, A, LDA, seedA );
+    CHAMELEON_zplrnt( M, N , C, LDC, seedC );
+
+    /* Computes the factorization */
+    hres = CHAMELEON_zgelqf( K, An, A, LDA, descT );
+
+    /* Computes unmlq */
+    testing_start( &test_data );
+    hres += CHAMELEON_zunmlq( side, trans, M, N, K, A, LDA, descT, C, LDC );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zunmlq( side, M, N, K ) );
+
+    /* Checks the factorisation and orthogonality */
+    if ( check ) {
+        CHAMELEON_Complex64_t *C0   = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *Qlap = malloc( An*An*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( M, N, C0, LDC, seedC );
+        CHAMELEON_zunglq( An, An, K, A, LDA, descT, Qlap, An );
+
+        hres += check_zqc_std( args, side, trans, M, N, C0, C, LDC, Qlap, An );
+
+        free( C0 );
+        free( Qlap );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descT );
+    free( C );
+
+    return hres;
+}
+
 testing_t   test_zunmlq;
 const char *zunmlq_params[] = { "mtxfmt", "nb",  "ib",  "side", "trans", "m",     "n",
                                 "k",      "lda", "ldc", "qra",  "seedA", "seedC", NULL };
@@ -138,7 +218,7 @@ testing_zunmlq_init( void )
     test_zunmlq.output = zunmlq_output;
     test_zunmlq.outchk = zunmlq_outchk;
     test_zunmlq.fptr_desc = testing_zunmlq_desc;
-    test_zunmlq.fptr_std  = NULL;
+    test_zunmlq.fptr_std  = testing_zunmlq_std;
     test_zunmlq.next   = NULL;
 
     testing_register( &test_zunmlq );

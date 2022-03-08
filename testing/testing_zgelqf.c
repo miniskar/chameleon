@@ -100,6 +100,74 @@ testing_zgelqf_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgelqf_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int ib    = run_arg_get_int( args, "ib", 48 );
+    int P     = parameters_getvalue_int( "P" );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int LDA   = run_arg_get_int( args, "LDA", M );
+    int RH    = run_arg_get_int( args, "qra", 4 );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+    int Q     = parameters_compute_q( P );
+    int K     = chameleon_min( M, N );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+    CHAM_desc_t           *descT;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    if ( RH > 0 ) {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder );
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_SIZE, RH );
+    }
+    else {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder );
+    }
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgelqf( M, N, A, LDA, descT );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgelqf( M, N ) );
+
+    /* Checks the factorisation and orthogonality */
+    if ( check ) {
+        CHAMELEON_Complex64_t *Qlap = malloc( N*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *A0   = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( M, N, A0, LDA, seedA );
+
+        CHAMELEON_zunglq( N, N, K, A, LDA, descT, Qlap, N );
+
+        hres += check_zgelqf_std( args, N, N, K, A0, A, LDA, Qlap, N );
+        hres += check_zortho_std( args, N, N, Qlap, N );
+
+        free( A0 );
+        free( Qlap );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descT );
+
+    return hres;
+}
+
 testing_t   test_zgelqf;
 const char *zgelqf_params[] = { "mtxfmt", "nb", "ib", "m", "n", "lda", "qra", "seedA", NULL };
 const char *zgelqf_output[] = { NULL };
@@ -118,7 +186,7 @@ testing_zgelqf_init( void )
     test_zgelqf.output = zgelqf_output;
     test_zgelqf.outchk = zgelqf_outchk;
     test_zgelqf.fptr_desc = testing_zgelqf_desc;
-    test_zgelqf.fptr_std  = NULL;
+    test_zgelqf.fptr_std  = testing_zgelqf_std;
     test_zgelqf.next   = NULL;
 
     testing_register( &test_zgelqf );

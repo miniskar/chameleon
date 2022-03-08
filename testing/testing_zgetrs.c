@@ -95,6 +95,64 @@ testing_zgetrs_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgetrs_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      NRHS   = run_arg_get_int( args, "NRHS", 1 );
+    int      LDA    = run_arg_get_int( args, "LDA", N );
+    int      LDB    = run_arg_get_int( args, "LDB", N );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedB  = run_arg_get_int( args, "seedB", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *X;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+    X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( N, N,    A, LDA, seedA );
+    CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
+
+    hres = CHAMELEON_zgetrf_nopiv( N, N, A, LDA );
+    assert( hres == 0 );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres += CHAMELEON_zgetrs_nopiv( ChamNoTrans, N, NRHS, A, LDA, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgetrs( N, NRHS ) );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( N, N,    A0, LDA, seedA );
+        CHAMELEON_zplrnt( N, NRHS, B,  LDB, seedB );
+
+        hres += check_zsolve_std( args, ChamGeneral, ChamNoTrans, ChamUpperLower,
+                                  N, NRHS, A0, LDA, X, B, LDB );
+
+        free( A0 );
+        free( B );
+    }
+
+    free( A );
+    free( X );
+
+    return hres;
+}
+
 testing_t   test_zgetrs;
 const char *zgetrs_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
 const char *zgetrs_output[] = { NULL };
@@ -113,7 +171,7 @@ testing_zgetrs_init( void )
     test_zgetrs.output = zgetrs_output;
     test_zgetrs.outchk = zgetrs_outchk;
     test_zgetrs.fptr_desc = testing_zgetrs_desc;
-    test_zgetrs.fptr_std  = NULL;
+    test_zgetrs.fptr_std  = testing_zgetrs_std;
     test_zgetrs.next   = NULL;
 
     testing_register( &test_zgetrs );

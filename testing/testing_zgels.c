@@ -140,6 +140,84 @@ testing_zgels_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgels_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    int          ib    = run_arg_get_int( args, "ib", 48 );
+    int          P     = parameters_getvalue_int( "P" );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          M     = run_arg_get_int( args, "M", N );
+    int          maxMN = chameleon_max( M, N );
+    int          NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int          LDA   = run_arg_get_int( args, "LDA", M );
+    int          LDB   = run_arg_get_int( args, "LDB", maxMN );
+    int          RH    = run_arg_get_int( args, "qra", 4 );
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedB = run_arg_get_int( args, "seedB", random() );
+    int          Q     = parameters_compute_q( P );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *X;
+    CHAM_desc_t           *descT;
+
+    /* Make sure trans is only Notrans or ConjTrans */
+    trans = ( trans == ChamNoTrans ) ? trans : ChamConjTrans;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    if ( RH > 0 ) {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder );
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_SIZE, RH );
+    }
+    else {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder );
+    }
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+    X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M,     N,    A, LDA, seedA );
+    CHAMELEON_zplrnt( maxMN, NRHS, X, LDB, seedB );
+
+    /* Computes the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgels( trans, M, N, NRHS, A, LDA, descT, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgels( trans, M, N, NRHS ) );
+
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0, *B;
+
+        A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( M,     N,    A0, LDA, seedA );
+        CHAMELEON_zplrnt( maxMN, NRHS, B,  LDB, seedB );
+
+        /* Check the factorization and the residual */
+        hres = check_zgels_std( args, trans, M, N, NRHS, A0, LDA, X, LDB, B, LDB );
+
+        free( A0 );
+        free( B );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descT );
+    free( X );
+
+    return hres;
+}
+
 testing_t   test_zgels;
 const char *zgels_params[] = { "mtxfmt", "nb",  "ib",  "trans", "m",     "n", "k",
                                "lda",    "ldb", "qra", "seedA", "seedB", NULL };
@@ -159,7 +237,7 @@ testing_zgels_init( void )
     test_zgels.output = zgels_output;
     test_zgels.outchk = zgels_outchk;
     test_zgels.fptr_desc = testing_zgels_desc;
-    test_zgels.fptr_std  = NULL;
+    test_zgels.fptr_std  = testing_zgels_std;
     test_zgels.next   = NULL;
 
     testing_register( &test_zgels );

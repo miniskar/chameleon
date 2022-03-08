@@ -113,6 +113,52 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zlacpy_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         M     = run_arg_get_int( args, "M", N );
+    int         LDA   = run_arg_get_int( args, "LDA", M );
+    int         LDB   = run_arg_get_int( args, "LDB", M );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *B;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates two different matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills each matrix with different random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+    /* We use seedA + 1, just to create a variation in B */
+    CHAMELEON_zplrnt( M, N, B, LDB, seedA + 1 );
+
+    /* Makes a copy of descA to descB */
+    testing_start( &test_data );
+    hres = CHAMELEON_zlacpy( uplo, M, N, A, LDA, B, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlacpy( uplo, M, N ) );
+
+    /* Checks their differences */
+    if ( check ) {
+        hres += check_zmatrices_std( args, uplo, M, N, A, LDA, B, LDB );
+    }
+
+    free( A );
+    free( B );
+
+    return hres;
+}
+
 testing_t   test_zlacpy;
 const char *zlacpy_params[] = { "mtxfmt", "nb", "uplo", "m", "n", "lda", "ldb", "seedA", NULL };
 const char *zlacpy_output[] = { NULL };
@@ -131,7 +177,7 @@ testing_zlacpy_init( void )
     test_zlacpy.output = zlacpy_output;
     test_zlacpy.outchk = zlacpy_outchk;
     test_zlacpy.fptr_desc = testing_zlacpy_desc;
-    test_zlacpy.fptr_std  = NULL;
+    test_zlacpy.fptr_std  = testing_zlacpy_std;
     test_zlacpy.next   = NULL;
 
     testing_register( &test_zlacpy );

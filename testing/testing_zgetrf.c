@@ -78,6 +78,51 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgetrf_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int LDA   = run_arg_get_int( args, "LDA", M );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgetrf_nopiv( M, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgetrf( M, N ) );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplrnt( M, N, A0, LDA, seedA );
+
+        hres += check_zxxtrf_std( args, ChamGeneral, ChamUpperLower, M, N, A0, A, LDA );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zgetrf;
 const char *zgetrf_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", NULL };
 const char *zgetrf_output[] = { NULL };
@@ -96,7 +141,7 @@ testing_zgetrf_init( void )
     test_zgetrf.output = zgetrf_output;
     test_zgetrf.outchk = zgetrf_outchk;
     test_zgetrf.fptr_desc = testing_zgetrf_desc;
-    test_zgetrf.fptr_std  = NULL;
+    test_zgetrf.fptr_std  = testing_zgetrf_std;
     test_zgetrf.next   = NULL;
 
     testing_register( &test_zgetrf );

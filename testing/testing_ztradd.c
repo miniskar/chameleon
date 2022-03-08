@@ -150,6 +150,93 @@ testing_ztradd_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_ztradd_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb    = run_arg_get_int( args, "nb", 320 );
+    cham_trans_t trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t  uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int          N     = run_arg_get_int( args, "N", 1000 );
+    int          M     = run_arg_get_int( args, "M", N );
+    int          LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
+    int          LDB   = run_arg_get_int( args, "LDB", M );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    CHAMELEON_Complex64_t beta  = testing_zalea();
+    int          seedA = run_arg_get_int( args, "seedA", random() );
+    int          seedB = run_arg_get_int( args, "seedB", random() );
+
+    /* Descriptors */
+    int                    Am, An;
+    CHAMELEON_Complex64_t *A, *B;
+    cham_uplo_t            uplo_inv = uplo;
+
+    if ( (uplo != ChamUpperLower) && (trans != ChamNoTrans) ) {
+        uplo_inv = (uplo == ChamUpper) ? ChamLower : ChamUpper;
+    }
+
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    if ( trans != ChamNoTrans ) {
+        Am = N;
+        An = M;
+    }
+    else {
+        Am = M;
+        An = N;
+    }
+
+    /* Creates the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N* sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    switch ( uplo ) {
+        case ChamUpper:
+        case ChamLower:
+            CHAMELEON_zplgtr( 0., uplo_inv, Am, An, A, LDA, seedA );
+            CHAMELEON_zplgtr( 0., uplo,     M,  N,  B, LDB, seedB );
+            break;
+        case ChamUpperLower:
+        default:
+            CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
+            CHAMELEON_zplrnt( M,  N,  B, LDB, seedB );
+            break;
+    }
+
+    /* Calculates the sum */
+    testing_start( &test_data );
+    hres = CHAMELEON_ztradd( uplo, trans, M, N, alpha, A, LDA, beta, B, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_ztradd( uplo, M, N ) );
+
+    /* Checks the solution */
+    if ( check ) {
+        CHAMELEON_Complex64_t *B0 = malloc( LDB*N* sizeof(CHAMELEON_Complex64_t) );
+
+        if ( uplo == ChamUpperLower ) {
+            CHAMELEON_zplrnt( M, N, B0, LDB, seedB );
+        }
+        else {
+            CHAMELEON_zplgtr( 0., uplo, M, N, B0, LDB, seedB );
+        }
+        hres += check_zsum_std( args, uplo, trans, M, N, alpha, A, LDA, beta, B0, B, LDB );
+
+        free( B0 );
+    }
+
+    free( A );
+    free( B );
+
+    return hres;
+}
+
 testing_t   test_ztradd;
 const char *ztradd_params[] = { "mtxfmt", "nb",    "trans", "uplo",  "m",     "n", "lda",
                                 "ldb",    "alpha", "beta",  "seedA", "seedB", NULL };
@@ -169,7 +256,7 @@ testing_ztradd_init( void )
     test_ztradd.output = ztradd_output;
     test_ztradd.outchk = ztradd_outchk;
     test_ztradd.fptr_desc = testing_ztradd_desc;
-    test_ztradd.fptr_std  = NULL;
+    test_ztradd.fptr_std  = testing_ztradd_std;
     test_ztradd.next   = NULL;
 
     testing_register( &test_ztradd );

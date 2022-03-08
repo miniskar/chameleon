@@ -116,6 +116,66 @@ testing_zgeadd_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgeadd_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int          nb     = run_arg_get_int( args, "nb", 320 );
+    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
+    int          N      = run_arg_get_int( args, "N", 1000 );
+    int          M      = run_arg_get_int( args, "M", N );
+    int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
+    int          LDB    = run_arg_get_int( args, "LDB", M );
+    int          seedA  = run_arg_get_int( args, "seedA", random() );
+    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    CHAMELEON_Complex64_t beta  = testing_zalea();
+
+    /* Descriptors */
+    int                    Am, An;
+    CHAMELEON_Complex64_t *A, *B;
+
+    alpha = run_arg_get_complex64( args, "alpha", alpha );
+    beta  = run_arg_get_complex64( args, "beta", beta );
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    Am = (trans == ChamNoTrans)? M : N;
+    An = (trans == ChamNoTrans)? N : M;
+
+    /* Create the matrices */
+    A = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+    B = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fill the matrix with random values */
+    CHAMELEON_zplrnt( Am, An, A, LDA, seedA );
+    CHAMELEON_zplrnt( M,  N,  B, LDB, seedB );
+
+    /* Compute the sum */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgeadd( trans, M, N, alpha, A, LDA, beta, B, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgeadd( M, N ) );
+
+    /* Check the solution */
+    if ( check ) {
+        CHAMELEON_Complex64_t *B0 = malloc( LDB*N *sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplrnt( M, N, B0, LDB, seedB );
+
+        hres += check_zsum_std( args, ChamUpperLower, trans, M, N, alpha, A, LDA, beta, B0, B, LDB );
+
+        free( B0 );
+    }
+
+    free( A );
+    free( B );
+
+    return hres;
+}
+
 testing_t   test_zgeadd;
 const char *zgeadd_params[] = { "mtxfmt", "nb",    "trans", "m",     "n",     "lda",
                                 "ldb",    "alpha", "beta",  "seedA", "seedB", NULL };
@@ -135,7 +195,7 @@ testing_zgeadd_init( void )
     test_zgeadd.output = zgeadd_output;
     test_zgeadd.outchk = zgeadd_outchk;
     test_zgeadd.fptr_desc = testing_zgeadd_desc;
-    test_zgeadd.fptr_std  = NULL;
+    test_zgeadd.fptr_std  = testing_zgeadd_std;
     test_zgeadd.next   = NULL;
 
     testing_register( &test_zgeadd );

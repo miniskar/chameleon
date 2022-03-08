@@ -107,6 +107,53 @@ testing_zlascal_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zlascal_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int                   N     = run_arg_get_int( args, "N", 1000 );
+    int                   M     = run_arg_get_int( args, "M", N );
+    int                   LDA   = run_arg_get_int( args, "LDA", M );
+    CHAMELEON_Complex64_t alpha = run_arg_get_complex64( args, "alpha", 1. );
+    int                   seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrix */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Scales the matrix */
+    testing_start( &test_data );
+    hres = CHAMELEON_zlascal( uplo, M, N, alpha, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlascal( uplo, M, N ) );
+
+    /* Checks the solution */
+    if ( check ) {
+        CHAMELEON_Complex64_t *Ainit = malloc ( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplrnt( M, N, Ainit, LDA, seedA );
+
+        hres += check_zscale_std( args, uplo, M, N, alpha, Ainit, A, LDA );
+
+        free( Ainit );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zlascal;
 const char *zlascal_params[] = { "mtxfmt", "nb", "uplo", "m", "n", "lda", "alpha", "seedA", NULL };
 const char *zlascal_output[] = { NULL };
@@ -125,7 +172,7 @@ testing_zlascal_init( void )
     test_zlascal.output = zlascal_output;
     test_zlascal.outchk = zlascal_outchk;
     test_zlascal.fptr_desc = testing_zlascal_desc;
-    test_zlascal.fptr_std  = NULL;
+    test_zlascal.fptr_std  = testing_zlascal_std;
     test_zlascal.next   = NULL;
 
     testing_register( &test_zlascal );
