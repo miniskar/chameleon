@@ -113,7 +113,7 @@ int CHAMELEON_zgetrf_nopiv( int M, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                     A, NB, NB, LDA, N, N, N, sequence, &request );
+                     A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zgetrf_nopiv_Tile_Async( &descAt, sequence, &request );
