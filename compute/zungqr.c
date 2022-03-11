@@ -38,11 +38,11 @@
  *          The number of rows of the matrix Q. M >= 0.
  *
  * @param[in] N
- *          The number of columns of the matrix Q. N >= M.
+ *          The number of columns of the matrix Q. M >= N.
  *
  * @param[in] K
  *          The number of columns of elementary tile reflectors whose product defines the matrix Q.
- *          M >= K >= 0.
+ *          N >= K >= 0.
  *
  * @param[in] A
  *          Details of the QR factorization of the original matrix A as returned by
@@ -135,7 +135,7 @@ CHAMELEON_zungqr( int M, int N, int K,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamLower,
-                         A, NB, NB, LDA, N, M, K, sequence, &request );
+                         A, NB, NB, LDA, K, M, K, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descQl, &descQt, ChamDescInout, ChamUpperLower,
                          Q, NB, NB, LDQ, N, M, N, sequence, &request );
 
