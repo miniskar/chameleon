@@ -90,19 +90,19 @@ int check_zmatrices_std( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, C
     }
     else {
         Anorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
-                                        M, N, A, LDA, work );
+                                     M, N, A, LDA, work );
     }
 
     /* Computes the difference with the core function */
-    CORE_zgeadd( ChamNoTrans, M, N, 1, A, LDA, -1, B, LDA );
+    CORE_zgeadd( ChamNoTrans, M, N, 1, A, LDA, -1, B, LDB );
 
     /* Computes the residual's norm */
     if ( uplo == ChamUpperLower ) {
-        Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, B, LDA, work );
+        Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, B, LDB, work );
     }
     else {
         Rnorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
-                                        M, N, B, LDA, work );
+                                     M, N, B, LDB, work );
     }
     if ( Anorm != 0. ) {
         result = Rnorm / (Anorm * eps);
