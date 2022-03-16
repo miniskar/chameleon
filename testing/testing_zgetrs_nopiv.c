@@ -1,13 +1,13 @@
 /**
  *
- * @file testing_zgetrs.c
+ * @file testing_zgetrs_nopiv.c
  *
  * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zgetrs testing
+ * @brief Chameleon zgetrs_nopiv testing
  *
  * @version 1.2.0
  * @author Lucas Barros de Assis
@@ -24,7 +24,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgetrs_desc( run_arg_list_t *args, int check )
+testing_zgetrs_nopiv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -40,6 +40,7 @@ testing_zgetrs_desc( run_arg_list_t *args, int check )
     int      LDB    = run_arg_get_int( args, "LDB", N );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
+    double   bump   = run_arg_get_double( args, "bump", (double)N );
     int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -54,7 +55,8 @@ testing_zgetrs_desc( run_arg_list_t *args, int check )
         &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA, seedA   );
+    CHAMELEON_zplgtr_Tile( bump, ChamLower, descA, seedA+1 );
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     hres = CHAMELEON_zgetrf_nopiv_Tile( descA );
@@ -79,7 +81,8 @@ testing_zgetrs_desc( run_arg_list_t *args, int check )
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
         CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, NULL );
 
-        CHAMELEON_zplrnt_Tile( descA0, seedA );
+        CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA0, seedA   );
+        CHAMELEON_zplgtr_Tile( bump, ChamLower, descA0, seedA+1 );
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
         hres += check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower,
@@ -96,7 +99,7 @@ testing_zgetrs_desc( run_arg_list_t *args, int check )
 }
 
 int
-testing_zgetrs_std( run_arg_list_t *args, int check )
+testing_zgetrs_nopiv_std( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -109,6 +112,7 @@ testing_zgetrs_std( run_arg_list_t *args, int check )
     int      LDB    = run_arg_get_int( args, "LDB", N );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
+    double   bump   = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A, *X;
@@ -120,7 +124,8 @@ testing_zgetrs_std( run_arg_list_t *args, int check )
     X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt( N, N,    A, LDA, seedA );
+    CHAMELEON_zplgtr( 0,    ChamUpper, N, N, A, LDA, seedA   );
+    CHAMELEON_zplgtr( bump, ChamLower, N, N, A, LDA, seedA+1 );
     CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
 
     hres = CHAMELEON_zgetrf_nopiv( N, N, A, LDA );
@@ -137,8 +142,9 @@ testing_zgetrs_std( run_arg_list_t *args, int check )
         CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
-        CHAMELEON_zplrnt( N, N,    A0, LDA, seedA );
-        CHAMELEON_zplrnt( N, NRHS, B,  LDB, seedB );
+        CHAMELEON_zplgtr( 0,    ChamUpper, N, N, A0, LDA, seedA   );
+        CHAMELEON_zplgtr( bump, ChamLower, N, N, A0, LDA, seedA+1 );
+        CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );
 
         hres += check_zsolve_std( args, ChamGeneral, ChamNoTrans, ChamUpperLower,
                                   N, NRHS, A0, LDA, X, B, LDB );
@@ -153,26 +159,26 @@ testing_zgetrs_std( run_arg_list_t *args, int check )
     return hres;
 }
 
-testing_t   test_zgetrs;
-const char *zgetrs_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
-const char *zgetrs_output[] = { NULL };
-const char *zgetrs_outchk[] = { "RETURN", NULL };
+testing_t   test_zgetrs_nopiv;
+const char *zgetrs_nopiv_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", "bump", NULL };
+const char *zgetrs_nopiv_output[] = { NULL };
+const char *zgetrs_nopiv_outchk[] = { "RETURN", NULL };
 
 /**
  * @brief Testing registration function
  */
-void testing_zgetrs_init( void ) __attribute__( ( constructor ) );
+void testing_zgetrs_nopiv_init( void ) __attribute__( ( constructor ) );
 void
-testing_zgetrs_init( void )
+testing_zgetrs_nopiv_init( void )
 {
-    test_zgetrs.name   = "zgetrs";
-    test_zgetrs.helper = "General triangular solve (LU without pivoting)";
-    test_zgetrs.params = zgetrs_params;
-    test_zgetrs.output = zgetrs_output;
-    test_zgetrs.outchk = zgetrs_outchk;
-    test_zgetrs.fptr_desc = testing_zgetrs_desc;
-    test_zgetrs.fptr_std  = testing_zgetrs_std;
-    test_zgetrs.next   = NULL;
+    test_zgetrs_nopiv.name   = "zgetrs_nopiv";
+    test_zgetrs_nopiv.helper = "General triangular solve (LU without pivoting)";
+    test_zgetrs_nopiv.params = zgetrs_nopiv_params;
+    test_zgetrs_nopiv.output = zgetrs_nopiv_output;
+    test_zgetrs_nopiv.outchk = zgetrs_nopiv_outchk;
+    test_zgetrs_nopiv.fptr_desc = testing_zgetrs_nopiv_desc;
+    test_zgetrs_nopiv.fptr_std  = testing_zgetrs_nopiv_std;
+    test_zgetrs_nopiv.next   = NULL;
 
-    testing_register( &test_zgetrs );
+    testing_register( &test_zgetrs_nopiv );
 }
