@@ -448,39 +448,42 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
     starpu_data_handle_t *ptrtile = A->schedopt;
     ptrtile += ((int64_t)A->lmt) * nn + mm;
 
-    if (*ptrtile == NULL) {
-        int home_node = -1;
-        int myrank = A->myrank;
-        int owner  = A->get_rankof( A, m, n );
-        CHAM_tile_t *tile = A->get_blktile( A, m, n );
+    if ( *ptrtile != NULL ) {
+        return *ptrtile;
+    }
 
-        if ( myrank == owner ) {
-            if ( (tile->format & CHAMELEON_TILE_HMAT) ||
-                 (tile->mat != NULL) )
-            {
-                home_node = STARPU_MAIN_RAM;
-            }
+    int home_node = -1;
+    int myrank = A->myrank;
+    int owner  = A->get_rankof( A, m, n );
+    CHAM_tile_t *tile = A->get_blktile( A, m, n );
+
+    if ( myrank == owner ) {
+        if ( (tile->format & CHAMELEON_TILE_HMAT) ||
+             (tile->mat != NULL) )
+        {
+            home_node = STARPU_MAIN_RAM;
         }
+    }
 
-        starpu_cham_tile_register( ptrtile, home_node, tile, A->dtyp );
+    starpu_cham_tile_register( ptrtile, home_node, tile, A->dtyp );
 
 #if defined(HAVE_STARPU_DATA_SET_OOC_FLAG)
-        if ( A->ooc == 0 ) {
-            starpu_data_set_ooc_flag( *ptrtile, 0 );
-        }
+    if ( A->ooc == 0 ) {
+        starpu_data_set_ooc_flag( *ptrtile, 0 );
+    }
 #endif
 
 #if defined(HAVE_STARPU_DATA_SET_COORDINATES)
-        starpu_data_set_coordinates( *ptrtile, 2, m, n );
+    starpu_data_set_coordinates( *ptrtile, 2, m, n );
 #endif
 
 #if defined(CHAMELEON_USE_MPI)
-        {
-            int64_t block_ind = A->lmt * nn + mm;
-            starpu_mpi_data_register(*ptrtile, (((int64_t)A->id) << tag_sep) | block_ind, owner);
-        }
-#endif /* defined(CHAMELEON_USE_MPI) */
+    {
+        int64_t block_ind = A->lmt * nn + mm;
+        starpu_mpi_data_register(*ptrtile, (((int64_t)A->id) << tag_sep) | block_ind, owner);
     }
+#endif /* defined(CHAMELEON_USE_MPI) */
 
+    assert( *ptrtile );
     return *ptrtile;
 }
