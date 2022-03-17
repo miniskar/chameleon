@@ -168,20 +168,15 @@ int CHAMELEON_zgels( cham_trans_t trans, int M, int N, int NRHS,
     chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    if ( M >= N ) {
-        chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                             A, NB, NB, LDA, N, M, N, sequence, &request );
-        chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
-                             B, NB, NB, LDB, NRHS, M, NRHS, sequence, &request );
-    } else {
-        chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                             A, NB, NB, LDA, N, M, N, sequence, &request );
-        chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
-                             B, NB, NB, LDB, NRHS, N, NRHS, sequence, &request );
-    }
+    int maxMN = chameleon_max( M, N );
+
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
+                         A, NB, NB, LDA, N,    M,     N,    sequence, &request );
+    chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, ChamUpperLower,
+                         B, NB, NB, LDB, NRHS, maxMN, NRHS, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zgels_Tile_Async( ChamNoTrans, &descAt, descT, &descBt, sequence, &request );
+    CHAMELEON_zgels_Tile_Async( trans, &descAt, descT, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
