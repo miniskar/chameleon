@@ -24,6 +24,7 @@ _extra_blas = [
     ('',                     'spocon',               'dpocon',               'cpocon',               'zpocon'              ),
     ('',                     'strasm',               'dtrasm',               'ctrasm',               'ztrasm'              ),
     ('',                     'sgecfi',               'dgecfi',               'cgecfi',               'zgecfi'              ),
+    ('',                     'splgtr',               'dplgtr',               'cplgtr',               'zplgtr'              ),
     ('',                     'splrnk',               'dplrnk',               'cplrnk',               'zplrnk'              ),
     ('',                     'splssq',               'dplssq',               'cplssq',               'zplssq'              ),
     ('',                     'sy2sb',                'sy2sb' ,               'he2hb',                'he2hb'               ),
