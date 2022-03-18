@@ -202,7 +202,7 @@ int CORE_ztslqt(int M, int N, int IB,
                 &A2[ii+sb], LDA2,
                 &A2[ii], LDA2,
                 &T[LDT*ii], LDT,
-                WORK, LDA1);
+                WORK, M);
         }
     }
     return CHAMELEON_SUCCESS;
