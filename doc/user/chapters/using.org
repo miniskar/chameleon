@@ -781,6 +781,7 @@
        * *Random matrices generation*
          * plghe: generate a random Hermitian matrix
          * plgsy: generate a random symmetrix matrix
+         * plgtr: generate a random trapezoidal matrix
          * plrnt: generate a random matrix
          * plrnk: generate a random matrix of rank K with K <= min(M,N)
        * *Others*

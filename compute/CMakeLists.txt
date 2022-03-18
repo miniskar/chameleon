@@ -160,6 +160,7 @@ set(ZSRC
     zlauum.c
     zplghe.c
     zplgsy.c
+    zplgtr.c
     zplrnt.c
     zplrnk.c
     zposv.c
