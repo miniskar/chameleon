@@ -16,179 +16,83 @@
  */
 #include "testings.h"
 
-/**
- * @brief Defines all the parameters of the testings
- */
-static parameter_t parameters[] = {
-    /* Name, helper, shname, flags, has_arg, psize, valtype, value, vallist, read, sprint */
-    { "id", "Id of the run", 0, PARAM_OUTPUT, 0, 3, TestValInt, {0}, NULL, NULL, sprint_int },
-
-    { NULL, "Options", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "help",     "Show this help",                           'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "human",    "Enable human readable mode",               'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "niter",    "Perform multiple iteration per test",      'l', PARAM_OPTION, 1, 0, TestValInt, {1}, NULL, pread_int, sprint_int },
-    { "nowarmup", "Disable the warmup run to load libraries", -31, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
-    { "check",    "Enable checking of the result",            'c', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "trace",    "Enable the trace generation",              -30, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "mtxfmt",   "Change the way the matrix is stored (0: global, 1: tiles, 2: OOC)", -32, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "profile",  "Display the kernel profiling",             -33, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "forcegpu", "Force kernels on GPU",                     -34, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "async",    "Switch to the Async interface",                        's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "splitsub", "Split the task submission and execution stages",       'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "generic",  "Switch to the non optimized generic algorithms",       -35, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "api",      "Select the API to test (0: Descriptors, 1: Standard)", -36, PARAM_OPTION, 1, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-#endif
-
-    { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
-    { "gpus",    "Number of GPU workers per node",      'g', PARAM_OPTION | PARAM_OUTPUT, 1, 4, TestValInt, { 0}, NULL, pread_int, sprint_int },
-    { "P",       "Rows (P) in the PxQ process grid",    'P', PARAM_OPTION | PARAM_OUTPUT, 1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
-    { "Q",       "Columns (Q) in the PxQ process grid", 'Q', PARAM_OUTPUT,                1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
-#endif
-
-    { NULL, "Main input parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "op",   "Operation to test/time ('-o help' to get the list of functions)", 'o', PARAM_OPTION | PARAM_OUTPUT, 1, 1, TestString, {0}, NULL, pread_string, sprint_string },
-    { "file", "Input file",                                                      'f', PARAM_OPTION,                1, 1, TestString, {0}, NULL, pread_string, sprint_string },
-
-    { NULL, "Matrix definition parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "m",    "Dimension M of the operation",    'm', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "n",    "Dimension N of the operation",    'n', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "k",    "Dimension K of the operation",    'k', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "nrhs", "Dimension NRHS of the operation", 'r', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-
-    { "nb", "Tile size nb",       'b', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
-    { "ib", "Inner tile size ib", 'i', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 2, TestValInt, {0}, NULL, pread_int, sprint_int },
-
-    { "l1", "Size of the first level of recursion",  '1', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "l2", "Size of the second level of recursion", '2', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "l3", "Size of the third level of recursion",  '3', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-#endif
-
-    { "lda", "Leading dimension of the matrix A", 'A', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "ldb", "Leading dimension of the matrix B", 'B', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "ldc", "Leading dimension of the matrix C", 'C', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestValInt, {0}, NULL, pread_int, sprint_int },
-
-    { "seedA", "Seed for the matrix A random generation", 'X', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 11, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "seedB", "Seed for the matrix B random generation", 'Y', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 11, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "seedC", "Seed for the matrix C random generation", 'Z', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 11, TestValInt, {0}, NULL, pread_int, sprint_int },
-
-    { NULL, "Matrix generation numerical parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "bump",  "Bump value to make a matrix diagonal dominant",           'z', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
-    { "mode",  "Mode that specifies the eigen/singular values in xlatms", -30, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2,  4, TestValInt,       {0}, NULL, pread_int,       sprint_int    },
-    { "cond",  "Conditional number of the matrix used by xlatms",         -31, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValDouble,    {0}, NULL, pread_double,    sprint_double    },
-
-    { NULL, "Operation specific parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "trans",  "Value of the trans parameter",  -11, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 9, TestTrans,    {0}, NULL, pread_trans, sprint_trans },
-    { "transA", "Value of the transA parameter", -12, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 9, TestTrans,    {0}, NULL, pread_trans, sprint_trans },
-    { "transB", "Value of the transB parameter", -13, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 9, TestTrans,    {0}, NULL, pread_trans, sprint_trans },
-    { "uplo",   "Value of the uplo parameter",   -14, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 7, TestUplo,     {0}, NULL, pread_uplo,  sprint_uplo  },
-    { "diag",   "Value of the diag parameter",   -15, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 7, TestDiag,     {0}, NULL, pread_diag,  sprint_diag  },
-    { "side",   "Value of the side parameter",   -16, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestSide,     {0}, NULL, pread_side,  sprint_side  },
-    { "norm",   "Value of the norm parameter",   -17, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestNormtype, {0}, NULL, pread_norm,  sprint_norm  },
-
-    { NULL, "Operation specific scalar", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "alpha", "Value of the scalar alpha",                       'x', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
-    { "beta",  "Value of the scalar beta",                        'y', PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValComplex64, {0}, NULL, pread_complex64, sprint_complex64 },
-
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
-    { NULL, "QR/LQ parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "qra",    "Size of TS domain (=RH for householder trees)",           -20, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "qrp",    "Size of high level tree for distributed",                 -21, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "llvl",   "Tree used for low level reduction insides nodes",         -22, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "hlvl",   "Tree used for high level reduction between nodes",        -23, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "domino", "Enable/Disable the domino between upper and lower trees", -24, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
-#endif
-
-    { "tsub",          "Graph submission time in s",             999, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
-    { "time",          "Time in s",                             1000, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
-    { "gflops",        "GFlop/s",                               1001, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },
-    { "RETURN",        "Result of the testing: SUCCESS/FAILED", 1002, PARAM_OUTPUT, 2,  7, TestValInt,    {0}, NULL, pread_int,    sprint_check  },
-    { "||Ax-b||",      "Norm of the residual",                  1003, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||A-fact(A)||", "Norm of the residual",                  1004, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||A||",         "Norm of the matrix A",                  1005, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||B||",         "Norm of the matrix B",                  1006, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||C||",         "Norm of the matrix C",                  1007, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||R||",         "Residual norm",                         1008, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||b||",         "Norm of the vector b",                  1009, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||x||",         "Norm of the vector x",                  1010, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||Ax-b||/N/eps/(||A||||x||+||b||", "",                   1011, PARAM_OUTPUT, 2, 22, TestValDouble, {0}, NULL, pread_double, sprint_double },
-    { "||I-QQ'||",     "Orthonormality of Q",                   1012, PARAM_OUTPUT, 2, 13, TestValDouble, {0}, NULL, pread_double, sprint_double },
-};
+extern parameter_t parameters[];
 
 void print_usage( const char* prog_name )
 {
-    int rank = 0;
+    parameter_t *param = parameters;
+
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
     if ( CHAMELEON_Initialized() ) {
-        rank = CHAMELEON_Comm_rank();
+        int rank = CHAMELEON_Comm_rank();
+        if (rank != 0) {
+            return;
+        }
     }
 #endif
 
-    if (rank == 0) {
-        parameter_t *param = parameters;
-        int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
-        printf( "Usage:\n"
-                "  %s -o|--op operation_name [options]\n"
-                "  %s -f|--file input_file [options]\n",
-                prog_name, prog_name );
+    printf( "Usage:\n"
+            "  %s -o|--op operation_name [options]\n"
+            "  %s -f|--file input_file [options]\n",
+            prog_name, prog_name );
 
-        for (i=0; i<nbparams; i++, param++) {
-            char str[STR_MAX_LENGTH];
+    while( param->helper != NULL )
+    {
+        char str[STR_MAX_LENGTH];
 
-            /* This is not an option, we skip it */
-            if ( !(param->flags & PARAM_OPTION) ) {
-                continue;
-            }
-
-            /* This is an option header */
-            if ( param->name == NULL ) {
-                printf( "\n  %s:\n", param->helper );
-                continue;
-            }
-
-            if ( param->shname > 0 ) {
-                snprintf( str, STR_MAX_LENGTH, "-%c, --%s",
-                          param->shname, param->name );
-            }
-            else {
-                snprintf( str, STR_MAX_LENGTH, "    --%s",
-                          param->name );
-            }
-
-            /* If an argument is needed, add " x" */
-            if ( param->has_arg > 0 ) {
-                int len = strlen(str);
-                assert( len < (STR_MAX_LENGTH-3) );
-
-                str[ len   ] = ' ';
-                str[ len+1 ] = 'x';
-                str[ len+2 ] = '\0';
-            }
-            printf( "    %-23s %s\n",
-                    str, param->helper );
+        /* This is not an option, we skip it */
+        if ( !(param->flags & PARAM_OPTION) ) {
+            param++;
+            continue;
         }
 
-        printf( "\n"
-                "For example: %s -H -o gemm -t 2 -m 2000 -n 2000 -k 2000 -b 200\n"
-                "  will run one gemm with three matrices of size 2000x2000 each and a tile size of 200.\n"
-                "  The output will be in the human readable format\n"
-                "\n", prog_name );
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
-        printf( "Remarks about timing:\n"
-                "  Timings are reported respectively as 'tsub' for the graph submission time, and 'time'\n"
-                "  for the execution time.\n"
-                "  By default the synchronous tile interface is used to perform the timings. 'tsub' is null.\n"
-                "  If the --async option is enabled, then the asynchronous interface is called. 'tsub' reports\n"
-                "  the task submission time, and 'time' the execution time that includes 'tsub'.\n"
-                "  If the --splitsub option is enabled, then the asynchronous interface is called and task\n"
-                "  submission is fully performed before starting the computation. 'tsub' reports the\n"
-                "  task submission time, and 'time' the execution time excluding 'tsub'.\n"
-                "  Note that the 'gflops' field is always computed with 'time'\n" );
-#endif
+        /* This is an option header */
+        if ( param->name == NULL ) {
+            printf( "\n  %s:\n", param->helper );
+            param++;
+            continue;
+        }
+
+        if ( param->shname > 0 ) {
+            snprintf( str, STR_MAX_LENGTH, "-%c, --%s",
+                      param->shname, param->name );
+        }
+        else {
+            snprintf( str, STR_MAX_LENGTH, "    --%s",
+                      param->name );
+        }
+
+        /* If an argument is needed, add " x" */
+        if ( param->has_arg > 0 ) {
+            int len = strlen(str);
+            assert( len < (STR_MAX_LENGTH-3) );
+
+            str[ len   ] = ' ';
+            str[ len+1 ] = 'x';
+            str[ len+2 ] = '\0';
+        }
+        printf( "    %-23s %s\n",
+                str, param->helper );
+        param++;
     }
+
+    printf( "\n"
+            "For example: %s -H -o gemm -t 2 -m 2000 -n 2000 -k 2000 -b 200\n"
+            "  will run one gemm with three matrices of size 2000x2000 each and a tile size of 200.\n"
+            "  The output will be in the human readable format\n"
+            "\n", prog_name );
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
+    printf( "Remarks about timing:\n"
+            "  Timings are reported respectively as 'tsub' for the graph submission time, and 'time'\n"
+            "  for the execution time.\n"
+            "  By default the synchronous tile interface is used to perform the timings. 'tsub' is null.\n"
+            "  If the --async option is enabled, then the asynchronous interface is called. 'tsub' reports\n"
+            "  the task submission time, and 'time' the execution time that includes 'tsub'.\n"
+            "  If the --splitsub option is enabled, then the asynchronous interface is called and task\n"
+            "  submission is fully performed before starting the computation. 'tsub' reports the\n"
+            "  task submission time, and 'time' the execution time excluding 'tsub'.\n"
+            "  Note that the 'gflops' field is always computed with 'time'\n" );
+#endif
 }
 
 /**
@@ -561,21 +465,24 @@ parameters_getopt_init( char           *optstring,
                         struct option **longopts )
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
+    int i;
     int nboptions = 0;
     int strpos = 0;
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( !(param->flags & PARAM_OPTION) ||
              (param->name == NULL) )
         {
+            param++;
             continue;
         }
 
         nboptions++;
 
         if ( param->shname < 0 ) {
+            param++;
             continue;
         }
 
@@ -588,6 +495,7 @@ parameters_getopt_init( char           *optstring,
             strpos++;
             assert( strpos < STR_MAX_LENGTH );
         }
+        param++;
     }
     optstring[strpos] = '\0';
 
@@ -622,17 +530,19 @@ parameter_t *
 parameters_get( int shname )
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( param->name == NULL ) {
+            param++;
             continue;
         }
 
         if ( shname == param->shname ) {
             return param;
         }
+        param++;
     }
 
     fprintf( stderr, "parameters_get could not find parameter %d(%c)\n", shname, shname );
@@ -643,15 +553,17 @@ int
 parameters_getvalue_int( const char *name )
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( param->name == NULL ) {
+            param++;
             continue;
         }
 
         if ( strcasecmp( name, param->name ) != 0 ) {
+            param++;
             continue;
         }
 
@@ -676,15 +588,17 @@ char *
 parameters_getvalue_str( const char *name )
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( param->name == NULL ) {
+            param++;
             continue;
         }
 
         if ( strcasecmp( name, param->name ) != 0 ) {
+            param++;
             continue;
         }
 
@@ -709,15 +623,17 @@ parameter_t *
 parameters_getbyname( const char *name )
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( param->name == NULL ) {
+            param++;
             continue;
         }
 
         if ( strcasecmp( name, param->name ) != 0 ) {
+            param++;
             continue;
         }
 
@@ -797,12 +713,13 @@ void
 parameters_destroy()
 {
     parameter_t *param = parameters;
-    int i, nbparams = sizeof( parameters ) / sizeof( parameter_t );
     vallist_t *current, *next;
 
-    for ( i=0; i<nbparams; i++, param++ ) {
+    while( param->helper != NULL )
+    {
         /* This is not an option, we skip it */
         if ( param->has_arg < 2 ) {
+            param++;
             continue;
         }
 
@@ -813,6 +730,7 @@ parameters_destroy()
             free( current );
             current = next;
         }
+        param++;
     }
     return;
 }
