@@ -120,14 +120,14 @@ int CHAMELEON_zgelqf( int M, int N,
 
     /* Submit the matrix conversion */
     chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInout, ChamUpperLower,
-                     A, NB, NB, LDA, N, M, N, sequence, &request );
+                         A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_zgelqf_Tile_Async( &descAt, descT, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInout, ChamUpperLower, sequence, &request );
+                         ChamDescInout, ChamUpperLower, sequence, &request );
     CHAMELEON_Desc_Flush( descT, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
