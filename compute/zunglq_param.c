@@ -111,7 +111,7 @@ CHAMELEON_zunglq_param( const libhqr_tree_t *qrtree, int M, int N, int K,
         chameleon_error( "CHAMELEON_zunglq_param", "illegal value of K" );
         return -3;
     }
-    if ( LDA < chameleon_max( 1, M ) ) {
+    if ( LDA < chameleon_max( 1, K ) ) {
         chameleon_error( "CHAMELEON_zunglq_param", "illegal value of LDA" );
         return -5;
     }

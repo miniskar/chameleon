@@ -141,11 +141,11 @@ int CORE_ztradd(cham_uplo_t uplo, cham_trans_t trans, int M, int N,
 
     minMN = chameleon_min( M, N );
 
-    if ( beta == 0. ) {
+    if ( beta == (CHAMELEON_Complex64_t)0. ) {
         LAPACKE_zlaset_work( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo),
                              M, N, 0., 0., B, LDB );
     }
-    else if ( beta != 1. ) {
+    else if ( beta != (CHAMELEON_Complex64_t)1. ) {
         LAPACKE_zlascl_work( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo),
                              0, 0, 1., beta, M, N, B, LDB );
     }

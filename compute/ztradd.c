@@ -93,17 +93,16 @@
  *
  */
 int CHAMELEON_ztradd( cham_uplo_t uplo, cham_trans_t trans, int M, int N,
-                  CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                  CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *B, int LDB )
+                      CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                      CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *B, int LDB )
 {
-    int NB;
-    int Am, An;
-    int status;
-    CHAM_desc_t descAl, descAt;
-    CHAM_desc_t descBl, descBt;
-    CHAM_context_t *chamctxt;
+    int                 NB, Am, An, status;
+    CHAM_desc_t         descAl, descAt;
+    CHAM_desc_t         descBl, descBt;
+    CHAM_context_t     *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    RUNTIME_request_t   request  = RUNTIME_REQUEST_INITIALIZER;
+    cham_uplo_t         uplo_inv = uplo;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -157,20 +156,24 @@ int CHAMELEON_ztradd( cham_uplo_t uplo, cham_trans_t trans, int M, int N,
     /* Set MT & NT & KT */
     NB = CHAMELEON_NB;
 
+    if ( (uplo != ChamUpperLower) && (trans != ChamNoTrans) ) {
+        uplo_inv = (uplo == ChamUpper) ? ChamLower : ChamUpper;
+    }
+
     chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, uplo,
-                     A, NB, NB, LDA, An, Am, An, sequence, &request );
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, uplo_inv,
+                         A, NB, NB, LDA, An, Am, An, sequence, &request );
     chameleon_zlap2tile( chamctxt, &descBl, &descBt, ChamDescInout, uplo,
-                     B, NB, NB, LDB, N, M, N, sequence, &request );
+                         B, NB, NB, LDB, N, M, N, sequence, &request );
 
     /* Call the tile interface */
     CHAMELEON_ztradd_Tile_Async( uplo, trans, alpha, &descAt, beta, &descBt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                     ChamDescInput, uplo, sequence, &request );
+                     ChamDescInput, uplo_inv, sequence, &request );
     chameleon_ztile2lap( chamctxt, &descBl, &descBt,
                      ChamDescInout, uplo, sequence, &request );
 

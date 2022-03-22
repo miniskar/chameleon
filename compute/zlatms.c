@@ -104,7 +104,7 @@
  *          (or zero), D will be scaled by a negative number (or zero).
  *          Not modified.
  *
- * @param[in] A
+ * @param[out] A
  *          The M-by-N matrix A.
  *
  * @param[in] LDA
@@ -173,7 +173,7 @@ int CHAMELEON_zlatms( int M, int N, cham_dist_t idist,
     chameleon_sequence_create( chamctxt, &sequence );
 
     /* Submit the matrix conversion */
-    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescInput, ChamUpperLower,
+    chameleon_zlap2tile( chamctxt, &descAl, &descAt, ChamDescOutput, ChamUpperLower,
                          A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
@@ -182,7 +182,7 @@ int CHAMELEON_zlatms( int M, int N, cham_dist_t idist,
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
-                         ChamDescInput, ChamUpperLower, sequence, &request );
+                         ChamDescOutput, ChamUpperLower, sequence, &request );
 
     chameleon_sequence_wait( chamctxt, sequence );
 

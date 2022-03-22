@@ -122,11 +122,7 @@ int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
 
-    if ( side == ChamLeft ) {
-        Am = M;
-    } else {
-        Am = N;
-    }
+    Am = ( side == ChamLeft ) ? M : N;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -180,7 +176,7 @@ int CHAMELEON_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K,
                          C, NB, NB, LDC, N, M,  N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zunmqr_Tile_Async(  side, trans, &descAt, descT, &descCt, sequence, &request );
+    CHAMELEON_zunmqr_Tile_Async( side, trans, &descAt, descT, &descCt, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,

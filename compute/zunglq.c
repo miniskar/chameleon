@@ -107,7 +107,7 @@ CHAMELEON_zunglq( int M, int N, int K,
         chameleon_error( "CHAMELEON_zunglq", "illegal value of K" );
         return -3;
     }
-    if ( LDA < chameleon_max( 1, M ) ) {
+    if ( LDA < chameleon_max( 1, K ) ) {
         chameleon_error( "CHAMELEON_zunglq", "illegal value of LDA" );
         return -5;
     }
