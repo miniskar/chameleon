@@ -3,7 +3,6 @@
 
 # PLRNK
 # nb: Tile size
-# ib: Inner tile size
 # M: Number of rows of matrix  C
 # N: Number of columns of matrix C
 # K: Rank of matrix C
@@ -13,7 +12,6 @@
 
 op = plrnk
 nb = 16
-ib = 8
 m = 37
 n = 23
 k = 11

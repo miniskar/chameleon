@@ -3,7 +3,6 @@
 
 # LANGE
 # nb: Tile size
-# ib: Inner tile size
 # M: Number of rows of matrices A and C
 # N: Number of columns of matrices B and C
 # LDA: Leading dimension of matrix A
@@ -12,7 +11,6 @@
 
 op = lange
 nb = 16, 17
-ib = 8
 m = 15, 21, 33
 n = 13, 23, 35
 lda = 45

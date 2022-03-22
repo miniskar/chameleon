@@ -8,9 +8,8 @@
 # m: Number of rows of matrix A
 # n: Number of columns of matrix A
 # lda: Leading dimension of matrix A
-# ldb: Leading dimension of matrix B
 # side: Whether Q appears on the left or on the right side of the multiplication
-# trans: Whether the matrix Q is transposed or conjugate transpose
+# trans: Whether the matrix Q is transposed or conjugate transposed
 # qra: Size of TS domain
 # qrp: Size of high level tree for distributed mode
 # llvl: Tree used for low level reduction insides nodes
@@ -20,10 +19,11 @@
 op = unmqr_hqr
 nb = 8, 9
 ib = 3
-m = 15, 20
+m = 15, 20, 32
 n = 13, 21, 34
+k = 9, 15, 21
 lda = 41
-ldb = 42
+ldc = 42
 side = 0:1
 trans = 0,2
 qra = 2

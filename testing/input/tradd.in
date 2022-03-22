@@ -3,7 +3,6 @@
 
 # TRADD
 # nb: Tile size
-# ib: Inner tile size
 # M: Number of rows of matrix A
 # N: Number of columns of matrix B
 # LDA: Leading dimension of matrix A
@@ -17,7 +16,6 @@ alpha = 0., 3.45
 beta = 0., -4.86
 op = tradd
 nb = 16, 17
-ib = 8
 m = 15, 29, 33
 n = 13, 27, 35
 lda = 39

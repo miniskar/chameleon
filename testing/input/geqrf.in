@@ -8,7 +8,6 @@
 # m: Number of rows of the A matrix
 # n: Number of columns of the A matrix
 # lda: Leading dimension of the A matrix
-# RH: Size of each subdomain when using RH
 
 
 op = geqrf

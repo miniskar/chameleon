@@ -3,14 +3,12 @@
 
 # CESCA
 # nb: Tile size
-# ib: Inner tile size
 # M: Number of rows of matrix A
 # N: Number of columns of matrix A
 # LDA: Leading dimension of matrix A
 
 op = cesca
 nb = 16, 17
-ib = 8
 m = 15, 17, 33
 n = 13, 19, 35
 lda = 37

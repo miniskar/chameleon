@@ -3,7 +3,6 @@
 
 # HER2K
 # nb: Tile size
-# ib: Inner tile size
 # N: Number of columns and rows of matrix C and number of row of matrix A and B
 # K: Number of columns of matrix A and B
 # LDA: Leading dimension of matrix A
@@ -19,7 +18,6 @@ alpha = 0., 3.45
 beta = 0., -4.86
 op = her2k
 nb = 16, 17
-ib = 8
 n = 15, 21, 33
 k = 13, 23, 35
 lda = 37

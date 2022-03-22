@@ -3,7 +3,6 @@
 
 # HEMM
 # nb: Tile size
-# ib: Inner tile size
 # side: whether the hermitian matrix A appears on the left or right side of the multiplication operation (0: left, 1: right)
 # uplo: matrix part to be used (0: Upper, 1: Lower)
 # M: Number of rows of matrix A and C
@@ -19,7 +18,6 @@ alpha = 0., 3.45
 beta = 0., -4.86
 op = hemm
 nb = 16, 17
-ib = 8
 side = 0:1
 uplo = 0:1
 m = 15, 25, 37
