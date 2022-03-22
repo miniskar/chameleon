@@ -60,8 +60,11 @@ if (NOT CHAMELEON_SIMULATION)
     foreach( cat ${TEST_CATEGORIES} )
       foreach( gpus ${N_GPUS} )
 
-        if ( ${gpus} EQUAL 1 )
+        set( TESTSTMP ${TESTS} )
+
+        if ( NOT ( ${gpus} EQUAL 0 ) )
           set( cat ${cat}_gpu )
+          list( REMOVE_ITEM TESTSTMP gram lacpy lanhe lange lansy lantr lascal plrnk print )
         endif()
 
         if ( ${cat} STREQUAL "mpi" )
@@ -70,47 +73,16 @@ if (NOT CHAMELEON_SIMULATION)
           set ( PREFIX "" )
         endif()
 
-        foreach( test ${TESTS} )
+        foreach( test ${TESTSTMP} )
           add_test( test_${cat}_${prec}${test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in )
         endforeach()
-      endforeach()
-    endforeach()
-  endforeach()
 
-  # STD api tests
-  foreach(prec ${RP_CHAMELEON_PRECISIONS})
-    set (CMD ./chameleon_${prec}testing)
+        list( REMOVE_ITEM TESTSTMP print gepdf_qr )
 
-    #
-    # Create the list of test based on precision and runtime
-    #
-    set( TESTS lange lantr lansy )
-    if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
-      set( TESTS ${TESTS} lanhe )
-    endif()
-    set( TESTS ${TESTS}
-      gemm symm syrk syr2k trmm trsm )
-    if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
-      set( TESTS ${TESTS}
-        hemm herk her2k )
-    endif()
-    set( TESTS ${TESTS}
-      potrf potrs posv )
-    if ( NOT CHAMELEON_SCHED_PARSEC )
-      set( TESTS ${TESTS} potri poinv)
-    endif()
-
-    list(REMOVE_ITEM TEST_CATEGORIES mpi)
-
-    foreach(cat ${TEST_CATEGORIES})
-      foreach(gpus ${N_GPUS})
-
-        if (${gpus} EQUAL 1)
-          set(cat ${cat}_gpu)
-        endif()
-
-        foreach(test ${TESTS})
-          add_test(test_${cat}_${prec}${test}_std ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in --api=1 )
+        foreach( test ${TESTSTMP} )
+          if ( NOT (${cat} STREQUAL "mpi"))
+            add_test( test_${cat}_${prec}${test}_std ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in --api=1 )
+          endif()
         endforeach()
       endforeach()
     endforeach()
