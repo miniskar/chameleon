@@ -82,7 +82,7 @@ int check_zmatrices_std( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, C
     double Anorm, Rnorm, result;
     double eps               = LAPACKE_dlamch_work('e');
 
-    double *work = (double *)malloc(LDA*N*sizeof(double));
+    double *work = (double *)malloc( LDA*N*sizeof(double) );
 
     /* Computes the norms */
     if ( uplo == ChamUpperLower ) {
@@ -118,6 +118,9 @@ int check_zmatrices_std( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, C
     else {
         info_solution = 0;
     }
+
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||B||", Rnorm );
 
     free(work);
 
@@ -354,6 +357,114 @@ int check_znorm( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_normtype
  *
  * @ingroup testing
  *
+ * @brief Compares two core function computed sum.
+ *
+ *******************************************************************************
+ *
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *
+ * @param[in] trans
+ *          Whether the first matrix is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] M
+ *          The number of rows of the matrices A and C.
+ *
+ * @param[in] N
+ *          The number of columns of the matrices B and C.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @param[in] beta
+ *          The scalar beta.
+ *
+ * @param[in] Bref
+ *          The matrix Bref.
+ *
+ * @param[in] Bcham
+ *          The matrix of the computed result A+B.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zsum_std( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, int M, int N, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A,
+                     int LDA, CHAMELEON_Complex64_t beta, CHAMELEON_Complex64_t *Bref, CHAMELEON_Complex64_t *Bcham, int LDB )
+{
+    int info_solution            = 0;
+    int Am                       = (trans == ChamNoTrans)? M : N;
+    int An                       = (trans == ChamNoTrans)? N : M;
+    double Anorm, Binitnorm, Rnorm, result;
+    CHAMELEON_Complex64_t  mzone = -1.0;
+    cham_uplo_t uploA            = uplo;
+
+    /* Computes the max norms of A, B and A+B */
+    if ( uplo == ChamUpperLower ) {
+        Anorm     = LAPACKE_zlange( LAPACK_COL_MAJOR, 'M', Am, An, A,    LDA );
+        Binitnorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'M', M,  N,  Bref, LDB );
+    }
+    else {
+        if ( trans == ChamNoTrans ) {
+            Anorm = LAPACKE_zlantr( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N', Am, An, A, LDA );
+        }
+        else {
+            uploA = (uplo == ChamUpper) ? ChamLower : ChamUpper;
+            Anorm = LAPACKE_zlantr( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uploA), 'N', Am, An, A, LDA );
+        }
+        Binitnorm = LAPACKE_zlantr( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N', M, N, Bref, LDB );
+    }
+
+    double  eps  = LAPACKE_dlamch_work('e');
+    double *work = malloc(chameleon_max(M, N)* sizeof(double));
+
+    /* Makes the sum with the core function */
+    if ( uplo == ChamUpperLower ) {
+        CORE_zgeadd( trans, M, N, alpha, A, LDA, beta, Bref, LDB );
+    }
+    else {
+        CORE_ztradd( uplo, trans, M, N, alpha, A, LDA, beta, Bref, LDB );
+    }
+    cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1 );
+
+    /* Calculates the norm from the core function's result */
+    if ( uplo == ChamUpperLower ) {
+        Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, work );
+    }
+    else {
+        Rnorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
+                                        M, N, Bref, LDB, work );
+    }
+    result = Rnorm / (max(Anorm, Binitnorm) * eps);
+
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||B||", Binitnorm );
+    run_arg_add_double( args, "||R||", Rnorm );
+
+    /* Verifies if the result is inside a threshold */
+    if ( isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+        info_solution = 1;
+    }
+    else {
+        info_solution = 0;
+    }
+
+    free(work);
+    (void)args;
+    return info_solution;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
  * @brief Compares a Chameleon computed sum with a core function computed one.
  *
  *******************************************************************************
@@ -394,33 +505,19 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHA
     int LDA                      = Am;
     int LDB                      = M;
     int rank                     = CHAMELEON_Comm_rank();
-    double Anorm, Binitnorm, Rnorm, result;
     CHAMELEON_Complex64_t *A     = NULL;
     CHAMELEON_Complex64_t *Bref  = NULL;
     CHAMELEON_Complex64_t *Bcham = NULL;
-    CHAMELEON_Complex64_t  mzone = -1.0;
     cham_uplo_t uploA            = uplo;
 
     if ( rank == 0 ) {
-        A     = malloc(An*LDA*sizeof(CHAMELEON_Complex64_t));
-        Bref  = malloc(N*LDB*sizeof(CHAMELEON_Complex64_t));
-        Bcham = malloc(N*LDB*sizeof(CHAMELEON_Complex64_t));
+        A     = malloc( LDA*An*sizeof(CHAMELEON_Complex64_t) );
+        Bref  = malloc( LDB*N* sizeof(CHAMELEON_Complex64_t) );
+        Bcham = malloc( LDB*N* sizeof(CHAMELEON_Complex64_t) );
     }
 
-    /* Computes the max norms of A, B and A+B */
-    if ( uplo == ChamUpperLower ) {
-        Anorm     = CHAMELEON_zlange_Tile( ChamMaxNorm, descA     );
-        Binitnorm = CHAMELEON_zlange_Tile( ChamMaxNorm, descBref  );
-    }
-    else {
-        if ( trans == ChamNoTrans ) {
-            Anorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uplo, ChamNonUnit, descA );
-        }
-        else {
-            uploA = (uplo == ChamUpper) ? ChamLower : ChamUpper;
-            Anorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uploA, ChamNonUnit, descA );
-        }
-        Binitnorm = CHAMELEON_zlantr_Tile( ChamMaxNorm, uplo, ChamNonUnit, descBref );
+    if ( uplo != ChamUpperLower && trans != ChamNoTrans ) {
+        uploA = (uplo == ChamUpper) ? ChamLower : ChamUpper;
     }
 
     /* Creates the LAPACK version of the matrices */
@@ -429,41 +526,8 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHA
     CHAMELEON_zDesc2Lap( uplo,  descBcham, Bcham, LDB );
 
     if ( rank == 0 ) {
-        double  eps  = LAPACKE_dlamch_work('e');
-        double *work = malloc(chameleon_max(M, N)* sizeof(double));
+        info_solution = check_zsum_std( args, uplo, trans, M, N, alpha, A, LDA, beta, Bref, Bcham, LDB );
 
-        /* Makes the sum with the core function */
-        if ( uplo == ChamUpperLower ) {
-            CORE_zgeadd( trans, M, N,
-                         alpha, A,    LDA,
-                         beta,  Bref, LDB );
-        }
-        else {
-            CORE_ztradd( uplo, trans, M, N,
-                         alpha, A,    LDA,
-                         beta,  Bref, LDB );
-        }
-        cblas_zaxpy( LDB*N, CBLAS_SADDR(mzone), Bcham, 1, Bref, 1 );
-
-        /* Calculates the norm from the core function's result */
-        if ( uplo == ChamUpperLower ) {
-            Rnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Bref, LDB, work );
-        }
-        else {
-            Rnorm = LAPACKE_zlantr_work( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N',
-                                         M, N, Bref, LDB, work );
-        }
-        result = Rnorm / (max(Anorm, Binitnorm) * eps);
-
-        /* Verifies if the result is inside a threshold */
-        if (  isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-            info_solution = 1;
-        }
-        else {
-            info_solution = 0;
-        }
-
-        free(work);
         free(A);
         free(Bref);
         free(Bcham);
@@ -483,6 +547,53 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHA
  *
  * @ingroup testing
  *
+ * @brief Compares two core functions computed scale.
+ *
+ *******************************************************************************
+ *
+ * @param[in] uplo
+ *          Whether it is a upper triangular matrix, a lower triangular matrix or a general matrix.
+ *
+ * @param[in] M
+ *          The number of rows of the matrices A and Ainit.
+ *
+ * @param[in] N
+ *          The number of columns of the matrices A and Ainit.
+ *
+ * @param[in] alpha
+ *          The scalar alpha.
+ *
+ * @param[in] Ainit
+ *          The matrix Ainit.
+ *
+ * @param[in] A
+ *          The scaled matrix A.
+ *
+ * @param[in] LDA
+ *      The leading dimension of the matrices A and Ainit.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zscale_std( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *Ainit, CHAMELEON_Complex64_t *A, int LDA )
+{
+    int info_solution;
+
+    /* Scales using core function */
+    CORE_zlascal( uplo, M, N, alpha, Ainit, LDA );
+
+    /* Compares the two matrices */
+    info_solution = check_zmatrices_std( args, uplo, M, N, Ainit, LDA, A, LDA );
+
+    return info_solution;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
  * @brief Compares a Chameleon computed scale with a core function computed one.
  *
  *******************************************************************************
@@ -493,43 +604,38 @@ int check_zsum ( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, CHA
  * @param[in] alpha
  *          The scalar alpha.
  *
- * @param[in] descA1
- *          The descriptor of the matrix A1.
+ * @param[in] descAinit
+ *          The descriptor of the matrix Ainit.
  *
- * @param[in] descA2
- *          The descriptor of the scaled matrix A1.
+ * @param[in] descA
+ *          The descriptor of the scaled matrix A.
  *
  * @retval 0 successfull comparison
  *
  *******************************************************************************
  */
-int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descA1, CHAM_desc_t *descA2 )
+int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t alpha, CHAM_desc_t *descAinit, CHAM_desc_t *descA )
 {
     int info_solution;
-    int M                        = descA1->m;
-    int N                        = descA1->n;
+    int M                        = descA->m;
+    int N                        = descA->n;
     int LDA                      = M;
     int rank                     = CHAMELEON_Comm_rank();
-    CHAMELEON_Complex64_t *A2    = NULL;
-    CHAMELEON_Complex64_t *A1    = NULL;
+    CHAMELEON_Complex64_t *A     = NULL;
+    CHAMELEON_Complex64_t *Ainit = NULL;
 
     if ( rank == 0 ) {
-        A1 = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
-        A2 = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
+        A     = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
+        Ainit = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
     }
 
     /* Converts the matrix to LAPACK layout in order to scale with BLAS */
-    CHAMELEON_zDesc2Lap( uplo, descA1, A1, LDA );
-    CHAMELEON_zDesc2Lap( uplo, descA2, A2, LDA );
-
-    if ( rank == 0 ) {
-        /* Scales using core function */
-        CORE_zlascal( uplo, M, N, alpha, A1, LDA );
-    }
+    CHAMELEON_zDesc2Lap( uplo, descA,     A,     LDA );
+    CHAMELEON_zDesc2Lap( uplo, descAinit, Ainit, LDA );
 
     /* Compares the two matrices */
     if ( rank == 0 ) {
-        info_solution = check_zmatrices_std( args, uplo, M, N, A2, LDA, A1, LDA );
+        info_solution = check_zscale_std( args, uplo, M, N, alpha, Ainit, A, LDA );
     }
 
     /* Broadcasts the result from the main processus */
@@ -538,8 +644,8 @@ int check_zscale( run_arg_list_t *args, cham_uplo_t uplo, CHAMELEON_Complex64_t 
 #endif
 
     if ( rank == 0 ) {
-        free( A1 );
-        free( A2 );
+        free( A );
+        free( Ainit );
     }
 
     return info_solution;
@@ -1442,7 +1548,7 @@ int check_ztrmm( run_arg_list_t *args, int check_func, cham_side_t side, cham_up
  *          Whether the upper or lower triangle of A is stored.
  *
  * @param[in] descA
- *          The descriptor of the A matrix.
+ *          The descriptor of the matrix A.
  *
  * @param[in] descAAt
  *          The descriptor of the matrix of the Chameleon computed result.
@@ -1673,14 +1779,16 @@ int check_zxxtrf_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_upl
     int          info;
     CHAM_desc_t *descA;
     CHAM_desc_t *descLU;
-    int          nb = 320;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
 
     CHAMELEON_Desc_Create(
         &descA,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, 1, 1 );
     CHAMELEON_Desc_Create(
         &descLU, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, 1, 1 );
 
-    CHAMELEON_zLap2Desc( uplo,           A,  LDA, descA  );
+    CHAMELEON_zLap2Desc( ChamUpperLower, A,  LDA, descA  );
     CHAMELEON_zLap2Desc( ChamUpperLower, LU, LDA, descLU );
 
     info = check_zxxtrf( args, matrix_type, uplo, descA, descLU );
@@ -1833,12 +1941,14 @@ int check_zsolve_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_tra
 {
     int          info;
     CHAM_desc_t *descA, *descX, *descB;
-    int          nb = 320;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
 
     CHAMELEON_Desc_Create(
-        &descB, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, 1, 1 );
-    CHAMELEON_Desc_Create(
         &descA, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N,    0, 0, N, N,    1, 1 );
+    CHAMELEON_Desc_Create(
+        &descB, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, 1, 1 );
     CHAMELEON_Desc_Create(
         &descX, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, 1, 1 );
 
@@ -2048,7 +2158,9 @@ int check_ztrtri_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_upl
 {
     int          info;
     CHAM_desc_t *descA0, *descAi;
-    int          nb = 320;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
 
     CHAMELEON_Desc_Create(
         &descA0, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, 1, 1 );
@@ -2393,6 +2505,11 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
     Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descCC );
     result = Rnorm / ( M * Cnorm * eps );
 
+    run_arg_add_double( args, "||A||", Qnorm );
+    run_arg_add_double( args, "||B||", CCnorm );
+    run_arg_add_double( args, "||C||", Cnorm );
+    run_arg_add_double( args, "||R||", Rnorm );
+
     if ( isnan(CCnorm) || isinf(CCnorm) || isnan(result) || isinf(result) || (result > 60.0) ) {
         info_local = 1;
     }
@@ -2641,11 +2758,84 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
  *
  *******************************************************************************
  *
+ * @param[in] M
+ *          The number of rows of the matrix A.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix A.
+ *
+ * @param[in] K
+ *          The rank of the matrix A.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @retval 0 success, else failure
+ *
+ *******************************************************************************
+ */
+int check_zrankk_std( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, int LDA )
+{
+    int info_solution = 0;
+    int minMN = chameleon_min(M, N);
+    double Anorm, Rnorm, result;
+    double eps = LAPACKE_dlamch_work('e');
+
+    Anorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'F', M, N, A, LDA );
+
+    /* check rank of A using SVD, value K+1 of Sigma must be small enough */
+    CHAMELEON_Complex64_t *U  = malloc( M * M * sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Complex64_t *VT = malloc( N * N * sizeof(CHAMELEON_Complex64_t) );
+    double *S    = malloc( minMN * sizeof(double) );
+    double *work = malloc( minMN * sizeof(double) );
+
+    LAPACKE_zgesvd( LAPACK_COL_MAJOR, 'A', 'A', M, N, A, LDA, S, U, M, VT, N, work );
+
+    /* Computes the residual's norm */
+    if ( K >= minMN ) {
+        Rnorm = 0.;
+    } else {
+        Rnorm = S[K];
+    }
+
+    run_arg_add_double( args, "||A||", Anorm );
+    run_arg_add_double( args, "||R||", Rnorm );
+
+    result = Rnorm / (Anorm * eps);
+
+    /* Verifies if the result is inside a threshold */
+    if ( isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
+        info_solution = 1;
+    }
+    else {
+        info_solution = 0;
+    }
+
+    free(S);
+    free(U);
+    free(VT);
+    free(work);
+
+    return info_solution;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if the rank of the matrix A is K.
+ *
+ *******************************************************************************
+ *
  * @param[in] K
  *          The rank of the matrix A.
  *
  * @param[in] descA
- *          The descriptorof the matrix A.
+ *          The descriptor of the matrix A.
  *
  * @retval 0 success, else failure
  *
@@ -2656,55 +2846,20 @@ int check_zrankk( run_arg_list_t *args, int K, CHAM_desc_t *descA )
     int info_solution = 0;
     int M = descA->m;
     int N = descA->n;
-    int minMN = chameleon_min(M, N);
     int LDA = descA->m;
     int rank = CHAMELEON_Comm_rank();
-    double Anorm, Rnorm, result;
-    double eps = LAPACKE_dlamch_work('e');
-
-    Anorm = CHAMELEON_zlange_Tile( ChamFrobeniusNorm, descA );
 
     /* Converts the matrices to LAPACK layout in order to check values on the main process */
     CHAMELEON_Complex64_t *A = NULL;
     if ( rank == 0 ) {
-        A = malloc( M * N * sizeof(CHAMELEON_Complex64_t) );
+        A = malloc( M*N*sizeof(CHAMELEON_Complex64_t) );
     }
     CHAMELEON_Desc2Lap( ChamUpperLower, descA, A, LDA );
 
     /* check rank of A using SVD, value K+1 of Sigma must be small enough */
     if ( rank == 0 ) {
-        CHAMELEON_Complex64_t *U  = malloc( M * M * sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_Complex64_t *VT = malloc( N * N * sizeof(CHAMELEON_Complex64_t) );
-        double *S    = malloc( minMN * sizeof(double) );
-        double *work = malloc( minMN * sizeof(double) );
-
-        LAPACKE_zgesvd( LAPACK_COL_MAJOR, 'A', 'A', M, N, A, LDA, S, U, M, VT, N, work );
-
-        /* Computes the residual's norm */
-        if ( K >= minMN ) {
-            Rnorm = 0.;
-        } else {
-            Rnorm = S[K];
-        }
-
-        run_arg_add_double( args, "||A||", Anorm );
-        run_arg_add_double( args, "||R||", Rnorm );
-
-        result = Rnorm / (Anorm * eps);
-
-        /* Verifies if the result is inside a threshold */
-        if ( isnan(Rnorm) || isinf(Rnorm) || isnan(result) || isinf(result) || (result > 10.0) ) {
-            info_solution = 1;
-        }
-        else {
-            info_solution = 0;
-        }
-
-        free(A);
-        free(S);
-        free(U);
-        free(VT);
-        free(work);
+        info_solution = check_zrankk_std( args, M, N, K, A, LDA );
+        free( A );
     }
 
     /* Broadcasts the result from the main processus */
