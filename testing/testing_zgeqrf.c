@@ -56,8 +56,8 @@ testing_zgeqrf_desc( run_arg_list_t *args, int check )
     }
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create( &descA, (void *)( -mtxfmt ), ChamComplexDouble, nb, nb, nb * nb, LDA, N,
-                           0, 0, M, N, P, Q );
+    CHAMELEON_Desc_Create(
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
     CHAMELEON_Alloc_Workspace_zgels( M, N, &descT, P, Q );
 
     /* Fills the matrix with random values */

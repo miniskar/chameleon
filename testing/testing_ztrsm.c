@@ -45,9 +45,9 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
     cham_diag_t           diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
     int                   N      = run_arg_get_int( args, "N", 1000 );
     int                   M      = run_arg_get_int( args, "M", N );
-    int                   Ak     = ( side == ChamLeft ) ? M : N;
-    int                   LDA    = run_arg_get_int( args, "LDA", Ak );
-    int                   LDB    = run_arg_get_int( args, "LDB", N );
+    int                   An     = ( side == ChamLeft ) ? M : N;
+    int                   LDA    = run_arg_get_int( args, "LDA", An );
+    int                   LDB    = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha  = testing_zalea();
     int                   seedA  = run_arg_get_int( args, "seedA", random() );
     int                   seedB  = run_arg_get_int( args, "seedB", random() );
@@ -62,9 +62,9 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, An, An, P, Q );
     CHAMELEON_Desc_Create(
-        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N,  0, 0, M,  N,  P, Q );
 
     /* Fills the matrix with random values */
     /* We bump a little bit the diagonal to make it stable */
@@ -138,7 +138,7 @@ testing_ztrsm_std( run_arg_list_t *args, int check )
 
     /* Fills the matrix with random values */
     /* We bump a little bit the diagonal to make it stable */
-    CHAMELEON_zplgsy( 2., uplo, N, A, LDA, seedA );
+    CHAMELEON_zplgsy( 2., uplo, An, A, LDA, seedA );
     CHAMELEON_zplrnt( M, N, B, LDB, seedB );
 
     /* Calculates the product */

@@ -123,7 +123,7 @@ testing_t   test_zunmqr;
 const char *zunmqr_params[] = { "mtxfmt", "nb",  "ib",  "side", "trans", "m",     "n",
                                 "k",      "lda", "ldc", "qra",  "seedA", "seedC", NULL };
 const char *zunmqr_output[] = { NULL };
-const char *zunmqr_outchk[] = { "RETURN", NULL };
+const char *zunmqr_outchk[] = { "||A||", "||B||", "||C||", "||R||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

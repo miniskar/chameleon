@@ -75,6 +75,11 @@ testing_ztradd_desc( run_arg_list_t *args, int check )
     /* Descriptors */
     int          Am, An;
     CHAM_desc_t *descA, *descB;
+    cham_uplo_t            uplo_inv = uplo;
+
+    if ( uplo != ChamUpperLower && trans != ChamNoTrans ) {
+        uplo_inv = (uplo == ChamUpper) ? ChamLower : ChamUpper;
+    }
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -100,14 +105,8 @@ testing_ztradd_desc( run_arg_list_t *args, int check )
     switch ( uplo ) {
         case ChamUpper:
         case ChamLower:
-            if ( trans == ChamNoTrans ) {
-                CHAMELEON_zplgsy_Tile( 0., uplo, descA, seedA );
-            }
-            else {
-                cham_uplo_t uplo_inv = ( uplo == ChamUpper ) ? ChamLower : ChamUpper;
-                CHAMELEON_zplgsy_Tile( 0., uplo_inv, descA, seedA );
-            }
-            CHAMELEON_zplgsy_Tile( 0., uplo, descB, seedB );
+            CHAMELEON_zplgsy_Tile( 0., uplo_inv, descA, seedA );
+            CHAMELEON_zplgsy_Tile( 0., uplo,     descB, seedB );
             break;
         case ChamUpperLower:
         default:
