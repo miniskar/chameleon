@@ -20,6 +20,7 @@
  */
 #include "control/common.h"
 #include "chameleon/flops.h"
+#include "compute/gepdf.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -36,43 +37,6 @@ static int _zgepdf_qdwh_opt_genD = 0;
 static int _zgepdf_qdwh_opt_qr = 1;
 static int _zgepdf_qdwh_opt_id = 1;
 static int _zgepdf_qdwh_verbose = 0;
-
-/**
- * @brief Compute the parameters of the QDWH iteration.
- *
- * @param[in] Li
- *        The estimated condition number on input.
- *
- * @param[out] params
- *        Array of size 3 that holds the parameters from the coming iteration
- *        computed from Li on exit.
- *
- * @retval The new estimated condition number after the iteration
- *
- */
-static inline double
-chameleon_pzgepdf_parameters( double Li, double *params )
-{
-    double L2, dd, sqd, a1;
-    double a, b, c;
-
-    L2  = Li * Li;
-    /* Add this check because I add L2 that was slowly moving to 1.0 + eps, and generating NaN in the pow call */
-    L2  = (L2 < 1.) ? L2 : 1.;
-    dd  = pow( 4. * (1. - L2 ) / (L2 * L2), 1./3. );
-    sqd = sqrt(1. + dd);
-    a1  = sqd + sqrt( 8. - 4. * dd + 8. * (2. - L2) / (L2 * sqd) ) / 2.;
-    a  = a1;
-    b  = (a - 1.) * (a - 1.) / 4.;
-    c  = a + b - 1.;
-
-    params[0] = a;
-    params[1] = b;
-    params[2] = c;
-
-    /* Return the new Li */
-    return Li * (a + b * L2) / (1. + c * L2);
-}
 
 /**
  * @brief Initialize all the temporary descriptors and trees required.
@@ -367,7 +331,7 @@ chameleon_pzgeqdwh_condest_qr( CHAM_context_t *chamctxt,
  *        If !last, no need to backup as more iterations are required.
  *
  * @param[in] params
- *        The parameters computed by chameleon_pzgepdf_parameters().
+ *        The parameters computed by chameleon_gepdf_parameters().
  *
  * @param[in] qrtreeT
  *        Defines the QR tree used to perform the factorization of B1. Must be
@@ -433,7 +397,7 @@ chameleon_pzgeqdwh_condest_qr( CHAM_context_t *chamctxt,
  *
  */
 static inline void
-chameleon_pzgepdf_qdwh_qrstep( int do_qr, int last, double *params,
+chameleon_pzgepdf_qdwh_qrstep( int do_qr, int last, cham_fixdbl_t *params,
                                const libhqr_tree_t *qrtreeT, const libhqr_tree_t *qrtreeB,
                                CHAM_desc_t *U, void *gemm_ws,
                                CHAM_desc_t *B1, CHAM_desc_t *TS1, CHAM_desc_t *TT1, CHAM_desc_t *Q1, CHAM_desc_t *D1,
@@ -506,7 +470,7 @@ chameleon_pzgepdf_qdwh_qrstep( int do_qr, int last, double *params,
  *        If !last, no need to backup as more iterations are required.
  *
  * @param[in] params
- *        The parameters computed by chameleon_pzgepdf_parameters().
+ *        The parameters computed by chameleon_gepdf_parameters().
  *
  * @param[in,out] U
  *        The polar normal factor matrix U of size m-by-n to update.
@@ -527,7 +491,7 @@ chameleon_pzgepdf_qdwh_qrstep( int do_qr, int last, double *params,
  *
  */
 static inline void
-chameleon_pzgepdf_qdwh_postep( int last, double *params, CHAM_desc_t *U,
+chameleon_pzgepdf_qdwh_postep( int last, cham_fixdbl_t *params, CHAM_desc_t *U,
                                CHAM_desc_t *Un, CHAM_desc_t *A, CHAM_desc_t *X,
                                RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
@@ -633,8 +597,9 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
     libhqr_tree_t qrtreeT, qrtreeB;
     void *gemm_ws;
 
+    cham_fixdbl_t params[3];
+    cham_fixdbl_t Li;
     double conv = 100.;
-    double Li, params[3];
     double normest, Unorm;
     int it, itconv, facto = -1;
 
@@ -737,9 +702,9 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
      * Estimate the required number of iteration
      */
     {
-        double Liconv = Li;
+        cham_fixdbl_t Liconv = Li;
         itconv = 0;
-        while( (itconv == 0) || (fabs(1-Liconv) > tol1) ) {
+        while( (itconv == 0) || (fabs((double)(1.-Liconv)) > tol1) ) {
             /* To find the minimum number of iterations to converge.
              * itconv = number of iterations needed until |Li - 1| < tol1
              * This should converge in less than 50 iterations
@@ -749,15 +714,15 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
                 break;
             }
             itconv++;
-            Liconv = chameleon_pzgepdf_parameters( Liconv, params );
+            Liconv = chameleon_gepdf_parameters( Liconv, params );
         }
     }
 
     it = 0;
-    while( (conv > tol3) || (it < itconv) ) {
+    while( (conv > tol3) && (it < 100) ) {
         int last;
 
-        Li = chameleon_pzgepdf_parameters( Li, params );
+        Li = chameleon_gepdf_parameters( Li, params );
         it++;
         last = ( it >= itconv );
 
@@ -824,11 +789,11 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
         conv = 10.;
         if( last ){
             chameleon_pztradd( ChamUpperLower, ChamNoTrans, 1.0, descU, -1.0, &descB1,
-                               sequence, request  );
+                               sequence_it, request_it  );
 
             chameleon_pzlange_generic( ChamFrobeniusNorm, ChamUpperLower, ChamNonUnit,
                                        &descB1, &conv, sequence_it, request_it );
-            CHAMELEON_Desc_Flush( &descB1, sequence );
+            CHAMELEON_Desc_Flush( &descB1, sequence_it );
             chameleon_sequence_wait( chamctxt, sequence_it );
         }
 
@@ -889,6 +854,7 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
     chameleon_pzgepdf_qdwh_fini( &qrtreeT, &qrtreeB, &descA, &descUt,
                                  &descB1, &descTS1, &descTT1, &descQ1, &descD1,
                                  &descB2, &descTS2, &descTT2, &descQ2, &descD2 );
+    CHAMELEON_zgemm_WS_Free( gemm_ws );
 
     return;
 }
