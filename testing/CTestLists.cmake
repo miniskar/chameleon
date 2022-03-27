@@ -30,26 +30,18 @@ if (NOT CHAMELEON_SIMULATION)
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS} lanhe )
     endif()
-    set( TESTS ${TESTS}
-      geadd tradd lascal
-      gemm symm syrk syr2k trmm trsm )
+    set( TESTS ${TESTS} geadd tradd lascal gemm symm syrk syr2k trmm trsm )
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
-      set( TESTS ${TESTS}
-        hemm herk her2k )
+      set( TESTS ${TESTS} hemm herk her2k )
     endif()
-    set( TESTS ${TESTS}
-      potrf potrs posv trtri lauum )
+    set( TESTS ${TESTS} potrf potrs posv trtri lauum )
     if ( NOT CHAMELEON_SCHED_PARSEC )
       set( TESTS ${TESTS} potri poinv)
     endif()
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
-      set( TESTS ${TESTS}
-        sytrf sytrs sysv )
+      set( TESTS ${TESTS} sytrf sytrs sysv )
     endif()
-    set( TESTS ${TESTS}
-      getrf     getrs gesv
-      geqrf     gelqf
-      geqrf_hqr gelqf_hqr)
+    set( TESTS ${TESTS} getrf getrs gesv geqrf gelqf geqrf_hqr gelqf_hqr )
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS}
         ungqr     unglq     unmqr     unmlq
@@ -59,31 +51,27 @@ if (NOT CHAMELEON_SIMULATION)
         orgqr     orglq     ormqr     ormlq
         orgqr_hqr orglq_hqr ormqr_hqr ormlq_hqr)
     endif()
-    set( TESTS ${TESTS}
-      #geqrs     gelqs
-      #geqrs_hqr gelqs_hqr
-      gels
-      gels_hqr )
-    set( TESTS ${TESTS}
-      genm2 gepdf_qr gepdf_qdwh )
-    set( TESTS ${TESTS}
-      cesca gram )
+    #set( TESTS ${TESTS} geqrs     gelqs     )
+    #set( TESTS ${TESTS} geqrs_hqr gelqs_hqr )
+    set( TESTS ${TESTS} gels gels_hqr )
+    set( TESTS ${TESTS} genm2 gepdf_qr gepdf_qdwh )
+    set( TESTS ${TESTS} cesca gram )
 
-    foreach(cat ${TEST_CATEGORIES})
-      foreach(gpus ${N_GPUS})
+    foreach( cat ${TEST_CATEGORIES} )
+      foreach( gpus ${N_GPUS} )
 
-        if (${gpus} EQUAL 1)
-          set(cat ${cat}_gpu)
+        if ( ${gpus} EQUAL 1 )
+          set( cat ${cat}_gpu )
         endif()
 
-        if (${cat} STREQUAL "mpi")
-          set (PREFIX mpiexec --bind-to none -n ${NP})
+        if ( ${cat} STREQUAL "mpi" )
+          set ( PREFIX mpiexec --bind-to none -n ${NP} )
         else()
-          set (PREFIX "")
+          set ( PREFIX "" )
         endif()
 
-        foreach(test ${TESTS})
-          add_test(test_${cat}_${prec}${test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in )
+        foreach( test ${TESTS} )
+          add_test( test_${cat}_${prec}${test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in )
         endforeach()
       endforeach()
     endforeach()

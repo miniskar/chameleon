@@ -160,6 +160,8 @@ testing_zlange_std( run_arg_list_t *args, int check )
 
     free( A );
 
+    (void)norm;
+    (void)check;
     return hres;
 }
 

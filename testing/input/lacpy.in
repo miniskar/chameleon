@@ -3,7 +3,6 @@
 
 # LACPY
 # nb: Tile size
-# ib: Inner tile size
 # uplo: Part of the matrix to be copied (0 for Upper, 1 for Lower and 2 for UpperLower)
 # M: Number of rows of matrices A and C
 # N: Number of columns of matrices B and C
@@ -12,7 +11,6 @@
 
 op = lacpy
 nb = 16, 17
-ib = 8
 uplo = 0:2
 m = 13:45:16
 n = 15:52:16

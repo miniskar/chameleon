@@ -4,14 +4,12 @@
 # GETRF
 
 # nb: Tile size
-# ib: Inner tile size
 # m: Number of rows of the matrix A
 # n: Number of columns of the matrix A
 # lda: Leading dimension of matrix A
 
 op = getrf
 nb = 16, 17
-ib = 8
 m = 13, 17, 35
 n = 15, 19, 33
 lda = 41

@@ -120,7 +120,7 @@ testing_t   test_zgeadd;
 const char *zgeadd_params[] = { "mtxfmt", "nb",    "trans", "m",     "n",     "lda",
                                 "ldb",    "alpha", "beta",  "seedA", "seedB", NULL };
 const char *zgeadd_output[] = { NULL };
-const char *zgeadd_outchk[] = { "RETURN", NULL };
+const char *zgeadd_outchk[] = { "||A||", "||B||", "||R||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

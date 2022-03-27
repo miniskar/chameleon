@@ -39,7 +39,7 @@ testing_zunmlq_desc( run_arg_list_t *args, int check )
     cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
     int          N      = run_arg_get_int( args, "N", 1000 );
     int          M      = run_arg_get_int( args, "M", N );
-    int          K      = run_arg_get_int( args, "K", N );
+    int          K      = run_arg_get_int( args, "K", chameleon_min( M, N ) );
     int          LDA    = run_arg_get_int( args, "LDA", K );
     int          LDC    = run_arg_get_int( args, "LDC", M );
     int          RH     = run_arg_get_int( args, "qra", 4 );

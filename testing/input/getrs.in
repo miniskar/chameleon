@@ -4,16 +4,13 @@
 # GETRS
 
 # nb: Tile size
-# ib: Inner tile size
-# m: Order of the matrix A and number of rows of matrix B
 # n: The number of columns of matrix B
 # lda: Leading dimension of matrix A
 # ldb: Leading dimension of matrix B
 
 op = getrs
 nb = 16, 17
-ib = 8
-m = 13, 17, 35
+nrhs = 1, 13, 17, 35
 n = 15, 19, 33
 lda = 41
 ldb = 42

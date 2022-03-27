@@ -43,25 +43,22 @@ testing_zgepdf_qr_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int                   async  = parameters_getvalue_int( "async" );
-    intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int                   nb     = run_arg_get_int( args, "nb", 320 );
-    int                   ib     = run_arg_get_int( args, "ib", 48 );
-    int                   P      = parameters_getvalue_int( "P" );
-    int                   N      = run_arg_get_int( args, "N", 1000 );
-    int                   M      = run_arg_get_int( args, "M", N );
-    int                   LDA    = run_arg_get_int( args, "LDA", M );
-    int                   seedA  = run_arg_get_int( args, "seedA", random() );
-    int                   Q      = parameters_compute_q( P );
-    CHAMELEON_Complex64_t alpha  = testing_zalea();
+    int      async  = parameters_getvalue_int( "async" );
+    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int      nb     = run_arg_get_int( args, "nb", 320 );
+    int      ib     = run_arg_get_int( args, "ib", 48 );
+    int      P      = parameters_getvalue_int( "P" );
+    int      N      = run_arg_get_int( args, "N", 1000 );
+    int      M      = run_arg_get_int( args, "M", N );
+    int      LDA    = run_arg_get_int( args, "LDA", M );
+    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
     CHAM_desc_t  *descA1, *descA2, *descQ1, *descQ2;
     CHAM_desc_t  *TS1, *TT1, *TS2, *TT2;
     libhqr_tree_t qrtreeT, qrtreeB;
     int           zqdwh_opt_id = 1;
-
-    alpha = run_arg_get_complex64( args, "alpha", alpha );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );

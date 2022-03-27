@@ -3,7 +3,6 @@
 
 # HERK
 # nb: Tile size
-# ib: Inner tile size
 # N: Order of the matrix C
 # K: Number of columns of the matrix op(A)
 # LDA: Leading dimension of matrix A
@@ -18,12 +17,10 @@ alpha = 0., 3.45
 beta = 0., -4.86
 op = herk
 nb = 16, 17
-ib = 8
 n = 15, 21, 33
 k = 13, 23, 35
 lda = 37
 ldc = 40
-side = 0:1
 uplo = 0:1
 trans = 0,2
 bump = 0

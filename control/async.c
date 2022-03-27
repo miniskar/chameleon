@@ -77,6 +77,7 @@ int chameleon_sequence_wait(CHAM_context_t *chamctxt, RUNTIME_sequence_t *sequen
     if ( chamctxt->runtime_paused ) {
         RUNTIME_pause( chamctxt );
     }
+    assert( sequence->status == CHAMELEON_SUCCESS );
     return CHAMELEON_SUCCESS;
 }
 

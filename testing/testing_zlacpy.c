@@ -116,7 +116,7 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
 testing_t   test_zlacpy;
 const char *zlacpy_params[] = { "mtxfmt", "nb", "uplo", "m", "n", "lda", "ldb", "seedA", NULL };
 const char *zlacpy_output[] = { NULL };
-const char *zlacpy_outchk[] = { "RETURN", NULL };
+const char *zlacpy_outchk[] = { "||A||", "||B||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function

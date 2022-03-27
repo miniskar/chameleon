@@ -8,12 +8,14 @@
 # m: Number of rows of the A matrix
 # n: Number of columns of the A matrix
 # lda: Leading dimension of the A matrix
-# RH: Size of each subdomain when using RH
+# ldb: Leading dimension of the B matrix
 
 op = gelqs
 nb = 16, 17
 ib = 8
 m = 13, 17, 35
 n = 15, 19, 33
+nrhs = 1, 11, 27, 37
 lda = 41
+ldb = 45
 qra = 0, 3

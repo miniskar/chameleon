@@ -3,7 +3,6 @@
 
 # LASCAL
 # nb: Tile size
-# ib: Inner tile size
 # M: Number of rows of matrices A and C
 # N: Number of columns of matrices B and C
 # LDA: Leading dimension of matrix A
@@ -13,7 +12,6 @@
 alpha = 0., 3.45
 op = lascal
 nb = 16, 17
-ib = 8
 m = 15, 19, 33
 n = 14, 21, 31
 lda = 41

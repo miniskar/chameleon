@@ -8,6 +8,9 @@
 # m: Number of rows of the A matrix
 # n: Number of columns of the A matrix
 # lda: Leading dimension of the A matrix
+# ldb: Leading dimension of the H matrix
+# cond: The condition number
+# mode: the mode values for latms
 
 op = gepdf_qdwh
 nb = 8
@@ -15,3 +18,6 @@ ib = 3
 m = 8, 32, 64
 n = 8, 16, 32
 lda = 79
+ldb = 78
+cond = 1., 1.e13
+mode = 1:6

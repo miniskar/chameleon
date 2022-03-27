@@ -9,7 +9,6 @@
 # n: Number of columns of matrix Q and A
 # k: Number of reflectors of matrix A
 # lda: Leading dimension of matrix Q and A
-# RH: Size of each subdomain when using RH
 
 op = unglq
 nb = 16, 17
