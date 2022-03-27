@@ -65,6 +65,7 @@ void RUNTIME_sequence_flush( CHAM_context_t  *chamctxt,
                              int status )
 {
     (void)chamctxt;
+    assert( status == CHAMELEON_SUCCESS );
     sequence->request = request;
     sequence->status = status;
     request->status = status;
