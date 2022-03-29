@@ -41,7 +41,7 @@ if (NOT CHAMELEON_SIMULATION)
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS} sytrf sytrs sysv )
     endif()
-    set( TESTS ${TESTS} getrf getrs gesv geqrf gelqf geqrf_hqr gelqf_hqr )
+    set( TESTS ${TESTS} getrf_nopiv getrs_nopiv gesv_nopiv geqrf gelqf geqrf_hqr gelqf_hqr )
     if ( ${prec} STREQUAL c OR ${prec} STREQUAL z )
       set( TESTS ${TESTS}
         ungqr     unglq     unmqr     unmlq
