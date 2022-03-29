@@ -95,6 +95,64 @@ testing_zsytrs_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zsytrs_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         LDB   = run_arg_get_int( args, "LDB", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+    int         seedB = run_arg_get_int( args, "seedB", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *X;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+    X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplgsy( (double)N, uplo, N, A, LDA, seedA );
+    CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
+
+    hres = CHAMELEON_zsytrf( uplo, N, A, LDA );
+    assert( hres == 0 );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres += CHAMELEON_zsytrs( uplo, N, NRHS, A, LDA, X, LDB );
+    test_data.hres = hres;
+    testing_stop( &test_data, 0 /*flops_zsytrs( N, NRHS )*/ );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplgsy( (double)N, uplo, N, A0, LDA, seedA );
+        CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );
+
+        hres += check_zsolve_std( args, ChamSymmetric, ChamNoTrans, uplo, N, NRHS, A0, LDA, X, B, LDB );
+
+        free( A0 );
+        free( B );
+    }
+
+    free( A );
+    free( X );
+
+    return hres;
+}
+
 testing_t   test_zsytrs;
 const char *zsytrs_params[] = { "mtxfmt", "nb",  "uplo",  "n",     "nrhs",
                                 "lda",    "ldb", "seedA", "seedB", NULL };
@@ -114,7 +172,7 @@ testing_zsytrs_init( void )
     test_zsytrs.output = zsytrs_output;
     test_zsytrs.outchk = zsytrs_outchk;
     test_zsytrs.fptr_desc = testing_zsytrs_desc;
-    test_zsytrs.fptr_std  = NULL;
+    test_zsytrs.fptr_std  = testing_zsytrs_std;
     test_zsytrs.next   = NULL;
 
     testing_register( &test_zsytrs );

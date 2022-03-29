@@ -84,6 +84,50 @@ testing_zlauum_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zlauum_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Initialises the matrices with the same values */
+    CHAMELEON_zplghe( 0., uplo, N, A, LDA, seedA );
+
+    /* Calculates the matrix product */
+    testing_start( &test_data );
+    hres = CHAMELEON_zlauum( uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zlauum( N ) );
+
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplghe( 0., uplo, N, A0, LDA, seedA );
+
+        hres += check_zlauum_std( args, uplo, N, A0, A, LDA );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zlauum;
 const char *zlauum_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zlauum_output[] = { NULL };
@@ -102,7 +146,7 @@ testing_zlauum_init( void )
     test_zlauum.output = zlauum_output;
     test_zlauum.outchk = zlauum_outchk;
     test_zlauum.fptr_desc = testing_zlauum_desc;
-    test_zlauum.fptr_std  = NULL;
+    test_zlauum.fptr_std  = testing_zlauum_std;
     test_zlauum.next   = NULL;
 
     testing_register( &test_zlauum );

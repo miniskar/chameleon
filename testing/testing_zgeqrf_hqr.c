@@ -111,6 +111,83 @@ testing_zgeqrf_hqr_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgeqrf_hqr_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb     = run_arg_get_int( args, "nb", 320 );
+    int ib     = run_arg_get_int( args, "ib", 48 );
+    int P      = parameters_getvalue_int( "P" );
+    int N      = run_arg_get_int( args, "N", 1000 );
+    int M      = run_arg_get_int( args, "M", N );
+    int LDA    = run_arg_get_int( args, "LDA", M );
+    int qr_a   = run_arg_get_int( args, "qra", -1 );
+    int qr_p   = run_arg_get_int( args, "qrp", -1 );
+    int llvl   = run_arg_get_int( args, "llvl", -1 );
+    int hlvl   = run_arg_get_int( args, "hlvl", -1 );
+    int domino = run_arg_get_int( args, "domino", -1 );
+    int seedA  = run_arg_get_int( args, "seedA", random() );
+    int Q      = parameters_compute_q( P );
+    int K      = chameleon_min( M, N );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+    CHAM_desc_t           *descTS, *descTT;
+    libhqr_tree_t   qrtree;
+    libhqr_matrix_t matrix;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descTS, P, Q );
+    CHAMELEON_Alloc_Workspace_zgels( M, N, &descTT, P, Q );
+
+    /* Initialize matrix tree */
+    matrix.mt    = descTS->mt;
+    matrix.nt    = descTS->nt;
+    matrix.nodes = P * Q;
+    matrix.p     = P;
+
+    libhqr_init_hqr( &qrtree, LIBHQR_QR, &matrix, llvl, hlvl, qr_a, qr_p, domino, 0 );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgeqrf_param( &qrtree, M, N, A, LDA, descTS, descTT );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgeqrf( M, N ) );
+
+    /* Checks the factorisation and orthogonality */
+    if ( check ) {
+        CHAMELEON_Complex64_t *Qlap = malloc( M*M*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_Complex64_t *A0   = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+        CHAMELEON_zplrnt( M, N, A0, LDA, seedA );
+
+        CHAMELEON_zungqr_param( &qrtree, M, M, K, A, LDA, descTS, descTT, Qlap, M );
+
+        hres += check_zgeqrf_std( args, M, M, K, A0, A, LDA, Qlap, M );
+        hres += check_zortho_std( args, M, M, Qlap, M );
+
+        free( A0 );
+        free( Qlap );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descTS );
+    CHAMELEON_Desc_Destroy( &descTT );
+    libhqr_finalize( &qrtree );
+
+    return hres;
+}
+
 testing_t   test_zgeqrf_hqr;
 const char *zgeqrf_hqr_params[] = { "mtxfmt", "nb",   "ib",   "m",      "n",     "lda", "qra",
                                     "qrp",    "llvl", "hlvl", "domino", "seedA", NULL };
@@ -130,7 +207,7 @@ testing_zgeqrf_hqr_init( void )
     test_zgeqrf_hqr.output = zgeqrf_hqr_output;
     test_zgeqrf_hqr.outchk = zgeqrf_hqr_outchk;
     test_zgeqrf_hqr.fptr_desc = testing_zgeqrf_hqr_desc;
-    test_zgeqrf_hqr.fptr_std  = NULL;
+    test_zgeqrf_hqr.fptr_std  = testing_zgeqrf_hqr_std;
     test_zgeqrf_hqr.next   = NULL;
 
     testing_register( &test_zgeqrf_hqr );

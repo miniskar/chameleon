@@ -92,6 +92,42 @@ testing_zgram_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zgram_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Create the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fill the matrix with random values */
+    CHAMELEON_zplghe( (double)N, uplo, N,A, LDA, seedA );
+
+    /* Compute the gram matrix transformation */
+    testing_start( &test_data );
+    hres = CHAMELEON_zgram( uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgram( N ) );
+
+    free( A );
+
+    (void)check;
+    return hres;
+}
+
 testing_t   test_zgram;
 const char *zgram_params[] = { "mtxfmt", "nb", "uplo", "n", "n", "lda", "seedA", NULL };
 const char *zgram_output[] = { NULL };
@@ -110,7 +146,7 @@ testing_zgram_init( void )
     test_zgram.output = zgram_output;
     test_zgram.outchk = zgram_outchk;
     test_zgram.fptr_desc = testing_zgram_desc;
-    test_zgram.fptr_std  = NULL;
+    test_zgram.fptr_std  = testing_zgram_std;
     test_zgram.next   = NULL;
 
     testing_register( &test_zgram );

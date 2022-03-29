@@ -80,6 +80,52 @@ testing_ztrtri_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_ztrtri_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Initialises the matrices with the same values */
+    CHAMELEON_zplghe( (double)N, uplo, N, A, LDA, seedA );
+
+    /* Calculates the inversed matrices */
+    testing_start( &test_data );
+    hres = CHAMELEON_ztrtri( uplo, diag, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_ztrtri( N ) );
+
+    /* Checks the inverse */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+
+        hres += check_ztrtri_std( args, ChamTriangular, uplo, diag, N, A0, A, LDA );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_ztrtri;
 const char *ztrtri_params[] = { "mtxfmt", "nb", "uplo", "diag", "n", "lda", "seedA", NULL };
 const char *ztrtri_output[] = { NULL };
@@ -98,7 +144,7 @@ testing_ztrtri_init( void )
     test_ztrtri.output = ztrtri_output;
     test_ztrtri.outchk = ztrtri_outchk;
     test_ztrtri.fptr_desc = testing_ztrtri_desc;
-    test_ztrtri.fptr_std  = NULL;
+    test_ztrtri.fptr_std  = testing_ztrtri_std;
     test_ztrtri.next   = NULL;
 
     testing_register( &test_ztrtri );

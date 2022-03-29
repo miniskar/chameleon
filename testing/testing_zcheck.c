@@ -1617,6 +1617,60 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
  *
  * @ingroup testing
  *
+ * @brief Compares two product U*U' or L'*L result.
+ *
+ *******************************************************************************
+ *
+ * @param[in] uplo
+ *          Whether the upper or lower triangle of A is stored.
+ *
+ * @param[in] N
+ *          The order of the matrices A and AAt.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] AAt
+ *          The matrix of the computed result.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrices A and AAt.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zlauum_std( run_arg_list_t *args, cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AAt, int LDA )
+{
+    int          info;
+    CHAM_desc_t *descA;
+    CHAM_desc_t *descAAt;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAMELEON_Desc_Create(
+        &descA,   CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descAAt, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, 1, 1 );
+
+    CHAMELEON_zLap2Desc( uplo, A,   LDA, descA   );
+    CHAMELEON_zLap2Desc( uplo, AAt, LDA, descAAt );
+
+    info = check_zlauum( args, uplo, descA, descAAt );
+
+    CHAMELEON_Desc_Destroy( &descA  );
+    CHAMELEON_Desc_Destroy( &descAAt );
+
+    (void)args;
+    return info;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
  * @brief Checks if a Chameleon computed factorization is correct.
  *
  *******************************************************************************
@@ -2248,6 +2302,51 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
  *
  * @ingroup testing
  *
+ * @brief Checks if a matrix is orthogonal.
+ *
+ *******************************************************************************
+ *
+ * @param[in] M
+ *          The number of rows of the matrix Q.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix Q.
+ *
+ * @param[in] descQ
+ *          The matrix Q.
+ *
+ * @param[in] LDQ
+ *          The leading dimension of the matrix Q.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zortho_std( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *Q, int LDQ )
+{
+    int          info;
+    CHAM_desc_t *descQ;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAMELEON_Desc_Create(
+        &descQ, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDQ, N, 0, 0, M, N, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, Q, LDQ, descQ );
+
+    info = check_zortho( args, descQ );
+
+    CHAMELEON_Desc_Destroy( &descQ );
+
+    return info;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
  * @brief Checks if a linear solution is correct.
  *
  *******************************************************************************
@@ -2347,6 +2446,71 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
 #endif
 
     return info_global;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if a linear solution is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] M
+ *          The number of rows of the matrix A.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix A.
+ *
+ * @param[in] K
+ *          The number of elementary reflectors whose product defines the matrix Q.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @param[in] descAF
+ *          The descriptor of the matrix of the Chameleon computed factorisation of the matrix A.
+ *
+ * @param[in] Q
+ *          The matrix Q generated with a call to ungqr and the computed factorisation of the matrix A (descAF).
+ *
+ * @param[in] LDQ
+ *          The leading dimension fo the matrix Q.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zgelqf_std( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ )
+{
+    int          info;
+    CHAM_desc_t *descA, *descAF, *descQ;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAMELEON_Desc_Create(
+        &descA,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, K, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descAF, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, K, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descQ,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDQ, N, 0, 0, M, N, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, A,  LDA, descA  );
+    CHAMELEON_zLap2Desc( ChamUpperLower, AF, LDA, descAF );
+    CHAMELEON_zLap2Desc( ChamUpperLower, Q,  LDQ, descQ  );
+
+    info = check_zgelqf( args, descA, descAF, descQ );
+
+    CHAMELEON_Desc_Destroy( &descA  );
+    CHAMELEON_Desc_Destroy( &descAF );
+    CHAMELEON_Desc_Destroy( &descQ  );
+
+    return info;
 }
 
 /**
@@ -2460,6 +2624,72 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
  *
  * @ingroup testing
  *
+ * @brief Checks if a linear solution is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] M
+ *          The number of rows of the matrix A.
+ *
+ * @param[in] N
+ *          The number of columns of the matrix A.
+ *
+ * @param[in] K
+ *          The number of elementary reflectors whose product defines the matrix Q.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @param[in] descAF
+ *          The descriptor of the matrix of the Chameleon computed factorisation of the matrix A.
+ *
+ * @param[in] Q
+ *          The matrix Q generated with a call to ungqr and
+ *          the computed factorisation of the matrix A (descAF).
+ *
+ * @param[in] LDQ
+ *          The leading dimension fo the matrix Q.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zgeqrf_std( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ )
+{
+    int          info;
+    CHAM_desc_t *descA, *descAF, *descQ;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAMELEON_Desc_Create(
+        &descA,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, M, K, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descAF, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, K, 0, 0, M, K, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descQ,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDQ, M, 0, 0, M, N, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, A,  LDA, descA  );
+    CHAMELEON_zLap2Desc( ChamUpperLower, AF, LDA, descAF );
+    CHAMELEON_zLap2Desc( ChamUpperLower, Q,  LDQ, descQ  );
+
+    info = check_zgeqrf( args, descA, descAF, descQ );
+
+    CHAMELEON_Desc_Destroy( &descA  );
+    CHAMELEON_Desc_Destroy( &descAF );
+    CHAMELEON_Desc_Destroy( &descQ  );
+
+    return info;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
  * @brief Checks if the decomposition is correct.
  *
  *******************************************************************************
@@ -2527,6 +2757,76 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
     (void)Qnorm;
     (void)args;
     return info_global;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if the decomposition is correct.
+ *
+ *******************************************************************************
+ *
+ * @param[in] side
+ *          Whether the matrix Q appears on the left or on the right of the product.
+ *
+ * @param[in] trans
+ *          Whether the matrix Q is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] M
+ *          The number of rows of the matrices C and CC and the order of the matrix Q if side = ChamLeft.
+ *
+ * @param[in] N
+ *          The number of columns of the matrices C and CC and the order of the matrix Q if side = ChamRight.
+ *
+ * @param[in] C
+ *          The matrix C.
+ *
+ * @param[in] CC
+ *          The matrix of the computed result.
+ *
+ * @param[in] LDC
+ *          The leading dimension of the matrices C and CC.
+ *
+ * @param[in] Q
+ *          The matrix Q.
+ *
+ * @param[in] LDQ
+ *          The leading dimension of the matrix Q.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zqc_std( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, int M, int N,
+                   CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *CC, int LDC, CHAMELEON_Complex64_t *Q, int LDQ )
+{
+    int info;
+    int Qm = ( side == ChamLeft ) ? M : N;
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAM_desc_t *descC, *descCC, *descQ;
+
+    CHAMELEON_Desc_Create(
+        &descC,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDC, N,  0, 0, M,  N,  1, 1 );
+    CHAMELEON_Desc_Create(
+        &descCC, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDC, N,  0, 0, M,  N,  1, 1 );
+    CHAMELEON_Desc_Create(
+        &descQ,  CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDQ, Qm, 0, 0, Qm, Qm, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, C,  LDC, descC );
+    CHAMELEON_zLap2Desc( ChamUpperLower, CC, LDC, descCC );
+    CHAMELEON_zLap2Desc( ChamUpperLower, Q,  LDQ, descQ );
+
+    info = check_zqc( args, side, trans, descC, descQ, descCC );
+
+    CHAMELEON_Desc_Destroy( &descC );
+    CHAMELEON_Desc_Destroy( &descCC );
+    CHAMELEON_Desc_Destroy( &descQ );
+
+    return info;
 }
 
 /**
@@ -2745,6 +3045,76 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
 #if defined(CHAMELEON_USE_MPI)
     MPI_Bcast( &info_solution, 1, MPI_INT, 0, MPI_COMM_WORLD );
 #endif
+
+    return info_solution;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief TODO
+ *
+ *******************************************************************************
+ *
+ * @param[in] trans
+ *          Whether the matrix A is transposed, conjugate transposed or not transposed.
+ *
+ * @param[in] M
+ *        The number of rows of the matrix A.
+ *
+ * @param[in] N
+ *        The number of columns of the matrix A.
+ *
+ * @param[in] A
+ *          The matrix A.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrix A.
+ *
+ * @param[in] X
+ *          The matrix X.
+ * 
+ * @param[in] LDX
+ *          The leading dimension of the matrix X.
+ *
+ * @param[in] B
+ *          The matrix B.
+ * 
+ * @param[in] LDB
+ *          The leading dimension fo the matrix B.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zgels_std( run_arg_list_t *args, cham_trans_t trans, int M, int N, int NRHS, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *X, int LDX, CHAMELEON_Complex64_t *B, int LDB )
+{
+    int info_solution;
+    CHAM_desc_t *descA, *descX, *descB;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+    int Xm = (trans == ChamNoTrans) ? N : M;
+    int Bm = (trans == ChamNoTrans) ? M : N;
+
+    CHAMELEON_Desc_Create(
+        &descA, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N,    0, 0, M, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descX, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDX, NRHS, 0, 0, Xm, NRHS, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descB, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, Bm, NRHS, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, A, LDA, descA );
+    CHAMELEON_zLap2Desc( ChamUpperLower, X, LDX, descX );
+    CHAMELEON_zLap2Desc( ChamUpperLower, B, LDB, descB );
+
+    info_solution = check_zgels( args, trans, descA, descX, descB );
+
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descX );
+    CHAMELEON_Desc_Destroy( &descB );
 
     return info_solution;
 }
@@ -3051,6 +3421,71 @@ int check_zxxpd( run_arg_list_t *args,
 #endif
 
     return info_global;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup testing
+ *
+ * @brief Checks if a Polar Decomposition is correct.
+ *
+ * @Warning Check only the general case for now.
+ *
+ *******************************************************************************
+ *
+ * @param[in] M
+ *          The number of rows of the matrices A and U.
+ *
+ * @param[in] N
+ *          The number of columns of the matrices A and U and the order of the matrix H.
+ *
+ * @param[in,out] A
+ *          The matrix A, on exit the matrix is modified.
+ *
+ * @param[in] U
+ *          The matrix with the orthogonal polar factor of the decomposition.
+ *
+ * @param[in] LDA
+ *          The leading dimension of the matrices A and U.
+ *
+ * @param[in] H
+ *          The matrix of the symmetric/hermitian polar factor of the decomposition.
+ *
+ * @param[in] LDH
+ *          The leading dimension of the matrix H.
+ *
+ * @retval 0 successfull comparison
+ *
+ *******************************************************************************
+ */
+int check_zxxpd_std( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *A,
+                     CHAMELEON_Complex64_t *U, int LDA, CHAMELEON_Complex64_t *H, int LDH )
+{
+    int          info;
+    CHAM_desc_t *descA, *descU, *descH;
+
+    int nb;
+    CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+
+    CHAMELEON_Desc_Create(
+        &descA, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descU, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, 1, 1 );
+    CHAMELEON_Desc_Create(
+        &descH, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDH, N, 0, 0, N, N, 1, 1 );
+
+    CHAMELEON_zLap2Desc( ChamUpperLower, A, LDA, descA );
+    CHAMELEON_zLap2Desc( ChamUpperLower, U, LDA, descU );
+    CHAMELEON_zLap2Desc( ChamUpperLower, H, LDH, descH );
+
+    info = check_zxxpd( args, descA, descU, descH );
+
+    CHAMELEON_Desc_Destroy( &descA );
+    CHAMELEON_Desc_Destroy( &descU );
+    CHAMELEON_Desc_Destroy( &descH );
+
+    return info;
 }
 
 #endif /* defined(CHAMELEON_SIMULATION) */

@@ -78,6 +78,51 @@ testing_zsytrf_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zsytrf_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplgsy( (double)N, uplo, N, A, LDA, seedA );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zsytrf( uplo, N, A, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zpotrf( N ) );
+
+    /* Checks the factorisation and residue */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplgsy( (double)N, uplo, N, A0, LDA, seedA );
+
+        hres += check_zxxtrf_std( args, ChamSymmetric, uplo, N, N, A0, A, LDA );
+
+        free( A0 );
+    }
+
+    free( A );
+
+    return hres;
+}
+
 testing_t   test_zsytrf;
 const char *zsytrf_params[] = { "mtxfmt", "nb", "uplo", "n", "lda", "seedA", NULL };
 const char *zsytrf_output[] = { NULL };
@@ -96,7 +141,7 @@ testing_zsytrf_init( void )
     test_zsytrf.output = zsytrf_output;
     test_zsytrf.outchk = zsytrf_outchk;
     test_zsytrf.fptr_desc = testing_zsytrf_desc;
-    test_zsytrf.fptr_std  = NULL;
+    test_zsytrf.fptr_std  = testing_zsytrf_std;
     test_zsytrf.next   = NULL;
 
     testing_register( &test_zsytrf );

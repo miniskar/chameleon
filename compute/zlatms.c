@@ -130,7 +130,6 @@ int CHAMELEON_zlatms( int M, int N, cham_dist_t idist,
 {
     int NB;
     int status;
-    double value = -1.;
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
@@ -190,7 +189,7 @@ int CHAMELEON_zlatms( int M, int N, cham_dist_t idist,
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
     chameleon_sequence_destroy( chamctxt, sequence );
-    return value;
+    return status;
 }
 
 /**

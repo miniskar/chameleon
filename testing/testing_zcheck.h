@@ -79,12 +79,18 @@ static inline int check_ztrtri_std    ( run_arg_list_t *args, cham_mtxtype_t mat
 
 /* Using QR factorization */
 static inline int check_zortho        ( run_arg_list_t *args, CHAM_desc_t *descQ ) { return 0; }
+static inline int check_zortho_std    ( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *Q, int LDQ ) { return 0; }
 static inline int check_zgeqrf        ( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ ) { return 0; }
+static inline int check_zgeqrf_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ ) { return 0; }
 static inline int check_zgelqf        ( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ ) { return 0; }
+static inline int check_zgelqf_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ ) { return 0; }
 static inline int check_zgels         ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB ) { return 0; }
+static inline int check_zgels_std     ( run_arg_list_t *args, cham_trans_t trans, int M, int N, int NRHS, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *X, int LDX, CHAMELEON_Complex64_t *B, int LDB ) { return 0; }
 static inline int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR ) { return 0; }
 static inline int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR ) { return 0; }
 static inline int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC ) { return 0; }
+static inline int check_zqc_std       ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, int M, int N,
+                                        CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *CC, int LDC, CHAMELEON_Complex64_t *Q, int LDQ ) { return 0; }
 
 /* Matrix Generators */
 static inline int check_zrankk_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, int LDA ) { return 0; }
@@ -95,6 +101,8 @@ static inline int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA
                                         CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 ) { return 0; }
 static inline int check_zxxpd         ( run_arg_list_t *args,
                                         CHAM_desc_t *descA, CHAM_desc_t *descU, CHAM_desc_t *descH ) { return 0; }
+static inline int check_zxxpd_std     ( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *A,
+                                        CHAMELEON_Complex64_t *U, int LDA, CHAMELEON_Complex64_t *H, int LDH ) { return 0; }
 
 #else /* !defined(CHAMELEON_SIMULATION) */
 
@@ -141,12 +149,18 @@ int check_ztrtri_std    ( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham
 
 /* Using QR factorization */
 int check_zortho        ( run_arg_list_t *args, CHAM_desc_t *descQ );
+int check_zortho_std    ( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *Q, int LDQ );
 int check_zgeqrf        ( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ );
+int check_zgeqrf_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ );
 int check_zgelqf        ( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF, CHAM_desc_t *descQ );
+int check_zgelqf_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, CHAMELEON_Complex64_t *AF, int LDA, CHAMELEON_Complex64_t *Q, int LDQ );
 int check_zgels         ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, CHAM_desc_t *descX, CHAM_desc_t *descB );
+int check_zgels_std     ( run_arg_list_t *args, cham_trans_t trans, int M, int N, int NRHS, CHAMELEON_Complex64_t *A, int LDA, CHAMELEON_Complex64_t *X, int LDX, CHAMELEON_Complex64_t *B, int LDB );
 int check_zgeqrs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR );
 int check_zgelqs        ( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, double Bnorm, CHAM_desc_t *descR );
 int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, CHAM_desc_t *descC, CHAM_desc_t *descQ, CHAM_desc_t *descCC );
+int check_zqc_std       ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, int M, int N,
+                          CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *CC, int LDC, CHAMELEON_Complex64_t *Q, int LDQ );
 
 /* Matrix Generators */
 int check_zrankk_std    ( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Complex64_t *A, int LDA );
@@ -157,6 +171,8 @@ int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t
                           CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 );
 int check_zxxpd         ( run_arg_list_t *args,
                           CHAM_desc_t *descA, CHAM_desc_t *descU, CHAM_desc_t *descH );
+int check_zxxpd_std     ( run_arg_list_t *args, int M, int N, CHAMELEON_Complex64_t *A,
+                          CHAMELEON_Complex64_t *U, int LDA, CHAMELEON_Complex64_t *H, int LDH );
 
 #endif /* defined(CHAMELEON_SIMULATION) */
 

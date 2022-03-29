@@ -73,6 +73,45 @@ testing_zplrnk_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zplrnk_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int K     = run_arg_get_int( args, "K", N );
+    int LDC   = run_arg_get_int( args, "LDC", M );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+    int seedB = run_arg_get_int( args, "seedB", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *C;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Creates the matrix */
+    C = malloc ( LDC*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Calculates the random rank-k matrix */
+    testing_start( &test_data );
+    hres = CHAMELEON_zplrnk( M, N, K, C, LDC, seedA, seedB );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zgemm( M, N, K ) );
+
+    /* Checks the solution */
+    if ( check ) {
+        hres = check_zrankk_std( args, M, N, K, C, LDC );
+    }
+
+    free( C );
+
+    return hres;
+}
+
 testing_t   test_zplrnk;
 const char *zplrnk_params[] = { "nb", "m", "n", "k", "ldc", "seedA", "seedB", NULL };
 const char *zplrnk_output[] = { NULL };
@@ -91,7 +130,7 @@ testing_zplrnk_init( void )
     test_zplrnk.output = zplrnk_output;
     test_zplrnk.outchk = zplrnk_outchk;
     test_zplrnk.fptr_desc = testing_zplrnk_desc;
-    test_zplrnk.fptr_std  = NULL;
+    test_zplrnk.fptr_std  = testing_zplrnk_std;
     test_zplrnk.next   = NULL;
 
     testing_register( &test_zplrnk );

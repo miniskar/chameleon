@@ -114,6 +114,82 @@ testing_zungqr_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zungqr_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int ib    = run_arg_get_int( args, "ib", 48 );
+    int P     = parameters_getvalue_int( "P" );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int K     = run_arg_get_int( args, "K", chameleon_min( M, N ) );
+    int LDA   = run_arg_get_int( args, "LDA", M );
+    int RH    = run_arg_get_int( args, "qra", 0 );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+    int Q     = parameters_compute_q( P );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A, *Qlap;
+    CHAM_desc_t           *descT;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
+
+    if ( N > M ) {
+        fprintf( stderr, "SKIPPED: Incorrect parameters for ungqr (N > M)\n" );
+        return -1;
+    }
+
+    if ( K > N ) {
+        fprintf( stderr, "SKIPPED: Incorrect parameters for ungqr (K > N)\n" );
+        return -1;
+    }
+
+    if ( RH > 0 ) {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamTreeHouseholder );
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_SIZE, RH );
+    }
+    else {
+        CHAMELEON_Set( CHAMELEON_HOUSEHOLDER_MODE, ChamFlatHouseholder );
+    }
+
+    /* Creates the matrices */
+    A    = malloc( LDA*K*sizeof(CHAMELEON_Complex64_t) );
+    Qlap = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+    CHAMELEON_Alloc_Workspace_zgels( M, K, &descT, P, Q );
+
+    /* Fills the matrix with random values */
+    CHAMELEON_zplrnt( M, K, A, LDA, seedA );
+    hres = CHAMELEON_zgeqrf( M, K, A, LDA, descT );
+
+    /* Calculates the solution */
+    testing_start( &test_data );
+    hres = CHAMELEON_zungqr( M, N, K, A, LDA, descT, Qlap, LDA );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zungqr( M, N, K ) );
+
+    /* Checks the factorisation and orthogonality */
+    if ( check ) {
+        CHAMELEON_Complex64_t *A0 = malloc( LDA*K*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplrnt( M, K, A0, LDA, seedA );
+
+        hres += check_zortho_std( args, M, N, Qlap, LDA );
+        hres += check_zgeqrf_std( args, M, N, K, A0, A, LDA, Qlap, LDA );
+
+        free( A0 );
+    }
+
+    free( A );
+    CHAMELEON_Desc_Destroy( &descT );
+    free( Qlap );
+
+    return hres;
+}
+
 testing_t   test_zungqr;
 const char *zungqr_params[] = { "mtxfmt", "nb", "ib", "m", "n", "k", "lda", "qra", "seedA", NULL };
 const char *zungqr_output[] = { NULL };
@@ -132,7 +208,7 @@ testing_zungqr_init( void )
     test_zungqr.output = zungqr_output;
     test_zungqr.outchk = zungqr_outchk;
     test_zungqr.fptr_desc = testing_zungqr_desc;
-    test_zungqr.fptr_std  = NULL;
+    test_zungqr.fptr_std  = testing_zungqr_std;
     test_zungqr.next   = NULL;
 
     testing_register( &test_zungqr );

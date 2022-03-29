@@ -92,6 +92,42 @@ testing_zcesca_desc( run_arg_list_t *args, int check )
     return hres;
 }
 
+int
+testing_zcesca_std( run_arg_list_t *args, int check )
+{
+    testdata_t test_data = { .args = args };
+    int        hres      = 0;
+
+    /* Read arguments */
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int LDA   = run_arg_get_int( args, "LDA", M );
+    int seedA = run_arg_get_int( args, "seedA", random() );
+
+    /* Descriptors */
+    CHAMELEON_Complex64_t *A;
+
+    CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    /* Create the matrices */
+    A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
+
+    /* Fill the matrix with random values */
+    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+
+    /* Compute the centered-scaled matrix transformation */
+    testing_start( &test_data );
+    hres = CHAMELEON_zcesca( 1, 1, ChamColumnwise, M, N, A, LDA, NULL, NULL );
+    test_data.hres = hres;
+    testing_stop( &test_data, flops_zcesca( M, N ) );
+
+    free( A );
+
+    (void)check;
+    return hres;
+}
+
 testing_t   test_zcesca;
 const char *zcesca_params[] = { "mtxfmt", "nb", "trans", "m", "n", "lda", "seedA", NULL };
 const char *zcesca_output[] = { NULL };
@@ -110,7 +146,7 @@ testing_zcesca_init( void )
     test_zcesca.output = zcesca_output;
     test_zcesca.outchk = zcesca_outchk;
     test_zcesca.fptr_desc = testing_zcesca_desc;
-    test_zcesca.fptr_std  = NULL;
+    test_zcesca.fptr_std  = testing_zcesca_std;
     test_zcesca.next   = NULL;
 
     testing_register( &test_zcesca );
