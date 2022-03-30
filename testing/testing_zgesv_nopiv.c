@@ -1,13 +1,13 @@
 /**
  *
- * @file testing_zgesv.c
+ * @file testing_zgesv_nopiv.c
  *
  * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zgesv testing
+ * @brief Chameleon zgesv_nopiv testing
  *
  * @version 1.2.0
  * @author Lucas Barros de Assis
@@ -30,7 +30,7 @@ flops_zgesv( int N, int NRHS )
 }
 
 int
-testing_zgesv_desc( run_arg_list_t *args, int check )
+testing_zgesv_nopiv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -46,6 +46,7 @@ testing_zgesv_desc( run_arg_list_t *args, int check )
     int      LDB    = run_arg_get_int( args, "LDB", N );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
     int      seedB  = run_arg_get_int( args, "seedB", random() );
+    double   bump   = run_arg_get_double( args, "bump", (double)N );
     int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -60,7 +61,8 @@ testing_zgesv_desc( run_arg_list_t *args, int check )
         &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA, seedA   );
+    CHAMELEON_zplgtr_Tile( bump, ChamLower, descA, seedA+1 );
     CHAMELEON_zplrnt_Tile( descX, seedB );
 
     /* Calculates the solution */
@@ -81,19 +83,18 @@ testing_zgesv_desc( run_arg_list_t *args, int check )
     if ( check ) {
         CHAM_desc_t *descA0, *descB;
 
-        /* Check the factorization */
         descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        CHAMELEON_zplrnt_Tile( descA0, seedA );
+        descB  = CHAMELEON_Desc_Copy( descX, NULL );
 
-        hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower, descA0, descA );
-
-        /* Check the solve */
-        descB = CHAMELEON_Desc_Copy( descX, NULL );
-        CHAMELEON_zplrnt_Tile( descA0, seedA );
+        CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA0, seedA   );
+        CHAMELEON_zplgtr_Tile( bump, ChamLower, descA0, seedA+1 );
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
-        hres +=
-            check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, descX, descB );
+        /* Check the solve */
+        hres += check_zsolve( args, ChamGeneral, ChamNoTrans, ChamUpperLower, descA0, descX, descB );
+
+        /* Check the factorization (Done after solve as it destroys A0 */
+        hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower, descA0, descA );
 
         CHAMELEON_Desc_Destroy( &descA0 );
         CHAMELEON_Desc_Destroy( &descB );
@@ -106,19 +107,20 @@ testing_zgesv_desc( run_arg_list_t *args, int check )
 }
 
 int
-testing_zgesv_std( run_arg_list_t *args, int check )
+testing_zgesv_nopiv_std( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
 
     /* Read arguments */
-    int nb    = run_arg_get_int( args, "nb", 320 );
-    int N     = run_arg_get_int( args, "N", 1000 );
-    int NRHS  = run_arg_get_int( args, "NRHS", 1 );
-    int LDA   = run_arg_get_int( args, "LDA", N );
-    int LDB   = run_arg_get_int( args, "LDB", N );
-    int seedA = run_arg_get_int( args, "seedA", random() );
-    int seedB = run_arg_get_int( args, "seedB", random() );
+    int    nb    = run_arg_get_int( args, "nb", 320 );
+    int    N     = run_arg_get_int( args, "N", 1000 );
+    int    NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int    LDA   = run_arg_get_int( args, "LDA", N );
+    int    LDB   = run_arg_get_int( args, "LDB", N );
+    int    seedA = run_arg_get_int( args, "seedA", random() );
+    int    seedB = run_arg_get_int( args, "seedB", random() );
+    double bump  = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A, *X;
@@ -130,7 +132,8 @@ testing_zgesv_std( run_arg_list_t *args, int check )
     X = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt( N, N,    A, LDA, seedA );
+    CHAMELEON_zplgtr( 0,    ChamUpper, N, N, A, LDA, seedA   );
+    CHAMELEON_zplgtr( bump, ChamLower, N, N, A, LDA, seedA+1 );
     CHAMELEON_zplrnt( N, NRHS, X, LDB, seedB );
 
     /* Calculates the solution */
@@ -143,18 +146,17 @@ testing_zgesv_std( run_arg_list_t *args, int check )
     if ( check ) {
         CHAMELEON_Complex64_t *A0, *B;
 
-        /* Check the factorization */
-        A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_zplrnt( N, N, A0, LDA, seedA );
-
-        hres += check_zxxtrf_std( args, ChamGeneral, ChamUpperLower, N, N, A0, A, LDA );
-
-        /* Check the solve */
-        B = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_zplrnt( N, N,    A0, LDA, seedA );
+        A0 = malloc( LDA*N   *sizeof(CHAMELEON_Complex64_t) );
+        B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
+        CHAMELEON_zplgtr( 0,    ChamUpper, N, N, A0, LDA, seedA   );
+        CHAMELEON_zplgtr( bump, ChamLower, N, N, A0, LDA, seedA+1 );
         CHAMELEON_zplrnt( N, NRHS, B,  LDB, seedB );
 
+        /* Check the solve */
         hres += check_zsolve_std( args, ChamGeneral, ChamNoTrans, ChamUpperLower, N, NRHS, A0, LDA, X, B, LDB );
+
+        /* Check the factorization (Done after solve as it destroys A0 */
+        hres += check_zxxtrf_std( args, ChamGeneral, ChamUpperLower, N, N, A0, A, LDA );
 
         free( A0 );
         free( B );
@@ -166,26 +168,26 @@ testing_zgesv_std( run_arg_list_t *args, int check )
     return hres;
 }
 
-testing_t   test_zgesv;
-const char *zgesv_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", NULL };
-const char *zgesv_output[] = { NULL };
-const char *zgesv_outchk[] = { "RETURN", NULL };
+testing_t   test_zgesv_nopiv;
+const char *zgesv_nopiv_params[] = { "mtxfmt", "nb", "n", "nrhs", "lda", "ldb", "seedA", "seedB", "bump", NULL };
+const char *zgesv_nopiv_output[] = { NULL };
+const char *zgesv_nopiv_outchk[] = { "RETURN", NULL };
 
 /**
  * @brief Testing registration function
  */
-void testing_zgesv_init( void ) __attribute__( ( constructor ) );
+void testing_zgesv_nopiv_init( void ) __attribute__( ( constructor ) );
 void
-testing_zgesv_init( void )
+testing_zgesv_nopiv_init( void )
 {
-    test_zgesv.name   = "zgesv";
-    test_zgesv.helper = "General linear system solve (LU without pivoting)";
-    test_zgesv.params = zgesv_params;
-    test_zgesv.output = zgesv_output;
-    test_zgesv.outchk = zgesv_outchk;
-    test_zgesv.fptr_desc = testing_zgesv_desc;
-    test_zgesv.fptr_std  = testing_zgesv_std;
-    test_zgesv.next   = NULL;
+    test_zgesv_nopiv.name   = "zgesv_nopiv";
+    test_zgesv_nopiv.helper = "General linear system solve (LU without pivoting)";
+    test_zgesv_nopiv.params = zgesv_nopiv_params;
+    test_zgesv_nopiv.output = zgesv_nopiv_output;
+    test_zgesv_nopiv.outchk = zgesv_nopiv_outchk;
+    test_zgesv_nopiv.fptr_desc = testing_zgesv_nopiv_desc;
+    test_zgesv_nopiv.fptr_std  = testing_zgesv_nopiv_std;
+    test_zgesv_nopiv.next   = NULL;
 
-    testing_register( &test_zgesv );
+    testing_register( &test_zgesv_nopiv );
 }

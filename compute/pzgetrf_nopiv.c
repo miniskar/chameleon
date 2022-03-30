@@ -94,6 +94,12 @@ void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
                            A(k, n),
                     zone,  A(m, n));
             }
+
+            RUNTIME_data_flush( sequence, A(k, n) );
+        }
+
+        for (m = k; m < A->mt; m++) {
+            RUNTIME_data_flush( sequence, A(m, k) );
         }
 
         RUNTIME_iteration_pop(chamctxt);

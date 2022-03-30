@@ -1,13 +1,13 @@
 /**
  *
- * @file testing_zgetrf.c
+ * @file testing_zgetrf_nopiv.c
  *
  * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zgetrf testing
+ * @brief Chameleon zgetrf_nopiv testing
  *
  * @version 1.2.0
  * @author Lucas Barros de Assis
@@ -23,7 +23,7 @@
 #include <chameleon/flops.h>
 
 int
-testing_zgetrf_desc( run_arg_list_t *args, int check )
+testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
@@ -37,6 +37,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      seedA  = run_arg_get_int( args, "seedA", random() );
+    double   bump   = run_arg_get_double( args, "bump", (double)N );
     int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -49,7 +50,8 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
         &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt_Tile( descA, seedA );
+    CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA, seedA   );
+    CHAMELEON_zplgtr_Tile( bump, ChamLower, descA, seedA+1 );
 
     /* Calculates the solution */
     testing_start( &test_data );
@@ -66,7 +68,8 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     /* Checks the factorisation and residue */
     if ( check ) {
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        CHAMELEON_zplrnt_Tile( descA0, seedA );
+        CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA0, seedA   );
+        CHAMELEON_zplgtr_Tile( bump, ChamLower, descA0, seedA+1 );
 
         hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower, descA0, descA );
 
@@ -79,17 +82,18 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 }
 
 int
-testing_zgetrf_std( run_arg_list_t *args, int check )
+testing_zgetrf_nopiv_std( run_arg_list_t *args, int check )
 {
     testdata_t test_data = { .args = args };
     int        hres      = 0;
 
     /* Read arguments */
-    int nb    = run_arg_get_int( args, "nb", 320 );
-    int N     = run_arg_get_int( args, "N", 1000 );
-    int M     = run_arg_get_int( args, "M", N );
-    int LDA   = run_arg_get_int( args, "LDA", M );
-    int seedA = run_arg_get_int( args, "seedA", random() );
+    int    nb    = run_arg_get_int( args, "nb", 320 );
+    int    N     = run_arg_get_int( args, "N", 1000 );
+    int    M     = run_arg_get_int( args, "M", N );
+    int    LDA   = run_arg_get_int( args, "LDA", M );
+    int    seedA = run_arg_get_int( args, "seedA", random() );
+    double bump  = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A;
@@ -100,7 +104,8 @@ testing_zgetrf_std( run_arg_list_t *args, int check )
     A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
 
     /* Fills the matrix with random values */
-    CHAMELEON_zplrnt( M, N, A, LDA, seedA );
+    CHAMELEON_zplgtr( 0,    ChamUpper, M, N, A, LDA, seedA   );
+    CHAMELEON_zplgtr( bump, ChamLower, M, N, A, LDA, seedA+1 );
 
     /* Calculates the solution */
     testing_start( &test_data );
@@ -111,7 +116,8 @@ testing_zgetrf_std( run_arg_list_t *args, int check )
     /* Checks the factorisation and residue */
     if ( check ) {
         CHAMELEON_Complex64_t *A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
-        CHAMELEON_zplrnt( M, N, A0, LDA, seedA );
+        CHAMELEON_zplgtr( 0,    ChamUpper, M, N, A0, LDA, seedA   );
+        CHAMELEON_zplgtr( bump, ChamLower, M, N, A0, LDA, seedA+1 );
 
         hres += check_zxxtrf_std( args, ChamGeneral, ChamUpperLower, M, N, A0, A, LDA );
 
@@ -123,26 +129,26 @@ testing_zgetrf_std( run_arg_list_t *args, int check )
     return hres;
 }
 
-testing_t   test_zgetrf;
-const char *zgetrf_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", NULL };
-const char *zgetrf_output[] = { NULL };
-const char *zgetrf_outchk[] = { "||A||", "||A-fact(A)||", "RETURN", NULL };
+testing_t   test_zgetrf_nopiv;
+const char *zgetrf_nopiv_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", "bump", NULL };
+const char *zgetrf_nopiv_output[] = { NULL };
+const char *zgetrf_nopiv_outchk[] = { "||A||", "||A-fact(A)||", "RETURN", NULL };
 
 /**
  * @brief Testing registration function
  */
-void testing_zgetrf_init( void ) __attribute__( ( constructor ) );
+void testing_zgetrf_nopiv_init( void ) __attribute__( ( constructor ) );
 void
-testing_zgetrf_init( void )
+testing_zgetrf_nopiv_init( void )
 {
-    test_zgetrf.name   = "zgetrf";
-    test_zgetrf.helper = "General factorization (LU without pivoting)";
-    test_zgetrf.params = zgetrf_params;
-    test_zgetrf.output = zgetrf_output;
-    test_zgetrf.outchk = zgetrf_outchk;
-    test_zgetrf.fptr_desc = testing_zgetrf_desc;
-    test_zgetrf.fptr_std  = testing_zgetrf_std;
-    test_zgetrf.next   = NULL;
+    test_zgetrf_nopiv.name   = "zgetrf_nopiv";
+    test_zgetrf_nopiv.helper = "General factorization (LU without pivoting)";
+    test_zgetrf_nopiv.params = zgetrf_nopiv_params;
+    test_zgetrf_nopiv.output = zgetrf_nopiv_output;
+    test_zgetrf_nopiv.outchk = zgetrf_nopiv_outchk;
+    test_zgetrf_nopiv.fptr_desc = testing_zgetrf_nopiv_desc;
+    test_zgetrf_nopiv.fptr_std  = testing_zgetrf_nopiv_std;
+    test_zgetrf_nopiv.next   = NULL;
 
-    testing_register( &test_zgetrf );
+    testing_register( &test_zgetrf_nopiv );
 }
