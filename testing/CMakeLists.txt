@@ -116,7 +116,11 @@ endforeach()
 
 set(ZSRC
   chameleon_ztesting.c
-  testing_zcheck.c
+  testing_zcheck_aux.c
+  testing_zcheck_blas.c
+  testing_zcheck_facto.c
+  testing_zcheck_qr_lq.c
+  testing_zcheck_polar_decomp.c
   testing_zprint.c
 )
 
@@ -152,7 +156,7 @@ foreach(_precision ${CHAMELEON_PRECISION} )
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
-  # testing_zcheck.c includes additional chameleon headers
+  # testing_zcheck_*.c includes additional chameleon headers
   # coreblas/include/coreblas/cblas.h, coreblas/coreblas_z.h, control/common.h, ...
   target_include_directories(${__target_name} PRIVATE
     ${CHAMELEON_SOURCE_DIR}
@@ -210,7 +214,7 @@ if ( CHAMELEON_TESTINGS_VENDOR )
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${CMAKE_CURRENT_BINARY_DIR}
       )
-    # testing_zcheck.c includes additional chameleon headers
+    # testing_zcheck_*.c includes additional chameleon headers
     # coreblas/include/coreblas/cblas.h, coreblas/coreblas_z.h, control/common.h, ...
     target_include_directories(${__target_name} PRIVATE
       ${CHAMELEON_SOURCE_DIR}
