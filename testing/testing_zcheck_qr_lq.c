@@ -1,6 +1,6 @@
 /**
  *
- * @file testing_zcheck.c
+ * @file testing_zcheck_qr_lq.c
  *
  * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
@@ -15,7 +15,7 @@
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2022-03-30
  * @precisions normal z -> c d s
  *
  */
