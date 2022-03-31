@@ -86,6 +86,13 @@ int  CORE_zgetrf_incpiv(int M, int N, int IB,
 int CORE_zgetrf_nopiv(int M, int N, int IB,
                       CHAMELEON_Complex64_t *A, int LDA,
                       int *INFO);
+int CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
+                            CHAMELEON_Complex64_t *A, int lda,
+                            int *IPIV,
+                            CHAM_pivot_t *nextpiv, const CHAM_pivot_t *prevpiv);
+int CORE_zgetrf_panel_offdiag( int m, int n, int h, int m0,
+                               CHAMELEON_Complex64_t *A, int lda,
+                               CHAM_pivot_t *nextpiv, const CHAM_pivot_t *prevpiv );
 int  CORE_zgetrf_reclap(int M, int N,
                         CHAMELEON_Complex64_t *A, int LDA,
                         int *IPIV, int *info);
