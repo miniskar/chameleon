@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -16,13 +16,14 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2023-02-21
  * @precisions normal z -> s d c
  *
  */
 #include "control/common.h"
 
 #define A(m,n) A,  m,  n
+#define U(m,n) &(ws->U),  m,  n
 
 /*
  * All the functions below are panel factorization variant.
@@ -44,10 +45,10 @@
  *      The runtime options data structure to pass through all insert_task calls.
  */
 static inline void
-chameleon_pzgetrf_panel_facto_nopiv( void             *ws,
-                                     CHAM_desc_t      *A,
-                                     int               k,
-                                     RUNTIME_option_t *options )
+chameleon_pzgetrf_panel_facto_nopiv( struct chameleon_pzgetrf_s *ws,
+                                     CHAM_desc_t                *A,
+                                     int                         k,
+                                     RUNTIME_option_t           *options )
 {
     const CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t) 1.0;
     int m, tempkm, tempkn, tempmm;
@@ -60,7 +61,7 @@ chameleon_pzgetrf_panel_facto_nopiv( void             *ws,
      */
     INSERT_TASK_zgetrf_nopiv(
         options,
-        tempkm, tempkn, 32, A->mb,
+        tempkm, tempkn, ws->ib, A->mb,
          A(k, k), 0);
 
     for (m = k+1; m < A->mt; m++) {
@@ -73,24 +74,61 @@ chameleon_pzgetrf_panel_facto_nopiv( void             *ws,
                   A(m, k) );
     }
 }
+
 static inline void
-chameleon_pzgetrf_panel_facto( void             *ws,
-                               CHAM_desc_t      *A,
-                               int               k,
-                               RUNTIME_option_t *options )
+chameleon_pzgetrf_panel_facto_nopiv_percol( struct chameleon_pzgetrf_s *ws,
+                                            CHAM_desc_t                *A,
+                                            int                         k,
+                                            RUNTIME_option_t           *options )
 {
+    int m, h;
+    int tempkm, tempkn, tempmm, minmn;
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+    minmn  = chameleon_min( tempkm, tempkn );
+
+    /*
+     * Algorithm per column without pivoting
+     */
+    for(h=0; h<minmn; h++){
+        INSERT_TASK_zgetrf_panel_nopiv_percol_diag(
+            options, tempkm, tempkn, h,
+            A( k, k ), U( k, k ), A->mb * k );
+
+        for (m = k+1; m < A->mt; m++) {
+            tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
+            INSERT_TASK_zgetrf_panel_nopiv_percol_trsm(
+                options, tempmm, tempkn, h,
+                A( m, k ), U( k, k ) );
+        }
+    }
+
+    RUNTIME_data_flush( options->sequence, U(k, k) );
+}
+
+static inline void
+chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
+                               CHAM_desc_t                *A,
+                               int                         k,
+                               RUNTIME_option_t           *options )
+{
+#if defined(GETRF_NOPIV_PER_COLUMN)
+    chameleon_pzgetrf_panel_facto_nopiv_percol( ws, A, k, options );
+#else
     chameleon_pzgetrf_panel_facto_nopiv( ws, A, k, options );
+#endif
 }
 
 /**
  *  Permutation of the panel n at step k
  */
 static inline void
-chameleon_pzgetrf_panel_permute( void             *ws,
-                                 CHAM_desc_t      *A,
-                                 int               k,
-                                 int               n,
-                                 RUNTIME_option_t *options )
+chameleon_pzgetrf_panel_permute( struct chameleon_pzgetrf_s *ws,
+                                 CHAM_desc_t                *A,
+                                 int                         k,
+                                 int                         n,
+                                 RUNTIME_option_t           *options )
 {
     (void)ws;
     (void)A;
@@ -100,11 +138,11 @@ chameleon_pzgetrf_panel_permute( void             *ws,
 }
 
 static inline void
-chameleon_pzgetrf_panel_update( void             *ws,
-                                CHAM_desc_t      *A,
-                                int               k,
-                                int               n,
-                                RUNTIME_option_t *options )
+chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
+                                CHAM_desc_t                *A,
+                                int                         k,
+                                int                         n,
+                                RUNTIME_option_t           *options )
 {
     const CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
     const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
@@ -141,10 +179,10 @@ chameleon_pzgetrf_panel_update( void             *ws,
 /**
  *  Parallel tile LU factorization with no pivoting - dynamic scheduling
  */
-void chameleon_pzgetrf( void               *ws,
-                        CHAM_desc_t        *A,
-                        RUNTIME_sequence_t *sequence,
-                        RUNTIME_request_t  *request )
+void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
+                        CHAM_desc_t              *A,
+                        RUNTIME_sequence_t       *sequence,
+                        RUNTIME_request_t        *request )
 {
     CHAM_context_t  *chamctxt;
     RUNTIME_option_t options;
