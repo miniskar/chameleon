@@ -26,7 +26,7 @@
 
 #define A(m, n) A,  m,  n
 /**
- *  chameleon_pzplghe - Generate a random matrix by tiles.
+ *  chameleon_pzplrnt - Generate a random matrix by tiles.
  */
 void chameleon_pzplrnt( CHAM_desc_t *A,
                         int bigM, int m0, int n0, unsigned long long int seed,
