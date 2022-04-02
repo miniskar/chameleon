@@ -12,13 +12,8 @@
  * @brief Chameleon core_zparfb CPU kernel
  *
  * @version 1.2.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
- * @author Dulceneia Becker
- * @author Mathieu Faverge
- * @author Emmanuel Agullo
- * @author Cedric Castagnede
  * @author Florent Pruvost
+ * @author Mathieu Faverge
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *
@@ -134,19 +129,19 @@
  *******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
- * @retval <0 if -i, the i-th argument had an illegal value
- *
+ * @retval  <0 if -i, the i-th argument had an illegal value
+ * @retval  The recommended LWORK value, if LWORK == -1 on entry.
  */
 /* This kernel is never traced so return type on previous line for convert2eztrace.pl script */
 int
-CORE_zparfb(cham_side_t side, cham_trans_t trans,
-            cham_dir_t direct, cham_store_t storev,
-            int M1, int N1, int M2, int N2, int K, int L,
-                  CHAMELEON_Complex64_t *A1, int LDA1,
-                  CHAMELEON_Complex64_t *A2, int LDA2,
-            const CHAMELEON_Complex64_t *V, int LDV,
-            const CHAMELEON_Complex64_t *T, int LDT,
-                  CHAMELEON_Complex64_t *WORK, int LDWORK)
+CORE_zparfb( cham_side_t side, cham_trans_t trans,
+             cham_dir_t direct, cham_store_t storev,
+             int M1, int N1, int M2, int N2, int K, int L,
+             CHAMELEON_Complex64_t       *A1,   int LDA1,
+             CHAMELEON_Complex64_t       *A2,   int LDA2,
+             const CHAMELEON_Complex64_t *V,    int LDV,
+             const CHAMELEON_Complex64_t *T,    int LDT,
+             CHAMELEON_Complex64_t       *WORK, int LDWORK )
 {
     static CHAMELEON_Complex64_t zone  =  1.0;
     static CHAMELEON_Complex64_t mzone = -1.0;
@@ -194,13 +189,13 @@ CORE_zparfb(cham_side_t side, cham_trans_t trans,
     }
 
     /* Quick return */
-    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0))
+    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
     if (direct == ChamDirForward) {
 
         if (side == ChamLeft) {
-
             /*
              * Column or Rowwise / Forward / Left
              * ----------------------------------

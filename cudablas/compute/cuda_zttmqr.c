@@ -32,7 +32,7 @@ CUDA_zttmqr( cham_side_t side, cham_trans_t trans,
              cuDoubleComplex *WORK,  int LWORK,
              cublasHandle_t handle )
 {
-    int i, i1, i3;
+    int i,  i1, i3;
     int NQ;
     int kb, l;
     int ic = 0;
@@ -131,10 +131,10 @@ CUDA_zttmqr( cham_side_t side, cham_trans_t trans,
         CUDA_zparfb(
             side, trans, ChamDirForward, ChamColumnwise,
             mi1, ni1, mi2, ni2, kb, l,
-            A1 + LDA1*jc+ic, LDA1,
+            A1 + LDA1 * jc + ic, LDA1,
             A2, LDA2,
-            V + LDV*i, LDV,
-            T + LDT*i, LDT,
+            V + LDV * i, LDV,
+            T + LDT * i, LDT,
             WORK, LWORK, handle );
     }
     return CHAMELEON_SUCCESS;
