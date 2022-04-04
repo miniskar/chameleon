@@ -284,18 +284,22 @@ CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
     }
 
     /**/
-    if (op==ChameleonW) {
+    if ( op == ChameleonW )
+    {
         info = CORE_zpamm_w(
-                side, trans, uplo, M, N, K, L, vi2, vi3,
-                A1, LDA1, A2, LDA2, V, LDV, W, LDW);
-        if (info != 0)
-            return info;
-    } else if (op==ChameleonA2) {
+            side, trans, uplo, M, N, K, L, vi2, vi3,
+            A1, LDA1, A2, LDA2, V, LDV, W, LDW);
+    }
+    else if ( op == ChameleonA2 )
+    {
         info = CORE_zpamm_a2(
-                side, trans, uplo, M, N, K, L, vi2, vi3,
-                A2, LDA2, V, LDV, W, LDW);
-        if (info != 0)
-            return info;
+            side, trans, uplo, M, N, K, L, vi2, vi3,
+            A2, LDA2, V, LDV, W, LDW);
+    }
+
+
+    if ( info != 0 ) {
+        return info;
     }
 
     return CHAMELEON_SUCCESS;
@@ -303,28 +307,26 @@ CORE_zpamm(int op, cham_side_t side, cham_store_t storev,
 
 /**/
 static inline int
-CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
-             int M, int N, int K, int L,
-             int vi2, int vi3,
-             const CHAMELEON_Complex64_t *A1, int LDA1,
-                   CHAMELEON_Complex64_t *A2, int LDA2,
-             const CHAMELEON_Complex64_t *V, int LDV,
-                   CHAMELEON_Complex64_t *W, int LDW)
+CORE_zpamm_w( cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
+              int M, int N, int K, int L, int vi2, int vi3,
+              const CHAMELEON_Complex64_t *A1, int LDA1,
+              CHAMELEON_Complex64_t       *A2, int LDA2,
+              const CHAMELEON_Complex64_t *V,  int LDV,
+              CHAMELEON_Complex64_t       *W,  int LDW )
 {
 
    /*
     * W = A1 + op(V) * A2  or  W = A1 + A2 * op(V)
     */
-
     int j;
-    static CHAMELEON_Complex64_t zone  =  1.0;
-    static CHAMELEON_Complex64_t zzero =  0.0;
+    static CHAMELEON_Complex64_t zone  = 1.0;
+    static CHAMELEON_Complex64_t zzero = 0.0;
 
-    if (side == ChamLeft) {
+    if ( side == ChamLeft ) {
 
-        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
-
+        if ( ((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+             ((trans == ChamNoTrans)   && (uplo == ChamLower)) )
+        {
             /*
              * W = A1 + V' * A2
              */
@@ -445,32 +447,29 @@ CORE_zpamm_w(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
 
 /**/
 static inline int
-CORE_zpamm_a2(cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
-              int M, int N, int K, int L,
-              int vi2, int vi3,
-                    CHAMELEON_Complex64_t *A2, int LDA2,
-              const CHAMELEON_Complex64_t *V, int LDV,
-                    CHAMELEON_Complex64_t *W, int LDW)
+CORE_zpamm_a2( cham_side_t side, cham_trans_t trans, cham_uplo_t uplo,
+               int M, int N, int K, int L, int vi2, int vi3,
+               CHAMELEON_Complex64_t       *A2, int LDA2,
+               const CHAMELEON_Complex64_t *V,  int LDV,
+               CHAMELEON_Complex64_t       *W,  int LDW )
 {
-
-   /*
-    *  A2 = A2 + op(V) * W  or  A2 = A2 + W * op(V)
-    */
-
+    /*
+     *  A2 = A2 + op(V) * W  or  A2 = A2 + W * op(V)
+     */
     int j;
     static CHAMELEON_Complex64_t zone  =  1.0;
-    static CHAMELEON_Complex64_t mzone  =  -1.0;
+    static CHAMELEON_Complex64_t mzone = -1.0;
 
-    if (side == ChamLeft) {
+    if ( side == ChamLeft ) {
 
-        if (((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
-            ((trans == ChamNoTrans) && (uplo == ChamLower))) {
-
+        if ( ((trans == ChamConjTrans) && (uplo == ChamUpper)) ||
+             ((trans == ChamNoTrans)   && (uplo == ChamLower)) )
+        {
             printf("Left Upper/ConjTrans & Lower/NoTrans not implemented yet\n");
             return CHAMELEON_ERR_NOT_SUPPORTED;
-
         }
-        else {  //trans
+        else
+        {  //trans
 
             /*
              * A2 = A2 - V * W

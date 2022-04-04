@@ -55,12 +55,12 @@ CUDA_zttmlq( cham_side_t side, cham_trans_t trans,
     if (N1 < 0) {
         return -4;
     }
-    if ( (M2 < 0) ||
-         ( (M2 != M1) && (side == ChamRight) ) ){
+    if ((M2 < 0) ||
+        ( (side == ChamRight) && (M1 != M2) ) ) {
         return -5;
     }
-    if ( (N2 < 0) ||
-         ( (N2 != N1) && (side == ChamLeft) ) ){
+    if ((N2 < 0) ||
+        ( (side == ChamLeft) && (N1 != N2) ) ) {
         return -6;
     }
     if ((K < 0) ||

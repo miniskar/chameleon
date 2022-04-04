@@ -21,7 +21,6 @@
 #include "cudablas.h"
 
 /**
- *****************************************************************************
  *
  * @ingroup CUDA_CHAMELEON_Complex64_t
  *
@@ -137,15 +136,16 @@
  * @retval  <0 if -i, the i-th argument had an illegal value
  * @retval  The recommended LWORK value, if LWORK == -1 on entry.
  */
+/* This kernel is never traced so return type on previous line for convert2eztrace.pl script */
 int
 CUDA_zparfb( cham_side_t side, cham_trans_t trans,
              cham_dir_t direct, cham_store_t storev,
              int M1, int N1, int M2, int N2, int K, int L,
-                   cuDoubleComplex *A1, int LDA1,
-                   cuDoubleComplex *A2, int LDA2,
-             const cuDoubleComplex *V, int LDV,
-             const cuDoubleComplex *T, int LDT,
-                   cuDoubleComplex *WORK, int LWORK,
+             cuDoubleComplex       *A1,   int LDA1,
+             cuDoubleComplex       *A2,   int LDA2,
+             const cuDoubleComplex *V,    int LDV,
+             const cuDoubleComplex *T,    int LDT,
+             cuDoubleComplex       *WORK, int LWORK,
              cublasHandle_t handle )
 {
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -161,7 +161,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
     cuDoubleComplex *workW, *workC, *workV;
     cublasStatus_t   rc;
     cudaStream_t     stream;
-    int              j, ldW, ldC, ldV;
+    int              i, j, ldW, ldC, ldV;
     cham_trans_t     transW, transA2;
     int              wssize = 0;
     int              wrsize = 0;
@@ -213,6 +213,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
         return -20;
     }
 
+    /* Quick return */
     if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0)) {
         return CHAMELEON_SUCCESS;
     }
@@ -266,10 +267,11 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                        M2 * sizeof(cuDoubleComplex), K,
                                        cudaMemcpyDeviceToDevice, stream );
 
-                    for(j = 1; j < K; j++) {
-                        cudaMemsetAsync( workV + (j-1) * ldV + M2 - L + j,
-                                         0,
-                                         (L - j) * sizeof(cuDoubleComplex),
+                    j = 0;
+                    i = M2 - L + 1;
+                    for(; (i < M2) && (j < K); i++, j++ ) {
+                        cudaMemsetAsync( workV + j * ldV + i, 0,
+                                         (M2 - i) * sizeof(cuDoubleComplex),
                                          stream );
                     }
                 }
@@ -277,7 +279,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                     ldV = K;
 
                     /*
-                     * Backup V, and put 0 in the lower part
+                     * Backup V, and put 0 in the upper part
                      */
                     cudaMemcpy2DAsync( workV, ldV * sizeof(cuDoubleComplex),
                                        V,     LDV * sizeof(cuDoubleComplex),
@@ -285,8 +287,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                        cudaMemcpyDeviceToDevice, stream );
 
                     for(j = 1; j < K; j++) {
-                        cudaMemsetAsync( workV + ldV * ( M2 - L + j ),
-                                         0,
+                        cudaMemsetAsync( workV + ldV * ( M2 - L + j ), 0,
                                          j * sizeof(cuDoubleComplex),
                                          stream );
                     }
@@ -414,10 +415,11 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                        N2 * sizeof(cuDoubleComplex), K,
                                        cudaMemcpyDeviceToDevice, stream );
 
-                    for(j = 1; j < K; j++) {
-                        cudaMemsetAsync( workV + (j-1) * ldV + N2 - L + j,
-                                         0,
-                                         (L - j) * sizeof(cuDoubleComplex),
+                    j = 0;
+                    i = N2 - L + 1;
+                    for(; (i < N2) && (j < K); i++, j++ ) {
+                        cudaMemsetAsync( workV + j * ldV + i, 0,
+                                         (N2 - i) * sizeof(cuDoubleComplex),
                                          stream );
                     }
                 }
@@ -433,8 +435,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                        cudaMemcpyDeviceToDevice, stream );
 
                     for(j = 1; j < K; j++) {
-                        cudaMemsetAsync( workV + ldV * ( N2 - L + j ),
-                                         0,
+                        cudaMemsetAsync( workV + ldV * ( N2 - L + j ), 0,
                                          j * sizeof(cuDoubleComplex),
                                          stream );
                     }
@@ -524,6 +525,5 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
 
-    (void)L;
     return CHAMELEON_SUCCESS;
 }

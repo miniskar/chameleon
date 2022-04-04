@@ -46,7 +46,7 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
     CHAM_desc_t *T;
     int m, n, i, p;
     int L, nbgeqrt;
-    int tempkmin, tempkn, tempnn, tempmm;
+    int tempkmin, tempkn, tempnn, tempmm, temppm;
     int node, nbtiles;
 
     tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
@@ -56,35 +56,35 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
 
     T = TS;
     for (i = 0; i < nbgeqrt; i++) {
-        m = qrtree->getm( qrtree, k, i );
+        p = qrtree->getm( qrtree, k, i );
 
         /* We skip the QR factorization if this is the last diagonal tile */
-        if ( (uplo == ChamUpper) && (m == k) ) {
+        if ( (uplo == ChamUpper) && (p == k) ) {
             continue;
         }
 
-        tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-        tempkmin = chameleon_min(tempmm, tempkn);
+        temppm = p == A->mt-1 ? A->m-p*A->mb : A->mb;
+        tempkmin = chameleon_min(temppm, tempkn);
 
         INSERT_TASK_zgeqrt(
             options,
-            tempmm, tempkn, ib, T->nb,
-            A(m, k), T(m, k) );
+            temppm, tempkn, ib, T->nb,
+            A(p, k), T(p, k) );
 
         if ( genD ) {
-            int tempDmm = m == D->mt-1 ? D->m-m*D->mb : D->mb;
+            int tempDpm = p == D->mt-1 ? D->m-p*D->mb : D->mb;
             int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
 
             INSERT_TASK_zlacpy(
                 options,
-                ChamLower, tempDmm, tempDkn, A->nb,
-                A(m, k), D(m, k) );
+                ChamLower, tempDpm, tempDkn, A->nb,
+                A(p, k), D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(
                 options,
-                ChamUpper, tempDmm, tempDkn,
+                ChamUpper, tempDpm, tempDkn,
                 0., 1.,
-                D(m, k) );
+                D(p, k) );
 #endif
         }
 
@@ -93,16 +93,16 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
             INSERT_TASK_zunmqr(
                 options,
                 ChamLeft, ChamConjTrans,
-                tempmm, tempnn, tempkmin, ib, T->nb,
-                D(m, k),
-                T(m, k),
-                A(m, n));
+                temppm, tempnn, tempkmin, ib, T->nb,
+                D(p, k),
+                T(p, k),
+                A(p, n));
         }
 
         if ( genD || ((k+1) < A->nt)) {
-            RUNTIME_data_flush( sequence, D(m, k) );
+            RUNTIME_data_flush( sequence, D(p, k) );
         }
-        RUNTIME_data_flush( sequence, T(m, k) );
+        RUNTIME_data_flush( sequence, T(p, k) );
     }
 
     /* Setting the order of the tiles */
@@ -151,7 +151,7 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
             INSERT_TASK_ztpmqrt(
                 options,
                 ChamLeft, ChamConjTrans,
-                tempmm, tempnn, A->nb, L, ib, T->nb,
+                tempmm, tempnn, tempkn, L, ib, T->nb,
                 A(m, k),
                 T(m, k),
                 A(p, n),

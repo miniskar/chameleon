@@ -95,14 +95,19 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
         T = TS;
         for (i = 0; i < nbgeqrt; i++) {
             p = qrtree->getm(qrtree, k, i);
+
+            /* /\* We skip the LQ factorization if this is the last diagonal tile *\/ */
+            /* if ( (uplo == ChamLower) && (p == k) ) { */
+            /*     continue; */
+            /* } */
+
             temppn = p == A->nt-1 ? A->n-p*A->nb : A->nb;
             tempkmin = chameleon_min(tempkm, temppn);
 
             INSERT_TASK_zgelqt(
                 &options,
                 tempkm, temppn, ib, T->nb,
-                A( k, p),
-                T(k, p));
+                A(k, p), T(k, p));
 
             if ( genD ) {
                 int tempDkm = k == D->mt-1 ? D->m-k*D->mb : D->mb;
@@ -111,8 +116,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpper, tempDkm, tempDpn, A->nb,
-                    A(k, p),
-                    D(k, p) );
+                    A(k, p), D(k, p) );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(
                     &options,
@@ -141,14 +145,19 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
         for (i = 0; i < nbtiles; i++) {
             n = tiles[i];
-            p = qrtree->currpiv(qrtree, k, n);
+            p = qrtree->currpiv( qrtree, k, n );
 
             tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-            if ( qrtree->gettype(qrtree, k, n) == LIBHQR_KILLED_BY_TS ) {
+            if ( qrtree->gettype( qrtree, k, n ) == LIBHQR_KILLED_BY_TS ) {
                 /* TS kernel */
                 T = TS;
                 L = 0;
+
+                /* /\* Force TT kernel if this is the last diagonal tile *\/ */
+                /* if ( (uplo == ChamLower) && (n == k) ) { */
+                /*     L = tempnn; */
+                /* } */
             }
             else {
                 /* TT kernel */

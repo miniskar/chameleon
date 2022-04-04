@@ -6,6 +6,7 @@
  *                      Tennessee Research Foundation. All rights reserved.
  * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
+ *
  ***
  *
  * @brief Chameleon core_zttmqr CPU kernel
@@ -206,11 +207,13 @@ int CORE_zttmqr(cham_side_t side, cham_trans_t trans,
     }
 
     /* Quick return */
-    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0))
+    if ((M1 == 0) || (N1 == 0) || (M2 == 0) || (N2 == 0) || (K == 0) || (IB == 0)) {
         return CHAMELEON_SUCCESS;
+    }
 
-    if (((side == ChamLeft) && (trans != ChamNoTrans))
-        || ((side == ChamRight) && (trans == ChamNoTrans))) {
+    if ( ((side == ChamLeft ) && (trans != ChamNoTrans)) ||
+         ((side == ChamRight) && (trans == ChamNoTrans)) )
+    {
         i1 = 0;
         i3 = IB;
     }
@@ -249,5 +252,3 @@ int CORE_zttmqr(cham_side_t side, cham_trans_t trans,
     }
     return CHAMELEON_SUCCESS;
 }
-
-

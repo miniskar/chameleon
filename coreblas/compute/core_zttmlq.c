@@ -252,9 +252,9 @@ int CORE_zttmlq(cham_side_t side, cham_trans_t trans,
             mi1, ni1, mi2, ni2, kb, l,
             A1 + LDA1 * jc + ic, LDA1,
             A2, LDA2,
-            V + i, LDV,
+            V + i,       LDV,
             T + LDT * i, LDT,
-            WORK, LDWORK);
+            WORK, LDWORK );
     }
     return CHAMELEON_SUCCESS;
 }
