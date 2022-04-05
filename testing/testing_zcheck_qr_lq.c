@@ -870,10 +870,10 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
  *          Whether the matrix A is transposed, conjugate transposed or not transposed.
  *
  * @param[in] M
- *        The number of rows of the matrix A.
+ *          The number of rows of the matrix A.
  *
  * @param[in] N
- *        The number of columns of the matrix A.
+ *          The number of columns of the matrix A.
  *
  * @param[in] A
  *          The matrix A.
