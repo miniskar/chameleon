@@ -172,6 +172,7 @@ void TCORE_zher2k( int uplo, int trans, int N, int K, void *alpha, const void *A
 int  TCORE_zherfb( int uplo, int N, int K, int IB, int NB, const void *A, const void *T, void *C, void *WORK, int ldwork );
 int  TCORE_zhessq( int storev, int uplo, int N, const void *A, void *sclssq );
 void TCORE_zlacpy( int uplo, int M, int N, const void *A, void *B );
+void TCORE_zlacpyx( int uplo, int M, int N, int displA, int displB, const void *A, int LDA, void *B, int LDB );
 void TCORE_zlange( int norm, int M, int N, const void *A, double *work, double *normA );
 void TCORE_zlanhe( int norm, int uplo, int N, const void *A, double *work, double *normA );
 void TCORE_zlansy( int norm, int uplo, int N, const void *A, double *work, double *normA );

@@ -43,6 +43,7 @@ int  TCORE_zherfb( cham_uplo_t uplo, int N, int K, int IB, int NB, const CHAM_ti
 int  TCORE_zhessq( cham_store_t storev, cham_uplo_t uplo, int N, const CHAM_tile_t *A, CHAM_tile_t *sclssq );
 #endif
 void TCORE_zlacpy( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *B );
+void TCORE_zlacpyx( cham_uplo_t uplo, int M, int N, int displA, int displB, const CHAM_tile_t *A, int LDA, CHAM_tile_t *B, int LDB );
 void TCORE_zlange( cham_normtype_t norm, int M, int N, const CHAM_tile_t *A, double *work, double *normA );
 #if defined(PRECISION_z) || defined(PRECISION_c)
 void TCORE_zlanhe( cham_normtype_t norm, cham_uplo_t uplo, int N, const CHAM_tile_t *A, double *work, double *normA );

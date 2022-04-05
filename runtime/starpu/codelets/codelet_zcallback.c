@@ -50,6 +50,7 @@ CHAMELEON_CL_CB(zher2k,        cti_handle_get_m(task->handles[0]), cti_handle_ge
 CHAMELEON_CL_CB(zherk,         cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                     ( 1.+   M)*M*N)
 #endif
 CHAMELEON_CL_CB(zlacpy,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                                M*N)
+CHAMELEON_CL_CB(zlacpyx,       cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                                M*N)
 CHAMELEON_CL_CB(zlange,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                                M*N)
 CHAMELEON_CL_CB(zlaset,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                                M*N)
 CHAMELEON_CL_CB(zlaset2,       cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                                M*N)

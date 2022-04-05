@@ -33,6 +33,8 @@ struct cl_zlacpy_args_s {
     int n;
     int displA;
     int displB;
+    int lda;
+    int ldb;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
 };
@@ -50,17 +52,32 @@ cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
 
     assert( clargs->displA == 0 );
     assert( clargs->displB == 0 );
-    /* A = tileA->mat; */
-    /* B = tileB->mat; */
-    /* CORE_zlacpy( uplo, M, N, A + displA, tileA->ld, B + displB, tileB->ld ); */
+    CHAMELEON_Complex64_t *A = tileA->mat;
+    CHAMELEON_Complex64_t *B = tileB->mat;
+    // CORE_zlacpy( clargs->uplo, clargs->m, clargs->n, A + clargs->displA, tileA->ld, B + clargs->displB, tileB->ld );
     TCORE_zlacpy( clargs->uplo, clargs->m, clargs->n, tileA, tileB );
+}
+
+static void
+cl_zlacpyx_cpu_func(void *descr[], void *cl_arg)
+{
+    struct cl_zlacpy_args_s *clargs = (struct cl_zlacpy_args_s *)cl_arg;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+
+    TCORE_zlacpyx( clargs->uplo, clargs->m, clargs->n, clargs->displA, clargs->displB,
+                   tileA, clargs->lda, tileB, clargs->ldb );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU( zlacpy, cl_zlacpy_cpu_func )
+CODELETS_CPU( zlacpy,  cl_zlacpy_cpu_func  )
+CODELETS_CPU( zlacpyx, cl_zlacpyx_cpu_func )
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n, int nb,
@@ -70,7 +87,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     struct cl_zlacpy_args_s *clargs = NULL;
     void (*callback)(void*);
     int                      exec = 0;
-    char                    *cl_name = "zlacpy";
+    char                    *cl_name = "zlacpyx";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -88,6 +105,62 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         clargs->displB = displB;
         clargs->tileA  = A->get_blktile( A, Am, An );
         clargs->tileB  = B->get_blktile( B, Bm, Bn );
+        clargs->lda    = clargs->tileA->ld;
+        clargs->ldb    = clargs->tileB->ld;
+    }
+
+    /* Callback fro profiling information */
+    callback = options->profiling ? cl_zlacpyx_callback : NULL;
+
+    /* Insert the task */
+    rt_starpu_insert_task(
+        &cl_zlacpyx,
+        /* Task codelet arguments */
+        STARPU_CL_ARGS, clargs, sizeof(struct cl_zlacpy_args_s),
+        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_W,      RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+
+        /* Common task arguments */
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
+        STARPU_EXECUTE_ON_WORKER, options->workerid,
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+        STARPU_NAME,              cl_name,
+#endif
+
+        0 );
+
+    (void)nb;
+}
+
+void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
+{
+    struct cl_zlacpy_args_s *clargs = NULL;
+    void (*callback)(void*);
+    int                      exec    = 0;
+    char                    *cl_name = "zlacpy";
+
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_R(A, Am, An);
+    CHAMELEON_ACCESS_W(B, Bm, Bn);
+    exec = __chameleon_need_exec;
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    if ( exec ) {
+        clargs = malloc( sizeof( struct cl_zlacpy_args_s ) );
+        clargs->uplo   = uplo;
+        clargs->m      = m;
+        clargs->n      = n;
+        clargs->displA = 0;
+        clargs->displB = 0;
+        clargs->tileA  = A->get_blktile( A, Am, An );
+        clargs->tileB  = B->get_blktile( B, Bm, Bn );
+        clargs->lda    = clargs->tileA->ld;
+        clargs->ldb    = clargs->tileB->ld;
     }
 
     /* Callback fro profiling information */
@@ -112,14 +185,4 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         0 );
 
     (void)nb;
-}
-
-void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An,
-                         const CHAM_desc_t *B, int Bm, int Bn )
-{
-    INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An,
-                         0, B, Bm, Bn );
 }
