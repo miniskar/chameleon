@@ -107,7 +107,7 @@ void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM
 
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpper, tempDkm, tempDNn, A->nb,
+                    ChamUpper, tempDkm, tempDNn,
                     A(k, N),
                     D(k, N) );
 #if defined(CHAMELEON_USE_CUDA)

@@ -137,7 +137,7 @@ void chameleon_pzunglq_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
                 int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpper, tempkmin, tempDpn, A->nb,
+                    ChamUpper, tempkmin, tempDpn,
                     A(k, p),
                     D(k, p) );
 #if defined(CHAMELEON_USE_CUDA)

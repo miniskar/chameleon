@@ -123,7 +123,7 @@ void chameleon_pzunglq( int genD, CHAM_desc_t *A, CHAM_desc_t *Q, CHAM_desc_t *T
             int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
             INSERT_TASK_zlacpy(
                 &options,
-                ChamUpper, tempkmin, tempDkn, A->nb,
+                ChamUpper, tempkmin, tempDkn,
                 A(k, k),
                 D(k) );
 #if defined(CHAMELEON_USE_CUDA)

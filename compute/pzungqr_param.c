@@ -114,7 +114,7 @@ void chameleon_pzungqr_param_step( int genD, cham_uplo_t uplo, int k, int ib,
             int tempDmm = m == D->mt-1 ? D->m - m * D->mb : D->mb;
             INSERT_TASK_zlacpy(
                 options,
-                ChamLower, tempDmm, tempkmin, A->nb,
+                ChamLower, tempDmm, tempkmin,
                 A(m, k),
                 D(m, k) );
 #if defined(CHAMELEON_USE_CUDA)

@@ -72,7 +72,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             if ( transA == ChamNoTrans ) {
                 INSERT_TASK_zlacpy(
                     options,
-                    ChamUpperLower, tempmm, tempkk, C->mb,
+                    ChamUpperLower, tempmm, tempkk,
                     A(  m,  k ),
                     WA( m, (k % C->q) + lq ) );
 
@@ -81,7 +81,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                 for ( q=1; q < C->q; q++ ) {
                     INSERT_TASK_zlacpy(
                         options,
-                        ChamUpperLower, tempmm, tempkk, C->mb,
+                        ChamUpperLower, tempmm, tempkk,
                         WA( m, ((k+q-1) % C->q) + lq ),
                         WA( m, ((k+q)   % C->q) + lq ) );
                 }
@@ -89,7 +89,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             else {
                 INSERT_TASK_zlacpy(
                     options,
-                    ChamUpperLower, tempkk, tempmm, C->mb,
+                    ChamUpperLower, tempkk, tempmm,
                     A(  k,  m ),
                     WA( m, (k % C->q) + lq ) );
 
@@ -98,7 +98,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                 for ( q=1; q < C->q; q++ ) {
                     INSERT_TASK_zlacpy(
                         options,
-                        ChamUpperLower, tempkk, tempmm, C->mb,
+                        ChamUpperLower, tempkk, tempmm,
                         WA( m, ((k+q-1) % C->q) + lq ),
                         WA( m, ((k+q)   % C->q) + lq ) );
                 }
@@ -112,7 +112,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             if ( transB == ChamNoTrans ) {
                 INSERT_TASK_zlacpy(
                     options,
-                    ChamUpperLower, tempkk, tempnn, C->mb,
+                    ChamUpperLower, tempkk, tempnn,
                     B(   k,              n ),
                     WB( (k % C->p) + lp, n ) );
 
@@ -121,7 +121,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                 for ( p=1; p < C->p; p++ ) {
                     INSERT_TASK_zlacpy(
                         options,
-                        ChamUpperLower, tempkk, tempnn, C->mb,
+                        ChamUpperLower, tempkk, tempnn,
                         WB( ((k+p-1) % C->p) + lp, n ),
                         WB( ((k+p)   % C->p) + lp, n ) );
                 }
@@ -129,7 +129,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             else {
                 INSERT_TASK_zlacpy(
                     options,
-                    ChamUpperLower, tempnn, tempkk, C->mb,
+                    ChamUpperLower, tempnn, tempkk,
                     B(   n,              k ),
                     WB( (k % C->p) + lp, n ) );
 
@@ -138,7 +138,7 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                 for ( p=1; p < C->p; p++ ) {
                     INSERT_TASK_zlacpy(
                         options,
-                        ChamUpperLower, tempnn, tempkk, C->mb,
+                        ChamUpperLower, tempnn, tempkk,
                         WB( ((k+p-1) % C->p) + lp, n ),
                         WB( ((k+p)   % C->p) + lp, n ) );
                 }

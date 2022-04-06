@@ -52,9 +52,7 @@ cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
 
     assert( clargs->displA == 0 );
     assert( clargs->displB == 0 );
-    CHAMELEON_Complex64_t *A = tileA->mat;
-    CHAMELEON_Complex64_t *B = tileB->mat;
-    // CORE_zlacpy( clargs->uplo, clargs->m, clargs->n, A + clargs->displA, tileA->ld, B + clargs->displB, tileB->ld );
+
     TCORE_zlacpy( clargs->uplo, clargs->m, clargs->n, tileA, tileB );
 }
 
@@ -68,8 +66,8 @@ cl_zlacpyx_cpu_func(void *descr[], void *cl_arg)
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    TCORE_zlacpyx( clargs->uplo, clargs->m, clargs->n, clargs->displA, clargs->displB,
-                   tileA, clargs->lda, tileB, clargs->ldb );
+    TCORE_zlacpyx( clargs->uplo, clargs->m, clargs->n, clargs->displA,
+                   tileA, clargs->lda, clargs->displB, tileB, clargs->ldb );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -80,9 +78,9 @@ CODELETS_CPU( zlacpy,  cl_zlacpy_cpu_func  )
 CODELETS_CPU( zlacpyx, cl_zlacpyx_cpu_func )
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn )
+                          cham_uplo_t uplo, int m, int n,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
     struct cl_zlacpy_args_s *clargs = NULL;
     void (*callback)(void*);
@@ -105,8 +103,8 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         clargs->displB = displB;
         clargs->tileA  = A->get_blktile( A, Am, An );
         clargs->tileB  = B->get_blktile( B, Bm, Bn );
-        clargs->lda    = clargs->tileA->ld;
-        clargs->ldb    = clargs->tileB->ld;
+        clargs->lda    = lda;
+        clargs->ldb    = ldb;
     }
 
     /* Callback fro profiling information */
@@ -129,12 +127,10 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
 #endif
 
         0 );
-
-    (void)nb;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int m, int n, int nb,
+                         cham_uplo_t uplo, int m, int n,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
@@ -183,6 +179,4 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
 #endif
 
         0 );
-
-    (void)nb;
 }

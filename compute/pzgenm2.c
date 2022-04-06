@@ -144,7 +144,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
             if ( (m != 0) || (n != 0) ) {
                 INSERT_TASK_dlacpy(
                     &options,
-                    ChamUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1,
                     NRMX(0, 0),
                     NRMX(m, n) );
             }
@@ -200,7 +200,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
 #else
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpperLower, 1, tempnn, tempnn,
+                        ChamUpperLower, 1, tempnn,
                         DROW( 0, n ),
                         X(    0, n ) );
 #endif
@@ -210,7 +210,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
                 for (m = 1; m < A->p; m++) {
                     INSERT_TASK_zlacpy(
                         &options,
-                        ChamUpperLower, 1, tempnn, tempnn,
+                        ChamUpperLower, 1, tempnn,
                         X( 0, n ),
                         X( m, n ) );
                 }
@@ -263,7 +263,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
             for (k = 1; k < A->q; k++) {
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpperLower, tempmm, 1, tempmm,
+                    ChamUpperLower, tempmm, 1,
                     SX( m, 0 ),
                     SX( m, k ) );
             }
@@ -298,7 +298,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
             for (k = 1; k < A->p; k++) {
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpperLower, 1, tempnn, tempnn,
+                    ChamUpperLower, 1, tempnn,
                     X( 0, n ),
                     X( k, n ) );
             }
@@ -340,7 +340,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
             for(n = 1; n < A->q; n++) {
                 INSERT_TASK_dlacpy(
                     &options,
-                    ChamUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1,
                     NRMX( myp, 0 ),
                     NRMX( myp, n ) );
             }
@@ -381,7 +381,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
             for(m = 1; m < A->p; m++) {
                 INSERT_TASK_dlacpy(
                     &options,
-                    ChamUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1,
                     NRMSX( 0, myq ),
                     NRMSX( m, myq ) );
             }

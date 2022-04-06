@@ -120,7 +120,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
 #if defined(CHAMELEON_COPY_DIAG)
            INSERT_TASK_zlacpy(
                &options,
-               ChamLower, tempkm, tempkn, A->nb,
+               ChamLower, tempkm, tempkn,
                A(k+1, k),
                E(k+1, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -271,7 +271,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
 #if defined(CHAMELEON_COPY_DIAG)
            INSERT_TASK_zlacpy(
                &options,
-               ChamUpper, tempkm, tempkn, A->nb,
+               ChamUpper, tempkm, tempkn,
                A(k, k+1),
                E(k, k+1) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -411,7 +411,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     for (k = 1; k < A->nt; k++){
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
         INSERT_TASK_zlacpy( &options,
-                            uplo, tempkn, tempkn, A->mb,
+                            uplo, tempkn, tempkn,
                             D(k), A(k, k));
     }
 

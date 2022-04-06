@@ -98,7 +98,7 @@ void chameleon_pzgeqrf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D
             int tempDkn = k == D->nt-1 ? D->n-k*D->nb : D->nb;
             INSERT_TASK_zlacpy(
                 &options,
-                ChamLower, tempDkm, tempDkn, A->nb,
+                ChamLower, tempDkm, tempDkn,
                 A(k, k),
                 D(k) );
 #if defined(CHAMELEON_USE_CUDA)

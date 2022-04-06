@@ -106,7 +106,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -237,7 +237,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -330,7 +330,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -382,7 +382,7 @@ void chameleon_pzunmqr_param( int genD, const libhqr_tree_t *qrtree,
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)

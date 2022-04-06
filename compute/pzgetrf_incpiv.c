@@ -97,7 +97,7 @@ void chameleon_pzgetrf_incpiv( CHAM_desc_t *A, CHAM_desc_t *L, CHAM_desc_t *D, i
 #if defined(CHAMELEON_COPY_DIAG)
             INSERT_TASK_zlacpy(
                 &options,
-                ChamUpperLower, tempkm, tempkn, A->nb,
+                ChamUpperLower, tempkm, tempkn,
                 A(k, k),
                 D(k));
 #endif

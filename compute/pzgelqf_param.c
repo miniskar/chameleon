@@ -115,7 +115,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
                 INSERT_TASK_zlacpy(
                     &options,
-                    ChamUpper, tempDkm, tempDpn, A->nb,
+                    ChamUpper, tempDkm, tempDpn,
                     A(k, p), D(k, p) );
 #if defined(CHAMELEON_USE_CUDA)
                 INSERT_TASK_zlaset(

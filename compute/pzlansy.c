@@ -413,7 +413,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
             if ( (m != 0) || (n != 0) ) {
                 INSERT_TASK_dlacpy(
                     &options,
-                    ChamUpperLower, 1, 1, 1,
+                    ChamUpperLower, 1, 1,
                     W( &Welt, 0, 0 ), W( &Welt, m, n ));
             }
         }

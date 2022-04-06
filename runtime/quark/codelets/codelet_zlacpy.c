@@ -29,50 +29,66 @@
 static inline void CORE_zlacpy_quark(Quark *quark)
 {
     cham_uplo_t uplo;
-    int M;
-    int N;
-    int displA;
-    CHAM_tile_t *tileA;
-    CHAMELEON_Complex64_t *A;
-    int displB;
-    CHAM_tile_t *tileB;
-    CHAMELEON_Complex64_t *B;
+    int M, N;
+    int LDA, LDB;
+    CHAM_tile_t *tileA, *tileB;
 
-    quark_unpack_args_7(quark, uplo, M, N, displA, tileA, displB, tileB);
+    quark_unpack_args_5(quark, uplo, M, N, tileA, tileB);
 
     assert( tileA->format & CHAMELEON_TILE_FULLRANK );
     assert( tileB->format & CHAMELEON_TILE_FULLRANK );
 
-    A = tileA->mat;
-    B = tileB->mat;
-    CORE_zlacpy( uplo, M, N, A + displA, tileA->ld, B + displB, tileB->ld );
+    TCORE_zlacpy( uplo, M, N, tileA, tileB );
 }
 
-void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo, int m, int n, int nb,
-                          int displA, const CHAM_desc_t *A, int Am, int An,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn )
+void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
+                         cham_uplo_t uplo, int m, int n,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;
     QUARK_Insert_Task(opt->quark, CORE_zlacpy_quark, (Quark_Task_Flags*)opt,
-        sizeof(int),              &uplo,   VALUE,
-        sizeof(int),                     &m,      VALUE,
-        sizeof(int),                     &n,      VALUE,
-        sizeof(int),                     &displA, VALUE,
+        sizeof(int),   &uplo,   VALUE,
+        sizeof(int),   &m,      VALUE,
+        sizeof(int),   &n,      VALUE,
         sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INPUT,
-        sizeof(int),                     &displB, VALUE,
         sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             OUTPUT,
         0);
-    (void)nb;
 }
 
-void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int m, int n, int nb,
-                         const CHAM_desc_t *A, int Am, int An,
-                         const CHAM_desc_t *B, int Bm, int Bn )
+static inline void CORE_zlacpyx_quark(Quark *quark)
 {
-    INSERT_TASK_zlacpyx( options, uplo, m, n, nb,
-                         0, A, Am, An,
-                         0, B, Bm, Bn );
+    cham_uplo_t uplo;
+    int M, N;
+    int displA, displB;
+    int LDA, LDB;
+    CHAM_tile_t *tileA, *tileB;
+
+    quark_unpack_args_9(quark, uplo, M, N, displA, tileA, LDA, displB, tileB, LDB);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+
+    TCORE_zlacpyx( uplo, M, N, displA, tileA, LDA, displB, tileB, LDB );
+}
+
+void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
+                          cham_uplo_t uplo, int m, int n,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
+{
+    quark_option_t *opt = (quark_option_t*)(options->schedopt);
+    DAG_CORE_LACPY;
+    QUARK_Insert_Task(opt->quark, CORE_zlacpy_quark, (Quark_Task_Flags*)opt,
+        sizeof(int),   &uplo,   VALUE,
+        sizeof(int),   &m,      VALUE,
+        sizeof(int),   &n,      VALUE,
+        sizeof(int),   &displA, VALUE,
+        sizeof(void*), RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),             INPUT,
+        sizeof(int),   &lda,    VALUE,
+        sizeof(int),   &displB, VALUE,
+        sizeof(void*), RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),             OUTPUT,
+        sizeof(int),   &ldb,    VALUE,
+        0);
 }

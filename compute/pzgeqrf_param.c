@@ -77,7 +77,7 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
 
             INSERT_TASK_zlacpy(
                 options,
-                ChamLower, tempDpm, tempDkn, A->nb,
+                ChamLower, tempDpm, tempDkn,
                 A(p, k), D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
             INSERT_TASK_zlaset(

@@ -126,13 +126,13 @@ void INSERT_TASK_zhessq( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *SCALESUMSQ, int SCALESUMSQm, int SCALESUMSQn );
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
-                         cham_uplo_t uplo, int m, int n, int mb,
+                         cham_uplo_t uplo, int m, int n,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn );
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
-                          cham_uplo_t uplo, int m, int n, int mb,
-                          int displA, const CHAM_desc_t *A, int Am, int An,
-                          int displB, const CHAM_desc_t *B, int Bm, int Bn );
+                          cham_uplo_t uplo, int m, int n,
+                          int displA, const CHAM_desc_t *A, int Am, int An, int lda,
+                          int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb );
 void INSERT_TASK_zlange( const RUNTIME_option_t *options,
                          cham_normtype_t norm, int M, int N, int NB,
                          const CHAM_desc_t *A, int Am, int An,
