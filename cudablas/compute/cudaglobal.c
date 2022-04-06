@@ -103,9 +103,12 @@ int chameleon_cublas_constants[] =
     0,                      // 299
     0,                      // 300
     0,                      // 301 ChamNoVec
-    0,                      // 302 ChamVec
-    0,                      // 303 ChamIvec
-    0, 0, 0, 0, 0, 0,
+    0,                      // 302 ChamVec, ChamSVDvrange
+    0,                      // 303 ChamIvec, ChamSVDirange
+    0,                      // 304 ChamAllVec, ChamSVDall
+    0,                      // 305 ChamSVec
+    0,                      // 306 ChamOVec
+    0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -115,10 +118,10 @@ int chameleon_cublas_constants[] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0,                      // 390
-    0,                      // 391
-    0,                      // 392
+    0,                      // 391 Forward
+    0,                      // 392 Backward
     0, 0, 0, 0, 0, 0, 0, 0,
-    0,                      // 401
-    0,                      // 402
+    0,                      // 401 Columnwise
+    0,                      // 402 Rowwise
     0, 0, 0, 0, 0, 0, 0, 0  // Remember to add a coma!
 };

@@ -162,9 +162,12 @@ char *chameleon_lapack_constants[] =
 
     "",                     // 300
     "No vectors",           // 301 ChamNoVec
-    "Vectors needed",       // 302 ChamVec
-    "I",                    // 303 ChamIvec
-    "", "", "", "", "", "",
+    "Vectors needed",       // 302 ChamVec, ChamSVDvrange
+    "I",                    // 303 ChamIvec, ChamSVDirange
+    "A",                    // 304 ChamAllVec, ChamSVDall
+    "S",                    // 305 ChamSVec
+    "O",                    // 306 ChamOVec
+    "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
     "", "", "", "", "", "", "", "", "", "",
