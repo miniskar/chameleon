@@ -142,7 +142,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     callback = options->profiling ? cl_zgemm_callback : NULL;
 
     /* Reduce the C access if needed */
-    accessC = ( beta == 0. ) ? STARPU_W : (STARPU_RW | STARPU_COMMUTE);
+    accessC = ( beta == 0. ) ? STARPU_W : (STARPU_RW | ((beta == 1.) ? STARPU_COMMUTE : 0));
 
 #if defined(CHAMELEON_KERNELS_TRACE)
     {
