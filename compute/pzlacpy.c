@@ -53,7 +53,7 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpper,
-                    X, Y, A->mb,
+                    X, Y,
                     A(m, m),
                     B(m, m));
             }
@@ -62,7 +62,7 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpperLower,
-                    X, Y, A->mb,
+                    X, Y,
                     A(m, n),
                     B(m, n));
             }
@@ -79,7 +79,7 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamLower,
-                    X, Y, A->mb,
+                    X, Y,
                     A(m, m),
                     B(m, m));
             }
@@ -88,7 +88,7 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpperLower,
-                    X, Y, A->mb,
+                    X, Y,
                     A(m, n),
                     B(m, n));
             }
@@ -106,7 +106,7 @@ void chameleon_pzlacpy(cham_uplo_t uplo, CHAM_desc_t *A, CHAM_desc_t *B,
                 INSERT_TASK_zlacpy(
                     &options,
                     ChamUpperLower,
-                    X, Y, A->mb,
+                    X, Y,
                     A(m, n),
                     B(m, n));
             }

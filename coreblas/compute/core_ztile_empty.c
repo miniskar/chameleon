@@ -264,6 +264,12 @@ TCORE_zlacpy( cham_uplo_t uplo, int M, int N, const CHAM_tile_t *A, CHAM_tile_t 
 }
 
 void
+TCORE_zlacpyx( cham_uplo_t uplo, int M, int N, int displA, const CHAM_tile_t *A, int LDA, int displB, CHAM_tile_t *B, int LDB )
+{
+    return;
+}
+
+void
 TCORE_zlange( cham_normtype_t    norm,
               int                M,
               int                N,

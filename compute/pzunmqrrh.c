@@ -107,7 +107,7 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -260,7 +260,7 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -365,7 +365,7 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)
@@ -415,7 +415,7 @@ void chameleon_pzunmqrrh( int genD, int BS, cham_side_t side, cham_trans_t trans
 
                         INSERT_TASK_zlacpy(
                             &options,
-                            ChamLower, tempDpm, tempkmin, A->nb,
+                            ChamLower, tempDpm, tempkmin,
                             A(p, k),
                             D(p, k) );
 #if defined(CHAMELEON_USE_CUDA)

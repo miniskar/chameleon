@@ -31,7 +31,8 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
- *  CHAMELEON_zplghe - Generate a random hermitian (positive definite if 'bump' is large enough) half-matrix by tiles.
+ * @brief Generate a random hermitian (positive definite if 'bump' is large
+ * enough) half-matrix by tiles.
  *
  *******************************************************************************
  *
@@ -136,11 +137,12 @@ int CHAMELEON_zplghe( double bump, cham_uplo_t uplo, int N,
  *
  * @ingroup CHAMELEON_Complex64_t_Tile
  *
- *  CHAMELEON_zplghe_Tile - Generate a random hermitian (positive definite if 'bump' is large enough) half-matrix by tiles.
- *  Tile equivalent of CHAMELEON_zplghe().
- *  Operates on matrices stored by tiles.
- *  All matrices are passed through descriptors.
- *  All dimensions are taken from the descriptors.
+ * @brief Generate a random hermitian (positive definite if 'bump' is large
+ * enough) half-matrix by tiles.
+ *
+ * Tile equivalent of CHAMELEON_zplghe().  Operates on matrices stored by
+ * tiles.  All matrices are passed through descriptors.  All dimensions are
+ * taken from the descriptors.
  *
  *******************************************************************************
  *
