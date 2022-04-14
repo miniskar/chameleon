@@ -80,7 +80,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
     DAG_CORE_LACPY;
-    QUARK_Insert_Task(opt->quark, CORE_zlacpy_quark, (Quark_Task_Flags*)opt,
+    QUARK_Insert_Task(opt->quark, CORE_zlacpyx_quark, (Quark_Task_Flags*)opt,
         sizeof(int),   &uplo,   VALUE,
         sizeof(int),   &m,      VALUE,
         sizeof(int),   &n,      VALUE,
