@@ -17,6 +17,8 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
+ * @author Alycia Lisito
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  *
  ***
@@ -41,6 +43,65 @@
 /* master threads context lookup table */
 static CHAM_context_t *chameleon_ctxt = NULL;
 
+static inline cham_householder_t
+chameleon_getenv_householder(char * string, cham_householder_t default_value) {
+    long int ret;
+    char *str = chameleon_getenv(string);
+    if (str == NULL) return default_value;
+
+    if ( sscanf( str, "%ld", &ret ) == 1 ) {
+        switch (ret) {
+        case ChamFlatHouseholder:
+            return ChamFlatHouseholder;
+        case ChamTreeHouseholder:
+            return ChamTreeHouseholder;
+        default:
+            chameleon_error( "chameleon_getenv_householder", "Incorrect householder value" );
+            return default_value;
+        }
+    }
+
+    if(0 == strcasecmp("chamflathouseholder", str)) { return ChamFlatHouseholder; }
+    if(0 == strcasecmp("flat", str)) { return ChamFlatHouseholder; }
+    if(0 == strcasecmp("chamtreehouseholder", str)) { return ChamTreeHouseholder; }
+    if(0 == strcasecmp("tree", str)) { return ChamTreeHouseholder; }
+
+    chameleon_error( "chameleon_getenv_householder", "Incorrect householder type" );
+
+    return default_value;
+}
+
+static inline cham_translation_t
+chameleon_getenv_translation(char * string, cham_translation_t default_value) {
+    long int ret;
+    char *str = chameleon_getenv(string);
+    if (str == NULL) return default_value;
+
+    if ( sscanf( str, "%ld", &ret ) == 1 ) {
+        switch (ret) {
+        case ChamInPlace:
+            return ChamInPlace;
+        case ChamOutOfPlace:
+            return ChamOutOfPlace;
+        default:
+            chameleon_error( "chameleon_getenv_translation", "Incorrect translation value" );
+            return default_value;
+        }
+    }
+
+    if(0 == strcasecmp("chaminplace", str)) { return ChamInPlace; }
+    if(0 == strcasecmp("inplace", str)) { return ChamInPlace; }
+    if(0 == strcasecmp("in", str)) { return ChamInPlace; }
+
+    if(0 == strcasecmp("chamoutofplace", str)) { return ChamOutOfPlace; }
+    if(0 == strcasecmp("outofplace", str)) { return ChamOutOfPlace; }
+    if(0 == strcasecmp("out", str)) { return ChamOutOfPlace; }
+
+    chameleon_error( "chameleon_getenv_translation", "Incorrect translation type" );
+
+    return default_value;
+}
+
 /**
  *  Create new context
  */
@@ -61,26 +122,26 @@ CHAM_context_t *chameleon_context_create()
 
     /* These initializations are just in case the user
        disables autotuning and does not set nb and ib */
-    chamctxt->nb                 = 320;
-    chamctxt->ib                 = 48;
-    chamctxt->rhblock            = 4;
-    chamctxt->lookahead          = 3;
+    chamctxt->nb                 = chameleon_getenv_get_value_int( "CHAMELEON_TILE_SIZE",        384 );
+    chamctxt->ib                 = chameleon_getenv_get_value_int( "CHAMELEON_INNER_BLOCK_SIZE",  48 );
+    chamctxt->rhblock            = chameleon_getenv_get_value_int( "CHAMELEON_HOUSEHOLDER_SIZE",   4 );
+    chamctxt->lookahead          = chameleon_getenv_get_value_int( "CHAMELEON_LOOKAHEAD",          1 );
 
     chamctxt->nworkers           = 1;
     chamctxt->ncudas             = 0;
     chamctxt->nthreads_per_worker= 1;
 
-    chamctxt->warnings_enabled   = CHAMELEON_TRUE;
-    chamctxt->autotuning_enabled = CHAMELEON_FALSE;
-    chamctxt->parallel_enabled   = CHAMELEON_FALSE;
-    chamctxt->profiling_enabled  = CHAMELEON_FALSE;
-    chamctxt->progress_enabled   = CHAMELEON_FALSE;
-    chamctxt->generic_enabled    = CHAMELEON_FALSE;
+    chamctxt->warnings_enabled   = chameleon_env_is_off( "CHAMELEON_WARNINGS" );
+    chamctxt->autotuning_enabled = chameleon_env_is_on( "CHAMELEON_AUTOTUNING" );
+    chamctxt->parallel_enabled   = chameleon_env_is_on( "CHAMELEON_PARALLEL_KERNEL" );
+    chamctxt->profiling_enabled  = chameleon_env_is_on( "CHAMELEON_PROFILING_MODE" );
+    chamctxt->progress_enabled   = chameleon_env_is_on( "CHAMELEON_PROGRESS" );
+    chamctxt->generic_enabled    = chameleon_env_is_on( "CHAMELEON_GENERIC" );
 
     chamctxt->runtime_paused     = CHAMELEON_FALSE;
 
-    chamctxt->householder        = ChamFlatHouseholder;
-    chamctxt->translation        = ChamInPlace;
+    chamctxt->householder = chameleon_getenv_householder( "CHAMELEON_HOUSEHOLDER_MODE", ChamFlatHouseholder );
+    chamctxt->translation = chameleon_getenv_translation( "CHAMELEON_TRANSLATION_MODE", ChamInPlace );
 
     /* Initialize scheduler */
     RUNTIME_context_create(chamctxt);
