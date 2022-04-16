@@ -5,12 +5,22 @@ stages:
   - analyse
   - deploy
 
+# git config --global ahev been added to get around the issue related in
+# https://github.com/actions/checkout/issues/760 for github
+# Does not seem to be fixed for gitlab-runner yet
 before_script:
+  - git config --global --add safe.directory $CI_PROJECT_DIR
+  - git config --global --add safe.directory $CI_PROJECT_DIR/cmake_modules/morse_cmake
+  - git config --global --add safe.directory $CI_PROJECT_DIR/coreblas/hmat-oss
+  - git config --global --add safe.directory $CI_PROJECT_DIR/hqr
+  - git config --global --add safe.directory $CI_PROJECT_DIR/testing/test_fembem
+  - env 2>&1 > env.log
   - git submodule update --init --recursive
   - source .gitlab-ci-env.sh $SIMU
   - mkdir -p build-$VERSION
 
 include:
+  - .gitlab/preliminary.yml
   - .gitlab/common.yml
   - .gitlab/build.yml
   - .gitlab/test_starpu.yml
