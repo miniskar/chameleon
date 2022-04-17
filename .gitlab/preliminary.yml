@@ -1,0 +1,15 @@
+#
+# This file list the preliminary checks done before trying to compile
+#
+---
+preliminary_checks:
+  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  stage: .pre
+  parallel:
+    matrix:
+      - TEST: [rebase, draft, header]
+  script:
+    - .gitlab/check_ci.sh $TEST
+  only:
+    - merge_requests
+
