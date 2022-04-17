@@ -14,7 +14,6 @@ before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR/coreblas/hmat-oss
   - git config --global --add safe.directory $CI_PROJECT_DIR/hqr
   - git config --global --add safe.directory $CI_PROJECT_DIR/testing/test_fembem
-  - env 2>&1 > env.log
   - git submodule update --init --recursive
   - source .gitlab-ci-env.sh $SIMU
   - mkdir -p build-$VERSION
