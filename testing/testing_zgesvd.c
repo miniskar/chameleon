@@ -21,10 +21,39 @@
 #include <chameleon/flops.h>
 
 static cham_fixdbl_t
-flops_zgesvd( int M, int N )
+flops_zgesvd( int M, int N, int K, cham_job_t jobu, cham_job_t jobvt )
 {
     cham_fixdbl_t flops = flops_zgebrd( M, N );
-    return flops;
+
+    switch ( jobu ) {
+        case ChamAllVec:
+            flops += flops_zunmqr( ChamLeft, M, N, N );
+            break;
+        case ChamOVec:
+        case ChamSVec:
+            flops += flops_zunmqr( ChamLeft, M, K, K );
+            break;
+        case ChamNoVec:
+            break;
+        default:
+        ;
+    }
+
+    switch ( jobvt ) {
+        case ChamAllVec:
+            flops += flops_zunmlq( ChamRight, M, N, M );
+            break;
+        case ChamOVec:
+        case ChamSVec:
+            flops += flops_zunmlq( ChamRight, K, N, K );
+            break;
+        case ChamNoVec:
+            break;
+        default:
+        ;
+    }
+
+    return -1;
 }
 
 int
@@ -34,18 +63,21 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int      async  = parameters_getvalue_int( "async" );
-    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int      nb     = run_arg_get_int( args, "nb", 320 );
-    int      P      = parameters_getvalue_int( "P" );
-    int      N      = run_arg_get_int( args, "N", 1000 );
-    int      M      = run_arg_get_int( args, "M", N );
-    int      K      = chameleon_min( M, N );
-    int      LDA    = run_arg_get_int( args, "LDA", M );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
-    double   cond   = run_arg_get_double( args, "cond", 1.e16 );
-    int      mode   = run_arg_get_int( args, "mode", 4 );
-    int      Q      = parameters_compute_q( P );
+    int        async  = parameters_getvalue_int( "async" );
+    intptr_t   mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int        nb     = run_arg_get_int( args, "nb", 320 );
+    int        P      = parameters_getvalue_int( "P" );
+    int        N      = run_arg_get_int( args, "N", 1000 );
+    int        M      = run_arg_get_int( args, "M", N );
+    int        K      = chameleon_min( M, N );
+    int        LDA    = run_arg_get_int( args, "LDA", M );
+    int        seedA  = run_arg_get_int( args, "seedA", random() );
+    double     cond   = run_arg_get_double( args, "cond", 1.e16 );
+    int        mode   = run_arg_get_int( args, "mode", 4 );
+    int        Q      = parameters_compute_q( P );
+    cham_job_t jobu   = run_arg_get_job( args, "jobu", ChamNoVec );
+    cham_job_t jobvt  = run_arg_get_job( args, "jobvt", ChamNoVec );
+    int        runtime;
 
     /* Descriptors */
     CHAM_desc_t           *descA, *descT, *descA0;
@@ -54,10 +86,17 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     int                    LDU   = M;
     int                    LDVt  = N; 
     int                    Un, Vtn;
-    cham_job_t             jobu  = ChamAllVec;
-    cham_job_t             jobvt = ChamAllVec;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    CHAMELEON_Get( CHAMELEON_RUNTIME, &runtime );
+    if ( runtime == RUNTIME_SCHED_PARSEC ) {
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: The SVD is not supported with PaRSEC\n" );
+        }
+        return -1;
+    }
 
     /* Creates the matrices */
     CHAMELEON_Desc_Create(
@@ -111,7 +150,7 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
         hres = CHAMELEON_zgesvd_Tile( jobu, jobvt, descA, S, descT, U, LDU, Vt, LDVt );
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zgesvd( M, N ) );
+    testing_stop( &test_data, flops_zgesvd( M, N, K, jobu, jobvt ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -124,10 +163,10 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     free( S );
     free( D );
-    if ( jobu  == ChamAllVec || jobu  == ChamSVec ) {
+    if ( (jobu  == ChamAllVec) || (jobu  == ChamSVec) ) {
         free( U );
     }
-    if ( jobvt == ChamAllVec || jobvt == ChamSVec ) {
+    if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
         free( Vt );
     }
 
@@ -141,14 +180,17 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int    nb    = run_arg_get_int( args, "nb", 320 );
-    int    N     = run_arg_get_int( args, "N", 1000 );
-    int    M     = run_arg_get_int( args, "M", N );
-    int    K     = chameleon_min( M, N );
-    int    LDA   = run_arg_get_int( args, "LDA", M );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
-    double cond  = run_arg_get_double( args, "cond", 1.e16 );
-    int    mode  = run_arg_get_int( args, "mode", 4 );
+    int        nb    = run_arg_get_int( args, "nb", 320 );
+    int        N     = run_arg_get_int( args, "N", 1000 );
+    int        M     = run_arg_get_int( args, "M", N );
+    int        K     = chameleon_min( M, N );
+    int        LDA   = run_arg_get_int( args, "LDA", M );
+    int        seedA = run_arg_get_int( args, "seedA", random() );
+    double     cond  = run_arg_get_double( args, "cond", 1.e16 );
+    int        mode  = run_arg_get_int( args, "mode", 4 );
+    cham_job_t jobu  = run_arg_get_job( args, "jobu", ChamNoVec );
+    cham_job_t jobvt = run_arg_get_job( args, "jobvt", ChamNoVec );
+    int        runtime;
 
     /* Descriptors */
     CHAM_desc_t           *descT;
@@ -157,10 +199,17 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     int                    LDU   = M;
     int                    LDVt  = N; 
     int                    Un, Vtn;
-    cham_job_t             jobu  = ChamAllVec;
-    cham_job_t             jobvt = ChamAllVec;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+
+    CHAMELEON_Get( CHAMELEON_RUNTIME, &runtime );
+    if ( runtime == RUNTIME_SCHED_PARSEC ) {
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: The SVD is not supported with PaRSEC\n" );
+        }
+        return -1;
+    }
 
     /* Creates the matrices */
     A = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );
@@ -206,7 +255,7 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     hres = CHAMELEON_zgesvd( jobu, jobvt, M, N, A, LDA, S, descT, U, LDU, Vt, LDVt );
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zgesvd( M, N ) );
+    testing_stop( &test_data, flops_zgesvd( M, N, K, jobu, jobvt ) );
 
     /* Checks the factorisation and residue */
     if ( check ) {
@@ -217,10 +266,10 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
 
     free( A );
     free( S );
-    if ( jobu  == ChamAllVec || jobu  == ChamSVec ) {
+    if ( (jobu  == ChamAllVec) || (jobu  == ChamSVec) ) {
         free( U );
     }
-    if ( jobvt == ChamAllVec || jobvt == ChamSVec ) {
+    if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
         free( Vt );
     }
     CHAMELEON_Desc_Destroy( &descT );
@@ -229,7 +278,7 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
 }
 
 testing_t   test_zgesvd;
-const char *zgesvd_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", NULL };
+const char *zgesvd_params[] = { "mtxfmt", "nb", "jobu", "jobvt", "m", "n", "lda", "seedA", NULL };
 const char *zgesvd_output[] = { NULL };
 const char *zgesvd_outchk[] = { "||R||", "||I-QQ'||", "RETURN", NULL };
 

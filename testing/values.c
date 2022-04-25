@@ -11,6 +11,7 @@
  * @version 1.2.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
+ * @author Alycia Lisito
  * @date 2022-02-22
  *
  */
@@ -259,6 +260,76 @@ val_t pread_side( const char *str )
 }
 
 /**
+ * @brief Convert the input string to a cham_job_t
+ * @param[in] str
+ *    The input string
+ * @return The cham_job_t read.
+ */
+val_t pread_job( const char *str )
+{
+    val_t val;
+    val.job = ChamNoVec;
+
+    if ( ( strcasecmp( "ChamNoVec", str ) == 0 ) ||
+         ( strcasecmp( "NoVec",     str ) == 0 ) ||
+         ( strcasecmp( "N",         str ) == 0 ) )
+    {
+        val.job = ChamNoVec;
+    }
+    else if ( ( strcasecmp( "ChamVec", str ) == 0 ) ||
+              ( strcasecmp( "Vec",     str ) == 0 ) )
+    {
+        val.job = ChamVec;
+    }
+    else if ( ( strcasecmp( "ChamIvec", str ) == 0 ) ||
+              ( strcasecmp( "Ivec",     str ) == 0 ) ||
+              ( strcasecmp( "I",        str ) == 0 ) )
+    {
+        val.job = ChamIvec;
+    }
+    else if ( ( strcasecmp( "ChamAllVec", str ) == 0 ) ||
+              ( strcasecmp( "AllVec",     str ) == 0 ) ||
+              ( strcasecmp( "A",          str ) == 0 ) )
+    {
+        val.job = ChamAllVec;
+    }
+    else if ( ( strcasecmp( "ChamSVec", str ) == 0 ) ||
+              ( strcasecmp( "SVec",     str ) == 0 ) ||
+              ( strcasecmp( "S",        str ) == 0 ) )
+    {
+        val.job = ChamSVec;
+    }
+    else if ( ( strcasecmp( "ChamOVec", str ) == 0 ) ||
+              ( strcasecmp( "OVec",     str ) == 0 ) ||
+              ( strcasecmp( "O",        str ) == 0 ) )
+    {
+        val.job = ChamOVec;
+    }
+    else {
+        int v = atoi( str );
+        if ( (v == ChamVec) || (v == (ChamVec-ChamNoVec)) ) {
+            val.job = ChamVec;
+        }
+        else if ( (v == ChamIvec) || (v == (ChamIvec-ChamNoVec)) ) {
+            val.job = ChamIvec;
+        }
+        else if ( (v == ChamAllVec) || (v == (ChamAllVec-ChamNoVec)) ) {
+            val.job = ChamAllVec;
+        }
+        else if ( (v == ChamSVec) || (v == (ChamSVec-ChamNoVec)) ) {
+            val.job = ChamSVec;
+        }
+        else if ( (v == ChamOVec) || (v == (ChamOVec-ChamNoVec)) ) {
+            val.job = ChamOVec;
+        }
+        else {
+            val.job = ChamNoVec;
+        }
+    }
+    return val;
+}
+
+/**
  * @brief Convert the input string to a cham_normtype_t
  * @param[in] str
  *    The input string
@@ -493,6 +564,47 @@ char *sprint_side( val_t val, int human, int nbchar, char *str_in )
     }
     else {
         rc = sprintf( str_in, ";%d", val.side );
+    }
+    return str_in+rc;
+}
+
+/**
+ * @brief Convert the input string to a cham_job_t
+ * @param[in] str
+ *    The input string
+ * @return The cham_job_t read.
+ */
+char *sprint_job( val_t val, int human, int nbchar, char *str_in )
+{
+    int rc;
+    if ( human ) {
+        char *name;
+        switch( val.job ) {
+        case ChamNoVec:
+            name = "No Vec";
+            break;
+        case ChamVec:
+            name = "Vec";
+            break;
+        case ChamIvec:
+            name = "Ivec";
+            break;
+        case ChamAllVec:
+            name = "All Vec";
+            break;
+        case ChamSVec:
+            name = "S Vec";
+            break;
+        case ChamOVec:
+            name = "O Vec";
+            break;
+        default:
+            name = "ERR";
+        }
+        rc = sprintf( str_in, " %-*s", nbchar, name );
+    }
+    else {
+        rc = sprintf( str_in, ";%d", val.job );
     }
     return str_in+rc;
 }

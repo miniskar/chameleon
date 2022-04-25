@@ -77,7 +77,9 @@
  * @param[in] U
  *          The orthogonal matrix U computed by the Chameleon SVD algorithm can
  *          contain all of U, a part of U or nothing (NULL) depending on the value of jobu;
- *          dimension: M * K = min(M, N).
+ *          if jobu == AllVec : dimension: M * M
+ *          if jobu == SVec :   dimension: M * min(M, N)
+ *          if jobu == NoVec or OVec : U = NULL
  *
  * @param[in] LDU
  *          The leading dimension of the matrix U.
@@ -85,7 +87,9 @@
  * @param[in] Vt
  *          The orthogonal matrix Vt computed by the Chameleon SVD algorithm can
  *          contain all of Vt, a part of Vt or nothing (NULL) depending on the value of jobvt;
- *          dimension: K = min(M, N) * N.
+ *          if jobuvt == AllVec : dimension: N * N
+ *          if jobvt == SVec :    dimension: min(M, N) * N
+ *          if jobvt == NoVec or OVec : Vt = NULL
  *
  * @param[in] LDVt
  *          The leading dimension of the matrix Vt.
@@ -99,6 +103,7 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
 {
     int info_solution = 0;
     double result;
+    int k;
     int K = chameleon_min(M, N);
     double eps = LAPACKE_dlamch_work('e');
 
@@ -137,7 +142,7 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
     double maxSVdiff = fabs( fabs(Sinit[0]) - fabs(S[0]) );
     double maxtmp, maxdifftmp;
 
-    for ( int k = 1; k < K; k++ ) {
+    for ( k = 1; k < K; k++ ) {
         maxdifftmp = fabs( fabs(Sinit[k]) - fabs(S[k]) );
         maxtmp     = chameleon_max( fabs(Sinit[k]), fabs(S[k]) );
 
@@ -152,7 +157,7 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
         info_solution += 1;
     }
 
-    if ( jobu == ChamAllVec && jobvt == ChamAllVec ) {
+    if ( (jobu == ChamAllVec) && (jobvt == ChamAllVec) ) {
         /* To do: create mat( S ) */
     }
     result = info_solution;
@@ -199,7 +204,9 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
  * @param[in] U
  *          The orthogonal matrix U computed by the Chameleon SVD algorithm can
  *          contain all of U, a part of U or nothing (NULL) depending on the value of jobu;
- *          dimension: M * K = min(M, N).
+ *          if jobu == AllVec : dimension: M * M
+ *          if jobu == SVec :   dimension: M * min(M, N)
+ *          if jobu == NoVec or OVec : U = NULL
  *
  * @param[in] LDU
  *          The leading dimension of the matrix U.
@@ -207,7 +214,9 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
  * @param[in] Vt
  *          The orthogonal matrix Vt computed by the Chameleon SVD algorithm can
  *          contain all of Vt, a part of Vt or nothing (NULL) depending on the value of jobvt;
- *          dimension: K = min(M, N) * N.
+ *          if jobuvt == AllVec : dimension: N * N
+ *          if jobvt == SVec :    dimension: min(M, N) * N
+ *          if jobvt == NoVec or OVec : Vt = NULL
  *
  * @param[in] LDVt
  *          The leading dimension of the matrix Vt.
