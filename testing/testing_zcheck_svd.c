@@ -32,10 +32,6 @@
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
 
-#ifndef max
-#define max( _a_, _b_ ) ( (_a_) > (_b_) ? (_a_) : (_b_) )
-#endif
-
 /**
  ********************************************************************************
  *

@@ -427,7 +427,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_trans_t
     }
 
     Rnorm = CHAMELEON_zlange_Tile( ChamOneNorm, descB );
-    result = Rnorm / ( Anorm * Xnorm * chameleon_max( M, N ) * eps );
+    result = Rnorm / ( Anorm * Xnorm * max( M, N ) * eps );
 
     run_arg_add_double( args, "||A||", Anorm );
     run_arg_add_double( args, "||X||", Xnorm );
