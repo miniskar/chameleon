@@ -48,7 +48,7 @@ parameter_t parameters[] = {
     { "async",    "Switch to the Async interface",                        's', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "splitsub", "Split the task submission and execution stages",       'S', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "generic",  "Switch to the non optimized generic algorithms",       -35, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
-    { "api",      "Select the API to test (0: Descriptors, 1: Standard)", -36, PARAM_OPTION, 1, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "api",      "Select the API to test (0: Descriptors, 1: Standard, 2: Lapack)", -36, PARAM_OPTION, 1, 3, TestValInt, {0}, NULL, pread_int, sprint_int },
 #endif
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },

@@ -1,0 +1,34 @@
+/**
+ *
+ * @file lapack_api_common.h
+ *
+ * @copyright 2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria, Univ. Bordeaux.
+ *                 All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon blas/lapack and cblas/lapack api common internal functions
+ *
+ * @version 1.2.0
+ * @author Mathieu Faverge
+ * @author Florent Pruvost
+ * @date 2022-04-22
+ *
+ */
+#ifndef _lapack_api_common_h_
+#define _lapack_api_common_h_
+
+#include "chameleon.h"
+#include "chameleon/mangling.h"
+#include "control/auxiliary.h"
+
+/**
+ *
+ * @defgroup CHAMELEON_LAPACK_API
+ * @brief Linear algebra routines exposed to users. LAPACK matrix data storage
+ *
+ */
+
+int chameleon_blastocblas_trans(const char* value);
+
+#endif /* _lapack_api_common_h_ */

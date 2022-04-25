@@ -144,6 +144,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int          api    = parameters_getvalue_int( "api" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
     cham_trans_t transB = run_arg_get_trans( args, "transB", ChamNoTrans );
@@ -199,12 +200,26 @@ testing_zgemm_std( run_arg_list_t *args, int check )
     /* Calculate the product */
 #if defined(CHAMELEON_TESTINGS_VENDOR)
     testing_start( &test_data );
-    cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K, 
+    cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K,
                         CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
     testing_stop( &test_data, flops_zgemm( M, N, K ) );
 #else
     testing_start( &test_data );
-    hres = CHAMELEON_zgemm( transA, transB, M, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+    switch ( api ) {
+    case 1:
+        hres = CHAMELEON_zgemm( transA, transB, M, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+        break;
+    case 2:
+        CHAMELEON_cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K,
+                               CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+        break;
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_zgemm( M, N, K ) );
 
