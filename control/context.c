@@ -137,6 +137,7 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->profiling_enabled  = chameleon_env_is_on( "CHAMELEON_PROFILING_MODE" );
     chamctxt->progress_enabled   = chameleon_env_is_on( "CHAMELEON_PROGRESS" );
     chamctxt->generic_enabled    = chameleon_env_is_on( "CHAMELEON_GENERIC" );
+    chamctxt->autominmax_enabled = chameleon_env_is_on( "CHAMELEON_AUTOMINMAX" );
 
     chamctxt->runtime_paused     = CHAMELEON_FALSE;
 

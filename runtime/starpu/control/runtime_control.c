@@ -18,6 +18,7 @@
  * @author Florent Pruvost
  * @author Philippe Swartvagher
  * @author Samuel Thibault
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  *
  */
@@ -319,4 +320,17 @@ int RUNTIME_comm_size( CHAM_context_t *chamctxt )
 
     (void)chamctxt;
     return size;
+}
+
+void RUNTIME_set_minmax_submitted_tasks( int min, int max ){
+#if defined(HAVE_STARPU_SET_LIMIT_SUBMITTED_TASKS)
+    starpu_set_limit_min_submitted_tasks( min );
+    starpu_set_limit_max_submitted_tasks( max );
+#else
+    fprintf( stderr,
+             "RUNTIME_set_minmax_submitted_tasks: StarPU version does not support dynamic limit setting.\n"
+             "Please use setting through environment variables:\n"
+             "    export STARPU_LIMIT_MIN_SUBMITTED_TASKS=%d\n"
+             "    export STARPU_LIMIT_MAX_SUBMITTED_TASKS=%d\n", min, max );
+#endif
 }

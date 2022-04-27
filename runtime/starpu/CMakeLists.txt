@@ -23,6 +23,7 @@
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Samuel Thibault
+#  @author Matthieu Kuhn
 #  @date 2022-02-22
 #
 ###
@@ -72,6 +73,10 @@ if ( STARPU_FOUND )
   check_function_exists(starpu_data_peek HAVE_STARPU_DATA_PEEK)
   if ( HAVE_STARPU_DATA_PEEK )
     message("-- ${Blue}Add definition HAVE_STARPU_DATA_PEEK${ColourReset}")
+  endif()
+  check_function_exists(starpu_set_limit_min_submitted_tasks HAVE_STARPU_SET_LIMIT_SUBMITTED_TASKS )
+  if ( HAVE_STARPU_SET_LIMIT_SUBMITTED_TASKS )
+    message("-- ${Blue}Add definition HAVE_STARPU_SET_LIMIT_SUBMITTED_TASKS${ColourReset}")
   endif()
   check_struct_has_member( "struct starpu_data_interface_ops" reuse_data_on_node "starpu_data_interfaces.h" HAVE_STARPU_REUSE_DATA_ON_NODE LANGUAGE "C" )
   if ( HAVE_STARPU_REUSE_DATA_ON_NODE )
