@@ -133,6 +133,16 @@ void chameleon_pzunmlq( int genD, cham_side_t side, cham_trans_t trans, CHAM_des
 void chameleon_pzunmlqrh( int genD, int BS, cham_side_t side, cham_trans_t trans, CHAM_desc_t *A, CHAM_desc_t *B, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzbuild( cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
+int chameleon_pzgelqf_step( int genD, int k, int ib,
+                            CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                            RUNTIME_option_t *options, RUNTIME_sequence_t *sequence );
+int chameleon_pzgeqrf_step( int genD, int k, int ib,
+                            CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                            RUNTIME_option_t *options, RUNTIME_sequence_t *sequence );
+int  chameleon_pzgelqf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
+                                   const libhqr_tree_t *qrtree, int *tiles,
+                                   CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                                   RUNTIME_option_t *options, RUNTIME_sequence_t *sequence );
 int  chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
                                    const libhqr_tree_t *qrtree, int *tiles,
                                    CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
@@ -142,7 +152,8 @@ void chameleon_pzungqr_param_step( int genD, cham_uplo_t uplo, int k, int ib,
                                    CHAM_desc_t *A, CHAM_desc_t *Q,
                                    CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                                    RUNTIME_option_t *options, RUNTIME_sequence_t *sequence );
-void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+void chameleon_pzgelqf_param( int genD, int K, const libhqr_tree_t *qrtree,
+                              CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgeqrf_param( int genD, int K, const libhqr_tree_t *qrtree,
                               CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,

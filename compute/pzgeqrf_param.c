@@ -164,7 +164,6 @@ int chameleon_pzgeqrf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
     return tiles[nbtiles];
 }
 
-
 /**
  *  Parallel tile QR factorization (reduction Householder) - dynamic scheduling
  *
