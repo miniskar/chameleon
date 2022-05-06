@@ -99,6 +99,12 @@ static inline int check_zqc           ( run_arg_list_t *args, cham_side_t side, 
 static inline int check_zqc_std       ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, int M, int N,
                                         CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *CC, int LDC, CHAMELEON_Complex64_t *Q, int LDQ ) { return 0; }
 
+/* SVD check */
+static inline int check_zgesvd_std    ( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, int M, int N, CHAMELEON_Complex64_t *Ainit, CHAMELEON_Complex64_t *A, int LDA, 
+                                        double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt ) { return 0; }
+static inline int check_zgesvd        ( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *descAinit, CHAM_desc_t *descA, 
+                                        double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt ) { return 0; }
+
 /* Polar decomposition check */
 static inline int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
                                         CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 ) { return 0; }
@@ -172,6 +178,11 @@ int check_zqc           ( run_arg_list_t *args, cham_side_t side, cham_trans_t t
 int check_zqc_std       ( run_arg_list_t *args, cham_side_t side, cham_trans_t trans, int M, int N,
                           CHAMELEON_Complex64_t *C, CHAMELEON_Complex64_t *CC, int LDC, CHAMELEON_Complex64_t *Q, int LDQ );
 
+/* SVD check */
+int check_zgesvd_std    ( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, int M, int N, CHAMELEON_Complex64_t *Ainit, CHAMELEON_Complex64_t *A, int LDA, 
+                          double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt );
+int check_zgesvd        ( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *descAinit, CHAM_desc_t *descA, 
+                          double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt );
 /* Polar decomposition check */
 int check_zgepdf_qr     ( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *descA2,
                           CHAM_desc_t *descQ1, CHAM_desc_t *descQ2, CHAM_desc_t *descAF1 );

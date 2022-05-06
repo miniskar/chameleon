@@ -442,6 +442,32 @@ run_arg_get_side( run_arg_list_t *arglist, const char *name, cham_side_t defval 
 }
 
 /**
+ * @brief Searches for a cham_job_t value by its name.
+ *
+ * @param[inout] arglist
+ *          The list of arguments.
+ *          On exit, if the argument was not in the list, the default value is
+ *          stored in it.
+ *
+ * @param[in] name
+ *          The name of the argument to look for.
+ *
+ * @param[in] defval
+ *          The default value if no argument is found with this name. This value
+ *          is added to the list if not found.
+ *
+ * @retval The value of the argument _name_.
+ */
+cham_job_t
+run_arg_get_job( run_arg_list_t *arglist, const char *name, cham_job_t defval )
+{
+    val_t val, rval;
+    val.job = defval;
+    rval = run_arg_get( arglist, name, val );
+    return rval.job;
+}
+
+/**
  * @brief Searches for a cham_normtype_t value by its name.
  *
  * @param[inout] arglist
@@ -736,6 +762,7 @@ run_print_header_partial( const char **list, int human, char *str )
             case TestUplo:
             case TestDiag:
             case TestSide:
+            case TestJob:
             case TestNormtype:
             case TestString:
                 rc = sprintf( str, " %-*s", param->psize, *pname );

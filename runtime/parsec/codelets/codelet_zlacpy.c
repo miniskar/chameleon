@@ -29,7 +29,7 @@ CORE_zlacpy_parsec( parsec_execution_stream_t *context,
     cham_uplo_t uplo;
     int M;
     int N;
-    CHAMELEON_Complex64_t *A;
+    const CHAMELEON_Complex64_t *A;
     int LDA;
     CHAMELEON_Complex64_t *B;
     int LDB;
@@ -72,7 +72,7 @@ CORE_zlacpyx_parsec( parsec_execution_stream_t *context,
     int M;
     int N;
     int displA;
-    CHAMELEON_Complex64_t *A;
+    const CHAMELEON_Complex64_t *A;
     int LDA;
     int displB;
     CHAMELEON_Complex64_t *B;
@@ -95,7 +95,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
 
     parsec_dtd_taskpool_insert_task(
-        PARSEC_dtd_taskpool, CORE_zlacpyx_parsec, options->priority, "lacpy",
+        PARSEC_dtd_taskpool, CORE_zlacpyx_parsec, options->priority, "lacpyx",
         sizeof(cham_uplo_t), &uplo,   VALUE,
         sizeof(int),         &m,      VALUE,
         sizeof(int),         &n,      VALUE,

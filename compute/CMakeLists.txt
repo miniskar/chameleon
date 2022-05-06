@@ -196,8 +196,7 @@ set(ZSRC
     # OTHERS
     ##################
     pztile2band.c
-    #pzgebrd_gb2bd.c
-    pzgebrd_ge2gb.c
+    pzgebrd.c
     #pzgetrf_reclap.c
     #pzgetrf_rectil.c
     #pzhegst.c

@@ -15,6 +15,7 @@
  * @author Gregoire Pichon
  * @author Mathieu Faverge
  * @author Raphael Boucherie
+ * @author Alycia Lisito
  * @date 2022-02-22
  * @precisions normal z -> s d c
  *
@@ -51,30 +52,30 @@
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack):  all M columns of U are returned
- *                        in array U;
- *          = ChamNoVec = 'N':  no columns of U (no left singular vectors)
- *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) columns of U (the left
- *                        singular vectors) are returned in the array U;
- *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) columns of U (the left
- *                        singular vectors) are overwritten on the array A;
- *                        NOT SUPPORTTED YET
+ *          = ChamAllVec = 'A'(lapack): all M columns of U are returned
+ *                         in array U;
+ *          = ChamNoVec  = 'N': no columns of U (no left singular vectors)
+ *                         are computed.
+ *          = ChamSVec   = 'S': the first min(m,n) columns of U (the left
+ *                         singular vectors) are returned in the array U;
+ *                         NOT SUPPORTED YET
+ *          = ChamOVec   = 'O': the first min(m,n) columns of U (the left
+ *                         singular vectors) are overwritten on the array A;
+ *                         NOT SUPPORTED YET
  *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V^H.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack): all N rows of V^H are returned
- *                        in the array VT;
- *          = ChamNoVec = 'N': no rows of V^H (no right singular vectors)
- *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) rows of V^H (the right
- *                        singular vectors) are returned in the array VT;
- *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) rows of V^H (the right
- *                        singular vectors) are overwritten on the array A;
- *                        NOT SUPPORTTED YET
+ *          = ChamAllVec = 'A'(lapack): all N rows of V^H are returned
+ *                         in the array VT;
+ *          = ChamNoVec  = 'N': no rows of V^H (no right singular vectors)
+ *                         are computed.
+ *          = ChamSVec   = 'S': the first min(m,n) rows of V^H (the right
+ *                         singular vectors) are returned in the array VT;
+ *                         NOT SUPPORTED YET
+ *          = ChamOVec   = 'O': the first min(m,n) rows of V^H (the right
+ *                         singular vectors) are overwritten on the array A;
+ *                         NOT SUPPORTED YET
  *
  *          Note: jobu and jobvt cannot both be ChamOVec.
  *
@@ -87,14 +88,14 @@
  * @param[in,out] A
  *          On entry, the M-by-N matrix A.
  *          On exit,
- *          if JOBU = 'O',  A is overwritten with the first min(m,n)
- *                          columns of U (the left singular vectors,
- *                          stored columnwise);
- *          if JOBVT = 'O', A is overwritten with the first min(m,n)
- *                          rows of V^H (the right singular vectors,
- *                          stored rowwise);
- *          if JOBU .ne. 'O' and JOBVT .ne. 'O', the contents of A
- *                          are destroyed.
+ *          if jobu == ChamOVec, A is overwritten with the first min(m,n)
+ *                               columns of U (the left singular vectors,
+ *                               stored columnwise);
+ *          if jobvt == ChamOVec, A is overwritten with the first min(m,n)
+ *                                rows of V^H (the right singular vectors,
+ *                                stored rowwise);
+ *          if jobu != ChamOVec and jobvt != ChamOVec, the content of A
+ *                                                     is destroyed.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
@@ -107,26 +108,28 @@
  *          On exit, contains auxiliary factorization data.
  *
  * @param[out] U
- *          (LDU,M) if JOBU = 'A' or (LDU,min(M,N)) if JOBU = 'S'.
- *          If JOBU = 'A', U contains the M-by-M unitary matrix U;
- *          if JOBU = 'S', U contains the first min(m,n) columns of U
- *          (the left singular vectors, stored columnwise);
- *          if JOBU = 'N' or 'O', U is not referenced.
+ *          If jobu == ChamAllVec, U contains the M-by-M unitary matrix U;
+ *          if jobu == ChamSVec, U contains the first min(m,n) columns of U
+ *                               (the left singular vectors, stored columnwise);
+ *          if jobu == ChamNoVec or ChamOVec, U is not referenced.
+
  *
  * @param[in] LDU
- *          The leading dimension of the array U.  LDU >= 1; if
- *          JOBU = 'S' or 'A', LDU >= M.
+ *          The leading dimension of the array U.  LDU >= 1;
+ *          if jobu == ChamSVec or ChamAllVec, LDU >= M.
  *
  * @param[out] VT
- *         If JOBVT = 'A', VT contains the N-by-N unitary matrix
- *         V^H;
- *         if JOBVT = 'S', VT contains the first min(m,n) rows of
- *         V^H (the right singular vectors, stored rowwise);
- *         if JOBVT = 'N' or 'O', VT is not referenced.
+ *          If jobvt == ChamAllVec, VT contains the N-by-N unitary matrix
+ *                                  V^H;
+ *          if jobvt == ChamSVec, VT contains the first min(m,n) rows of
+ *                                V^H (the right singular vectors, stored rowwise);
+ *          if jobvt == ChamNoVec or ChamOVec, VT is not referenced.
+
  *
  * @param[in] LDVT
- *         The leading dimension of the array VT.  LDVT >= 1; if
- *         JOBVT = 'A', LDVT >= N; if JOBVT = 'S', LDVT >= min(M,N).
+ *          The leading dimension of the array VT.  LDVT >= 1;
+ *          if jobvt == ChamAllVec, LDVT >= N;
+ *          if jobvt == ChamSVec,   LDVT >= min(M,N).
  *
  *******************************************************************************
  *
@@ -158,49 +161,50 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
     CHAM_desc_t descAl, descAt;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgesvd", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zgesvd", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    assert( chamctxt->scheduler != RUNTIME_SCHED_PARSEC );
 
     /* Check input arguments */
-    if (jobu != ChamNoVec  && jobu != ChamVec) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of jobu");
+    if ( (jobu != ChamNoVec) && (jobu != ChamAllVec) ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of jobu" );
         return -1;
     }
-    if (jobvt != ChamNoVec && jobvt != ChamVec) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of jobvt");
+    if ( (jobvt != ChamNoVec) && (jobvt != ChamAllVec) ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of jobvt" );
         return -2;
     }
-    if (M < 0) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of M");
+    if ( M < 0 ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of M") ;
         return -3;
     }
-    if (N < 0) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of N");
+    if ( N < 0 ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of N" );
         return -4;
     }
-    if (LDA < chameleon_max(1, M)) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of LDA");
+    if ( LDA < chameleon_max(1, M) ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of LDA" );
         return -6;
     }
-    if (LDU < 1) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of LDU");
+    if ( LDU < 1 ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of LDU" );
         return -9;
     }
-    if (LDVT < 1) {
-        chameleon_error("CHAMELEON_zgesvd", "illegal value of LDVT");
+    if ( LDVT < 1 ) {
+        chameleon_error( "CHAMELEON_zgesvd", "illegal value of LDVT" );
         return -11;
     }
     /* Quick return */
-    if (chameleon_min(M, N) == 0) {
+    if ( chameleon_min(M, N ) == 0 ) {
         return CHAMELEON_SUCCESS;
     }
 
     /* Tune NB & IB depending on M & N; Set NBNB */
-    status = chameleon_tune(CHAMELEON_FUNC_ZGESVD, M, N, 0);
-    if (status != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zgesvd", "chameleon_tune() failed");
+    status = chameleon_tune( CHAMELEON_FUNC_ZGESVD, M, N, 0 );
+    if ( status != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zgesvd", "chameleon_tune() failed" );
         return status;
     }
 
@@ -220,6 +224,7 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                          ChamDescInout, ChamUpperLower, sequence, &request );
 
+    CHAMELEON_Desc_Flush( descT, sequence );
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
@@ -248,44 +253,44 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack):  all M columns of U are returned
- *                        in array U;
- *          = ChamNoVec = 'N':  no columns of U (no left singular vectors)
- *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) columns of U (the left
- *                        singular vectors) are returned in the array U;
- *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) columns of U (the left
- *                        singular vectors) are overwritten on the array A;
- *                        NOT SUPPORTTED YET
+ *          = ChamAllVec = 'A'(lapack): all M columns of U are returned
+ *                         in array U;
+ *          = ChamNoVec  = 'N': no columns of U (no left singular vectors)
+ *                         are computed.
+ *          = ChamSVec   = 'S': the first min(m,n) columns of U (the left
+ *                         singular vectors) are returned in the array U;
+ *                         NOT SUPPORTED YET
+ *          = ChamOVec   = 'O': the first min(m,n) columns of U (the left
+ *                         singular vectors) are overwritten on the array A;
+ *                         NOT SUPPORTED YET
  *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V^H.
  *          Intended usage:
- *          = ChamVec   = 'A'(lapack): all N rows of V^H are returned
- *                        in the array VT;
- *          = ChamNoVec = 'N': no rows of V^H (no right singular vectors)
- *                        are computed.
- *          = ChamSVec  = 'S': the first min(m,n) rows of V^H (the right
- *                        singular vectors) are returned in the array VT;
- *                        NOT SUPPORTTED YET
- *          = ChamOVec  = 'O': the first min(m,n) rows of V^H (the right
- *                        singular vectors) are overwritten on the array A;
- *                        NOT SUPPORTTED YET
+ *          = ChamAllVec = 'A'(lapack): all N rows of V^H are returned
+ *                         in the array VT;
+ *          = ChamNoVec  = 'N': no rows of V^H (no right singular vectors)
+ *                         are computed.
+ *          = ChamSVec   = 'S': the first min(m,n) rows of V^H (the right
+ *                         singular vectors) are returned in the array VT;
+ *                         NOT SUPPORTED YET
+ *          = ChamOVec   = 'O': the first min(m,n) rows of V^H (the right
+ *                         singular vectors) are overwritten on the array A;
+ *                         NOT SUPPORTED YET
  *
  *          Note: jobu and jobvt cannot both be ChamOVec.
  *
  * @param[in,out] A
  *          On entry, the M-by-N matrix A.
  *          On exit,
- *          if JOBU = 'O',  A is overwritten with the first min(m,n)
- *                          columns of U (the left singular vectors,
- *                          stored columnwise);
- *          if JOBVT = 'O', A is overwritten with the first min(m,n)
- *                          rows of V^H (the right singular vectors,
- *                          stored rowwise);
- *          if JOBU .ne. 'O' and JOBVT .ne. 'O', the contents of A
- *                          are destroyed.
+ *          if jobu == ChamOVec, A is overwritten with the first min(m,n)
+ *                               columns of U (the left singular vectors,
+ *                               stored columnwise);
+ *          if jobvt == ChamOVec, A is overwritten with the first min(m,n)
+ *                                rows of V^H (the right singular vectors,
+ *                                stored rowwise);
+ *          if jobu != ChamOVec and jobvt != ChamOVec, the content of A
+ *                                                     is destroyed.
  *
  * @param[out] S
  *          The singular values of A, sorted so that S(i) >= S(i+1).
@@ -295,26 +300,28 @@ int CHAMELEON_zgesvd( cham_job_t jobu, cham_job_t jobvt,
  *          On exit, contains auxiliary factorization data.
  *
  * @param[out] U
- *          (LDU,M) if JOBU = 'A' or (LDU,min(M,N)) if JOBU = 'S'.
- *          If JOBU = 'A', U contains the M-by-M unitary matrix U;
- *          if JOBU = 'S', U contains the first min(m,n) columns of U
- *          (the left singular vectors, stored columnwise);
- *          if JOBU = 'N' or 'O', U is not referenced.
+ *          If jobu == ChamAllVec, U contains the M-by-M unitary matrix U;
+ *          if jobu == ChamSVec, U contains the first min(m,n) columns of U
+ *                               (the left singular vectors, stored columnwise);
+ *          if jobu == ChamNoVec or ChamOVec, U is not referenced.
+
  *
  * @param[in] LDU
- *          The leading dimension of the array U.  LDU >= 1; if
- *          JOBU = 'S' or 'A', LDU >= M.
+ *          The leading dimension of the array U.  LDU >= 1;
+ *          if jobu == ChamSVec or ChamAllVec, LDU >= M.
  *
  * @param[out] VT
- *         If JOBVT = 'A', VT contains the N-by-N unitary matrix
- *         V^H;
- *         if JOBVT = 'S', VT contains the first min(m,n) rows of
- *         V^H (the right singular vectors, stored rowwise);
- *         if JOBVT = 'N' or 'O', VT is not referenced.
+ *          If jobvt == ChamAllVec, VT contains the N-by-N unitary matrix
+ *                                  V^H;
+ *          if jobvt == ChamSVec, VT contains the first min(m,n) rows of
+ *                                V^H (the right singular vectors, stored rowwise);
+ *          if jobvt == ChamNoVec or ChamOVec, VT is not referenced.
+
  *
  * @param[in] LDVT
- *         The leading dimension of the array VT.  LDVT >= 1; if
- *         JOBVT = 'A', LDVT >= N; if JOBVT = 'S', LDVT >= min(M,N).
+ *          The leading dimension of the array VT.  LDVT >= 1;
+ *          if jobvt == ChamAllVec, LDVT >= N;
+ *          if jobvt == ChamSVec,   LDVT >= min(M,N).
  *
  *******************************************************************************
  *
@@ -342,10 +349,11 @@ int CHAMELEON_zgesvd_Tile( cham_job_t jobu, cham_job_t jobvt,
     int status;
 
     chamctxt = chameleon_context_self();
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgesvd_Tile", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zgesvd_Tile", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
+    assert( chamctxt->scheduler != RUNTIME_SCHED_PARSEC );
     chameleon_sequence_create( chamctxt, &sequence );
 
     CHAMELEON_zgesvd_Tile_Async( jobu, jobvt, A, S, T, U, LDU, VT, LDVT, sequence, &request );
@@ -399,246 +407,129 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
 {
     CHAM_desc_t descA;
     CHAM_desc_t descT;
-    CHAM_desc_t descUl, descUt;
-    CHAM_desc_t descVTl, descVTt;
-    CHAM_desc_t descAB;
     CHAM_desc_t D, *Dptr = NULL;
-    CHAM_desc_t *subA, *subT, *subUVT;
     double *E;
-    int M, N, MINMN, NB, LDAB;
-    cham_uplo_t uplo;
-#if !defined(CHAMELEON_SIMULATION)
-    int KL, KU, nru, ncvt;
-#endif
+    int M, N, MINMN, NB;
 
     CHAM_context_t *chamctxt;
     chamctxt = chameleon_context_self();
 
-    if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgesvd_Tile_Async", "CHAMELEON not initialized");
+    if ( chamctxt == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zgesvd_Tile_Async", "CHAMELEON not initialized" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgesvd_Tile_Async", "NULL sequence");
+    assert( chamctxt->scheduler != RUNTIME_SCHED_PARSEC );
+    if ( sequence == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zgesvd_Tile_Async", "NULL sequence" );
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_zgesvd_Tile_Async", "NULL request");
+    if ( request == NULL ) {
+        chameleon_fatal_error( "CHAMELEON_zgesvd_Tile_Async", "NULL request" );
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
-    if (sequence->status == CHAMELEON_SUCCESS) {
+    if ( sequence->status == CHAMELEON_SUCCESS ) {
         request->status = CHAMELEON_SUCCESS;
     }
     else {
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED);
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_SEQUENCE_FLUSHED );
     }
 
     /* Check descriptors for correctness */
-    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zgesvd_Tile_Async", "invalid first descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check(A) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "invalid first descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     } else {
         descA = *A;
     }
-    if (chameleon_desc_check(T) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_zgesvd_Tile_Async", "invalid fourth descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( chameleon_desc_check(T) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "invalid fourth descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     } else {
         descT = *T;
     }
     /* Check input arguments */
-    if (jobu != ChamNoVec  && jobu != ChamVec) {
-        chameleon_error("CHAMELEON_zgesvd_Tile_Async", "illegal value of jobu");
+    if ( (jobu != ChamNoVec) && (jobu != ChamAllVec) ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "illegal value of jobu" );
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
-    if (jobvt != ChamNoVec && jobvt != ChamVec) {
-        chameleon_error("CHAMELEON_zgesvd_Tile_Async", "illegal value of jobvt");
+    if ( (jobvt != ChamNoVec) && (jobvt != ChamAllVec) ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "illegal value of jobvt" );
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
-    if (descA.nb != descA.mb) {
-        chameleon_error("CHAMELEON_zgesvd_Tile_Async", "only square tiles supported");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    if ( descA.nb != descA.mb ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "only square tiles supported" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
 
     M     = descA.m;
     N     = descA.n;
     MINMN = chameleon_min(M, N);
     NB    = descA.mb;
-    LDAB  = NB + 1;
-    uplo  = M >= N ? ChamUpper : ChamLower;
-
 #if defined(CHAMELEON_COPY_DIAG)
     {
-        chameleon_zdesc_alloc_diag( &D, A->mb, A->m, A->n, A->p, A->q );
+        chameleon_zdesc_copy_and_restrict( A, &D, A->m, A->n );
         Dptr = &D;
     }
 #endif
-    /* Reduction to band */
-    chameleon_pzgebrd_ge2gb( 1, &descA, &descT, Dptr,
-                             sequence, request );
-
-    /* Allocate band structure */
-    chameleon_zdesc_alloc( descAB,
-                           LDAB, NB, /* mb, nb */
-                           LDAB, N,  /* lm, ln */
-                           0, 0,     /* i, j */
-                           LDAB, N,  /* m, n */
-                            );
-
-    /* Convert matrix to band form */
-    chameleon_pztile2band( uplo,
-                           &descA, &descAB,
-                           sequence, request );
 
     E = malloc( MINMN * sizeof(double) );
-    if (E == NULL) {
-        chameleon_error("CHAMELEON_zheevd_Tile_Async", "malloc(E) failed");
-        free(E);
+    if ( E == NULL ) {
+        chameleon_error( "CHAMELEON_zgesvd_Tile_Async", "malloc(E) failed" );
+        free( E );
         return CHAMELEON_ERR_OUT_OF_RESOURCES;
     }
-    memset(E, 0, MINMN * sizeof(double) );
+    memset( E, 0, MINMN * sizeof(double) );
 
-#if !defined(CHAMELEON_SIMULATION)
-    {
-        char gbbrd_vect;
-        int info;
 
-        /* NCC = 0, C = NULL, we do not update any matrix with new singular vectors */
-        /* On exit, AB = U (S +~ E) VT */
-        if (uplo == ChamUpper){
-            KL = 0;
-            KU = NB;
-        }
-        else{
-            KL = NB;
-            KU = 0;
-        }
-
-        /* Manage the case where only singular values are required */
-        if (jobu == ChamNoVec) {
-            nru = 0;
-            if (jobvt == ChamNoVec) {
-                gbbrd_vect = 'N';
-                ncvt = 0;
-            }
-            else {
-                gbbrd_vect = 'P';
-                ncvt = N;
-            }
-        }
-        else {
-            nru = M;
-            if (jobvt == ChamNoVec) {
-                gbbrd_vect = 'Q';
-                ncvt = 0;
-            }
-            else {
-                gbbrd_vect = 'B';
-                ncvt = N;
-            }
-        }
-
-        chameleon_sequence_wait( chamctxt, sequence );
-
-        info = LAPACKE_zgbbrd( LAPACK_COL_MAJOR,
-                               gbbrd_vect,
-                               M, N,
-                               0, KL, KU,
-                               (CHAMELEON_Complex64_t *) descAB.mat, LDAB,
-                               S, E,
-                               U, LDU,
-                               VT, LDVT,
-                               NULL, 1 );
-        if (info != 0) {
-            fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zgbbrd = %d\n", info );
-        }
-    }
-#else
-    chameleon_sequence_wait( chamctxt, sequence );
-#endif /* !defined(CHAMELEON_SIMULATION) */
-
-    chameleon_desc_destroy( &descAB );
-
-    subA = NULL;
-    subT = NULL;
-    subUVT = NULL;
-
-    if ( jobu != ChamNoVec ) {
-        chameleon_zlap2tile( chamctxt, &descUl, &descUt, ChamDescInout, ChamUpperLower,
-                             U, NB, NB, LDU, M, M, M, sequence, request );
-
-        if ( M < N ){
-            subA   = chameleon_desc_submatrix(&descA,  descA.mb,  0, descA.m -descA.mb,  descA.n-descA.nb);
-            subUVT = chameleon_desc_submatrix(&descUt, descUt.mb, 0, descUt.m-descUt.mb, descUt.n);
-            subT   = chameleon_desc_submatrix(&descT,  descT.mb,  0, descT.m -descT.mb,  descT.n-descT.nb);
-
-            chameleon_pzunmqr( 0, ChamLeft, ChamNoTrans,
-                               subA, subUVT, subT, Dptr,
-                               sequence, request );
-
-            free(subA); free(subUVT); free(subT);
-        }
-        else {
-            chameleon_pzunmqr( 0, ChamLeft, ChamNoTrans,
-                               &descA, &descUt, &descT, Dptr,
-                               sequence, request );
-        }
-
-        chameleon_ztile2lap( chamctxt, &descUl, &descUt,
-                             ChamDescInout, ChamUpperLower, sequence, request );
-    }
-
-    if ( jobvt != ChamNoVec ) {
-        chameleon_zlap2tile( chamctxt, &descVTl, &descVTt, ChamDescInout, ChamUpperLower,
-                             VT, NB, NB, LDVT, N, N, N, sequence, request );
-
-        if ( M < N ){
-            chameleon_pzunmlq( 0, ChamRight, ChamNoTrans,
-                               &descA, &descVTt, &descT, Dptr,
-                               sequence, request );
-        }
-        else {
-            subA   = chameleon_desc_submatrix(&descA,   0, descA.nb,   descA.m-descA.mb, descA.n  -descA.nb  );
-            subUVT = chameleon_desc_submatrix(&descVTt, 0, descVTt.nb, descVTt.m,        descVTt.n-descVTt.nb);
-            subT   = chameleon_desc_submatrix(&descT,   0, descT.nb,   descT.m-descT.mb, descT.n  -descT.nb  );
-
-            chameleon_pzunmlq( 0, ChamRight, ChamNoTrans,
-                               subA, subUVT, subT, Dptr,
-                               sequence, request );
-
-            free(subA); free(subUVT); free(subT);
-        }
-
-        chameleon_ztile2lap( chamctxt, &descVTl, &descVTt,
-                             ChamDescInout, ChamUpperLower, sequence, request );
-    }
-    chameleon_sequence_wait( chamctxt, sequence );
-
-    /* Cleanup the temporary data */
-    if ( jobu != ChamNoVec ) {
-        chameleon_ztile2lap_cleanup( chamctxt, &descUl,  &descUt  );
-    }
-    if ( jobvt != ChamNoVec ) {
-        chameleon_ztile2lap_cleanup( chamctxt, &descVTl, &descVTt );
-    }
+    /* Reduction to band + bidiagonal */
+    chameleon_pzgebrd( 1, jobu, jobvt, &descA, &descT, Dptr,
+                       U, LDU, VT, LDVT, E, S, sequence, request );
 
     /* Solve the bidiagonal SVD problem */
     /* On exit, U and VT are updated with bidiagonal matrix singular vectors */
 #if !defined(CHAMELEON_SIMULATION)
     {
-        int info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, 'U',
-                                   MINMN, ncvt, nru, 0,
-                                   S, E,
-                                   VT, LDVT, U, LDU, NULL, 1 );
-        if (info != 0) {
+        int nru, ncvt;
+        switch ( jobu ) {
+            case ChamNoVec :
+                nru = 0;
+                break;
+            case ChamOVec :
+            case ChamAllVec :
+                nru = M;
+                break;
+            case ChamSVec :
+                nru = MINMN;
+                break;
+            default:
+            ;
+        }
+        switch ( jobvt ) {
+            case ChamNoVec :
+                ncvt = 0;
+                break;
+            case ChamOVec :
+            case ChamAllVec :
+                ncvt = N;
+                break;
+            case ChamSVec :
+                ncvt = MINMN;
+                break;
+            default:
+            ;
+        }
+        cham_uplo_t uplo = M >= N ? ChamUpper : ChamLower;
+        int info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), MINMN,
+                                   ncvt, nru, 0, S, E, VT, LDVT, U, LDU, NULL, 1 );
+        if ( info != 0 ) {
             fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
         }
     }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
-    free(E);
-    if ( Dptr ) {
+    free( E );
+    if ( Dptr != NULL ) {
         chameleon_desc_destroy( Dptr );
     }
     (void)D;

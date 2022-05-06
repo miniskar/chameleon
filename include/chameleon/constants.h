@@ -156,9 +156,12 @@ typedef enum chameleon_sym_e {
  * @brief Singular/Eigen vector job description
  */
 typedef enum chameleon_job_e {
-    ChamNoVec = 301,
-    ChamVec   = 302,
-    ChamIvec  = 303,
+    ChamNoVec  = 301,
+    ChamVec    = 302,
+    ChamIvec   = 303,
+    ChamAllVec = 304,
+    ChamSVec   = 305,
+    ChamOVec   = 306,
 } cham_job_t;
 
 /**

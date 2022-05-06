@@ -111,6 +111,10 @@ parameter_t parameters[] = {
     { "llvl",   "Tree used for low level reduction insides nodes",         -22, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "hlvl",   "Tree used for high level reduction between nodes",        -23, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "domino", "Enable/Disable the domino between upper and lower trees", -24, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 6, TestValInt, {0}, NULL, pread_int, sprint_int },
+
+    { NULL, "SVD parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
+    { "jobu",  "Value of the jobu parameter",  -50, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 4, TestJob, {0}, NULL, pread_job, sprint_job },
+    { "jobvt", "Value of the jobvt parameter", -51, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 5, TestJob, {0}, NULL, pread_job, sprint_job },
 #endif
 
     { "tsub",          "Graph submission time in s",             999, PARAM_OUTPUT, 2, 13, TestValFixdbl, {0}, NULL, pread_fixdbl, sprint_fixdbl },

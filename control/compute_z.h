@@ -64,8 +64,11 @@ int chameleon_zshift(CHAM_context_t *chamctxt, int m, int n, CHAMELEON_Complex64
 /**
  *  Declarations of parallel functions (dynamic scheduling) - alphabetical order
  */
-void chameleon_pzgebrd_gb2bd(cham_uplo_t uplo, CHAM_desc_t *A, double *D, double *E, CHAM_desc_t *T, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+int chameleon_pzgebrd_gb2bd( cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *VT, int LDVT,
+                              double *E, double *S, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
+int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *VT, int LDVT, 
+                        double *E, double *S, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 void chameleon_pzgelqf( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgelqfrh( int genD, int BS, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 void chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
@@ -174,7 +177,7 @@ void chameleon_pzcesca( struct chameleon_pzcesca_s *ws, int center, int scale, c
 /**
  * Gram function prototypes
  */
-void chameleon_pzgram(  struct chameleon_pzgram_s *ws, cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pzgram( struct chameleon_pzgram_s *ws, cham_uplo_t uplo, CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 /**
  *  LAPACK/Tile Descriptor accesses
@@ -200,7 +203,7 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
 #define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
     {                                                                   \
         int rc;                                                         \
-        rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_TILE, \
+        rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_GLOBAL, \
                                   ChamComplexDouble, (mb), (nb), ((mb)*(nb)), \
                                   (m), (n), (i), (j), (m), (n), 1, 1,   \
                                   NULL, NULL, NULL );                   \
