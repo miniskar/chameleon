@@ -25,112 +25,153 @@
 #include "coreblas/lapacke.h"
 #endif
 
-void chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
-                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+#define A(m,n) A, (m), (n)
+
+static inline void
+chameleon_pzgebrd_ge2gb( int genD, CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
-    int k;
-    int tempkm, tempkn;
-    CHAM_desc_t *A1, *A2, *T1, *D1 = NULL;
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
+    size_t ws_worker = 0;
+    size_t ws_host   = 0;
+    int    k, m, n, ib;
+    CHAM_desc_t *Abis = NULL;
+    CHAM_desc_t *Tbis = NULL;
+    CHAM_desc_t *Dbis = NULL;
+
+    chamctxt = chameleon_context_self();
+    if (sequence->status != CHAMELEON_SUCCESS) {
+        return;
+    }
+    RUNTIME_options_init( &options, chamctxt, sequence, request );
+
+    if ( D == NULL ) {
+        D    = A;
+        genD = 0;
+    }
+    ib = CHAMELEON_IB;
+
+    /*
+     * zgeqrt/zgelqt   = A->nb * (ib+1)
+     * zunmqr/zunmlq   = A->nb * ib
+     * ztpqrt/ztplqt   = A->nb * (ib+1)
+     * ztpmqrt/ztpmlqt = A->nb * ib
+     */
+    ws_worker = A->nb * (ib+1);
+
+    /* Allocation of temporary (scratch) working space */
+#if defined(CHAMELEON_USE_CUDA)
+    /* Worker space
+     *
+     * zunmqr/zunmlq   =     A->nb * ib
+     * ztpmqrt/ztpmlqt = 2 * A->nb * ib
+     */
+    ws_worker = chameleon_max( ws_worker, ib * A->nb * 2 );
+#endif
+
+    ws_worker *= sizeof(CHAMELEON_Complex64_t);
+    ws_host   *= sizeof(CHAMELEON_Complex64_t);
+
+    RUNTIME_options_ws_alloc( &options, ws_worker, ws_host );
 
     if ( A->m >= A->n ){
-        for ( k = 0; k < A->nt; k++ ) {
-            tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
-
-            A1 = chameleon_desc_submatrix( A, k*A->mb,     k*A->nb, A->m-k*A->mb, tempkn );
-            A2 = chameleon_desc_submatrix( A, k*A->mb, (k+1)*A->nb, A->m-k*A->mb, A->n-(k+1)*A->nb );
-            T1 = chameleon_desc_submatrix( T, k*T->mb,     k*T->nb, T->m-k*T->mb, T->nb );
+        /*
+         * Create submatrix descriptor of the 3 matrices without the first column
+         */
+        if ( A->nt > 1 ) {
+            Abis = chameleon_desc_submatrix( A, 0, A->nb, A->m, chameleon_max( A->n - A->nb, 0 ) );
+            Tbis = chameleon_desc_submatrix( T, 0, T->nb, T->m, chameleon_max( T->n - T->nb, 0 ) );
             if ( D != NULL ) {
-                D1 = chameleon_desc_submatrix( D, k*D->mb, k*D->nb, D->m-k*D->mb, tempkn );
+                Dbis = chameleon_desc_submatrix( D, 0, D->nb, D->m, chameleon_max( D->n - D->nb, 0 ) );
             }
+        }
 
-            chameleon_pzgeqrf( genD, A1, T1, D1, sequence, request );
-            chameleon_pzunmqr( 0, ChamLeft, ChamConjTrans, A1, A2, T1, D1, sequence, request );
+        for ( k = 0; k < A->nt; k++ ) {
+            RUNTIME_iteration_push(chamctxt, k);
 
-            free( A1 );
-            free( A2 );
-            free( T1 );
-            if ( D != NULL ) {
-                free( D1 );
+            chameleon_pzgeqrf_step( genD, k, ib, A, T, D, &options, sequence );
+
+            /* Restore the original location of the tiles */
+            for (n = k; n < A->nt; n++) {
+                RUNTIME_data_migrate( sequence, A(k, n),
+                                      A->get_rankof( A, k, n ) );
             }
 
             if ( k+1 < A->nt ) {
-                tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+                chameleon_pzgelqf_step( genD, k, ib, Abis, Tbis, Dbis, &options, sequence );
 
-                A1 = chameleon_desc_submatrix( A,     k*A->mb, (k+1)*A->nb, tempkm,           A->n-(k+1)*A->nb );
-                A2 = chameleon_desc_submatrix( A, (k+1)*A->mb, (k+1)*A->nb, A->m-(k+1)*A->mb, A->n-(k+1)*A->nb );
-                T1 = chameleon_desc_submatrix( T,     k*T->mb, (k+1)*T->nb, T->mb,            T->n-(k+1)*T->nb );
-                if ( D != NULL ) {
-                    D1 = chameleon_desc_submatrix( D, k*D->mb, (k+1)*D->nb, tempkm, D->n-(k+1)*D->nb );
-                }
-
-                chameleon_pzgelqf( genD, A1, T1, D1, sequence, request );
-                chameleon_pzunmlq( 0, ChamRight, ChamConjTrans, A1, A2, T1, D1, sequence, request );
-
-                free( A1 );
-                free( A2 );
-                free( T1 );
-                if ( D != NULL ) {
-                    free( D1 );
+                /* Restore the original location of the tiles */
+                for (m = k; m < A->mt; m++) {
+                    RUNTIME_data_migrate( sequence, A( m, k+1 ),
+                                          A->get_rankof( A, m, k+1 ) );
                 }
             }
+
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
     else {
-        for ( k = 0; k < A->mt; k++ ) {
-            tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-
-            A1 = chameleon_desc_submatrix( A,     k*A->mb, k*A->nb, tempkm,           A->n-k*A->nb );
-            A2 = chameleon_desc_submatrix( A, (k+1)*A->mb, k*A->nb, A->m-(k+1)*A->mb, A->n-k*A->nb );
-            T1 = chameleon_desc_submatrix( T,     k*T->mb, k*T->nb, T->mb,            T->n-k*T->nb );
+        /*
+         * Create submatrix descriptor of the 3 matrices without the first row
+         */
+        if ( A->mt > 1 ) {
+            Abis = chameleon_desc_submatrix( A, A->mb, 0, chameleon_max( A->m - A->mb, 0 ), A->n );
+            Tbis = chameleon_desc_submatrix( T, T->mb, 0, chameleon_max( T->m - T->mb, 0 ), T->n );
             if ( D != NULL ) {
-                D1 = chameleon_desc_submatrix( D, k*D->mb, k*D->nb, tempkm,           D->n-k*D->nb );
+                Dbis = chameleon_desc_submatrix( D, D->mb, 0, chameleon_max( D->m - D->mb, 0 ), D->n );
             }
+        }
 
-            chameleon_pzgelqf( genD, A1, T1, D1, sequence, request );
-            chameleon_pzunmlq( 0, ChamRight, ChamConjTrans, A1, A2, T1, D1, sequence, request );
+        for ( k = 0; k < A->mt; k++ ) {
+            RUNTIME_iteration_push(chamctxt, k);
 
-            free( A1 );
-            free( A2 );
-            free( T1 );
-            if ( D != NULL ) {
-                free( D1 );
+            chameleon_pzgelqf_step( genD, k, ib, A, T, D, &options, sequence );
+
+            /* Restore the original location of the tiles */
+            for (m = k; m < A->mt; m++) {
+                RUNTIME_data_migrate( sequence, A( m, k ),
+                                      A->get_rankof( A, m, k ) );
             }
 
             if ( k+1 < A->mt ) {
-                tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+                chameleon_pzgeqrf_step( genD, k, ib, Abis, Tbis, Dbis, &options, sequence );
 
-                A1 = chameleon_desc_submatrix( A, (k+1)*A->mb,     k*A->nb, A->m-(k+1)*A->mb, tempkn );
-                A2 = chameleon_desc_submatrix( A, (k+1)*A->mb, (k+1)*A->nb, A->m-(k+1)*A->mb, A->n-(k+1)*A->nb );
-                T1 = chameleon_desc_submatrix( T, (k+1)*T->mb,     k*T->nb, T->m-(k+1)*T->mb, T->nb );
-                if ( D != NULL ) {
-                    D1 = chameleon_desc_submatrix( D, (k+1)*D->mb, k*D->nb, D->m-(k+1)*D->mb, tempkn );
-                }
-
-                chameleon_pzgeqrf( genD, A1, T1, D1, sequence, request );
-                chameleon_pzunmqr( 0, ChamLeft, ChamConjTrans, A1, A2, T1, D1, sequence, request );
-
-                free( A1 );
-                free( A2 );
-                free( T1 );
-                if ( D != NULL ) {
-                    free( D1 );
+                /* Restore the original location of the tiles */
+                for (n = k; n < A->nt; n++) {
+                    RUNTIME_data_migrate( sequence, A( k+1, n ),
+                                          A->get_rankof( A, k+1, n ) );
                 }
             }
+            RUNTIME_iteration_pop(chamctxt);
         }
     }
 
+    if ( Abis != NULL ) {
+        free( Abis );
+    }
+    if ( Tbis != NULL ) {
+        free( Tbis );
+    }
+    if ( Dbis != NULL ) {
+        free( Dbis );
+    }
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( T, sequence );
     if ( D != NULL ) {
         CHAMELEON_Desc_Flush( D, sequence );
     }
+
+    RUNTIME_options_ws_free(&options);
+    RUNTIME_options_finalize(&options, chamctxt);
 }
 
-int chameleon_pzgebrd_gb2bd( cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A,
-                             CHAMELEON_Complex64_t *U, int LDU,
-                             CHAMELEON_Complex64_t *VT, int LDVT,
-                             double *E, double *S,
-                             RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+static inline int
+chameleon_pzgebrd_gb2bd( cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A,
+                         CHAMELEON_Complex64_t *U, int LDU,
+                         CHAMELEON_Complex64_t *VT, int LDVT,
+                         double *E, double *S,
+                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -219,7 +260,7 @@ int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt,
     CHAM_desc_t *subA, *subT, *subUVT, *subD;
     CHAM_desc_t descUl, descUt;
     CHAM_desc_t descVTl, descVTt;
-    int M, N, NB;
+    int M, N, NB, ib;
 
     chamctxt = chameleon_context_self();
     if ( sequence->status != CHAMELEON_SUCCESS ) {
