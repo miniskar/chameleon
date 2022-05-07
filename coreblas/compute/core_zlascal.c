@@ -20,7 +20,6 @@
  *
  */
 #include "coreblas.h"
-#include "coreblas/cblas.h"
 #include <math.h>
 
 /**
