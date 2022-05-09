@@ -434,7 +434,7 @@ int CHAMELEON_zgels_param_Tile_Async( const libhqr_tree_t *qrtree, cham_trans_t 
         /*
          * Compute LQ factorization of A
          */
-        chameleon_pzgelqf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
+        chameleon_pzgelqf_param( 1, A->mt, qrtree, A, TS, TT, Dptr, sequence, request );
 
         /* Perform the solve part */
         if ( trans == ChamNoTrans ) {

@@ -235,6 +235,7 @@ int CHAMELEON_zgelqf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t D, *Dptr = NULL;
+    int KT;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -280,6 +281,14 @@ int CHAMELEON_zgelqf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
      if (chameleon_min(M, N) == 0)
      return CHAMELEON_SUCCESS;
      */
+
+    if ( A->m < A->n ) {
+        KT = A->mt;
+    }
+    else {
+        KT = A->nt;
+    }
+
 #if defined(CHAMELEON_COPY_DIAG)
     {
         int m = chameleon_min( A->m, A->n );
@@ -288,7 +297,7 @@ int CHAMELEON_zgelqf_param_Tile_Async( const libhqr_tree_t *qrtree, CHAM_desc_t 
     }
 #endif
 
-    chameleon_pzgelqf_param( 1, qrtree, A, TS, TT, Dptr, sequence, request );
+    chameleon_pzgelqf_param( 1, KT, qrtree, A, TS, TT, Dptr, sequence, request );
     if (Dptr != NULL) {
         CHAMELEON_Desc_Flush( A, sequence );
         CHAMELEON_Desc_Flush( TS, sequence );

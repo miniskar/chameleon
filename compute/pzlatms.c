@@ -291,7 +291,7 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
                              NULL, NULL, NULL );
 
         /* V <= qr(V) */
-        chameleon_pzgelqf_param( 1, &qrtree, &descV,
+        chameleon_pzgelqf_param( 1, kt, &qrtree, &descV,
                                  &descTS, &descTT, descDptr, sequence, request );
 
         /* A <= (U * D) * V */

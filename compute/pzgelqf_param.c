@@ -28,21 +28,162 @@
 
 /**
  *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
+ *
+ * @param[in] genD
+ *         Indicate if copies of the gelqt tiles must be done to speedup
+ *         computations in updates. genD is considered only if D is not NULL.
+ *
+ * @param[in] uplo
+ *         - ChamUpper: Classic LQ factorization of the matrix A.
+ *         - ChamLower: LQ factorization of the TTLQT kernel.
+ *         - ChamUpperLower: LQ factorization of the TSLQT kernel.
  */
-void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t *A,
+int chameleon_pzgelqf_param_step( int genD, cham_uplo_t uplo, int k, int ib,
+                                  const libhqr_tree_t *qrtree, int *tiles,
+                                  CHAM_desc_t *A, CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
+                                  RUNTIME_option_t *options, RUNTIME_sequence_t *sequence )
+{
+    CHAM_desc_t *T;
+    int m, n, i, p;
+    int L, nbgelqt;
+    int tempkmin, tempkm, tempnn, tempmm, temppn;
+    int node, nbtiles;
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+
+    /* The number of geqrt to apply */
+    nbgelqt = qrtree->getnbgeqrf( qrtree, k );
+
+    T = TS;
+    for (i = 0; i < nbgelqt; i++) {
+        p = qrtree->getm( qrtree, k, i );
+
+        /* We skip the LQ factorization if this is the last diagonal tile */
+        if ( (uplo == ChamLower) && (p == k) ) {
+            continue;
+        }
+
+        temppn = p == A->nt-1 ? A->n-p*A->nb : A->nb;
+        tempkmin = chameleon_min(tempkm, temppn);
+
+        INSERT_TASK_zgelqt(
+            options,
+            tempkm, temppn, ib, T->nb,
+            A(k, p), T(k, p));
+
+        if ( genD ) {
+            int tempDkm = k == D->mt-1 ? D->m-k*D->mb : D->mb;
+            int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
+
+            INSERT_TASK_zlacpy(
+                options,
+                ChamUpper, tempDkm, tempDpn,
+                A(k, p), D(k, p) );
+#if defined(CHAMELEON_USE_CUDA)
+            INSERT_TASK_zlaset(
+                options,
+                ChamLower, tempDkm, tempDpn,
+                0., 1.,
+                D(k, p) );
+#endif
+        }
+
+        for (m = k+1; m < A->mt; m++) {
+            tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+            INSERT_TASK_zunmlq(
+                options,
+                ChamRight, ChamConjTrans,
+                tempmm, temppn, tempkmin, ib, T->nb,
+                D(k, p),
+                T(k, p),
+                A(m, p));
+        }
+
+        if ( genD || ((k+1) < A->mt)) {
+            RUNTIME_data_flush( sequence, D(k, p) );
+        }
+        RUNTIME_data_flush( sequence, T(k, p) );
+    }
+
+    /* Setting the order of the tiles */
+    nbtiles = libhqr_walk_stepk( qrtree, k, tiles );
+
+    for (i = 0; i < nbtiles; i++) {
+        n = tiles[i];
+        p = qrtree->currpiv( qrtree, k, n );
+
+        tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
+
+        if ( qrtree->gettype( qrtree, k, n ) == LIBHQR_KILLED_BY_TS ) {
+            /* TS kernel */
+            T = TS;
+            L = 0;
+
+            /* Force TT kernel if this is the last diagonal tile */
+            if ( (uplo == ChamLower) && (n == k) ) {
+                L = tempnn;
+            }
+        }
+        else {
+            /* TT kernel */
+            T = TT;
+            L = tempnn;
+        }
+
+        node = A->get_rankof( A, k, n );
+        RUNTIME_data_migrate( sequence, A(k, p), node );
+        RUNTIME_data_migrate( sequence, A(k, n), node );
+
+        INSERT_TASK_ztplqt(
+            options,
+            tempkm, tempnn, chameleon_min(L, tempkm), ib, T->nb,
+            A(k, p),
+            A(k, n),
+            T(k, n));
+
+        for (m = k+1; m < A->mt; m++) {
+            tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+
+            node = A->get_rankof( A, m, n );
+            RUNTIME_data_migrate( sequence, A(m, p), node );
+            RUNTIME_data_migrate( sequence, A(m, n), node );
+
+            INSERT_TASK_ztpmlqt(
+                options,
+                ChamRight, ChamConjTrans,
+                tempmm, tempnn, tempkm, L, ib, T->nb,
+                A(k, n),
+                T(k, n),
+                A(m, p),
+                A(m, n));
+        }
+        RUNTIME_data_flush( sequence, A(k, n) );
+        RUNTIME_data_flush( sequence, T(k, n) );
+    }
+
+    return tiles[nbtiles];
+}
+
+/**
+ *  Parallel tile LQ factorization (reduction Householder) - dynamic scheduling
+ *
+ * @param[in] genD
+ *         Indicate if copies of the gelqt tiles must be done to speedup
+ *         computations in updates. genD is considered only if D is not NULL.
+ *
+ */
+void chameleon_pzgelqf_param( int genD, int K,
+                              const libhqr_tree_t *qrtree, CHAM_desc_t *A,
                               CHAM_desc_t *TS, CHAM_desc_t *TT, CHAM_desc_t *D,
                               RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
-    CHAM_desc_t *T;
     size_t ws_worker = 0;
     size_t ws_host = 0;
 
-    int k, m, n, i, p;
-    int K, L, nbgeqrt;
-    int tempkmin, tempkm, tempnn, tempmm, temppn;
-    int ib, node, nbtiles, *tiles;
+    int k, m;
+    int ib, *tiles;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -52,7 +193,7 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
 
     ib = CHAMELEON_IB;
 
-    if ( D == NULL ) {
+    if ( (genD == 0) || (D == NULL) ) {
         D    = A;
         genD = 0;
     }
@@ -82,119 +223,11 @@ void chameleon_pzgelqf_param( int genD, const libhqr_tree_t *qrtree, CHAM_desc_t
     /* Initialisation of temporary tiles array */
     tiles = (int*)calloc(qrtree->mt, sizeof(int));
 
-    K = chameleon_min(A->mt, A->nt);
-
     for (k = 0; k < K; k++) {
         RUNTIME_iteration_push(chamctxt, k);
 
-        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
-
-        /* The number of geqrt to apply */
-        nbgeqrt = qrtree->getnbgeqrf(qrtree, k);
-
-        T = TS;
-        for (i = 0; i < nbgeqrt; i++) {
-            p = qrtree->getm(qrtree, k, i);
-
-            /* /\* We skip the LQ factorization if this is the last diagonal tile *\/ */
-            /* if ( (uplo == ChamLower) && (p == k) ) { */
-            /*     continue; */
-            /* } */
-
-            temppn = p == A->nt-1 ? A->n-p*A->nb : A->nb;
-            tempkmin = chameleon_min(tempkm, temppn);
-
-            INSERT_TASK_zgelqt(
-                &options,
-                tempkm, temppn, ib, T->nb,
-                A(k, p), T(k, p));
-
-            if ( genD ) {
-                int tempDkm = k == D->mt-1 ? D->m-k*D->mb : D->mb;
-                int tempDpn = p == D->nt-1 ? D->n-p*D->nb : D->nb;
-
-                INSERT_TASK_zlacpy(
-                    &options,
-                    ChamUpper, tempDkm, tempDpn,
-                    A(k, p), D(k, p) );
-#if defined(CHAMELEON_USE_CUDA)
-                INSERT_TASK_zlaset(
-                    &options,
-                    ChamLower, tempDkm, tempDpn,
-                    0., 1.,
-                    D(k, p) );
-#endif
-            }
-
-            for (m = k+1; m < A->mt; m++) {
-                tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-                INSERT_TASK_zunmlq(
-                    &options,
-                    ChamRight, ChamConjTrans,
-                    tempmm, temppn, tempkmin, ib, T->nb,
-                    D(k, p),
-                    T(k, p),
-                    A(m, p));
-            }
-            RUNTIME_data_flush( sequence, D(k, p) );
-            RUNTIME_data_flush( sequence, T(k, p) );
-        }
-
-        /* Setting the order of the tiles */
-        nbtiles = libhqr_walk_stepk( qrtree, k, tiles );
-
-        for (i = 0; i < nbtiles; i++) {
-            n = tiles[i];
-            p = qrtree->currpiv( qrtree, k, n );
-
-            tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
-
-            if ( qrtree->gettype( qrtree, k, n ) == LIBHQR_KILLED_BY_TS ) {
-                /* TS kernel */
-                T = TS;
-                L = 0;
-
-                /* /\* Force TT kernel if this is the last diagonal tile *\/ */
-                /* if ( (uplo == ChamLower) && (n == k) ) { */
-                /*     L = tempnn; */
-                /* } */
-            }
-            else {
-                /* TT kernel */
-                T = TT;
-                L = tempnn;
-            }
-
-            node = A->get_rankof( A, k, n );
-            RUNTIME_data_migrate( sequence, A(k, p), node );
-            RUNTIME_data_migrate( sequence, A(k, n), node );
-
-            INSERT_TASK_ztplqt(
-                &options,
-                tempkm, tempnn, chameleon_min(L, tempkm), ib, T->nb,
-                A(k, p),
-                A(k, n),
-                T(k, n));
-
-            for (m = k+1; m < A->mt; m++) {
-                tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-
-                node = A->get_rankof( A, m, n );
-                RUNTIME_data_migrate( sequence, A(m, p), node );
-                RUNTIME_data_migrate( sequence, A(m, n), node );
-
-                INSERT_TASK_ztpmlqt(
-                    &options,
-                    ChamRight, ChamConjTrans,
-                    tempmm, tempnn, tempkm, L, ib, T->nb,
-                    A(k, n),
-                    T(k, n),
-                    A(m, p),
-                    A(m, n));
-            }
-            RUNTIME_data_flush( sequence, A(k, n) );
-            RUNTIME_data_flush( sequence, T(k, n) );
-        }
+        chameleon_pzgelqf_param_step( genD, ChamUpper, k, ib, qrtree, tiles,
+                                      A, TS, TT, D, &options, sequence );
 
         /* Restore the original location of the tiles */
         for (m = k; m < A->mt; m++) {
