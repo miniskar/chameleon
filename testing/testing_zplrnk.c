@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zplrnk testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -32,14 +32,12 @@ testing_zplrnk_desc( run_arg_list_t *args, int check )
     /* Read arguments */
     int async = parameters_getvalue_int( "async" );
     int nb    = run_arg_get_int( args, "nb", 320 );
-    int P     = parameters_getvalue_int( "P" );
     int N     = run_arg_get_int( args, "N", 1000 );
     int M     = run_arg_get_int( args, "M", N );
     int K     = run_arg_get_int( args, "K", N );
     int LDC   = run_arg_get_int( args, "LDC", M );
     int seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     int seedB = run_arg_get_int( args, "seedB", testing_ialea() );
-    int Q     = parameters_compute_q( P );
 
     /* Descriptors */
     CHAM_desc_t *descC;
@@ -47,8 +45,7 @@ testing_zplrnk_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrix */
-    CHAMELEON_Desc_Create(
-        &descC, NULL, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "C", &descC, ChamComplexDouble, nb, nb, LDC, N, M, N );
 
     /* Calculates the random rank-k matrix */
     testing_start( &test_data );
@@ -68,7 +65,7 @@ testing_zplrnk_desc( run_arg_list_t *args, int check )
         hres = check_zrankk( args, K, descC );
     }
 
-    CHAMELEON_Desc_Destroy( &descC );
+    parameters_desc_destroy( &descC );
 
     return hres;
 }

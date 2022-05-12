@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
- * @date 2023-07-04
+ * @date 2023-07-05
  *
  ***
  *
@@ -78,7 +78,7 @@ void chameleon_warning(const char *func_name, const char *msg_text)
  */
 void chameleon_error(const char *func_name, const char *msg_text)
 {
-    fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", func_name, msg_text);
+    fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", func_name, msg_text );
 }
 
 /**

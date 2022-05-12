@@ -9,13 +9,13 @@
  *
  * @brief Chameleon zlacpy testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Florent Pruvost
  * @author Philippe Swartvagher
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -67,17 +67,14 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int         async  = parameters_getvalue_int( "async" );
-    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int         nb     = run_arg_get_int( args, "nb", 320 );
-    int         P      = parameters_getvalue_int( "P" );
-    cham_uplo_t uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int         N      = run_arg_get_int( args, "N", 1000 );
-    int         M      = run_arg_get_int( args, "M", N );
-    int         LDA    = run_arg_get_int( args, "LDA", M );
-    int         LDB    = run_arg_get_int( args, "LDB", M );
-    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    int         Q      = parameters_compute_q( P );
+    int         async = parameters_getvalue_int( "async" );
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         M     = run_arg_get_int( args, "M", N );
+    int         LDA   = run_arg_get_int( args, "LDA", M );
+    int         LDB   = run_arg_get_int( args, "LDB", M );
+    int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
 
     /* Descriptors */
     CHAM_desc_t *descA, *descB;
@@ -85,10 +82,8 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates two different matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
-    CHAMELEON_Desc_Create(
-        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
+    parameters_desc_create( "B", &descB, ChamComplexDouble, nb, nb, LDB, N, M, N );
 
     /* Fills each matrix with different random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -114,8 +109,8 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
         hres += check_zmatrices( args, uplo, descA, descB );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descB );
+    parameters_desc_destroy( &descA );
+    parameters_desc_destroy( &descB );
 
     return hres;
 }

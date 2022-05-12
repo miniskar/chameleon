@@ -33,17 +33,14 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int         async  = parameters_getvalue_int( "async" );
-    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int         nb     = run_arg_get_int( args, "nb", 320 );
-    int         P      = parameters_getvalue_int( "P" );
-    int         N      = run_arg_get_int( args, "N", 1000 );
-    int         M      = run_arg_get_int( args, "M", N );
-    int         LDA    = run_arg_get_int( args, "LDA", M );
-    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    cham_diag_t diag   = run_arg_get_diag( args, "diag", ChamUnit );
-    int         Q      = parameters_compute_q( P );
-    int         minMN  = chameleon_min( M, N );
+    int         async = parameters_getvalue_int( "async" );
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         M     = run_arg_get_int( args, "M", N );
+    int         LDA   = run_arg_get_int( args, "LDA", M );
+    int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamUnit );
+    int         minMN = chameleon_min( M, N );
 
     /* Descriptors */
     CHAM_desc_t *descA, *descIPIV;
@@ -52,10 +49,9 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
     CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
-    CHAMELEON_Desc_Create(
-        &descIPIV, CHAMELEON_MAT_ALLOC_TILE, ChamInteger, nb, 1, nb, minMN, 1, 0, 0, minMN, 1, P, Q );
+        &descIPIV, CHAMELEON_MAT_ALLOC_TILE, ChamInteger, nb, 1, nb, minMN, 1, 0, 0, minMN, 1, CHAMELEON_Comm_size(), 1 );
 
     /* Fills the matrix with random values */
     if ( diag == ChamUnit ) {
@@ -132,7 +128,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
         CHAMELEON_zgetrf_WS_Free( ws );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
+    parameters_desc_destroy( &descA );
     CHAMELEON_Desc_Destroy( &descIPIV );
 
     return hres;

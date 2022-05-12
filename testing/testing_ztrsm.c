@@ -9,12 +9,12 @@
  *
  * @brief Chameleon ztrsm testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -35,23 +35,22 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int                   async  = parameters_getvalue_int( "async" );
-    intptr_t              mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int                   nb     = run_arg_get_int( args, "nb", 320 );
-    int                   P      = parameters_getvalue_int( "P" );
-    cham_trans_t          trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
-    cham_side_t           side   = run_arg_get_side( args, "side", ChamLeft );
-    cham_uplo_t           uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
-    cham_diag_t           diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
-    int                   N      = run_arg_get_int( args, "N", 1000 );
-    int                   M      = run_arg_get_int( args, "M", N );
-    int                   An     = ( side == ChamLeft ) ? M : N;
-    int                   LDA    = run_arg_get_int( args, "LDA", An );
-    int                   LDB    = run_arg_get_int( args, "LDB", M );
-    CHAMELEON_Complex64_t alpha  = testing_zalea();
-    int                   seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    int                   seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
-    int                   Q      = parameters_compute_q( P );
+    int                   async = parameters_getvalue_int( "async" );
+    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   P     = parameters_getvalue_int( "P" );
+    cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_side_t           side  = run_arg_get_side( args, "side", ChamLeft );
+    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    cham_diag_t           diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int                   N     = run_arg_get_int( args, "N", 1000 );
+    int                   M     = run_arg_get_int( args, "M", N );
+    int                   An    = ( side == ChamLeft ) ? M : N;
+    int                   LDA   = run_arg_get_int( args, "LDA", An );
+    int                   LDB   = run_arg_get_int( args, "LDB", M );
+    CHAMELEON_Complex64_t alpha = testing_zalea();
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    int                   Q     = parameters_compute_q( P );
 
     /* Descriptors */
     CHAM_desc_t *descA, *descB, *descBinit;
@@ -61,10 +60,8 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, An, An, P, Q );
-    CHAMELEON_Desc_Create(
-        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, N,  0, 0, M,  N,  P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, An, An, An );
+    parameters_desc_create( "B", &descB, ChamComplexDouble, nb, nb, LDB, N, M, N );
 
     /* Fills the matrix with random values */
     /* We bump a little bit the diagonal to make it stable */
@@ -88,7 +85,7 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
     /* Checks the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descBinit, NULL, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
+            &descBinit, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDB, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descBinit, seedB );
 
         hres += check_ztrmm( args, CHECK_TRSM, side, uplo, trans, diag,
@@ -97,8 +94,8 @@ testing_ztrsm_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descBinit );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descB );
+    parameters_desc_destroy( &descA );
+    parameters_desc_destroy( &descB );
 
     return hres;
 }

@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zgemm testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-11
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -36,7 +36,6 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int          async  = parameters_getvalue_int( "async" );
-    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
     int          nb     = run_arg_get_int( args, "nb", 320 );
     int          P      = parameters_getvalue_int( "P" );
     cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
@@ -83,12 +82,9 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
     }
 
     /* Create the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
-    CHAMELEON_Desc_Create(
-        &descB, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, Bn, 0, 0, Bm, Bn, P, Q );
-    CHAMELEON_Desc_Create(
-        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, An, Am, An );
+    parameters_desc_create( "B", &descB, ChamComplexDouble, nb, nb, LDB, Bn, Bm, Bn );
+    parameters_desc_create( "C", &descC, ChamComplexDouble, nb, nb, LDC, N, M, N );
 
     /* Fill the matrices with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -121,7 +117,7 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
     /* Check the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
+            &descCinit, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, M, N, P, Q );
         CHAMELEON_zplrnt_Tile( descCinit, seedC );
 
         hres += check_zgemm( args, transA, transB, alpha, descA, descB, beta, descCinit, descC );
@@ -129,9 +125,9 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descCinit );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descB );
-    CHAMELEON_Desc_Destroy( &descC );
+    parameters_desc_destroy( &descA );
+    parameters_desc_destroy( &descB );
+    parameters_desc_destroy( &descC );
 
     return hres;
 }

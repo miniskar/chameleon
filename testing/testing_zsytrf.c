@@ -29,15 +29,14 @@ testing_zsytrf_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int         async  = parameters_getvalue_int( "async" );
-    intptr_t    mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int         nb     = run_arg_get_int( args, "nb", 320 );
-    int         P      = parameters_getvalue_int( "P" );
-    cham_uplo_t uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int         N      = run_arg_get_int( args, "N", 1000 );
-    int         LDA    = run_arg_get_int( args, "LDA", N );
-    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    int         Q      = parameters_compute_q( P );
+    int         async = parameters_getvalue_int( "async" );
+    int         nb    = run_arg_get_int( args, "nb", 320 );
+    int         P     = parameters_getvalue_int( "P" );
+    cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int         N     = run_arg_get_int( args, "N", 1000 );
+    int         LDA   = run_arg_get_int( args, "LDA", N );
+    int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int         Q     = parameters_compute_q( P );
 
     /* Descriptors */
     CHAM_desc_t *descA;
@@ -45,8 +44,7 @@ testing_zsytrf_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, N, N );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplgsy_Tile( (double)N, uplo, descA, seedA );
@@ -73,7 +71,7 @@ testing_zsytrf_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descA0 );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
+    parameters_desc_destroy( &descA );
 
     return hres;
 }
