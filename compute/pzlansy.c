@@ -11,14 +11,15 @@
  *
  * @brief Chameleon zlansy parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Emmanuel Agullo
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -330,7 +331,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
 
         chameleon_desc_init( &Wcol, CHAMELEON_MAT_ALLOC_TILE, ChamRealDouble, A->mb, 1, A->mb,
                              workmt * A->mb, worknt, 0, 0, workmt * A->mb, worknt, A->p, A->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         wcol_init = 1;
 
         /*
@@ -338,7 +339,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
          */
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, 1, 1,
                              workmt, A->q, 0, 0, workmt, A->q, A->p, A->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         break;
 
         /*
@@ -350,7 +351,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
         alpha = 1.;
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 2, 1, 2,
                              workmt*2, worknt, 0, 0, workmt*2, worknt, A->p, A->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         break;
 
         /*
@@ -362,7 +363,7 @@ void chameleon_pzlansy_generic( cham_normtype_t norm, cham_uplo_t uplo, cham_tra
 
         chameleon_desc_init( &Welt, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, 1, 1,
                              workmt, worknt, 0, 0, workmt, worknt, A->p, A->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
     }
 
     /* Initialize workspaces */

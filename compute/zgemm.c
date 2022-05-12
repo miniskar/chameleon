@@ -18,6 +18,7 @@
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
+ * @author Lionel Eyraud-Dubois
  * @date 2023-07-05
  * @precisions normal z -> s d c
  *
@@ -182,12 +183,12 @@ void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)
                              ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                              C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
                              C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         chameleon_desc_init( &(options->WB), CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                              C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
                              C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
     }
 
     return (void*)options;

@@ -11,7 +11,7 @@
  *
  * @brief Chameleon computational functions header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
@@ -21,7 +21,8 @@
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -219,7 +220,7 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
                                 diag_m, nb, 0, 0, diag_m, nb, p, q,
                                 chameleon_getaddr_diag,
                                 chameleon_getblkldd_ccrb,
-                                chameleon_getrankof_2d_diag );
+                                chameleon_getrankof_2d_diag, NULL );
 }
 
 #define chameleon_zdesc_alloc( descA, mb, nb, lm, ln, i, j, m, n, free) \
@@ -228,7 +229,7 @@ chameleon_zdesc_alloc_diag( CHAM_desc_t *descA, int nb, int m, int n, int p, int
         rc = chameleon_desc_init( &(descA), CHAMELEON_MAT_ALLOC_GLOBAL, \
                                   ChamComplexDouble, (mb), (nb), ((mb)*(nb)), \
                                   (m), (n), (i), (j), (m), (n), 1, 1,   \
-                                  NULL, NULL, NULL );                   \
+                                  NULL, NULL, NULL, NULL );             \
         if ( rc != CHAMELEON_SUCCESS ) {                                \
             {free;}                                                     \
             return rc;                                                  \
@@ -254,7 +255,7 @@ chameleon_zdesc_copy_and_restrict( const CHAM_desc_t *descIn,
                               m, n, 0, 0, m, n, descIn->p, descIn->q,
                               descIn->get_blkaddr,
                               descIn->get_blkldd,
-                              descIn->get_rankof_init );
+                              descIn->get_rankof_init, descIn->get_rankof_init_arg );
     return rc;
 }
 
@@ -273,13 +274,13 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
         /* Initialize the Lapack descriptor */
         chameleon_desc_init( descAl, A, ChamComplexDouble, mb, nb, (mb)*(nb),
                             lm, ln, 0, 0, m, n, 1, 1,
-                            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL  );
+                             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
         descAl->styp = ChamCM;
 
         /* Initialize the tile descriptor */
         chameleon_desc_init( descAt, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, mb, nb, (mb)*(nb),
                              lm, ln, 0, 0, m, n, 1, 1,
-                             chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL );
+                             chameleon_getaddr_ccrb, chameleon_getblkldd_ccrb, NULL, NULL );
 
         if ( mode & ChamDescInput ) {
             chameleon_pzlacpy( uplo, descAl, descAt, seq, req );
@@ -289,7 +290,7 @@ chameleon_zlap2tile( CHAM_context_t *chamctxt,
         /* Initialize the tile descriptor */
         chameleon_desc_init( descAt, A, ChamComplexDouble, mb, nb, (mb)*(nb),
                              lm, ln, 0, 0, m, n, 1, 1,
-                             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+                             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
     }
     return CHAMELEON_SUCCESS;
 }

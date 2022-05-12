@@ -11,13 +11,14 @@
  *
  * @brief Chameleon Fortran77 interface
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Bilel Hadri
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #include "control/common.h"
@@ -80,16 +81,18 @@ extern "C" {
                                 void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                 int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
                                 int   (*get_rankof) ( const CHAM_desc_t*, int, int ),
+                                void* get_rankof_arg,
                                 int *INFO)
     {   *INFO = CHAMELEON_Desc_Create_User(descptr, mat, *dtyp, *mb, *nb, *bsiz, *lm, *ln, *i, *j, *m, *n, *p, *q,
-                                       get_blkaddr, get_blkldd, get_rankof); }
+                                           get_blkaddr, get_blkldd, get_rankof, get_rankof_arg); }
     void CHAMELEON_DESC_CREATE_OOC_USER(CHAM_desc_t **descptr, cham_flttype_t *dtyp,
                                     int *mb, int *nb, int *bsiz, int *lm, int *ln,
                                     int *i, int *j, int *m, int *n, int *p, int *q,
                                     int (*get_rankof) ( const CHAM_desc_t*, int, int ),
+                                    void* get_rankof_arg,
                                     int *INFO)
     {   *INFO = CHAMELEON_Desc_Create_OOC_User(descptr, *dtyp, *mb, *nb, *bsiz, *lm, *ln, *i, *j, *m, *n, *p, *q,
-                                           get_rankof); }
+                                               get_rankof, get_rankof_arg); }
 
     void CHAMELEON_DESC_DESTROY(CHAM_desc_t **desc, int *INFO)
     {   *INFO = CHAMELEON_Desc_Destroy(desc); }

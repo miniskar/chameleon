@@ -17,6 +17,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
+ * @author Lionel Eyraud-Dubois
  * @date 2023-07-05
  *
  */
@@ -124,7 +125,8 @@ int CHAMELEON_Element_Size( cham_flttype_t type );
 
 int CHAMELEON_Desc_Create_User( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                 int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
+                                blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd,
+                                blkrankof_fct_t get_rankof, void* get_rankof_arg );
 
 int CHAMELEON_Desc_Create( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
                            int mb, int nb, int bsiz, int lm, int ln,
@@ -133,7 +135,7 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp,
 int CHAMELEON_Desc_Create_OOC_User( CHAM_desc_t **desc, cham_flttype_t dtyp,
                                     int mb, int nb, int bsiz, int lm, int ln,
                                     int i, int j, int m, int n, int p, int q,
-                                    blkrankof_fct_t get_rankof );
+                                    blkrankof_fct_t get_rankof, void* get_rankof_arg );
 int CHAMELEON_Desc_Create_OOC( CHAM_desc_t **desc, cham_flttype_t dtyp,
                                int mb, int nb, int bsiz, int lm, int ln,
                                int i, int j, int m, int n, int p, int q );
@@ -150,10 +152,12 @@ int CHAMELEON_Desc_Flush  ( const CHAM_desc_t        *desc,
 
 int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
                                         CHAM_desc_t     *desc,
-                                        blkrankof_fct_t  new_get_rankof );
+                                        blkrankof_fct_t  new_get_rankof,
+                                        void*            new_get_rankof_arg );
 int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
                                               CHAM_desc_t        *desc,
                                               blkrankof_fct_t     new_get_rankof,
+                                              void*               new_get_rankof_arg,
                                               RUNTIME_sequence_t *sequence );
 
 void CHAMELEON_Desc_Print( const CHAM_desc_t *desc );
@@ -188,7 +192,8 @@ int CHAMELEON_Request_Set     (RUNTIME_request_t *request, int param, int value)
 
 int  CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
                                       int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
-                                      blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof );
+                                      blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd,
+                                      blkrankof_fct_t get_rankof, void* get_rankof_arg );
 
 /**
  *

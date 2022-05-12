@@ -18,7 +18,8 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2023-07-04
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  ***
  *
@@ -169,6 +170,9 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
  * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
+ * @param[in] get_rankof_arg
+ *          A pointer to custom data that can be used by the get_rankof function
+ *
  ******************************************************************************
  *
  * @return  The descriptor with the matrix description parameters set.
@@ -179,7 +183,8 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
                                   int lm, int ln, int m, int n, int p, int q,
                                   blkaddr_fct_t   get_blkaddr,
                                   blkldd_fct_t    get_blkldd,
-                                  blkrankof_fct_t get_rankof )
+                                  blkrankof_fct_t get_rankof,
+                                  void           *get_rankof_arg )
 {
     CHAM_context_t *chamctxt;
     int rc = CHAMELEON_SUCCESS;
@@ -200,6 +205,7 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
     desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
     desc->get_rankof  = chameleon_getrankof_tile;
     desc->get_rankof_init = get_rankof ? get_rankof : chameleon_getrankof_2d;
+    desc->get_rankof_init_arg = get_rankof_arg;
 
     /* Matrix properties */
     desc->dtyp = dtyp;
@@ -492,9 +498,17 @@ CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n )
 int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                            int lm, int ln, int i, int j, int m, int n, int p, int q )
 {
+    blkrankof_fct_t get_rankof = NULL;
+
+    /* if (getenv("CHAMELEON_1Dx1D_DISTRIBUTION")){ */
+    /*     printf("[CHAMELEON] : Using 1Dx1D distribubtion\n"); */
+    /*     get_rankof = chameleon_getrankof_custom; */
+    /*     load_dist(&custom_dist_a, m, n, mb, nb); */
+    /* } */
+
     return CHAMELEON_Desc_Create_User( descptr, mat, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
-                                       NULL, NULL, NULL );
+                                       NULL, NULL, get_rankof, NULL );
 }
 
 /**
@@ -564,6 +578,9 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp
  * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
+ * @param[in] get_rankof_arg
+ *          A pointer to custom data that can be used by the get_rankof function
+ *
  ******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
@@ -573,7 +590,8 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
                                 int lm, int ln, int i, int j, int m, int n, int p, int q,
                                 blkaddr_fct_t   get_blkaddr,
                                 blkldd_fct_t    get_blkldd,
-                                blkrankof_fct_t get_rankof )
+                                blkrankof_fct_t get_rankof,
+                                void* get_rankof_arg )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t *desc;
@@ -594,7 +612,7 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
 
     chameleon_desc_init( desc, mat, dtyp, mb, nb, bsiz,
                          lm, ln, i, j, m, n, p, q,
-                         get_blkaddr, get_blkldd, get_rankof );
+                         get_blkaddr, get_blkldd, get_rankof, get_rankof_arg );
 
     status = chameleon_desc_check( desc );
     if (status != CHAMELEON_SUCCESS) {
@@ -663,6 +681,9 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
  * @param[in] get_rankof
  *          A function that return the MPI rank of the tile A(m,n).
  *
+ * @param[in] get_rankof_arg
+ *          A pointer to custom data that can be used by the get_rankof function
+ *
  ******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
@@ -670,7 +691,7 @@ int CHAMELEON_Desc_Create_User( CHAM_desc_t **descptr, void *mat, cham_flttype_t
  */
 int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                    int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                   blkrankof_fct_t get_rankof )
+                                   blkrankof_fct_t get_rankof, void* get_rankof_arg )
 {
 #if !defined (CHAMELEON_SCHED_STARPU)
     (void)descptr; (void)dtyp; (void)mb; (void)nb; (void)bsiz;
@@ -683,7 +704,7 @@ int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, i
     int rc;
     rc = CHAMELEON_Desc_Create_User( descptr, CHAMELEON_MAT_OOC, dtyp, mb, nb, bsiz,
                                      lm, ln, i, j, m, n, p, q,
-                                     chameleon_getaddr_null, NULL, get_rankof );
+                                     chameleon_getaddr_null, NULL, get_rankof, get_rankof_arg );
     return rc;
 #endif
 }
@@ -751,7 +772,7 @@ int CHAMELEON_Desc_Create_OOC(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb
 {
     return CHAMELEON_Desc_Create_User( descptr, CHAMELEON_MAT_OOC, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
-                                       chameleon_getaddr_null, NULL, NULL );
+                                       chameleon_getaddr_null, NULL, NULL, NULL );
 }
 
 /**
@@ -785,7 +806,7 @@ CHAM_desc_t *CHAMELEON_Desc_Copy( const CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, descin->p, descin->q,
-                                NULL, NULL, descin->get_rankof_init );
+                                NULL, NULL, descin->get_rankof_init, descin->get_rankof_init_arg );
     return descout;
 }
 
@@ -820,7 +841,7 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, 1, 1,
-                                NULL, NULL, descin->get_rankof_init );
+                                NULL, NULL, descin->get_rankof_init, descin->get_rankof_init_arg );
     return descout;
 }
 
@@ -1043,7 +1064,8 @@ CHAMELEON_Desc_Print( const CHAM_desc_t *desc )
  */
 int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
                                         CHAM_desc_t     *desc,
-                                        blkrankof_fct_t  new_get_rankof )
+                                        blkrankof_fct_t  new_get_rankof,
+                                        void*            new_get_rankof_arg )
 {
     int                 status;
     CHAM_context_t     *chamctxt;
@@ -1057,7 +1079,7 @@ int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
 
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_Desc_Change_Distribution_Async( uplo, desc, new_get_rankof, sequence );
+    CHAMELEON_Desc_Change_Distribution_Async( uplo, desc, new_get_rankof, new_get_rankof_arg, sequence );
 
     RUNTIME_desc_flush( desc, sequence );
     chameleon_sequence_wait( chamctxt, sequence );
@@ -1098,6 +1120,7 @@ int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
 int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
                                               CHAM_desc_t        *desc,
                                               blkrankof_fct_t     new_get_rankof,
+                                              void*               new_get_rankof_arg,
                                               RUNTIME_sequence_t *sequence )
 {
     CHAM_context_t *chamctxt;
@@ -1111,7 +1134,8 @@ int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
     }
 
     /* Nothing to do if the new mapping is the same as the original one */
-    if ( ( new_get_rankof == desc->get_rankof_init ) ||
+    if ( ( ( new_get_rankof     == desc->get_rankof_init    ) &&
+           ( new_get_rankof_arg == desc->get_rankof_init_arg) ) ||
          ( RUNTIME_comm_size( chamctxt ) == 1 ) )
     {
         return CHAMELEON_SUCCESS;
@@ -1131,6 +1155,8 @@ int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
 #endif
+
+    desc->get_rankof_init_arg = new_get_rankof_arg;
 
     for ( n = 0; n < desc->nt; n++ ) {
         mmin = ( uplo == ChamLower ) ? chameleon_min( n,   desc->mt ) : 0;

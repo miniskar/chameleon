@@ -11,13 +11,14 @@
  *
  * @brief Chameleon zhetrd_he2hb parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Azzam Haidar
  * @author Mathieu Faverge
  * @author Samuel Thibault
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -94,7 +95,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
     chameleon_desc_init( &AT, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, A->mb, A->nb, (A->mb*A->nb),
                          chameleon_min(A->mt, A->nt) * A->mb, A->nb, 0, 0,
                          chameleon_min(A->mt, A->nt) * A->mb, A->nb, 1, 1,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     /* Let's extract the diagonal in a temporary copy that contains A and A' */
     for (k = 1; k < A->nt; k++){

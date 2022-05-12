@@ -9,12 +9,13 @@
  *
  * @brief Chameleon zgetrf testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -93,11 +94,11 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Create_User(
             &descA0c, (void*)CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
             nb, nb, nb*nb, M, N, 0, 0, M, N, 1, 1,
-            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
         CHAMELEON_Desc_Create_User(
             &descIPIVc, (void*)CHAMELEON_MAT_ALLOC_GLOBAL, ChamInteger,
             nb, 1, nb, M, 1, 0, 0, M, 1, 1, 1,
-            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
 
         if ( diag == ChamUnit ) {
             CHAMELEON_zplgtr_Tile( 0,     ChamUpper, descA0c, seedA   );

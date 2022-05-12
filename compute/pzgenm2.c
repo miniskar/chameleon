@@ -12,11 +12,12 @@
  *
  * @brief Chameleon parallel algorithm to compute 2-norm estimator.
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Dalal Sukkari
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -67,7 +68,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
      */
     chameleon_desc_init( &DROW, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 1, A->nb, A->nb,
                          A->p, A->n, 0, 0, A->p, A->n, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     /**
      * NRMX must be allocated with GLOBAL to be able to access the norm value
      * after flushing the descriptor.
@@ -75,7 +76,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
      */
     chameleon_desc_init( &NRMX, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 2, 1, 2,
                          A->p * 2, A->q, 0, 0, A->p * 2, A->q, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     /**
      * Start by computing the initial vector of the iterative process, and that
@@ -171,13 +172,13 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
 
     chameleon_desc_init( &NRMSX, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 2, 1, 2,
                          A->p * 2, A->q, 0, 0, A->p * 2, A->q, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     chameleon_desc_init( &X,  CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, 1, A->nb, A->nb,
                          A->p, A->n, 0, 0, A->p, A->n, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     chameleon_desc_init( &SX, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble, A->mb, 1, A->mb,
                          A->m, A->q, 0, 0, A->m, A->q, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     cnt = 0;
     e0  = 0.;

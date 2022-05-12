@@ -11,10 +11,11 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #include "control/common.h"
@@ -24,7 +25,8 @@ static int
 chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
                           int *mb, int *nb,
                           int lm, int ln, int m, int n, int p, int q,
-                          blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
+                          blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd,
+                          blkrankof_fct_t get_rankof, void* get_rankof_arg )
 {
     CHAM_context_t *chamctxt;
     CHAM_desc_t    *desc;
@@ -49,7 +51,7 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
     desc = (CHAM_desc_t*)malloc(sizeof(CHAM_desc_t));
     rc = chameleon_desc_init_internal( desc, name, mat, dtyp, mb[0], nb[0],
                                        lm, ln, m, n, p, q,
-                                       get_blkaddr, get_blkldd, get_rankof );
+                                       get_blkaddr, get_blkldd, get_rankof, get_rankof_arg );
     *descptr = desc;
 
     if ( rc != CHAMELEON_SUCCESS ) {
@@ -81,7 +83,7 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
                                            tile->ld, tempnn, /* Abuse as ln is not used */
                                            tempmm, tempnn,
                                            1, 1,             /* can recurse only on local data */
-                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
+                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL);
 
             tile->format = CHAMELEON_TILE_DESC;
             tile->mat    = tiledesc;
@@ -98,7 +100,8 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
 int
 CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp,
                                  int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
-                                 blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd, blkrankof_fct_t get_rankof )
+                                 blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd,
+                                 blkrankof_fct_t get_rankof, void* get_rankof_arg )
 {
     /*
      * The first layer must be allocated, otherwise we will give unitialized
@@ -109,5 +112,5 @@ CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_
 
     return chameleon_recdesc_create( "A", descptr, mat, dtyp,
                                      mb, nb, lm, ln, m, n, p, q,
-                                     get_blkaddr, get_blkldd, get_rankof );
+                                     get_blkaddr, get_blkldd, get_rankof, get_rankof_arg );
 }
