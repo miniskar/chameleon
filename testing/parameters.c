@@ -8,11 +8,12 @@
  *
  * @brief Chameleon auxiliary routines for testing structures
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #include "testings.h"
@@ -464,6 +465,87 @@ parameters_compute_q( int p )
     param = parameters_get( 'Q' );
     param->value.ival = np / p;
     return param->value.ival;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @brief Helper function to generate the testing descriptors with the right
+ * data distrbution.
+ *
+ *******************************************************************************
+ *
+ * @param[in] filename
+ *          The name of the input file.
+ *
+ *******************************************************************************
+ */
+int
+parameters_desc_create( const char *id, CHAM_desc_t **descptr, cham_flttype_t dtyp,
+                        int mb, int nb, int lm, int ln, int m, int n )
+{
+    custom_dist_t *custom_args = NULL;
+    const char    *custom = parameters_getvalue_str( "custom" );
+    intptr_t       mtxfmt = parameters_getvalue_int( "mtxfmt" );
+    int            rc;
+
+    mtxfmt = -mtxfmt; /* Inverse sign to get the defined values */
+
+    if ( !custom ) {
+        int P = parameters_getvalue_int( "P" );
+        int Q = parameters_compute_q( P );
+        rc = CHAMELEON_Desc_Create(
+            descptr, (void*)mtxfmt, dtyp, mb, nb, mb * nb, lm, ln, 0, 0, m, n, P, Q );
+        (*descptr)->name = id;
+        return rc;
+    }
+
+    if ( ((void*)mtxfmt) == CHAMELEON_MAT_ALLOC_GLOBAL ) {
+        fprintf( stderr, "In parameters_desc_create, cannot use custom distributions with global matrix allocation (Use --mtxfmt=1)\n" );
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+
+    rc = chameleon_getrankof_custom_init( &custom_args, custom );
+    if ( rc != CHAMELEON_SUCCESS ) {
+        return rc;
+    }
+
+    rc = CHAMELEON_Desc_Create_User(
+        descptr, (void*)mtxfmt, dtyp, mb, nb, mb * nb, lm, ln, 0, 0, m, n, CHAMELEON_Comm_size(), 1,
+        NULL, NULL, chameleon_getrankof_custom, custom_args );
+    (*descptr)->name = id;
+    return rc;
+}
+
+/**
+ *******************************************************************************
+ *
+ * @brief Helper function to destroy the testing descriptors.
+ *
+ *******************************************************************************
+ *
+ * @param[inout] descptr
+ *      The descriptor to destroy. On exit the descriptor can no longer be used.
+ *
+ *******************************************************************************
+ */
+int
+parameters_desc_destroy(CHAM_desc_t **descptr)
+{
+    CHAM_desc_t *desc;
+    if ( descptr == NULL ) {
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+    desc = *descptr;
+    if ( desc == NULL ) {
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+    if ( desc->get_rankof_init_arg ) {
+        if ( desc->get_rankof_init == chameleon_getrankof_custom ) {
+            chameleon_getrankof_custom_destroy( (custom_dist_t**)&(desc->get_rankof_init_arg) );
+        }
+    }
+    return CHAMELEON_Desc_Destroy( descptr );
 }
 #endif
 

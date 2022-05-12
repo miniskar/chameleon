@@ -11,7 +11,7 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
@@ -21,7 +21,8 @@
  * @author Philippe Swartvagher
  * @author Lucas Nesi
  * @author Matthieu Kuhn
- * @date 2023-01-05
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -57,11 +58,12 @@ parameter_t parameters[] = {
 #endif
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
-    { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
+    { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int,    sprint_int    },
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
-    { "gpus",    "Number of GPU workers per node",      'g', PARAM_OPTION | PARAM_OUTPUT, 1, 4, TestValInt, { 0}, NULL, pread_int, sprint_int },
-    { "P",       "Rows (P) in the PxQ process grid",    'P', PARAM_OPTION | PARAM_OUTPUT, 1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
-    { "Q",       "Columns (Q) in the PxQ process grid", 'Q', PARAM_OUTPUT,                1, 2, TestValInt, { 1}, NULL, pread_int, sprint_int },
+    { "gpus",    "Number of GPU workers per node",      'g', PARAM_OPTION | PARAM_OUTPUT, 1, 4, TestValInt, { 0}, NULL, pread_int,    sprint_int    },
+    { "P",       "Rows (P) in the PxQ process grid",    'P', PARAM_OPTION | PARAM_OUTPUT, 1, 2, TestValInt, { 1}, NULL, pread_int,    sprint_int    },
+    { "Q",       "Columns (Q) in the PxQ process grid", 'Q', PARAM_OUTPUT,                1, 2, TestValInt, { 1}, NULL, pread_int,    sprint_int    },
+    { "custom",  "Name of custom distribution file",    -61, PARAM_OPTION,                1, 1, TestString, { 0}, NULL, pread_string, sprint_string },
 #endif
 
     { NULL, "Main input parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },

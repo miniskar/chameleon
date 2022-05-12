@@ -8,12 +8,13 @@
  *
  * @brief Chameleon auxiliary routines for testing structures
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Florent Pruvost
- * @date 2023-01-05
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #ifndef _testings_h_
@@ -241,6 +242,10 @@ void         parameters_destroy( );
 
 run_list_t *run_list_generate( const char **params );
 void        run_list_destroy( run_list_elt_t *run );
+
+int parameters_desc_create( const char *id, CHAM_desc_t **descptr, cham_flttype_t dtyp,
+                            int mb, int nb, int lm, int ln, int m, int n );
+int parameters_desc_destroy( CHAM_desc_t **descptr );
 
 /**
  * @brief Define the data associated to a single run of a testing
