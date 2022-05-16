@@ -68,6 +68,11 @@ typedef struct gepdf_info_s {
 #include "chameleon/chameleon_zc.h"
 #include "chameleon/chameleon_ds.h"
 
+#include "chameleon/chameleon_zlapack.h"
+#include "chameleon/chameleon_clapack.h"
+#include "chameleon/chameleon_dlapack.h"
+#include "chameleon/chameleon_slapack.h"
+
 BEGIN_C_DECLS
 
 /* ****************************************************************************

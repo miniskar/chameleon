@@ -30,10 +30,11 @@
 # ----------------------------------------------------------
 set(CHAMELEON_HDRS_GENERATED "")
 set(ZHDR
-    chameleon/chameleon_z.h
-    chameleon/chameleon_zc.h
-    chameleon/tasks_z.h
-    chameleon/tasks_zc.h
+  chameleon/chameleon_z.h
+  chameleon/chameleon_zc.h
+  chameleon/chameleon_zlapack.h
+  chameleon/tasks_z.h
+  chameleon/tasks_zc.h
 )
 
 precisions_rules_py(CHAMELEON_HDRS_GENERATED "${ZHDR}"

@@ -29,14 +29,7 @@
 #include <string.h>
 #include <assert.h>
 
-/**
- *  CBLAS requires for scalar arguments to be passed
- *        by address rather than by value
- */
-#ifndef CBLAS_SADDR
-#define CBLAS_SADDR( _val_ ) &(_val_)
-#endif
-#include "coreblas/cblas.h"
+#include "coreblas/cblas_wrapper.h"
 
 /**
  * CHAMELEON types and constants
@@ -67,14 +60,6 @@ END_C_DECLS
         fprintf(stderr, "%s: Parameter %d / %s\n", __func__, k, str) ;  \
         assert(0);                                                      \
     } while(0)
-
-/**
- * CBlas enum
- */
-#define CBLAS_TRANSPOSE enum CBLAS_TRANSPOSE
-#define CBLAS_UPLO      enum CBLAS_UPLO
-#define CBLAS_DIAG      enum CBLAS_DIAG
-#define CBLAS_SIDE      enum CBLAS_SIDE
 
 /**
  *  LAPACK Constants
