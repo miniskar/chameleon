@@ -48,6 +48,7 @@ precisions_rules_py(
 # --------------------------
 set(COREBLAS_HDRS
     coreblas.h
+    coreblas/cblas_wrapper.h
     coreblas/cblas.h
     coreblas/lapacke.h
     coreblas/lapacke_config.h
