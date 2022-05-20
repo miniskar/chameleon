@@ -63,6 +63,51 @@
       * lange:     General matrix norm
       * lacpy:     General matrix copy
 
+**** Configuration through environment variables
+     <<sec:env_variables>>
+
+     Some parameters of the Chameleon library can be set to some
+     default values through environment variables which ar elisted
+     below.  Note that the code itself can modify these values through
+     calls to `CHAMELEON_Enable()`, `CHAMELEON_Disable()`, or
+     `CHAMELEON_Set()` (see [[sec:options_routines][Options]])
+
+     * *CHAMELEON_TILE_SIZE* defines the default tile size value for
+       all algorithms. The default value is *384*.
+     * *CHAMELEON_INNER_BLOCK_SIZE* defines the default inner blocking
+       size value for algorithms that requires it (mainly QR/LQ
+       algorithms). The default value is *48*.
+     * *CHAMELEON_HOUSEHOLDER_MODE* changes the basic QR algorithm
+       from a flat tree (*1*, *ChamFlatHouseholder* or *Flat*) to an
+       Householder tree (*2*, *ChamTreeHouseholder*, or *Tree* ). The
+       default value is *ChamFlatTree*.
+     * *CHAMELEON_HOUSEHOLDER_SIZE* defines the size of the local
+       housholder trees if the Houselmoder tree mode is set. The
+       default value is *4*.
+     * *CHAMELEON_TRANSLATION_MODE* defines the translation used in
+       the LAPACK API routines. *1*, *In*, or *ChamInPlace* sets the
+       in-place translation to avoid copies. *2*, *Out*,
+       *ChamOutOfPlace* sets the out-of-place translation that uses a
+       copy of the matrix. The default is *ChamInPlace*.
+     * *CHAMELEON_GENERIC*, if ON all algorithms using specialized
+       algorithms specific to data distributions are disabled.
+     * *CHAMELEON_AUTOMINMAX*, if ON the minimal/maximal limits of
+       tasks that can be submitted to the runtime system are
+       set. These limits are computed per algorithm using the
+       _lookahead_ parameter. (StarPU specific, and currently
+       only available for getrf)
+     * *CHAMELEON_LOOKAHEAD* defines the number of steps that will be
+       submitted in advance in algorithms using lookahead
+       techniques. The default is *1*.
+
+     * *CHAMELEON_WARNINGS* enables/disables the warning output
+     * *CHAMELEON_PARALLEL_KERNEL* enables/disables the use of
+       multi-threaded kernels. Available only for StarPU runtime system.
+     * *CHAMELEON_PROFILING_MODE* enables the profiling information of
+       the kernels (StarPU specific)
+     * *CHAMELEON_PROGRESS* enables the progress function to show the
+       percentage of tasks completed.
+
 **** Execution trace using EZTrace
      <<sec:trace_ezt>>
 
@@ -795,13 +840,14 @@
          * map: apply a user operator on each tile of the matrix
 
 **** Options routines
+     <<sec:options_foutines>>
      Enable CHAMELEON feature.
      #+begin_src
      int CHAMELEON_Enable  (CHAMELEON_enum option);
      #+end_src
-     Feature to be enabled:
+     Features that can be enabled/disabled:
      * *CHAMELEON_WARNINGS*:   printing of warning messages,
-     * *CHAMELEON_AUTOTUNING*: autotuning for tile size and inner block size,
+     * *CHAMELEON_AUTOTUNING*: autotuning for tile size and inner block size (inactive),
      * *CHAMELEON_PROFILING_MODE*:  activate kernels profiling,
      * *CHAMELEON_PROGRESS*:  to print a progress status,
      * *CHAMELEON_GEMM3M*: to enable the use of the /gemm3m/ blas bunction.
