@@ -17,6 +17,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Samuel Thibault
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  *
  */
@@ -137,6 +138,7 @@ typedef struct chameleon_context_s {
     cham_bool_t        profiling_enabled;
     cham_bool_t        progress_enabled;
     cham_bool_t        generic_enabled;
+    cham_bool_t        autominmax_enabled;
     cham_bool_t        runtime_paused;
 
     cham_householder_t householder;        // "domino" (flat) or tree-based (reduction) Householder

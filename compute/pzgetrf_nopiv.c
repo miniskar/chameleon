@@ -19,6 +19,7 @@
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Terry Cojean
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  * @precisions normal z -> s d c
  *
@@ -30,9 +31,9 @@
 /**
  *  Parallel tile LU factorization with no pivoting - dynamic scheduling
  */
-void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
-                                RUNTIME_sequence_t *sequence,
-                                RUNTIME_request_t *request)
+void chameleon_pzgetrf_nopiv( CHAM_desc_t *A,
+                              RUNTIME_sequence_t *sequence,
+                              RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -50,6 +51,19 @@ void chameleon_pzgetrf_nopiv(CHAM_desc_t *A,
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 
     ib = CHAMELEON_IB;
+
+    if ( chamctxt->autominmax_enabled && (chamctxt->scheduler == RUNTIME_SCHED_STARPU) ) {
+        int lookahead = chamctxt->lookahead;
+        int nbtasks_per_step = (A->mt * A->nt) / (A->p * A->q);
+        int mintasks = nbtasks_per_step *  lookahead;
+        int maxtasks = nbtasks_per_step * (lookahead+1);
+
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            chameleon_warning( "chameleon_pzgetrf_nopiv",
+                               "Setting limit for the number of submitted tasks\n" );
+        }
+        RUNTIME_set_minmax_submitted_tasks( mintasks, maxtasks );
+    }
 
     for (k = 0; k < chameleon_min(A->mt, A->nt); k++) {
         RUNTIME_iteration_push(chamctxt, k);

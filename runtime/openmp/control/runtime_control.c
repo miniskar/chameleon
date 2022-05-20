@@ -18,6 +18,7 @@
  * @author Florent Pruvost
  * @author Philippe Virouleau
  * @author Philippe Swartvagher
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  *
  */
@@ -126,4 +127,9 @@ int RUNTIME_comm_size( CHAM_context_t *chamctxt )
 {
     (void)chamctxt;
     return 1;
+}
+
+void RUNTIME_set_minmax_submitted_tasks( int min, int max ) {
+    (void)min;
+    (void)max;
 }

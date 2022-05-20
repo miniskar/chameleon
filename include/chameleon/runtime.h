@@ -17,6 +17,7 @@
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Philippe Swartvagher
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  *
  */
@@ -646,6 +647,24 @@ RUNTIME_options_ws_alloc( RUNTIME_option_t *options,
  */
 int
 RUNTIME_options_ws_free( RUNTIME_option_t *options );
+
+/**
+ * @brief Set the minimum and maximum limit of tasks submitted to the runtime
+ *
+ * @warning Only STARPU for now
+ *
+ * @param[in] min
+ *            Minimum number of tasks under which the task submission
+ *            restarts.
+ *
+ * @param[in] max
+ *            Maximum number of tasks submitted to the runtime.
+ *            When reached, we stop submitting and switch to execution
+ *            until the minimum number of tasks is reached.
+ *
+ */
+void
+RUNTIME_set_minmax_submitted_tasks( int min, int max );
 
 /**
  * @}
