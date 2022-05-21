@@ -25,6 +25,8 @@
  */
 #include "testings.h"
 
+testing_options_t options;
+
 /**
  * @brief Defines all the parameters of the testings
  *
@@ -138,11 +140,8 @@ parameter_t parameters[] = {
 
 int main (int argc, char **argv) {
 
-    int ncores, ngpus, human, generic, check, i, niter;
-    int trace, nowarmup, profile, forcegpu, api;
+    int i;
     int rc, info = 0;
-    int run_id = 0;
-    char *func_name;
     char *input_file;
     run_list_t *runlist;
     testing_t * test;
@@ -155,20 +154,10 @@ int main (int argc, char **argv) {
         parameters_read_file( input_file );
         free(input_file);
     }
-    ncores    = parameters_getvalue_int( "threads"  );
-    ngpus     = parameters_getvalue_int( "gpus"     );
-    check     = parameters_getvalue_int( "check"    );
-    human     = parameters_getvalue_int( "human"    );
-    generic   = parameters_getvalue_int( "generic"  );
-    func_name = parameters_getvalue_str( "op"       );
-    niter     = parameters_getvalue_int( "niter"    );
-    trace     = parameters_getvalue_int( "trace"    );
-    nowarmup  = parameters_getvalue_int( "nowarmup" );
-    profile   = parameters_getvalue_int( "profile"  );
-    forcegpu  = parameters_getvalue_int( "forcegpu" );
-    api       = parameters_getvalue_int( "api"      );
 
-    rc = CHAMELEON_Init( ncores, ngpus );
+    testing_options_init( &options );
+
+    rc = CHAMELEON_Init( options.threads, options.gpus );
     if ( rc != CHAMELEON_SUCCESS ) {
         fprintf( stderr, "CHAMELEON_Init failed and returned %d.\n", rc );
         info = 1;
@@ -176,19 +165,19 @@ int main (int argc, char **argv) {
     }
 
     /* Set ncores to the right value */
-    if ( ncores == -1 ) {
+    if ( options.threads == -1 ) {
         parameter_t *param;
         param = parameters_get( 't' );
         param->value.ival = CHAMELEON_GetThreadNbr();
+        options.threads = param->value.ival;
     }
 
     /* Binds the right function to be called and builds the parameters combinations */
-    test = testing_gettest( argv[0], func_name );
-    free(func_name);
-    test_fct_t fptr = (api == 0) ? test->fptr_desc : test->fptr_std;
+    test = testing_gettest( argv[0], options.op );
+    test_fct_t fptr = (options.api == 0) ? test->fptr_desc : test->fptr_std;
     if ( fptr == NULL ) {
         fprintf( stderr, "The %s API is not available for function %s\n",
-                 (api == 0) ? "descriptor" : "standard", func_name );
+                 (options.api == 0) ? "descriptor" : "standard", options.op );
         info = 1;
         goto end;
     }
@@ -197,12 +186,12 @@ int main (int argc, char **argv) {
     runlist = run_list_generate( test->params );
 
     /* Executes the tests */
-    run_print_header( test, check, human );
+    run_print_header( test, options.check, options.human );
     run = runlist->head;
 
     /* Force all possible kernels on GPU */
-    if ( forcegpu ) {
-        if ( ngpus == 0 ) {
+    if ( options.forcegpu ) {
+        if ( options.gpus == 0 ) {
             fprintf( stderr,
                      "--forcegpu can't be enable without GPU (-g 0).\n"
                      "  Please specify a larger number of GPU or disable this option\n" );
@@ -213,37 +202,41 @@ int main (int argc, char **argv) {
     }
 
     /* Warmup */
-    if ( !nowarmup ) {
+    if ( !options.nowarmup ) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-        fptr( &copy, check );
+
+        /* Run the warmup test as -1 */
+        options.run_id--;
+        fptr( &copy, options.check );
         run_arg_list_destroy( &copy );
+        options.run_id++;
     }
 
     /* Start kernel statistics */
-    if ( profile ) {
+    if ( options.profile ) {
         CHAMELEON_Enable( CHAMELEON_KERNELPROFILE_MODE );
     }
 
     /* Start tracing */
-    if ( trace ) {
+    if ( options.trace ) {
         CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
     }
 
-    if ( generic ) {
+    if ( options.generic ) {
         CHAMELEON_Enable( CHAMELEON_GENERIC );
     }
 
     /* Perform all runs */
     while ( run != NULL ) {
-        for(i=0; i<niter; i++) {
+        for(i=0; i<options.niter; i++) {
             run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-            rc = fptr( &copy, check );
+            rc = fptr( &copy, options.check );
 
             /* If rc < 0, we skipped the test */
             if ( rc >= 0 ) {
                 run_arg_add_int( &copy, "RETURN", rc );
-                run_print_line( test, &copy, check, human, run_id );
-                run_id++;
+                run_print_line( test, &copy, options.check, options.human, options.run_id );
+                options.run_id++;
                 info += rc;
             }
             run_arg_list_destroy( &copy );
@@ -256,19 +249,20 @@ int main (int argc, char **argv) {
     }
 
     /* Stop tracing */
-    if ( trace ) {
+    if ( options.trace ) {
         CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
     }
 
     /* Stop kernel statistics and display results */
-    if ( profile ) {
+    if ( options.profile ) {
         CHAMELEON_Disable( CHAMELEON_KERNELPROFILE_MODE );
         RUNTIME_kernelprofile_display();
     }
     free( runlist );
 
   end:
-    ;/* OpenMP end */
+    /* OpenMP end */
+    free( options.op );
     CHAMELEON_Finalize();
     parameters_destroy();
 

@@ -19,6 +19,8 @@
  */
 #include "testings.h"
 
+testing_options_t options;
+
 /**
  * @brief Defines all the parameters of the testings
  *
@@ -96,11 +98,8 @@ parameter_t parameters[] = {
 
 int main (int argc, char **argv) {
 
-    int ncores, human, i, niter;
-    int nowarmup;
-    int rc, info, check = 0;
-    int run_id = 0;
-    char *func_name;
+    int i;
+    int rc, info = 0;
     char *input_file;
     run_list_t *runlist;
     testing_t * test;
@@ -113,13 +112,10 @@ int main (int argc, char **argv) {
         parameters_read_file( input_file );
         free(input_file);
     }
-    ncores    = parameters_getvalue_int( "threads"  );
-    human     = parameters_getvalue_int( "human"    );
-    func_name = parameters_getvalue_str( "op"       );
-    niter     = parameters_getvalue_int( "niter"    );
-    nowarmup  = parameters_getvalue_int( "nowarmup" );
 
-    rc = CHAMELEON_Init( ncores, 0 );
+    testing_options_init( &options );
+
+    rc = CHAMELEON_Init( options.threads, 0 );
     if ( rc != CHAMELEON_SUCCESS ) {
         fprintf( stderr, "CHAMELEON_Init failed and returned %d.\n", rc );
         info = 1;
@@ -127,18 +123,18 @@ int main (int argc, char **argv) {
     }
 
     /* Set ncores to the right value */
-    if ( ncores == -1 ) {
+    if ( options.threads == -1 ) {
         parameter_t *param;
         param = parameters_get( 't' );
         param->value.ival = CHAMELEON_GetThreadNbr();
+        options.threads = param->value.ival;
     }
 
     /* Binds the right function to be called and builds the parameters combinations */
-    test = testing_gettest( argv[0], func_name );
-    free(func_name);
+    test = testing_gettest( argv[0], options.op );
     test_fct_t fptr = test->fptr_std;
     if ( fptr == NULL ) {
-        fprintf( stderr, "The vendor API is not available for function %s\n", func_name );
+        fprintf( stderr, "The vendor API is not available for function %s\n", options.op );
         info = 1;
         goto end;
     }
@@ -147,27 +143,31 @@ int main (int argc, char **argv) {
     runlist = run_list_generate( test->params );
 
     /* Executes the tests */
-    run_print_header( test, check, human );
+    run_print_header( test, options.check, options.human );
     run = runlist->head;
 
     /* Warmup */
-    if ( !nowarmup ) {
+    if ( !options.nowarmup ) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-        fptr( &copy, check );
+
+        /* Run the warmup test as -1 */
+        options.run_id--;
+        fptr( &copy, options.check );
         run_arg_list_destroy( &copy );
+        options.run_id++;
     }
 
     /* Perform all runs */
     while ( run != NULL ) {
-        for(i=0; i<niter; i++) {
+        for(i=0; i<options.niter; i++) {
             run_arg_list_t copy = run_arg_list_copy( &(run->args) );
-            rc = fptr( &copy, check );
+            rc = fptr( &copy, options.check );
 
             /* If rc < 0, we skipped the test */
             if ( rc >= 0 ) {
                 run_arg_add_int( &copy, "RETURN", rc );
-                run_print_line( test, &copy, check, human, run_id );
-                run_id++;
+                run_print_line( test, &copy, options.check, options.human, options.run_id );
+                options.run_id++;
                 info += rc;
             }
             run_arg_list_destroy( &copy );
@@ -182,7 +182,8 @@ int main (int argc, char **argv) {
     free( runlist );
 
   end:
-    ;/* OpenMP end */
+    /* OpenMP end */
+    free( options.op );
     CHAMELEON_Finalize();
     parameters_destroy();
 

@@ -17,6 +17,8 @@
  */
 #include "testings.h"
 
+extern testing_options_t options;
+
 /**
  * @brief List of all the testings available.
  */
@@ -78,11 +80,46 @@ testing_gettest( const char *prog_name,
 }
 
 /**
+ * @brief Initialize the option structure to avoid looking for the parameters at
+ * each iteration
+ */
+void
+testing_options_init( testing_options_t *options )
+{
+    options->human     = parameters_getvalue_int( "human" );
+    options->niter     = parameters_getvalue_int( "niter" );
+    options->nowarmup  = parameters_getvalue_int( "nowarmup" );
+#if !defined(CHAMELEON_TESTINGS_VENDOR)
+    options->api       = parameters_getvalue_int( "api" );
+    options->async     = parameters_getvalue_int( "async" );
+    options->check     = parameters_getvalue_int( "check" );
+    options->forcegpu  = parameters_getvalue_int( "forcegpu" );
+    options->generic   = parameters_getvalue_int( "generic" );
+    options->gpus      = parameters_getvalue_int( "gpus" );
+    options->mtxfmt    = parameters_getvalue_int( "mtxfmt" );
+    options->P         = parameters_getvalue_int( "P" );
+    options->profile   = parameters_getvalue_int( "profile" );
+    options->splitsub  = parameters_getvalue_int( "splitsub" );
+    options->threads   = parameters_getvalue_int( "threads" );
+    options->trace     = parameters_getvalue_int( "trace" );
+#endif
+
+    options->file = parameters_getvalue_str( "file" );
+    options->op   = parameters_getvalue_str( "op" );
+
+    options->run_id = 0;
+}
+
+/**
  * @brief Starts the measure for the testing.
  */
 void
 testing_start( testdata_t *tdata )
 {
+    tdata->sequence         = NULL;
+    tdata->request.status   = 0;
+    tdata->request.schedopt = NULL;
+
 #if defined(CHAMELEON_TESTINGS_VENDOR)
     /*
      * If we test the vendor functions, we want to use all the threads of the
@@ -93,21 +130,21 @@ testing_start( testdata_t *tdata )
 #else
     int splitsub = parameters_getvalue_int( "splitsub" );
     int async    = parameters_getvalue_int( "async" ) || splitsub;
-#endif
 
-    tdata->sequence         = NULL;
-    tdata->request.status   = 0;
-    tdata->request.schedopt = NULL;
-
-#if !defined(CHAMELEON_TESTINGS_VENDOR)
 #if defined(CHAMELEON_USE_MPI)
     CHAMELEON_Distributed_start();
 #endif
-
+    /*
+     * Create the sequence for the asynchronous calls
+     */
     if ( async ) {
         CHAMELEON_Sequence_Create( &(tdata->sequence) );
     }
 
+    /*
+     * Pause the task execution if we want to time separately the task
+     * submission from the task execution
+     */
     if ( splitsub ) {
         CHAMELEON_Pause();
     }
