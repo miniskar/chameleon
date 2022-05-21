@@ -409,7 +409,7 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     CHAM_desc_t descT;
     CHAM_desc_t D, *Dptr = NULL;
     double *E;
-    int M, N, MINMN, NB;
+    int M, N, MINMN;
 
     CHAM_context_t *chamctxt;
     chamctxt = chameleon_context_self();
@@ -465,7 +465,6 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     M     = descA.m;
     N     = descA.n;
     MINMN = chameleon_min(M, N);
-    NB    = descA.mb;
 #if defined(CHAMELEON_COPY_DIAG)
     {
         chameleon_zdesc_copy_and_restrict( A, &D, A->m, A->n );

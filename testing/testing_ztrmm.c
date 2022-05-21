@@ -132,7 +132,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
 
     /* Descriptors */
     int                    An;
-    CHAMELEON_Complex64_t *A, *B, *Binit;
+    CHAMELEON_Complex64_t *A, *B;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
 
@@ -152,7 +152,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     /* Calculates the product */
 #if defined(CHAMELEON_TESTINGS_VENDOR)
     testing_start( &test_data );
-    cblas_ztrmm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, 
+    cblas_ztrmm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
                  (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB );
     testing_stop( &test_data, flops_ztrmm( side, N, M ) );
 #else
@@ -163,6 +163,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
+        CHAMELEON_Complex64_t *Binit;
         Binit = malloc( LDB*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Binit, LDB, seedB );
 
@@ -175,6 +176,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     free( A );
     free( B );
 
+    (void)check;
     return hres;
 }
 

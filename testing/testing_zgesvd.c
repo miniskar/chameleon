@@ -84,8 +84,8 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t *U, *Vt = NULL;
     double                *S, *D;
     int                    LDU   = M;
-    int                    LDVt  = N; 
-    int                    Un, Vtn;
+    int                    LDVt  = N;
+    int                    Un;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -113,7 +113,6 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
 
     if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
         LDVt = ( jobvt == ChamSVec ) ? K : N;
-        Vtn  = N;
         Vt   = malloc( LDVt*N*sizeof(CHAMELEON_Complex64_t) );
     }
     else {
@@ -197,8 +196,8 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     CHAMELEON_Complex64_t *A, *A0, *U, *Vt;
     double                *S, *D;
     int                    LDU   = M;
-    int                    LDVt  = N; 
-    int                    Un, Vtn;
+    int                    LDVt  = N;
+    int                    Un;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
@@ -225,7 +224,6 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
 
     if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
         LDVt = ( jobvt == ChamSVec ) ? K : N;
-        Vtn  = N;
         Vt   = malloc( LDVt*N*sizeof(CHAMELEON_Complex64_t) );
     }
     else {

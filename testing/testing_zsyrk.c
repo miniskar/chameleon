@@ -137,7 +137,7 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
 
     /* Descriptors */
     int                    Am, An;
-    CHAMELEON_Complex64_t *A, *C, *Cinit;
+    CHAMELEON_Complex64_t *A, *C;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -177,6 +177,7 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
+        CHAMELEON_Complex64_t *Cinit;
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplgsy( bump, uplo, N, Cinit, LDC, seedC );
 
@@ -189,6 +190,7 @@ testing_zsyrk_std( run_arg_list_t *args, int check )
     free( A );
     free( C );
 
+    (void)check;
     return hres;
 }
 

@@ -144,7 +144,7 @@ testing_zsymm_std( run_arg_list_t *args, int check )
 
     /* Descriptors */
     int                    An;
-    CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
+    CHAMELEON_Complex64_t *A, *B, *C;
 
     bump  = run_arg_get_double( args, "bump", bump );
     alpha = run_arg_get_complex64( args, "alpha", alpha );
@@ -179,6 +179,7 @@ testing_zsymm_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
+        CHAMELEON_Complex64_t *Cinit;
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Cinit, LDC, seedC );
 
@@ -192,6 +193,7 @@ testing_zsymm_std( run_arg_list_t *args, int check )
     free( B );
     free( C );
 
+    (void)check;
     return hres;
 }
 

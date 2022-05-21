@@ -138,7 +138,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
 
     /* Descriptors */
     int                    Am, An;
-    CHAMELEON_Complex64_t *A, *C, *Cinit;
+    CHAMELEON_Complex64_t *A, *C;
 
     alpha = run_arg_get_double( args, "alpha", alpha );
     beta  = run_arg_get_double( args, "beta", beta );
@@ -167,7 +167,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
     /* Calculates the product */
 #if defined(CHAMELEON_TESTINGS_VENDOR)
     testing_start( &test_data );
-    cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K, 
+    cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
                  alpha, A, LDA, beta, C, LDC );
     testing_stop( &test_data, flops_zherk( N, K ) );
 #else
@@ -178,6 +178,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
+        CHAMELEON_Complex64_t *Cinit;
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplghe( bump, uplo, N, Cinit, LDC, seedC );
 
@@ -190,6 +191,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
     free( A );
     free( C );
 
+    (void)check;
     return hres;
 }
 
