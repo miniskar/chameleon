@@ -128,24 +128,31 @@ testing_start( testdata_t *tdata )
      */
     CHAMELEON_Pause();
 #else
-    int splitsub = parameters_getvalue_int( "splitsub" );
-    int async    = parameters_getvalue_int( "async" ) || splitsub;
-
 #if defined(CHAMELEON_USE_MPI)
     CHAMELEON_Distributed_start();
 #endif
     /*
      * Create the sequence for the asynchronous calls
      */
-    if ( async ) {
+    if ( options.async ) {
         CHAMELEON_Sequence_Create( &(tdata->sequence) );
+    }
+
+    /* Start kernel statistics */
+    if ( options.profile ) {
+        CHAMELEON_Enable( CHAMELEON_KERNELPROFILE_MODE );
+    }
+
+    /* Start tracing */
+    if ( options.trace && (options.run_id == 0) ) {
+        CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
     }
 
     /*
      * Pause the task execution if we want to time separately the task
      * submission from the task execution
      */
-    if ( splitsub ) {
+    if ( options.splitsub ) {
         CHAMELEON_Pause();
     }
 #endif
@@ -164,13 +171,10 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
     cham_fixdbl_t t0, t1, t2, gflops;
 
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
-    int splitsub = parameters_getvalue_int( "splitsub" );
-    int async    = parameters_getvalue_int( "async" ) || splitsub;
-
     /* Submission is done, we need to start the computations */
-    if ( async ) {
+    if ( options.async ) {
         tdata->tsub = RUNTIME_get_time();
-        if ( splitsub ) {
+        if ( options.splitsub ) {
             CHAMELEON_Resume();
         }
         CHAMELEON_Sequence_Wait( tdata->sequence );
@@ -194,8 +198,18 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
     tdata->texec = t2 - t0;
 
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
-    if ( splitsub ) {
+    if ( options.splitsub ) {
         tdata->texec = t2 - t1;
+    }
+
+    /* Stop tracing */
+    if ( options.trace && (options.run_id == 0) ) {
+        CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
+    }
+
+    /* Stop kernel statistics */
+    if ( options.profile ) {
+        CHAMELEON_Disable( CHAMELEON_KERNELPROFILE_MODE );
     }
 #endif
 

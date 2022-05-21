@@ -212,16 +212,6 @@ int main (int argc, char **argv) {
         options.run_id++;
     }
 
-    /* Start kernel statistics */
-    if ( options.profile ) {
-        CHAMELEON_Enable( CHAMELEON_KERNELPROFILE_MODE );
-    }
-
-    /* Start tracing */
-    if ( options.trace ) {
-        CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
-    }
-
     if ( options.generic ) {
         CHAMELEON_Enable( CHAMELEON_GENERIC );
     }
@@ -248,14 +238,8 @@ int main (int argc, char **argv) {
         run = next;
     }
 
-    /* Stop tracing */
-    if ( options.trace ) {
-        CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
-    }
-
-    /* Stop kernel statistics and display results */
+    /* Display kernel statistics if asked */
     if ( options.profile ) {
-        CHAMELEON_Disable( CHAMELEON_KERNELPROFILE_MODE );
         RUNTIME_kernelprofile_display();
     }
     free( runlist );
