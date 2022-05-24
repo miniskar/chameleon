@@ -151,7 +151,7 @@ int main (int argc, char **argv) {
         run_arg_list_t copy = run_arg_list_copy( &(run->args) );
 
         /* Run the warmup test as -1 */
-        options.run_id--;
+        options.run_id = -1;
         fptr( &copy, options.check );
         run_arg_list_destroy( &copy );
         options.run_id++;
