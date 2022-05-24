@@ -134,7 +134,7 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->warnings_enabled   = chameleon_env_is_off( "CHAMELEON_WARNINGS" );
     chamctxt->autotuning_enabled = chameleon_env_is_on( "CHAMELEON_AUTOTUNING" );
     chamctxt->parallel_enabled   = chameleon_env_is_on( "CHAMELEON_PARALLEL_KERNEL" );
-    chamctxt->profiling_enabled  = chameleon_env_is_on( "CHAMELEON_PROFILING_MODE" );
+    chamctxt->statistics_enabled = chameleon_env_is_on( "CHAMELEON_GENERATE_STATS" );
     chamctxt->progress_enabled   = chameleon_env_is_on( "CHAMELEON_PROGRESS" );
     chamctxt->generic_enabled    = chameleon_env_is_on( "CHAMELEON_GENERIC" );
     chamctxt->autominmax_enabled = chameleon_env_is_on( "CHAMELEON_AUTOMINMAX" );
@@ -184,8 +184,9 @@ int chameleon_context_destroy(){
  *          Feature to be enabled:
  *          @arg CHAMELEON_WARNINGS   printing of warning messages,
  *          @arg CHAMELEON_AUTOTUNING autotuning for tile size and inner block size.
- *          @arg CHAMELEON_PROFILING_MODE  activate profiling of kernels
- *          @arg CHAMELEON_PROGRESS  activate progress indicator
+ *          @arg CHAMELEON_GENERATE_TRACE enable/start the trace generation
+ *          @arg CHAMELEON_GENERATE_STATS enable/start the kernel statistics
+ *          @arg CHAMELEON_PROGRESS enable the progress indicator
  *          @arg CHAMELEON_GEMM3M  Use z/cgemm3m for complexe matrix-matrix products
  *          @arg CHAMELEON_GENERIC  enable/disable GEMM3M  Use z/cgemm3m for complexe matrix-matrix products
  *
@@ -212,11 +213,11 @@ int CHAMELEON_Enable(int option)
         case CHAMELEON_AUTOTUNING:
             chamctxt->autotuning_enabled = CHAMELEON_TRUE;
             break;
-        case CHAMELEON_PROFILING_MODE:
+        case CHAMELEON_GENERATE_TRACE:
             RUNTIME_start_profiling();
             break;
-        case CHAMELEON_KERNELPROFILE_MODE:
-            chamctxt->profiling_enabled = CHAMELEON_TRUE;
+        case CHAMELEON_GENERATE_STATS:
+            chamctxt->statistics_enabled = CHAMELEON_TRUE;
             break;
         case CHAMELEON_PROGRESS:
             chamctxt->progress_enabled = CHAMELEON_TRUE;
@@ -259,8 +260,9 @@ int CHAMELEON_Enable(int option)
  *          Feature to be disabled:
  *          @arg CHAMELEON_WARNINGS   printing of warning messages,
  *          @arg CHAMELEON_AUTOTUNING autotuning for tile size and inner block size.
- *          @arg CHAMELEON_PROFILING_MODE  deactivate profiling of kernels
- *          @arg CHAMELEON_PROGRESS  deactivate progress indicator
+ *          @arg CHAMELEON_GENERATE_TRACE disable/pause the trace generation
+ *          @arg CHAMELEON_GENERATE_STATS disable/pause the kernel statistics
+ *          @arg CHAMELEON_PROGRESS disable the progress indicator
  *          @arg CHAMELEON_GEMM3M  Use z/cgemm3m for complexe matrix-matrix products
  *
  *******************************************************************************
@@ -285,11 +287,11 @@ int CHAMELEON_Disable(int option)
         case CHAMELEON_AUTOTUNING:
             chamctxt->autotuning_enabled = CHAMELEON_FALSE;
             break;
-        case CHAMELEON_PROFILING_MODE:
+        case CHAMELEON_GENERATE_TRACE:
             RUNTIME_stop_profiling();
             break;
-        case CHAMELEON_KERNELPROFILE_MODE:
-            chamctxt->profiling_enabled = CHAMELEON_FALSE;
+        case CHAMELEON_GENERATE_STATS:
+            chamctxt->statistics_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_PROGRESS:
             chamctxt->progress_enabled = CHAMELEON_FALSE;

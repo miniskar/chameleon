@@ -66,7 +66,7 @@ RUNTIME_context_destroy( CHAM_context_t *ctxt );
  *            Pointer to the runtime data structure
  *
  * @param[in] option
- *            @arg CHAMELEON_PROFILING_MODE: start the profiling mode of the runtime.
+ *            @arg CHAMELEON_GENERATE_TRACE: start the trace generation mode of the runtime.
  */
 void
 RUNTIME_enable( void *runtime_ctxt, int option );
@@ -79,7 +79,7 @@ RUNTIME_enable( void *runtime_ctxt, int option );
  *            Pointer to the runtime data structure
  *
  * @param[in] option
- *            @arg CHAMELEON_PROFILING_MODE: stop the profiling mode of the runtime.
+ *            @arg CHAMELEON_GENERATE_TRACE: stop the trace generation mode of the runtime.
  */
 void
 RUNTIME_disable( void *runtime_ctxt, int option );

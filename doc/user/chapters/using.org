@@ -103,7 +103,7 @@
      * *CHAMELEON_WARNINGS* enables/disables the warning output
      * *CHAMELEON_PARALLEL_KERNEL* enables/disables the use of
        multi-threaded kernels. Available only for StarPU runtime system.
-     * *CHAMELEON_PROFILING_MODE* enables the profiling information of
+     * *CHAMELEON_GENERATE_STATS* enables the profiling information of
        the kernels (StarPU specific)
      * *CHAMELEON_PROGRESS* enables the progress function to show the
        percentage of tasks completed.
@@ -848,7 +848,8 @@
      Features that can be enabled/disabled:
      * *CHAMELEON_WARNINGS*:   printing of warning messages,
      * *CHAMELEON_AUTOTUNING*: autotuning for tile size and inner block size (inactive),
-     * *CHAMELEON_PROFILING_MODE*:  activate kernels profiling,
+     * *CHAMELEON_GENERATE_TRACE*: enable/start the trace generation
+     * *CHAMELEON_GENERATE_STATS*: enable/start the kernel statistics
      * *CHAMELEON_PROGRESS*:  to print a progress status,
      * *CHAMELEON_GEMM3M*: to enable the use of the /gemm3m/ blas bunction.
 

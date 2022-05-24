@@ -165,15 +165,20 @@
 !   State machine switches
 !
       integer CHAMELEON_WARNINGS, CHAMELEON_ERRORS, CHAMELEON_AUTOTUNING
-      integer CHAMELEON_DAG, CHAMELEON_PROFILING_MODE, CHAMELEON_PARALLEL_MODE
-      integer CHAMELEON_BOUND
+      integer CHAMELEON_DAG, CHAMELEON_GENERATE_TRACE, CHAMELEON_GENERATE_STATS
+      integer CHAMELEON_PARALLEL_MODE, CHAMELEON_BOUND, CHAMELEON_PROGRESS
+      integer CHAMELEON_GEMM3M, CHAMELEON_GENERIC
       parameter ( CHAMELEON_WARNINGS       = 1 )
       parameter ( CHAMELEON_ERRORS         = 2 )
       parameter ( CHAMELEON_AUTOTUNING     = 3 )
       parameter ( CHAMELEON_DAG            = 4 )
-      parameter ( CHAMELEON_PROFILING_MODE = 5 )
-      parameter ( CHAMELEON_PARALLEL_MODE  = 6 )
-      parameter ( CHAMELEON_BOUND          = 7 )
+      parameter ( CHAMELEON_GENERATE_TRACE = 5 )
+      parameter ( CHAMELEON_GENERATE_STATS = 6 )
+      parameter ( CHAMELEON_PARALLEL_MODE  = 7 )
+      parameter ( CHAMELEON_BOUND          = 8 )
+      parameter ( CHAMELEON_PROGRESS       = 9 )
+      parameter ( CHAMELEON_GEMM3M         = 10 )
+      parameter ( CHAMELEON_GENERIC        = 11 )
 
 !********************************************************************
 !   CHAMELEON constants - configuration  parameters

@@ -140,12 +140,12 @@ testing_start( testdata_t *tdata )
 
     /* Start kernel statistics */
     if ( options.profile && (options.run_id >= 0) ) {
-        CHAMELEON_Enable( CHAMELEON_KERNELPROFILE_MODE );
+        CHAMELEON_Enable( CHAMELEON_GENERATE_STATS );
     }
 
     /* Start tracing */
     if ( options.trace && (options.run_id >= 0) ) {
-        CHAMELEON_Enable( CHAMELEON_PROFILING_MODE );
+        CHAMELEON_Enable( CHAMELEON_GENERATE_TRACE );
     }
 
     /*
@@ -204,12 +204,12 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
 
     /* Stop tracing */
     if ( options.trace && (options.run_id >= 0) ) {
-        CHAMELEON_Disable( CHAMELEON_PROFILING_MODE );
+        CHAMELEON_Disable( CHAMELEON_GENERATE_TRACE );
     }
 
     /* Stop kernel statistics */
     if ( options.profile && (options.run_id >= 0) ) {
-        CHAMELEON_Disable( CHAMELEON_KERNELPROFILE_MODE );
+        CHAMELEON_Disable( CHAMELEON_GENERATE_STATS );
     }
 #endif
 

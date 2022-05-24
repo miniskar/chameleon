@@ -48,12 +48,15 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
     case CHAMELEON_DAG:
         fprintf(stderr, "DAG is not available with PaRSEC\n");
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with PaRSEC\n");
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with PaRSEC\n");
         //parsec_profiling_start();
         break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with PaRSEC\n");
+        break;
     case CHAMELEON_BOUND:
-        fprintf(stderr, "Bound computation is not available with Quark\n");
+        fprintf(stderr, "Bound computation is not available with PaRSEC\n");
         break;
     default:
         return;
@@ -73,9 +76,12 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
     case CHAMELEON_DAG:
         fprintf(stderr, "DAG is not available with PaRSEC\n");
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with PaRSEC\n");
-        //parsec_profiling_stop();
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with PaRSEC\n");
+        //parsec_profiling_start();
+        break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with PaRSEC\n");
         break;
     case CHAMELEON_BOUND:
         fprintf(stderr, "Bound computation is not available with PaRSEC\n");

@@ -135,7 +135,7 @@ typedef struct chameleon_context_s {
     cham_bool_t        warnings_enabled;
     cham_bool_t        autotuning_enabled;
     cham_bool_t        parallel_enabled;
-    cham_bool_t        profiling_enabled;
+    cham_bool_t        statistics_enabled;
     cham_bool_t        progress_enabled;
     cham_bool_t        generic_enabled;
     cham_bool_t        autominmax_enabled;

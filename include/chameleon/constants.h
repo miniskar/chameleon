@@ -204,8 +204,10 @@ typedef enum chameleon_store_e {
 #define CHAMELEON_ERRORS              2
 #define CHAMELEON_AUTOTUNING          3
 #define CHAMELEON_DAG                 4
-#define CHAMELEON_PROFILING_MODE      5
-#define CHAMELEON_KERNELPROFILE_MODE  6
+#define CHAMELEON_GENERATE_TRACE      5
+#define CHAMELEON_PROFILING_MODE      CHAMELEON_GENERATE_TRACE  /* _deprecated_ */
+#define CHAMELEON_GENERATE_STATS      6
+#define CHAMELEON_KERNELPROFILE_MODE  CHAMELEON_GENERATE_STATS  /* _deprecated_ */
 #define CHAMELEON_PARALLEL_MODE       7
 #define CHAMELEON_BOUND               8
 #define CHAMELEON_PROGRESS            9
