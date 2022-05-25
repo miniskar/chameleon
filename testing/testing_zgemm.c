@@ -162,7 +162,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
 
     /* Descriptors */
     int                    Am, An, Bm, Bn;
-    CHAMELEON_Complex64_t *A, *B, *C, *Cinit;
+    CHAMELEON_Complex64_t *A, *B, *C;
 
     alpha = run_arg_get_complex64( args, "alpha", alpha );
     beta  = run_arg_get_complex64( args, "beta", beta );
@@ -225,6 +225,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
 
     /* Check the solution */
     if ( check ) {
+        CHAMELEON_Complex64_t *Cinit;
         Cinit = malloc( LDC*N*sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_zplrnt( M, N, Cinit, LDC, seedC );
 
@@ -238,6 +239,8 @@ testing_zgemm_std( run_arg_list_t *args, int check )
     free( B );
     free( C );
 
+    (void)api;
+    (void)check;
     return hres;
 }
 

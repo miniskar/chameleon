@@ -246,6 +246,8 @@ chameleon_pzgebrd_gb2bd( cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A,
     chameleon_desc_destroy( &descAB );
 
     RUNTIME_options_finalize( &options, chamctxt );
+
+    return CHAMELEON_SUCCESS;
 }
 
 int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt,
@@ -260,7 +262,7 @@ int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt,
     CHAM_desc_t *subA, *subT, *subUVT, *subD;
     CHAM_desc_t descUl, descUt;
     CHAM_desc_t descVTl, descVTt;
-    int M, N, NB, ib;
+    int M, N, NB;
 
     chamctxt = chameleon_context_self();
     if ( sequence->status != CHAMELEON_SUCCESS ) {
@@ -358,4 +360,6 @@ int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt,
     }
 
     RUNTIME_options_finalize( &options, chamctxt );
+
+    return CHAMELEON_SUCCESS;
 }

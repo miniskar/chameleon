@@ -177,6 +177,7 @@ testing_zposv_std( run_arg_list_t *args, int check )
     free( A );
     free( X );
 
+    (void)check;
     return hres;
 }
 

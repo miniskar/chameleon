@@ -51,8 +51,11 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
         QUARK_Barrier( runtime_ctxt );
         QUARK_DOT_DAG_Enable( runtime_ctxt, 1 );
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with Quark\n");
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with Quark\n");
+        break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with Quark\n");
         break;
     case CHAMELEON_BOUND:
         fprintf(stderr, "Bound computation is not available with Quark\n");
@@ -74,8 +77,11 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
         QUARK_Barrier( runtime_ctxt );
         QUARK_DOT_DAG_Enable( runtime_ctxt, 0 );
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with Quark\n");
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with Quark\n");
+        break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with Quark\n");
         break;
     case CHAMELEON_BOUND:
         fprintf(stderr, "Bound computation is not available with Quark\n");

@@ -67,6 +67,12 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
     if ( rc == -ENODEV ) {
         hres = CHAMELEON_ERR_NOT_INITIALIZED;
     }
+
+    /* Stop profiling as it seems that autostart is not sufficient */
+#if defined(STARPU_USE_FXT)
+    starpu_fxt_stop_profiling();
+#endif
+
     return hres;
 }
 

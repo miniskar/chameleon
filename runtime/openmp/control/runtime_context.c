@@ -49,8 +49,11 @@ void RUNTIME_enable( void *runtime_ctxt, int lever )
     case CHAMELEON_DAG:
         fprintf(stderr, "DAG is not available with OpenMP\n");
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with OpenMP\n");
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with OpenMP\n");
+        break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with OpenMP\n");
         break;
     case CHAMELEON_BOUND:
         fprintf(stderr, "Bound computation is not available with OpenMP\n");
@@ -72,8 +75,11 @@ void RUNTIME_disable( void *runtime_ctxt, int lever )
     case CHAMELEON_DAG:
         fprintf(stderr, "DAG is not available with OpenMP\n");
         break;
-    case CHAMELEON_PROFILING_MODE:
-        fprintf(stderr, "Profiling is not available with OpenMP\n");
+    case CHAMELEON_GENERATE_TRACE:
+        fprintf(stderr, "Trace generation is not available with OpenMP\n");
+        break;
+    case CHAMELEON_GENERATE_STATS:
+        fprintf(stderr, "Kernel statistics are not available with OpenMP\n");
         break;
     case CHAMELEON_BOUND:
         fprintf(stderr, "Bound computation is not available with OpenMP\n");

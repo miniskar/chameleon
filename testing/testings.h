@@ -239,8 +239,6 @@ void         parameters_destroy( );
 run_list_t *run_list_generate( const char **params );
 void        run_list_destroy( run_list_elt_t *run );
 
-void testing_register( testing_t *test );
-
 /**
  * @brief Define the data associated to a single run of a testing
  */
@@ -254,12 +252,39 @@ typedef struct testdata_ {
     cham_fixdbl_t       texec;    /**< The execution time of test           */
     cham_fixdbl_t       tsub;     /**< The task submission tome of the test */
     RUNTIME_sequence_t *sequence; /**< The sequence to run the test if splitsub */
-    RUNTIME_request_t  request;   /**< The request to run the test if splitsub  */
+    RUNTIME_request_t   request;  /**< The request to run the test if splitsub  */
 } testdata_t;
+
+/**
+ * @brief Structure to store the read parameters for a quicker access
+ */
+typedef struct testing_options_ {
+    /* Static parameters */
+    int api;
+    int async;
+    int check;
+    int forcegpu;
+    int generic;
+    int gpus;
+    int human;
+    int mtxfmt;
+    int niter;
+    int nowarmup;
+    int P;
+    int profile;
+    int splitsub;
+    int threads;
+    int trace;
+    char *file;
+    char *op;
+    /* Additionnal information to exchange between the main and the testings */
+    int run_id;
+} testing_options_t;
 
 void       testing_register( testing_t *test );
 testing_t *testing_gettest( const char *prog_name, const char *func_name );
 void       testing_start( testdata_t *tdata );
 void       testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
+void       testing_options_init( testing_options_t *options );
 
 #endif /* _testings_h_ */

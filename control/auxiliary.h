@@ -24,6 +24,9 @@
 #ifndef _chameleon_auxiliary_h_
 #define _chameleon_auxiliary_h_
 
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "chameleon/struct.h"
 #include "chameleon/tasks.h"
 

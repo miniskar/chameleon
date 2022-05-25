@@ -162,6 +162,8 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
 
     free( A );
 
+    (void)norm;
+    (void)check;
     return hres;
 }
 
