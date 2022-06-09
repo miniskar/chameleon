@@ -67,7 +67,7 @@
      <<sec:env_variables>>
 
      Some parameters of the Chameleon library can be set to some
-     default values through environment variables which ar elisted
+     default values through environment variables which are listed
      below.  Note that the code itself can modify these values through
      calls to `CHAMELEON_Enable()`, `CHAMELEON_Disable()`, or
      `CHAMELEON_Set()` (see [[sec:options_routines][Options]])
@@ -840,7 +840,8 @@
          * map: apply a user operator on each tile of the matrix
 
 **** Options routines
-     <<sec:options_foutines>>
+     <<sec:options_routines>>
+
      Enable CHAMELEON feature.
      #+begin_src
      int CHAMELEON_Enable  (CHAMELEON_enum option);
