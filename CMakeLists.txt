@@ -288,6 +288,9 @@ mark_as_advanced(CHAMELEON_COPY_DIAG)
 
 # If ON generates vendor_ztesting in testings
 option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF)
+
+# If ON enable the use of multithreaded kernels such as Intel MKL MT
+option(CHAMELEON_KERNELS_MT "Use multithreaded kernels (e.g. intel MKL MT)" OFF)
 #------------------------------------------------------------------------------
 
 ###############################################################################
@@ -331,14 +334,20 @@ find_package(M REQUIRED)
 # with concerned libraries
 if(NOT CHAMELEON_SIMULATION)
 
+    if(CHAMELEON_KERNELS_MT)
+        set( CBLAS_MT TRUE )
+        set( LAPACKE_MT TRUE )
+    else()
+        set( CBLAS_MT FALSE )
+        set( LAPACKE_MT FALSE )
+    endif()
+
     # CHAMELEON depends on CBLAS
     #---------------------------
-    set( CBLAS_MT FALSE )
     find_package(CBLAS REQUIRED)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
-    set( LAPACKE_MT FALSE )
     find_package(LAPACKE REQUIRED)
 
     # CHAMELEON depends on CUDA/CUBLAS
