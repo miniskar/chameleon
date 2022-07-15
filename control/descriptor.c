@@ -132,7 +132,6 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
     return (mm % A->p) * A->q + (mm % A->q);
 }
 
-
 /**
  ******************************************************************************
  *
@@ -1042,4 +1041,135 @@ void
 CHAMELEON_Desc_Print( const CHAM_desc_t *desc )
 {
     chameleon_desc_print( desc, 2 );
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ * @brief Change the data distribution of the given matrix.
+ *
+ ******************************************************************************
+ *
+ * @param[in] uplo
+ *          = ChamUpper: Upper triangle of A is moved; lower part is never referenced.
+ *          = ChamLower: Lower triangle of A is moved; upper part is never referenced.
+ *          = ChamUpperLower: The full matrix A is moved.
+ *
+ * @param[inout] desc The matrix descriptor to move around. On exit, the new
+ *          distribution is registered.
+ *
+ * @param[in] new_get_rankof
+ *          The function that describes the new data distribution.
+ *
+ ******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit.
+ * @retval CHAMELEON_ERR_ILLEGAL_VALUE on error.
+ *
+ */
+int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
+                                        CHAM_desc_t     *desc,
+                                        blkrankof_fct_t  new_get_rankof )
+{
+    int                 status;
+    CHAM_context_t     *chamctxt;
+    RUNTIME_sequence_t *sequence = NULL;
+
+    chamctxt = chameleon_context_self();
+    if (chamctxt == NULL) {
+        chameleon_fatal_error("CHAMELEON_Desc_Change_Distribution", "CHAMELEON not initialized");
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+
+    chameleon_sequence_create( chamctxt, &sequence );
+
+    CHAMELEON_Desc_Change_Distribution_Async( uplo, desc, new_get_rankof, sequence );
+
+    RUNTIME_desc_flush( desc, sequence );
+    chameleon_sequence_wait( chamctxt, sequence );
+    status = sequence->status;
+    chameleon_sequence_destroy( chamctxt, sequence );
+
+    return status;
+}
+
+/**
+ *****************************************************************************
+ *
+ * @ingroup Descriptor
+ *
+ * @brief Change the data distribution of the given matrix.
+ *
+ ******************************************************************************
+ *
+ * @param[in] uplo
+ *          = ChamUpper: Upper triangle of A is moved; lower part is never referenced.
+ *          = ChamLower: Lower triangle of A is moved; upper part is never referenced.
+ *          = ChamUpperLower: The full matrix A is moved.
+ *
+ * @param[inout] desc The matrix descriptor to move around. On exit, the new
+ *          distribution is registered.
+ *
+ * @param[in] new_get_rankof
+ *          The function that describes the new data distribution.
+ *
+ ******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit.
+ * @retval CHAMELEON_ERR_ILLEGAL_VALUE on error.
+ * @retval CHAMELEON_ERR_NOT_INITIALIZED if chameleon is not initialized.
+ * @retval CHAMELEON_ERR_NOT_SUPPORTED if CHAMELEON_USE_MIGRATE is not enabled
+ *
+ */
+int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
+                                              CHAM_desc_t        *desc,
+                                              blkrankof_fct_t     new_get_rankof,
+                                              RUNTIME_sequence_t *sequence )
+{
+    CHAM_context_t *chamctxt;
+    int m, n, mmin, mmax;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        chameleon_error("CHAMELEON_Desc_Change_Distribution_Async", "CHAMELEON not initialized");
+        sequence->status = CHAMELEON_ERR_NOT_INITIALIZED;
+        return CHAMELEON_ERR_NOT_INITIALIZED;
+    }
+
+    /* Nothing to do if the new mapping is the same as the original one */
+    if ( ( new_get_rankof == desc->get_rankof ) ||
+         ( RUNTIME_comm_size( chamctxt ) == 1 ) )
+    {
+        return CHAMELEON_SUCCESS;
+    }
+
+    if ( chamctxt->scheduler != RUNTIME_SCHED_STARPU ) {
+        chameleon_error("CHAMELEON_Desc_Change_Distribution_Async", "Distribution change is only supported by StarPU");
+        sequence->status = CHAMELEON_ERR_ILLEGAL_VALUE;
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+
+    /* Check that the function is enabled */
+#if !defined(CHAMELEON_USE_MIGRATE)
+    {
+        chameleon_error("CHAMELEON_Desc_Change_Distribution_Async", "Distribution change is only supported by StarPU");
+        sequence->status = CHAMELEON_ERR_NOT_SUPPORTED;
+        return CHAMELEON_ERR_NOT_SUPPORTED;
+    }
+#endif
+
+    for ( n = 0; n < desc->nt; n++ ) {
+        mmin = ( uplo == ChamLower ) ? chameleon_min( n,   desc->mt ) : 0;
+        mmax = ( uplo == ChamUpper ) ? chameleon_min( n+1, desc->mt ) : desc->mt;
+        for ( m = mmin; m < mmax; m++ ) {
+            RUNTIME_data_migrate( sequence, desc, m, n, new_get_rankof( desc, m, n ) );
+        }
+    }
+
+    /* Actually change data location in Chameleon */
+    desc->get_rankof = new_get_rankof;
+
+    return CHAMELEON_SUCCESS;
 }

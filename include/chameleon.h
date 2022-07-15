@@ -145,6 +145,15 @@ int CHAMELEON_Desc_Acquire( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Release( const CHAM_desc_t *desc );
 int CHAMELEON_Desc_Flush  ( const CHAM_desc_t        *desc,
                             const RUNTIME_sequence_t *sequence );
+
+int CHAMELEON_Desc_Change_Distribution( cham_uplo_t      uplo,
+                                        CHAM_desc_t     *desc,
+                                        blkrankof_fct_t  new_get_rankof );
+int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
+                                              CHAM_desc_t        *desc,
+                                              blkrankof_fct_t     new_get_rankof,
+                                              RUNTIME_sequence_t *sequence );
+
 void CHAMELEON_Desc_Print( const CHAM_desc_t *desc );
 
 /* Workspaces */
