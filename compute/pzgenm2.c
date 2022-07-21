@@ -42,10 +42,15 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
     int cnt, maxiter;
     double e0, normx, normsx, beta, scl;
 
-    chamctxt = chameleon_context_self();
+    if ( A->get_rankof != chameleon_getrankof_2d ) {
+        sequence->status = CHAMELEON_ERR_NOT_SUPPORTED;
+    }
+
     if ( sequence->status != CHAMELEON_SUCCESS ) {
         return;
     }
+
+    chamctxt = chameleon_context_self();
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
     /* Initialize the result */
