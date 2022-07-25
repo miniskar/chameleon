@@ -18,9 +18,10 @@
 #ifndef _lapack_api_common_h_
 #define _lapack_api_common_h_
 
-#include "chameleon.h"
-#include "chameleon/mangling.h"
-#include "control/auxiliary.h"
+#include <chameleon.h>
+#include <chameleon/mangling.h>
+#include <control/auxiliary.h>
+#include <coreblas/cblas_wrapper.h>
 
 /**
  *

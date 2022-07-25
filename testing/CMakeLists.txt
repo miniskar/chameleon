@@ -167,6 +167,7 @@ foreach(_precision ${CHAMELEON_PRECISION} )
     ${CHAMELEON_BINARY_DIR}/coreblas/include
     )
 
+  target_link_libraries(${__target_name} PRIVATE chameleon_lapack)
   target_link_libraries(${__target_name} PRIVATE chameleon)
   if(NOT CHAMELEON_SIMULATION)
     target_link_libraries(${__target_name} PRIVATE

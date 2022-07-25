@@ -571,6 +571,11 @@ add_subdirectory(control)
 add_subdirectory(compute)
 
 ###############################################################################
+# chameleon_lapack library #
+############################
+add_subdirectory(lapack_api)
+
+###############################################################################
 # Executables and Tests #
 #########################
 enable_testing()
