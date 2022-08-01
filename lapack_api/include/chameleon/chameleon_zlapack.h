@@ -19,8 +19,8 @@
 #ifndef _chameleon_zlapack_h_
 #define _chameleon_zlapack_h_
 
-#include "chameleon.h"
-#include "coreblas/cblas_wrapper.h"
+#include <chameleon.h>
+#include <coreblas/cblas_wrapper.h>
 
 BEGIN_C_DECLS
 
