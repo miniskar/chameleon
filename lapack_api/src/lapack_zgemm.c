@@ -125,7 +125,7 @@ void CHAMELEON_cblas_zgemm( const CBLAS_ORDER Order, const CBLAS_TRANSPOSE Trans
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc )
 {
     if (Order != CblasColMajor){
-        chameleon_error("CHAMELEON_cblas_zgemm", "illegal value of order");
+        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zgemm", "illegal value of order");
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

@@ -33,7 +33,7 @@ int chameleon_blastocblas_trans(const char* trans)
     } else if ( (*trans == 'C') || (*trans == 'c') ) {
         return CblasConjTrans;
     } else {
-        chameleon_error("chameleon_blastocblas_trans", "illegal value of BLAS transpose parameter");
+        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "chameleon_blastocblas_trans", "illegal value of BLAS transpose parameter");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 }
