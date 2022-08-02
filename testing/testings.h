@@ -18,6 +18,7 @@
 #ifndef _testings_h_
 #define _testings_h_
 
+#include <chameleon_lapack.h>
 #include <chameleon.h>
 #include <stdlib.h>
 #include <stdio.h>

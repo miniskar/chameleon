@@ -80,29 +80,34 @@ ENDMACRO(CLEAN_LIB_LIST)
 MACRO(GENERATE_PKGCONFIG_FILE)
 
     # The definitions that should be given to users (change the API)
+    set(CHAMELEON_LAPACK_PKGCONFIG_DEFINITIONS "")
     set(CHAMELEON_PKGCONFIG_DEFINITIONS "")
     set(COREBLAS_PKGCONFIG_DEFINITIONS "")
     set(CUDABLAS_PKGCONFIG_DEFINITIONS "")
 
     # The link flags specific to this package and any required libraries
     # that don't support PkgConfig
+    set(CHAMELEON_LAPACK_PKGCONFIG_LIBS "-lchameleon_lapack")
     set(CHAMELEON_PKGCONFIG_LIBS "-lchameleon")
     set(COREBLAS_PKGCONFIG_LIBS  "-lcoreblas")
     set(CUDABLAS_PKGCONFIG_LIBS  "-lcudablas")
 
     # The link flags for private libraries required by this package but not
     # exposed to applications
+    set(CHAMELEON_LAPACK_PKGCONFIG_LIBS_PRIVATE "")
     set(CHAMELEON_PKGCONFIG_LIBS_PRIVATE "")
     set(COREBLAS_PKGCONFIG_LIBS_PRIVATE  "")
     set(CUDABLAS_PKGCONFIG_LIBS_PRIVATE  "")
 
     # A list of packages required by this package
+    set(CHAMELEON_LAPACK_PKGCONFIG_REQUIRED "chameleon")
     set(CHAMELEON_PKGCONFIG_REQUIRED "hqr")
     set(COREBLAS_PKGCONFIG_REQUIRED  "")
     set(CUDABLAS_PKGCONFIG_REQUIRED  "")
 
     # A list of private packages required by this package but not exposed to
     # applications
+    set(CHAMELEON_LAPACK_PKGCONFIG_REQUIRED_PRIVATE "")
     set(CHAMELEON_PKGCONFIG_REQUIRED_PRIVATE "")
     set(COREBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
     set(CUDABLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
@@ -157,6 +162,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
 
     # Create .pc file
     # ---------------
+    SET(_output_chameleon_lapack_file "${CMAKE_BINARY_DIR}/chameleon_lapack.pc")
     SET(_output_chameleon_file "${CMAKE_BINARY_DIR}/chameleon.pc")
     SET(_output_coreblas_file "${CMAKE_BINARY_DIR}/coreblas.pc")
     if(CHAMELEON_USE_CUDA)
@@ -164,6 +170,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     endif()
 
     # TODO: add url of CHAMELEON releases in .pc file
+    CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon_lapack.pc.in" "${_output_chameleon_lapack_file}" @ONLY)
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon.pc.in" "${_output_chameleon_file}" @ONLY)
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/coreblas.pc.in"  "${_output_coreblas_file}" @ONLY)
     if(CHAMELEON_USE_CUDA)
@@ -172,6 +179,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
 
     # installation
     # ------------
+    INSTALL(FILES ${_output_chameleon_lapack_file} DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_chameleon_file} DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_coreblas_file}  DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_cudablas_file}  DESTINATION lib/pkgconfig)

@@ -264,22 +264,10 @@ precisions_rules_py(CONTROL_SRCS_GENERATED "${ZSRC}"
                     PRECISIONS "${CHAMELEON_PRECISION}"
                     TARGETDIR "control" )
 
-set(LAPACK_API_SRCS_GENERATED "")
-set(ZSRC
-  lapack_api/lapack_zgemm.c
-  )
-precisions_rules_py(LAPACK_API_SRCS_GENERATED "${ZSRC}"
-  PRECISIONS "${CHAMELEON_PRECISION}")
-set(LAPACK_API_SRCS
-  ${LAPACK_API_SRCS_GENERATED}
-  lapack_api/lapack_api_common.c
-  )
-
 set(CHAMELEON_SRCS
     ${CHAMELEON_CONTROL}
     ${CHAMELEON_SRCS_GENERATED}
     ${CONTROL_SRCS_GENERATED}
-    ${LAPACK_API_SRCS}
    )
 
 # Generate the chameleon fortran sources for all possible precisions
@@ -321,7 +309,6 @@ add_dependencies(chameleon
 )
 
 target_include_directories(chameleon PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lapack_api>
   $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CHAMELEON_BINARY_DIR}/include>
   $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/control>
