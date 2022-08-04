@@ -458,4 +458,8 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         const CHAM_desc_t *D, int Dm, int Dn,
                         CHAM_desc_t *A, int Am, int An);
 
+void RUNTIME_zgersum_set_methods( const CHAM_desc_t *A, int Am, int An );
+void RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
+                                  const CHAM_desc_t *A, int Am, int An );
+
 #endif /* _chameleon_tasks_z_h_ */

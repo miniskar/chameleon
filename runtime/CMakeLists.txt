@@ -107,6 +107,10 @@ set(CODELETS_ZSRC
     codelets/codelet_zgesum.c
     codelets/codelet_zcesca.c
     codelets/codelet_zgram.c
+    ##################
+    # Reduction methods
+    ##################
+    codelets/codelet_zgersum.c
     )
 
 set(CODELETS_SRC

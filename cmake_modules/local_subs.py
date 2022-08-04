@@ -41,6 +41,7 @@ _extra_blas = [
     ('',                     'sgepdf',               'dgepdf',               'cgepdf',               'zgepdf'              ),
     ('',                     'scesca',               'dcesca',               'ccesca',               'zcesca'              ),
     ('',                     'sgesum',               'dgesum',               'cgesum',               'zgesum'              ),
+    ('',                     'sgersum',              'dgersum',              'cgersum',              'zgersum'             ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]
