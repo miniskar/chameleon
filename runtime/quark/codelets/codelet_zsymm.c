@@ -30,28 +30,28 @@ void CORE_zsymm_quark(Quark *quark)
 {
     cham_side_t side;
     cham_uplo_t uplo;
-    int M;
-    int N;
+    int m;
+    int n;
     CHAMELEON_Complex64_t alpha;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t beta;
     CHAM_tile_t *tileC;
 
-    quark_unpack_args_9(quark, side, uplo, M, N, alpha, tileA, tileB, beta, tileC);
-    TCORE_zsymm(side, uplo,
-        M, N,
-        alpha, tileA,
-        tileB,
-        beta, tileC);
+    quark_unpack_args_9(quark, side, uplo, m, n, alpha, tileA, tileB, beta, tileC);
+    TCORE_zsymm( side, uplo,
+                 m, n,
+                 alpha, tileA, tileB,
+                 beta, tileC );
 }
 
-void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
-                      cham_side_t side, cham_uplo_t uplo,
-                      int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                      const CHAM_desc_t *B, int Bm, int Bn,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
+void
+INSERT_TASK_zsymm( const RUNTIME_option_t *options,
+                   cham_side_t side, cham_uplo_t uplo,
+                   int m, int n, int nb,
+                   CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                const CHAM_desc_t *B, int Bm, int Bn,
+                   CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
 {
     if ( alpha == 0. ) {
         return INSERT_TASK_zlascal( options, ChamUpperLower, m, n, nb,
@@ -73,4 +73,17 @@ void INSERT_TASK_zsymm(const RUNTIME_option_t *options,
         sizeof(CHAMELEON_Complex64_t),         &beta,    VALUE,
         sizeof(void*), RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),               accessC,
         0);
+}
+
+void
+INSERT_TASK_zsymm_Astat( const RUNTIME_option_t *options,
+                         cham_side_t side, cham_uplo_t uplo,
+                         int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                      const CHAM_desc_t *B, int Bm, int Bn,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
+{
+    INSERT_TASK_zsymm( options, side, uplo, m, n, nb,
+                       alpha, A, Am, An, B, Bm, Bn,
+                       beta, C, Cm, Cn );
 }
