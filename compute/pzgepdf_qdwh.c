@@ -175,7 +175,7 @@ chameleon_pzgepdf_qdwh_init( const CHAM_desc_t *U, const CHAM_desc_t *H,
     /*
      * Allocate the data descriptors for the lookahead if needed
      */
-    *gemm_ws = CHAMELEON_zgemm_WS_Alloc( ChamNoTrans, ChamNoTrans, NULL, NULL, U );
+    *gemm_ws = CHAMELEON_zgemm_WS_Alloc( ChamNoTrans, ChamNoTrans, U, U, U );
 
     return;
 }

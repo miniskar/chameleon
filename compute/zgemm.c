@@ -103,14 +103,77 @@ void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)
     }
 
     options = calloc( 1, sizeof(struct chameleon_pzgemm_s) );
-    options->summa = 0;
+    options->alg = ChamGemmAlgAuto;
 
-    if ( ((C->p > 1) || (C->q > 1)) &&
-         (C->get_rankof == chameleon_getrankof_2d) &&
-         (chamctxt->generic_enabled != CHAMELEON_TRUE) )
+    /*
+     * If only one process, or if generic has been globally enforced, we switch
+     * to generic immediately.
+     */
+    if ( ((C->p == 1) && (C->q == 1)) ||
+         (chamctxt->generic_enabled == CHAMELEON_TRUE) )
+    {
+        options->alg = ChamGemmAlgGeneric;
+    }
+
+    /* Look at environment variable is something enforces the variant. */
+    if ( options->alg == ChamGemmAlgAuto )
+    {
+        char *algostr = chameleon_getenv( "CHAMELEON_GEMM_ALGO" );
+
+        if ( algostr ) {
+            if ( strcasecmp( algostr, "summa_c" ) == 0 ) {
+                options->alg = ChamGemmAlgSummaC;
+            }
+            else if ( strcasecmp( algostr, "summa_a" ) == 0  ) {
+                options->alg = ChamGemmAlgSummaA;
+            }
+            else if ( strcasecmp( algostr, "summa_b" ) == 0  ) {
+                options->alg = ChamGemmAlgSummaB;
+            }
+            else if ( strcasecmp( algostr, "generic" ) == 0  ) {
+                options->alg = ChamGemmAlgGeneric;
+            }
+            else if ( strcasecmp( algostr, "auto" ) == 0  ) {
+                options->alg = ChamGemmAlgAuto;
+            }
+            else {
+                fprintf( stderr, "ERROR: CHAMELEON_GEMM_ALGO is not one of AUTO, SUMMA_A, SUMMA_B, SUMMA_C, GENERIC => Switch back to Automatic switch\n" );
+            }
+        }
+        chameleon_cleanenv( algostr );
+    }
+
+    /* Perform automatic choice if not already enforced. */
+    if ( options->alg == ChamGemmAlgAuto )
+    {
+        double sizeA, sizeB, sizeC;
+        double ratio = 1.5; /* Arbitrary ratio to give more weight to writes wrt reads. */
+
+        /* Compute the average array per node for each matrix */
+        sizeA = ((double)A->m * (double)A->n) / (double)(A->p * A->q);
+        sizeB = ((double)B->m * (double)B->n) / (double)(B->p * B->q);
+        sizeC = ((double)C->m * (double)C->n) / (double)(C->p * C->q) * ratio;
+
+        if ( (sizeC > sizeA) && (sizeC > sizeB) ) {
+            options->alg = ChamGemmAlgSummaC;
+        }
+        else {
+            if ( sizeA > sizeB ) {
+                options->alg = ChamGemmAlgSummaA;
+            }
+            else {
+                options->alg = ChamGemmAlgSummaB;
+            }
+        }
+    }
+
+    assert( options->alg != ChamGemmAlgAuto );
+
+    /* Now that we have decided which algorithm, let's allocate the required data structures. */
+    if ( (options->alg == ChamGemmAlgSummaC ) &&
+         (C->get_rankof == chameleon_getrankof_2d ) )
     {
         int lookahead = chamctxt->lookahead;
-        options->summa = 1;
 
         chameleon_desc_init( &(options->WA), CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
@@ -150,7 +213,7 @@ void CHAMELEON_zgemm_WS_Free( void *user_ws )
 {
     struct chameleon_pzgemm_s *ws = (struct chameleon_pzgemm_s*)user_ws;
 
-    if ( ws->summa ) {
+    if ( ws->alg == ChamGemmAlgSummaC ) {
         chameleon_desc_destroy( &(ws->WA) );
         chameleon_desc_destroy( &(ws->WB) );
     }

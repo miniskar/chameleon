@@ -426,6 +426,7 @@ chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
+    cham_gemm_t alg = (ws != NULL) ? ws->alg : ChamGemmAlgGeneric;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -433,13 +434,21 @@ chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    if ( ws && ws->summa )
-    {
+    switch( alg ) {
+    case ChamGemmAlgAuto:
+    case ChamGemmAlgSummaB: /* Switch back to generic since it does not exist yet. */
+    case ChamGemmAlgGeneric:
+        chameleon_pzgemm_generic( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
+
+    case ChamGemmAlgSummaC:
         chameleon_pzgemm_summa( chamctxt, transA, transB, alpha, A, B, beta, C,
                                 &(ws->WA), &(ws->WB), &options );
-    }
-    else {
-        chameleon_pzgemm_generic( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
+
+    case ChamGemmAlgSummaA:
+        chameleon_pzgemm_Astat( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
     }
 
     RUNTIME_options_finalize( &options, chamctxt );
