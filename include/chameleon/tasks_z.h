@@ -65,6 +65,12 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                         const CHAM_desc_t *B, int Bm, int Bn,
                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn );
+void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
+                              cham_trans_t transA, cham_trans_t transB,
+                              int m, int n, int k, int nb,
+                              CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                              const CHAM_desc_t *B, int Bm, int Bn,
+                              CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn );
 void INSERT_TASK_zgeqrt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An,
