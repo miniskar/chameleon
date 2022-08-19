@@ -17,6 +17,7 @@
  *
  */
 
+#include "chameleon_lapack.h"
 #include "lapack_api_common.h"
 
 /* Fortran BLAS interface */
@@ -57,13 +58,17 @@ void CHAMELEON_blas_zgemm ( const char* transa, const char* transb,
  *
  *******************************************************************************
  *
- * @param[in] transA
+ * @param[in] Order
+ *          Specifies whether the matrices are row or column major, it must be
+ *          set to CblasColMajor, the order supported in Chameleon.
+ *
+ * @param[in] TransA
  *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
  *          = ChamNoTrans:   A is not transposed;
  *          = ChamTrans:     A is transposed;
  *          = ChamConjTrans: A is conjugate transposed.
  *
- * @param[in] transB
+ * @param[in] TransB
  *          Specifies whether the matrix B is transposed, not transposed or conjugate transposed:
  *          = ChamNoTrans:   B is not transposed;
  *          = ChamTrans:     B is transposed;
@@ -106,11 +111,7 @@ void CHAMELEON_blas_zgemm ( const char* transa, const char* transb,
  * @param[in] LDC
  *          The leading dimension of the array C. LDC >= max(1,M).
  *
- *******************************************************************************
- *
- * @retval CHAMELEON_SUCCESS successful exit
- *
- *******************************************************************************
+ ******************************************************************************
  *
  * @sa CHAMELEON_cblas_zgemm
  * @sa CHAMELEON_cblas_cgemm

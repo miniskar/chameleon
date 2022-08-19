@@ -33,6 +33,12 @@ void CHAMELEON_cblas_zgemm( const CBLAS_ORDER Order, const CBLAS_TRANSPOSE Trans
                                                const CHAMELEON_Complex64_t *B, const int ldb,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
 
+void CHAMELEON_cblas_zsymm( const CBLAS_ORDER Order, const CBLAS_SIDE Side, const CBLAS_UPLO Uplo,
+                            const int M, const int N,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb,
+                            const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
 END_C_DECLS
 
 #endif /* _chameleon_zlapack_h_ */

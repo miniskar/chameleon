@@ -31,5 +31,7 @@
  */
 
 int chameleon_blastocblas_trans(const char* value);
+int chameleon_blastocblas_side(const char* side);
+int chameleon_blastocblas_uplo(const char* uplo);
 
 #endif /* _lapack_api_common_h_ */
