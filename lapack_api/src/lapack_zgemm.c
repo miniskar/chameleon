@@ -58,21 +58,21 @@ void CHAMELEON_blas_zgemm ( const char* transa, const char* transb,
  *
  *******************************************************************************
  *
- * @param[in] Order
+ * @param[in] order
  *          Specifies whether the matrices are row or column major, it must be
  *          set to CblasColMajor, the order supported in Chameleon.
  *
  * @param[in] TransA
  *          Specifies whether the matrix A is transposed, not transposed or conjugate transposed:
- *          = ChamNoTrans:   A is not transposed;
- *          = ChamTrans:     A is transposed;
- *          = ChamConjTrans: A is conjugate transposed.
+ *          = CblasNoTrans:   A is not transposed;
+ *          = CblasTrans:     A is transposed;
+ *          = CblasConjTrans: A is conjugate transposed.
  *
  * @param[in] TransB
  *          Specifies whether the matrix B is transposed, not transposed or conjugate transposed:
- *          = ChamNoTrans:   B is not transposed;
- *          = ChamTrans:     B is transposed;
- *          = ChamConjTrans: B is conjugate transposed.
+ *          = CblasNoTrans:   B is not transposed;
+ *          = CblasTrans:     B is transposed;
+ *          = CblasConjTrans: B is conjugate transposed.
  *
  * @param[in] M
  *          M specifies the number of rows of the matrix op( A ) and of the matrix C. M >= 0.
@@ -88,14 +88,14 @@ void CHAMELEON_blas_zgemm ( const char* transa, const char* transb,
  *          alpha specifies the scalar alpha
  *
  * @param[in] A
- *          A is a LDA-by-ka matrix, where ka is K when  transA = ChamNoTrans,
+ *          A is a LDA-by-ka matrix, where ka is K when  transA = CblasNoTrans,
  *          and is  M  otherwise.
  *
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
  *
  * @param[in] B
- *          B is a LDB-by-kb matrix, where kb is N when  transB = ChamNoTrans,
+ *          B is a LDB-by-kb matrix, where kb is N when  transB = CblasNoTrans,
  *          and is  K  otherwise.
  *
  * @param[in] LDB
@@ -119,13 +119,13 @@ void CHAMELEON_blas_zgemm ( const char* transa, const char* transb,
  * @sa CHAMELEON_cblas_sgemm
  *
  */
-void CHAMELEON_cblas_zgemm( const CBLAS_ORDER Order, const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB,
+void CHAMELEON_cblas_zgemm( const CBLAS_ORDER order, const CBLAS_TRANSPOSE transA, const CBLAS_TRANSPOSE transB,
                             const int M, const int N, const int K,
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc )
 {
-    if (Order != CblasColMajor){
+    if (order != CblasColMajor){
         fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zgemm", "illegal value of order");
     }
 
@@ -137,7 +137,7 @@ void CHAMELEON_cblas_zgemm( const CBLAS_ORDER Order, const CBLAS_TRANSPOSE Trans
     CHAMELEON_Complex64_t betac = beta;
 #endif
 
-    CHAMELEON_zgemm( (cham_trans_t)TransA, (cham_trans_t)TransB, M, N, K,
+    CHAMELEON_zgemm( (cham_trans_t)transA, (cham_trans_t)transB, M, N, K,
                      alphac, (CHAMELEON_Complex64_t *)A, lda,
                      (CHAMELEON_Complex64_t *)B, ldb,
                      betac, (CHAMELEON_Complex64_t *)C, ldc );

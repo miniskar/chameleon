@@ -73,3 +73,21 @@ int chameleon_blastocblas_uplo(const char* uplo)
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 }
+
+/**
+ * @brief Convert the input char BLAS diag parameter to a compatible parameter
+ * for the Cblas API.
+ * @param[in] diag The input char BLAS diag parameter
+ * @return The CBLAS equivalent parameter (CblasUnit or CblasNonUnit).
+ */
+int chameleon_blastocblas_diag(const char* diag)
+{
+    if ( (*diag == 'U') || (*diag == 'u') ) {
+        return CblasUnit;
+    } else if ( (*diag == 'N') || (*diag == 'n') ) {
+        return CblasNonUnit;
+    } else {
+        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "chameleon_blastocblas_diag", "illegal value of BLAS diag parameter");
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+}

@@ -27,17 +27,60 @@ BEGIN_C_DECLS
 /**
  *  Declarations of math functions (LAPACK layout, Cblas/Lapacke interface) - alphabetical order
  */
-void CHAMELEON_cblas_zgemm( const CBLAS_ORDER Order, const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB,
+void CHAMELEON_cblas_zgemm( const CBLAS_ORDER order, const CBLAS_TRANSPOSE transA, const CBLAS_TRANSPOSE transB,
                             const int M, const int N, const int K,
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
 
-void CHAMELEON_cblas_zsymm( const CBLAS_ORDER Order, const CBLAS_SIDE Side, const CBLAS_UPLO Uplo,
+void CHAMELEON_cblas_zhemm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
                             const int M, const int N,
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_zher2k( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
+                            const int N, const int K,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb,
+                            const double beta,       CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_zherk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
+                            const int N, const int K,
+                            const double alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                            const double beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_zsymm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
+                            const int M, const int N,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb,
+                            const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_zsyr2k( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
+                            const int N, const int K,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb,
+                            const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_zsyrk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
+                            const int N, const int K,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                            const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+
+void CHAMELEON_cblas_ztrmm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
+                            const CBLAS_TRANSPOSE trans, const CBLAS_DIAG diag,
+                            const int M, const int N,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb );
+
+void CHAMELEON_cblas_ztrsm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
+                            const CBLAS_TRANSPOSE trans, const CBLAS_DIAG diag,
+                            const int M, const int N,
+                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                               const CHAMELEON_Complex64_t *B, const int ldb );
+
+int CHAMELEON_lapacke_zlauum( int matrix_layout, char uplo, int N,
+                              CHAMELEON_Complex64_t *A, int lda );
 
 END_C_DECLS
 

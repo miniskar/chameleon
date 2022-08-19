@@ -1,19 +1,19 @@
 /**
  *
- * @file lapack_zsymm.c
+ * @file lapack_zhemm.c
  *
  * @copyright 2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                 Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon blas and cblas api for symm
+ * @brief Chameleon blas and cblas api for hemm
  *
  * @version 1.2.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2022-08-18
- * @precisions normal z -> s d c
+ * @date 2022-08-19
+ * @precisions normal z -> c
  *
  */
 
@@ -22,14 +22,14 @@
 
 /* Fortran BLAS interface */
 
-#define CHAMELEON_blas_zsymm CHAMELEON_GLOBAL( chameleon_blas_zsymm, CHAMELEON_BLAS_Zsymm )
-void CHAMELEON_blas_zsymm ( const char* side, const char* uplo,
+#define CHAMELEON_blas_zhemm CHAMELEON_GLOBAL( chameleon_blas_zhemm, CHAMELEON_BLAS_Zhemm )
+void CHAMELEON_blas_zhemm ( const char* side, const char* uplo,
                             const int* m, const int* n,
                             const CHAMELEON_Complex64_t* alpha, const CHAMELEON_Complex64_t* a, const int* lda,
                                                                 const CHAMELEON_Complex64_t* b, const int* ldb,
                             const CHAMELEON_Complex64_t* beta,  CHAMELEON_Complex64_t* c, const int* ldc )
 {
-    CHAMELEON_cblas_zsymm( CblasColMajor,
+    CHAMELEON_cblas_zhemm( CblasColMajor,
                            chameleon_blastocblas_side(side),
                            chameleon_blastocblas_uplo(uplo),
                            *m, *n,
@@ -45,7 +45,7 @@ void CHAMELEON_blas_zsymm ( const char* side, const char* uplo,
  *
  * @ingroup CHAMELEON_LAPACK_API
  *
- *  CHAMELEON_cblas_zsymm - Performs one of the matrix-matrix operations
+ *  CHAMELEON_cblas_zhemm - Performs one of the matrix-matrix operations
  *
  *     \f[ C = \alpha \times A \times B + \beta \times C \f]
  *
@@ -53,7 +53,7 @@ void CHAMELEON_blas_zsymm ( const char* side, const char* uplo,
  *
  *     \f[ C = \alpha \times B \times A + \beta \times C \f]
  *
- *  where alpha and beta are scalars, A is a symmetric matrix and  B and
+ *  where alpha and beta are scalars, A is an hermitian matrix and  B and
  *  C are m by n matrices.
  *
  *******************************************************************************
@@ -63,18 +63,18 @@ void CHAMELEON_blas_zsymm ( const char* side, const char* uplo,
  *          set to CblasColMajor, the order supported in Chameleon.
  *
  * @param[in] side
- *          Specifies whether the symmetric matrix A appears on the
+ *          Specifies whether the hermitian matrix A appears on the
  *          left or right in the operation as follows:
  *          = CblasLeft:      \f[ C = \alpha \times A \times B + \beta \times C \f]
  *          = CblasRight:     \f[ C = \alpha \times B \times A + \beta \times C \f]
  *
  * @param[in] uplo
  *          Specifies whether the upper or lower triangular part of
- *          the symmetric matrix A is to be referenced as follows:
+ *          the hermitian matrix A is to be referenced as follows:
  *          = CblasLower:     Only the lower triangular part of the
- *                             symmetric matrix A is to be referenced.
+ *                             hermitian matrix A is to be referenced.
  *          = CblasUpper:     Only the upper triangular part of the
- *                             symmetric matrix A is to be referenced.
+ *                             hermitian matrix A is to be referenced.
  *
  * @param[in] M
  *          Specifies the number of rows of the matrix C. M >= 0.
@@ -109,22 +109,22 @@ void CHAMELEON_blas_zsymm ( const char* side, const char* uplo,
  * @param[in] LDC
  *          The leading dimension of the array C. LDC >= max(1,M).
  *
- ******************************************************************************
+ *******************************************************************************
  *
- * @sa CHAMELEON_cblas_zsymm
- * @sa CHAMELEON_cblas_csymm
- * @sa CHAMELEON_cblas_dsymm
- * @sa CHAMELEON_cblas_ssymm
+ * @sa CHAMELEON_cblas_zhemm
+ * @sa CHAMELEON_cblas_chemm
+ * @sa CHAMELEON_cblas_dhemm
+ * @sa CHAMELEON_cblas_shemm
  *
  */
-void CHAMELEON_cblas_zsymm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
+void CHAMELEON_cblas_zhemm( const CBLAS_ORDER order, const CBLAS_SIDE side, const CBLAS_UPLO uplo,
                             const int M, const int N,
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc )
 {
     if (order != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zsymm", "illegal value of order");
+        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zhemm", "illegal value of order");
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -135,7 +135,7 @@ void CHAMELEON_cblas_zsymm( const CBLAS_ORDER order, const CBLAS_SIDE side, cons
     CHAMELEON_Complex64_t betac = beta;
 #endif
 
-    CHAMELEON_zsymm( (cham_side_t)side, (cham_uplo_t)uplo, M, N,
+    CHAMELEON_zhemm( (cham_side_t)side, (cham_uplo_t)uplo, M, N,
                      alphac, (CHAMELEON_Complex64_t *)A, lda,
                      (CHAMELEON_Complex64_t *)B, ldb,
                      betac, (CHAMELEON_Complex64_t *)C, ldc );

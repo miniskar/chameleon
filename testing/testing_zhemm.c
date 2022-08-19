@@ -127,6 +127,7 @@ testing_zhemm_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int                   api   = parameters_getvalue_int( "api" );
     int                   nb    = run_arg_get_int( args, "nb", 320 );
     cham_side_t           side  = run_arg_get_side( args, "side", ChamLeft );
     cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
@@ -173,7 +174,21 @@ testing_zhemm_std( run_arg_list_t *args, int check )
     testing_stop( &test_data, flops_zhemm( side, M, N ) );
 #else
     testing_start( &test_data );
-    hres = CHAMELEON_zhemm( side, uplo, M, N, alpha, A, LDA, B, LDB, beta, C, LDC );
+    switch ( api ) {
+    case 1:
+        hres = CHAMELEON_zhemm( side, uplo, M, N, alpha, A, LDA, B, LDB, beta, C, LDC );
+        break;
+    case 2:
+        CHAMELEON_cblas_zhemm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, M, N,
+                               CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
+        break;
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_zhemm( side, M, N ) );
 
