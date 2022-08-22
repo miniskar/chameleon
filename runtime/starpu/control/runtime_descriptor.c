@@ -416,23 +416,11 @@ void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
 
     lhandle = *handle;
     if ( lhandle == NULL ) {
-        int involved;
-
-        old_rank = A->get_rankof( A, Am, An );
-        involved = (A->myrank == old_rank) || (A->myrank == new_rank);
-
-        /* Quick return */
-        if ( !involved ) {
-            return;
-        }
-
         /* Register the data */
         lhandle = RUNTIME_data_getaddr( A, Am, An );
     }
-
-    /* Update the rank if has been moved already (cf qr for example) */
     old_rank = starpu_mpi_data_get_rank( lhandle );
-    assert( old_rank == A->get_rankof( A, Am, An ) );
+
     if ( old_rank != new_rank ) {
         starpu_mpi_data_migrate( MPI_COMM_WORLD, lhandle, new_rank );
     }
