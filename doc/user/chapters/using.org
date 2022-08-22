@@ -213,16 +213,28 @@
 
      Simulation mode can be activated by setting the cmake option
      CHAMELEON_SIMULATION to ON.  This mode allows you to simulate
-     execution of algorithms with StarPU compiled with [[http://simgrid.gforge.inria.fr/][SimGrid]].  To do
-     so, we provide some perfmodels in the simucore/perfmodels/
+     execution of algorithms with StarPU compiled with
+     [[https://github.com/simgrid/simgrid][SimGrid]].
+     To do so, we provide some perfmodels in the simucore/perfmodels/
      directory of Chameleon sources.  To use these perfmodels, please
      set your *STARPU_HOME* environment variable to
      ~path/to/your/chameleon_sources/simucore/perfmodels~.  Finally, you
      need to set your *STARPU_HOSTNAME* environment variable to the name
-     of the machine to simulate.  Note that only *potrf* algorithm,
-     simple and double precisions, on /mirage/ and /sirocco/ machines, with
-     or without gpus, and for the following tile sizes (choose a size *N*
-     multiple of the tile size) are available for now
+     of the machine to simulate.
+
+     The algorithms available for now: gemm, symm, potrf, potrs, potri, posv,
+     getrf_nopiv, getrs_nopiv, geqrf, geqrf_hqr, gels, gels_hqr, simple and
+     double precisions on
+     [[https://plafrim-users.gitlabpages.inria.fr/doc/][PlaFRIM nodes with GPUs]].
+     The tile size to use depending on the platform /i.e./ *STARPU_HOSTNAME*
+     (choose a size *N* multiple of the tile size):
+     - /sirocco-k40m/: 960
+     - /sirocco-p100/: 1240
+     - /sirocco-v100/: 1600
+     - /sirocco-a100/: 1600
+     - /sirocco-rtx8000/: 1600
+     In addition the *potrf* algorithm is also available on /mirage/ and
+     /sirocco/ machines for the following tile sizes
      - /mirage/: 320, 960
      - /sirocco/: 80, 440, 960, 1440, 1920
 
@@ -231,9 +243,16 @@
      #+begin_example
      export STARPU_HOME=/tmp/chameleon/simucore/perfmodels/
      export STARPU_HOSTNAME=sirocco
-     ./testing/chameleon_dtesting -o potrf -t 22 -g 2 -n 14400 -b 1440
-     Id;Function;threads;gpus;P;Q;mtxfmt;nb;uplo;n;lda;seedA;time;gflops
-     0;dpotrf;22;2;1;1;0;1440;121;14400;14400;846930886;7.814116e-01;1.273889e+03
+     ./testing/chameleon_dtesting -o potrf -t 22 -g 2 -n 14400 -b 1440 --nowarmup
+     0;dpotrf;22;2;1;1;0;1440;121;14400;14400;1804289383;0.000000e+00;7.867404e-01;1.265261e+03
+
+     export STARPU_HOSTNAME=sirocco-k40m
+     ./testing/chameleon_stesting -o gemm -t 38 -g 2 -n 64000 -b 1600 --nowarmup
+     0;sgemm;38;2;1;1;0;1600;111;111;64000;64000;64000;64000;64000;64000;4.892778e-01;-1.846424e-01;1649760492;596516649;1189641421;0.000000e+00;2.010660e+01;2.607541e+04
+
+     export STARPU_HOSTNAME=sirocco-p100
+     ./testing/chameleon_dtesting -o geqrf -g 2 -t 30 -b 1240 -n 39680 --nowarmup
+     0;dgeqrf;30;2;1;1;0;1240;48;39680;39680;39680;4;1804289383;0.000000e+00;3.893336e+01;2.139677e+03
      #+end_example
 
 **** Use out of core support with StarPU
