@@ -22,7 +22,7 @@
 
 /* Fortran BLAS interface */
 
-#define CHAMELEON_blas_zsyrk CHAMELEON_GLOBAL( chameleon_blas_zsyrk, CHAMELEON_BLAS_Zsyrk )
+#define CHAMELEON_blas_zsyrk CHAMELEON_GLOBAL( chameleon_blas_zsyrk, CHAMELEON_BLAS_ZSYRK )
 void CHAMELEON_blas_zsyrk ( const char* uplo, const char* trans,
                             const int* n, const int* k,
                             const CHAMELEON_Complex64_t* alpha, const CHAMELEON_Complex64_t* a, const int* lda,

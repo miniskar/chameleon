@@ -63,11 +63,16 @@ set(ZSRC
   src/lapack_zlacpy.c
   src/lapack_zlaset.c
   src/lapack_zlauum.c
+  src/lapack_zposv.c
+  src/lapack_zpotrf.c
+  src/lapack_zpotri.c
+  src/lapack_zpotrs.c
   src/lapack_zsymm.c
   src/lapack_zsyr2k.c
   src/lapack_zsyrk.c
   src/lapack_ztrmm.c
   src/lapack_ztrsm.c
+  src/lapack_ztrtri.c
   )
 precisions_rules_py(LAPACK_SRCS_GENERATED "${ZSRC}"
   PRECISIONS "${CHAMELEON_PRECISION}")

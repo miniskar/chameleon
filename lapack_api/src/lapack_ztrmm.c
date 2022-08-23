@@ -22,7 +22,7 @@
 
 /* Fortran BLAS interface */
 
-#define CHAMELEON_blas_ztrmm CHAMELEON_GLOBAL( chameleon_blas_ztrmm, CHAMELEON_BLAS_Ztrmm )
+#define CHAMELEON_blas_ztrmm CHAMELEON_GLOBAL( chameleon_blas_ztrmm, CHAMELEON_BLAS_ZTRMM )
 void CHAMELEON_blas_ztrmm ( const char* side, const char* uplo,
                             const char* trans, const char* diag,
                             const int* m, const int* n,

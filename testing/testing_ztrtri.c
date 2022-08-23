@@ -21,6 +21,9 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if !defined(CHAMELEON_SIMULATION)
+#include <coreblas.h>
+#endif
 
 int
 testing_ztrtri_desc( run_arg_list_t *args, int check )
@@ -87,6 +90,7 @@ testing_ztrtri_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int         api   = parameters_getvalue_int( "api" );
     int         nb    = run_arg_get_int( args, "nb", 320 );
     cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
     cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
@@ -107,7 +111,22 @@ testing_ztrtri_std( run_arg_list_t *args, int check )
 
     /* Calculates the inversed matrices */
     testing_start( &test_data );
-    hres = CHAMELEON_ztrtri( uplo, diag, N, A, LDA );
+    switch ( api ) {
+    case 1:
+        hres = CHAMELEON_ztrtri( uplo, diag, N, A, LDA );
+        break;
+#if !defined(CHAMELEON_SIMULATION)
+    case 2:
+        CHAMELEON_lapacke_ztrtri( CblasColMajor, chameleon_lapack_const(uplo), chameleon_lapack_const(diag), N, A, LDA );
+        break;
+#endif
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_ztrtri( N ) );
 
