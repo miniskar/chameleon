@@ -57,6 +57,15 @@ install( FILES ${CHAMELEON_LAPACK_HDRS}
 set(LAPACK_SRCS_GENERATED "")
 set(ZSRC
   src/lapack_zgemm.c
+  src/lapack_zhemm.c
+  src/lapack_zher2k.c
+  src/lapack_zherk.c
+  src/lapack_zlauum.c
+  src/lapack_zsymm.c
+  src/lapack_zsyr2k.c
+  src/lapack_zsyrk.c
+  src/lapack_ztrmm.c
+  src/lapack_ztrsm.c
   )
 precisions_rules_py(LAPACK_SRCS_GENERATED "${ZSRC}"
   PRECISIONS "${CHAMELEON_PRECISION}")

@@ -129,6 +129,7 @@ testing_zher2k_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int                   api   = parameters_getvalue_int( "api" );
     int                   nb    = run_arg_get_int( args, "nb", 320 );
     cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
     cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
@@ -186,7 +187,21 @@ testing_zher2k_std( run_arg_list_t *args, int check )
     testing_stop( &test_data, flops_zher2k( K, N ) );
 #else
     testing_start( &test_data );
-    hres = CHAMELEON_zher2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+    switch ( api ) {
+    case 1:
+        hres = CHAMELEON_zher2k( uplo, trans, N, K, alpha, A, LDA, B, LDB, beta, C, LDC );
+        break;
+    case 2:
+        CHAMELEON_cblas_zher2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
+                                CBLAS_SADDR(alpha), A, LDA, B, LDB, beta, C, LDC );
+        break;
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_zher2k( K, N ) );
 

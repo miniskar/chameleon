@@ -117,6 +117,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int                   api   = parameters_getvalue_int( "api" );
     int                   nb    = run_arg_get_int( args, "nb", 320 );
     cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
     cham_side_t           side  = run_arg_get_side( args, "side", ChamLeft );
@@ -157,7 +158,22 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     testing_stop( &test_data, flops_ztrmm( side, N, M ) );
 #else
     testing_start( &test_data );
-    hres = CHAMELEON_ztrmm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
+    switch ( api ) {
+    case 1:
+        hres = CHAMELEON_ztrmm( side, uplo, trans, diag, M, N, alpha, A, LDA, B, LDB );
+        break;
+    case 2:
+        CHAMELEON_cblas_ztrmm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo,
+                               (CBLAS_TRANSPOSE)trans, (CBLAS_DIAG)diag, M, N,
+                               CBLAS_SADDR(alpha), A, LDA, B, LDB );
+        break;
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_ztrmm( side, N, M ) );
 
