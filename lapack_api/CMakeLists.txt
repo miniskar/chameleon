@@ -60,6 +60,8 @@ set(ZSRC
   src/lapack_zhemm.c
   src/lapack_zher2k.c
   src/lapack_zherk.c
+  src/lapack_zlacpy.c
+  src/lapack_zlaset.c
   src/lapack_zlauum.c
   src/lapack_zsymm.c
   src/lapack_zsyr2k.c

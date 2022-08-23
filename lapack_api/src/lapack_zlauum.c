@@ -31,7 +31,7 @@ void CHAMELEON_lapack_zlauum ( const char* uplo, const int* n,
                                       *uplo, *n, a, *lda );
 }
 
-/* C CBLAS interface */
+/* C LAPACKE interface */
 
 /**
  ********************************************************************************
@@ -89,7 +89,7 @@ int CHAMELEON_lapacke_zlauum( int matrix_layout, char uplo, int N,
 {
     if ( matrix_layout != CblasColMajor ){
         fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_lapacke_zlauum", "illegal value of matrix_layout" );
-        return;
+        return -1;
     }
 
     return CHAMELEON_zlauum( (cham_uplo_t)chameleon_blastocblas_uplo(&uplo), N,
