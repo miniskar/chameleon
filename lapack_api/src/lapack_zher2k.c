@@ -24,18 +24,18 @@
 
 #define CHAMELEON_blas_zher2k CHAMELEON_GLOBAL( chameleon_blas_zher2k, CHAMELEON_BLAS_Zher2k )
 void CHAMELEON_blas_zher2k ( const char* uplo, const char* trans,
-                            const int* n, const int* k,
-                            const CHAMELEON_Complex64_t* alpha, const CHAMELEON_Complex64_t* a, const int* lda,
-                                                                const CHAMELEON_Complex64_t* b, const int* ldb,
-                            const double* beta,  CHAMELEON_Complex64_t* c, const int* ldc )
+                             const int* n, const int* k,
+                             const CHAMELEON_Complex64_t* alpha, const CHAMELEON_Complex64_t* a, const int* lda,
+                                                                 const CHAMELEON_Complex64_t* b, const int* ldb,
+                             const double* beta,                       CHAMELEON_Complex64_t* c, const int* ldc )
 {
     CHAMELEON_cblas_zher2k( CblasColMajor,
-                           chameleon_blastocblas_uplo(uplo),
-                           chameleon_blastocblas_trans(trans),
-                           *n, *k,
-                           CBLAS_SADDR(*alpha), a, *lda,
-                           b, *ldb,
-                           *beta, c, *ldc );
+                            chameleon_blastocblas_uplo(uplo),
+                            chameleon_blastocblas_trans(trans),
+                            *n, *k,
+                            CBLAS_SADDR(*alpha), a, *lda,
+                            b, *ldb,
+                            *beta, c, *ldc );
 }
 
 /* C CBLAS interface */
@@ -120,13 +120,14 @@ void CHAMELEON_blas_zher2k ( const char* uplo, const char* trans,
  *
  */
 void CHAMELEON_cblas_zher2k( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
-                            const int N, const int K,
-                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
-                                               const CHAMELEON_Complex64_t *B, const int ldb,
-                            const double beta,       CHAMELEON_Complex64_t *C, const int ldc )
+                             const int N, const int K,
+                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                                const CHAMELEON_Complex64_t *B, const int ldb,
+                             const double beta,       CHAMELEON_Complex64_t *C, const int ldc )
 {
-    if (order != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zher2k", "illegal value of order");
+    if ( order != CblasColMajor ){
+        fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zher2k", "illegal value of order" );
+        return;
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

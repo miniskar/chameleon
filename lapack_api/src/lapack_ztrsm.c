@@ -138,8 +138,9 @@ void CHAMELEON_cblas_ztrsm( const CBLAS_ORDER order, const CBLAS_SIDE side, cons
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb )
 {
-    if (order != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_ztrsm", "illegal value of order");
+    if ( order != CblasColMajor ){
+        fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_ztrsm", "illegal value of order" );
+        return;
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

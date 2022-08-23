@@ -26,7 +26,7 @@
 void CHAMELEON_blas_zsyrk ( const char* uplo, const char* trans,
                             const int* n, const int* k,
                             const CHAMELEON_Complex64_t* alpha, const CHAMELEON_Complex64_t* a, const int* lda,
-                            const CHAMELEON_Complex64_t* beta,  CHAMELEON_Complex64_t* c, const int* ldc )
+                            const CHAMELEON_Complex64_t* beta,        CHAMELEON_Complex64_t* c, const int* ldc )
 {
     CHAMELEON_cblas_zsyrk( CblasColMajor,
                            chameleon_blastocblas_uplo(uplo),
@@ -110,8 +110,9 @@ void CHAMELEON_cblas_zsyrk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, cons
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc )
 {
-    if (order != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zsyrk", "illegal value of order");
+    if ( order != CblasColMajor ){
+        fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zsyrk", "illegal value of order" );
+        return;
     }
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

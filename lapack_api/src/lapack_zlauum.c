@@ -87,8 +87,9 @@ void CHAMELEON_lapack_zlauum ( const char* uplo, const int* n,
 int CHAMELEON_lapacke_zlauum( int matrix_layout, char uplo, int N,
                               CHAMELEON_Complex64_t *A, int lda )
 {
-    if (matrix_layout != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_lapacke_zlauum", "illegal value of matrix_layout");
+    if ( matrix_layout != CblasColMajor ){
+        fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_lapacke_zlauum", "illegal value of matrix_layout" );
+        return;
     }
 
     return CHAMELEON_zlauum( (cham_uplo_t)chameleon_blastocblas_uplo(&uplo), N,

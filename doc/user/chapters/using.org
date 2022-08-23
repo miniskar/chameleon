@@ -858,11 +858,10 @@
        * *Map functions*
          * map: apply a user operator on each tile of the matrix
 
-     In addition, all *BLAS 2/3 routines* (gemm, hemm, her2k, herk,
-     lauum, symm, syr2k, syrk, trmm, trsm) can be called using an
-     equivalent of the (C)BLAS/LAPACK(E) API. The parameters are the
-     same and the user just has to add *CHAMELEON_* to the standard name
-     of the routine. For example, in C
+     In addition, all *BLAS 3 routines* (gemm, hemm, her2k, herk, lauum, symm,
+     syr2k, syrk, trmm, trsm) can be called using an equivalent of the
+     (C)BLAS/LAPACK(E) API. The parameters are the same and the user just has
+     to add *CHAMELEON_* to the standard name of the routine. For example, in C
      #+begin_src
      CHAMELEON_Init(4,0);
      CHAMELEON_cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,

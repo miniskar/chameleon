@@ -26,7 +26,7 @@
 void CHAMELEON_blas_zherk ( const char* uplo, const char* trans,
                             const int* n, const int* k,
                             const double* alpha, const CHAMELEON_Complex64_t* a, const int* lda,
-                            const double* beta,  CHAMELEON_Complex64_t* c, const int* ldc )
+                            const double* beta,        CHAMELEON_Complex64_t* c, const int* ldc )
 {
     CHAMELEON_cblas_zherk( CblasColMajor,
                            chameleon_blastocblas_uplo(uplo),
@@ -112,8 +112,9 @@ void CHAMELEON_cblas_zherk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, cons
                             const double alpha, const CHAMELEON_Complex64_t *A, const int lda,
                             const double beta,        CHAMELEON_Complex64_t *C, const int ldc )
 {
-    if (order != CblasColMajor){
-        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zherk", "illegal value of order");
+    if ( order != CblasColMajor ){
+        fprintf( stderr, "CHAMELEON ERROR: %s(): %s\n", "CHAMELEON_cblas_zherk", "illegal value of order" );
+        return;
     }
 
     CHAMELEON_zherk( (cham_uplo_t)uplo, (cham_trans_t)trans, N, K,

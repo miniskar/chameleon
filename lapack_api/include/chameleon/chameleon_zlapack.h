@@ -40,10 +40,10 @@ void CHAMELEON_cblas_zhemm( const CBLAS_ORDER order, const CBLAS_SIDE side, cons
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
 
 void CHAMELEON_cblas_zher2k( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
-                            const int N, const int K,
-                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
-                                               const CHAMELEON_Complex64_t *B, const int ldb,
-                            const double beta,       CHAMELEON_Complex64_t *C, const int ldc );
+                             const int N, const int K,
+                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                                const CHAMELEON_Complex64_t *B, const int ldb,
+                             const double beta,       CHAMELEON_Complex64_t *C, const int ldc );
 
 void CHAMELEON_cblas_zherk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
                             const int N, const int K,
@@ -57,10 +57,10 @@ void CHAMELEON_cblas_zsymm( const CBLAS_ORDER order, const CBLAS_SIDE side, cons
                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
 
 void CHAMELEON_cblas_zsyr2k( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
-                            const int N, const int K,
-                            const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
-                                               const CHAMELEON_Complex64_t *B, const int ldb,
-                            const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
+                             const int N, const int K,
+                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
+                                                const CHAMELEON_Complex64_t *B, const int ldb,
+                             const void *beta,        CHAMELEON_Complex64_t *C, const int ldc );
 
 void CHAMELEON_cblas_zsyrk( const CBLAS_ORDER order, const CBLAS_UPLO uplo, const CBLAS_TRANSPOSE trans,
                             const int N, const int K,
