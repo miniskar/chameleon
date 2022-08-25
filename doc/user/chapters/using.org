@@ -884,7 +884,7 @@
      * *CHAMELEON_GENERATE_TRACE*: enable/start the trace generation
      * *CHAMELEON_GENERATE_STATS*: enable/start the kernel statistics
      * *CHAMELEON_PROGRESS*:  to print a progress status,
-     * *CHAMELEON_GEMM3M*: to enable the use of the /gemm3m/ blas bunction.
+     * *CHAMELEON_GEMM3M*: to enable the use of the /gemm3m/ BLAS function.
 
      Disable CHAMELEON feature.
      #+begin_src
