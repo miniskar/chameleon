@@ -162,8 +162,11 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
     CHAMELEON_Complex64_t *B = NULL;
 
     if ( rank == 0 ) {
-        A = (CHAMELEON_Complex64_t *)malloc(LDA*N*sizeof(CHAMELEON_Complex64_t));
-        B = (CHAMELEON_Complex64_t *)malloc(LDB*N*sizeof(CHAMELEON_Complex64_t));
+        A = (CHAMELEON_Complex64_t *)malloc((size_t)(LDA) * (size_t)(N) * sizeof(CHAMELEON_Complex64_t));
+        B = (CHAMELEON_Complex64_t *)malloc((size_t)(LDB) * (size_t)(N) * sizeof(CHAMELEON_Complex64_t));
+        if ( (A == NULL) || (B == NULL) ) {
+            return CHAMELEON_ERR_OUT_OF_RESOURCES;
+        }
     }
 
     /* Converts the matrices to LAPACK layout in order to compare them on the main process */
