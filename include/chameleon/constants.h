@@ -181,6 +181,16 @@ typedef enum chameleon_store_e {
     ChamEltwise    = 403, /**< Element by element storage */
 } cham_store_t;
 
+/**
+ * @brief Chameleon GEMM-like algorithms
+ */
+typedef enum chameleon_gemm_e {
+    ChamGemmAlgAuto = -1,
+    ChamGemmAlgGeneric,
+    ChamGemmAlgSummaA,
+    ChamGemmAlgSummaB,
+    ChamGemmAlgSummaC
+} cham_gemm_t;
 
 #define ChameleonTrd            1001
 #define ChameleonBrd            1002
