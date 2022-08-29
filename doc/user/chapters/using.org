@@ -914,6 +914,17 @@
      int CHAMELEON_Get     (CHAMELEON_enum param, int *value);
      #+end_src
 
+     * Alternatively, Chameleon can also be configured through environment variables.
+       * *CHAMELEON_GEMM_ALGO* give the possibility to switch among
+         multiple variants of the GEMM algorithms. These variants are
+         *GENERIC* for the generic variant that should work with any
+         configuration; *SUMMA_C* that works for 2D block cyclic
+         distribution of the matrices A, B, and C with a C stationnary
+         version; *SUMMA_A* and *SUMMA_B* are SUMMA variant of the
+         algorithm that works for any distribution with respectively
+         *A*, or *B that are stationnary. Note that the last two
+         variants are only available with the StarPU runtime backend.
+
 **** Auxiliary routines
 
      Reports CHAMELEON version number.
