@@ -40,20 +40,21 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
                         CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
                         RUNTIME_option_t *options )
 {
-    RUNTIME_sequence_t   *sequence = options->sequence;
-    CHAMELEON_Complex64_t zbeta;
-    CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
-    int                   m, n, k;
-    int                   tempmm, tempnn, tempkn, tempkm;
-    int                   myrank = RUNTIME_comm_rank( chamctxt );
+    const CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
+    RUNTIME_sequence_t *sequence = options->sequence;
+    int                 m, n, k;
+    int                 tempmm, tempnn, tempkn, tempkm;
+    int                 myrank = RUNTIME_comm_rank( chamctxt );
+    int                 reduceC[ C->mt * C->nt ];
 
     /* Set C tiles to redux mode. */
     for (n = 0; n < C->nt; n++) {
         for (m = 0; m < C->mt; m++) {
+            reduceC[ n * C->mt + m ] = 0;
 
             /* The node owns the C tile. */
             if ( C->get_rankof( C(m, n) ) == myrank ) {
-                reduceC[ n * C->nt + m ] = 1;
+                reduceC[ n * C->mt + m ] = 1;
                 RUNTIME_zgersum_set_methods( C(m, n) );
                 continue;
             }
@@ -65,6 +66,7 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             if ( transA == ChamNoTrans ) {
                 for (k = 0; k < A->nt; k++) {
                     if ( A->get_rankof( A(m, k) ) == myrank ) {
+                        reduceC[ n * C->mt + m ] = 1;
                         RUNTIME_zgersum_set_methods( C(m, n) );
                         break;
                     }
@@ -73,6 +75,7 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             else {
                 for (k = 0; k < A->mt; k++) {
                     if ( A->get_rankof( A(k, m) ) == myrank ) {
+                        reduceC[ n * C->mt + m ] = 1;
                         RUNTIME_zgersum_set_methods( C(m, n) );
                         break;
                     }
@@ -87,8 +90,10 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
 
             /* Scale C */
+            options->forcesub = 0;
             INSERT_TASK_zlascal( options, ChamUpperLower, tempmm, tempnn, C->mb,
                                  beta, C, m, n );
+            options->forcesub = reduceC[ n * C->mt + m ];
 
             /*
              *  A: ChamNoTrans / B: ChamNoTrans
@@ -162,6 +167,7 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
             RUNTIME_data_flush( sequence, C(m, n) );
         }
     }
+    options->forcesub = 0;
 
     (void)chamctxt;
 }
