@@ -23,9 +23,12 @@
 #include <chameleon/flops.h>
 
 static cham_fixdbl_t
-flops_zgeadd( int M, int N )
+flops_zgeadd( int _M, int _N )
 {
     cham_fixdbl_t flops = 0.;
+    cham_fixdbl_t M     = _M;
+    cham_fixdbl_t N     = _N;
+
 #if defined(PRECISION_z) || defined(PRECISION_c)
     /* 2 multiplications and 1 addition per element */
     flops = ( 2. * 6. + 2. ) * M * N;

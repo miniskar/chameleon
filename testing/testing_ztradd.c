@@ -23,16 +23,19 @@
 #include <chameleon/flops.h>
 
 static cham_fixdbl_t
-flops_ztradd( cham_uplo_t uplo, int M, int N )
+flops_ztradd( cham_uplo_t uplo, int _M, int _N )
 {
     cham_fixdbl_t flops = 0.;
-    int           minMN = chameleon_min( M, N );
+    cham_fixdbl_t minMN = (cham_fixdbl_t)chameleon_min( _M, _N );
+    cham_fixdbl_t M     = _M;
+    cham_fixdbl_t N     = _N;
+
     switch ( uplo ) {
         case ChamUpper:
-            flops = ( minMN * ( minMN + 1 ) / 2 ) + M * chameleon_max( 0, N - M );
+            flops = ( minMN * ( minMN + 1 ) / 2 ) + M * (cham_fixdbl_t)chameleon_max( 0, _N - _M );
             break;
         case ChamLower:
-            flops = ( minMN * ( minMN + 1 ) / 2 ) + N * chameleon_max( 0, M - N );
+            flops = ( minMN * ( minMN + 1 ) / 2 ) + N * (cham_fixdbl_t)chameleon_max( 0, _M - _N );
             break;
         case ChamUpperLower:
         default:

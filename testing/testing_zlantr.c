@@ -27,10 +27,12 @@
 #endif
 
 static cham_fixdbl_t
-flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int M, int N )
+flops_zlantr( cham_normtype_t ntype, cham_uplo_t uplo, int _M, int _N )
 {
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
+    cham_fixdbl_t M       = _M;
+    cham_fixdbl_t N       = _N;
     cham_fixdbl_t size;
 #if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;

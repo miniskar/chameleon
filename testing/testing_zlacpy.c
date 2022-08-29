@@ -26,9 +26,11 @@
 #endif
 
 static cham_fixdbl_t
-flops_zlacpy( cham_uplo_t uplo, int M, int N )
+flops_zlacpy( cham_uplo_t uplo, int _M, int _N )
 {
     cham_fixdbl_t flops;
+    cham_fixdbl_t M = _M;
+    cham_fixdbl_t N = _N;
 
     switch ( uplo ) {
         case ChamUpper:

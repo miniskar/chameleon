@@ -35,7 +35,7 @@ flops_zgenm2( int M, int N )
     coefabs = 3.;
 #endif
 
-    return coefabs * M * N;
+    return coefabs * (cham_fixdbl_t)(M) * (cham_fixdbl_t)(N);
 }
 
 int

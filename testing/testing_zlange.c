@@ -28,16 +28,18 @@
 #endif
 
 static cham_fixdbl_t
-flops_zlange( cham_normtype_t ntype, int M, int N )
+flops_zlange( cham_normtype_t ntype, int _M, int _N )
 {
     cham_fixdbl_t flops   = 0.;
     cham_fixdbl_t coefabs = 1.;
-    cham_fixdbl_t size;
+    cham_fixdbl_t M       = _M;
+    cham_fixdbl_t N       = _N;
+    cham_fixdbl_t size    = M * N;
+
 #if defined(PRECISION_z) || defined(PRECISION_c)
     coefabs = 3.;
 #endif
 
-    size = (cham_fixdbl_t)M * (cham_fixdbl_t)N;
     switch ( ntype ) {
         case ChamMaxNorm:
             flops = coefabs * size;
