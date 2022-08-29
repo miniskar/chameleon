@@ -233,9 +233,9 @@ inline static int chameleon_desc_islocal( const CHAM_desc_t *A, int m, int n )
  * CHAMELEON_ACCESS_RW(C, Cm, Cn)
  * CHAMELEON_END_ACCESS_DECLARATION
  */
-#define CHAMELEON_BEGIN_ACCESS_DECLARATION {    \
-    unsigned __chameleon_need_exec = 0;         \
-    unsigned __chameleon_need_submit = 0;       \
+#define CHAMELEON_BEGIN_ACCESS_DECLARATION {                    \
+    unsigned __chameleon_need_exec = 0;                         \
+    unsigned __chameleon_need_submit = options->forcesub;       \
     RUNTIME_BEGIN_ACCESS_DECLARATION
 
 #define CHAMELEON_ACCESS_R(A, Am, An) do {                              \

@@ -27,7 +27,8 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
     options->profiling  = CHAMELEON_STATISTICS == CHAMELEON_TRUE;
     options->parallel   = CHAMELEON_PARALLEL == CHAMELEON_TRUE;
     options->priority   = RUNTIME_PRIORITY_MIN;
-    options->workerid  = -1;
+    options->workerid   = -1;
+    options->forcesub   = 0;
     options->ws_wsize   = 0;
     options->ws_hsize   = 0;
     options->ws_worker  = NULL;
