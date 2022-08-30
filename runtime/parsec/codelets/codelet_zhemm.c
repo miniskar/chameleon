@@ -43,20 +43,21 @@ CORE_zhemm_parsec( parsec_execution_stream_t *context,
         this_task, &side, &uplo, &M, &N, &alpha, &A, &LDA, &B, &LDB, &beta, &C, &LDC );
 
     CORE_zhemm( side, uplo, M, N,
-               alpha, A, LDA,
-                      B, LDB,
-               beta,  C, LDC);
+                alpha, A, LDA,
+                       B, LDB,
+                beta,  C, LDC );
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
-                      cham_side_t side, cham_uplo_t uplo,
-                      int m, int n, int nb,
-                      CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                      const CHAM_desc_t *B, int Bm, int Bn,
-                      CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
+void
+INSERT_TASK_zhemm( const RUNTIME_option_t *options,
+                   cham_side_t side, cham_uplo_t uplo,
+                   int m, int n, int nb,
+                   CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                const CHAM_desc_t *B, int Bm, int Bn,
+                   CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
@@ -80,4 +81,17 @@ void INSERT_TASK_zhemm(const RUNTIME_option_t *options,
         PARSEC_DTD_ARG_END );
 
     (void)nb;
+}
+
+void
+INSERT_TASK_zhemm_Astat( const RUNTIME_option_t *options,
+                         cham_side_t side, cham_uplo_t uplo,
+                         int m, int n, int nb,
+                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                      const CHAM_desc_t *B, int Bm, int Bn,
+                         CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
+{
+    INSERT_TASK_zhemm( options, side, uplo, m, n, nb,
+                       alpha, A, Am, An, B, Bm, Bn,
+                       beta, C, Cm, Cn );
 }
