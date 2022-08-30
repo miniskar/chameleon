@@ -87,8 +87,6 @@ cl_zgemm_cuda_func( void *descr[], void *cl_arg )
         (cuDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
         handle );
-
-    return;
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
@@ -182,10 +180,7 @@ void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif
-
         0 );
-
-    (void)nb;
 }
 
 void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
@@ -260,8 +255,5 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME,              cl_name,
 #endif
-
         0 );
-
-    (void)nb;
 }

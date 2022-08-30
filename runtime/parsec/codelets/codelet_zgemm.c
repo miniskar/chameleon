@@ -23,11 +23,6 @@
 #include "chameleon/tasks_z.h"
 #include "coreblas/coreblas_z.h"
 
-/**
- *
- * @ingroup INSERT_TASK_Complex64_t
- *
- */
 static inline int
 CORE_zgemm_parsec( parsec_execution_stream_t *context,
                    parsec_task_t             *this_task )
@@ -50,20 +45,21 @@ CORE_zgemm_parsec( parsec_execution_stream_t *context,
         this_task, &transA, &transB, &m, &n, &k, &alpha, &A, &lda, &B, &ldb, &beta, &C, &ldc );
 
     CORE_zgemm( transA, transB, m, n, k,
-               alpha, A, lda,
-                      B, ldb,
-               beta,  C, ldc);
+                alpha, A, lda,
+                       B, ldb,
+                beta,  C, ldc );
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
-                       cham_trans_t transA, cham_trans_t transB,
-                       int m, int n, int k, int nb,
-                       CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+void
+INSERT_TASK_zgemm( const RUNTIME_option_t *options,
+                   cham_trans_t transA, cham_trans_t transB,
+                   int m, int n, int k, int nb,
+                   CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                                                 const CHAM_desc_t *B, int Bm, int Bn,
-                       CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
+                   CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
@@ -71,7 +67,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     CHAM_tile_t *tileC = C->get_blktile( C, Cm, Cn );
 
     parsec_dtd_taskpool_insert_task(
-        PARSEC_dtd_taskpool, CORE_zgemm_parsec, options->priority, "Gemm",
+        PARSEC_dtd_taskpool, CORE_zgemm_parsec, options->priority, "gemm",
         sizeof(cham_trans_t),    &transA,                           VALUE,
         sizeof(cham_trans_t),    &transB,                           VALUE,
         sizeof(int),           &m,                                VALUE,
@@ -95,7 +91,7 @@ INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
                          cham_trans_t transA, cham_trans_t transB,
                          int m, int n, int k, int nb,
                          CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
-                         const CHAM_desc_t *B, int Bm, int Bn,
+                                                      const CHAM_desc_t *B, int Bm, int Bn,
                          CHAMELEON_Complex64_t beta,  const CHAM_desc_t *C, int Cm, int Cn )
 {
     INSERT_TASK_zgemm( options, transA, transB, m, n, k, nb,
