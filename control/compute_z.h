@@ -30,7 +30,7 @@
  * @brief Data structure to handle the GEMM workspaces
  */
 struct chameleon_pzgemm_s {
-    int summa;
+    cham_gemm_t alg;
     CHAM_desc_t WA;
     CHAM_desc_t WB;
 };

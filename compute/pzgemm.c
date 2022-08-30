@@ -31,6 +31,148 @@
 #define WB(m, n) WB,  m,  n
 
 /**
+ *  Parallel tile matrix-matrix multiplication.
+ *  Generic algorithm for any data distribution.
+ */
+static inline void
+chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_trans_t transB,
+                        CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                        CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                        RUNTIME_option_t *options )
+{
+    const CHAMELEON_Complex64_t zone = (CHAMELEON_Complex64_t)1.0;
+    RUNTIME_sequence_t *sequence = options->sequence;
+    int                 m, n, k;
+    int                 tempmm, tempnn, tempkn, tempkm;
+    int                 myrank = RUNTIME_comm_rank( chamctxt );
+    int                 reduceC[ C->mt * C->nt ];
+
+    /* Set C tiles to redux mode. */
+    for (n = 0; n < C->nt; n++) {
+        for (m = 0; m < C->mt; m++) {
+            reduceC[ n * C->mt + m ] = 0;
+
+            /* The node owns the C tile. */
+            if ( C->get_rankof( C(m, n) ) == myrank ) {
+                reduceC[ n * C->mt + m ] = 1;
+                RUNTIME_zgersum_set_methods( C(m, n) );
+                continue;
+            }
+
+            /*
+             * The node owns the A tile that will define the locality of the
+             * computations.
+             */
+            if ( transA == ChamNoTrans ) {
+                for (k = 0; k < A->nt; k++) {
+                    if ( A->get_rankof( A(m, k) ) == myrank ) {
+                        reduceC[ n * C->mt + m ] = 1;
+                        RUNTIME_zgersum_set_methods( C(m, n) );
+                        break;
+                    }
+                }
+            }
+            else {
+                for (k = 0; k < A->mt; k++) {
+                    if ( A->get_rankof( A(k, m) ) == myrank ) {
+                        reduceC[ n * C->mt + m ] = 1;
+                        RUNTIME_zgersum_set_methods( C(m, n) );
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    for (n = 0; n < C->nt; n++) {
+        tempnn = n == C->nt-1 ? C->n-n*C->nb : C->nb;
+        for (m = 0; m < C->mt; m++) {
+            tempmm = m == C->mt-1 ? C->m-m*C->mb : C->mb;
+
+            /* Scale C */
+            options->forcesub = 0;
+            INSERT_TASK_zlascal( options, ChamUpperLower, tempmm, tempnn, C->mb,
+                                 beta, C, m, n );
+            options->forcesub = reduceC[ n * C->mt + m ];
+
+            /*
+             *  A: ChamNoTrans / B: ChamNoTrans
+             */
+            if (transA == ChamNoTrans) {
+                if (transB == ChamNoTrans) {
+                    for (k = 0; k < A->nt; k++) {
+                        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+
+                        INSERT_TASK_zgemm_Astat(
+                            options,
+                            transA, transB,
+                            tempmm, tempnn, tempkn, A->mb,
+                            alpha, A(m, k),  /* lda * Z */
+                                   B(k, n),  /* ldb * Y */
+                            zone,  C(m, n)); /* ldc * Y */
+                    }
+                }
+                /*
+                 *  A: ChamNoTrans / B: Cham[Conj]Trans
+                 */
+                else {
+                    for (k = 0; k < A->nt; k++) {
+                        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+
+                        INSERT_TASK_zgemm_Astat(
+                            options,
+                            transA, transB,
+                            tempmm, tempnn, tempkn, A->mb,
+                            alpha, A(m, k),  /* lda * Z */
+                                   B(n, k),  /* ldb * Z */
+                            zone,  C(m, n)); /* ldc * Y */
+                    }
+                }
+            }
+            /*
+             *  A: Cham[Conj]Trans / B: ChamNoTrans
+             */
+            else {
+                if (transB == ChamNoTrans) {
+                    for (k = 0; k < A->mt; k++) {
+                        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+
+                        INSERT_TASK_zgemm_Astat(
+                            options,
+                            transA, transB,
+                            tempmm, tempnn, tempkm, A->mb,
+                            alpha, A(k, m),  /* lda * X */
+                                   B(k, n),  /* ldb * Y */
+                            zone,  C(m, n)); /* ldc * Y */
+                    }
+                }
+                /*
+                 *  A: Cham[Conj]Trans / B: Cham[Conj]Trans
+                 */
+                else {
+                    for (k = 0; k < A->mt; k++) {
+                        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+
+                        INSERT_TASK_zgemm_Astat(
+                            options,
+                            transA, transB,
+                            tempmm, tempnn, tempkm, A->mb,
+                            alpha, A(k, m),  /* lda * X */
+                                   B(n, k),  /* ldb * Z */
+                            zone,  C(m, n)); /* ldc * Y */
+                    }
+                }
+            }
+            RUNTIME_zgersum_submit_tree( options, C(m, n) );
+            RUNTIME_data_flush( sequence, C(m, n) );
+        }
+    }
+    options->forcesub = 0;
+
+    (void)chamctxt;
+}
+
+/**
  *  Parallel tile matrix-matrix multiplication
  *  SUMMA algorithm for 2D block-cyclic data distribution.
  */
@@ -284,6 +426,7 @@ chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
+    cham_gemm_t alg = (ws != NULL) ? ws->alg : ChamGemmAlgGeneric;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -291,13 +434,21 @@ chameleon_pzgemm( struct chameleon_pzgemm_s *ws,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    if ( ws && ws->summa )
-    {
+    switch( alg ) {
+    case ChamGemmAlgAuto:
+    case ChamGemmAlgSummaB: /* Switch back to generic since it does not exist yet. */
+    case ChamGemmAlgGeneric:
+        chameleon_pzgemm_generic( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
+
+    case ChamGemmAlgSummaC:
         chameleon_pzgemm_summa( chamctxt, transA, transB, alpha, A, B, beta, C,
                                 &(ws->WA), &(ws->WB), &options );
-    }
-    else {
-        chameleon_pzgemm_generic( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
+
+    case ChamGemmAlgSummaA:
+        chameleon_pzgemm_Astat( chamctxt, transA, transB, alpha, A, B, beta, C, &options );
+        break;
     }
 
     RUNTIME_options_finalize( &options, chamctxt );

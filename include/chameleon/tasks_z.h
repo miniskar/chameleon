@@ -65,6 +65,12 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
                         CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
                         const CHAM_desc_t *B, int Bm, int Bn,
                         CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn );
+void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
+                              cham_trans_t transA, cham_trans_t transB,
+                              int m, int n, int k, int nb,
+                              CHAMELEON_Complex64_t alpha, const CHAM_desc_t *A, int Am, int An,
+                              const CHAM_desc_t *B, int Bm, int Bn,
+                              CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn );
 void INSERT_TASK_zgeqrt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An,
@@ -451,5 +457,9 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
                         const CHAM_desc_t *Dj, int Djm, int Djn,
                         const CHAM_desc_t *D, int Dm, int Dn,
                         CHAM_desc_t *A, int Am, int An);
+
+void RUNTIME_zgersum_set_methods( const CHAM_desc_t *A, int Am, int An );
+void RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
+                                  const CHAM_desc_t *A, int Am, int An );
 
 #endif /* _chameleon_tasks_z_h_ */
