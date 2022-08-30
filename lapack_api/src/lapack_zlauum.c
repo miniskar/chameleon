@@ -22,7 +22,7 @@
 
 /* Fortran LAPACK interface */
 
-#define CHAMELEON_lapack_zlauum CHAMELEON_GLOBAL( chameleon_lapack_zlauum, CHAMELEON_BLAS_Zlauum )
+#define CHAMELEON_lapack_zlauum CHAMELEON_GLOBAL( chameleon_lapack_zlauum, CHAMELEON_LAPACK_ZLAUUM )
 void CHAMELEON_lapack_zlauum ( const char* uplo, const int* n,
                                CHAMELEON_Complex64_t* a, const int* lda,
                                int* info )

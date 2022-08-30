@@ -79,7 +79,6 @@ void CHAMELEON_cblas_ztrsm( const CBLAS_ORDER order, const CBLAS_SIDE side, cons
                             const void *alpha, const CHAMELEON_Complex64_t *A, const int lda,
                                                const CHAMELEON_Complex64_t *B, const int ldb );
 
-
 int CHAMELEON_lapacke_zlacpy( int matrix_layout, char uplo, int M, int N,
                               const CHAMELEON_Complex64_t *A, int lda,
                                     CHAMELEON_Complex64_t *B, int ldb );
@@ -89,6 +88,23 @@ int CHAMELEON_lapacke_zlaset( int matrix_layout, char uplo, int M, int N,
                                     CHAMELEON_Complex64_t *A, int lda );
 
 int CHAMELEON_lapacke_zlauum( int matrix_layout, char uplo, int N,
+                              CHAMELEON_Complex64_t *A, int lda );
+
+int CHAMELEON_lapacke_zposv( int matrix_layout, char uplo, int N, int NRHS,
+                             CHAMELEON_Complex64_t *A, int lda,
+                             CHAMELEON_Complex64_t *B, int ldb );
+
+int CHAMELEON_lapacke_zpotrf( int matrix_layout, char uplo, int N,
+                              CHAMELEON_Complex64_t *A, int lda );
+
+int CHAMELEON_lapacke_zpotri( int matrix_layout, char uplo, int N,
+                              CHAMELEON_Complex64_t *A, int lda );
+
+int CHAMELEON_lapacke_zpotrs( int matrix_layout, char uplo, int N, int NRHS,
+                              const CHAMELEON_Complex64_t *A, int lda,
+                                    CHAMELEON_Complex64_t *B, int ldb );
+
+int CHAMELEON_lapacke_ztrtri( int matrix_layout, char uplo, char diag, int N,
                               CHAMELEON_Complex64_t *A, int lda );
 
 END_C_DECLS

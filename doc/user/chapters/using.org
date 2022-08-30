@@ -863,10 +863,11 @@
        * *Map functions*
          * map: apply a user operator on each tile of the matrix
 
-     In addition, all *BLAS 3 routines* (gemm, hemm, her2k, herk, lauum, symm,
-     syr2k, syrk, trmm, trsm) can be called using an equivalent of the
-     (C)BLAS/LAPACK(E) API. The parameters are the same and the user just has
-     to add *CHAMELEON_* to the standard name of the routine. For example, in C
+     In addition, all *BLAS 3 routines* ~gemm~, ~hemm~, ~her2k~, ~herk~, ~lauum~, ~symm~,
+      ~syr2k~, ~syrk~, ~trmm~, ~trsm~ and *LAPACK* ~lacpy~, ~laset~, ~posv~, ~potrf~, ~potri~,
+      ~potrs~, ~trtri~ can be called using an equivalent of the (C)BLAS/LAPACK(E)
+      API. The parameters are the same and the user just has to add *CHAMELEON_*
+      to the standard name of the routine. For example, in C
      #+begin_src
      CHAMELEON_Init(4,0);
      CHAMELEON_cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
@@ -874,7 +875,7 @@
      CHAMELEON_Finalize();
      #+end_src
      In Fortran, the function names are for example: ~CHAMELEON_blas_dgemm~
-     instead of ~DGEMM~ and ~CHAMELEON_lapack_dlauum~ instead of ~DLAUUM~.
+     instead of ~DGEMM~ and ~CHAMELEON_lapack_dposv~ instead of ~DPOSV~.
 
 **** Options routines
      <<sec:options_routines>>

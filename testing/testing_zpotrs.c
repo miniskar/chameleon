@@ -22,9 +22,11 @@
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if !defined(CHAMELEON_SIMULATION)
+#include <coreblas.h>
 #if defined(CHAMELEON_TESTINGS_VENDOR)
 #include <coreblas/lapacke.h>
-#include <coreblas.h>
+#endif
 #endif
 
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
@@ -108,6 +110,7 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
+    int         api   = parameters_getvalue_int( "api" );
     int         nb    = run_arg_get_int( args, "nb", 320 );
     cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
     int         N     = run_arg_get_int( args, "N", 1000 );
@@ -145,7 +148,22 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
     testing_stop( &test_data, flops_zpotrs( N, NRHS ) );
 #else
     testing_start( &test_data );
-    hres += CHAMELEON_zpotrs( uplo, N, NRHS, A, LDA, X, LDB );
+    switch ( api ) {
+    case 1:
+        hres += CHAMELEON_zpotrs( uplo, N, NRHS, A, LDA, X, LDB );
+        break;
+#if !defined(CHAMELEON_SIMULATION)
+    case 2:
+        CHAMELEON_lapacke_zpotrs( CblasColMajor, chameleon_lapack_const(uplo), N, NRHS, A, LDA, X, LDB );
+        break;
+#endif
+    default:
+        if ( CHAMELEON_Comm_rank() == 0 ) {
+            fprintf( stderr,
+                     "SKIPPED: This function can only be used with the option --api 1 or --api 2.\n" );
+        }
+        return -1;
+    }
     test_data.hres = hres;
     testing_stop( &test_data, flops_zpotrs( N, NRHS ) );
 
