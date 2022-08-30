@@ -827,7 +827,7 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
         break;
 #endif
     case ChamSymmetric:
-        chameleon_pzsymm( ChamRight, ChamUpper,
+        chameleon_pzsymm( gemm_ws, ChamRight, ChamUpper,
                           1., descU, &descA,
                           0., descH, sequence, request );
         if ( info ) {

@@ -840,7 +840,7 @@ void CHAMELEON_ZSYTRS_TILE_ASYNC(cham_uplo_t *uplo, CHAM_desc_t *A, CHAM_desc_t 
 #endif
 
 void CHAMELEON_ZSYMM_TILE_ASYNC(cham_side_t *side, cham_uplo_t *uplo, CHAMELEON_Complex64_t *alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t *beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
-{ *info = CHAMELEON_zsymm_Tile_Async(*side, *uplo, *alpha, A, B, *beta, C, sequence, request); }
+{ *info = CHAMELEON_zsymm_Tile_Async(*side, *uplo, *alpha, A, B, *beta, C, NULL, sequence, request); }
 
 void CHAMELEON_ZSYR2K_TILE_ASYNC(cham_uplo_t *uplo, cham_trans_t *trans, CHAMELEON_Complex64_t *alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t *beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
 { *info = CHAMELEON_zsyr2k_Tile_Async(*uplo, *trans, *alpha, A, B, *beta, C, sequence, request); }
