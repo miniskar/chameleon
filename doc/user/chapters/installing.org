@@ -1,7 +1,3 @@
-# This file is part of the Chameleon User's Guide.
-# Copyright (C) 2017 Inria
-# See the file ../users_guide.org for copying conditions.
-
 Chameleon is written in C and depends on a couple of external
 libraries that must be installed on the system.
 # , it provides an interface to be called from Fortran
@@ -16,6 +12,9 @@ we encourage users to use [[sec:ug:guix][GNU Guix]] or [[sec:ug:spack][Spack]].
 Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and [[sec:ug:brew][MacOSX]].
 
 *** Getting Chameleon
+:PROPERTIES:
+:CUSTOM_ID: doc-install-getting
+:END:
     <<sec:ug:git>>
 
     The latest official release tarballs of Chameleon sources are
@@ -27,6 +26,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     #+end_src
 
 *** Prerequisites for installing Chameleon
+:PROPERTIES:
+:CUSTOM_ID: doc-install-prerequisites
+:END:
     <<sec:ug:prereq>>
 
     To install Chameleon's libraries, header files, and executables, one
@@ -260,6 +262,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
       *Caution about the compatibility:* your compiler must be compatible
       with CUDA.
 *** Build and install Chameleon with CMake
+:PROPERTIES:
+:CUSTOM_ID: doc-install-cmake
+:END:
     <<sec:ug:cmake>>
     Compilation of Chameleon libraries and executables are done with
     CMake (http://www.cmake.org/). This version has been tested with
@@ -422,6 +427,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      Note that PaRSEC and StarPU are only detected with pkg-config
      mechanism because it is always provided and this avoids errors.
 *** Distribution Debian
+:PROPERTIES:
+:CUSTOM_ID: doc-install-debian
+:END:
     <<sec:ug:debian>>
     Download one of the available package for your distribution here
     https://gitlab.inria.fr/solverstack/chameleon/-/packages, then
@@ -450,6 +458,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     Do not hesitate to send an [[mailto:florent.pruvost@inria.fr][email]] if you need a package for your
     Debian distribution.
 *** Distribution of Chameleon using GNU Guix
+:PROPERTIES:
+:CUSTOM_ID: doc-install-guix
+:END:
     <<sec:ug:guix>>
 
     We provide [[http://guix.gnu.org/][Guix]] packages to install Chameleon with its dependencies
@@ -608,6 +619,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      #+end_src
 
 *** Distribution of Chameleon using Spack
+:PROPERTIES:
+:CUSTOM_ID: doc-install-spack
+:END:
     <<sec:ug:spack>>
 
 **** Installing Spack
@@ -676,12 +690,18 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      spack install -v chameleon ^nmad
      #+end_src
 *** Distribution Brew for Mac OS X
+:PROPERTIES:
+:CUSTOM_ID: doc-install-macos
+:END:
     <<sec:ug:brew>>
 
     We provide some [[https://brew.sh/][brew]] packages here
     https://gitlab.inria.fr/solverstack/brew-repo (under construction).
 
 *** Linking an external application with Chameleon libraries
+:PROPERTIES:
+:CUSTOM_ID: doc-install-linking
+:END:
     <<sec:ug:link>>
     Compilation and link with Chameleon libraries have been tested with
     the GNU compiler suite ~gcc/gfortran~ and the Intel compiler suite

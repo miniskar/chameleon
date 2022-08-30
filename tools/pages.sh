@@ -38,6 +38,9 @@ Rscript ${CHAMELEON_SRC_DIR}/tools/bench/jube/GenFigures.R
 # here by default
 cat >> ${CHAMELEON_SRC_DIR}/doc/user/users_guide.org.in <<EOF
 ** Chameleon Performances on PlaFRIM
+:PROPERTIES:
+:CUSTOM_ID: doc-perf
+:END:
 Chameleon commit: *$commit_sha*.
 #+INCLUDE: @CMAKE_CURRENT_SOURCE_DIR@/chapters/performances.org
 EOF

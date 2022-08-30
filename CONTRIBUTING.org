@@ -1,5 +1,11 @@
 ** To contribute to the project, you need to do it through merge request
+:PROPERTIES:
+:CUSTOM_ID: contributing-mr
+:END:
 *** Regular / Inria contributors
+:PROPERTIES:
+:CUSTOM_ID: contributing-mr-inria
+:END:
 **** Create a fork
      First you need to fork the repository into your own account. You can
      do that simply by clicking the fork button on the gitlab interface.
@@ -25,7 +31,6 @@
      #+end_src
 
 **** Create a "Feature" branch in your fork
-
      To add a new feature, fix a bug, and so on, you need to create a
      new branch from the last state of the master branch
      #+begin_src sh
@@ -74,6 +79,9 @@
      Then push the button *merge request*.
 
 *** Occasional / external contributors
+:PROPERTIES:
+:CUSTOM_ID: contributing-mr-external
+:END:
 **** Create a gitlab account
      Whereas [[https://gitlab.inria.fr/solverstack/chameleon][Chameleon]] is a public project and does not require an
      authentication to access it, a gitlab account is necessary to
@@ -95,6 +103,9 @@
      on the branch and eventually perform your merge request.
 
 ** Configure a runner to test your branch
+:PROPERTIES:
+:CUSTOM_ID: contributing-runner
+:END:
    To be effectively merged, your branch must be tested through the
    [[https://gitlab.inria.fr/help/ci/README.md][gitlab-ci]] mechanism.
 
@@ -118,53 +129,58 @@
      newgrp docker
      #+end_src
 
-**** Register your runner
-     Please read first the [[https://gitlab.inria.fr/help/ci/runners/README.md][Gitlab documentation]] for general information
-     about runners registration.
+*** Register your runner
+    :PROPERTIES:
+    :CUSTOM_ID: contributing-runner-register
+    :END:
+    Please read first the [[https://gitlab.inria.fr/help/ci/runners/README.md][Gitlab documentation]] for general information
+    about runners registration.
 
-     Three steps are required:
-     1) install the gitlab-runner program
-     2) register your runner to your project (your fork of Chameleon)
-     3) start gitlab-runner as a service
-     #+begin_src sh
-     # install gitlab-runner
-     sudo wget -O /usr/local/bin/gitlab-runner https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-linux-amd64
-     sudo chmod +x /usr/local/bin/gitlab-runner
-     sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+    Three steps are required:
+    1) install the gitlab-runner program
+    2) register your runner to your project (your fork of Chameleon)
+    3) start gitlab-runner as a service
+    #+begin_src sh
+    # install gitlab-runner
+    sudo wget -O /usr/local/bin/gitlab-runner https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-linux-amd64
+    sudo chmod +x /usr/local/bin/gitlab-runner
+    sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
 
-     # register runner to https://gitlab.inria.fr/
-     sudo gitlab-runner register # see just after for an example
+    # register runner to https://gitlab.inria.fr/
+    sudo gitlab-runner register # see just after for an example
 
-     # install and run as a service
-     sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
-     sudo gitlab-runner start
-     #+end_src
+    # install and run as a service
+    sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+    sudo gitlab-runner start
+    #+end_src
 
-     Example of registering sequence:
-     #+begin_example
-     sudo gitlab-runner register
-     Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com/):
-     https://gitlab.inria.fr/
-     Please enter the gitlab-ci token for this runner:
-     # copy/paste the project's secret token here
-     Please enter the gitlab-ci description for this runner:
-     [ubuntu1604]:
-     Please enter the gitlab-ci tags for this runner (comma separated):
-     linux, ubuntu
-     Whether to run untagged builds [true/false]:
-     [false]: true
-     Whether to lock Runner to current project [true/false]:
-     [false]:
-     Registering runner... succeeded                     runner=4jknGvoz
-     Please enter the executor: shell, ssh, docker+machine, docker-ssh+machine, kubernetes, docker, parallels, virtualbox, docker-ssh:
-     docker
-     Please enter the default Docker image (e.g. ruby:2.1):
-     ubuntu
-     Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
-     #+end_example
+    Example of registering sequence:
+    #+begin_example
+    sudo gitlab-runner register
+    Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com/):
+    https://gitlab.inria.fr/
+    Please enter the gitlab-ci token for this runner:
+    # copy/paste the project's secret token here
+    Please enter the gitlab-ci description for this runner:
+    [ubuntu1604]:
+    Please enter the gitlab-ci tags for this runner (comma separated):
+    linux, ubuntu
+    Whether to run untagged builds [true/false]:
+    [false]: true
+    Whether to lock Runner to current project [true/false]:
+    [false]:
+    Registering runner... succeeded                     runner=4jknGvoz
+    Please enter the executor: shell, ssh, docker+machine, docker-ssh+machine, kubernetes, docker, parallels, virtualbox, docker-ssh:
+    docker
+    Please enter the default Docker image (e.g. ruby:2.1):
+    ubuntu
+    Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
+    #+end_example
 
 ** To review locally a private pull request submitted by someone else
-
+:PROPERTIES:
+:CUSTOM_ID: contributing-localreview
+:END:
     Get the patch from the pull request (Need to update that !!!!
     Coming from bitbucket)
     #+begin_src sh

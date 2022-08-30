@@ -22,6 +22,9 @@ mpiexec -np $nmpi $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${al
 - m = n = k
 - b : depends on the node
 *** bora (36 CPUs) nodes
+:PROPERTIES:
+:CUSTOM_ID: doc-perf-bora
+:END:
     - nmpi = *1*, *4*, *9*
     - 2D block cyclic parameters : PxQ = 1x1, 2x2 and 3x3
     - Number of threads (t) = *34*, one CPU being dedicated for the
@@ -39,8 +42,10 @@ mpiexec -np $nmpi $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${al
      #+NAME: fig:chameleon_plafrim_bora_perf_openmpi
      #+ATTR_HTML: :align center :width 75%
      [[file:chameleon_plafrim_bora_perf_openmpi.png]]
-
 *** sirocco [14-17] (32 CPUs + 2 GPUs V100) nodes
+:PROPERTIES:
+:CUSTOM_ID: doc-perf-sirocco
+:END:
     - nmpi = *1*
     - 2D block cyclic parameters : PxQ = 1x1
     - Number of threads (t) = *29*, one CPU being dedicated for the

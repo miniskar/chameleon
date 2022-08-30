@@ -1,7 +1,7 @@
-# This file is part of the Chameleon User's Guide.
-# Copyright (C) 2017 Inria
-# See the file ../users_guide.org for copying conditions.
 *** Using Chameleon executables
+:PROPERTIES:
+:CUSTOM_ID: doc-using-executables
+:END:
     <<sec:usetesting>>
 
     Chameleon provides several test executables that are compiled and
@@ -266,8 +266,10 @@
      for example: ~STARPU_DISK_SWAP_BACKEND=unistd_o_direct~
      * *STARPU_LIMIT_CPU_MEM* environment variable to the amount of memory
      that can be used in MBytes, for example: ~STARPU_LIMIT_CPU_MEM=1000~
-
 *** Tutorial LAPACK to Chameleon
+:PROPERTIES:
+:CUSTOM_ID: doc-using-tuto-lapack-to-chameleon
+:END:
     <<sec:tuto>>
 
     Chameleon provides routines to solve dense general systems of
@@ -737,6 +739,9 @@
      function.
 
 *** List of available routines
+:PROPERTIES:
+:CUSTOM_ID: doc-using-list-routines
+:END:
 **** Linear Algebra routines
 
      We list the linear algebra routines of the form
