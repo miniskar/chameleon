@@ -81,6 +81,10 @@ if(EMACS_COMPILER)
                                ${CMAKE_CURRENT_BINARY_DIR}/news.org
                                ${CMAKE_CURRENT_BINARY_DIR}/version.org
                                ${CMAKE_CURRENT_BINARY_DIR}/users_guide.org
+                               ${CMAKE_CURRENT_SOURCE_DIR}/chapters/introduction.org
+                               ${CMAKE_CURRENT_SOURCE_DIR}/chapters/installing.org
+                               ${CMAKE_CURRENT_SOURCE_DIR}/chapters/using.org
+                               ${CMAKE_CURRENT_SOURCE_DIR}/chapters/performances.org
                                ${CMAKE_CURRENT_BINARY_DIR}/CONTRIBUTING.org
                                ${CMAKE_CURRENT_BINARY_DIR}/publish.el
                                ${CMAKE_CURRENT_BINARY_DIR}/chameleon.svg)

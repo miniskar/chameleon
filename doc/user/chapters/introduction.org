@@ -2,6 +2,9 @@
 # Copyright (C) 2018 Inria
 # See the file ../users_guide.org for copying conditions.
 *** MORSE project
+:PROPERTIES:
+:CUSTOM_ID: doc-intro-morse
+:END:
     #+NAME: fig:chameleon_header
     #+ATTR_HTML: :align center
     [[file:chameleon_header.png]]
@@ -115,6 +118,9 @@
      Research papers about MORSE can be found [[http://icl.cs.utk.edu/projectsdev/morse/pubs/index.html][here]].
 
 *** Chameleon
+:PROPERTIES:
+:CUSTOM_ID: doc-intro-chameleon
+:END:
 **** Chameleon software
      The main purpose is to address the performance shortcomings of the
      [[http://www.netlib.org/lapack/][LAPACK]] and [[http://www.netlib.org/scalapack/][ScaLAPACK]] libraries on multicore processors and

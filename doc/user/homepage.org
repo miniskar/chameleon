@@ -9,6 +9,9 @@
 #+SETUPFILE: https://mfelsoci.gitlabpages.inria.fr/inria-org-html-themes/online-theme-readtheorginria.setup
 
 * Overview
+:PROPERTIES:
+:CUSTOM_ID: overview
+:END:
   <<sec:overview>>
 
   Chameleon is a framework written in C which provides routines to
@@ -39,10 +42,16 @@
   [[./chameleon.svg]]
 
 * News
+:PROPERTIES:
+:CUSTOM_ID: news
+:END:
   <<sec:news>>
 #+INCLUDE: "news.org"
 
 * Download
+:PROPERTIES:
+:CUSTOM_ID: download
+:END:
   <<sec:download>>
 
   Depending on how much you need to tune the library installation we
@@ -81,16 +90,28 @@
   (Catalina).
 
 * Quick start guide
+:PROPERTIES:
+:CUSTOM_ID: quickstart
+:END:
   <<sec:quickstartguide>>
 
   Here a quick starting guide for using Chameleon.  For more
   information please refer to the [[sec:documentation][full documentation]].
 
 ** Install
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install
+:END:
    In the following we present quick examples of installation of the
    [[sec:download][packages]].
 *** Release source installation with CMake
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-cmake
+:END:
 **** Linux Ubuntu 20.04
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-cmake-ubuntu
+:END:
      Start by installing common development tools
      #+begin_src sh :eval never-export
      sudo apt-get update -y
@@ -127,6 +148,9 @@
      See more examples in the [[sec:ug:cmake][user's guide]].
 
 **** macOS
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-macos
+:END:
      Start by installing common development tools
      #+begin_src sh :eval never-export
      # install Homebrew if not already available
@@ -171,6 +195,9 @@
      make -j5 install
      #+end_src
 *** Debian/Ubuntu packages
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-debian-ubuntu
+:END:
     Visit the [[https://gitlab.inria.fr/solverstack/chameleon/-/packages][packages]] page and download the appropriate file for your
     system. Then in a shell terminal
     #+begin_src sh :eval never-export
@@ -182,6 +209,9 @@
     distribution please [[sec:contact][contact us]] and we will try to provide one.
 
 *** Brew packages
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-brew
+:END:
     Brew packages for macOS are stored in our [[https://gitlab.inria.fr/solverstack/brew-repo][brew-repo]] git
     repository. Please refer to the [[https://gitlab.inria.fr/solverstack/brew-repo/-/blob/master/README.org][README]] for installation
     instructions.
@@ -195,6 +225,9 @@
     #+end_src
 
 *** Guix packages
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-guix
+:END:
     [[https://guix.gnu.org/][Guix]] requires a running GNU/Linux system, GNU tar and Xz.
     #+begin_src sh :eval never-export
     gpg --keyserver pgp.mit.edu --recv-keys 3CE464558A84FDC69DB40CFB090B11993D9AEBB5
@@ -232,6 +265,9 @@
     See more examples in the [[sec:ug:guix][user's guide]].
 
 *** Spack packages
+:PROPERTIES:
+:CUSTOM_ID: quickstart-install-spack
+:END:
     Spack packages for Linux or macOS are stored in our [[https://gitlab.inria.fr/solverstack/spack-repo][spack-repo]] git
     repository. Please refer to the [[https://gitlab.inria.fr/solverstack/spack-repo/-/blob/master/README.org][README]] for installation
     instructions.
@@ -260,6 +296,9 @@
     See more examples in the [[sec:ug:spack][user's guide]].
 
 ** Linking
+:PROPERTIES:
+:CUSTOM_ID: quickstart-linking
+:END:
    If you do not use CMake we provide a pkg-config file at
    installation in the subdirectory ~lib/pkgconfig~.
    #+begin_src sh :eval never-export
@@ -297,6 +336,9 @@
    target_link_libraries(chameleon_example PRIVATE CHAMELEON::chameleon)
    #+end_src
 ** Using
+:PROPERTIES:
+:CUSTOM_ID: quickstart-using
+:END:
    Considering that the ~bin/~ directory of the Chameleon installation
    is in the ~PATH~, the testing executables can be used to check main
    linear algebra operations such as 'gemm', 'potrf', 'getrf',
@@ -495,9 +537,15 @@
    #+end_src
 
 * Documentation
+:PROPERTIES:
+:CUSTOM_ID: doc
+:END:
   <<sec:documentation>>
 #+INCLUDE: "users_guide.org"
 * Tutorials
+:PROPERTIES:
+:CUSTOM_ID: tutorials
+:END:
   <<sec:tutorials>>
 
   * [[sec:usetesting][Using Chameleon executables]]
@@ -505,6 +553,9 @@
   * [[https://fpruvost.gitlabpages.inria.fr/exa2pro/][Exa2pro: Chameleon usage on a supercomputer]]
 
 * Contact
+:PROPERTIES:
+:CUSTOM_ID: contact
+:END:
   <<sec:contact>>
 
   If you have an account on [[https://gitlab.inria.fr/][gitlab inria]] please submit a [[https://gitlab.inria.fr/solverstack/chameleon/-/issues][new issue]].
@@ -516,11 +567,16 @@
   [[https://sympa.inria.fr/sympa/info/chameleon-announce][chameleon-announce@inria.fr]] (click on "S'abonner" on the left
   panel).
 
-* Get involved!
+* Contributing
+:PROPERTIES:
+:CUSTOM_ID: contributing
+:END:
 #+INCLUDE: "CONTRIBUTING.org"
 
 * Authors
-
+:PROPERTIES:
+:CUSTOM_ID: authors
+:END:
  First, since the Chameleon library started as an extension of the
  PLASMA library to support multiple runtime systems, all developpers
  of the PLASMA library are developpers of the Chameleon library.
@@ -545,7 +601,9 @@
  If we forgot your name, please let us know that we can fix that mistake.
 
 * Citing Chameleon
-
+:PROPERTIES:
+:CUSTOM_ID: citing
+:END:
 Feel free to use the following publications to reference Chameleon:
 
   * Original paper that initiated Chameleon and the principles:
@@ -575,4 +633,7 @@ Feel free to use the following publications to reference Chameleon:
       [[https://hal.inria.fr/hal-01332774][First Online: 16 June 2016]].
 
 * Licence
+:PROPERTIES:
+:CUSTOM_ID: licence
+:END:
   [[https://gitlab.inria.fr/solverstack/chameleon/-/blob/master/LICENCE.txt][LICENCE]]

@@ -1,6 +1,12 @@
 ** [2021-04-21] *Release 1.1.0* available
+:PROPERTIES:
+:CUSTOM_ID: news-20210421
+:END:
    * See [[https://gitlab.inria.fr/solverstack/chameleon/-/releases/v1.1.0][changes]]
    * [[https://gitlab.inria.fr/solverstack/chameleon/uploads/b299d6037d7636c6be16108c89bc2aab/chameleon-1.1.0.tar.gz][Download source tarball]]
 ** [2021-04-06] Chameleon integration into FMR
+:PROPERTIES:
+:CUSTOM_ID: news-20210406
+:END:
    Chameleon has been successfully integrated into the C++ Randomized
    SVD library [[https://gitlab.inria.fr/compose/oldstack/fmr][FMR]].
