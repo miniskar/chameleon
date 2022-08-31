@@ -76,15 +76,15 @@ chameleon_recdesc_create( const char *name, CHAM_desc_t **descptr, void *mat, ch
 
             chameleon_asprintf( &subname, "%s[%d,%d]", name, m, n );
 
-            chameleon_recdesc_create( subname, &tiledesc, tile->mat,
-                                      desc->dtyp, mb, nb,
-                                      tile->ld, tempnn, /* Abuse as ln is not used */
-                                      tempmm, tempnn,
-                                      1, 1,             /* can recurse only on local data */
-                                      chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
+            rc = chameleon_recdesc_create( subname, &tiledesc, tile->mat,
+                                           desc->dtyp, mb, nb,
+                                           tile->ld, tempnn, /* Abuse as ln is not used */
+                                           tempmm, tempnn,
+                                           1, 1,             /* can recurse only on local data */
+                                           chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL);
 
             tile->format = CHAMELEON_TILE_DESC;
-            tile->mat = tiledesc;
+            tile->mat    = tiledesc;
 
             if ( rc != CHAMELEON_SUCCESS ) {
                 return rc;
