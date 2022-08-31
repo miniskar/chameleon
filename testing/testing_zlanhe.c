@@ -70,7 +70,7 @@ testing_zlanhe_desc( run_arg_list_t *args, int check )
     cham_uplo_t     uplo      = run_arg_get_uplo( args, "uplo", ChamUpper );
     int             N         = run_arg_get_int( args, "N", 1000 );
     int             LDA       = run_arg_get_int( args, "LDA", N );
-    int             seedA     = run_arg_get_int( args, "seedA", random() );
+    int             seedA     = run_arg_get_int( args, "seedA", testing_ialea() );
     double          bump      = testing_dalea();
     int             Q         = parameters_compute_q( P );
 
@@ -125,7 +125,7 @@ testing_zlanhe_std( run_arg_list_t *args, int check )
     cham_uplo_t     uplo      = run_arg_get_uplo( args, "uplo", ChamUpper );
     int             N         = run_arg_get_int( args, "N", 1000 );
     int             LDA       = run_arg_get_int( args, "LDA", N );
-    int             seedA     = run_arg_get_int( args, "seedA", random() );
+    int             seedA     = run_arg_get_int( args, "seedA", testing_ialea() );
     double          bump      = testing_dalea();
 
     /* Descriptors */

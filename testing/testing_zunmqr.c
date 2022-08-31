@@ -43,8 +43,8 @@ testing_zunmqr_desc( run_arg_list_t *args, int check )
     int          LDA    = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int          LDC    = run_arg_get_int( args, "LDC", M );
     int          RH     = run_arg_get_int( args, "qra", 4 );
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          seedC  = run_arg_get_int( args, "seedC", random() );
+    int          seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC  = run_arg_get_int( args, "seedC", testing_ialea() );
     int          Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -137,8 +137,8 @@ testing_zunmqr_std( run_arg_list_t *args, int check )
     int          LDA   = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int          LDC   = run_arg_get_int( args, "LDC", M );
     int          RH    = run_arg_get_int( args, "qra", 4 );
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedC = run_arg_get_int( args, "seedC", random() );
+    int          seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC = run_arg_get_int( args, "seedC", testing_ialea() );
     int          Q     = parameters_compute_q( P );
 
     /* Descriptors */

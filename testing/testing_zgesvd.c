@@ -71,7 +71,7 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     int        M      = run_arg_get_int( args, "M", N );
     int        K      = chameleon_min( M, N );
     int        LDA    = run_arg_get_int( args, "LDA", M );
-    int        seedA  = run_arg_get_int( args, "seedA", random() );
+    int        seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     double     cond   = run_arg_get_double( args, "cond", 1.e16 );
     int        mode   = run_arg_get_int( args, "mode", 4 );
     int        Q      = parameters_compute_q( P );
@@ -183,7 +183,7 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     int        M     = run_arg_get_int( args, "M", N );
     int        K     = chameleon_min( M, N );
     int        LDA   = run_arg_get_int( args, "LDA", M );
-    int        seedA = run_arg_get_int( args, "seedA", random() );
+    int        seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     double     cond  = run_arg_get_double( args, "cond", 1.e16 );
     int        mode  = run_arg_get_int( args, "mode", 4 );
     cham_job_t jobu  = run_arg_get_job( args, "jobu", ChamNoVec );

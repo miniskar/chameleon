@@ -55,8 +55,8 @@ testing_zgeadd_desc( run_arg_list_t *args, int check )
     int          M      = run_arg_get_int( args, "M", N );
     int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
     int          LDB    = run_arg_get_int( args, "LDB", M );
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    int          seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
     int          Q      = parameters_compute_q( P );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
@@ -132,8 +132,8 @@ testing_zgeadd_std( run_arg_list_t *args, int check )
     int          M      = run_arg_get_int( args, "M", N );
     int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? M : N ) );
     int          LDB    = run_arg_get_int( args, "LDB", M );
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          seedB  = run_arg_get_int( args, "seedB", random() );
+    int          seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
 

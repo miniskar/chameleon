@@ -724,6 +724,15 @@ testing_salea()
 }
 
 /**
+ * @brief Generate a random integer
+ */
+long
+testing_ialea()
+{
+    return random();
+}
+
+/**
  * @brief Generate a random double
  */
 double

@@ -74,7 +74,7 @@ testing_zlacpy_desc( run_arg_list_t *args, int check )
     int         M      = run_arg_get_int( args, "M", N );
     int         LDA    = run_arg_get_int( args, "LDA", M );
     int         LDB    = run_arg_get_int( args, "LDB", M );
-    int         seedA  = run_arg_get_int( args, "seedA", random() );
+    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int         Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -132,7 +132,7 @@ testing_zlacpy_std( run_arg_list_t *args, int check )
     int         M     = run_arg_get_int( args, "M", N );
     int         LDA   = run_arg_get_int( args, "LDA", M );
     int         LDB   = run_arg_get_int( args, "LDB", M );
-    int         seedA = run_arg_get_int( args, "seedA", random() );
+    int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A, *B;

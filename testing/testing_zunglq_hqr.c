@@ -43,7 +43,7 @@ testing_zunglq_hqr_desc( run_arg_list_t *args, int check )
     int      llvl   = run_arg_get_int( args, "llvl", -1 );
     int      hlvl   = run_arg_get_int( args, "hlvl", -1 );
     int      domino = run_arg_get_int( args, "domino", -1 );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -143,7 +143,7 @@ testing_zunglq_hqr_std( run_arg_list_t *args, int check )
     int llvl   = run_arg_get_int( args, "llvl", -1 );
     int hlvl   = run_arg_get_int( args, "hlvl", -1 );
     int domino = run_arg_get_int( args, "domino", -1 );
-    int seedA  = run_arg_get_int( args, "seedA", random() );
+    int seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int Q      = parameters_compute_q( P );
 
     /* Descriptors */

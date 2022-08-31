@@ -44,7 +44,7 @@ testing_zgepdf_qdwh_desc( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int      Q      = parameters_compute_q( P );
     double   cond   = run_arg_get_double( args, "cond", 1.e16 );
     int      mode   = run_arg_get_int( args, "mode", 4 );
@@ -137,7 +137,7 @@ testing_zgepdf_qdwh_std( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     double   cond   = run_arg_get_double( args, "cond", 1.e16 );
     int      mode   = run_arg_get_int( args, "mode", 4 );
     int      runtime;

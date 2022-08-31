@@ -48,9 +48,9 @@ testing_zher2k_desc( run_arg_list_t *args, int check )
     int          LDC    = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     double                beta  = testing_dalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   seedC = run_arg_get_int( args, "seedC", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    int                   seedC = run_arg_get_int( args, "seedC", testing_ialea() );
     double                bump  = testing_dalea();
     int                   Q     = parameters_compute_q( P );
 
@@ -140,9 +140,9 @@ testing_zher2k_std( run_arg_list_t *args, int check )
     int                   LDC   = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     double                beta  = testing_dalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   seedC = run_arg_get_int( args, "seedC", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    int                   seedC = run_arg_get_int( args, "seedC", testing_ialea() );
     double                bump  = testing_dalea();
 
     /* Descriptors */

@@ -48,8 +48,8 @@ testing_zherk_desc( run_arg_list_t *args, int check )
     double       alpha  = testing_dalea();
     double       beta   = testing_dalea();
     double       bump   = testing_dalea();
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          seedC  = run_arg_get_int( args, "seedC", random() );
+    int          seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC  = run_arg_get_int( args, "seedC", testing_ialea() );
     int          Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -133,8 +133,8 @@ testing_zherk_std( run_arg_list_t *args, int check )
     double       alpha = testing_dalea();
     double       beta  = testing_dalea();
     double       bump  = testing_dalea();
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedC = run_arg_get_int( args, "seedC", random() );
+    int          seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC = run_arg_get_int( args, "seedC", testing_ialea() );
 
 
     /* Descriptors */

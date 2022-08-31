@@ -37,8 +37,8 @@ testing_zplrnk_desc( run_arg_list_t *args, int check )
     int M     = run_arg_get_int( args, "M", N );
     int K     = run_arg_get_int( args, "K", N );
     int LDC   = run_arg_get_int( args, "LDC", M );
-    int seedA = run_arg_get_int( args, "seedA", random() );
-    int seedB = run_arg_get_int( args, "seedB", random() );
+    int seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int seedB = run_arg_get_int( args, "seedB", testing_ialea() );
     int Q     = parameters_compute_q( P );
 
     /* Descriptors */
@@ -85,8 +85,8 @@ testing_zplrnk_std( run_arg_list_t *args, int check )
     int M     = run_arg_get_int( args, "M", N );
     int K     = run_arg_get_int( args, "K", N );
     int LDC   = run_arg_get_int( args, "LDC", M );
-    int seedA = run_arg_get_int( args, "seedA", random() );
-    int seedB = run_arg_get_int( args, "seedB", random() );
+    int seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int seedB = run_arg_get_int( args, "seedB", testing_ialea() );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *C;

@@ -36,7 +36,7 @@ testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
     int      N      = run_arg_get_int( args, "N", 1000 );
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     double   bump   = run_arg_get_double( args, "bump", (double)N );
     int      Q      = parameters_compute_q( P );
 
@@ -92,7 +92,7 @@ testing_zgetrf_nopiv_std( run_arg_list_t *args, int check )
     int    N     = run_arg_get_int( args, "N", 1000 );
     int    M     = run_arg_get_int( args, "M", N );
     int    LDA   = run_arg_get_int( args, "LDA", M );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
+    int    seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     double bump  = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
