@@ -191,6 +191,7 @@ char *sprint_check    ( val_t val, int human, int nbchar, char *str_in );
 
 #define sprint_fixdbl sprint_double
 
+long                  testing_ialea();
 float                 testing_salea();
 double                testing_dalea();
 CHAMELEON_Complex32_t testing_calea();

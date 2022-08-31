@@ -235,8 +235,8 @@ void update_progress(int currentValue, int maximumValue) {
             res = div(currentValue*100, maximumValue);
         }
         else {
-            /* Calcule le quotient de la division */
-            res.quot = (int)( (long long)( currentValue * 100 ) / maximumValue );
+            /* Compute the quotient */
+            res.quot = (int)( ((double)currentValue * 100.) / (double)maximumValue );
         }
     }
 

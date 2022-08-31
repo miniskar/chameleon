@@ -483,7 +483,7 @@ int CHAMELEON_zheevd_Tile_Async( cham_job_t jobz, cham_uplo_t uplo,
 #if defined(CHAMELEON_COPY_DIAG)
         {
             int n = chameleon_min(A->mt, A->nt) * A->nb;
-            chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, );
+            chameleon_zdesc_alloc(D, A->mb, A->nb, A->m, n, 0, 0, A->m, n, CHAMELEON_zgemm_WS_Free( gemm_ws ) );
             Dptr = &D;
         }
 #endif

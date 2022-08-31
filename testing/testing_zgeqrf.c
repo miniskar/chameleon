@@ -38,7 +38,7 @@ testing_zgeqrf_desc( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      RH     = run_arg_get_int( args, "qra", 4 );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int      Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -114,7 +114,7 @@ testing_zgeqrf_std( run_arg_list_t *args, int check )
     int M     = run_arg_get_int( args, "M", N );
     int LDA   = run_arg_get_int( args, "LDA", M );
     int RH    = run_arg_get_int( args, "qra", 4 );
-    int seedA = run_arg_get_int( args, "seedA", random() );
+    int seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     int Q     = parameters_compute_q( P );
     int K     = chameleon_min( M, N );
 

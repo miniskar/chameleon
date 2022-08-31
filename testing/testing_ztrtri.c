@@ -40,7 +40,7 @@ testing_ztrtri_desc( run_arg_list_t *args, int check )
     cham_diag_t diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
     int         N      = run_arg_get_int( args, "N", 1000 );
     int         LDA    = run_arg_get_int( args, "LDA", N );
-    int         seedA  = run_arg_get_int( args, "seedA", random() );
+    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int         Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -96,7 +96,7 @@ testing_ztrtri_std( run_arg_list_t *args, int check )
     cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
     int         N     = run_arg_get_int( args, "N", 1000 );
     int         LDA   = run_arg_get_int( args, "LDA", N );
-    int         seedA = run_arg_get_int( args, "seedA", random() );
+    int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A;

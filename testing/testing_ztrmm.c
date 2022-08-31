@@ -48,8 +48,8 @@ testing_ztrmm_desc( run_arg_list_t *args, int check )
     int                   LDA    = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int                   LDB    = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha  = testing_zalea();
-    int                   seedA  = run_arg_get_int( args, "seedA", random() );
-    int                   seedB  = run_arg_get_int( args, "seedB", random() );
+    int                   seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
     int                   Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -89,7 +89,7 @@ testing_ztrmm_desc( run_arg_list_t *args, int check )
         hres = CHAMELEON_ztrmm_Tile( side, uplo, trans, diag, alpha, descA, descB );
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_ztrmm( side, N, M ) );
+    testing_stop( &test_data, flops_ztrmm( side, M, N ) );
 
     /* Checks the solution */
     if ( check ) {
@@ -128,8 +128,8 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     int                   LDA   = run_arg_get_int( args, "LDA", ( side == ChamLeft ) ? M : N );
     int                   LDB   = run_arg_get_int( args, "LDB", M );
     CHAMELEON_Complex64_t alpha = testing_zalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
 
     /* Descriptors */
     int                    An;
@@ -155,7 +155,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     cblas_ztrmm( CblasColMajor, (CBLAS_SIDE)side, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans,
                  (CBLAS_DIAG)diag, M, N, CBLAS_SADDR(alpha), A, LDA, B, LDB );
-    testing_stop( &test_data, flops_ztrmm( side, N, M ) );
+    testing_stop( &test_data, flops_ztrmm( side, M, N ) );
 #else
     testing_start( &test_data );
     switch ( api ) {
@@ -175,7 +175,7 @@ testing_ztrmm_std( run_arg_list_t *args, int check )
         return -1;
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_ztrmm( side, N, M ) );
+    testing_stop( &test_data, flops_ztrmm( side, M, N ) );
 
     /* Checks the solution */
     if ( check ) {

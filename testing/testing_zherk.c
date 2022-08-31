@@ -48,8 +48,8 @@ testing_zherk_desc( run_arg_list_t *args, int check )
     double       alpha  = testing_dalea();
     double       beta   = testing_dalea();
     double       bump   = testing_dalea();
-    int          seedA  = run_arg_get_int( args, "seedA", random() );
-    int          seedC  = run_arg_get_int( args, "seedC", random() );
+    int          seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC  = run_arg_get_int( args, "seedC", testing_ialea() );
     int          Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -133,8 +133,8 @@ testing_zherk_std( run_arg_list_t *args, int check )
     double       alpha = testing_dalea();
     double       beta  = testing_dalea();
     double       bump  = testing_dalea();
-    int          seedA = run_arg_get_int( args, "seedA", random() );
-    int          seedC = run_arg_get_int( args, "seedC", random() );
+    int          seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int          seedC = run_arg_get_int( args, "seedC", testing_ialea() );
 
 
     /* Descriptors */
@@ -170,7 +170,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
                  alpha, A, LDA, beta, C, LDC );
-    testing_stop( &test_data, flops_zherk( N, K ) );
+    testing_stop( &test_data, flops_zherk( K, N ) );
 #else
     testing_start( &test_data );
     switch ( api ) {
@@ -189,7 +189,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
         return -1;
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zherk( N, K ) );
+    testing_stop( &test_data, flops_zherk( K, N ) );
 
     /* Checks the solution */
     if ( check ) {

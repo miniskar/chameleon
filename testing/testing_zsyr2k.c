@@ -48,9 +48,9 @@ testing_zsyr2k_desc( run_arg_list_t *args, int check )
     int          LDC    = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   seedC = run_arg_get_int( args, "seedC", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    int                   seedC = run_arg_get_int( args, "seedC", testing_ialea() );
     double                bump  = testing_dalea();
     int                   Q     = parameters_compute_q( P );
 
@@ -100,7 +100,7 @@ testing_zsyr2k_desc( run_arg_list_t *args, int check )
         hres = CHAMELEON_zsyr2k_Tile( uplo, trans, alpha, descA, descB, beta, descC );
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zher2k( K, N ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 
     /* Check the solution */
     if ( check ) {
@@ -140,9 +140,9 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     int                   LDC   = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
-    int                   seedB = run_arg_get_int( args, "seedB", random() );
-    int                   seedC = run_arg_get_int( args, "seedC", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int                   seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    int                   seedC = run_arg_get_int( args, "seedC", testing_ialea() );
     double                bump  = testing_dalea();
 
     /* Descriptors */
@@ -184,7 +184,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     cblas_zsyr2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
                   CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
-    testing_stop( &test_data, flops_zher2k( N, K ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 #else
     testing_start( &test_data );
     switch ( api ) {
@@ -203,7 +203,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
         return -1;
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zher2k( N, K ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 
     /* Check the solution */
     if ( check ) {

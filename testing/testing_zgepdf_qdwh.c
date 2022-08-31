@@ -44,7 +44,7 @@ testing_zgepdf_qdwh_desc( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int      Q      = parameters_compute_q( P );
     double   cond   = run_arg_get_double( args, "cond", 1.e16 );
     int      mode   = run_arg_get_int( args, "mode", 4 );
@@ -86,9 +86,9 @@ testing_zgepdf_qdwh_desc( run_arg_list_t *args, int check )
     if ( hres != 0 ) {
         return hres;
     }
-    /* 
-     * descA0 is defined here because of the cost of zlatms. To copy descA in descA0 
-     * now prevents to call it again later in the check (indeed descA is modified 
+    /*
+     * descA0 is defined here because of the cost of zlatms. To copy descA in descA0
+     * now prevents to call it again later in the check (indeed descA is modified
      * with the call to CHAMELEON_zgepdf_qdwh_Tile[_Async]).
      */
     if ( check ) {
@@ -137,7 +137,7 @@ testing_zgepdf_qdwh_std( run_arg_list_t *args, int check )
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     double   cond   = run_arg_get_double( args, "cond", 1.e16 );
     int      mode   = run_arg_get_int( args, "mode", 4 );
     int      runtime;
@@ -167,12 +167,14 @@ testing_zgepdf_qdwh_std( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     hres = CHAMELEON_zlatms( M, N, ChamDistUniform, seedA, ChamNonsymPosv, NULL, mode, cond, 1., A, LDA );
     if ( hres != 0 ) {
+        free( A );
+        free( H );
         return hres;
     }
-    /* 
-     * A0 is defined here because of the cost of zlatms. To copy A in A0 
-     * now prevents to call it again later in the check (indeed A is modified 
-     * with the call to CHAMELEON_zgepdf_qdwh). 
+    /*
+     * A0 is defined here because of the cost of zlatms. To copy A in A0
+     * now prevents to call it again later in the check (indeed A is modified
+     * with the call to CHAMELEON_zgepdf_qdwh).
      */
     if ( check ) {
         A0 = malloc( LDA*N*sizeof(CHAMELEON_Complex64_t) );

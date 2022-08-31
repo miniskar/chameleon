@@ -38,8 +38,8 @@ testing_zgetrs_nopiv_desc( run_arg_list_t *args, int check )
     int      NRHS   = run_arg_get_int( args, "NRHS", 1 );
     int      LDA    = run_arg_get_int( args, "LDA", N );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
-    int      seedB  = run_arg_get_int( args, "seedB", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int      seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
     double   bump   = run_arg_get_double( args, "bump", (double)N );
     int      Q      = parameters_compute_q( P );
 
@@ -110,8 +110,8 @@ testing_zgetrs_nopiv_std( run_arg_list_t *args, int check )
     int      NRHS   = run_arg_get_int( args, "NRHS", 1 );
     int      LDA    = run_arg_get_int( args, "LDA", N );
     int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
-    int      seedB  = run_arg_get_int( args, "seedB", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    int      seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
     double   bump   = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */

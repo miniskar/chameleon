@@ -66,7 +66,7 @@ testing_zlascal_desc( run_arg_list_t *args, int check )
     int                   M      = run_arg_get_int( args, "M", N );
     int                   LDA    = run_arg_get_int( args, "LDA", M );
     CHAMELEON_Complex64_t alpha  = run_arg_get_complex64( args, "alpha", 1. );
-    int                   seedA  = run_arg_get_int( args, "seedA", random() );
+    int                   seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int                   Q      = parameters_compute_q( P );
 
     /* Descriptors */
@@ -123,7 +123,7 @@ testing_zlascal_std( run_arg_list_t *args, int check )
     int                   M     = run_arg_get_int( args, "M", N );
     int                   LDA   = run_arg_get_int( args, "LDA", M );
     CHAMELEON_Complex64_t alpha = run_arg_get_complex64( args, "alpha", 1. );
-    int                   seedA = run_arg_get_int( args, "seedA", random() );
+    int                   seedA = run_arg_get_int( args, "seedA", testing_ialea() );
 
     /* Descriptors */
     CHAMELEON_Complex64_t *A;

@@ -165,6 +165,8 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
         A = (CHAMELEON_Complex64_t *)malloc((size_t)(LDA) * (size_t)(N) * sizeof(CHAMELEON_Complex64_t));
         B = (CHAMELEON_Complex64_t *)malloc((size_t)(LDB) * (size_t)(N) * sizeof(CHAMELEON_Complex64_t));
         if ( (A == NULL) || (B == NULL) ) {
+            free( A );
+            free( B );
             return CHAMELEON_ERR_OUT_OF_RESOURCES;
         }
     }
@@ -175,8 +177,8 @@ int check_zmatrices( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA,
 
     if ( rank == 0 ) {
         info_solution = check_zmatrices_std( args, uplo, M, N, A, LDA, B, LDB );
-        free(A);
-        free(B);
+        free( A );
+        free( B );
     }
 
     /* Broadcasts the result from the main processus */

@@ -52,7 +52,7 @@ testing_zgenm2_desc( run_arg_list_t *args, int check )
     int      N      = run_arg_get_int( args, "N", 1000 );
     int      M      = run_arg_get_int( args, "M", N );
     int      LDA    = run_arg_get_int( args, "LDA", M );
-    int      seedA  = run_arg_get_int( args, "seedA", random() );
+    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     int      Q      = parameters_compute_q( P );
     int      minMN  = chameleon_min( M, N );
     double   cond   = run_arg_get_double( args, "cond", 1.e16 );
@@ -136,7 +136,7 @@ testing_zgenm2_std( run_arg_list_t *args, int check )
     int    N     = run_arg_get_int( args, "N", 1000 );
     int    M     = run_arg_get_int( args, "M", N );
     int    LDA   = run_arg_get_int( args, "LDA", M );
-    int    seedA = run_arg_get_int( args, "seedA", random() );
+    int    seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     int    minMN = chameleon_min( M, N );
     double cond  = run_arg_get_double( args, "cond", 1.e16 );
     int    mode  = run_arg_get_int( args, "mode", 4 );

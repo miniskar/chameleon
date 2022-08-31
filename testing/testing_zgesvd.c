@@ -71,7 +71,7 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     int        M      = run_arg_get_int( args, "M", N );
     int        K      = chameleon_min( M, N );
     int        LDA    = run_arg_get_int( args, "LDA", M );
-    int        seedA  = run_arg_get_int( args, "seedA", random() );
+    int        seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
     double     cond   = run_arg_get_double( args, "cond", 1.e16 );
     int        mode   = run_arg_get_int( args, "mode", 4 );
     int        Q      = parameters_compute_q( P );
@@ -126,6 +126,10 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     hres = CHAMELEON_zlatms_Tile( ChamDistUniform, seedA, ChamNonsymPosv, D, mode, cond, 1., descA );
     if ( hres != 0 ) {
+        free( D );
+        free( S );
+        free( U );
+        free( Vt );
         return hres;
     }
     /*
@@ -153,7 +157,6 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-
         hres += check_zgesvd( args, jobu, jobvt, descA0, descA, D, S, U, LDU, Vt, LDVt );
         CHAMELEON_Desc_Destroy( &descA0 );
     }
@@ -162,12 +165,8 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     free( S );
     free( D );
-    if ( (jobu  == ChamAllVec) || (jobu  == ChamSVec) ) {
-        free( U );
-    }
-    if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
-        free( Vt );
-    }
+    free( U );
+    free( Vt );
 
     return hres;
 }
@@ -184,7 +183,7 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     int        M     = run_arg_get_int( args, "M", N );
     int        K     = chameleon_min( M, N );
     int        LDA   = run_arg_get_int( args, "LDA", M );
-    int        seedA = run_arg_get_int( args, "seedA", random() );
+    int        seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     double     cond  = run_arg_get_double( args, "cond", 1.e16 );
     int        mode  = run_arg_get_int( args, "mode", 4 );
     cham_job_t jobu  = run_arg_get_job( args, "jobu", ChamNoVec );
