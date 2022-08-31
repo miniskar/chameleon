@@ -757,7 +757,7 @@ void CHAMELEON_ZGETRS_NOPIV_TILE_ASYNC(CHAM_desc_t *A, CHAM_desc_t *B, RUNTIME_s
 
 #if defined(PRECISION_z) || defined(PRECISION_c)
 void CHAMELEON_ZHEMM_TILE_ASYNC(cham_side_t *side, cham_uplo_t *uplo, CHAMELEON_Complex64_t *alpha, CHAM_desc_t *A, CHAM_desc_t *B, CHAMELEON_Complex64_t *beta, CHAM_desc_t *C, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request, int *info)
-{ *info = CHAMELEON_zhemm_Tile_Async(*side, *uplo, *alpha, A, B, *beta, C, sequence, request); }
+{ *info = CHAMELEON_zhemm_Tile_Async(*side, *uplo, *alpha, A, B, *beta, C, NULL, sequence, request); }
 #endif
 
 #if defined(PRECISION_z) || defined(PRECISION_c)

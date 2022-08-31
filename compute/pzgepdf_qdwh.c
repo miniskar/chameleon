@@ -818,7 +818,7 @@ chameleon_pzgepdf_qdwh( cham_mtxtype_t mtxtype, CHAM_desc_t *descU, CHAM_desc_t 
     switch( mtxtype ) {
 #if defined(PRECISION_z) || defined(PRECISION_c)
     case ChamHermitian:
-        chameleon_pzhemm( ChamRight, ChamUpper,
+        chameleon_pzhemm( gemm_ws, ChamRight, ChamUpper,
                           1., descU, &descA,
                           0., descH, sequence, request );
         if ( info ) {

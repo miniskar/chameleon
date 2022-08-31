@@ -561,39 +561,22 @@ static inline void
 chameleon_pzhemm_summa( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t uplo,
                         CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                         CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                        CHAM_desc_t *WA, CHAM_desc_t *WB,
                         RUNTIME_option_t *options )
 {
     RUNTIME_sequence_t *sequence = options->sequence;
-    CHAM_desc_t WA, WB;
-    int lookahead;
-
-    lookahead = chamctxt->lookahead;
-    chameleon_desc_init( &WA, CHAMELEON_MAT_ALLOC_TILE,
-                         ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
-                         C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
-                         C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
-                         NULL, NULL, NULL );
-    chameleon_desc_init( &WB, CHAMELEON_MAT_ALLOC_TILE,
-                         ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
-                         C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
-                         C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
-                         NULL, NULL, NULL );
 
     if (side == ChamLeft) {
         chameleon_pzhemm_summa_left( chamctxt, uplo, alpha, A, B, beta, C,
-                                     &WA, &WB, options );
+                                     WA, WB, options );
     }
     else {
         chameleon_pzhemm_summa_right( chamctxt, uplo, alpha, A, B, beta, C,
-                                      &WA, &WB, options );
+                                      WA, WB, options );
     }
 
-    RUNTIME_desc_flush( &WA, sequence );
-    RUNTIME_desc_flush( &WB, sequence );
-    RUNTIME_desc_flush(  C,  sequence );
-    chameleon_sequence_wait( chamctxt, sequence );
-    chameleon_desc_destroy( &WA );
-    chameleon_desc_destroy( &WB );
+    CHAMELEON_Desc_Flush( WA, sequence );
+    CHAMELEON_Desc_Flush( WB, sequence );
 }
 
 /**
@@ -781,13 +764,15 @@ chameleon_pzhemm_generic( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_
  *  Parallel tile hermitian matrix-matrix multiplication. wrapper.
  */
 void
-chameleon_pzhemm( cham_side_t side, cham_uplo_t uplo,
+chameleon_pzhemm( struct chameleon_pzgemm_s *ws,
+                  cham_side_t side, cham_uplo_t uplo,
                   CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
                   CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
                   RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
+    cham_gemm_t alg = (ws != NULL) ? ws->alg : ChamGemmAlgGeneric;
 
     chamctxt = chameleon_context_self();
     if (sequence->status != CHAMELEON_SUCCESS) {
@@ -795,15 +780,26 @@ chameleon_pzhemm( cham_side_t side, cham_uplo_t uplo,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    if ( ((C->p > 1) || (C->q > 1)) &&
-         (C->get_rankof == chameleon_getrankof_2d) &&
-         (chamctxt->generic_enabled != CHAMELEON_TRUE) )
-    {
-        chameleon_pzhemm_summa(   chamctxt, side, uplo, alpha, A, B, beta, C, &options );
-    }
-    else
-    {
+    switch( alg ) {
+    case ChamGemmAlgAuto:
+    case ChamGemmAlgSummaB: /* Switch back to generic since it does not exist yet. */
+    case ChamGemmAlgGeneric:
         chameleon_pzhemm_generic( chamctxt, side, uplo, alpha, A, B, beta, C, &options );
+        break;
+
+    case ChamGemmAlgSummaC:
+        chameleon_pzhemm_summa( chamctxt, side, uplo, alpha, A, B, beta, C,
+                                &(ws->WA), &(ws->WB), &options );
+        break;
+
+    case ChamGemmAlgSummaA:
+        if ( side == ChamLeft ) {
+            chameleon_pzhemm_Astat( chamctxt, side, uplo, alpha, A, B, beta, C, &options );
+        }
+        else {
+            chameleon_pzhemm_generic( chamctxt, side, uplo, alpha, A, B, beta, C, &options );
+        }
+        break;
     }
 
     RUNTIME_options_finalize( &options, chamctxt );

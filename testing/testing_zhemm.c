@@ -57,6 +57,7 @@ testing_zhemm_desc( run_arg_list_t *args, int check )
     /* Descriptors */
     int          Am;
     CHAM_desc_t *descA, *descB, *descC, *descCinit;
+    void        *ws = NULL;
 
     bump  = run_arg_get_double( args, "bump", bump );
     alpha = run_arg_get_complex64( args, "alpha", alpha );
@@ -85,11 +86,15 @@ testing_zhemm_desc( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descB, seedB );
     CHAMELEON_zplrnt_Tile( descC, seedC );
 
+    if ( async ) {
+        ws = CHAMELEON_zhemm_WS_Alloc( side, uplo, descA, descB, descC );
+    }
+
     /* Calculates the product */
     testing_start( &test_data );
     if ( async ) {
         hres = CHAMELEON_zhemm_Tile_Async( side, uplo, alpha, descA, descB, beta, descC,
-                                           test_data.sequence, &test_data.request );
+                                           ws, test_data.sequence, &test_data.request );
         CHAMELEON_Desc_Flush( descA, test_data.sequence );
         CHAMELEON_Desc_Flush( descB, test_data.sequence );
         CHAMELEON_Desc_Flush( descC, test_data.sequence );
@@ -99,6 +104,10 @@ testing_zhemm_desc( run_arg_list_t *args, int check )
     }
     test_data.hres = hres;
     testing_stop( &test_data, flops_zhemm( side, M, N ) );
+
+    if ( ws != NULL ) {
+        CHAMELEON_zhemm_WS_Free( ws );
+    }
 
     /* Checks the solution */
     if ( check ) {
