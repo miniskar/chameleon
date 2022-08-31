@@ -170,7 +170,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     cblas_zherk( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
                  alpha, A, LDA, beta, C, LDC );
-    testing_stop( &test_data, flops_zherk( N, K ) );
+    testing_stop( &test_data, flops_zherk( K, N ) );
 #else
     testing_start( &test_data );
     switch ( api ) {
@@ -189,7 +189,7 @@ testing_zherk_std( run_arg_list_t *args, int check )
         return -1;
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zherk( N, K ) );
+    testing_stop( &test_data, flops_zherk( K, N ) );
 
     /* Checks the solution */
     if ( check ) {
