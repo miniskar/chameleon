@@ -100,7 +100,7 @@ testing_zsyr2k_desc( run_arg_list_t *args, int check )
         hres = CHAMELEON_zsyr2k_Tile( uplo, trans, alpha, descA, descB, beta, descC );
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zher2k( K, N ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 
     /* Check the solution */
     if ( check ) {
@@ -184,7 +184,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
     testing_start( &test_data );
     cblas_zsyr2k( CblasColMajor, (CBLAS_UPLO)uplo, (CBLAS_TRANSPOSE)trans, N, K,
                   CBLAS_SADDR(alpha), A, LDA, B, LDB, CBLAS_SADDR(beta), C, LDC );
-    testing_stop( &test_data, flops_zher2k( N, K ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 #else
     testing_start( &test_data );
     switch ( api ) {
@@ -203,7 +203,7 @@ testing_zsyr2k_std( run_arg_list_t *args, int check )
         return -1;
     }
     test_data.hres = hres;
-    testing_stop( &test_data, flops_zher2k( N, K ) );
+    testing_stop( &test_data, flops_zsyr2k( K, N ) );
 
     /* Check the solution */
     if ( check ) {
