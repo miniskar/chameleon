@@ -126,6 +126,10 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     hres = CHAMELEON_zlatms_Tile( ChamDistUniform, seedA, ChamNonsymPosv, D, mode, cond, 1., descA );
     if ( hres != 0 ) {
+        free( D );
+        free( S );
+        free( U );
+        free( Vt );
         return hres;
     }
     /*
@@ -153,7 +157,6 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-
         hres += check_zgesvd( args, jobu, jobvt, descA0, descA, D, S, U, LDU, Vt, LDVt );
         CHAMELEON_Desc_Destroy( &descA0 );
     }
@@ -162,12 +165,8 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     CHAMELEON_Desc_Destroy( &descT );
     free( S );
     free( D );
-    if ( (jobu  == ChamAllVec) || (jobu  == ChamSVec) ) {
-        free( U );
-    }
-    if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
-        free( Vt );
-    }
+    free( U );
+    free( Vt );
 
     return hres;
 }
