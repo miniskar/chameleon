@@ -29,6 +29,8 @@
 #include <starpu_fxt.h>
 #endif
 
+static int starpu_initialized = 0;
+
 /**
  *
  */
@@ -56,7 +58,7 @@ static int chameleon_starpu_init( starpu_conf_t *conf )
         if (rc < 0) {
             return CHAMELEON_ERR_NOT_INITIALIZED;
         }
-        starpu_mpi_init(NULL, NULL, !flag);
+        rc = starpu_mpi_init(NULL, NULL, !flag);
 #  endif
     }
 #else
@@ -143,6 +145,12 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
         chamctxt->nthreads_per_worker = nthreads_per_worker;
     }
 
+    if ( hres != CHAMELEON_SUCCESS ) {
+        return hres;
+    }
+
+    starpu_initialized = 1;
+
 #ifdef HAVE_STARPU_MALLOC_ON_NODE_SET_DEFAULT_FLAGS
     starpu_malloc_on_node_set_default_flags(STARPU_MAIN_RAM, STARPU_MALLOC_PINNED | STARPU_MALLOC_COUNT
 #ifdef STARPU_MALLOC_SIMULATION_FOLDED
@@ -165,10 +173,8 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
  */
 void RUNTIME_finalize( CHAM_context_t *chamctxt )
 {
-    (void)chamctxt;
-
-    /* StarPU was already initialized by an external library */
-    if ( chamctxt->schedopt == NULL ) {
+    /* StarPU was already initialized by an external library or was not successfully initialized: */
+    if ( (chamctxt->schedopt == NULL) || !starpu_initialized ) {
         return;
     }
 
