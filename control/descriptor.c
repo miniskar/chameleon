@@ -100,10 +100,11 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc )
         for( ii=0; ii<desc->lmt; ii++, tile++ ) {
             int rank = desc->get_rankof( desc, ii, jj );
             tile->format = CHAMELEON_TILE_FULLRANK;
-            tile->m   = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
-            tile->n   = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
-            tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
-            tile->ld  = desc->get_blkldd( desc, ii );
+            tile->rank   = rank;
+            tile->m      = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
+            tile->n      = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
+            tile->mat    = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
+            tile->ld     = desc->get_blkldd( desc, ii );
 #if defined(CHAMELEON_KERNELS_TRACE)
             chameleon_asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj );
 #endif

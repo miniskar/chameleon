@@ -39,9 +39,9 @@ typedef struct chameleon_tile_s {
 #if defined(CHAMELEON_KERNELS_TRACE)
     char  *name;
 #endif
-    int8_t format;
-    int    m, n, ld;
     void  *mat;
+    int    rank, m, n, ld;
+    int8_t format;
 } CHAM_tile_t;
 
 /**
