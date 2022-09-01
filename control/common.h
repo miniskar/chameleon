@@ -119,19 +119,19 @@ void chameleon_pclag2z(CHAM_context_t *chamctxt);
 */
 
 #if defined(__GNUC__)
-static inline void chameleon_asprintf( char **strp, const char *fmt, ... ) __attribute__((format(printf,2,3)));
+static inline int chameleon_asprintf( char **strp, const char *fmt, ... ) __attribute__((format(printf,2,3)));
 #endif
-static inline void chameleon_asprintf( char **strp, const char *fmt, ... )
+static inline int chameleon_asprintf( char **strp, const char *fmt, ... )
 {
     va_list ap;
     int rc;
 
     va_start( ap, fmt );
     rc = asprintf( strp, fmt, ap );
-    va_end(ap);
+    va_end( ap );
 
     assert( rc != -1 );
-    (void)rc;
+    return rc;
 }
 
 #ifdef __cplusplus
