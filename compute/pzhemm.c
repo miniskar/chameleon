@@ -152,7 +152,7 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                         else {
                             INSERT_TASK_zgemm_Astat(
                                 options,
-                                ChamTrans, ChamNoTrans,
+                                ChamConjTrans, ChamNoTrans,
                                 tempmm, tempnn, tempkm, A->mb,
                                 alpha, A(k, m),  /* ldak * X */
                                        B(k, n),  /* ldb  * Y */
@@ -170,7 +170,7 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                         if (k < m) {
                             INSERT_TASK_zgemm_Astat(
                                 options,
-                                ChamTrans, ChamNoTrans,
+                                ChamConjTrans, ChamNoTrans,
                                 tempmm, tempnn, tempkm, A->mb,
                                 alpha, A(k, m),  /* ldak * X */
                                        B(k, n),  /* ldb  * Y */
@@ -208,7 +208,7 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                         if (k < n) {
                             INSERT_TASK_zgemm_Astat(
                                 options,
-                                ChamNoTrans, ChamTrans,
+                                ChamNoTrans, ChamConjTrans,
                                 tempmm, tempnn, tempkn, A->mb,
                                 alpha, B(m, k),  /* ldb * K */
                                        A(n, k),  /* lda * K */
@@ -262,7 +262,7 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
                         else {
                             INSERT_TASK_zgemm_Astat(
                                 options,
-                                ChamNoTrans, ChamTrans,
+                                ChamNoTrans, ChamConjTrans,
                                 tempmm, tempnn, tempkn, A->mb,
                                 alpha, B(m, k),  /* ldb * K */
                                        A(n, k),  /* lda * K */
