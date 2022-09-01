@@ -24,15 +24,15 @@
  */
 #include "control/common.h"
 
-#define A(m, n) A,  m,  n
-#define B(m, n) B,  m,  n
-#define C(m, n) C,  m,  n
-#define WA(m, n) WA,  m,  n
-#define WB(m, n) WB,  m,  n
+#define A(  _m_, _n_ ) A,  (_m_), (_n_)
+#define B(  _m_, _n_ ) B,  (_m_), (_n_)
+#define C(  _m_, _n_ ) C,  (_m_), (_n_)
+#define WA( _m_, _n_ ) WA, (_m_), (_n_)
+#define WB( _m_, _n_ ) WB, (_m_), (_n_)
 
 /**
  *  Parallel tile matrix-matrix multiplication.
- *  Generic algorithm for any data distribution.
+ *  Generic algorithm for any data distribution with a stationnary A.
  */
 static inline void
 chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_trans_t transB,

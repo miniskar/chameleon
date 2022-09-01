@@ -29,6 +29,181 @@
  *
  * @ingroup CHAMELEON_Complex64_t
  *
+ * @brief Allocate the required workspaces for asynchronous symm
+ *
+ *******************************************************************************
+ *
+ * @param[in] side
+ *          Specifies whether the symmetric matrix A appears on the
+ *          left or right in the operation as follows:
+ *          = ChamLeft:      \f[ C = \alpha \times A \times B + \beta \times C \f]
+ *          = ChamRight:     \f[ C = \alpha \times B \times A + \beta \times C \f]
+ *
+ * @param[in] uplo
+ *          Specifies whether the upper or lower triangular part of
+ *          the symmetric matrix A is to be referenced as follows:
+ *          = ChamLower: Only the lower triangular part of the
+ *                symmetric matrix A is to be referenced.
+ *          = ChamUpper: Only the upper triangular part of the
+ *                symmetric matrix A is to be referenced.
+ *
+ * @param[in] A
+ *          The descriptor of the matrix A.
+ *
+ * @param[in] B
+ *          The descriptor of the matrix B.
+ *
+ * @param[in] C
+ *          The descriptor of the matrix C.
+ *
+ *******************************************************************************
+ *
+ * @retval An allocated opaque pointer to use in CHAMELEON_zsymm_Tile_Async()
+ * and to free with CHAMELEON_zsymm_WS_Free().
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zsymm_Tile_Async
+ * @sa CHAMELEON_zsymm_WS_Free
+ *
+ */
+void *CHAMELEON_zsymm_WS_Alloc( cham_side_t        side __attribute__((unused)),
+                                cham_uplo_t        uplo __attribute__((unused)),
+                                const CHAM_desc_t *A,
+                                const CHAM_desc_t *B,
+                                const CHAM_desc_t *C )
+{
+    CHAM_context_t *chamctxt;
+    struct chameleon_pzgemm_s *options;
+
+    chamctxt = chameleon_context_self();
+    if ( chamctxt == NULL ) {
+        return NULL;
+    }
+
+    options = calloc( 1, sizeof(struct chameleon_pzgemm_s) );
+    options->alg = ChamGemmAlgAuto;
+
+    /*
+     * If only one process, or if generic has been globally enforced, we switch
+     * to generic immediately.
+     */
+    if ( ((C->p == 1) && (C->q == 1)) ||
+         (chamctxt->generic_enabled == CHAMELEON_TRUE) )
+    {
+        options->alg = ChamGemmAlgGeneric;
+    }
+
+    /* Look at environment variable is something enforces the variant. */
+    if ( options->alg == ChamGemmAlgAuto )
+    {
+        char *algostr = chameleon_getenv( "CHAMELEON_GEMM_ALGO" );
+
+        if ( algostr ) {
+            if ( strcasecmp( algostr, "summa_c" ) == 0 ) {
+                options->alg = ChamGemmAlgSummaC;
+            }
+            else if ( strcasecmp( algostr, "summa_a" ) == 0  ) {
+                options->alg = ChamGemmAlgSummaA;
+            }
+            else if ( strcasecmp( algostr, "summa_b" ) == 0  ) {
+                options->alg = ChamGemmAlgSummaB;
+            }
+            else if ( strcasecmp( algostr, "generic" ) == 0  ) {
+                options->alg = ChamGemmAlgGeneric;
+            }
+            else if ( strcasecmp( algostr, "auto" ) == 0  ) {
+                options->alg = ChamGemmAlgAuto;
+            }
+            else {
+                fprintf( stderr, "ERROR: CHAMELEON_GEMM_ALGO is not one of AUTO, SUMMA_A, SUMMA_B, SUMMA_C, GENERIC => Switch back to Automatic switch\n" );
+            }
+        }
+        chameleon_cleanenv( algostr );
+    }
+
+    /* Perform automatic choice if not already enforced. */
+    if ( options->alg == ChamGemmAlgAuto )
+    {
+        double sizeA, sizeB, sizeC;
+        double ratio = 1.5; /* Arbitrary ratio to give more weight to writes wrt reads. */
+
+        /* Compute the average array per node for each matrix */
+        sizeA = ((double)A->m * (double)A->n) / (double)(A->p * A->q);
+        sizeB = ((double)B->m * (double)B->n) / (double)(B->p * B->q);
+        sizeC = ((double)C->m * (double)C->n) / (double)(C->p * C->q) * ratio;
+
+        if ( (sizeC > sizeA) && (sizeC > sizeB) ) {
+            options->alg = ChamGemmAlgSummaC;
+        }
+        else {
+            if ( sizeA > sizeB ) {
+                options->alg = ChamGemmAlgSummaA;
+            }
+            else {
+                options->alg = ChamGemmAlgSummaB;
+            }
+        }
+    }
+
+    assert( options->alg != ChamGemmAlgAuto );
+
+    /* Now that we have decided which algorithm, let's allocate the required data structures. */
+    if ( (options->alg == ChamGemmAlgSummaC ) &&
+         (C->get_rankof == chameleon_getrankof_2d ) )
+    {
+        int lookahead = chamctxt->lookahead;
+
+        chameleon_desc_init( &(options->WA), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
+                             C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
+                             C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
+                             NULL, NULL, NULL );
+        chameleon_desc_init( &(options->WB), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
+                             C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
+                             C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
+                             NULL, NULL, NULL );
+    }
+
+    return (void*)options;
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
+ * @brief Free the allocated workspaces for asynchronous symm
+ *
+ *******************************************************************************
+ *
+ * @param[in,out] user_ws
+ *          On entry, the opaque pointer allocated by CHAMELEON_zsymm_WS_Alloc()
+ *          On exit, all data are freed.
+ *
+ *******************************************************************************
+ *
+ * @sa CHAMELEON_zsymm_Tile_Async
+ * @sa CHAMELEON_zsymm_WS_Alloc
+ *
+ */
+void CHAMELEON_zsymm_WS_Free( void *user_ws )
+{
+    struct chameleon_pzgemm_s *ws = (struct chameleon_pzgemm_s*)user_ws;
+
+    if ( ws->alg == ChamGemmAlgSummaC ) {
+        chameleon_desc_destroy( &(ws->WA) );
+        chameleon_desc_destroy( &(ws->WB) );
+    }
+    free( ws );
+}
+
+/**
+ ********************************************************************************
+ *
+ * @ingroup CHAMELEON_Complex64_t
+ *
  *  CHAMELEON_zsymm - Performs one of the matrix-matrix operations
  *
  *     \f[ C = \alpha \times A \times B + \beta \times C \f]
@@ -102,9 +277,9 @@
  *
  */
 int CHAMELEON_zsymm( cham_side_t side, cham_uplo_t uplo, int M, int N,
-                 CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                 CHAMELEON_Complex64_t *B, int LDB,
-                 CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *C, int LDC )
+                     CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
+                                                  CHAMELEON_Complex64_t *B, int LDB,
+                     CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *C, int LDC )
 {
     int NB;
     int Am;
@@ -115,6 +290,7 @@ int CHAMELEON_zsymm( cham_side_t side, cham_uplo_t uplo, int M, int N,
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -179,7 +355,8 @@ int CHAMELEON_zsymm( cham_side_t side, cham_uplo_t uplo, int M, int N,
                      C, NB, NB, LDC, N, M,  N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zsymm_Tile_Async(  side, uplo, alpha, &descAt, &descBt, beta, &descCt, sequence, &request );
+    ws = CHAMELEON_zsymm_WS_Alloc( side, uplo, &descAt, &descBt, &descCt );
+    CHAMELEON_zsymm_Tile_Async( side, uplo, alpha, &descAt, &descBt, beta, &descCt, ws, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -192,6 +369,7 @@ int CHAMELEON_zsymm( cham_side_t side, cham_uplo_t uplo, int M, int N,
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
+    CHAMELEON_zsymm_WS_Free( ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
     chameleon_ztile2lap_cleanup( chamctxt, &descBl, &descBt );
     chameleon_ztile2lap_cleanup( chamctxt, &descCl, &descCt );
@@ -260,13 +438,14 @@ int CHAMELEON_zsymm( cham_side_t side, cham_uplo_t uplo, int M, int N,
  *
  */
 int CHAMELEON_zsymm_Tile( cham_side_t side, cham_uplo_t uplo,
-                      CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                      CHAMELEON_Complex64_t beta,  CHAM_desc_t *C )
+                          CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                          CHAMELEON_Complex64_t beta,  CHAM_desc_t *C )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
     int status;
+    void *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -275,13 +454,16 @@ int CHAMELEON_zsymm_Tile( cham_side_t side, cham_uplo_t uplo,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_zsymm_Tile_Async(side, uplo, alpha, A, B, beta, C, sequence, &request );
+    ws = CHAMELEON_zsymm_WS_Alloc( side, uplo, A, B, C );
+    CHAMELEON_zsymm_Tile_Async( side, uplo, alpha, A, B, beta, C, ws, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
     CHAMELEON_Desc_Flush( B, sequence );
     CHAMELEON_Desc_Flush( C, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
+    CHAMELEON_zsymm_WS_Free( ws );
+
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
     return status;
@@ -316,11 +498,13 @@ int CHAMELEON_zsymm_Tile( cham_side_t side, cham_uplo_t uplo,
  *
  */
 int CHAMELEON_zsymm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
-                            CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                            CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
-                            RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
+                                CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                                CHAMELEON_Complex64_t beta,  CHAM_desc_t *C,
+                                void *user_ws,
+                                RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
+    struct chameleon_pzgemm_s *ws;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -391,16 +575,6 @@ int CHAMELEON_zsymm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
     }
 
     /* Check submatrix starting point */
-    /* if ( (B->i != C->i) || (B->j != C->j) ) { */
-    /*     chameleon_error("CHAMELEON_zsymm_Tile_Async", "B and C submatrices doesn't match"); */
-    /*     return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
-    /* } */
-    /* if ( (A->i != A->j) ||  */
-    /*          ( (side == ChamLeft)  && (A->i != B->i ) ) ||  */
-    /*          ( (side == ChamRight) && (A->i != B->j ) ) ) { */
-    /*     chameleon_error("CHAMELEON_zsymm_Tile_Async", "Submatrix A must start on diagnonal and match submatrices B and C."); */
-    /*     return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE); */
-    /* } */
     if( (A->i != 0) || (A->j != 0) ||
         (B->i != 0) || (B->j != 0) ||
         (C->i != 0) || (C->j != 0) ) {
@@ -415,7 +589,21 @@ int CHAMELEON_zsymm_Tile_Async( cham_side_t side, cham_uplo_t uplo,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pzsymm( side, uplo, alpha, A, B, beta, C, sequence, request );
+    if ( user_ws == NULL ) {
+        ws = CHAMELEON_zsymm_WS_Alloc( side, uplo, A, B, C );
+    }
+    else {
+        ws = user_ws;
+    }
 
+    chameleon_pzsymm( ws, side, uplo, alpha, A, B, beta, C, sequence, request );
+
+    if ( user_ws == NULL ) {
+        CHAMELEON_Desc_Flush( A, sequence );
+        CHAMELEON_Desc_Flush( B, sequence );
+        CHAMELEON_Desc_Flush( C, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        CHAMELEON_zsymm_WS_Free( ws );
+    }
     return CHAMELEON_SUCCESS;
 }

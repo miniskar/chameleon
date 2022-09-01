@@ -90,8 +90,8 @@
  */
 void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)),
                                 cham_trans_t       transB __attribute__((unused)),
-                                const CHAM_desc_t *A      __attribute__((unused)),
-                                const CHAM_desc_t *B      __attribute__((unused)),
+                                const CHAM_desc_t *A,
+                                const CHAM_desc_t *B,
                                 const CHAM_desc_t *C )
 {
     CHAM_context_t *chamctxt;
@@ -301,7 +301,7 @@ void CHAMELEON_zgemm_WS_Free( void *user_ws )
  */
 int CHAMELEON_zgemm( cham_trans_t transA, cham_trans_t transB, int M, int N, int K,
                      CHAMELEON_Complex64_t alpha, CHAMELEON_Complex64_t *A, int LDA,
-                     CHAMELEON_Complex64_t *B, int LDB,
+                                                  CHAMELEON_Complex64_t *B, int LDB,
                      CHAMELEON_Complex64_t beta,  CHAMELEON_Complex64_t *C, int LDC )
 {
     int NB;
@@ -496,7 +496,6 @@ int CHAMELEON_zgemm_Tile( cham_trans_t transA, cham_trans_t transB,
     CHAMELEON_Desc_Flush( C, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
-
     CHAMELEON_zgemm_WS_Free( ws );
 
     status = sequence->status;
