@@ -80,6 +80,8 @@ struct chameleon_desc_s {
     blkldd_fct_t    get_blkldd;
     // function to get chameleon tiles MPI rank
     blkrankof_fct_t get_rankof;
+    // function to get chameleon tiles MPI rank
+    blkrankof_fct_t get_rankof_init;
     CHAM_tile_t *tiles; // pointer to the array of tiles descriptors
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21
