@@ -88,22 +88,24 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
     return CHAMELEON_SUCCESS;
 }
 
-void chameleon_desc_init_tiles( CHAM_desc_t *desc )
+void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
 {
     CHAM_tile_t *tile;
     int ii, jj;
 
+    assert( rankof != chameleon_getrankof_tile );
     desc->tiles = malloc( desc->lmt * desc->lnt * sizeof(CHAM_tile_t) );
 
     tile = desc->tiles;
     for( jj=0; jj<desc->lnt; jj++ ) {
         for( ii=0; ii<desc->lmt; ii++, tile++ ) {
-            int rank = desc->get_rankof( desc, ii, jj );
+            int rank = rankof( desc, ii, jj );
             tile->format = CHAMELEON_TILE_FULLRANK;
-            tile->m   = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
-            tile->n   = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
-            tile->mat = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
-            tile->ld  = desc->get_blkldd( desc, ii );
+            tile->rank   = rank;
+            tile->m      = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
+            tile->n      = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
+            tile->mat    = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
+            tile->ld     = desc->get_blkldd( desc, ii );
 #if defined(CHAMELEON_KERNELS_TRACE)
             chameleon_asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj );
 #endif
@@ -215,7 +217,8 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
     desc->get_blktile = chameleon_desc_gettile;
     desc->get_blkaddr = get_blkaddr ? get_blkaddr : chameleon_getaddr_ccrb;
     desc->get_blkldd  = get_blkldd  ? get_blkldd  : chameleon_getblkldd_ccrb;
-    desc->get_rankof  = get_rankof  ? get_rankof  : chameleon_getrankof_2d;
+    desc->get_rankof  = chameleon_getrankof_tile;
+    desc->get_rankof_init = get_rankof ? get_rankof : chameleon_getrankof_2d;
 
     /* Matrix properties */
     desc->dtyp = dtyp;
@@ -331,7 +334,7 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
     desc->A12 = (size_t)(            desc->llm%mb)*(size_t)(desc->lln - desc->lln%nb) + desc->A21;
     desc->A22 = (size_t)(desc->llm - desc->llm%mb)*(size_t)(            desc->lln%nb) + desc->A12;
 
-    chameleon_desc_init_tiles( desc );
+    chameleon_desc_init_tiles( desc, desc->get_rankof_init );
 
     /* Create runtime specific structure like registering data */
     RUNTIME_desc_create( desc );
@@ -790,7 +793,7 @@ CHAM_desc_t *CHAMELEON_Desc_Copy( const CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, descin->p, descin->q,
-                                NULL, NULL, descin->get_rankof );
+                                NULL, NULL, descin->get_rankof_init );
     return descout;
 }
 
@@ -825,7 +828,7 @@ CHAM_desc_t *CHAMELEON_Desc_CopyOnZero( const CHAM_desc_t *descin, void *mat )
     CHAMELEON_Desc_Create_User( &descout, mat,
                                 descin->dtyp, descin->mb, descin->nb, descin->bsiz,
                                 descin->lm, descin->ln, descin->i, descin->j, descin->m, descin->n, 1, 1,
-                                NULL, NULL, descin->get_rankof );
+                                NULL, NULL, descin->get_rankof_init );
     return descout;
 }
 
@@ -1003,6 +1006,7 @@ chameleon_desc_print( const CHAM_desc_t *desc, int shift )
             trank    = desc->get_rankof( desc, m, n );
             tile     = desc->get_blktile( desc, m, n );
             tiledesc = tile->mat;
+            assert( trank == tile->rank );
 
             ptr = ( tile->format == CHAMELEON_TILE_DESC ) ? (intptr_t)(tiledesc->mat) : (intptr_t)(tile->mat);
 
@@ -1139,7 +1143,7 @@ int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
     }
 
     /* Nothing to do if the new mapping is the same as the original one */
-    if ( ( new_get_rankof == desc->get_rankof ) ||
+    if ( ( new_get_rankof == desc->get_rankof_init ) ||
          ( RUNTIME_comm_size( chamctxt ) == 1 ) )
     {
         return CHAMELEON_SUCCESS;
@@ -1164,12 +1168,16 @@ int CHAMELEON_Desc_Change_Distribution_Async( cham_uplo_t         uplo,
         mmin = ( uplo == ChamLower ) ? chameleon_min( n,   desc->mt ) : 0;
         mmax = ( uplo == ChamUpper ) ? chameleon_min( n+1, desc->mt ) : desc->mt;
         for ( m = mmin; m < mmax; m++ ) {
+            CHAM_tile_t *tile = desc->get_blktile( desc, m, n );
+            int rank = new_get_rankof( desc, m, n );
+
             RUNTIME_data_migrate( sequence, desc, m, n, new_get_rankof( desc, m, n ) );
+            tile->rank = rank;
         }
     }
 
     /* Actually change data location in Chameleon */
-    desc->get_rankof = new_get_rankof;
+    desc->get_rankof_init = new_get_rankof;
 
     return CHAMELEON_SUCCESS;
 }

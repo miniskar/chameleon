@@ -171,7 +171,7 @@ void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)
 
     /* Now that we have decided which algorithm, let's allocate the required data structures. */
     if ( (options->alg == ChamGemmAlgSummaC ) &&
-         (C->get_rankof == chameleon_getrankof_2d ) )
+         (C->get_rankof_init == chameleon_getrankof_2d ) )
     {
         int lookahead = chamctxt->lookahead;
 

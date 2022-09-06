@@ -242,7 +242,7 @@ chameleon_zdesc_copy_and_restrict( const CHAM_desc_t *descIn,
                               m, n, 0, 0, m, n, descIn->p, descIn->q,
                               descIn->get_blkaddr,
                               descIn->get_blkldd,
-                              descIn->get_rankof );
+                              descIn->get_rankof_init );
     return rc;
 }
 

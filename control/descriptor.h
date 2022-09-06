@@ -51,6 +51,12 @@ inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
 int chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
 int chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
 
+static inline int chameleon_getrankof_tile(const CHAM_desc_t *desc, int m, int n) {
+    CHAM_tile_t *tile = desc->get_blktile( desc, m, n );
+    assert( tile != NULL );
+    return tile->rank;
+}
+
 int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat,
                                   cham_flttype_t dtyp, int mb, int nb,
                                   int lm, int ln, int m, int n, int p, int q,

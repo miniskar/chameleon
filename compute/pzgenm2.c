@@ -42,7 +42,7 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
     int cnt, maxiter;
     double e0, normx, normsx, beta, scl;
 
-    if ( A->get_rankof != chameleon_getrankof_2d ) {
+    if ( A->get_rankof_init != chameleon_getrankof_2d ) {
         sequence->status = CHAMELEON_ERR_NOT_SUPPORTED;
     }
 
