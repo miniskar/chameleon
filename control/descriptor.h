@@ -37,20 +37,6 @@ extern "C" {
 /**
  *  Internal routines
  */
-inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int eltsize);
-inline static void* chameleon_getaddr_cm    (const CHAM_desc_t *A, int m, int n);
-inline static void* chameleon_getaddr_ccrb  (const CHAM_desc_t *A, int m, int n);
-inline static void* chameleon_getaddr_null  (const CHAM_desc_t *A, int m, int n);
-inline static void* chameleon_getaddr_diag  (const CHAM_desc_t *A, int m, int n);
-inline static int   chameleon_getblkldd_cm  (const CHAM_desc_t *A, int m);
-inline static int   chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m);
-
-/**
- *  Data distributions
- */
-int chameleon_getrankof_2d(const CHAM_desc_t *desc, int m, int n);
-int chameleon_getrankof_2d_diag(const CHAM_desc_t *desc, int m, int n);
-
 static inline int chameleon_getrankof_tile(const CHAM_desc_t *desc, int m, int n) {
     CHAM_tile_t *tile = desc->get_blktile( desc, m, n );
     assert( tile != NULL );
@@ -86,78 +72,6 @@ static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
 void         chameleon_desc_destroy  ( CHAM_desc_t *desc );
 int          chameleon_desc_check    ( const CHAM_desc_t *desc );
-
-/**
- *  Internal function to return address of block (m,n) with m,n = block indices
- */
-inline static void* chameleon_getaddr_ccrb(const CHAM_desc_t *A, int m, int n)
-{
-    size_t mm = m + A->i / A->mb;
-    size_t nn = n + A->j / A->nb;
-    size_t eltsize = CHAMELEON_Element_Size(A->dtyp);
-    size_t offset = 0;
-
-#if defined(CHAMELEON_USE_MPI)
-    assert( A->myrank == A->get_rankof( A, mm, nn) );
-    mm = mm / A->p;
-    nn = nn / A->q;
-#endif
-
-    if (mm < (size_t)(A->llm1)) {
-        if (nn < (size_t)(A->lln1))
-            offset = (size_t)(A->bsiz) * (mm + (size_t)(A->llm1) * nn);
-        else
-            offset = A->A12 + ((size_t)(A->mb * (A->lln%A->nb)) * mm);
-    }
-    else {
-        if (nn < (size_t)(A->lln1))
-            offset = A->A21 + ((size_t)((A->llm%A->mb) * A->nb) * nn);
-        else
-            offset = A->A22;
-    }
-
-    return (void*)((intptr_t)A->mat + (offset*eltsize) );
-}
-
-/**
- *  Internal function to return address of block (m,n) with m,n = block indices
- */
-inline static void *chameleon_getaddr_cm(const CHAM_desc_t *A, int m, int n)
-{
-    size_t mm = m + A->i / A->mb;
-    size_t nn = n + A->j / A->nb;
-    size_t eltsize = CHAMELEON_Element_Size(A->dtyp);
-    size_t offset = 0;
-
-#if defined(CHAMELEON_USE_MPI)
-    assert( A->myrank == A->get_rankof( A, mm, nn) );
-    mm = mm / A->p;
-    nn = nn / A->q;
-#endif
-
-    offset = (size_t)(A->llm * A->nb) * nn + (size_t)(A->mb) * mm;
-    return (void*)((intptr_t)A->mat + (offset*eltsize) );
-}
-
-/**
- *  Internal function to return address of block (m,n) with m,n = block indices
- */
-inline static void *chameleon_getaddr_diag( const CHAM_desc_t *A, int m, int n )
-{
-    assert( m == n );
-    (void)n;
-    return chameleon_getaddr_ccrb( A, m, 0 );
-}
-
-/**
- *  Internal function to return address of block (m,n) with m,n = block indices
- *  This version lets the runtime allocate on-demand.
- */
-inline static void *chameleon_getaddr_null(const CHAM_desc_t *A, int m, int n)
-{
-    (void)A; (void)m; (void)n;
-    return NULL;
-}
 
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
@@ -202,20 +116,6 @@ inline static void* chameleon_geteltaddr(const CHAM_desc_t *A, int m, int n, int
             offset = A->A22 + m%A->mb  + (A->llm%A->mb)*(n%A->nb);
     }
     return (void*)((intptr_t)A->mat + (offset*eltsize) );
-}
-
-/**
- *  Internal function to return the leading dimension of element A(m,*) with m,n = block indices
- */
-inline static int chameleon_getblkldd_ccrb(const CHAM_desc_t *A, int m)
-{
-    int mm = m + A->i / A->mb;
-    return ( ((mm+1) == A->lmt) && ((A->lm % A->mb) != 0)) ? A->lm % A->mb : A->mb;
-}
-
-inline static int chameleon_getblkldd_cm(const CHAM_desc_t *A, int m) {
-    (void)m;
-    return A->llm;
 }
 
 /**

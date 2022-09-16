@@ -38,6 +38,7 @@ set(CHAMELEON_CONTROL
     ../control/control.c
     ../control/descriptor.c
     ../control/descriptor_rec.c
+    ../control/descriptor_helpers.c
     ../control/workspace.c
     ../control/tile.c
     ../control/chameleon_f77.c
