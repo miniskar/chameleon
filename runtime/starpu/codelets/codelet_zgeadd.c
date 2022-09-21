@@ -26,39 +26,42 @@
 #include "runtime_codelet_z.h"
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zgeadd_cpu_func(void *descr[], void *cl_arg)
+static void
+cl_zgeadd_cpu_func( void *descr[], void *cl_arg )
 {
-    cham_trans_t trans;
-    int M;
-    int N;
+    cham_trans_t          trans;
+    int                   M;
+    int                   N;
     CHAMELEON_Complex64_t alpha;
-    CHAM_tile_t *tileA;
+    CHAM_tile_t          *tileA;
     CHAMELEON_Complex64_t beta;
-    CHAM_tile_t *tileB;
+    CHAM_tile_t          *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta);
-    TCORE_zgeadd(trans, M, N, alpha, tileA, beta, tileB);
+    starpu_codelet_unpack_args( cl_arg, &trans, &M, &N, &alpha, &beta );
+    TCORE_zgeadd( trans, M, N, alpha, tileA, beta, tileB );
+
     return;
 }
 
-#ifdef CHAMELEON_USE_CUBLAS
-static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
+#if defined(CHAMELEON_USE_CUDA)
+static void
+cl_zgeadd_cuda_func( void *descr[], void *cl_arg )
 {
-    cublasHandle_t handle = starpu_cublas_get_local_handle();
-    cham_trans_t trans;
-    int M;
-    int N;
+    cublasHandle_t  handle = starpu_cublas_get_local_handle();
+    cham_trans_t    trans;
+    int             M;
+    int             N;
     cuDoubleComplex alpha;
-    CHAM_tile_t *tileA;
+    CHAM_tile_t    *tileA;
     cuDoubleComplex beta;
-    CHAM_tile_t *tileB;
+    CHAM_tile_t    *tileB;
 
-    tileA = cti_interface_get(descr[0]);
-    tileB = cti_interface_get(descr[1]);
-    starpu_codelet_unpack_args(cl_arg, &trans, &M, &N, &alpha, &beta );
+    tileA = cti_interface_get( descr[0] );
+    tileB = cti_interface_get( descr[1] );
+    starpu_codelet_unpack_args( cl_arg, &trans, &M, &N, &alpha, &beta );
 
     CUDA_zgeadd( trans, M, N,
                  &alpha, tileA->mat, tileA->ld,
@@ -67,17 +70,13 @@ static void cl_zgeadd_cuda_func(void *descr[], void *cl_arg)
 
     return;
 }
-#endif /* defined(CHAMELEON_USE_CUBLAS) */
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-#if defined(CHAMELEON_USE_CUBLAS)
-CODELETS(zgeadd, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC)
-#else
-CODELETS_CPU(zgeadd, cl_zgeadd_cpu_func)
-#endif
+CODELETS( zgeadd, cl_zgeadd_cpu_func, cl_zgeadd_cuda_func, STARPU_CUDA_ASYNC );
 
 void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
                          cham_trans_t trans, int m, int n, int nb,
