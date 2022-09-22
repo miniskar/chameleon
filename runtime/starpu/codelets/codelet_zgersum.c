@@ -22,7 +22,8 @@
 #include "runtime_codelet_z.h"
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zgersum_redux_cpu_func(void *descr[], void *cl_arg)
+static void
+cl_zgersum_redux_cpu_func( void *descr[], void *cl_arg )
 {
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
@@ -38,13 +39,14 @@ static void cl_zgersum_redux_cpu_func(void *descr[], void *cl_arg)
     return;
 }
 
-#ifdef CHAMELEON_USE_CUBLAS
-static void cl_zgersum_redux_cuda_func(void *descr[], void *cl_arg)
+#if defined(CHAMELEON_USE_CUDA)
+static void
+cl_zgersum_redux_cuda_func( void *descr[], void *cl_arg )
 {
-    cublasHandle_t handle = starpu_cublas_get_local_handle();
-    CHAMELEON_Complex64_t zone = 1.;
-    CHAM_tile_t *tileA;
-    CHAM_tile_t *tileB;
+    cublasHandle_t        handle = starpu_cublas_get_local_handle();
+    CHAMELEON_Complex64_t zone   = 1.;
+    CHAM_tile_t          *tileA;
+    CHAM_tile_t          *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
@@ -59,17 +61,13 @@ static void cl_zgersum_redux_cuda_func(void *descr[], void *cl_arg)
 
     return;
 }
-#endif /* defined(CHAMELEON_USE_CUBLAS) */
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-#if defined(CHAMELEON_USE_CUBLAS)
-CODELETS(zgersum_redux, cl_zgersum_redux_cpu_func, cl_zgersum_redux_cuda_func, STARPU_CUDA_ASYNC)
-#else
-CODELETS_CPU(zgersum_redux, cl_zgersum_redux_cpu_func)
-#endif
+CODELETS( zgersum_redux, cl_zgersum_redux_cpu_func, cl_zgersum_redux_cuda_func, STARPU_CUDA_ASYNC );
 
 #if !defined(CHAMELEON_SIMULATION)
 static void
@@ -83,12 +81,29 @@ cl_zgersum_init_cpu_func( void *descr[], void *cl_arg )
 
     (void)cl_arg;
 }
+
+#if defined(CHAMELEON_USE_CUDA)
+static void
+cl_zgersum_init_cuda_func( void *descr[], void *cl_arg )
+{
+    CHAM_tile_t *tileA;
+    cublasStatus_t rc;
+
+    tileA = cti_interface_get(descr[0]);
+
+    rc = cudaMemset2D( tileA->mat, tileA->ld * sizeof(CHAMELEON_Complex64_t), 0,
+                       tileA->m * sizeof(CHAMELEON_Complex64_t), tileA->n );
+    assert( rc == CUBLAS_STATUS_SUCCESS );
+
+    (void)cl_arg;
+}
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU( zgersum_init, cl_zgersum_init_cpu_func );
+CODELETS( zgersum_init, cl_zgersum_init_cpu_func, cl_zgersum_init_cuda_func, STARPU_CUDA_ASYNC );
 
 void
 RUNTIME_zgersum_set_methods( const CHAM_desc_t *A, int Am, int An )
@@ -108,7 +123,7 @@ RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
     starpu_mpi_redux_data_prio_tree( MPI_COMM_WORLD,
                                      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
                                      options->priority + 1,
-                                     2 /* Arbre binaire */ );
+                                     2 /* Binary tree */ );
 #else
     (void)options;
     (void)A;
