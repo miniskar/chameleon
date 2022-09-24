@@ -34,7 +34,7 @@ parameter_t parameters[] = {
     { "help",     "Show this help",                           'h', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "human",    "Enable human readable mode",               'H', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
     { "niter",    "Perform multiple iteration per test",      'l', PARAM_OPTION, 1, 0, TestValInt, {1}, NULL, pread_int, sprint_int },
-    { "nowarmup", "Disable the warmup run to load libraries", -30, PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
+    { "nowarmup", "Disable the warmup run to load libraries", 'w', PARAM_OPTION, 0, 0, TestValInt, {0}, NULL, pread_int, sprint_int },
 
     { NULL, "Machine parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "threads", "Number of CPU workers per node",      't', PARAM_OPTION | PARAM_OUTPUT, 1, 7, TestValInt, {-1}, NULL, pread_int, sprint_int },
