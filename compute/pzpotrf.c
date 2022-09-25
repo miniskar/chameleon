@@ -62,7 +62,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
 
             tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
             options.priority = 2*A->mt - 2*k;
+#endif
             INSERT_TASK_zpotrf(
                 &options,
                 ChamLower, tempkm, A->mb,
@@ -71,7 +73,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
             for (m = k+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                 options.priority = 2*A->mt - 2*k - m;
+#endif
                 INSERT_TASK_ztrsm(
                     &options,
                     ChamRight, ChamLower, ChamConjTrans, ChamNonUnit,
@@ -84,7 +88,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                 options.priority = 2*A->mt - 2*k - n;
+#endif
                 INSERT_TASK_zherk(
                     &options,
                     ChamLower, ChamNoTrans,
@@ -95,7 +101,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
                 for (m = n+1; m < A->mt; m++) {
                     tempmm = m == A->mt-1 ? A->m - m*A->mb : A->mb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                     options.priority = 2*A->mt - 2*k - n - m;
+#endif
                     INSERT_TASK_zgemm(
                         &options,
                         ChamNoTrans, ChamConjTrans,
@@ -118,7 +126,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
 
             tempkm = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
             options.priority = 2*A->nt - 2*k;
+#endif
             INSERT_TASK_zpotrf(
                 &options,
                 ChamUpper,
@@ -128,7 +138,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
             for (n = k+1; n < A->nt; n++) {
                 tempnn = n == A->nt-1 ? A->n - n*A->nb : A->nb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                 options.priority = 2*A->nt - 2*k - n;
+#endif
                 INSERT_TASK_ztrsm(
                     &options,
                     ChamLeft, ChamUpper, ChamConjTrans, ChamNonUnit,
@@ -141,7 +153,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
             for (m = k+1; m < A->mt; m++) {
                 tempmm = m == A->mt-1 ? A->m - m*A->mb : A->mb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                 options.priority = 2*A->nt - 2*k  - m;
+#endif
                 INSERT_TASK_zherk(
                     &options,
                     ChamUpper, ChamConjTrans,
@@ -152,7 +166,9 @@ void chameleon_pzpotrf(cham_uplo_t uplo, CHAM_desc_t *A,
                 for (n = m+1; n < A->nt; n++) {
                     tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
+#if !defined(CHAMELEON_USE_BUBBLE)
                     options.priority = 2*A->nt - 2*k - n - m;
+#endif
                     INSERT_TASK_zgemm(
                         &options,
                         ChamConjTrans, ChamNoTrans,
