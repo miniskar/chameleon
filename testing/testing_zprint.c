@@ -22,34 +22,6 @@
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
 
-/**
- *  Internal function to return address of block (m,n) with m,n = block indices
- */
-inline static void *
-chameleon_getaddr_cm( const CHAM_desc_t *A, int m, int n )
-{
-    size_t mm      = m + A->i / A->mb;
-    size_t nn      = n + A->j / A->nb;
-    size_t eltsize = CHAMELEON_Element_Size( A->dtyp );
-    size_t offset  = 0;
-
-#if defined(CHAMELEON_USE_MPI)
-    assert( A->myrank == A->get_rankof( A, mm, nn ) );
-    mm = mm / A->p;
-    nn = nn / A->q;
-#endif
-
-    offset = (size_t)( A->llm * A->nb ) * nn + (size_t)( A->mb ) * mm;
-    return (void *)( (intptr_t)A->mat + ( offset * eltsize ) );
-}
-
-inline static int
-chameleon_getblkldd_cm( const CHAM_desc_t *A, int m )
-{
-    (void)m;
-    return A->llm;
-}
-
 int
 testing_zprint_desc( run_arg_list_t *args, int check )
 {

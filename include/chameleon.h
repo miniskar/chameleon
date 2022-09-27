@@ -30,6 +30,7 @@
 #include "chameleon/constants.h"
 #include "chameleon/types.h"
 #include "chameleon/struct.h"
+#include "chameleon/descriptor_helpers.h"
 
 /* ****************************************************************************
  * CHAMELEON runtime common API
