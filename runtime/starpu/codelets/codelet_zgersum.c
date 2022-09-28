@@ -36,6 +36,7 @@ cl_zgersum_redux_cpu_func( void *descr[], void *cl_arg )
 
     TCORE_zgeadd( ChamNoTrans, tileA->m, tileA->n, 1., tileB, 1., tileA );
 
+    (void)cl_arg;
     return;
 }
 
@@ -59,6 +60,7 @@ cl_zgersum_redux_cuda_func( void *descr[], void *cl_arg )
                  &zone, tileA->mat, tileA->ld,
                  handle );
 
+    (void)cl_arg;
     return;
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
@@ -67,7 +69,7 @@ cl_zgersum_redux_cuda_func( void *descr[], void *cl_arg )
 /*
  * Codelet definition
  */
-CODELETS( zgersum_redux, cl_zgersum_redux_cpu_func, cl_zgersum_redux_cuda_func, STARPU_CUDA_ASYNC );
+CODELETS( zgersum_redux, cl_zgersum_redux_cpu_func, cl_zgersum_redux_cuda_func, STARPU_CUDA_ASYNC )
 
 #if !defined(CHAMELEON_SIMULATION)
 static void
@@ -103,7 +105,7 @@ cl_zgersum_init_cuda_func( void *descr[], void *cl_arg )
 /*
  * Codelet definition
  */
-CODELETS( zgersum_init, cl_zgersum_init_cpu_func, cl_zgersum_init_cuda_func, STARPU_CUDA_ASYNC );
+CODELETS( zgersum_init, cl_zgersum_init_cpu_func, cl_zgersum_init_cuda_func, STARPU_CUDA_ASYNC )
 
 void
 RUNTIME_zgersum_set_methods( const CHAM_desc_t *A, int Am, int An )

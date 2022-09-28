@@ -96,8 +96,9 @@ void INSERT_TASK_zsyr2k(const RUNTIME_option_t *options,
                        CHAMELEON_Complex64_t beta, const CHAM_desc_t *C, int Cm, int Cn)
 {
     if ( alpha == 0. ) {
-        return INSERT_TASK_zlascal( options, uplo, n, n, nb,
-                                    beta, C, Cm, Cn );
+        INSERT_TASK_zlascal( options, uplo, n, n, nb,
+                             beta, C, Cm, Cn );
+        return;
     }
 
     (void)nb;
