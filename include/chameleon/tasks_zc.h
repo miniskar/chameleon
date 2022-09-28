@@ -31,12 +31,12 @@
  *  Declarations of QUARK wrappers (called by CHAMELEON) - alphabetical order
  */
 void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
-                        int m, int n, int nb,
-                        CHAM_desc_t *A, int Am, int An, int lda,
-                        CHAM_desc_t *B, int Bm, int Bn, int ldb );
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn );
 void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
-                        int m, int n, int nb,
-                        CHAM_desc_t *A, int Am, int An, int lda,
-                        CHAM_desc_t *B, int Bm, int Bn, int ldb );
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn );
 
 #endif /* _chameleon_tasks_zc_h_ */
