@@ -17,8 +17,8 @@
  *
  */
 #include "chameleon_openmp.h"
-#include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_ztile.h"
+#include "chameleon/tasks_zc.h"
+#include "coreblas/coreblas_zctile.h"
 
 void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
                          int m, int n, int nb,
@@ -26,9 +26,12 @@ void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
-    CHAMELEON_Complex32_t *tileB = B->get_blktile( B, Bm, Bn );
+    CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
-    TCORE_zlag2c( m, n, tileA, tileB );
+    {
+        int info = 0;
+        TCORE_zlag2c( m, n, tileA, tileB, &info );
+    }
 
     (void)options;
     (void)nb;
@@ -39,7 +42,7 @@ void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
-    CHAMELEON_Complex32_t *tileA = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
     CHAM_tile_t *tileB = B->get_blktile( B, Bm, Bn );
 #pragma omp task firstprivate( m, n, tileA, tileB ) depend( in:tileA[0] ) depend( inout:tileB[0] )
     TCORE_clag2z( m, n, tileA, tileB );

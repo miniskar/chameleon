@@ -25,11 +25,12 @@
  *
  */
 #include "chameleon_starpu.h"
-#include "runtime_codelet_z.h"
+#include "runtime_codelet_zc.h"
 
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
 {
+    int info = 0;
     int m;
     int n;
     CHAM_tile_t *tileA;
@@ -39,7 +40,7 @@ static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
     tileB = cti_interface_get(descr[1]);
 
     starpu_codelet_unpack_args(cl_arg, &m, &n);
-    TCORE_zlag2c( m, n, tileA, tileB);
+    TCORE_zlag2c( m, n, tileA, tileB, &info );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

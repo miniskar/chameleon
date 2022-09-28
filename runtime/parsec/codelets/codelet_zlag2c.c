@@ -16,17 +16,18 @@
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @date 2022-02-22
- * @precisions normal z -> c d s
+ * @precisions mixed zc -> ds
  *
  */
 #include "chameleon_parsec.h"
-#include "chameleon/tasks_z.h"
-#include "coreblas/coreblas_z.h"
+#include "chameleon/tasks_zc.h"
+#include "coreblas/coreblas_zc.h"
 
 static inline int
 CORE_zlag2c_parsec( parsec_execution_stream_t *context,
                     parsec_task_t             *this_task )
 {
+    int info;
     int m;
     int n;
     CHAMELEON_Complex64_t *A;
@@ -37,16 +38,16 @@ CORE_zlag2c_parsec( parsec_execution_stream_t *context,
     parsec_dtd_unpack_args(
         this_task, &m, &n, &A, &lda, &B, &ldb );
 
-    CORE_zlag2c( m, n, A, lda, B, ldb );
+    CORE_zlag2c( m, n, A, lda, B, ldb, &info );
 
     (void)context;
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
-                       int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_zlag2c( const RUNTIME_option_t *options,
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );
@@ -68,7 +69,8 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
  *
  */
 static inline int
-CORE_clag2z_parsec(parsec_execution_stream_t *context, parsec_task_t *this_task)
+CORE_clag2z_parsec( parsec_execution_stream_t *context,
+                    parsec_task_t             *this_task )
 {
     int m;
     int n;
@@ -86,10 +88,10 @@ CORE_clag2z_parsec(parsec_execution_stream_t *context, parsec_task_t *this_task)
     return PARSEC_HOOK_RETURN_DONE;
 }
 
-void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
-                       int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
     CHAM_tile_t *tileA = A->get_blktile( A, Am, An );

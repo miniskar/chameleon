@@ -106,11 +106,6 @@ CODELETS_HEADER(zplssq);
 CODELETS_HEADER(zplssq2);
 
 /*
- * MIXED PRECISION functions
- */
-CODELETS_HEADER(zlag2c);
-
-/*
  * DZ functions
  */
 #if defined(PRECISION_z) || defined(PRECISION_c)
