@@ -2,8 +2,8 @@
  *
  * @file lapack_zsyr2k.c
  *
- * @copyright 2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
- *                 Univ. Bordeaux. All rights reserved.
+ * @copyright 2022-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
