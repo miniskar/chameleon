@@ -116,10 +116,12 @@ endif()
 if ( CHAMELEON_NO_KERNELS )
   list( APPEND ZSRC
     core_ztile_empty.c
+    core_zctile_empty.c
     )
 else()
   list( APPEND ZSRC
     core_ztile.c
+    core_zctile.c
     )
 endif()
 

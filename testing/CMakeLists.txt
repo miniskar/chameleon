@@ -130,6 +130,10 @@ set(ZSRC
 # -----------------------------------------------
 foreach(_precision ${CHAMELEON_PRECISION} )
 
+  if ( ${_precision} STREQUAL ds OR ${_precision} STREQUAL zc )
+    continue()
+  endif()
+
   precisions_rules_py(${_precision}SRC_GENERATED "${ZSRC}"
     PRECISIONS "${_precision}" )
 
