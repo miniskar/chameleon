@@ -50,16 +50,18 @@ subs = {
     # ------------------------------------------------------------
     # replacements applied to mixed precision files.
     'mixed' : [
+        ('dstile',                'zctile'                ),
         # double/single,          double/single-complex
         #'12345678901234567890', '12345678901234567890')
         (r'\bdouble',           r'\bCHAMELEON_Complex64_t'),
-        (r'\bChamRealDouble',   r'\bChamComplexDouble' ),
+        (r'\bChamRealDouble',   r'\bChamComplexDouble'    ),
         (r'\bfloat',            r'\bCHAMELEON_Complex32_t'),
-        (r'\bChamRealFloat',    r'\bChamComplexFloat'  ),
-        (r'\breal\b',           r'\bcomplex\b'         ),
+        (r'\bChamRealFloat',    r'\bChamComplexFloat'     ),
+        (r'\breal\b',           r'\bcomplex\b'            ),
 
-        ('dsgels',               'zcgels'              ),
-        ('dsorgesv',             'zcungesv'            ),
+        ('dsgels',               'zcgels'                 ),
+        ('dsorgesv',             'zcungesv'               ),
+        ('codelet_ds',           'codelet_zc'             ),
     ],
     # ------------------------------------------------------------
     # replacements applied to mixed precision files.

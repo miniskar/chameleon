@@ -33,6 +33,7 @@ set(ZHDR
   coreblas/coreblas_z.h
   coreblas/coreblas_zc.h
   coreblas/coreblas_ztile.h
+  coreblas/coreblas_zctile.h
 )
 if( CHAMELEON_USE_HMAT )
   list( APPEND ZHDR

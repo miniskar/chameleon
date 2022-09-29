@@ -107,7 +107,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 # Define precision supported by CHAMELEON
 # -----------------------------------------
 set( RP_CHAMELEON_DICTIONNARY ${CMAKE_SOURCE_DIR}/cmake_modules/local_subs.py )
-set( RP_CHAMELEON_PRECISIONS  "s;d;c;z" )
+set( RP_CHAMELEON_PRECISIONS  "s;d;c;z;ds;zc" )
 include(RulesPrecisions)
 # Check that at least one option CHAMELEON_PREC_ is set to ON
 # count number of CHAMELEON_PREC_ sets to ON

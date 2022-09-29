@@ -162,6 +162,7 @@ configure_file("include/chameleon_starpu.h.in"
 set(RUNTIME_HDRS_GENERATED "")
 set(ZHDR
   include/runtime_codelet_z.h
+  include/runtime_codelet_zc.h
   )
 
 precisions_rules_py(RUNTIME_HDRS_GENERATED "${ZHDR}"
@@ -233,6 +234,7 @@ set_source_files_properties(control/runtime_profiling.c PROPERTIES COMPILE_FLAGS
 set(RUNTIME_SRCS_GENERATED "")
 set(ZSRC
   codelets/codelet_zcallback.c
+  codelets/codelet_zccallback.c
   ${CODELETS_ZSRC}
   )
 

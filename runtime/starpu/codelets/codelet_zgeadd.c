@@ -84,8 +84,9 @@ void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
                          CHAMELEON_Complex64_t beta,  const CHAM_desc_t *B, int Bm, int Bn )
 {
     if ( alpha == 0. ) {
-        return INSERT_TASK_zlascal( options, ChamUpperLower, m, n, nb,
-                                    beta, B, Bm, Bn );
+        INSERT_TASK_zlascal( options, ChamUpperLower, m, n, nb,
+                             beta, B, Bm, Bn );
+        return;
     }
 
     struct starpu_codelet *codelet = &cl_zgeadd;

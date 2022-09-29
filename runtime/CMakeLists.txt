@@ -30,6 +30,7 @@
 # List of codelets required by all runtimes
 # -----------------------------------------
 set(CODELETS_ZSRC
+    codelets/codelet_zlag2c.c
     codelets/codelet_dlag2z.c
     codelets/codelet_dzasum.c
     ##################

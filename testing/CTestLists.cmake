@@ -21,6 +21,10 @@ endif()
 if (NOT CHAMELEON_SIMULATION)
 
   foreach(prec ${RP_CHAMELEON_PRECISIONS})
+    if ( ${prec} STREQUAL ds OR ${prec} STREQUAL zc )
+      continue()
+    endif()
+
     set (CMD ./chameleon_${prec}testing)
 
     #

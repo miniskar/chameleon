@@ -12,8 +12,6 @@
  * @brief Chameleon CPU complex mixed precision kernels header
  *
  * @version 1.2.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Mathieu Faverge
@@ -30,11 +28,11 @@
 /**
  *  Declarations of serial kernels - alphabetical order
  */
-void CORE_clag2z(int m, int n,
-                 const CHAMELEON_Complex32_t *A, int lda,
-                 CHAMELEON_Complex64_t *B, int ldb);
-void CORE_zlag2c(int m, int n,
-                 const CHAMELEON_Complex64_t *A, int lda,
-                 CHAMELEON_Complex32_t *B, int ldb, int *info);
+void CORE_clag2z( int m, int n,
+                  const CHAMELEON_Complex32_t *A, int lda,
+                  CHAMELEON_Complex64_t *B, int ldb );
+void CORE_zlag2c( int m, int n,
+                  const CHAMELEON_Complex64_t *A, int lda,
+                  CHAMELEON_Complex32_t *B, int ldb, int *info );
 
 #endif /* _coreblas_zc_h_ */
