@@ -16,7 +16,8 @@
  * @author Mathieu Faverge
  * @author Philippe Virouleau
  * @author Raphael Boucherie
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  *
  */
 #ifndef CHAMELEON_CONFIG_H_HAS_BEEN_INCLUDED
@@ -54,6 +55,7 @@
 /* GPU Support */
 #cmakedefine CHAMELEON_USE_CUDA
 #cmakedefine CHAMELEON_USE_CUBLAS
+#cmakedefine CHAMELEON_USE_HIP
 
 /* Hmat-oss */
 #cmakedefine CHAMELEON_USE_HMAT

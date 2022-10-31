@@ -28,7 +28,8 @@
 #  @author Samuel Thibault
 #  @author Guillaume Sylvand
 #  @author Alycia Lisito
-#  @date 2022-02-22
+#  @author Loris Lucido
+#  @date 2023-01-30
 #
 ###
 cmake_minimum_required(VERSION 3.3)
@@ -188,6 +189,11 @@ if ( CHAMELEON_SCHED_PARSEC OR CHAMELEON_SCHED_STARPU )
      set(CHAMELEON_ENABLE_CUDA ON FORCE)
 endif()
 
+set(CHAMELEON_ENABLE_HIP OFF CACHE INTERNAL "Tells if HIP might be supported by the runtime")
+if ( CHAMELEON_SCHED_STARPU )
+     set(CHAMELEON_ENABLE_HIP ON FORCE)
+endif()
+
 # Additional options
 # ------------------
 
@@ -215,6 +221,20 @@ cmake_dependent_option(CHAMELEON_USE_CUDA
                     "CHAMELEON_ENABLE_CUDA" OFF)
 if (CHAMELEON_ENABLE_CUDA AND NOT CHAMELEON_USE_CUDA)
     message("-- ${BoldGreen}CHAMELEON_USE_CUDA is set to OFF, turn it ON to use CUDA (unsupported by Quark)${ColourReset}")
+endif()
+
+cmake_dependent_option(CHAMELEON_USE_HIP_CUDA
+                    "Enable HIP kernels with CUDA backend" OFF
+                    "CHAMELEON_ENABLE_HIP" OFF)
+cmake_dependent_option(CHAMELEON_USE_HIP_ROC
+                    "Enable HIP kernels with ROCclr backend" OFF
+                    "CHAMELEON_ENABLE_HIP" OFF)
+
+set(CHAMELEON_USE_HIP OFF CACHE INTERNAL "Equivalent to CHAMELEON_USE_CUDA for HIP. Enabled only of one of the CHAMELEON_USE_HIP{CUDA,ROC} is enabled")
+if( CHAMELEON_USE_HIP_CUDA OR CHAMELEON_USE_HIP_ROC )
+  set(CHAMELEON_USE_HIP ON)
+else()
+  set(CHAMELEON_USE_HIP OFF)
 endif()
 
 # Enable Hmat-OSS kernels
@@ -405,6 +425,121 @@ if(NOT CHAMELEON_SIMULATION)
 
     endif(CHAMELEON_USE_CUDA)
 
+    # CHAMELEON depends on HIP/HIPBLAS
+    #----------------------------------
+    if (CHAMELEON_USE_HIP)
+        if (CHAMELEON_USE_HIP_ROC)
+
+            find_package(HIP REQUIRED)
+            find_package(hipblas REQUIRED)
+
+        elseif(CHAMELEON_USE_HIP_CUDA)
+
+            # for CUDA backend we need a user-provided hipblas library as the one
+            # shipped with ROCm only works with AMD GPU
+            set(CHAMELEON_HIPBLAS_PATH "" CACHE PATH "Directory of hipblas installation with CUDA support")
+            if(NOT CHAMELEON_HIPBLAS_PATH)
+              message(FATAL_ERROR "CHAMELEON_USE_HIP_CUDA requires you to set"
+                " CHAMELEON_HIPBLAS_PATH to a hipblas installation compiled with CUDA")
+            endif()
+
+            if(NOT DEFINED HIP_PATH)
+                if(DEFINED ENV{HIP_PATH})
+                    set(HIP_PATH $ENV{HIP_PATH} CACHE PATH "Path to which HIP has been installed")
+                else()
+                    message(FATAL_ERROR "Please set HIP_PATH to your HIP installation.")
+                endif()
+            endif()
+
+            find_package(CUDA REQUIRED)
+
+            # location of FindHIP.cmake depending on how HIP_PATH is set
+            # HIP_PATH points to /opt/rocm-<version>
+            set(CMAKE_MODULE_PATH "${HIP_PATH}/lib/cmake/hip" ${CMAKE_MODULE_PATH})
+            # HIP_PATH points to /opt/rocm-<version>/hip
+            set(CMAKE_MODULE_PATH "${HIP_PATH}/cmake" ${CMAKE_MODULE_PATH})
+
+            # We use MODULE keyword to force using FindHIP.cmake instead of
+            # hip-config.cmake which doesn't support CUDA backend
+            find_package(HIP REQUIRED MODULE)
+            list( APPEND HIP_INCLUDE_DIRS "${HIP_PATH}/include")
+
+            if(CHAMELEON_HIPBLAS_PATH)
+                list(APPEND HIPBLAS_INCLUDE_DIRS "${CHAMELEON_HIPBLAS_PATH}/include")
+                list(APPEND HIPBLAS_LIBRARIES "${CHAMELEON_HIPBLAS_PATH}/lib/libhipblas.so")
+            else()
+                message(FATAL_ERROR "Please set CHAMELEON_HIPBLAS_PATH to your HIPBLAS installation.")
+            endif()
+        endif()
+
+        if (HIP_FOUND)
+            message("-- ${Blue}Add definition CHAMELEON_USE_HIP"
+                " - Activate HIP in Chameleon${ColourReset}")
+            # create imported target because not provided with old cmake
+            add_library(HIP::HIP INTERFACE IMPORTED)
+            add_library(HIP::HIPBLAS INTERFACE IMPORTED)
+
+            if (CHAMELEON_USE_HIP_CUDA)
+                target_compile_definitions(HIP::HIP INTERFACE "__HIP_PLATFORM_NVIDIA__")
+                set(HIP_INCLUDE_DIRS "${HIP_INCLUDE_DIRS};${CUDA_INCLUDE_DIRS}")
+                set(HIP_LIBRARIES "${HIP_LIBRARIES};${CUDA_LIBRARIES}")
+            endif()
+
+            if (HIP_INCLUDE_DIRS)
+                set_target_properties(HIP::HIP PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${HIP_INCLUDE_DIRS}")
+                if (HIPBLAS_INCLUDE_DIRS)
+                    set_target_properties(HIP::HIPBLAS PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${HIPBLAS_INCLUDE_DIRS}")
+                else()
+                    message(WARNING "CHAMELEON_USE_HIP requires"
+                        "\n   HIPBLAS_INCLUDE_DIRS to be found. Be sure you have"
+                        "\n   hipblas headers with your distribution of HIP.")
+                endif()
+            else()
+                message(WARNING "CHAMELEON_USE_HIP requires"
+                    "\n   HIP_INCLUDE_DIRS to be found. Be sure you have"
+                    "\n   hip headers with your distribution of HIP.")
+            endif()
+            if (HIP_LIBRARIES)
+                set_target_properties(HIP::HIP PROPERTIES INTERFACE_LINK_LIBRARIES "${HIP_LIBRARIES}")
+                if (HIPBLAS_LIBRARIES)
+                    set_target_properties(HIP::HIPBLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${HIPBLAS_LIBRARIES}")
+                    target_link_libraries(HIP::HIPBLAS INTERFACE HIP::HIP)
+                    message("-- ${Blue}Add definition CHAMELEON_USE_HIPBLAS"
+                        " - Use GPU kernels from hipblas${ColourReset}")
+                else()
+                    message(FATAL_ERROR "CHAMELEON_USE_HIP requires"
+                        "\n   HIPBLAS_LIBRARIES to be found. Be sure you have"
+                        "\n   libhipblas with your distribution of HIP.")
+                endif()
+            else()
+                message(FATAL_ERROR "CHAMELEON_USE_HIP requires"
+                    "\n   HIP_LIBRARIES to be found. Be sure you have"
+                    "\n   libamdhip64 with your distribution of ROCm.")
+            endif()
+            if (CHAMELEON_USE_HIP_CUDA AND NOT CUDA_LIBRARIES)
+                message(FATAL_ERROR "CHAMELEON_USE_HIP_CUDA requires"
+                "\n   CUDA_LIBRARIES to be found. Be sure you have"
+                "\n   libcuda with your distribution of CUDA.")
+            endif()
+
+            message("-- HIP PATH:              ${HIP_PATH}")
+            message("-- HIP version:           ${HIP_VERSION_STRING}")
+            message("-- HIP platform:          ${HIP_PLATFORM}")
+            message("-- HIP runtime:           ${HIP_RUNTIME}")
+            message("-- HIP compiler:          ${HIP_COMPILER}")
+            message("-- HIP include path:      ${HIP_INCLUDE_DIRS}")
+            message("-- HIP libraries:         ${HIP_LIBRARIES}")
+            message("-- HIPBLAS include path:  ${HIPBLAS_INCLUDE_DIRS}")
+            message("-- HIPBLAS libraries:     ${HIPBLAS_LIBRARIES}")
+
+            morse_export_imported_target(HIP HIP hip chameleon)
+            morse_export_imported_target(HIP HIPBLAS hipblas chameleon)
+        else(HIP_FOUND)
+            message(FATAL_ERROR "CHAMELEON_USE_HIP requires HIP to be found")
+        endif (HIP_FOUND)
+
+    endif(CHAMELEON_USE_HIP)
+
     # CHAMELEON depends on MPI
     #-------------------------
     if (CHAMELEON_USE_MPI)
@@ -564,6 +699,9 @@ if (NOT CHAMELEON_SIMULATION)
   ########################################
   if(CHAMELEON_USE_CUDA)
     add_subdirectory(cudablas)
+  endif()
+  if(CHAMELEON_USE_HIP)
+    add_subdirectory(hipblas)
   endif()
 
 endif()
