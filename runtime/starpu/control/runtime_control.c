@@ -19,7 +19,9 @@
  * @author Philippe Swartvagher
  * @author Samuel Thibault
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @author Terry Cojean
+ * @date 2023-01-30
  *
  */
 #include "chameleon_starpu.h"
@@ -221,8 +223,12 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
                                              );
 #endif
 
-#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA)
     starpu_cublas_init();
+#elif defined(CHAMELEON_USE_HIP)
+    starpu_hipblas_init();
+#endif
 #endif
 
     starpu_cham_tile_interface_init();
@@ -248,6 +254,9 @@ void RUNTIME_finalize( CHAM_context_t *chamctxt )
 
 #if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
     starpu_cublas_shutdown();
+#endif
+#if defined(CHAMELEON_USE_HIP) && !defined(CHAMELEON_SIMULATION)
+    starpu_hipblas_shutdown();
 #endif
 
 #if defined(CHAMELEON_USE_MPI)

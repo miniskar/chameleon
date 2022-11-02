@@ -17,7 +17,9 @@
  * @author Florent Pruvost
  * @author Philippe Swartvagher
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @author Terry Cojean
+ * @date 2023-01-30
  *
  */
 #ifndef _chameleon_starpu_h_
@@ -69,6 +71,14 @@
 #include <starpu_cublas.h>
 #include <cublas_v2.h>
 #include <starpu_cublas_v2.h>
+#endif
+
+#if defined(CHAMELEON_USE_HIP) && !defined(CHAMELEON_SIMULATION)
+#include <starpu_scheduler.h>
+#include <starpu_hip.h>
+
+#include <hipblas/hipblas.h>
+#include <starpu_hipblas.h>
 #endif
 
 #if defined(CHAMELEON_SIMULATION)

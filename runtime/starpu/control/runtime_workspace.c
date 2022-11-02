@@ -15,10 +15,25 @@
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  *
  */
 #include "chameleon_starpu.h"
+
+#if defined(CHAMELEON_USE_CUDA)
+#define GPU_WORKER_TYPE STARPU_CUDA_WORKER
+#define gpuMallocHost   cudaMallocHost
+#define gpuMalloc       cudaMalloc
+#define gpuFreeHost     cudaFreeHost
+#define gpuFree         cudaFree
+#elif defined(CHAMELEON_USE_HIP)
+#define GPU_WORKER_TYPE STARPU_HIP_WORKER
+#define gpuMallocHost   hipMallocHost
+#define gpuMalloc       hipMalloc
+#define gpuFreeHost     hipFreeHost
+#define gpuFree         hipFree
+#endif
 
 static void RUNTIME_allocate_workspace_on_workers(void *arg)
 {
@@ -28,9 +43,10 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
 
     int id = starpu_worker_get_id();
 
-#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
     type = starpu_worker_get_type(id);
-    if (type == STARPU_CUDA_WORKER)
+    if ( type == GPU_WORKER_TYPE )
     {
         int memory_location = workspace->memory_location;
 
@@ -39,14 +55,15 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
             /* Use pinned memory because the kernel is very likely
              * to transfer these data between the CPU and the GPU.
              * */
-            cudaMallocHost(&workspace->workspaces[id], workspace->size);
+            gpuMallocHost( &workspace->workspaces[id], workspace->size );
         }
         else {
             /* Allocate on the device */
-            cudaMalloc(&workspace->workspaces[id], workspace->size);
+            gpuMalloc( &workspace->workspaces[id], workspace->size );
         }
     }
     else
+#endif
 #endif
     {
         /* This buffer should only be used within the CPU kernel, so
@@ -54,7 +71,7 @@ static void RUNTIME_allocate_workspace_on_workers(void *arg)
         workspace->workspaces[id] = malloc(workspace->size);
     }
 
-    assert(workspace->workspaces[id]);
+    assert( workspace->workspaces[id] );
 }
 
 
@@ -65,24 +82,26 @@ static void RUNTIME_free_workspace_on_workers(void *arg)
     (void)type;
     int id = starpu_worker_get_id();
 
-#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
-    type = starpu_worker_get_type(id);
-    if (type == STARPU_CUDA_WORKER)
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
+    type = starpu_worker_get_type( id );
+    if ( type == GPU_WORKER_TYPE )
     {
         int memory_location = workspace->memory_location;
 
         if (memory_location == CHAMELEON_HOST_MEM)
         {
-            cudaFreeHost(workspace->workspaces[id]);
+            gpuFreeHost( workspace->workspaces[id] );
         }
         else {
-            cudaFree(workspace->workspaces[id]);
+            gpuFree( workspace->workspaces[id] );
         }
     }
     else
 #endif
+#endif
     {
-        free(workspace->workspaces[id]);
+        free( workspace->workspaces[id] );
     }
 
     workspace->workspaces[id] = NULL;

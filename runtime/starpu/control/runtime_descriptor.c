@@ -19,7 +19,8 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  *
  */
 #include "chameleon_starpu.h"
@@ -138,6 +139,26 @@ void RUNTIME_free( void  *ptr,
 #endif
 }
 
+#if defined(CHAMELEON_USE_CUDA)
+
+#define gpuError_t              cudaError_t
+#define gpuHostRegister         cudaHostRegister
+#define gpuHostUnregister       cudaHostUnregister
+#define gpuHostRegisterPortable cudaHostRegisterPortable
+#define gpuSuccess              cudaSuccess
+#define gpuGetErrorString       cudaGetErrorString
+
+#elif defined(CHAMELEON_USE_HIP)
+
+#define gpuError_t              hipError_t
+#define gpuHostRegister         hipHostRegister
+#define gpuHostUnregister       hipHostUnregister
+#define gpuHostRegisterPortable hipHostRegisterPortable
+#define gpuSuccess              hipSuccess
+#define gpuGetErrorString       hipGetErrorString
+
+#endif
+
 /**
  *  Create data descriptor
  */
@@ -155,25 +176,27 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
     desc->schedopt = (void*)calloc(lnt*lmt,sizeof(starpu_data_handle_t));
     assert(desc->schedopt);
 
-#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
     /*
-     * Register allocated memory as CUDA pinned memory
+     * Register allocated memory as GPU pinned memory
      */
     if ( (desc->use_mat == 1) && (desc->register_mat == 1) )
     {
         int64_t eltsze = CHAMELEON_Element_Size(desc->dtyp);
         size_t size = (size_t)(desc->llm) * (size_t)(desc->lln) * eltsze;
-        cudaError_t rc;
+        gpuError_t rc;
 
         /* Register the matrix as pinned memory */
-        rc = cudaHostRegister( desc->mat, size, cudaHostRegisterPortable );
-        if ( rc != cudaSuccess )
+        rc = gpuHostRegister( desc->mat, size, gpuHostRegisterPortable );
+        if ( rc != gpuSuccess )
         {
             /* Disable the unregister as register failed */
             desc->register_mat = 0;
-            chameleon_warning("RUNTIME_desc_create(StarPU): cudaHostRegister - ", cudaGetErrorString( rc ));
+            chameleon_warning("RUNTIME_desc_create(StarPU): gpuHostRegister - ", gpuGetErrorString( rc ));
         }
     }
+#endif
 #endif
 
     if (desc->ooc) {
@@ -247,18 +270,20 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
             }
         }
 
-#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
         if ( (desc->use_mat == 1) && (desc->register_mat == 1) )
         {
             /* Unmap the pinned memory associated to the matrix */
-            if (cudaHostUnregister(desc->mat) != cudaSuccess)
+            if (gpuHostUnregister(desc->mat) != gpuSuccess)
             {
                 chameleon_warning("RUNTIME_desc_destroy(StarPU)",
-                                  "cudaHostUnregister failed to unregister the "
+                                  "gpuHostUnregister failed to unregister the "
                                   "pinned memory associated to the matrix");
             }
         }
-#endif /* defined(CHAMELEON_USE_CUDA) */
+#endif
+#endif
 
         free(desc->schedopt);
     }

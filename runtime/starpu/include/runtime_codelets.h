@@ -16,7 +16,8 @@
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  *
  */
 #ifndef _runtime_codelets_h_
@@ -25,14 +26,31 @@
 #include "chameleon/config.h"
 #include "runtime_codelet_profile.h"
 
-//#undef STARPU_CUDA_ASYNC
-#ifdef STARPU_CUDA_ASYNC
+#if defined(STARPU_CUDA_ASYNC)
 #define CODELET_CUDA_FLAGS(flags) .cuda_flags = {(flags)},
 #else
 #define CODELET_CUDA_FLAGS(flags)
 #endif
 
-#define CODELETS_ALL(cl_name, cpu_func_name, cuda_func_name, _original_location_, cuda_flags) \
+#if defined(STARPU_HIP_ASYNC)
+#define CODELET_HIP_FLAGS(flags) .hip_flags = {(flags)},
+#else
+#define CODELET_HIP_FLAGS(flags)
+#endif
+
+#if defined(CHAMELEON_USE_CUDA)
+#define CODELET_GPU_FIELDS( gpu_func_name, gpu_flags )                 \
+        CODELET_CUDA_FLAGS( gpu_flags )                                \
+        .cuda_func = ((gpu_func_name)),
+#elif defined(CHAMELEON_USE_HIP)
+#define CODELET_GPU_FIELDS( gpu_func_name, gpu_flags )                 \
+        CODELET_HIP_FLAGS( gpu_flags )                                 \
+        .hip_funcs = {(gpu_func_name)},
+#else
+#define CODELET_GPU_FIELDS( gpu_func_name, gpu_flags )
+#endif
+
+#define CODELETS_ALL(cl_name, cpu_func_name, gpu_func_name, _original_location_, gpu_flags) \
     struct starpu_perfmodel cl_##cl_name##_fake = {                     \
         .type   = STARPU_HISTORY_BASED,                                 \
         .symbol = "fake_"#cl_name                                       \
@@ -46,8 +64,7 @@
     struct starpu_codelet cl_##cl_name = {                              \
         .where     = (_original_location_),                             \
         .cpu_func  = ((cpu_func_name)),                                 \
-        CODELET_CUDA_FLAGS(cuda_flags)                                  \
-        .cuda_func = ((cuda_func_name)),                                \
+        CODELET_GPU_FIELDS( gpu_func_name, gpu_flags )                  \
         .nbuffers  = STARPU_VARIABLE_NBUFFERS,                          \
         .model     = &cl_##cl_name##_model,                             \
         .name      = #cl_name                                           \
@@ -77,8 +94,13 @@
     CODELETS_ALL( name, cpu_func_name, NULL, STARPU_CPU, 0 )
 #endif
 
-#define CODELETS_GPU(name, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_ALL( name, cpu_func_name, cuda_func_name, STARPU_CPU  | STARPU_CUDA, cuda_flags )
+#if defined(CHAMELEON_USE_HIP)
+#define CODELETS_GPU(name, cpu_func_name, gpu_func_name, gpu_flags) \
+    CODELETS_ALL( name, cpu_func_name, gpu_func_name, STARPU_CPU | STARPU_HIP, gpu_flags )
+#else
+#define CODELETS_GPU(name, cpu_func_name, gpu_func_name, gpu_flags) \
+    CODELETS_ALL( name, cpu_func_name, gpu_func_name, STARPU_CPU | STARPU_CUDA, gpu_flags )
+#endif
 
 #define CODELETS_ALL_HEADER(name)                            \
      CHAMELEON_CL_CB_HEADER(name);                           \
@@ -89,27 +111,33 @@
      void cl_##name##_restore_where(void)
 
 #if defined(CHAMELEON_SIMULATION)
-#if defined(CHAMELEON_USE_CUDA)
-#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_GPU(name, (starpu_cpu_func_t) 1, (starpu_cuda_func_t) 1, cuda_flags)
+
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
+#define CODELETS(name, cpu_func_name, gpu_func_name, gpu_flags) \
+    CODELETS_GPU(name, (starpu_cpu_func_t) 1, (starpu_cuda_func_t) 1, gpu_flags)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #else
-#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+#define CODELETS(name, cpu_func_name, gpu_func_name, gpu_flags) \
     CODELETS_CPU(name, (starpu_cpu_func_t) 1)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #endif
-#elif defined(CHAMELEON_USE_CUDA)
-#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
-    CODELETS_GPU(name, cpu_func_name, cuda_func_name, cuda_flags)
+
+#else /* defined(CHAMELEON_SIMULATION) */
+
+#if defined(CHAMELEON_USE_CUDA) //|| defined(CHAMELEON_USE_HIP)
+#define CODELETS(name, cpu_func_name, gpu_func_name, gpu_flags) \
+    CODELETS_GPU(name, cpu_func_name, gpu_func_name, gpu_flags)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
 #else
-#define CODELETS(name, cpu_func_name, cuda_func_name, cuda_flags) \
+#define CODELETS(name, cpu_func_name, gpu_func_name, gpu_flags) \
     CODELETS_CPU(name, cpu_func_name)
 
 #define CODELETS_HEADER(name)  CODELETS_ALL_HEADER(name)
+#endif
+
 #endif
 
 CODELETS_HEADER(map);

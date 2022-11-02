@@ -17,7 +17,8 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  * @precisions normal z -> c d s
  *
  */
@@ -31,10 +32,16 @@
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas/coreblas_z.h"
 #include "coreblas/coreblas_ztile.h"
+
 #if defined(CHAMELEON_USE_CUDA)
 #include "cudablas.h"
 #endif
+
+#if defined(CHAMELEON_USE_HIP)
+#include "hipblas.h"
 #endif
+
+#endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * BLAS 1 functions

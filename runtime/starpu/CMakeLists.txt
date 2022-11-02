@@ -24,7 +24,9 @@
 #  @author Florent Pruvost
 #  @author Samuel Thibault
 #  @author Matthieu Kuhn
-#  @date 2022-02-22
+#  @author Loris Lucido
+#  @author Terry Cojean
+#  @date 2023-01-30
 #
 ###
 cmake_minimum_required(VERSION 3.1)
@@ -144,6 +146,13 @@ if ( STARPU_FOUND )
     check_function_exists(starpu_cublas_get_local_handle HAVE_STARPU_CUBLAS_GET_LOCAL_HANDLE)
     if ( NOT HAVE_STARPU_CUBLAS_GET_LOCAL_HANDLE )
       message(FATAL_ERROR "The detected StarPU library does not include cublas support. Please disable CHAMELEON_USE_CUDA or provide a StarPU library with cublas support.")
+    endif()
+  endif()
+
+  if (CHAMELEON_USE_HIP AND NOT CHAMELEON_SIMULATION)
+    check_function_exists(starpu_hipblas_get_local_handle HAVE_STARPU_HIPBLAS_GET_LOCAL_HANDLE)
+    if ( NOT HAVE_STARPU_HIPBLAS_GET_LOCAL_HANDLE )
+      message(FATAL_ERROR "The detected StarPU library does not include hipblas support. Please disable CHAMELEON_USE_HIP_{CUDA,ROC} or provide a StarPU library with hipblas support.")
     endif()
   endif()
 
@@ -268,6 +277,9 @@ if (NOT CHAMELEON_SIMULATION)
   if (CHAMELEON_USE_CUDA)
     add_dependencies(chameleon_starpu cudablas_include)
   endif()
+  if (CHAMELEON_USE_HIP)
+    add_dependencies(chameleon_starpu hipblas_include)
+  endif()
 endif()
 
 target_include_directories(chameleon_starpu PUBLIC
@@ -294,6 +306,9 @@ if (NOT CHAMELEON_SIMULATION)
   if(CHAMELEON_USE_CUDA)
     target_link_libraries(chameleon_starpu PRIVATE cudablas)
   endif(CHAMELEON_USE_CUDA)
+  if(CHAMELEON_USE_HIP)
+    target_link_libraries(chameleon_starpu PRIVATE hipblas)
+  endif(CHAMELEON_USE_HIP)
 endif(NOT CHAMELEON_SIMULATION)
 target_link_libraries(chameleon_starpu PRIVATE MORSE::M)
 
@@ -306,6 +321,9 @@ endif()
 if (NOT CHAMELEON_SIMULATION)
   if (CHAMELEON_USE_CUDA)
     target_link_libraries(chameleon_starpu PUBLIC CUDA::CUBLAS)
+  endif()
+  if (CHAMELEON_USE_HIP)
+    target_link_libraries(chameleon_starpu PUBLIC HIP::HIPBLAS)
   endif()
 endif()
 
