@@ -93,13 +93,14 @@ chameleon_env_is_set_to(char * str, char * value) {
 }
 
 static inline int
-chameleon_env_is_on(char * str) {
-    return chameleon_env_is_set_to(str, "1");
-}
-
-static inline int
-chameleon_env_is_off(char * str) {
-    return chameleon_env_is_set_to(str, "0");
+chameleon_env_on_off( char * str, int default_value ) {
+    if ( chameleon_env_is_set_to(str, "1") ) {
+        return CHAMELEON_TRUE;
+    }
+    if ( chameleon_env_is_set_to(str, "0") ) {
+        return CHAMELEON_FALSE;
+    }
+    return default_value;
 }
 
 static inline int
