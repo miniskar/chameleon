@@ -19,7 +19,8 @@
  * @author Philippe Virouleau
  * @author Samuel Thibault
  * @author Philippe Swartvagher
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @date 2023-01-30
  *
  ***
  *
@@ -65,7 +66,7 @@ int __chameleon_init(int cores, int gpus)
  * @param[in] ncpus
  *          Number of cores to use.
  *
- * @param[in] ncudas
+ * @param[in] ngpus
  *          Number of cuda devices to use.
  *
  * @param[in] nthreads_per_worker
@@ -76,7 +77,7 @@ int __chameleon_init(int cores, int gpus)
  * @retval CHAMELEON_SUCCESS successful exit
  *
  */
-int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
+int __chameleon_initpar(int ncpus, int ngpus, int nthreads_per_worker)
 {
     CHAM_context_t *chamctxt;
 
@@ -113,14 +114,14 @@ int __chameleon_initpar(int ncpus, int ncudas, int nthreads_per_worker)
 #  endif
 #endif
 
-#if !defined(CHAMELEON_USE_CUDA)
-    if ( ncudas != 0 ) {
-        chameleon_warning("CHAMELEON_Init", "CHAMELEON_USE_CUDA is not defined, ncudas is forced to 0");
-        ncudas = 0;
+#if !defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_USE_HIP)
+    if ( ngpus != 0 ) {
+        chameleon_warning("CHAMELEON_Init", "CHAMELEON_USE_CUDA or CHAMELEON_USE_HIP are not defined, ngpus is forced to 0");
+        ngpus = 0;
     }
 #endif
 
-    return RUNTIME_init( chamctxt, ncpus, ncudas, nthreads_per_worker );
+    return RUNTIME_init( chamctxt, ncpus, ngpus, nthreads_per_worker );
 }
 
 /**
