@@ -75,12 +75,38 @@ cl_zsyrk_cuda_func(void *descr[], void *cl_arg)
         handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
+
+#if defined(CHAMELEON_USE_HIP)
+static void
+cl_zsyrk_hip_func(void *descr[], void *cl_arg)
+{
+    hipblasHandle_t handle = starpu_hipblas_get_local_handle();
+    struct cl_zsyrk_args_s *clargs = (struct cl_zsyrk_args_s *)cl_arg;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileC;
+
+    tileA = cti_interface_get(descr[0]);
+    tileC = cti_interface_get(descr[1]);
+
+    HIP_zsyrk(
+        clargs->uplo, clargs->trans, clargs->n, clargs->k,
+        (hipDoubleComplex*)&(clargs->alpha),
+        tileA->mat, tileA->ld,
+        (hipDoubleComplex*)&(clargs->beta),
+        tileC->mat, tileC->ld,
+        handle );
+}
+#endif /* defined(CHAMELEON_USE_HIP) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
+#if defined(CHAMELEON_USE_HIP)
+CODELETS_GPU( zsyrk, cl_zsyrk_cpu_func, cl_zsyrk_hip_func, STARPU_HIP_ASYNC )
+#else
 CODELETS( zsyrk, cl_zsyrk_cpu_func, cl_zsyrk_cuda_func, STARPU_CUDA_ASYNC )
+#endif
 
 void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
                         cham_uplo_t uplo, cham_trans_t trans,

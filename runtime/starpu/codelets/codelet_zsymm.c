@@ -58,7 +58,7 @@ cl_zsymm_cpu_func( void *descr[], void *cl_arg )
                  clargs->beta,  tileC );
 }
 
-#ifdef CHAMELEON_USE_CUDA
+#if defined(CHAMELEON_USE_CUDA)
 static void
 cl_zsymm_cuda_func( void *descr[], void *cl_arg )
 {
@@ -87,12 +87,46 @@ cl_zsymm_cuda_func( void *descr[], void *cl_arg )
         handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
+
+#if defined(CHAMELEON_USE_HIP)
+static void
+cl_zsymm_hip_func( void *descr[], void *cl_arg )
+{
+    struct cl_zsymm_args_s *clargs = (struct cl_zsymm_args_s *)cl_arg;
+    hipblasHandle_t         handle = starpu_hipblas_get_local_handle();
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileC;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileC->format & CHAMELEON_TILE_FULLRANK );
+
+    HIP_zsymm(
+        clargs->side, clargs->uplo,
+        clargs->m, clargs->n,
+        (hipDoubleComplex*)&(clargs->alpha),
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        (hipDoubleComplex*)&(clargs->beta),
+        tileC->mat, tileC->ld,
+        handle );
+}
+#endif /* defined(CHAMELEON_USE_HIP) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
+#if defined(CHAMELEON_USE_HIP)
+CODELETS_GPU( zsymm, cl_zsymm_cpu_func, cl_zsymm_hip_func, STARPU_HIP_ASYNC )
+#else
 CODELETS( zsymm, cl_zsymm_cpu_func, cl_zsymm_cuda_func, STARPU_CUDA_ASYNC )
+#endif
 
 void INSERT_TASK_zsymm_Astat( const RUNTIME_option_t *options,
                               cham_side_t side, cham_uplo_t uplo,

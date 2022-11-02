@@ -48,7 +48,7 @@ static void cl_zsyr2k_cpu_func(void *descr[], void *cl_arg)
                  n, k, alpha, tileA, tileB, beta, tileC);
 }
 
-#ifdef CHAMELEON_USE_CUDA
+#if defined(CHAMELEON_USE_CUDA)
 static void cl_zsyr2k_cuda_func(void *descr[], void *cl_arg)
 {
     cublasHandle_t handle = starpu_cublas_get_local_handle();
@@ -75,13 +75,46 @@ static void cl_zsyr2k_cuda_func(void *descr[], void *cl_arg)
                  &beta,  tileC->mat, tileC->ld,
                  handle );
 }
-#endif /* CHAMELEON_USE_CUDA */
+#endif /* defined(CHAMELEON_USE_CUDA) */
+
+#if defined(CHAMELEON_USE_HIP)
+static void cl_zsyr2k_hip_func(void *descr[], void *cl_arg)
+{
+    hipblasHandle_t handle = starpu_hipblas_get_local_handle();
+    cham_uplo_t uplo;
+    cham_trans_t trans;
+    int n;
+    int k;
+    hipDoubleComplex alpha;
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    hipDoubleComplex beta;
+    CHAM_tile_t *tileC;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
+    starpu_codelet_unpack_args(cl_arg, &uplo, &trans, &n, &k, &alpha, &beta);
+
+    HIP_zsyr2k( uplo, trans,
+                 n, k,
+                 &alpha, tileA->mat, tileA->ld,
+                         tileB->mat, tileB->ld,
+                 &beta,  tileC->mat, tileC->ld,
+                 handle );
+}
+#endif /* defined(CHAMELEON_USE_HIP) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS(zsyr2k, cl_zsyr2k_cpu_func, cl_zsyr2k_cuda_func, STARPU_CUDA_ASYNC)
+#if defined(CHAMELEON_USE_HIP)
+CODELETS_GPU( zsyr2k, cl_zsyr2k_cpu_func, cl_zsyr2k_hip_func, STARPU_HIP_ASYNC )
+#else
+CODELETS( zsyr2k, cl_zsyr2k_cpu_func, cl_zsyr2k_cuda_func, STARPU_CUDA_ASYNC )
+#endif
 
 /**
  *
