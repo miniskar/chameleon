@@ -195,8 +195,8 @@ chameleon_pzgemm_summa( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
 
     KT  = transA == ChamNoTrans ? A->nt : A->mt;
     K   = transA == ChamNoTrans ? A->n  : A->m;
-    myp = A->myrank / A->q;
-    myq = A->myrank % A->q;
+    myp = C->myrank / C->q;
+    myq = C->myrank % C->q;
 
     /*
      *  A: ChamNoTrans / B: ChamNoTrans
