@@ -129,15 +129,7 @@ if ( STARPU_FOUND )
     if ( HAVE_STARPU_MPI_COMM_GET_ATTR )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_COMM_GET_ATTR${ColourReset}")
     endif()
-    check_c_source_compiles("
-#include <starpu.h>
-int main(void) {
-  enum starpu_data_access_mode access = STARPU_MPI_REDUX;
-  return 0;
-}
-"
-      HAVE_STARPU_MPI_REDUX
-      )
+    check_function_exists(starpu_mpi_redux_data_prio_tree HAVE_STARPU_MPI_REDUX)
     if ( HAVE_STARPU_MPI_REDUX )
       message("-- ${Blue}Add definition HAVE_STARPU_MPI_REDUX${ColourReset}")
     endif()
