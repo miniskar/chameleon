@@ -105,7 +105,6 @@ typedef struct starpu_option_request_s {
 #endif
 
 #if defined(CHAMELEON_USE_MPI)
-#undef STARPU_REDUX
 
 #if defined(CHAMELEON_RUNTIME_SYNC)
 #define rt_starpu_insert_task( _codelet_, ... )                         \
