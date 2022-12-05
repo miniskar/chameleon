@@ -19,6 +19,7 @@
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
+ * @author Romain Peressoni
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

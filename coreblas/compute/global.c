@@ -17,6 +17,7 @@
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
+ * @author Alycia Lisito
  * @date 2022-02-22
  *
  */

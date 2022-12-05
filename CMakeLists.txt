@@ -27,6 +27,7 @@
 #  @author Raphael Boucherie
 #  @author Samuel Thibault
 #  @author Guillaume Sylvand
+#  @author Alycia Lisito
 #  @date 2022-02-22
 #
 ###

@@ -21,6 +21,7 @@
  * @author Florent Pruvost
  * @author Gwenole Lucas
  * @author Philippe Swartvagher
+ * @author Lucas Nesi
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

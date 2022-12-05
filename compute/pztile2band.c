@@ -15,6 +15,7 @@
  * @author Azzam Haidar
  * @author Gregoire Pichon
  * @author Mathieu Faverge
+ * @author Alycia Lisito
  * @date 2022-02-22
  * @precisions normal z -> s d c
  *
