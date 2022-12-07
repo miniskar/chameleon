@@ -12,6 +12,7 @@
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
+ * @author Florent Pruvost
  * @date 2022-02-22
  *
  */

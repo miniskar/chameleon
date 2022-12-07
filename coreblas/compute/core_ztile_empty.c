@@ -11,6 +11,7 @@
  *
  * @version 1.2.0
  * @author Mathieu Faverge
+ * @author Alycia Lisito
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

@@ -15,6 +15,7 @@
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
+ * @author Philippe Swartvagher
  * @date 2022-03-30
  * @precisions normal z -> c d s
  *

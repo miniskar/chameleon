@@ -14,6 +14,7 @@
  * @version 1.2.0
  * @author Romain Peressoni
  * @author Mathieu Faverge
+ * @author Antoine Jego
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

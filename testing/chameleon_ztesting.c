@@ -13,12 +13,13 @@
  *
  * @version 1.2.0
  * @author Mathieu Faverge
- * @author Cédric Castagnède
+ * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
- * @author AGULLO Emmanuel
+ * @author Emmanuel Agullo
  * @author Alycia Lisito
  * @author Philippe Swartvagher
+ * @author Lucas Nesi
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

@@ -13,6 +13,7 @@
  *
  * @version 1.1.0
  * @author Alycia Lisito
+ * @author Lucas Nesi
  * @date 2022-02-25
  * @precisions normal z -> c d s
  *

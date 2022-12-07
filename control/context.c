@@ -131,13 +131,13 @@ CHAM_context_t *chameleon_context_create()
     chamctxt->ncudas             = 0;
     chamctxt->nthreads_per_worker= 1;
 
-    chamctxt->warnings_enabled   = chameleon_env_is_off( "CHAMELEON_WARNINGS" );
-    chamctxt->autotuning_enabled = chameleon_env_is_on( "CHAMELEON_AUTOTUNING" );
-    chamctxt->parallel_enabled   = chameleon_env_is_on( "CHAMELEON_PARALLEL_KERNEL" );
-    chamctxt->statistics_enabled = chameleon_env_is_on( "CHAMELEON_GENERATE_STATS" );
-    chamctxt->progress_enabled   = chameleon_env_is_on( "CHAMELEON_PROGRESS" );
-    chamctxt->generic_enabled    = chameleon_env_is_on( "CHAMELEON_GENERIC" );
-    chamctxt->autominmax_enabled = chameleon_env_is_on( "CHAMELEON_AUTOMINMAX" );
+    chamctxt->warnings_enabled   = chameleon_env_on_off( "CHAMELEON_WARNINGS",        CHAMELEON_TRUE  );
+    chamctxt->autotuning_enabled = chameleon_env_on_off( "CHAMELEON_AUTOTUNING",      CHAMELEON_FALSE );
+    chamctxt->parallel_enabled   = chameleon_env_on_off( "CHAMELEON_PARALLEL_KERNEL", CHAMELEON_FALSE );
+    chamctxt->statistics_enabled = chameleon_env_on_off( "CHAMELEON_GENERATE_STATS",  CHAMELEON_FALSE );
+    chamctxt->progress_enabled   = chameleon_env_on_off( "CHAMELEON_PROGRESS",        CHAMELEON_FALSE );
+    chamctxt->generic_enabled    = chameleon_env_on_off( "CHAMELEON_GENERIC",         CHAMELEON_FALSE );
+    chamctxt->autominmax_enabled = chameleon_env_on_off( "CHAMELEON_AUTOMINMAX",      CHAMELEON_TRUE  );
 
     chamctxt->runtime_paused     = CHAMELEON_FALSE;
 

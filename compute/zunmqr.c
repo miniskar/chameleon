@@ -21,6 +21,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Raphael Boucherie
+ * @author Alycia Lisito
  * @date 2022-02-22
  * @precisions normal z -> s d c
  *

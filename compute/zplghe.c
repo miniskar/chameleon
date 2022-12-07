@@ -18,8 +18,9 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
- * @author Rade Mathis
+ * @author Mathis Rade
  * @author Florent Pruvost
+ * @author Alycia Lisito
  * @date 2022-02-22
  * @precisions normal z -> c
  *

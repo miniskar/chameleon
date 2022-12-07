@@ -12,6 +12,7 @@
  * @version 1.2.0
  * @author Philippe Virouleau
  * @author Mathieu Faverge
+ * @author Romain Peressoni
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *
