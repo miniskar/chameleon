@@ -61,6 +61,10 @@ set(ZSRC
   src/lapack_zher2k.c
   src/lapack_zherk.c
   src/lapack_zlacpy.c
+  src/lapack_zlange.c
+  src/lapack_zlanhe.c
+  src/lapack_zlansy.c
+  src/lapack_zlantr.c
   src/lapack_zlaset.c
   src/lapack_zlauum.c
   src/lapack_zposv.c
