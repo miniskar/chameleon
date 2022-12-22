@@ -91,3 +91,25 @@ int chameleon_blastocblas_diag(const char* diag)
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 }
+
+/**
+ * @brief Convert the input char LAPACK norm parameter to a compatible parameter
+ * for the Chameleon API.
+ * @param[in] norm The input char LAPACK norm parameter
+ * @return The Chameleon equivalent parameter (ChamMaxNorm, ChamOneNorm, etc).
+ */
+int chameleon_lapacktochameleon_norm(const char* norm)
+{
+    if ( (*norm == 'M') || (*norm == 'm') ) {
+        return ChamMaxNorm;
+    } else if ( (*norm == '1') || (*norm == 'O') || (*norm == 'o') ) {
+        return ChamOneNorm;
+    } else if ( (*norm == 'I') || (*norm == 'i') ) {
+        return ChamInfNorm;
+    } else if ( (*norm == 'F') || (*norm == 'f') || (*norm == 'E') || (*norm == 'e') ) {
+        return ChamFrobeniusNorm;
+    } else {
+        fprintf(stderr, "CHAMELEON ERROR: %s(): %s\n", "chameleon_lapacktochameleon_norm", "illegal value of LAPACK norm parameter");
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+}

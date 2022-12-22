@@ -83,6 +83,18 @@ int CHAMELEON_lapacke_zlacpy( int matrix_layout, char uplo, int M, int N,
                               const CHAMELEON_Complex64_t *A, int lda,
                                     CHAMELEON_Complex64_t *B, int ldb );
 
+double CHAMELEON_lapacke_zlange( int matrix_layout, char norm, int M, int N,
+                                 const CHAMELEON_Complex64_t *A, int lda );
+
+double CHAMELEON_lapacke_zlanhe( int matrix_layout, char norm, char uplo, int N,
+                                 const CHAMELEON_Complex64_t *A, int lda );
+
+double CHAMELEON_lapacke_zlansy( int matrix_layout, char norm, char uplo, int N,
+                                 const CHAMELEON_Complex64_t *A, int lda );
+
+double CHAMELEON_lapacke_zlantr( int matrix_layout, char norm, char uplo, char diag,
+                                 int M, int N, const CHAMELEON_Complex64_t *A, int lda );
+
 int CHAMELEON_lapacke_zlaset( int matrix_layout, char uplo, int M, int N,
                               const CHAMELEON_Complex64_t alpha, const CHAMELEON_Complex64_t beta,
                                     CHAMELEON_Complex64_t *A, int lda );
