@@ -330,6 +330,7 @@ endif()
 # Add math library (libm), searched with MORSE module FindM.cmake
 # it normally exists on all common systems provided with a C compiler
 find_package(M REQUIRED)
+morse_export_imported_target(MORSE M m chameleon)
 
 # If simulation we don't enter in kernel functions so that we don't need to link
 # with concerned libraries
@@ -346,10 +347,12 @@ if(NOT CHAMELEON_SIMULATION)
     # CHAMELEON depends on CBLAS
     #---------------------------
     find_package(CBLAS REQUIRED)
+    morse_export_imported_target(MORSE CBLAS cblas chameleon)
 
     # CHAMELEON depends on LAPACKE
     #-----------------------------
     find_package(LAPACKE REQUIRED)
+    morse_export_imported_target(MORSE LAPACKE lapacke chameleon)
 
     # CHAMELEON depends on CUDA/CUBLAS
     #----------------------------------
@@ -396,6 +399,8 @@ if(NOT CHAMELEON_SIMULATION)
                 "\n   CUDA_LIBRARIES to be found. Be sure you have"
                 "\n   libcuda with your distribution of CUDA.")
             endif()
+            morse_export_imported_target(CUDA CUDA cuda chameleon)
+            morse_export_imported_target(CUDA CUBLAS cublas chameleon)
         endif (CUDA_FOUND)
 
     endif(CHAMELEON_USE_CUDA)
@@ -416,6 +421,8 @@ if(NOT CHAMELEON_SIMULATION)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
         endif (MPI_C_FOUND)
+
+        morse_export_imported_target(MPI MPI_C mpi chameleon)
 
     endif (CHAMELEON_USE_MPI)
 
@@ -503,6 +510,8 @@ else (NOT CHAMELEON_SIMULATION)
             message("-- ${Blue}Add definition CHAMELEON_USE_MPI"
             " - Activate MPI in Chameleon${ColourReset}")
         endif (MPI_C_FOUND)
+
+        morse_export_imported_target(MPI MPI_C mpi chameleon)
 
     endif (CHAMELEON_USE_MPI)
 
@@ -650,10 +659,6 @@ write_basic_package_version_file(CHAMELEONConfigVersion.cmake
 # Install config files
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/CHAMELEONConfigVersion.cmake
         DESTINATION ${LIB_INSTALL_DIR}/cmake/chameleon)
-
-# need MORSE Find modules: necessary files must be distributed in the install path
-set(morse_dependencies "M;BLASEXT;LAPACKEXT;CBLAS;LAPACKE;HWLOC;PARSEC;QUARK;STARPU")
-morse_install_finds(morse_dependencies ${LIB_INSTALL_DIR}/cmake/chameleon/find)
 
 ###############################################################################
 # Config files (pkg_config) #

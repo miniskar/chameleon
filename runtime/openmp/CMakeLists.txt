@@ -29,6 +29,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 find_package(OpenMP REQUIRED)
+morse_export_imported_target(OpenMP OpenMP_C openmp chameleon)
 
 if ( OPENMP_FOUND )
   message("-- ${Blue}Add definition CHAMELEON_SCHED_OPENMP"

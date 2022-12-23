@@ -35,6 +35,7 @@ include(CheckStructHasMember)
 set(CHAMELEON_STARPU_VERSION "1.3" CACHE STRING "necessary STARPU API version")
 
 find_package(STARPU ${CHAMELEON_STARPU_VERSION} REQUIRED)
+morse_export_imported_target(MORSE STARPU starpu chameleon)
 
 # check available functions
 # note: recall STARPU_VERSION provides the version
