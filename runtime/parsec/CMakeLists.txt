@@ -29,6 +29,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 find_package( PARSEC REQUIRED )
+morse_export_imported_target(MORSE PARSEC parsec chameleon)
 
 if(PARSEC_FOUND)
   message("-- ${Blue}Add definition CHAMELEON_SCHED_PARSEC"
