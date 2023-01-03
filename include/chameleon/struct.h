@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -18,7 +18,7 @@
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2022-12-13
  *
  */
 #ifndef _chameleon_struct_h_
@@ -42,6 +42,7 @@ typedef struct chameleon_tile_s {
     void  *mat;
     int    rank, m, n, ld;
     int8_t format;
+    int8_t flttype;
 } CHAM_tile_t;
 
 /**

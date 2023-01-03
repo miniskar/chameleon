@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -18,7 +18,7 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2022-12-13
  *
  ***
  *
@@ -100,12 +100,13 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
     for( jj=0; jj<desc->lnt; jj++ ) {
         for( ii=0; ii<desc->lmt; ii++, tile++ ) {
             int rank = rankof( desc, ii, jj );
-            tile->format = CHAMELEON_TILE_FULLRANK;
-            tile->rank   = rank;
-            tile->m      = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
-            tile->n      = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
-            tile->mat    = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
-            tile->ld     = desc->get_blkldd( desc, ii );
+            tile->format  = CHAMELEON_TILE_FULLRANK;
+            tile->flttype = (int8_t)(desc->dtyp);
+            tile->rank    = rank;
+            tile->m       = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
+            tile->n       = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
+            tile->mat     = (rank == desc->myrank) ? desc->get_blkaddr( desc, ii, jj ) : NULL;
+            tile->ld      = desc->get_blkldd( desc, ii );
 #if defined(CHAMELEON_KERNELS_TRACE)
             chameleon_asprintf( &(tile->name), "%s(%d,%d)", desc->name, ii, jj );
 #endif
