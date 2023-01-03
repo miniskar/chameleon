@@ -98,6 +98,11 @@ parameter_t parameters[] = {
     { "mode",  "Mode that specifies the eigen/singular values in xlatms", -40, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2,  4, TestValInt,       {0}, NULL, pread_int,       sprint_int       },
     { "cond",  "Conditional number of the matrix used by xlatms",         -41, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 13, TestValDouble,    {0}, NULL, pread_double,    sprint_double    },
 
+#if defined(PRECISION_z) || defined(PRECISION_d)
+    { NULL, "Mixed precision Options", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
+    { "appaccuracy", "Application requested accuracy", -60, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 1, 13, TestValFixdbl, {0.}, NULL, pread_fixdbl, sprint_fixdbl },
+#endif
+
     { NULL, "Operation specific parameters", 0, PARAM_OPTION, 0, 0, 0, {0}, NULL, NULL, NULL },
     { "trans",  "Value of the trans parameter",  -11, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 9, TestTrans,    {0}, NULL, pread_trans, sprint_trans },
     { "transA", "Value of the transA parameter", -12, PARAM_OPTION | PARAM_INPUT | PARAM_OUTPUT, 2, 9, TestTrans,    {0}, NULL, pread_trans, sprint_trans },
@@ -164,7 +169,16 @@ int main (int argc, char **argv) {
 
 #if !defined(CHAMELEON_SIMULATION)
     /* Let's initialize the accuracy for the checks */
-    testing_setaccuracy( LAPACKE_dlamch_work('e') );
+    {
+        cham_fixdbl_t accuracy = parameters_getvalue_fixdbl( "appaccuracy" );
+        if ( accuracy > 0 ) {
+            testing_setaccuracy( accuracy );
+        }
+        else
+        {
+            testing_setaccuracy( LAPACKE_dlamch_work('e') );
+        }
+    }
 #endif
 
     rc = CHAMELEON_Init( options.threads, options.gpus );
