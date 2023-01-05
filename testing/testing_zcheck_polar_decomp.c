@@ -28,7 +28,6 @@
 
 #if !defined(CHAMELEON_SIMULATION)
 
-#include <coreblas/lapacke.h>
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #endif
@@ -79,7 +78,7 @@ int check_zgepdf_qr( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *des
     int N = descQ1->n;
     int K = descAF1->n;
     double result, Anorm, A1norm, A2norm, Rnorm;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     CHAM_desc_t *descR, *subR, *subAF;
 
     /*
@@ -187,7 +186,7 @@ int check_zxxpd( run_arg_list_t *args,
 {
     int info_local, info_global;
     double Anorm, Rnorm, result;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Compute ||A|| */
     Anorm = CHAMELEON_zlange_Tile( ChamFrobeniusNorm, descA );

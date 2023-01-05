@@ -25,6 +25,11 @@ extern testing_options_t options;
 static testing_t *testings = NULL;
 
 /**
+ * @brief Accuracy required to validate the tests
+ */
+static cham_fixdbl_t testing_accuracy = -1.;
+
+/**
  * @brief Function to register a new testing
  */
 void
@@ -227,3 +232,32 @@ testing_stop( testdata_t *tdata, cham_fixdbl_t flops )
     CHAMELEON_Resume();
 #endif
 }
+
+/**
+ * @brief Return the accuracy wanted to validate the tests
+ */
+cham_fixdbl_t
+testing_getaccuracy()
+{
+#if !defined(CHAMELEON_SIMULATION)
+    if ( testing_accuracy < 0. ) {
+        fprintf( stderr, "WARNING: Accuracy has not been initialized yet. Please call testing_setaccuracy() prior to calling testing_getaccuracy()\n" );
+        assert( 0 );
+    }
+#endif
+    return testing_accuracy;
+}
+
+/**
+ * @brief Set the global accuracy wanted to validate the tests
+ */
+void
+testing_setaccuracy( cham_fixdbl_t accuracy )
+{
+    if ( accuracy <= 0. ) {
+        fprintf( stderr, "WARNING: accuracy must be > 0.\n" );
+        return;
+    }
+    testing_accuracy = accuracy;
+}
+

@@ -119,7 +119,7 @@ int check_zgemm_std( run_arg_list_t *args, cham_trans_t transA, cham_trans_t tra
     /* Computes the norms for comparing */
     Crefnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
 
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Makes the multiplication with the core function */
     cblas_zgemm( CblasColMajor, (CBLAS_TRANSPOSE)transA, (CBLAS_TRANSPOSE)transB, M, N, K,
@@ -331,7 +331,7 @@ int check_zsymm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_side
     Crefnorm  = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, Cref, LDC, NULL );
     Cchamnorm = LAPACKE_zlange_work( LAPACK_COL_MAJOR, 'M', M, N, C,    LDC, NULL );
 
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Makes the multiplication with the core function */
 #if defined(PRECISION_z) || defined(PRECISION_c)
@@ -552,7 +552,7 @@ int check_zsyrk_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo
         Cchamnorm = LAPACKE_zlansy_work( LAPACK_COL_MAJOR, 'I', chameleon_lapack_const(uplo), N, C,    LDC, work );
     }
 
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     double ABnorm;
 
     /* Makes the multiplication with the core function */
@@ -787,7 +787,7 @@ int check_ztrmm_std( run_arg_list_t *args, int check_func, cham_side_t side, cha
     double  Anorm, Bnorm, Rnorm, result;
     char    normTypeA, normTypeB;
     double *work;
-    double  eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Computes the norms for comparing */
     if ( side == ChamLeft ) {
