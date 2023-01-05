@@ -4,17 +4,17 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
  * @brief MKL CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @author Alycia Lisito
  * @author Lucas Nesi
- * @date 2022-02-25
+ * @date 2023-01-05
  * @precisions normal z -> c d s
  *
  */

@@ -2,7 +2,7 @@
  *
  * @file testing_zcheck_polar_decomp.c
  *
- * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -15,7 +15,7 @@
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2022-03-30
+ * @date 2023-01-05
  * @precisions normal z -> c d s
  *
  */

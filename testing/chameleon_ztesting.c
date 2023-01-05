@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -20,7 +20,7 @@
  * @author Alycia Lisito
  * @author Philippe Swartvagher
  * @author Lucas Nesi
- * @date 2022-02-22
+ * @date 2023-01-05
  * @precisions normal z -> c d s
  *
  */
