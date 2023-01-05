@@ -28,7 +28,6 @@
 
 #if !defined(CHAMELEON_SIMULATION)
 
-#include <coreblas/lapacke.h>
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #endif
@@ -59,7 +58,7 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
     int N      = descQ->n;
     int minMN  = chameleon_min(M, N);
     double result, normR;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     CHAM_desc_t *descI, *subI;
 
     /* Builds the identity */
@@ -176,7 +175,7 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     int N = descQ->n;
     int K = chameleon_min( descA->m, descA->n );
     double result, Anorm, Rnorm;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     CHAM_desc_t *descL;
     int full_lq = ( M == N ) ? 1 : 0;
 
@@ -347,7 +346,7 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     int N = descQ->n;
     int K = chameleon_min( descA->m, descA->n );
     double result, Anorm, Rnorm;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     CHAM_desc_t *descR;
     int full_qr = ( M == N ) ? 1 : 0;
 
@@ -523,7 +522,7 @@ int check_zqc( run_arg_list_t *args, cham_side_t side, cham_trans_t trans,
     int info_local, info_global;
     int M = descQ->m;
     double Cnorm, Qnorm, CCnorm, Rnorm, result;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     Cnorm  = CHAMELEON_zlange_Tile( ChamOneNorm, descC );
     Qnorm  = CHAMELEON_zlange_Tile( ChamOneNorm, descQ );
@@ -667,7 +666,7 @@ int check_zgeqrs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     int maxMNK = chameleon_max( M, chameleon_max( N, NRHS ) );
     double Rnorm, result;
     double Anorm = CHAMELEON_zlange_Tile( ChamOneNorm, descA );
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
 
@@ -753,7 +752,7 @@ int check_zgelqs( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, 
     int maxMNK = chameleon_max( M, chameleon_max( N, NRHS ) );
     double Rnorm, result;
     double Anorm = CHAMELEON_zlange_Tile( ChamOneNorm, descA );
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
 
@@ -879,13 +878,13 @@ int check_zgels( run_arg_list_t *args, cham_trans_t trans, CHAM_desc_t *descA, C
  *
  * @param[in] X
  *          The matrix X.
- * 
+ *
  * @param[in] LDX
  *          The leading dimension of the matrix X.
  *
  * @param[in] B
  *          The matrix B.
- * 
+ *
  * @param[in] LDB
  *          The leading dimension fo the matrix B.
  *

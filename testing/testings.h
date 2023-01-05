@@ -290,4 +290,7 @@ void       testing_start( testdata_t *tdata );
 void       testing_stop( testdata_t *tdata, cham_fixdbl_t flops );
 void       testing_options_init( testing_options_t *options );
 
+cham_fixdbl_t testing_getaccuracy();
+void          testing_setaccuracy( cham_fixdbl_t accuracy );
+
 #endif /* _testings_h_ */

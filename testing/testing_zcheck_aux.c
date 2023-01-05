@@ -81,7 +81,7 @@ int check_zmatrices_std( run_arg_list_t *args, cham_uplo_t uplo, int M, int N, C
 {
     int info_solution        = 0;
     double Anorm, Rnorm, result;
-    double eps               = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     double *work = (double *)malloc( LDA*N*sizeof(double) );
 
@@ -237,7 +237,7 @@ int check_znorm_std( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_norm
     double *work       = (double*) malloc(chameleon_max(M, N)*sizeof(double));
     double norm_lapack;
     double result;
-    double eps         = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Computes the norm with the LAPACK function */
     switch (matrix_type) {
@@ -427,7 +427,7 @@ int check_zsum_std( run_arg_list_t *args, cham_uplo_t uplo, cham_trans_t trans, 
         Binitnorm = LAPACKE_zlantr( LAPACK_COL_MAJOR, 'M', chameleon_lapack_const(uplo), 'N', M, N, Bref, LDB );
     }
 
-    double  eps  = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     double *work = malloc(chameleon_max(M, N)* sizeof(double));
 
     /* Makes the sum with the core function */
@@ -690,7 +690,7 @@ int check_zrankk_std( run_arg_list_t *args, int M, int N, int K, CHAMELEON_Compl
     int info_solution = 0;
     int minMN = chameleon_min(M, N);
     double Anorm, Rnorm, result;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     Anorm = LAPACKE_zlange( LAPACK_COL_MAJOR, 'F', M, N, A, LDA );
 

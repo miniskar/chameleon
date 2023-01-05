@@ -24,7 +24,6 @@
 
 #if !defined(CHAMELEON_SIMULATION)
 
-#include <coreblas/lapacke.h>
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #endif
@@ -38,7 +37,7 @@
  * @ingroup testing
  *
  * @brief Checks if the Chameleon SVD algorithm works: Ainit = U * mat( S ) * Vt.
- *        - U and Vt should be orthogonal.  
+ *        - U and Vt should be orthogonal.
  *        - Sinit and S should be the same.
  *        - Ainit = U * mat( S ) * Vt.
  *
@@ -46,7 +45,7 @@
  *
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
- * 
+ *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V^H.
  *
@@ -58,22 +57,22 @@
  *
  * @param[in] Ainit
  *          The matrix Ainit (initial matrix A).
- * 
+ *
  * @param[in] A
- *          The matrix A after the SVD, can contain parts of the matrix U or Vt 
+ *          The matrix A after the SVD, can contain parts of the matrix U or Vt
  *          or nothing (depending on the values of jobu and jobvt).
  *
  * @param[in] LDA
  *          The leading dimension of the matrices A and Ainit.
  *
  * @param[in] Sinit
- *          The vector with the singular values of the matrix Ainit 
+ *          The vector with the singular values of the matrix Ainit
  *          (contains the K = min(M, N) singular values of Ainit).
- * 
+ *
  * @param[in] S
- *          The vector with the singular values of the matrix Ainit 
+ *          The vector with the singular values of the matrix Ainit
  *          computed by the Chameleon SVD algorithm.
- * 
+ *
  * @param[in] U
  *          The orthogonal matrix U computed by the Chameleon SVD algorithm can
  *          contain all of U, a part of U or nothing (NULL) depending on the value of jobu;
@@ -98,14 +97,14 @@
  *
  *******************************************************************************
  */
-int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, int M, int N, CHAMELEON_Complex64_t *Ainit, CHAMELEON_Complex64_t *A, int LDA, 
+int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, int M, int N, CHAMELEON_Complex64_t *Ainit, CHAMELEON_Complex64_t *A, int LDA,
                      double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt )
 {
     int info_solution = 0;
     double result;
     int k;
     int K = chameleon_min(M, N);
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     /* Checks if U is orthogonal */
     switch ( jobu ) {
@@ -174,7 +173,7 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
  * @ingroup testing
  *
  * @brief Checks if the Chameleon SVD algorithm works: descAinit = U * mat( S ) * Vt.
- *        - U and Vt should be orthogonal.  
+ *        - U and Vt should be orthogonal.
  *        - Sinit and S should be the same.
  *        - descAinit = U * mat( S ) * Vt.
  *
@@ -182,25 +181,25 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
  *
  * @param[in] jobu
  *          Specifies options for computing all or part of the matrix U.
- * 
+ *
  * @param[in] jobvt
  *          Specifies options for computing all or part of the matrix V^H.
  *
  * @param[in] descAinit
  *          The descriptor of the matrix Ainit (initial matrix A).
- * 
+ *
  * @param[in] descA
- *          The descriptor of the matrix A after the SVD, can contain parts of the matrix 
+ *          The descriptor of the matrix A after the SVD, can contain parts of the matrix
  *          U or Vt or nothing (depending on the values of jobu and jobvt).
  *
  * @param[in] Sinit
- *          The vector with the singular values of the matrix Ainit 
+ *          The vector with the singular values of the matrix Ainit
  *          (contains the K = min(M, N) singular values of Ainit).
- * 
+ *
  * @param[in] S
- *          The vector with the singular values of the matrix Ainit 
+ *          The vector with the singular values of the matrix Ainit
  *          computed by the Chameleon SVD algorithm.
- * 
+ *
  * @param[in] U
  *          The orthogonal matrix U computed by the Chameleon SVD algorithm can
  *          contain all of U, a part of U or nothing (NULL) depending on the value of jobu;
@@ -225,7 +224,7 @@ int check_zgesvd_std( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, i
  *
  *******************************************************************************
  */
-int check_zgesvd( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *descAinit, CHAM_desc_t *descA, 
+int check_zgesvd( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *descAinit, CHAM_desc_t *descA,
                   double *Sinit, double *S, CHAMELEON_Complex64_t *U, int LDU, CHAMELEON_Complex64_t *Vt, int LDVt )
 {
     int info_solution;

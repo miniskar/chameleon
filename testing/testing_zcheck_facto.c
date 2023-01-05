@@ -28,7 +28,6 @@
 
 #if !defined(CHAMELEON_SIMULATION)
 
-#include <coreblas/lapacke.h>
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #endif
@@ -66,7 +65,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
 {
     int info_local, info_global;
     int N       = descA->n;
-    double eps  = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     double result, Anorm, AAtnorm, Rnorm;
     CHAM_desc_t *descAt;
 
@@ -202,7 +201,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     int M      = descA->m;
     int N      = descA->n;
     double Anorm, Rnorm, result;
-    double eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
 
     CHAM_desc_t *descL, *descU;
     cham_trans_t transL = ChamNoTrans;
@@ -396,7 +395,7 @@ int check_zsolve( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_trans_t
     int M                = descA->m;
     int N                = descA->n;
     double Anorm, Bnorm, Xnorm, Rnorm, result = 0;
-    double eps           = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     cham_normtype_t norm = (trans == ChamNoTrans) ? ChamOneNorm : ChamInfNorm;
 
     /* Computes the norms */
@@ -559,7 +558,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     cham_uplo_t  uplo_inv;
     CHAM_desc_t *descI, *descB = NULL;
     double       Rnorm, Anorm, Ainvnorm, result;
-    double       eps = LAPACKE_dlamch_work('e');
+    cham_fixdbl_t eps = testing_getaccuracy();
     int          N   = descA0->m;
 
     /* Creates an identity matrix */
