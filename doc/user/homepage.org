@@ -581,24 +581,30 @@
  PLASMA library to support multiple runtime systems, all developpers
  of the PLASMA library are developpers of the Chameleon library.
 
- The following people contributed to the development of Chameleon:
+ The following people contributes to the development of Chameleon:
  * Emmanuel Agullo, PI
  * Olivier Aumage
- * Cedric Castagnede
- * Terry Cojean
  * Mathieu Faverge, PI
  * Nathalie Furmento
- * Reazul Hoque
  * Hatem Ltaief
  * Gregoire Pichon
  * Florent Pruvost, PI
- * Marc Sergent
  * Guillaume Sylvand
  * Samuel Thibault
- * Stanimire Tomov
- * Omar Zenati
 
- If we forgot your name, please let us know that we can fix that mistake.
+And many other collaborators, students, PHDs, postdoc contributes or have contributed to the library:
+
+Cedric Augonnet, Lucas Barros de Assis, Dulceneia Becker, Raphael
+Boucherie, Henricus Bouwmeester, Rocio Carratala-Saez, Cedric
+Castagnede, Terry Cojean, Bilel Hadri, Azzam Haidar, Reazul Hoque,
+Antoine Jego, Vijay Joshi, Matthieu Kuhn, Jakub Kurzak, Julien Langou,
+Pierre Lemarinier, Alycia Lisito, Gwenole Lucas, Loris
+Lucido, Piotr Luszczek, Ali M Charara, Thomas Mijieux, Lucas Nesi, The
+Numerical Algorithm Group, Romain Peressoni, Mathis Rade, Marc
+Sergent, Dalal Sukkari, Philippe Swartvagher, Stanimire Tomov,
+Philippe Virouleau, Omar Zenati...
+
+If we forgot your name, please let us know that we can fix that mistake.
 
 * Citing Chameleon
 :PROPERTIES:

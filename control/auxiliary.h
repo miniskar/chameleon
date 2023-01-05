@@ -18,6 +18,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
+ * @author Loris Lucido
  * @date 2022-02-22
  *
  */

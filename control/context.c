@@ -19,6 +19,7 @@
  * @author Guillaume Sylvand
  * @author Alycia Lisito
  * @author Matthieu Kuhn
+ * @author Loris Lucido
  * @date 2022-02-22
  *
  ***
