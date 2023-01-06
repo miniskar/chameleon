@@ -2,7 +2,7 @@
  *
  * @file testing_zlantr.c
  *
- * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -14,6 +14,7 @@
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Philippe Swartvagher
+ * @author Florent Pruvost
  * @date 2022-02-14
  * @precisions normal z -> c d s
  *
