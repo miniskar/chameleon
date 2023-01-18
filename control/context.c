@@ -230,9 +230,9 @@ int CHAMELEON_Enable(int option)
             chameleon_error("CHAMELEON_Enable", "cannot enable GEMM3M (not available in cblas)");
 #endif
             break;
-        /* case CHAMELEON_PARALLEL: */
-        /*     chamctxt->parallel_enabled = CHAMELEON_TRUE; */
-        /*     break; */
+        case CHAMELEON_PARALLEL_KERNEL:
+            chamctxt->parallel_enabled = CHAMELEON_TRUE;
+            break;
         case CHAMELEON_GENERIC:
             chamctxt->generic_enabled = CHAMELEON_TRUE;
             break;
@@ -302,7 +302,7 @@ int CHAMELEON_Disable(int option)
             set_coreblas_gemm3m_enabled(0);
 #endif
             break;
-        case CHAMELEON_PARALLEL_MODE:
+        case CHAMELEON_PARALLEL_KERNEL:
             chamctxt->parallel_enabled = CHAMELEON_FALSE;
             break;
         case CHAMELEON_GENERIC:

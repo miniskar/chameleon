@@ -42,15 +42,15 @@ int _starpu_is_initialized(void);
  */
 void RUNTIME_context_create( CHAM_context_t *chamctxt )
 {
-    starpu_conf_t *conf;
-
     chamctxt->scheduler = RUNTIME_SCHED_STARPU;
 
-    if (! starpu_is_initialized() ) {
-        chamctxt->schedopt = (void*) malloc (sizeof(struct starpu_conf));
-        conf = chamctxt->schedopt;
+    if ( !starpu_is_initialized() ) {
+        starpu_sched_opt_t *sched_opt = malloc( sizeof(starpu_sched_opt_t) );
 
-        starpu_conf_init( conf );
+        sched_opt->pw_config = NULL;
+        starpu_conf_init( &(sched_opt->starpu_conf) );
+
+        chamctxt->schedopt = sched_opt;
     }
     else {
         chamctxt->schedopt = NULL;
@@ -65,8 +65,8 @@ void RUNTIME_context_create( CHAM_context_t *chamctxt )
 void RUNTIME_context_destroy( CHAM_context_t *chamctxt )
 {
     /* StarPU was already initialized by an external library */
-    if (chamctxt->schedopt) {
-        free(chamctxt->schedopt);
+    if ( chamctxt->schedopt ) {
+        free( chamctxt->schedopt );
     }
     return;
 }
