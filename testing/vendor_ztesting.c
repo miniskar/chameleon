@@ -19,6 +19,7 @@
  *
  */
 #include "testings.h"
+#include "coreblas/lapacke.h"
 
 testing_options_t options;
 
