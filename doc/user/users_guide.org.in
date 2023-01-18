@@ -70,3 +70,4 @@
 :END:
    <<sec:ug:using>>
  #+INCLUDE: @CMAKE_CURRENT_SOURCE_DIR@/chapters/using.org
+ #+INCLUDE: @CMAKE_CURRENT_SOURCE_DIR@/chapters/parallel_worker.org
