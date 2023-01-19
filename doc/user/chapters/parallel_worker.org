@@ -12,7 +12,7 @@ workers which execute a single parallel task (see [[https://files.inria.fr/starp
 
 To use this functionnality:
 - StarPU must be compiled with the configure option =--enable-parallel-worker=
-- Chameleon automatically detects if the StarPU parallel workers are available or not and can exploit them, but you need to force Chameleon to be linked with multi-threaded BLAS library if you want the parallel workers to be able to do parallel BLAS calls. To do that, you must add =-DCHAMELEON_KERNELS_MT=ON= to your cmake line.
+- Chameleon automatically detects if the StarPU parallel workers are available or not and can exploit them, but you need to force Chameleon to be linked with a multi-threaded BLAS library if you want the parallel workers to be able to do parallel BLAS calls. To do that, you must add =-DCHAMELEON_KERNELS_MT=ON= to your cmake line.
 
 Below are given some examples to use the couple Chameleon/StarPU to enable parallel tasks to be run concurrently. For now, this is only available for a few subset of tasks that are used in the Cholesky decomposition (=POTRF=, =TRSM=, =SYRK=, =HERK=, and =GEMM=) but all other algorithms using these kernels benefit from it.
 
