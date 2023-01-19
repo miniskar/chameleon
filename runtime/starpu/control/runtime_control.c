@@ -66,7 +66,7 @@ void chameleon_starpu_parallel_worker_init( starpu_sched_opt_t *sched_opt )
 
         if ( pw_config == NULL )
         {
-            fprintf( stderr, "error CHAMELEON_PARALLEL_WORKER_LEVEL : cannot create a parallel worker at %s level.\n", level );p
+            fprintf( stderr, "error CHAMELEON_PARALLEL_WORKER_LEVEL : cannot create a parallel worker at %s level.\n", level );
             exit(1);
         }
 
