@@ -37,6 +37,9 @@
 /* Debug coreblas execution order if not provided by the runtime */
 #cmakedefine CHAMELEON_KERNELS_TRACE
 
+/* Enable multi-threaded BLAS library */
+#cmakedefine CHAMELEON_KERNELS_MT
+
 /* Communication engine */
 #cmakedefine CHAMELEON_USE_MPI
 #cmakedefine CHAMELEON_USE_MIGRATE

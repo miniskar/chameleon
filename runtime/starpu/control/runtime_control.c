@@ -38,13 +38,16 @@ void chameleon_starpu_parallel_worker_init( starpu_sched_opt_t *sched_opt )
 
     if (env_pw_level != NULL) {
         struct starpu_parallel_worker_config *pw_config = NULL;
-
         hwloc_obj_type_t pw_level;
         int  pw_level_number = 1;
         char level[256];
 
         int argc  = strchr( env_pw_level, ':') == NULL ? 1 : 2;
         int match = sscanf( env_pw_level, "%[^:]:%d", level, &pw_level_number );
+
+#if !defined(CHAMELEON_KERNELS_MT)
+        chameleon_warning("chameleon_starpu_parallel_worker_init()", "CHAMELEON has been compiled with multi-threaded kernels disabled (-DCHAMELEON_KERNELS_MT=OFF). This won't break the execution, but you may not obtain the performance gain expected. It is recommended to recompile with -DCHAMELEON_KERNELS_MT=ON.\n");
+#endif
 
         if ( (match != argc) ||
              ((match == 2) && (pw_level_number < 0) ) )
