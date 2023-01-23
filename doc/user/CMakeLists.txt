@@ -58,6 +58,7 @@ set(FIGURES_USERGUIDE
     trace_qr.jpg
     potri_async.png
     chameleon_header.png
+    lstopo-sirocco24.png
     )
 foreach(_fig ${FIGURES_USERGUIDE})
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/chapters/${_fig}

@@ -12,7 +12,7 @@ workers which execute a single parallel task (see [[https://files.inria.fr/starp
 
 To use this functionnality:
 - StarPU must be compiled with the configure option =--enable-parallel-worker=
-- Chameleon automatically detects if the StarPU parallel workers are available or not and does not need any specific cmake options to use it.
+- Chameleon automatically detects if the StarPU parallel workers are available or not and can exploit them, but you need to force Chameleon to be linked with multi-threaded BLAS library if you want the parallel workers to be able to do parallel BLAS calls. To do that, you must add =-DCHAMELEON_KERNELS_MT=ON= to your cmake line.
 
 Below are given some examples to use the couple Chameleon/StarPU to enable parallel tasks to be run concurrently. For now, this is only available for a few subset of tasks that are used in the Cholesky decomposition (=POTRF=, =TRSM=, =SYRK=, =HERK=, and =GEMM=) but all other algorithms using these kernels benefit from it.
 
@@ -20,13 +20,10 @@ Below are given some examples to use the couple Chameleon/StarPU to enable paral
    :PROPERTIES:
    :CUSTOM_ID: environment-variables
    :END:
-- =CHAMELEON_PARALLEL_WORKER_LEVEL=hardware-level[:number-of-parallel-workers]=
-  : Specify the number of parallel workers per hardware-level - the
-  default value is 1. Note that hardware-level must correspond to an
-  hwloc machine level type (hwloc_obj_type_t) e.g. =L2=, =L3=, =SOCKET=,
-  =MACHINE=.
-- =CHAMELEON_PARALLEL_WORKER_SHOW= : When defined, the parallel workers
-  contents is displayed.
+
+ - =CHAMELEON_PARALLEL_WORKER_LEVEL=hardware-level[:number-of-parallel-workers]=
+Specify the number of parallel workers per hardware-level. The default value is 1. Note that hardware-level must correspond to an hwloc machine level type (hwloc_obj_type_t) e.g.: =L2=, =L3=, =SOCKET=, =MACHINE=.
+ - =CHAMELEON_PARALLEL_WORKER_SHOW= : When defined, the parallel workers contents is displayed.
 
 **** Limitations
    :PROPERTIES:
@@ -35,11 +32,10 @@ Below are given some examples to use the couple Chameleon/StarPU to enable paral
 
 For now, there is still an issue of bad performances with the usage of the =lws= scheduler with the parallel workers.
 
-
 **** Examples
 
 In the following examples, =STARPU_MAIN_THREAD_BIND= is set to 1 to bind
-the main thread of StarPU to a dedicated CPU to a reserved CPU,
+the main thread of StarPU to a dedicated CPU,
 subtracted from the CPU workers. This avoids using a whole parallel
 worker to make the submission.
 
@@ -57,8 +53,18 @@ CPUs are dedicated to run the GPUs.
   parallel worker does not have all the CPUs of the last L3 cache, as
   there are 3 dedicated CPUs.
 
+#+begin_src sh
+CHAMELEON_PARALLEL_WORKER_LEVEL=L3 \
+CHAMELEON_PARALLEL_WORKER_SHOW=1 \
+STARPU_MAIN_THREAD_BIND=1 \
+STARPU_CALIBRATE=1 \
+STARPU_SCHED=dmdar \
+STARPU_NWORKER_PER_CUDA=2 \
+STARPU_SILENT=1 \
+$PTCHAMELEON/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 1440:3000:480  -g 2
+#+end_src
+
 #+begin_example
-$ CHAMELEON_PARALLEL_WORKER_LEVEL=L3 CHAMELEON_PARALLEL_WORKER_SHOW=1 STARPU_MAIN_THREAD_BIND=1 STARPU_CALIBRATE=1 STARPU_SCHED=dmdar STARPU_NWORKER_PER_CUDA=2 STARPU_SILENT=1 ~/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 1440:3000:480  -g 2
 Number of parallel workers created: 8
 Parallel worker 0 contains the following logical indexes:
     0 1 2 3 4 5 6 7
@@ -91,8 +97,18 @@ Id;Function;threads;gpus;P;Q;mtxfmt;nb;uplo;n;lda;seedA;tsub;time;gflops
     :CUSTOM_ID: example-define-2-parallel-workers-per-socket-sirocco24
     :END:
 
+#+begin_src sh
+CHAMELEON_PARALLEL_WORKER_LEVEL=socket:2 \
+CHAMELEON_PARALLEL_WORKER_SHOW=1 \
+STARPU_MAIN_THREAD_BIND=1 \
+STARPU_CALIBRATE=1 \
+STARPU_SCHED=dmdar \
+STARPU_NWORKER_PER_CUDA=2 \
+STARPU_SILENT=1 \
+$PTCHAMELEON/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 1440:3000:480  -g 2
+#+end_src
+
 #+begin_example
-$ CHAMELEON_PARALLEL_WORKER_LEVEL=socket:2 CHAMELEON_PARALLEL_WORKER_SHOW=1 STARPU_MAIN_THREAD_BIND=1 STARPU_CALIBRATE=1 STARPU_SCHED=dmdar STARPU_NWORKER_PER_CUDA=2 STARPU_SILENT=1 ~/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 1440:3000:480  -g 2
 Number of parallel workers created: 4
 Parallel worker 0 contains the following logical indexes:
     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -113,20 +129,20 @@ Id;Function;threads;gpus;P;Q;mtxfmt;nb;uplo;n;lda;seedA;tsub;time;gflops
    :PROPERTIES:
    :CUSTOM_ID: downloading
    :END:
-#+begin_example
+#+begin_src sh
 # Root directory
 PTCHAMELEON=~/PTCHAMELEON
 mkdir $PTCHAMELEON
 cd $PTCHAMELEON
 git clone git@gitlab.inria.fr:starpu/starpu.git
 git clone --recursive git@gitlab.inria.fr:solverstack/chameleon.git
-#+end_example
+#+end_src
 
 ***** Setup on sirocco16 (2 cpu intel + 2 v100)
    :PROPERTIES:
    :CUSTOM_ID: setup-on-sirocco16-2-cpu-intel-2-v100
    :END:
-#+begin_example
+#+begin_src sh
 module load build/cmake/3.15.3  \
        linalg/mkl/2022.0.2      \
        trace/eztrace/1.1-8      \
@@ -143,28 +159,34 @@ cd $PTCHAMELEON/starpu
 ./autogen.sh
 mkdir build && cd build
 # In case you want to debug take the first line
-#../configure --enable-debug --enable-verbose --enable-parallel-worker --disable-opencl --disable-build-doc --enable-maxcpus=64 --disable-socl --prefix=$PTCHAMELEON/starpu/build/install --enable-fxt
-../configure --enable-parallel-worker --disable-opencl --disable-build-doc --enable-maxcpus=64 --disable-socl --prefix=$PTCHAMELEON/starpu/build/install
+#../configure --enable-debug --enable-verbose --enable-parallel-worker --disable-opencl \
+#             --disable-build-doc --enable-maxcpus=64 --disable-socl \
+#             --prefix=$PTCHAMELEON/starpu/build/install --enable-fxt
+#
+../configure --enable-parallel-worker --disable-opencl --disable-build-doc \
+             --enable-maxcpus=64 --disable-socl \
+             --prefix=$PTCHAMELEON/starpu/build/install
 make -j install
 source $PTCHAMELEON/starpu/build/install/bin/starpu_env
 
 # Build Chameleon
 cd  $PTCHAMELEON/chameleon
 mkdir build && cd build
-cmake .. -DBLA_VENDOR=Intel10_64lp -DCHAMELEON_KERNELS_MT=ON  -DCHAMELEON_ENABLE_EXAMPLE=OFF -DCHAMELEON_USE_CUDA=ON
+cmake .. -DBLA_VENDOR=Intel10_64lp -DCHAMELEON_KERNELS_MT=ON \
+         -DCHAMELEON_ENABLE_EXAMPLE=OFF -DCHAMELEON_USE_CUDA=ON
 make -j
 
 # test
-STARPU_SILENT=1
-STARPU_SCHED=dmdar
-CHAMELEON_PARALLEL_WORKER_LEVEL=L3
-CHAMELEON_PARALLEL_WORKER_SHOW=1
-STARPU_MAIN_THREAD_BIND=1
-STARPU_CUDA_PIPELINE=2
-STARPU_NWORKER_PER_CUDA=4
-STARPU_CALIBRATE=1
-$PTCHAMELEON/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 960:3000:480 -g 2
-#+end_example
+STARPU_SILENT=1                       \
+  STARPU_SCHED=dmdar                  \
+  CHAMELEON_PARALLEL_WORKER_LEVEL=L3  \
+  CHAMELEON_PARALLEL_WORKER_SHOW=1    \
+  STARPU_MAIN_THREAD_BIND=1           \
+  STARPU_CUDA_PIPELINE=2              \
+  STARPU_NWORKER_PER_CUDA=4           \
+  STARPU_CALIBRATE=1                  \
+  $PTCHAMELEON/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 960:3000:480 -g 2
+#+end_src
 
 ***** Setup on sirocco24 (2 cpu amd + 2 a100)
    :PROPERTIES:
@@ -172,7 +194,7 @@ $PTCHAMELEON/chameleon/build/testing/chameleon_dtesting -o potrf -n 59520 -b 960
    :END:
 Identical to sirocco16 except for the Intel MKL library:
 
-#+begin_example
+#+begin_src sh
 module load build/cmake/3.15.3      \
             linalg/mkl/2020_update4 \
             trace/eztrace/1.1-8     \
@@ -183,11 +205,11 @@ module load build/cmake/3.15.3      \
             trace/fxt/0.3.14        \
             trace/eztrace/1.1-9     \
             language/python
-#+end_example
+#+end_src
 
 Strangely the execution requires the creation of links:
 
-#+begin_example
+#+begin_src sh
 cd $PTCHAMELEON
 for lib in libmkl_gf_lp64.so libmkl_gnu_thread.so libmkl_intel_lp64.so libmkl_sequential.so ;
 do
@@ -195,5 +217,5 @@ do
 done
 
 LD_LIBRARY_PATH=$PTCHAMELEON:$LD_LIBRARY_PATH
-#+end_example
+#+end_src
 
