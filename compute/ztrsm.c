@@ -59,8 +59,8 @@
  *
  * @param[in] diag
  *          Specifies whether or not A is unit triangular:
- *          = ChamNonUnit: A is assumed to be unit triangular.
- *          = ChamUnit:    A is not assumed to be unit triangular.
+ *          = ChamNonUnit: A is not assumed to be unit triangular.
+ *          = ChamUnit:    A is assumed to be unit triangular.
  *
  * @param[in] M
  *          M specifies the number of rows of B. M must be at least zero.

@@ -31,9 +31,9 @@
 /**
  *  Parallel tile triangular solve - dynamic scheduling
  */
-void chameleon_pztrsm(cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
-                         CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
-                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request)
+void chameleon_pztrsm( cham_side_t side, cham_uplo_t uplo, cham_trans_t trans, cham_diag_t diag,
+                       CHAMELEON_Complex64_t alpha, CHAM_desc_t *A, CHAM_desc_t *B,
+                       RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
