@@ -25,7 +25,7 @@
 #include <math.h>
 #include <assert.h>
 
-#define CHAMELEON_CL_CB(name, _m, _n, _k, _nflops)			\
+#define CHAMELEON_CL_CB(name, _m, _n, _k, _nflops)                                             \
     static measure_t name##_perf[STARPU_NMAXWORKERS];                                          \
     void cl_##name##_callback()                                                                \
     {                                                                                          \
@@ -36,7 +36,7 @@
         __attribute__ ((unused)) double K = (double)(_k);                                      \
         double flops = (_nflops);                                                              \
         struct starpu_profiling_task_info *info = task->profiling_info;                        \
-        assert( info != NULL );                                                                \
+        if ( info == NULL ) return;                                                            \
         double duration = starpu_timing_timespec_delay_us(&info->start_time, &info->end_time); \
         double speed = flops/(1000.0*duration);                                                \
         name##_perf[info->workerid].sum  += speed;                                             \
