@@ -20,6 +20,7 @@
  * @author Alycia Lisito
  * @author Matthieu Kuhn
  * @author Loris Lucido
+ * @author Terry Cojean
  * @date 2022-02-22
  *
  ***
