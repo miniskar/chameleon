@@ -20,6 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
+ * @author Terry Cojean
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *
