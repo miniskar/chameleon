@@ -220,21 +220,6 @@ cti_to_pointer( void *data_interface, unsigned node )
     return (void*)(cham_tile_interface->tile.mat);
 }
 
-static int
-cti_pointer_is_inside( void *data_interface, unsigned node, void *ptr )
-{
-    (void) node;
-    starpu_cham_tile_interface_t *cham_tile_interface = data_interface;
-    char *begin = cham_tile_interface->tile.mat;
-    char *end   = begin + cham_tile_interface->allocsize;
-
-    STARPU_ASSERT_MSG( cham_tile_interface->tile.format & CHAMELEON_TILE_FULLRANK,
-                       "Only full-rank matrices are supported." );
-
-    return ( (char*) ptr >= begin )
-        && ( (char*) ptr <  end   );
-}
-
 static size_t
 cti_get_size(starpu_data_handle_t handle)
 {
@@ -661,7 +646,6 @@ struct starpu_data_interface_ops starpu_interface_cham_tile_ops =
     .alloc_footprint       = cti_alloc_footprint,
 #endif
     .to_pointer            = cti_to_pointer,
-    .pointer_is_inside     = cti_pointer_is_inside,
     .get_size              = cti_get_size,
     .get_alloc_size        = cti_get_alloc_size,
     .footprint             = cti_footprint,
