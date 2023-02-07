@@ -53,7 +53,7 @@ cl_ztrmm_cpu_func(void *descr[], void *cl_arg)
                  clargs->m, clargs->n, clargs->alpha, tileA, tileB );
 }
 
-#ifdef CHAMELEON_USE_CUDA
+#if defined(CHAMELEON_USE_CUDA)
 static void
 cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
 {
@@ -74,12 +74,38 @@ cl_ztrmm_cuda_func(void *descr[], void *cl_arg)
         handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
+
+#if defined(CHAMELEON_USE_HIP)
+static void
+cl_ztrmm_hip_func(void *descr[], void *cl_arg)
+{
+    struct cl_ztrmm_args_s *clargs = (struct cl_ztrmm_args_s *)cl_arg;
+    hipblasHandle_t         handle = starpu_hipblas_get_local_handle();
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+
+    HIP_ztrmm(
+        clargs->side, clargs->uplo, clargs->transA, clargs->diag,
+        clargs->m, clargs->n,
+        (hipDoubleComplex*)&(clargs->alpha),
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        handle );
+}
+#endif /* defined(CHAMELEON_USE_HIP) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
+#if defined(CHAMELEON_USE_HIP)
+CODELETS_GPU( ztrmm, cl_ztrmm_cpu_func, cl_ztrmm_hip_func, STARPU_HIP_ASYNC )
+#else
 CODELETS( ztrmm, cl_ztrmm_cpu_func, cl_ztrmm_cuda_func, STARPU_CUDA_ASYNC )
+#endif
 
 void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
                         cham_side_t side, cham_uplo_t uplo, cham_trans_t transA, cham_diag_t diag,

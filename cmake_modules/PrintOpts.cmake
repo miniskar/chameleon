@@ -20,7 +20,8 @@
 # @version 1.2.0
 #  @author Florent Pruvost
 #  @author Mathieu Faverge
-#  @date 2022-02-22
+#  @author Loris Lucido
+#  @date 2023-01-30
 #
 ###
 
@@ -74,6 +75,8 @@ set(dep_message "${dep_message}"
 "\n"
 "       Implementation paradigm\n"
 "       CUDA ................: ${CHAMELEON_USE_CUDA}\n"
+"       HIP-ROC .............: ${CHAMELEON_USE_HIP_ROC}\n"
+"       HIP-CUDA ............: ${CHAMELEON_USE_HIP_CUDA}\n"
 "       MPI .................: ${CHAMELEON_USE_MPI}\n"
 "\n"
 "       Runtime specific\n"

@@ -16,6 +16,7 @@
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
+ * @author Terry Cojean
  * @date 2022-02-22
  *
  */

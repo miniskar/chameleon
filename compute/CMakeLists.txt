@@ -25,7 +25,8 @@
 #  @author Guillaume Sylvand
 #  @author Raphael Boucherie
 #  @author Alycia Lisito
-#  @date 2022-02-22
+#  @author Loris Lucido
+#  @date 2023-01-30
 #
 ###
 
@@ -342,6 +343,12 @@ if (CHAMELEON_USE_CUDA)
   if (NOT CHAMELEON_SIMULATION)
     target_link_libraries(chameleon PUBLIC cudablas)
     target_link_libraries(chameleon PUBLIC CUDA::CUBLAS)
+  endif()
+endif()
+if (CHAMELEON_USE_HIP)
+  if (NOT CHAMELEON_SIMULATION)
+    target_link_libraries(chameleon PUBLIC hipblas)
+    target_link_libraries(chameleon PUBLIC HIP::HIPBLAS)
   endif()
 endif()
 target_link_libraries(chameleon PUBLIC MORSE::M)

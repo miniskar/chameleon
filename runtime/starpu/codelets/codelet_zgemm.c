@@ -22,7 +22,9 @@
  * @author Gwenole Lucas
  * @author Philippe Swartvagher
  * @author Lucas Nesi
- * @date 2022-02-22
+ * @author Loris Lucido
+ * @author Terry Cojean
+ * @date 2023-01-30
  * @precisions normal z -> c d s
  *
  */
@@ -61,7 +63,7 @@ cl_zgemm_cpu_func( void *descr[], void *cl_arg )
                  clargs->beta,  tileC );
 }
 
-#ifdef CHAMELEON_USE_CUDA
+#if defined(CHAMELEON_USE_CUDA)
 static void
 cl_zgemm_cuda_func( void *descr[], void *cl_arg )
 {
@@ -90,12 +92,48 @@ cl_zgemm_cuda_func( void *descr[], void *cl_arg )
         handle );
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
+
+#if defined(CHAMELEON_USE_HIP)
+static void
+cl_zgemm_hip_func( void *descr[], void *cl_arg )
+{
+    struct cl_zgemm_args_s *clargs = (struct cl_zgemm_args_s *)cl_arg;
+    hipblasHandle_t          handle = starpu_hipblas_get_local_handle();
+    CHAM_tile_t *tileA;
+    CHAM_tile_t *tileB;
+    CHAM_tile_t *tileC;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+    tileC = cti_interface_get(descr[2]);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileC->format & CHAMELEON_TILE_FULLRANK );
+
+    HIP_zgemm(
+        clargs->transA, clargs->transB,
+        clargs->m, clargs->n, clargs->k,
+        (hipDoubleComplex*)&(clargs->alpha),
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        (hipDoubleComplex*)&(clargs->beta),
+        tileC->mat, tileC->ld,
+        handle );
+
+    return;
+}
+#endif /* defined(CHAMELEON_USE_HIP) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
+#if defined(CHAMELEON_USE_HIP)
+CODELETS_GPU( zgemm, cl_zgemm_cpu_func, cl_zgemm_hip_func, STARPU_HIP_ASYNC )
+#else
 CODELETS( zgemm, cl_zgemm_cpu_func, cl_zgemm_cuda_func, STARPU_CUDA_ASYNC )
+#endif
 
 void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
                               cham_trans_t transA, cham_trans_t transB,
