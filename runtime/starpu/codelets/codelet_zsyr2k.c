@@ -85,10 +85,10 @@ static void cl_zsyr2k_hip_func(void *descr[], void *cl_arg)
     cham_trans_t trans;
     int n;
     int k;
-    hipDoubleComplex alpha;
+    hipblasDoubleComplex alpha;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
-    hipDoubleComplex beta;
+    hipblasDoubleComplex beta;
     CHAM_tile_t *tileC;
 
     tileA = cti_interface_get(descr[0]);

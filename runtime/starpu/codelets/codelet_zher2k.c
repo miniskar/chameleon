@@ -85,7 +85,7 @@ static void cl_zher2k_hip_func(void *descr[], void *cl_arg)
     cham_trans_t trans;
     int n;
     int k;
-    hipDoubleComplex alpha;
+    hipblasDoubleComplex alpha;
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     double beta;

@@ -90,9 +90,9 @@ cl_zsyrk_hip_func(void *descr[], void *cl_arg)
 
     HIP_zsyrk(
         clargs->uplo, clargs->trans, clargs->n, clargs->k,
-        (hipDoubleComplex*)&(clargs->alpha),
+        (hipblasDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
-        (hipDoubleComplex*)&(clargs->beta),
+        (hipblasDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
         handle );
 }
