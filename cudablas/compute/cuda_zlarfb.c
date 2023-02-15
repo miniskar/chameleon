@@ -157,5 +157,6 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
                           CUBLAS_SADDR(zone),  C,    LDC );
         assert( rc == CUBLAS_STATUS_SUCCESS );
     }
-    return CHAMELEON_SUCCESS;
+
+    return (rc == CUBLAS_STATUS_SUCCESS) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
 }

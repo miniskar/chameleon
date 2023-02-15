@@ -115,7 +115,7 @@ cti_init( void *data_interface )
 
 static void
 cti_register_data_handle( starpu_data_handle_t  handle,
-                          int                   home_node,
+                          unsigned int          home_node,
                           void                 *data_interface )
 {
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *) data_interface;
