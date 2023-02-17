@@ -23,11 +23,11 @@
 int
 HIP_zher2k( cham_uplo_t uplo, cham_trans_t trans,
             int n, int k,
-            const hipDoubleComplex *alpha,
-            const hipDoubleComplex *A, int lda,
-            const hipDoubleComplex *B, int ldb,
+            const hipblasDoubleComplex *alpha,
+            const hipblasDoubleComplex *A, int lda,
+            const hipblasDoubleComplex *B, int ldb,
             const double *beta,
-            hipDoubleComplex *C, int ldc,
+            hipblasDoubleComplex *C, int ldc,
             hipblasHandle_t handle )
 {
     hipblasStatus_t rc;

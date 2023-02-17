@@ -24,9 +24,9 @@ int
 HIP_ztrmm( cham_side_t side, cham_uplo_t uplo,
            cham_trans_t transa, cham_diag_t diag,
            int m, int n,
-           const hipDoubleComplex *alpha,
-           const hipDoubleComplex *A, int lda,
-           hipDoubleComplex *B, int ldb,
+           const hipblasDoubleComplex *alpha,
+           const hipblasDoubleComplex *A, int lda,
+           hipblasDoubleComplex *B, int ldb,
            hipblasHandle_t handle )
 {
     hipblasStatus_t rc;

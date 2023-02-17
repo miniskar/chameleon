@@ -114,10 +114,10 @@ cl_zgemm_hip_func( void *descr[], void *cl_arg )
     HIP_zgemm(
         clargs->transA, clargs->transB,
         clargs->m, clargs->n, clargs->k,
-        (hipDoubleComplex*)&(clargs->alpha),
+        (hipblasDoubleComplex*)&(clargs->alpha),
         tileA->mat, tileA->ld,
         tileB->mat, tileB->ld,
-        (hipDoubleComplex*)&(clargs->beta),
+        (hipblasDoubleComplex*)&(clargs->beta),
         tileC->mat, tileC->ld,
         handle );
 
