@@ -489,11 +489,10 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
     /* On exit, U and VT are updated with bidiagonal matrix singular vectors */
 #if !defined(CHAMELEON_SIMULATION)
     {
-        int nru, ncvt;
+        cham_uplo_t uplo;
+        int info, nru, ncvt;
+
         switch ( jobu ) {
-            case ChamNoVec :
-                nru = 0;
-                break;
             case ChamOVec :
             case ChamAllVec :
                 nru = M;
@@ -501,13 +500,11 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
             case ChamSVec :
                 nru = MINMN;
                 break;
+            case ChamNoVec :
             default:
-            ;
+                nru = 0;
         }
         switch ( jobvt ) {
-            case ChamNoVec :
-                ncvt = 0;
-                break;
             case ChamOVec :
             case ChamAllVec :
                 ncvt = N;
@@ -515,12 +512,13 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
             case ChamSVec :
                 ncvt = MINMN;
                 break;
+            case ChamNoVec :
             default:
-            ;
+                ncvt = 0;
         }
-        cham_uplo_t uplo = M >= N ? ChamUpper : ChamLower;
-        int info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), MINMN,
-                                   ncvt, nru, 0, S, E, VT, LDVT, U, LDU, NULL, 1 );
+        uplo = M >= N ? ChamUpper : ChamLower;
+        info = LAPACKE_zbdsqr( LAPACK_COL_MAJOR, chameleon_lapack_const(uplo), MINMN,
+                               ncvt, nru, 0, S, E, VT, LDVT, U, LDU, NULL, 1 );
         if ( info != 0 ) {
             fprintf(stderr, "CHAMELEON_zgesvd_Tile_Async: LAPACKE_zbdsqr = %d\n", info );
         }

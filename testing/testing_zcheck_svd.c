@@ -229,7 +229,8 @@ int check_zgesvd( run_arg_list_t *args, cham_job_t jobu, cham_job_t jobvt, CHAM_
 {
     int info_solution;
     int rank = CHAMELEON_Comm_rank();
-    CHAMELEON_Complex64_t *Ainit, *A;
+    CHAMELEON_Complex64_t *Ainit = NULL;
+    CHAMELEON_Complex64_t *A     = NULL;
     int M    = descA->m;
     int N    = descA->n;
     int LDA  = descA->lm;

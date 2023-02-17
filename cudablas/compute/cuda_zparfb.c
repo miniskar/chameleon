@@ -525,5 +525,5 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
 
-    return CHAMELEON_SUCCESS;
+    return (rc == CUBLAS_STATUS_SUCCESS) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
 }

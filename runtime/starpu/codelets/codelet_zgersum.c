@@ -45,10 +45,14 @@ cl_zgersum_redux_cpu_func( void *descr[], void *cl_arg )
 static void
 cl_zgersum_redux_cuda_func( void *descr[], void *cl_arg )
 {
-    cublasHandle_t        handle = starpu_cublas_get_local_handle();
-    CHAMELEON_Complex64_t zone   = 1.;
-    CHAM_tile_t          *tileA;
-    CHAM_tile_t          *tileB;
+#if defined(PRECISION_z) || defined(PRECISION_c)
+    cuDoubleComplex zone  = make_cuDoubleComplex(1.0, 0.0);
+#else
+    double zone  = 1.0;
+#endif /* defined(PRECISION_z) || defined(PRECISION_c) */
+    cublasHandle_t  handle = starpu_cublas_get_local_handle();
+    CHAM_tile_t    *tileA;
+    CHAM_tile_t    *tileB;
 
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
@@ -99,6 +103,7 @@ cl_zgersum_init_cuda_func( void *descr[], void *cl_arg )
     assert( rc == CUBLAS_STATUS_SUCCESS );
 
     (void)cl_arg;
+    (void)rc;
 }
 #endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
