@@ -100,6 +100,7 @@ set(ZSRC
     pzgeqrf_param.c
     pzgetrf_incpiv.c
     pzgetrf_nopiv.c
+    pzgetrf.c
     pzlacpy.c
     pzlange.c
     pzlansy.c
@@ -150,6 +151,7 @@ set(ZSRC
     #zgetrf.c
     zgetrf_incpiv.c
     zgetrf_nopiv.c
+    zgetrf.c
     zgetrs_incpiv.c
     zgetrs_nopiv.c
     zlacpy.c

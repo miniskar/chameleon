@@ -78,6 +78,7 @@ set(ZSRC_WO_STDAPI
   testing_zgenm2.c
   testing_zgesv_nopiv.c
   testing_zgesvd.c
+  testing_zgetrf.c
   testing_zgetrf_nopiv.c
   testing_zgetrs_nopiv.c
   testing_zgeqrf.c
