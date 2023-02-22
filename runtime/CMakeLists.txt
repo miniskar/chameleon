@@ -23,7 +23,7 @@
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
-#  @date 2022-02-22
+#  @date 2023-02-21
 #
 ###
 
@@ -65,6 +65,7 @@ set(CODELETS_ZSRC
     codelets/codelet_zgetrf.c
     codelets/codelet_zgetrf_incpiv.c
     codelets/codelet_zgetrf_nopiv.c
+    codelets/codelet_zpanel.c
     codelets/codelet_zhe2ge.c
     codelets/codelet_zherfb.c
     codelets/codelet_zhessq.c

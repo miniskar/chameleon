@@ -4,7 +4,7 @@
  *
  * @copyright 2009-2014 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2012-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -18,7 +18,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2022-09-19
+ * @date 2023-02-21
  *
  * @precisions normal z -> s d c
  *
@@ -52,14 +52,26 @@
 void *
 CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
 {
-    CHAM_context_t *chamctxt;
+    CHAM_context_t           *chamctxt;
+    struct chameleon_pzgetrf_s *options;
 
     chamctxt = chameleon_context_self();
     if ( chamctxt == NULL ) {
         return NULL;
     }
 
-    return NULL;
+    options = calloc( 1, sizeof( struct chameleon_pzgetrf_s ) );
+    options->ib = CHAMELEON_IB;
+
+#if defined(GETRF_NOPIV_PER_COLUMN)
+    chameleon_desc_init( &(options->U), CHAMELEON_MAT_ALLOC_TILE,
+                         ChamComplexDouble, 1, A->nb, A->nb,
+                         A->mt, A->nt * A->nb, 0, 0,
+                         A->mt, A->nt * A->nb, A->p, A->q,
+                         NULL, NULL, A->get_rankof_init );
+#endif
+
+    return options;
 }
 
 /**
@@ -84,14 +96,13 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
 void
 CHAMELEON_zgetrf_WS_Free( const CHAM_desc_t *A, void *user_ws )
 {
-    CHAM_context_t *chamctxt;
+    struct chameleon_pzgetrf_s *ws = (struct chameleon_pzgetrf_s *)user_ws;
 
-    chamctxt = chameleon_context_self();
-    if ( chamctxt == NULL ) {
-        return;
-    }
+#if defined(GETRF_NOPIV_PER_COLUMN)
+    chameleon_desc_destroy( &(ws->U) );
+#endif
 
-    (void)user_ws;
+    free( ws );
 }
 
 #if defined(NOT_AVAILABLE_YET)

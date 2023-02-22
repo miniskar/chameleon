@@ -2,7 +2,7 @@
  *
  * @file testing_zgetrf.c
  *
- * @copyright 2019-2022 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -13,7 +13,7 @@
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-02-21
  * @precisions normal z -> c d s
  *
  */
@@ -97,6 +97,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
             CHAMELEON_zplrnt_Tile( descA0, seedA );
         }
 
+#if 0
         /* Compute the permutation of A0: P * A0 */
         if ( CHAMELEON_Comm_rank() == 0 ) {
             int i, j;
@@ -111,8 +112,8 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
         }
 
         CHAMELEON_zlacpy_Tile( ChamUpperLower, descA0c, descA0 );
+#endif
         CHAMELEON_Desc_Destroy( &descA0c );
-
         hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower,
                               descA0, descA );
 
