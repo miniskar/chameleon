@@ -107,6 +107,7 @@ set(ZSRC
     core_zttqrt.c
     core_zunmlq.c
     core_zunmqr.c
+    core_zprint.c
     )
 if( CHAMELEON_USE_HMAT )
   list( APPEND ZSRC

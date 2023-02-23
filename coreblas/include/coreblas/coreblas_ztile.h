@@ -86,5 +86,6 @@ int  TCORE_zunmqr( cham_side_t side, cham_trans_t trans, int M, int N, int K, in
 int  TCORE_zgesum( cham_store_t storev, int M, int N, const CHAM_tile_t *A, CHAM_tile_t *sum );
 int  TCORE_zcesca( int center, int scale, cham_store_t axis, int M, int N, int Mt, int Nt, const CHAM_tile_t *Gi, const CHAM_tile_t *Gj, const CHAM_tile_t *G, const CHAM_tile_t *Di, const CHAM_tile_t *Dj, CHAM_tile_t *A );
 int  TCORE_zgram( cham_uplo_t uplo, int M, int N, int Mt, int Nt, const CHAM_tile_t *Di, const CHAM_tile_t *Dj, const CHAM_tile_t *D, CHAM_tile_t *A );
+void TCORE_zprint( FILE *file, const char *header, cham_uplo_t uplo, int M, int N, int Am, int An, const CHAM_tile_t *A );
 
 #endif /* _coreblas_ztile_h_ */

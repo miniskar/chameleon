@@ -1072,3 +1072,13 @@ TCORE_zgram( cham_uplo_t        uplo,
     return CORE_zgram(
         uplo, M, N, Mt, Nt, CHAM_tile_get_ptr( Di ), Di->ld, CHAM_tile_get_ptr( Dj ), Dj->ld, CHAM_tile_get_ptr( D ), CHAM_tile_get_ptr( A ), A->ld );
 }
+
+void
+TCORE_zprint( FILE *file, const char *header,
+              cham_uplo_t uplo, int M, int N,
+              int Am, int An, const CHAM_tile_t *A )
+{
+    coreblas_kernel_trace( A );
+    assert( A->format & CHAMELEON_TILE_FULLRANK );
+    CORE_zprint( file, header, uplo, M, N, Am, An, CHAM_tile_get_ptr( A ), A->ld );
+}
