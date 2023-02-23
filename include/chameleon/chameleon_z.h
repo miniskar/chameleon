@@ -382,6 +382,9 @@ int CHAMELEON_zgram( cham_uplo_t uplo, int N, CHAMELEON_Complex64_t *A, int LDA 
 int CHAMELEON_zgram_Tile( cham_uplo_t uplo, CHAM_desc_t *A );
 int CHAMELEON_zgram_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A, void *user_ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
+int CHAMELEON_zprint( FILE *file, const char *header, cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, int LDA );
+int CHAMELEON_zprint_Tile( FILE *file, const char *header, cham_uplo_t uplo, CHAM_desc_t *descA );
+
 END_C_DECLS
 
 #endif /* _chameleon_z_h_ */
