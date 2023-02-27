@@ -8,3 +8,5 @@ option(MORSE_ENABLE_WARNING  "Enable warning messages"        ON)
 option(MORSE_ENABLE_COVERAGE "Enable flags for coverage test" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "")
+
+set(BLA_VENDOR "Generic" CACHE STRING "Set to one of the BLAS/LAPACK Vendors to search for BLAS only from the specified vendor.")
