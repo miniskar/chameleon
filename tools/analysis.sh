@@ -33,7 +33,6 @@ $TOOLSDIR/find_sources.sh
 
 # Generate coverage xml output
 $TOOLSDIR/coverage.sh
-python3 /usr/local/lib/python3.8/dist-packages/lcov_cobertura.py chameleon.lcov --output chameleon_coverage.xml
 
 # Undefine this because not relevant in our configuration
 export UNDEFINITIONS="-UCHAMELEON_USE_OPENCL -UWIN32 -UWIN64 -U_MSC_EXTENSIONS -U_MSC_VER -U__SUNPRO_C -U__SUNPRO_CC -U__sun -Usun -U__cplusplus"
@@ -47,7 +46,7 @@ cppcheck $CPPCHECK_OPT -DPRECISION_c -UPRECISION_s -UPRECISION_d -UPRECISION_z -
 cppcheck $CPPCHECK_OPT -DPRECISION_z -UPRECISION_s -UPRECISION_d -UPRECISION_c --file-list=./filelist_z.txt 2>> chameleon_cppcheck.xml
 
 # Set the default for the project key
-SONARQUBE_PROJECTKEY=${SONARQUBE_PROJECTKEY:-hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE:$CI_COMMIT_REF_NAME}
+SONARQUBE_PROJECTKEY=${SONARQUBE_PROJECTKEY:-hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE}
 
 # create the sonarqube config file
 cat > sonar-project.properties << EOF
@@ -61,23 +60,26 @@ sonar.links.issue=$CI_PROJECT_URL/issues
 
 sonar.projectKey=$SONARQUBE_PROJECTKEY
 sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and distributed architectures
-sonar.projectVersion=master
+sonar.projectVersion=1.1.2
+
+sonar.scm.disabled=false
+sonar.scm.provider=git
+sonar.scm.exclusions.disabled=true
 
 sonar.sources=build-openmp/runtime/openmp, build-parsec/runtime/parsec, build-quark/runtime/quark, build-starpu, compute, control, coreblas, example, include, runtime, testing
 sonar.inclusions=`cat filelist.txt | sed ':a;N;$!ba;s/\n/, /g'`
-sonar.c.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.2,$SIMGRID_DIR/include
 sonar.sourceEncoding=UTF-8
-sonar.c.errorRecoveryEnabled=true
-sonar.c.gcc.charset=UTF-8
-sonar.c.gcc.regex=(?<file>.*):(?<line>[0-9]+):[0-9]+:\\\x20warning:\\\x20(?<message>.*)\\\x20\\\[(?<id>.*)\\\]
-sonar.c.gcc.reportPath=chameleon_build.log
-sonar.c.coverage.reportPath=chameleon_coverage.xml
-sonar.c.cppcheck.reportPath=chameleon_cppcheck.xml
-sonar.c.clangsa.reportPath=build-openmp/analyzer_reports/*/*.plist, build-parsec/analyzer_reports/*/*.plist, build-quark/analyzer_reports/*/*.plist, build-starpu/analyzer_reports/*/*.plist, build-starpu_simgrid/analyzer_reports/*/*.plist
-sonar.c.jsonCompilationDatabase=build-openmp/compile_commands.json, build-parsec/compile_commands.json, build-quark/compile_commands.json, build-starpu/compile_commands.json, build-starpu_simgrid/compile_commands.json
-sonar.lang.patterns.c++: **/*.cxx,**/*.cpp,**/*.cc,**/*.hxx,**/*.hpp,**/*.hh
-sonar.lang.patterns.c: **/*.c,**/*.h
-sonar.lang.patterns.python: **/*.py
+sonar.cxx.includeDirectories=$(echo | gcc -E -Wp,-v - 2>&1 | grep "^ " | tr '\n' ',').,$(find . -type f -name '*.h' | sed -r 's|/[^/]+$||' |sort |uniq | xargs echo | sed -e 's/ /,/g'),$PARSEC_DIR/include,$QUARK_DIR/include,$STARPU_DIR/include/starpu/1.3,$SIMGRID_DIR/include
+sonar.cxx.file.suffixes=.h,.c
+sonar.cxx.errorRecoveryEnabled=true
+sonar.cxx.gcc.encoding=UTF-8
+sonar.cxx.gcc.regex=(?<file>.*):(?<line>[0-9]+):[0-9]+:\\\x20warning:\\\x20(?<message>.*)\\\x20\\\[(?<id>.*)\\\]
+sonar.cxx.gcc.reportPaths=chameleon_build.log
+sonar.cxx.xunit.reportPaths=*.junit
+sonar.cxx.cobertura.reportPaths=*.cov
+sonar.cxx.cppcheck.reportPaths=chameleon_cppcheck.xml
+sonar.cxx.clangsa.reportPaths=build-openmp/analyzer_reports/*/*.plist, build-parsec/analyzer_reports/*/*.plist, build-quark/analyzer_reports/*/*.plist, build-starpu/analyzer_reports/*/*.plist, build-starpu_simgrid/analyzer_reports/*/*.plist
+sonar.cxx.jsonCompilationDatabase=build-openmp/compile_commands.json, build-parsec/compile_commands.json, build-quark/compile_commands.json, build-starpu/compile_commands.json, build-starpu_simgrid/compile_commands.json
 EOF
 
 # run sonar analysis + publish on sonarqube-dev

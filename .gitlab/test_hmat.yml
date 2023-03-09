@@ -2,17 +2,7 @@
 .test_hmat_template:
   extends: .test_script_template
   needs: [build_hmat]
-  dependencies:
-    - build_hmat
-  artifacts:
-    name: test_hmat
-    expire_in: 48 hours
-    paths:
-      - build_hmat
-      - chameleon_hmat_*.log
-      - chameleon_hmat_*.lcov
-    reports:
-      junit: report.xml
+  dependencies: [build_hmat]
 
 .test_hmat_template_master: &test_hmat_master
   extends:

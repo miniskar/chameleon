@@ -2,13 +2,7 @@
 coverity:
   extends: .only-master
   stage: analyse
-  tags: ["linux"]
   dependencies: []
-  artifacts:
-    name: chameleon_coverity
-    expire_in: 1 week
-    paths:
-      - chameleon.tgz
   variables:
     VERSION: coverity
   script:
@@ -23,3 +17,8 @@ coverity:
            --form version="`git rev-parse --short HEAD`"
            --form description=""
            https://scan.coverity.com/builds?project=Chameleon
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 1 week
+    paths:
+      - chameleon.tgz

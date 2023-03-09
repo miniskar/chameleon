@@ -2,17 +2,7 @@
 .test_openmp_template: &test_openmp
   extends: .test_script_template
   needs: [build_openmp]
-  dependencies:
-    - build_openmp
-  artifacts:
-    name: test_openmp
-    expire_in: 48 hours
-    paths:
-      - build_openmp
-      - chameleon_openmp_*.log
-      - chameleon_openmp_*.lcov
-    reports:
-      junit: report.xml
+  dependencies: [build_openmp]
 
 .test_openmp_template_master: &test_openmp_master
   extends:
