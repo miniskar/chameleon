@@ -1,60 +1,36 @@
 ---
+build_hmat:
+  extends: .build_script_template
+  variables:
+    BUILD_OPTIONS: "-DCHAMELEON_USE_CUDA=OFF -DCHAMELEON_USE_MPI=ON -DCHAMELEON_USE_HMAT=ON"
+    VERSION: hmat
+
 build_openmp:
   extends: .build_script_template
-  artifacts:
-    name: build_openmp
-    expire_in: 48 hours
-    paths:
-      - build-openmp
-      - chameleon_openmp.log
   variables:
     BUILD_OPTIONS: "-DCHAMELEON_SCHED=OPENMP"
     VERSION: openmp
 
 build_parsec:
   extends: .build_script_template
-  artifacts:
-    name: build_parsec
-    expire_in: 48 hours
-    paths:
-      - build-parsec
-      - chameleon_parsec.log
   variables:
     BUILD_OPTIONS: "-DCHAMELEON_SCHED=PARSEC"
     VERSION: parsec
 
 build_quark:
   extends: .build_script_template
-  artifacts:
-    name: build_quark
-    expire_in: 48 hours
-    paths:
-      - build-quark
-      - chameleon_quark.log
   variables:
     BUILD_OPTIONS: "-DCHAMELEON_SCHED=QUARK"
     VERSION: quark
 
 build_starpu:
   extends: .build_script_template
-  artifacts:
-    name: build_starpu
-    expire_in: 48 hours
-    paths:
-      - build-starpu
-      - chameleon_starpu.log
   variables:
     BUILD_OPTIONS: "-DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON"
     VERSION: starpu
 
 build_starpu_simgrid:
   extends: .build_script_template
-  artifacts:
-    name: build_starpu_simgrid
-    expire_in: 48 hours
-    paths:
-      - build-starpu_simgrid
-      - chameleon_starpu_simgrid.log
   variables:
     SIMU: simu
     BUILD_OPTIONS: "-DCHAMELEON_SIMULATION=ON -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=OFF"
@@ -64,24 +40,12 @@ build_starpu_macosx:
   extends: .only-master
   stage: build
   tags: ['macosx']
-  artifacts:
-    untracked: true
-    name: build_starpu_macosx
-    expire_in: 48 hours
   variables:
     VERSION: starpu
   script:
     - tools/build_macosx.sh
-
-build_hmat:
-  extends: .build_script_template
   artifacts:
-    name: build_hmat
-    expire_in: 48 hours
-    paths:
-      - build-hmat
-      - chameleon_hmat.log
-  variables:
-    BUILD_OPTIONS: "-DCHAMELEON_USE_CUDA=OFF -DCHAMELEON_USE_MPI=ON -DCHAMELEON_USE_HMAT=ON"
-    VERSION: hmat
-
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 2 days
+    untracked: true
+    when: always

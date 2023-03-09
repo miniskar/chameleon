@@ -27,6 +27,10 @@ sed -i '/CMakeFiles/d' filelist.txt
 # Remove installed files
 sed -i '/build.*\/install.*/d' filelist.txt
 
+# Remove all hmat files (external package)
+sed -i '/coreblas\/hmat-oss/d' filelist.txt
+sed -i '/testing\/test_fembem/d' filelist.txt
+
 # Remove original files used for precision generation
 for file in `git grep "@precisions" | awk -F ":" '{ print $1 }'`
 do

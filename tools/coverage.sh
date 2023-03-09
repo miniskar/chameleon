@@ -22,3 +22,5 @@ do
 done
 lcov $INPUT_FILES -o chameleon.lcov
 lcov --summary chameleon.lcov
+lcov_cobertura chameleon.lcov --output chameleon_coverage.xml
+gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}

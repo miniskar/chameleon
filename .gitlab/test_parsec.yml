@@ -2,17 +2,7 @@
 .test_parsec_template: &test_parsec
   extends: .test_script_template
   needs: [build_parsec]
-  dependencies:
-    - build_parsec
-  artifacts:
-    name: test_parsec
-    expire_in: 48 hours
-    paths:
-      - build_parsec
-      - chameleon_parsec_*.log
-      - chameleon_parsec_*.lcov
-    reports:
-      junit: report.xml
+  dependencies: [build_parsec]
 
 .test_parsec_template_master: &test_parsec_master
   extends:

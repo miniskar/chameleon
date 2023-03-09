@@ -2,17 +2,7 @@
 .test_starpu_template:
   extends: .test_script_template
   needs: [build_starpu]
-  dependencies:
-    - build_starpu
-  artifacts:
-    name: test_starpu
-    expire_in: 48 hours
-    paths:
-      - build_starpu
-      - chameleon_starpu_*.log
-      - chameleon_starpu_*.lcov
-    reports:
-      junit: report.xml
+  dependencies: [build_starpu]
 
 .test_starpu_template_master: &test_starpu_master
   extends:
@@ -38,7 +28,7 @@ test_starpu_shm_d:
     VERSION: starpu
     CATEGORY: shm
     PRECISION: d
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}|example\""
 
 test_starpu_shm_c:
   <<: *test_starpu_master
@@ -93,15 +83,13 @@ test_starpu_shm_s_macosx:
   stage: test
   tags: ['macosx']
   needs: [build_starpu_macosx]
-  dependencies:
-    - build_starpu_macosx
-  artifacts:
-    untracked: true
-    name: build_starpu_macosx
-    expire_in: 48 hours
+  dependencies: [build_starpu_macosx]
   variables:
     VERSION: starpu
   script:
-    - cd build-starpu && ctest -V -R test_shm_s
-                               -T Test
-                               -T Coverage
+    - cd build-starpu && ctest -R test_shm_s -T Test | tee -a ../chameleon_macosx.log
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    untracked: true
+    expire_in: 2 days
+    when: always

@@ -2,29 +2,28 @@
 # This file describes the common rules for the stages
 #
 ---
-.only-master:
+default:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  tags: ['ci.inria.fr', 'linux', 'large']
+
+.only-master:
+  except: ['schedule']
   interruptible: true
   only:
     - master@solverstack/chameleon
     - /^ci-.*$/
-  except:
-    - schedules
 
 .only-branches:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
+  except: ['schedule']
   interruptible: true
   only:
     - merge_requests
     - master@solverstack/chameleon
     - /^ci-.*$/
-  except:
-    - schedules
 
 .build_script_template:
-  extends: .only-branches
   stage: build
-  tags: ["linux"]
+  extends: .only-branches
   script:
     - export LOGNAME=chameleon_${VERSION}.log
     - echo $LOGNAME
@@ -35,18 +34,20 @@
        scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
        cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS &&
        scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
-       ctest --no-compress-output -V -j 5
+       ctest --no-compress-output -j 5 -V
              -T Build
              | tee ../${LOGNAME})
     - (cd build-$VERSION &&
        make install | tee -a ../${LOGNAME} &&
        rm install/ -r)
-  except:
-    - schedules
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 2 days
+    untracked: true
+    when: always
 
 .test_script_template:
   stage: test
-  tags: ["linux"]
   script:
     - export LOGNAME=chameleon_${VERSION}_${CATEGORY}_${PRECISION}
     - echo $LOGNAME
@@ -56,17 +57,29 @@
     - echo test PRECISION $PRECISION | tee -a ${LOGNAME}.log
     - ls -l *.log
     - (cd build-$VERSION &&
-       eval "ctest --no-compress-output -V
+       eval "ctest --no-compress-output
              $TESTS_RESTRICTION
              -T Test
-             -T Coverage
+             --output-junit ../${LOGNAME}.junit
              | tee -a ../${LOGNAME}.log")
-    - lcov --directory build-$VERSION --capture --output-file ./${LOGNAME}.lcov
-    - xsltproc -o report.xml /home/gitlab/ctest-to-junit.xsl build-$VERSION/Testing/**/Test.xml
+    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${LOGNAME}.cov --root ${CI_PROJECT_DIR}
+    - lcov --directory build-$VERSION --capture --output-file ${LOGNAME}.lcov
+    - cp ${LOGNAME}.junit junit.xml
+    - cp ${LOGNAME}.cov coverage.xml
+  coverage: /^\s*lines:\s*\d+.\d+\%/
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 2 days
+    untracked: true
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: junit.xml
 
 .bench_plafrim_common:
-  only:
-    - schedules
+  only: ['schedule']
   stage: test
   tags: ['plafrim']
   timeout: 1 week
@@ -75,7 +88,7 @@
   script:
     - ./tools/bench/plafrim/run.sh
   artifacts:
-    name: "$CI_JOB_NAME"
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
     expire_in: 1 week
     paths:
       - "chameleon-$NODE-$MPI-$SLURM_NP.err"

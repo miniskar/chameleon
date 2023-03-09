@@ -3,7 +3,6 @@
 #
 ---
 preliminary_checks:
-  image: registry.gitlab.inria.fr/solverstack/docker/distrib
   stage: .pre
   parallel:
     matrix:
@@ -12,4 +11,5 @@ preliminary_checks:
     - .gitlab/check_ci.sh $TEST
   only:
     - merge_requests
+  interruptible: true
 
