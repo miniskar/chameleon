@@ -43,6 +43,7 @@ _extra_blas = [
     ('',                     'scesca',               'dcesca',               'ccesca',               'zcesca'              ),
     ('',                     'sgesum',               'dgesum',               'cgesum',               'zgesum'              ),
     ('',                     'sgersum',              'dgersum',              'cgersum',              'zgersum'             ),
+    ('',                     'sprint',               'dprint',               'cprint',               'zprint'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]

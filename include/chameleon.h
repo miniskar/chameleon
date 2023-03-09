@@ -27,6 +27,7 @@
  * CHAMELEON types and constants
  */
 #include "chameleon/config.h"
+#include <stdio.h>
 #include "chameleon/constants.h"
 #include "chameleon/types.h"
 #include "chameleon/struct.h"
@@ -36,7 +37,6 @@
  * CHAMELEON runtime common API
  */
 #include "chameleon/runtime.h"
-
 
 /* ****************************************************************************
  * CHAMELEON Simulation mode
