@@ -36,7 +36,7 @@ nan            	nan            	nan
 # not multiple-regression-base
 0
 # hash		size		flops		mean (us)	dev (us)	sum		sum2		n
-b7b47bbe	20480000       	0.000000e+00   	1.292720e+01   	1.800127e+00   	7.265731e+05   	9.574683e+06   	56205
+e92ed97e	20480000       	0.000000e+00   	1.292720e+01   	1.800127e+00   	7.265731e+05   	9.574683e+06   	56205
 
 ####################
 # COMB_2
@@ -68,7 +68,7 @@ nan            	nan            	nan
 # not multiple-regression-base
 0
 # hash		size		flops		mean (us)	dev (us)	sum		sum2		n
-b7b47bbe	20480000       	0.000000e+00   	5.983456e+04   	3.642700e+03   	2.812224e+06   	1.688919e+11   	47
+e92ed97e	20480000       	0.000000e+00   	5.983456e+04   	3.642700e+03   	2.812224e+06   	1.688919e+11   	47
 
 ####################
 # COMB_1
@@ -100,5 +100,5 @@ nan            	nan            	nan
 # not multiple-regression-base
 0
 # hash		size		flops		mean (us)	dev (us)	sum		sum2		n
-b7b47bbe	20480000       	0.000000e+00   	1.284362e+01   	1.742971e+00   	5.282710e+05   	6.909866e+06   	41131
+e92ed97e	20480000       	0.000000e+00   	1.284362e+01   	1.742971e+00   	5.282710e+05   	6.909866e+06   	41131
 

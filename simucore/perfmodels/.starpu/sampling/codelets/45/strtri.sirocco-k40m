@@ -36,5 +36,5 @@ nan            	nan            	nan
 # not multiple-regression-base
 0
 # hash		size		flops		mean (us)	dev (us)	sum		sum2		n
-901ddf46	3686400        	0.000000e+00   	1.160146e+04   	2.231386e+03   	2.668335e+06   	3.210176e+10   	230
+617e5fe6	3686400        	0.000000e+00   	1.160146e+04   	2.231386e+03   	2.668335e+06   	3.210176e+10   	230
 
