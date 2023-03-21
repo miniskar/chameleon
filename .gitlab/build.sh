@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+fatal() {
+    echo "$0: error occurred, exit"
+    exit 1
+}
+
 set -x
 
 export LOGNAME=chameleon_${VERSION}.log
@@ -16,10 +21,10 @@ then
   else
     SCAN=""
   fi
-  eval '${SCAN}cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS'
-  eval '${SCAN}ctest --no-compress-output -j 5 -V -T Build | tee ../${LOGNAME}'
-  make install | tee -a ../${LOGNAME}
-  rm install/ -r
+  eval '${SCAN}cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS' || fatal
+  eval '${SCAN}ctest --no-compress-output -j 5 -V -T Build | tee ../${LOGNAME}' || fatal
+  make install | tee -a ../${LOGNAME} || fatal
+  rm install/ -r || fatal
 else
   echo "$0: directory build-$VERSION does not exist, exit."
   exit 1

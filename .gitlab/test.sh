@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+fatal() {
+    echo "$0: error occurred, exit"
+    exit 1
+}
+
 set -x
 
 export LOGNAME=chameleon_${VERSION}_${CATEGORY}_${PRECISION}
@@ -12,12 +17,12 @@ ls -l *.log
 if [[ -d build-$VERSION ]]
 then
   cd build-$VERSION
-  eval "ctest --no-compress-output $TESTS_RESTRICTION -T Test --output-junit ../${LOGNAME}.junit | tee -a ../${LOGNAME}.log"
-  cd .. $CI_PROJECT_DIR
-  gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${LOGNAME}.cov --root $CI_PROJECT_DIR
-  lcov --directory build-$VERSION --capture --output-file ${LOGNAME}.lcov
-  cp ${LOGNAME}.junit junit.xml
-  cp ${LOGNAME}.cov coverage.xml
+  eval "ctest --no-compress-output $TESTS_RESTRICTION -T Test --output-junit ../${LOGNAME}.junit | tee -a ../${LOGNAME}.log" || fatal
+  cd $CI_PROJECT_DIR || fatal
+  gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${LOGNAME}.cov --root $CI_PROJECT_DIR || fatal
+  lcov --directory build-$VERSION --capture --output-file ${LOGNAME}.lcov || fatal
+  cp ${LOGNAME}.junit junit.xml || fatal
+  cp ${LOGNAME}.cov coverage.xml || fatal
 else
   echo "$0: directory build-$VERSION does not exist, exit."
   exit 1
