@@ -15,7 +15,7 @@ before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR/hqr
   - git config --global --add safe.directory $CI_PROJECT_DIR/testing/test_fembem
   - git submodule update --init --recursive
-  - source .gitlab-ci-env.sh $SIMU
+  - source .gitlab-ci-env.sh $CHAM_CI_ENV_ARG
   - mkdir -p build-$VERSION
 
 include:

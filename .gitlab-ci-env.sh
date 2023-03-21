@@ -19,6 +19,18 @@ export PKG_CONFIG_PATH=""
 if [ "$1" == "simu" ]; then
   export STARPU_DIR=$STARPUSIMGRID_DIR
   export PKG_CONFIG_PATH=$SIMGRID_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+elif [ "$1" == "hip" ]; then
+  export STARPU_DIR=/home/gitlab/install/starpu-hip
+  export PKG_CONFIG_PATH=$STARPU_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+  export CMAKE_PREFIX_PATH=$STARPU_DIR:/opt/rocm-5.4.2
+  export LD_LIBRARY_PATH=/opt/rocm/lib
+elif [ "$1" == "hipcuda" ]; then
+  export STARPU_DIR=/home/gitlab/install/starpu-hipcuda
+  export PKG_CONFIG_PATH=$STARPU_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+  export CMAKE_PREFIX_PATH=$STARPU_DIR:$HIPCUDA_DIR
+  export LD_LIBRARY_PATH=$HIPCUDA_DIR/lib
+  export HIP_PLATFORM=nvidia
+  export HIP_PATH=$HIPCUDA_DIR
 fi
 
 # for build: better to rely on pkg-config than to guess libraries with the env. var.
