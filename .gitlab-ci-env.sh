@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # custom environment used during CI tests with gitlab ci
 
 # these paths may depend on the runner used, please be careful and add
@@ -15,15 +17,34 @@ export STARPU_WORKERS_NOBIND=1
 # initialize empty to get just what we need
 export PKG_CONFIG_PATH=""
 
-# if simgrid change the default starpu dir to use
-if [ "$1" == "simu" ]; then
-  export STARPU_DIR=$STARPUSIMGRID_DIR
-  export PKG_CONFIG_PATH=$SIMGRID_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+# define the starpu dir depending on the build variant
+STARPU_VARIANT=""
+if [ ! -z "$1" ]
+then
+   STARPU_VARIANT="-$1"
 fi
+export STARPU_DIR=/home/gitlab/install/starpu${STARPU_VARIANT}
+
+# add additional env. var. depending on the starpu variant
+case $STARPU_VARIANT in
+  -hip )
+    export CMAKE_PREFIX_PATH=$STARPU_DIR:/opt/rocm
+    export LD_LIBRARY_PATH=/opt/rocm/lib
+    ;;
+  -hipcuda )
+    export CMAKE_PREFIX_PATH=$STARPU_DIR:$HIPCUDA_DIR
+    export LD_LIBRARY_PATH=$HIPCUDA_DIR/lib
+    export HIP_PLATFORM=nvidia
+    export HIP_PATH=$HIPCUDA_DIR
+    ;;
+  * )
+    ;;
+esac
 
 # for build: better to rely on pkg-config than to guess libraries with the env. var.
 export PKG_CONFIG_PATH=$PARSEC_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 export PKG_CONFIG_PATH=$STARPU_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=$SIMGRID_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 
 # for ctest: we need this at runtime
 export LD_LIBRARY_PATH=$PARSEC_DIR/lib:$LD_LIBRARY_PATH

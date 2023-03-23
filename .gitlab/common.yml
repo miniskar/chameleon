@@ -25,21 +25,7 @@ default:
   stage: build
   extends: .only-branches
   script:
-    - export LOGNAME=chameleon_${VERSION}.log
-    - echo $LOGNAME
-    - echo build BUILD_OPTIONS $BUILD_OPTIONS | tee -a ${LOGNAME}
-    - echo build VERSION       $VERSION       | tee -a ${LOGNAME}
-    - ls -l *.log
-    - (cd build-$VERSION &&
-       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
-       cmake -C ../cmake_modules/gitlab-ci-initial-cache.cmake .. $BUILD_OPTIONS &&
-       scan-build -plist --intercept-first --exclude CMakeFiles --analyze-headers -o analyzer_reports
-       ctest --no-compress-output -j 5 -V
-             -T Build
-             | tee ../${LOGNAME})
-    - (cd build-$VERSION &&
-       make install | tee -a ../${LOGNAME} &&
-       rm install/ -r)
+    - ./.gitlab/build.sh
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
     expire_in: 2 days
@@ -49,23 +35,7 @@ default:
 .test_script_template:
   stage: test
   script:
-    - export LOGNAME=chameleon_${VERSION}_${CATEGORY}_${PRECISION}
-    - echo $LOGNAME
-    - echo test TESTS_RESTRICTION $TESTS_RESTRICTION  | tee -a ${LOGNAME}.log
-    - echo test VERSION $VERSION     | tee -a ${LOGNAME}.log
-    - echo test CATEGORY $CATEGORY   | tee -a ${LOGNAME}.log
-    - echo test PRECISION $PRECISION | tee -a ${LOGNAME}.log
-    - ls -l *.log
-    - (cd build-$VERSION &&
-       eval "ctest --no-compress-output
-             $TESTS_RESTRICTION
-             -T Test
-             --output-junit ../${LOGNAME}.junit
-             | tee -a ../${LOGNAME}.log")
-    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${LOGNAME}.cov --root ${CI_PROJECT_DIR}
-    - lcov --directory build-$VERSION --capture --output-file ${LOGNAME}.lcov
-    - cp ${LOGNAME}.junit junit.xml
-    - cp ${LOGNAME}.cov coverage.xml
+    - ./.gitlab/test.sh
   coverage: /^\s*lines:\s*\d+.\d+\%/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
