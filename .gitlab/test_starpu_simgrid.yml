@@ -18,7 +18,7 @@ test_starpu_simgrid_simu_all:
   <<: *test_starpu_simgrid_branches
   variables:
     STARPU_WORKERS_NOBIND: 1
-    CHAM_CI_ENV_ARG: simu
+    CHAM_CI_ENV_ARG: simgrid
     VERSION: starpu_simgrid
     CATEGORY: simu
     PRECISION: all

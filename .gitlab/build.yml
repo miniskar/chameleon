@@ -46,7 +46,7 @@ build_starpu_hipcuda:
 build_starpu_simgrid:
   extends: .build_script_template
   variables:
-    CHAM_CI_ENV_ARG: simu
+    CHAM_CI_ENV_ARG: simgrid
     BUILD_OPTIONS: "-DCHAMELEON_SIMULATION=ON -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=OFF"
     VERSION: starpu_simgrid
 
