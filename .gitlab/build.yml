@@ -51,7 +51,7 @@ build_starpu_simgrid:
     VERSION: starpu_simgrid
 
 build_starpu_macosx:
-  extends: .only-master
+  extends: .only-branches
   stage: build
   tags: ['macosx']
   variables:

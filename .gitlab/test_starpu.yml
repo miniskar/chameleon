@@ -79,7 +79,7 @@ test_starpu_mpi_z:
     TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
 
 test_starpu_shm_s_macosx:
-  extends: .only-master
+  extends: .only-branches
   stage: test
   tags: ['macosx']
   needs: [build_starpu_macosx]
