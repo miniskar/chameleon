@@ -30,57 +30,6 @@
  */
 #if defined(CHAMELEON_USE_MPI)
 
-/* Take 24 bits for the tile id, and 7 bits for descriptor id.
- These values can be changed through the call CHAMELEON_user_tag_size(int tag_width, int tag_sep) */
-#define TAG_WIDTH_MIN 20
-static int tag_width = 64;
-static int tag_sep   = 40;
-static int _tag_mpi_initialized_ = 0;
-
-static inline int
-chameleon_starpu_tag_init( int user_tag_width,
-                           int user_tag_sep )
-{
-    if (!_tag_mpi_initialized_) {
-        int ok = 0;
-        uintptr_t tag_ub;
-
-        tag_width = user_tag_width;
-        tag_sep   = user_tag_sep;
-
-        void *tag_ub_p = NULL;
-#if defined(HAVE_STARPU_MPI_COMM_GET_ATTR)
-        starpu_mpi_comm_get_attr(MPI_COMM_WORLD, STARPU_MPI_TAG_UB, &tag_ub_p, &ok);
-#else
-        MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &tag_ub_p, &ok);
-#endif
-        tag_ub = (uintptr_t)tag_ub_p;
-
-        if ( !ok ) {
-            chameleon_error("RUNTIME_desc_create", "MPI_TAG_UB not known by StarPU");
-        }
-
-        while ( ((uintptr_t)((1UL<<tag_width) - 1) > tag_ub ) &&
-                (tag_width >= TAG_WIDTH_MIN) )
-        {
-            tag_width--;
-            tag_sep--;
-        }
-
-        if ( tag_width < TAG_WIDTH_MIN ) {
-            chameleon_error("RUNTIME_desc_create", "MPI_TAG_UB too small to identify all the data");
-            return CHAMELEON_ERR_OUT_OF_RESOURCES;
-        }
-
-        _tag_mpi_initialized_ = 1;
-        return CHAMELEON_SUCCESS;
-    }
-    else {
-        return CHAMELEON_ERR_REINITIALIZED;
-    }
-}
-
-
 #ifndef HAVE_STARPU_MPI_DATA_REGISTER
 #define starpu_mpi_data_register( handle_, tag_, owner_ )       \
     do {                                                        \
@@ -221,23 +170,16 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
 
 #if defined(CHAMELEON_USE_MPI)
     /*
-     * Check that we are not going over MPI tag limitations
+     * Book the number of tags required to describe this matrix
      */
     {
-        chameleon_starpu_tag_init( tag_width, tag_sep );
+        chameleon_starpu_tag_init();
+        desc->mpitag = chameleon_starpu_tag_book( (int64_t)lnt * (int64_t)lmt );
 
-        /* Check that we won't create overflow in tags used */
-        if ( ((uintptr_t)(lnt*lmt)) > ((uintptr_t)(1UL<<tag_sep)) ) {
-            chameleon_fatal_error("RUNTIME_desc_create", "Too many tiles in the descriptor for MPI tags");
+        if ( desc->mpitag == -1 ) {
+            chameleon_fatal_error("RUNTIME_desc_create", "Can't pursue computation since no more tags are available");
             return;
         }
-        assert( ((uintptr_t)(lnt*lmt)) <= ((uintptr_t)(1UL<<tag_sep)) );
-
-        if ( ((uintptr_t)desc->id) >= (uintptr_t)(1UL<<(tag_width-tag_sep)) ) {
-            chameleon_fatal_error("RUNTIME_desc_create", "Number of descriptor available in MPI mode out of stock");
-            return;
-        }
-        assert( ((uintptr_t)desc->id) < (uintptr_t)(1UL<<(tag_width-tag_sep)) );
     }
 #endif
 }
@@ -284,8 +226,9 @@ void RUNTIME_desc_destroy( CHAM_desc_t *desc )
         }
 #endif
 #endif
+        chameleon_starpu_tag_release( desc->mpitag );
 
-        free(desc->schedopt);
+        free( desc->schedopt );
     }
 }
 
@@ -505,10 +448,14 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
 #if defined(CHAMELEON_USE_MPI)
     {
         int64_t block_ind = A->lmt * nn + mm;
-        starpu_mpi_data_register(*ptrtile, (((int64_t)A->id) << tag_sep) | block_ind, owner);
+        starpu_mpi_data_register( *ptrtile, A->mpitag + block_ind, owner );
     }
 #endif /* defined(CHAMELEON_USE_MPI) */
 
+#if defined(CHAMELEON_KERNELS_TRACE)
+    fprintf( stderr, "%s - %p registered with tag %ld\n",
+             tile->name, *ptrtile, A->mpitag + A->lmt * nn + mm );
+#endif
     assert( *ptrtile );
     return *ptrtile;
 }
