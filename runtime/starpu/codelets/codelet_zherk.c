@@ -151,6 +151,7 @@ void INSERT_TASK_zherk( const RUNTIME_option_t *options,
     accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
 #if defined(CHAMELEON_KERNELS_TRACE)
+    if ( clargs != NULL )
     {
         char *cl_fullname;
         chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name, clargs->tileA->name, clargs->tileC->name );
