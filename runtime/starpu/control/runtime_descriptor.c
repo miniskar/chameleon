@@ -40,20 +40,6 @@
 
 #endif
 
-void RUNTIME_comm_set_tag_sizes( int user_tag_width,
-                                 int user_tag_sep )
-{
-#if defined(CHAMELEON_USE_MPI)
-    int rc;
-    rc = chameleon_starpu_tag_init( user_tag_width, user_tag_sep );
-    if ( rc != CHAMELEON_SUCCESS ) {
-        chameleon_error("RUNTIME_user_tag_size",
-                    "must be called before creating any Cham descriptor with CHAMELEON_Desc_create(). The tag sizes will not be modified.");
-    }
-#endif
-    (void)user_tag_width; (void)user_tag_sep;
-}
-
 /**
  *  Malloc/Free of the data
  */

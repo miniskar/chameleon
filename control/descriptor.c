@@ -963,7 +963,6 @@ int CHAMELEON_Desc_Flush( const CHAM_desc_t        *desc,
  *
  */
 void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
-    RUNTIME_comm_set_tag_sizes( user_tag_width, user_tag_sep );
     return;
 }
 

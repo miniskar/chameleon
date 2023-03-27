@@ -22,13 +22,6 @@
  */
 #include "chameleon_quark.h"
 
-void RUNTIME_comm_set_tag_sizes( int user_tag_width,
-                                 int user_tag_sep )
-{
-    (void)user_tag_width;
-    (void)user_tag_sep;
-}
-
 void *RUNTIME_malloc( size_t size )
 {
     return malloc( size );
