@@ -943,29 +943,6 @@ int CHAMELEON_Desc_Flush( const CHAM_desc_t        *desc,
     return CHAMELEON_SUCCESS;
 }
 
-/**
- *****************************************************************************
- *
- * @ingroup Descriptor
- *
- *  CHAMELEON_user_tag_size - Set the sizes for the MPI tags
- *  Default value: tag_width=31, tag_sep=24, meaning that the MPI tag is stored
- *  in 31 bits, with 24 bits for the tile tag and 7 for the descriptor.  This
- *  function must be called before any descriptor creation.
- *
- ******************************************************************************
- *
- * @param[in] user_tag_width
- *          The new value for tag_width.
- *
- * @param[in] user_tag_sep
- *          The new value for tag_sep.
- *
- */
-void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
-    return;
-}
-
 static void
 chameleon_desc_print( const CHAM_desc_t *desc, int shift )
 {
