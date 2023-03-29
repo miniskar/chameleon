@@ -123,9 +123,6 @@ chameleon_pzsymm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
             /*
              *  ChamLeft / ChamLower
              */
-            /* Select row or column based on side */
-            l = ( side == ChamLeft ) ? m : n;
-
             if (side == ChamLeft) {
                 if (uplo == ChamLower) {
                     for (k = 0; k < C->mt; k++) {
