@@ -165,6 +165,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
     cham_trans_t     transW, transA2;
     int              wssize = 0;
     int              wrsize = 0;
+    int              info = 0;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -315,6 +316,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                   A2    /* M2*N2 */, LDA2,
                               CUBLAS_SADDR(zone), workW /* K *N2 */, ldW );
             assert( rc == CUBLAS_STATUS_SUCCESS );
+            info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
             if ( workC == NULL ) {
                 /* W = op(T) * W */
@@ -331,6 +333,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                       workW + ldW  * j, 1,
                                       A1    + LDA1 * j, 1 );
                     assert( rc == CUBLAS_STATUS_SUCCESS );
+                    info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
                 }
 
                 /* A2 = A2 - op(V) * W  */
@@ -341,6 +344,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                        workW /* K  * N2 */, ldW,
                                   CUBLAS_SADDR(zone),  A2    /* M2 * N2 */, LDA2 );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
             } else {
                 /* Wc = V * op(T) */
@@ -350,6 +354,8 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                   CUBLAS_SADDR(zone),  workV, ldV,
                                                        T,     LDT,
                                   CUBLAS_SADDR(zzero), workC, ldC );
+                assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
                 /* A1 = A1 - opt(T) * W */
                 rc = cublasZgemm( handle,
@@ -359,6 +365,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                        workW, ldW,
                                   CUBLAS_SADDR(zone),  A1,    LDA1 );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
                 /* A2 = A2 - Wc * W */
                 rc = cublasZgemm( handle,
@@ -368,6 +375,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                        workW, ldW,
                                   CUBLAS_SADDR(zone),  A2,    LDA2 );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
             }
         }
         else {
@@ -463,6 +471,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                   workV /* K *N2 */, ldV,
                               CUBLAS_SADDR(zone), workW /* M1*K  */, ldW);
             assert( rc == CUBLAS_STATUS_SUCCESS );
+            info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
             if ( workC == NULL ) {
                 /* W = W * op(T) */
@@ -479,6 +488,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                       workW + ldW  * j, 1,
                                       A1    + LDA1 * j, 1 );
                     assert( rc == CUBLAS_STATUS_SUCCESS );
+                    info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
                 }
 
                 /* A2 = A2 - W * op(V)  */
@@ -489,6 +499,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                        workV /* K *N2 */, ldV,
                                   CUBLAS_SADDR(zone),  A2    /* M2*N2 */, LDA2);
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
             } else {
                 /* A1 = A1 - W * opt(T) */
@@ -499,6 +510,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                         T,    LDT,
                                    CUBLAS_SADDR(zone),  A1,   LDA1 );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
                 /* Wc = op(T) * V */
                 rc = cublasZgemm( handle,
@@ -508,6 +520,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                         workV, ldV,
                                    CUBLAS_SADDR(zzero), workC, ldC );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
                 /* A2 = A2 - W * Wc */
                 rc = cublasZgemm( handle,
@@ -517,6 +530,7 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
                                                         workC, ldC,
                                    CUBLAS_SADDR(zone),  A2,    LDA2 );
                 assert( rc == CUBLAS_STATUS_SUCCESS );
+                info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
             }
         }
     }
@@ -525,5 +539,5 @@ CUDA_zparfb( cham_side_t side, cham_trans_t trans,
         return CHAMELEON_ERR_NOT_SUPPORTED;
     }
 
-    return (rc == CUBLAS_STATUS_SUCCESS) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
+    return (info == 0) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
 }
