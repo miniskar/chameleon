@@ -215,22 +215,6 @@ int
 RUNTIME_comm_size( CHAM_context_t *ctxt );
 
 /**
- * @brief Set the data tags bounds based on runtime tags limit.
- *
- * @param[in] user_tag_width
- *            Total number of bits used to defined the data tags (31 by default).
- *            Must be larger than 20.
- *
- * @param[in] user_tag_sep
- *            The number of bits dedicated to identify the pieces of data per
- *            descriptor.  (user_tag_width - user_tag_sep) defines the number of
- *            bits used to enumerate the descriptors.
- */
-void
-RUNTIME_comm_set_tag_sizes( int user_tag_width,
-                            int user_tag_sep );
-
-/**
  * @}
  *
  * @name RUNTIME Asynchonous functionalities

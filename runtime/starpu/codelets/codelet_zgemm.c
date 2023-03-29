@@ -195,6 +195,7 @@ void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
     }
 
 #if defined(CHAMELEON_KERNELS_TRACE)
+    if ( clargs != NULL )
     {
         char *cl_fullname;
         chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name, clargs->tileC->name );
@@ -271,9 +272,11 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     accessC = ( beta == 0. ) ? STARPU_W : (STARPU_RW | ((beta == 1.) ? STARPU_COMMUTE : 0));
 
 #if defined(CHAMELEON_KERNELS_TRACE)
+    if ( clargs != NULL )
     {
         char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name, clargs->tileC->name );
+        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name,
+                            clargs->tileA->name, clargs->tileB->name, clargs->tileC->name );
         cl_name = cl_fullname;
     }
 #endif

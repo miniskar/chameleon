@@ -142,6 +142,7 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
     callback = options->profiling ? cl_ztrmm_callback : NULL;
 
 #if defined(CHAMELEON_KERNELS_TRACE)
+    if ( clargs != NULL )
     {
         char *cl_fullname;
         chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name );

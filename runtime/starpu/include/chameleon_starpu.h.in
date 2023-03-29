@@ -150,6 +150,13 @@ typedef struct starpu_option_request_s {
 #endif
 
 /**
+ * MPI tag management
+ */
+int     chameleon_starpu_tag_init( );
+int64_t chameleon_starpu_tag_book( int64_t nbtags );
+void    chameleon_starpu_tag_release( int64_t min );
+
+/**
  * Access to block pointer and leading dimension
  */
 #define RTBLKADDR( desc, type, m, n ) ( (starpu_data_handle_t)RUNTIME_data_getaddr( desc, m, n ) )
