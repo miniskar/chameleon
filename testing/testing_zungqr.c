@@ -80,6 +80,12 @@ testing_zungqr_desc( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
     hres = CHAMELEON_zgeqrf_Tile( descA, descT );
+    if ( hres != CHAMELEON_SUCCESS ) {
+        CHAMELEON_Desc_Flush( descA, test_data.sequence );
+        CHAMELEON_Desc_Flush( descT, test_data.sequence );
+        CHAMELEON_Desc_Flush( descQ, test_data.sequence );
+        return hres;
+    }
 
     /* Calculates the solution */
     testing_start( &test_data );
