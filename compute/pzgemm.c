@@ -45,14 +45,12 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
     RUNTIME_sequence_t *sequence = options->sequence;
     int                 m, n, k;
     int                 tempmm, tempnn, tempkn, tempkm;
-    int                 myrank = RUNTIME_comm_rank( chamctxt );
-    int                 reduceC[ C->mt * C->nt ];
+    int                 myrank  = RUNTIME_comm_rank( chamctxt );
+    int8_t             *reduceC = calloc( C->mt * C->nt, sizeof(int8_t) );
 
     /* Set C tiles to redux mode. */
     for (n = 0; n < C->nt; n++) {
         for (m = 0; m < C->mt; m++) {
-            reduceC[ n * C->mt + m ] = 0;
-
             /* The node owns the C tile. */
             if ( C->get_rankof( C(m, n) ) == myrank ) {
                 reduceC[ n * C->mt + m ] = 1;
@@ -169,6 +167,7 @@ chameleon_pzgemm_Astat( CHAM_context_t *chamctxt, cham_trans_t transA, cham_tran
         }
     }
     options->forcesub = 0;
+    free( reduceC );
 
     (void)chamctxt;
 }
