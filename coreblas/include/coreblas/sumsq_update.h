@@ -41,8 +41,8 @@
  *          The value to integrate into the couple (scale, sumsq)
  *
  *******************************************************************************/
-static inline void
 #if defined(PRECISION_d) || defined(PRECISION_z)
+static inline void
 sumsq_update( int nb, double *scale, double *sumsq, const double *value )
 {
     double absval = fabs(*value);
@@ -59,6 +59,7 @@ sumsq_update( int nb, double *scale, double *sumsq, const double *value )
     }
 }
 #elif defined(PRECISION_s) || defined(PRECISION_c)
+static inline void
 sumsq_update( int nb, float *scale, float *sumsq, const float *value )
 {
     float absval = fabs(*value);
@@ -99,8 +100,8 @@ sumsq_update( int nb, float *scale, float *sumsq, const float *value )
  *          The value to integrate into the couple (scale, sumsq)
  *
  *******************************************************************************/
-static inline void
 #if defined(PRECISION_d) || defined(PRECISION_z)
+static inline void
 sumsq_update_2( const double *scalein, const double *sumsqin, double *scaleout, double *sumsqout )
 {
     if (*scaleout >= 0.) {
@@ -115,6 +116,7 @@ sumsq_update_2( const double *scalein, const double *sumsqin, double *scaleout, 
     }
 }
 #elif defined(PRECISION_s) || defined(PRECISION_c)
+static inline void
 sumsq_update_2( const float *scalein, const float *sumsqin, float *scaleout, float *sumsqout )
 {
     if (*scaleout >= 0.) {
