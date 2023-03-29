@@ -401,7 +401,7 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
     ptrtile += ((int64_t)A->lmt) * nn + mm;
 
     if ( *ptrtile != NULL ) {
-        return *ptrtile;
+        return (void*)(*ptrtile);
     }
 
     int home_node = -1;
@@ -441,5 +441,5 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
              tile->name, *ptrtile, A->mpitag + A->lmt * nn + mm );
 #endif
     assert( *ptrtile );
-    return *ptrtile;
+    return (void*)(*ptrtile);
 }
