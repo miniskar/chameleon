@@ -305,7 +305,7 @@ void
 parameters_read( parameter_t *param,
                  const char  *values )
 {
-    int range = ( strchr( values, ':' ) != NULL );
+    int range = (values != NULL) && ( strchr( values, ':' ) != NULL );
 
     /* If we have a ranged of integer values */
     if ( range )
