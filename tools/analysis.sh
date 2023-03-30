@@ -60,7 +60,7 @@ sonar.links.issue=$CI_PROJECT_URL/issues
 
 sonar.projectKey=$SONARQUBE_PROJECTKEY
 sonar.projectDescription=Dense linear algebra subroutines for heterogeneous and distributed architectures
-sonar.projectVersion=1.1.2
+sonar.projectVersion=1.2.0
 
 sonar.scm.disabled=false
 sonar.scm.provider=git
