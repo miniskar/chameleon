@@ -179,6 +179,15 @@ chameleon_starpu_tag_release( int64_t min )
         current = current->next;
     }
 
+    if ( current == NULL ) {
+#if defined(CHAMELEON_DEBUG_STARPU)
+        fprintf( stderr, "chameleon_starpu_tag: FAILED to release [%ld,...] no set registered with this min value\n",
+                 min );
+#endif
+
+        return;
+    }
+
     assert( current != NULL );
     assert( current->min == min );
 
@@ -212,7 +221,7 @@ chameleon_starpu_tag_release( int64_t min )
  * @retval TODO
  *
  ******************************************************************************/
-int
+void
 chameleon_starpu_tag_init( ) {
     return CHAMELEON_SUCCESS;
 }

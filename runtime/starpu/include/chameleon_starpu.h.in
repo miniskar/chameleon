@@ -152,7 +152,7 @@ typedef struct starpu_option_request_s {
 /**
  * MPI tag management
  */
-int     chameleon_starpu_tag_init( );
+void    chameleon_starpu_tag_init( );
 int64_t chameleon_starpu_tag_book( int64_t nbtags );
 void    chameleon_starpu_tag_release( int64_t min );
 
