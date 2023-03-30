@@ -23,15 +23,15 @@
 
 #if defined(CHAMELEON_USE_CUDA)
 #define GPU_WORKER_TYPE STARPU_CUDA_WORKER
-#define gpuMallocHost   cudaMallocHost
+#define gpuMallocHost( _ptr_, _size_ ) cudaMallocHost( (_ptr_), (_size_) )
 #define gpuMalloc       cudaMalloc
 #define gpuFreeHost     cudaFreeHost
 #define gpuFree         cudaFree
 #elif defined(CHAMELEON_USE_HIP)
 #define GPU_WORKER_TYPE STARPU_HIP_WORKER
-#define gpuMallocHost   hipMallocHost
+#define gpuMallocHost( _ptr_, _size_ ) hipHostMalloc( (_ptr_), (_size_), 0 )
 #define gpuMalloc       hipMalloc
-#define gpuFreeHost     hipFreeHost
+#define gpuFreeHost     hipHostFree
 #define gpuFree         hipFree
 #endif
 
