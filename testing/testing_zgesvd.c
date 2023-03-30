@@ -239,8 +239,8 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     if ( hres != 0 ) {
         free( D );
         free( S );
-        if ( U ) { free( U ); }
-        if ( Vt ) { free( Vt ); }
+        free( U );
+        free( Vt );
         return hres;
     }
     /*
@@ -269,8 +269,8 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     free( A );
     free( D );
     free( S );
-    if ( U ) { free( U ); }
-    if ( Vt ) { free( Vt ); }
+    free( U );
+    free( Vt );
     CHAMELEON_Desc_Destroy( &descT );
 
     return hres;
