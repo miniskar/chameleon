@@ -42,7 +42,6 @@ zprint( const CHAM_desc_t *descA,
 
     int tempmm = m == descA->mt-1 ? descA->m-m*descA->mb : descA->mb;
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
-    int minmn = chameleon_min( tempmm, tempnn );
     int lda, i;
 
     if ( zprint_runtime_id == RUNTIME_SCHED_PARSEC ) {

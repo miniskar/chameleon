@@ -167,8 +167,6 @@ chameleon_pzgenm2( double tol, const CHAM_desc_t *A, double *result,
 	chameleon_desc_destroy( &DROW );
 	chameleon_desc_destroy( &NRMX );
 	return;
-    } else {
-	normx = *result;
     }
 
     chameleon_desc_init( &NRMSX, CHAMELEON_MAT_ALLOC_GLOBAL, ChamRealDouble, 2, 1, 2,

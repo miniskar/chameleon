@@ -48,13 +48,11 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
     int                 k, m, n, l, Am, An;
     int                 tempmm, tempnn, tempkn, tempkm;
     int                 myrank = RUNTIME_comm_rank( chamctxt );
-    int                 reduceC[ C->mt * C->nt ];
+    int8_t             *reduceC = calloc( C->mt * C->nt, sizeof(int8_t) );
 
     /* Set C tiles to redux mode */
     for (n = 0; n < C->nt; n++) {
         for (m = 0; m < C->mt; m++) {
-            reduceC[ n * C->mt + m ] = 0;
-
             /* The node owns the C tile. */
             if ( C->get_rankof( C(m, n) ) == myrank ) {
                 reduceC[ n * C->mt + m ] = 1;
@@ -124,9 +122,6 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
             /*
              *  ChamLeft / ChamLower
              */
-            /* Select row or column based on side */
-            l = ( side == ChamLeft ) ? m : n;
-
             if (side == ChamLeft) {
                 if (uplo == ChamLower) {
                     for (k = 0; k < C->mt; k++) {
@@ -278,6 +273,8 @@ chameleon_pzhemm_Astat( CHAM_context_t *chamctxt, cham_side_t side, cham_uplo_t 
         }
     }
     options->forcesub = 0;
+    free( reduceC );
+
     (void)chamctxt;
 }
 

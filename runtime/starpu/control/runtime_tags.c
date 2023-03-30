@@ -165,6 +165,14 @@ chameleon_starpu_tag_release( int64_t min )
     cst_range_t *current = cst_first;
 
     assert( cst_first != NULL ); /* At least one range must be registered */
+    if ( current == NULL ) {
+#if defined(CHAMELEON_DEBUG_STARPU)
+        fprintf( stderr, "chameleon_starpu_tag: FAILED to release [%ld,...]\n",
+                 min );
+#endif
+
+        return;
+    }
 
     while ( (current != NULL) && (current->min < min) ) {
         prev    = current;

@@ -339,9 +339,7 @@ void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
     int64_t nn = n + (A->j / A->nb);
     int64_t shift = ((int64_t)A->lmt) * nn + mm;
     starpu_data_handle_t *handle = A->schedopt;
-    CHAM_tile_t          *tile   = A->tiles;
     handle += shift;
-    tile   += shift;
 
     if (*handle == NULL) {
         return;
@@ -403,7 +401,7 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
     ptrtile += ((int64_t)A->lmt) * nn + mm;
 
     if ( *ptrtile != NULL ) {
-        return *ptrtile;
+        return (void*)(*ptrtile);
     }
 
     int home_node = -1;
@@ -443,5 +441,5 @@ void *RUNTIME_data_getaddr( const CHAM_desc_t *A, int m, int n )
              tile->name, *ptrtile, A->mpitag + A->lmt * nn + mm );
 #endif
     assert( *ptrtile );
-    return *ptrtile;
+    return (void*)(*ptrtile);
 }

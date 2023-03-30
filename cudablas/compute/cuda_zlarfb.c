@@ -45,6 +45,7 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
     cublasStatus_t rc;
     cham_trans_t   transT, notransV, transV;
     cham_uplo_t    uplo;
+    int            info = 0;
 
     /* Check input arguments */
     if ((side != ChamLeft) && (side != ChamRight)) {
@@ -111,6 +112,7 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
                                                V, LDV,
                           CUBLAS_SADDR(zzero), WORK, LDWORK );
         assert( rc == CUBLAS_STATUS_SUCCESS );
+        info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
         // W = W T^H = C^H V T^H
         CUDA_ztrmm( ChamRight, uplo, transT, ChamNonUnit,
@@ -127,6 +129,7 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
                                                WORK, LDWORK,
                           CUBLAS_SADDR(zone),  C,    LDC );
         assert( rc == CUBLAS_STATUS_SUCCESS );
+        info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
     }
     else {
         // Form C H or C H^H
@@ -140,6 +143,7 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
                                                V, LDV,
                           CUBLAS_SADDR(zzero), WORK, LDWORK );
         assert( rc == CUBLAS_STATUS_SUCCESS );
+        info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
 
         // W = W T = C V T
         CUDA_ztrmm( ChamRight, uplo, trans, ChamNonUnit,
@@ -156,7 +160,8 @@ CUDA_zlarfb( cham_side_t side, cham_trans_t trans,
                                                V,    LDV,
                           CUBLAS_SADDR(zone),  C,    LDC );
         assert( rc == CUBLAS_STATUS_SUCCESS );
+        info += (rc == CUBLAS_STATUS_SUCCESS) ? 0 : 1;
     }
 
-    return (rc == CUBLAS_STATUS_SUCCESS) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
+    return (info == 0) ? CHAMELEON_SUCCESS : CHAMELEON_ERR_UNEXPECTED;
 }

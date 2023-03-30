@@ -53,7 +53,8 @@ flops_zgesvd( int M, int N, int K, cham_job_t jobu, cham_job_t jobvt )
         ;
     }
 
-    return -1;
+    flops *= -1.; /* make it negative as long as the formulae is not complete */
+    return flops;
 }
 
 int
@@ -236,6 +237,10 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     hres = CHAMELEON_zlatms( M, N, ChamDistUniform, seedA, ChamNonsymPosv, D, mode, cond, 1., A, LDA );
     if ( hres != 0 ) {
+        free( D );
+        free( S );
+        if ( U ) { free( U ); }
+        if ( Vt ) { free( Vt ); }
         return hres;
     }
     /*
@@ -262,13 +267,10 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     }
 
     free( A );
+    free( D );
     free( S );
-    if ( (jobu  == ChamAllVec) || (jobu  == ChamSVec) ) {
-        free( U );
-    }
-    if ( (jobvt == ChamAllVec) || (jobvt == ChamSVec) ) {
-        free( Vt );
-    }
+    if ( U ) { free( U ); }
+    if ( Vt ) { free( Vt ); }
     CHAMELEON_Desc_Destroy( &descT );
 
     return hres;
