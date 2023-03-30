@@ -81,9 +81,9 @@ testing_zungqr_desc( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
     hres = CHAMELEON_zgeqrf_Tile( descA, descT );
     if ( hres != CHAMELEON_SUCCESS ) {
-        CHAMELEON_Desc_Flush( descA, test_data.sequence );
-        CHAMELEON_Desc_Flush( descT, test_data.sequence );
-        CHAMELEON_Desc_Flush( descQ, test_data.sequence );
+        CHAMELEON_Desc_Destroy( &descA );
+        CHAMELEON_Desc_Destroy( &descT );
+        CHAMELEON_Desc_Destroy( &descQ );
         return hres;
     }
 
@@ -171,6 +171,12 @@ testing_zungqr_std( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt( M, K, A, LDA, seedA );
     hres = CHAMELEON_zgeqrf( M, K, A, LDA, descT );
+    if ( hres != CHAMELEON_SUCCESS ) {
+        free( A    );
+        free( Qlap );
+        CHAMELEON_Desc_Destroy( &descT );
+        return hres;
+    }
 
     /* Calculates the solution */
     testing_start( &test_data );
