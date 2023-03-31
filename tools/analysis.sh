@@ -45,6 +45,9 @@ cppcheck $CPPCHECK_OPT -DPRECISION_d -UPRECISION_s -UPRECISION_c -UPRECISION_z -
 cppcheck $CPPCHECK_OPT -DPRECISION_c -UPRECISION_s -UPRECISION_d -UPRECISION_z --file-list=./filelist_c.txt 2>> chameleon_cppcheck.xml
 cppcheck $CPPCHECK_OPT -DPRECISION_z -UPRECISION_s -UPRECISION_d -UPRECISION_c --file-list=./filelist_z.txt 2>> chameleon_cppcheck.xml
 
+# merge all different compile_commands.json files from build-* directories into one single file for sonarqube
+jq -s 'map(.[])' $PWD/build-*/compile_commands.json > compile_commands.json
+
 # Set the default for the project key
 SONARQUBE_PROJECTKEY=${SONARQUBE_PROJECTKEY:-hiepacs:chameleon:gitlab:$CI_PROJECT_NAMESPACE}
 
@@ -79,7 +82,7 @@ sonar.cxx.xunit.reportPaths=*.junit
 sonar.cxx.cobertura.reportPaths=*.cov
 sonar.cxx.cppcheck.reportPaths=chameleon_cppcheck.xml
 sonar.cxx.clangsa.reportPaths=build-openmp/analyzer_reports/*/*.plist, build-parsec/analyzer_reports/*/*.plist, build-quark/analyzer_reports/*/*.plist, build-starpu/analyzer_reports/*/*.plist, build-starpu_simgrid/analyzer_reports/*/*.plist
-sonar.cxx.jsonCompilationDatabase=build-openmp/compile_commands.json, build-parsec/compile_commands.json, build-quark/compile_commands.json, build-starpu/compile_commands.json, build-starpu_simgrid/compile_commands.json
+sonar.cxx.jsonCompilationDatabase=compile_commands.json
 EOF
 
 # run sonar analysis + publish on sonarqube-dev
