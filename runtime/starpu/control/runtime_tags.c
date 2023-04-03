@@ -49,12 +49,8 @@ static int64_t starpu_tag_ub = 0;
  *
  * @brief Initialize the StarPU tags manager.
  *
- *******************************************************************************
- *
- * @retval TODO
- *
  ******************************************************************************/
-int
+void
 chameleon_starpu_tag_init( void )
 {
     if (!starpu_tag_ub) {
@@ -67,11 +63,6 @@ chameleon_starpu_tag_init( void )
         if ( !ok ) {
             chameleon_error("chameleon_starpu_tag_init", "MPI_TAG_UB not known by StarPU\n");
         }
-
-        return CHAMELEON_SUCCESS;
-    }
-    else {
-        return CHAMELEON_ERR_REINITIALIZED;
     }
 }
 
@@ -179,6 +170,15 @@ chameleon_starpu_tag_release( int64_t min )
         current = current->next;
     }
 
+    if ( current == NULL ) {
+#if defined(CHAMELEON_DEBUG_STARPU)
+        fprintf( stderr, "chameleon_starpu_tag: FAILED to release [%ld,...] no set registered with this min value\n",
+                 min );
+#endif
+
+        return;
+    }
+
     assert( current != NULL );
     assert( current->min == min );
 
@@ -207,12 +207,8 @@ chameleon_starpu_tag_release( int64_t min )
  *
  * @brief Initialize the StarPU tags manager.
  *
- *******************************************************************************
- *
- * @retval TODO
- *
  ******************************************************************************/
-int
+void
 chameleon_starpu_tag_init( ) {
     return CHAMELEON_SUCCESS;
 }

@@ -37,6 +37,9 @@ do
     sed -i "\:^$file.*:d" filelist.txt
 done
 
+# Remove fortran header file that is incorrectly parsed as a C file
+sed -i '/fortran\.h/d' filelist.txt
+
 # Remove external header files
 for file in coreblas/include/coreblas/cblas.h coreblas/include/coreblas/lapacke.h coreblas/include/coreblas/lapacke_config.h coreblas/include/coreblas/lapacke_mangling.h
 do

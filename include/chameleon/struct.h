@@ -121,7 +121,7 @@ struct chameleon_desc_s {
     int register_mat; // 1 if we have to register mat - else 0 (handled by the application)
     int myrank;       // MPI rank of the descriptor
     int ooc;          // 1 if the matrix is not to fit in memory
-    int64_t mpitag;   // First MPI tag used by the decriptor
+    int64_t mpitag;   // First MPI tag used by the descriptor
     void *schedopt;   // scheduler (QUARK|StarPU) specific structure
 };
 

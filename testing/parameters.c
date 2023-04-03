@@ -305,7 +305,13 @@ void
 parameters_read( parameter_t *param,
                  const char  *values )
 {
-    int range = (values != NULL) && ( strchr( values, ':' ) != NULL );
+    int range;
+
+    if ( values == NULL ) {
+        fprintf( stderr, "Error passing NULL parameter to read\n" );
+        exit(EXIT_FAILURE);
+    }
+    range = (values != NULL) && ( strchr( values, ':' ) != NULL );
 
     /* If we have a ranged of integer values */
     if ( range )

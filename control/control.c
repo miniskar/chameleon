@@ -94,22 +94,24 @@ int __chameleon_initpar(int ncpus, int ngpus, int nthreads_per_worker)
     chamctxt->mpi_outer_init = 1;
 #  else
     {
-      int flag = 0, provided = 0;
-      MPI_Initialized( &flag );
-      chamctxt->mpi_outer_init = flag;
-      if ( !flag ) {
-          /* MPI_THREAD_SERIALIZED should be enough.
-           * In testings, only StarPU's internal thread performs
-           * communications, and *then* Chameleon performs communications in
-           * the check step. */
-          const int required = MPI_THREAD_MULTIPLE;
-          if ( MPI_Init_thread( NULL, NULL, required, &provided ) != MPI_SUCCESS) {
-             chameleon_fatal_error("CHAMELEON_Init", "MPI_Init_thread() failed");
-          }
-          if ( provided < required ) {
-             chameleon_fatal_error("CHAMELEON_Init", "MPI_Init_thread() was not able to provide the requested thread support (MPI_THREAD_MULTIPLE), this may be an issue if the level provided is not enough for the underlying runtime system.");
-          }
-      }
+        int flag = 0, provided = 0;
+        MPI_Initialized( &flag );
+        chamctxt->mpi_outer_init = flag;
+        if ( !flag ) {
+            /* MPI_THREAD_SERIALIZED should be enough.
+             * In testings, only StarPU's internal thread performs
+             * communications, and *then* Chameleon performs communications in
+             * the check step. */
+            const int required = MPI_THREAD_MULTIPLE;
+            if ( MPI_Init_thread( NULL, NULL, required, &provided ) != MPI_SUCCESS) {
+                chameleon_fatal_error("CHAMELEON_Init", "MPI_Init_thread() failed");
+            }
+            if ( provided < required ) {
+                chameleon_fatal_error("CHAMELEON_Init",
+                                      "MPI_Init_thread() was not able to provide the requested thread support (MPI_THREAD_MULTIPLE),\n"
+                                      "this may be an issue if the level provided is not enough for the underlying runtime system." );
+            }
+        }
     }
 #  endif
 #endif

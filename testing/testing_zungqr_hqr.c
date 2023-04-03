@@ -88,10 +88,11 @@ testing_zungqr_hqr_desc( run_arg_list_t *args, int check )
     CHAMELEON_zplrnt_Tile( descA, seedA );
     hres = CHAMELEON_zgeqrf_param_Tile( &qrtree, descA, descTS, descTT );
     if ( hres != CHAMELEON_SUCCESS ) {
-        CHAMELEON_Desc_Flush( descA, test_data.sequence );
-        CHAMELEON_Desc_Flush( descTS, test_data.sequence );
-        CHAMELEON_Desc_Flush( descTT, test_data.sequence );
-        CHAMELEON_Desc_Flush( descQ, test_data.sequence );
+        CHAMELEON_Desc_Destroy( &descA  );
+        CHAMELEON_Desc_Destroy( &descTS );
+        CHAMELEON_Desc_Destroy( &descTT );
+        CHAMELEON_Desc_Destroy( &descQ  );
+        libhqr_finalize( &qrtree );
         return hres;
     }
 
@@ -189,6 +190,14 @@ testing_zungqr_hqr_std( run_arg_list_t *args, int check )
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt( M, K, A, LDA, seedA );
     hres = CHAMELEON_zgeqrf_param( &qrtree, M, K, A, LDA, descTS, descTT );
+    if ( hres != CHAMELEON_SUCCESS ) {
+        free( A    );
+        free( Qlap );
+        CHAMELEON_Desc_Destroy( &descTS );
+        CHAMELEON_Desc_Destroy( &descTT );
+        libhqr_finalize( &qrtree );
+        return hres;
+    }
 
     /* Calculates the solution */
     testing_start( &test_data );
