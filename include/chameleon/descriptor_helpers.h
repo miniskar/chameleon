@@ -11,7 +11,7 @@
  *
  * @brief Set of functions to help the user to declare matrix descriptors (allocation, mapping... )
  *
- * @version 1.0.0
+ * @version 1.2.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
