@@ -138,7 +138,7 @@
      wget https://gitlab.inria.fr/solverstack/chameleon/uploads/b299d6037d7636c6be16108c89bc2aab/chameleon-1.1.0.tar.gz
      tar xvf chameleon-1.1.0.tar.gz
      cd chameleon-1.1.0
-     # or clone from git repository
+     # or clone the master branch from the git repository to get the last version
      # git clone --recursive https://gitlab.inria.fr/solverstack/chameleon.git && cd chameleon
      mkdir build && cd build
      cmake .. -DCHAMELEON_USE_MPI=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$PWD/install
@@ -175,9 +175,9 @@
      #+begin_src sh :eval never-export
      # install last starpu release
      cd $HOME
-     wget https://files.inria.fr/starpu/starpu-1.3.8/starpu-1.3.8.tar.gz
-     tar xvf starpu-1.3.8.tar.gz
-     cd starpu-1.3.8
+     wget https://files.inria.fr/starpu/starpu-1.3.10/starpu-1.3.10.tar.gz
+     tar xvf starpu-1.3.10.tar.gz
+     cd starpu-1.3.10
      ./configure
      make -j5
      sudo make install
@@ -201,9 +201,10 @@
     Visit the [[https://gitlab.inria.fr/solverstack/chameleon/-/packages][packages]] page and download the appropriate file for your
     system. Then in a shell terminal
     #+begin_src sh :eval never-export
-    # to install one of our non offical package, for example on Ubuntu 20.04
-    curl https://gitlab.inria.fr/solverstack/chameleon/-/package_files/15259/download -o chameleon_1.1.0-1_amd64.deb
+    # to install one of our non offical package, for example on Ubuntu 22.04
+    wget https://gitlab.inria.fr/api/v4/projects/616/packages/generic/ubuntu_22.04/1.1.0/chameleon_1.1.0-1_amd64.deb
     sudo apt-get install -y ./chameleon_1.1.0-1_amd64.deb
+    mpiexec -n 2 chameleon_dtesting -o potrf -t 2 -n 3200 --nowarmup
     #+end_src
     If there are no package available for your Debian/Ubuntu
     distribution please [[sec:contact][contact us]] and we will try to provide one.
@@ -229,11 +230,17 @@
 :CUSTOM_ID: quickstart-install-guix
 :END:
     [[https://guix.gnu.org/][Guix]] requires a running GNU/Linux system, GNU tar and Xz.
+    Follow the [[https://guix.gnu.org/manual/en/html_node/Binary-Installation.html#Binary-Installation][installation instructions]]
     #+begin_src sh :eval never-export
-    gpg --keyserver pgp.mit.edu --recv-keys 3CE464558A84FDC69DB40CFB090B11993D9AEBB5
+    cd /tmp
     wget https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh
     chmod +x guix-install.sh
     sudo ./guix-install.sh
+    #+end_src
+
+    or on Debian
+    #+begin_src sh :eval never-export
+    sudo apt install guix
     #+end_src
 
     Guix packages are stored in our [[https://gitlab.inria.fr/guix-hpc/guix-hpc][guix-hpc]], and [[https://gitlab.inria.fr/guix-hpc/guix-hpc-non-free][guix-hpc-non-free]]
@@ -268,9 +275,8 @@
 :PROPERTIES:
 :CUSTOM_ID: quickstart-install-spack
 :END:
-    Spack packages for Linux or macOS are stored in our [[https://gitlab.inria.fr/solverstack/spack-repo][spack-repo]] git
-    repository. Please refer to the [[https://gitlab.inria.fr/solverstack/spack-repo/-/blob/master/README.org][README]] for installation
-    instructions.
+    We provide a Chameleon [[https://github.com/spack/spack][Spack]] package (with StarPU) for Linux or macOS.
+    Please refer to the [[https://spack.readthedocs.io/en/latest/][documentation]] for installation instructions.
 
     Examples:
     #+begin_src sh :eval never-export

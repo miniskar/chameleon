@@ -2,7 +2,7 @@
 # whatis: standard development environment to use the chameleon library
 
 sudo apt-get update -y
-sudo apt-get install build-essential git gfortran cmake doxygen python pkg-config libopenblas-dev liblapacke-dev libstarpu-dev libopenmpi-dev libhwloc-dev -y
+sudo apt-get install build-essential git gfortran cmake doxygen python-is-python3 pkg-config libopenblas-dev liblapacke-dev libstarpu-dev libopenmpi-dev libhwloc-dev -y
 # libopenblas-dev can be replaced by libmkl-dev or liblapack-dev
 
 # install chameleon with cmake
