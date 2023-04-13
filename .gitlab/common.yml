@@ -12,6 +12,8 @@ default:
   only:
     - master@solverstack/chameleon
     - /^ci-.*$/
+  except:
+    - /^notest-.*$/
 
 .only-branches:
   except: ['schedule']
@@ -20,6 +22,8 @@ default:
     - merge_requests
     - master@solverstack/chameleon
     - /^ci-.*$/
+  except:
+    - /^notest-.*$/
 
 .build_script_template:
   stage: build
