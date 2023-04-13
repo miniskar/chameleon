@@ -58,7 +58,7 @@ then
 elif [ $MPI = "nmad" ]
 then
   export MPI_OPTIONS="-DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1 hwloc-bind --cpubind machine:0"
-  GUIX_ENV_MPI="--with-input=openmpi=nmad --with-branch=starpu=starpu-1.3"
+  GUIX_ENV_MPI="--with-input=openmpi=nmad"
   GUIX_ADHOC_MPI="which gzip zlib tar inetutils util-linux procps openssh nmad"
 else
   echo "$0: Please set the MPI environnement variable to openmpi or nmad."
