@@ -12,7 +12,7 @@
 .test_hmat_template_branches: &test_hmat_branches
   extends:
     - .test_hmat_template
-    - .only-branches
+    - .only-merge-request
 
 test_hmat:
   <<: *test_hmat_branches

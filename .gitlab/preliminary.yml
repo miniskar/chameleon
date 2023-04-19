@@ -4,12 +4,10 @@
 ---
 preliminary_checks:
   stage: .pre
+  extends: .only-merge-request
   parallel:
     matrix:
       - TEST: [rebase, draft, header]
   script:
     - .gitlab/check_ci.sh $TEST
-  only:
-    - merge_requests
-  interruptible: true
 

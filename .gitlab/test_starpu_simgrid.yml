@@ -12,7 +12,7 @@
 .test_starpu_simgrid_template_branches: &test_starpu_simgrid_branches
   extends:
     - .test_starpu_simgrid_template
-    - .only-branches
+    - .only-merge-request
 
 test_starpu_simgrid_simu_all:
   <<: *test_starpu_simgrid_branches
