@@ -27,6 +27,8 @@
 #include "runtime_codelet_profile.h"
 
 #if !defined(CHAMELEON_SIMULATION)
+#include "coreblas.h"
+
 #if defined(CHAMELEON_USE_CUDA)
 #include "gpucublas.h"
 #endif
