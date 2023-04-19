@@ -3,7 +3,7 @@
 #
 ---
 preliminary_checks:
-  stage: .pre
+  stage: pre
   interruptible: true
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
