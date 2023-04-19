@@ -49,7 +49,7 @@ fi
 export MPI_OPTIONS=""
 if [ $MPI = "openmpi" ]
 then
-  export MPI_OPTIONS="--map-by ppr:1:node:pe=$SLURM_JOB_CPUS_PER_NODE"
+  export MPI_OPTIONS="--bind-to board"
   GUIX_ENV_MPI=""
   GUIX_ADHOC_MPI="openssh openmpi"
 elif [ $MPI = "nmad" ]
