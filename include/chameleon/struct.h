@@ -19,7 +19,7 @@
  * @author Samuel Thibault
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-22
+ * @date 2023-08-31
  *
  */
 #ifndef _chameleon_struct_h_
@@ -143,13 +143,17 @@ struct chameleon_desc_s {
 typedef struct chameleon_piv_s {
     const CHAM_desc_t *desc;   /**> Reference descriptor to compute data mapping based on diagonal tiles,
                               and get floating reference type                                        */
-    int    *data;        /**> Pointer to the data                                                    */
-    void   *ipiv;        /**> Opaque array of pointers for the runtimes to handle the ipiv array     */
-    void   *nextpiv;     /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
-    void   *prevpiv;     /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
+    int    *data;    /**> Pointer to the data                                                    */
+    void   *ipiv;    /**> Opaque array of pointers for the runtimes to handle the ipiv array     */
+    void   *nextpiv; /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
+    void   *prevpiv; /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
+    void   *perm;    /**> Opaque array of pointers for the runtimes to handle the temporary permutation array */
+    void   *invp;    /**> Opaque array of pointers for the runtimes to handle the temporary inverse permutation array */
     int64_t mpitag_ipiv;    /**> Initial mpi tag values for the ipiv handles    */
     int64_t mpitag_nextpiv; /**> Initial mpi tag values for the nextpiv handles */
     int64_t mpitag_prevpiv; /**> Initial mpi tag values for the prevpiv handles */
+    int64_t mpitag_perm;    /**> Initial mpi tag values for the nextpiv handles */
+    int64_t mpitag_invp;    /**> Initial mpi tag values for the prevpiv handles */
     int     i;              /**> row index to the beginning of the submatrix    */
     int     m;              /**> The number of row in the vector ipiv           */
     int     mb;             /**> The number of row per block                    */

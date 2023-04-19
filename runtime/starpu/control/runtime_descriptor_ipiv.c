@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-08-31
  *
  */
 #include "chameleon_starpu.h"
@@ -23,10 +23,16 @@
 void RUNTIME_ipiv_create( CHAM_ipiv_t *ipiv )
 {
     assert( ipiv );
-
-    ipiv->ipiv    = (void*)calloc( ipiv->mt, sizeof(starpu_data_handle_t) );
-    ipiv->nextpiv = (void*)calloc( ipiv->mt, sizeof(starpu_data_handle_t) );
-    ipiv->prevpiv = (void*)calloc( ipiv->mt, sizeof(starpu_data_handle_t) );
+    starpu_data_handle_t *handles = calloc( 5 * ipiv->mt, sizeof(starpu_data_handle_t) );
+    ipiv->ipiv    = handles;
+    handles += ipiv->mt;
+    ipiv->nextpiv = handles;
+    handles += ipiv->mt;
+    ipiv->prevpiv = handles;
+    handles += ipiv->mt;
+    ipiv->perm    = handles;
+    handles += ipiv->mt;
+    ipiv->invp    = handles;
 #if defined(CHAMELEON_USE_MPI)
     /*
      * Book the number of tags required to describe pivot structure
@@ -34,13 +40,15 @@ void RUNTIME_ipiv_create( CHAM_ipiv_t *ipiv )
      */
     {
         chameleon_starpu_tag_init();
-        ipiv->mpitag_ipiv = chameleon_starpu_tag_book( (int64_t)(ipiv->mt) * 3 );
+        ipiv->mpitag_ipiv = chameleon_starpu_tag_book( (int64_t)(ipiv->mt) * 5 );
         if ( ipiv->mpitag_ipiv == -1 ) {
             chameleon_fatal_error("RUNTIME_ipiv_create", "Can't pursue computation since no more tags are available for ipiv structure");
             return;
         }
         ipiv->mpitag_nextpiv = ipiv->mpitag_ipiv    + ipiv->mt;
         ipiv->mpitag_prevpiv = ipiv->mpitag_nextpiv + ipiv->mt;
+        ipiv->mpitag_perm    = ipiv->mpitag_prevpiv + ipiv->mt;
+        ipiv->mpitag_invp    = ipiv->mpitag_perm    + ipiv->mt;
     }
 #endif
 }
@@ -51,37 +59,26 @@ void RUNTIME_ipiv_create( CHAM_ipiv_t *ipiv )
 void RUNTIME_ipiv_destroy( CHAM_ipiv_t *ipiv )
 {
     int                   i;
-    starpu_data_handle_t *ipiv_handle    = (starpu_data_handle_t*)(ipiv->ipiv);
-    starpu_data_handle_t *nextpiv_handle = (starpu_data_handle_t*)(ipiv->nextpiv);
-    starpu_data_handle_t *prevpiv_handle = (starpu_data_handle_t*)(ipiv->prevpiv);
+    starpu_data_handle_t *handle = (starpu_data_handle_t*)(ipiv->ipiv);
 
-    for(i=0; i<ipiv->mt; i++) {
-        if ( *ipiv_handle != NULL ) {
-            starpu_data_unregister( *ipiv_handle );
-            *ipiv_handle = NULL;
+    for(i=0; i<(5 * ipiv->mt); i++) {
+        if ( *handle != NULL ) {
+            starpu_data_unregister( *handle );
+            *handle = NULL;
         }
-        ipiv_handle++;
-
-        if ( *nextpiv_handle != NULL ) {
-            starpu_data_unregister( *nextpiv_handle );
-            *nextpiv_handle = NULL;
-        }
-        nextpiv_handle++;
-
-        if ( *prevpiv_handle != NULL ) {
-            starpu_data_unregister( *prevpiv_handle );
-            *prevpiv_handle = NULL;
-        }
-        prevpiv_handle++;
+        handle++;
     }
 
     free( ipiv->ipiv    );
-    free( ipiv->nextpiv );
-    free( ipiv->prevpiv );
+    ipiv->ipiv    = NULL;
+    ipiv->nextpiv = NULL;
+    ipiv->prevpiv = NULL;
+    ipiv->perm    = NULL;
+    ipiv->invp    = NULL;
     chameleon_starpu_tag_release( ipiv->mpitag_ipiv );
 }
 
-void *RUNTIME_ipiv_getaddr( CHAM_ipiv_t *ipiv, int m )
+void *RUNTIME_ipiv_getaddr( const CHAM_ipiv_t *ipiv, int m )
 {
     starpu_data_handle_t *handle = (starpu_data_handle_t*)(ipiv->ipiv);
     int64_t mm = m + (ipiv->i / ipiv->mb);
@@ -110,7 +107,7 @@ void *RUNTIME_ipiv_getaddr( CHAM_ipiv_t *ipiv, int m )
     return *handle;
 }
 
-void *RUNTIME_nextpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h )
+void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
 {
     starpu_data_handle_t *nextpiv = (starpu_data_handle_t*)(ipiv->nextpiv);
     int64_t mm = m + (ipiv->i / ipiv->mb);
@@ -133,7 +130,7 @@ void *RUNTIME_nextpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h )
     return *nextpiv;
 }
 
-void *RUNTIME_prevpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h )
+void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
 {
     starpu_data_handle_t *prevpiv = (starpu_data_handle_t*)(ipiv->prevpiv);
     int64_t mm = m + (ipiv->i / ipiv->mb);
@@ -154,6 +151,64 @@ void *RUNTIME_prevpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h )
 
     assert( *prevpiv );
     return *prevpiv;
+}
+
+void *RUNTIME_perm_getaddr( const CHAM_ipiv_t *ipiv, int m )
+{
+    starpu_data_handle_t *handle = (starpu_data_handle_t*)(ipiv->perm);
+    int64_t mm = m + (ipiv->i / ipiv->mb);
+
+    handle += mm;
+    assert( handle );
+
+    if ( *handle != NULL ) {
+        return *handle;
+    }
+
+    const CHAM_desc_t *A = ipiv->desc;
+    int owner = A->get_rankof( A, m, m );
+    int ncols = ipiv->mb;
+
+    starpu_vector_data_register( handle, -1, (uintptr_t)NULL, ncols, sizeof(int) );
+
+#if defined(CHAMELEON_USE_MPI)
+    {
+        int64_t tag = ipiv->mpitag_perm + mm;
+        starpu_mpi_data_register( *handle, tag, owner );
+    }
+#endif /* defined(CHAMELEON_USE_MPI) */
+
+    assert( *handle );
+    return *handle;
+}
+
+void *RUNTIME_invp_getaddr( const CHAM_ipiv_t *ipiv, int m )
+{
+    starpu_data_handle_t *handle = (starpu_data_handle_t*)(ipiv->invp);
+    int64_t mm = m + (ipiv->i / ipiv->mb);
+
+    handle += mm;
+    assert( handle );
+
+    if ( *handle != NULL ) {
+        return *handle;
+    }
+
+    const CHAM_desc_t *A = ipiv->desc;
+    int owner = A->get_rankof( A, m, m );
+    int ncols = ipiv->mb;
+
+    starpu_vector_data_register( handle, -1, (uintptr_t)NULL, ncols, sizeof(int) );
+
+#if defined(CHAMELEON_USE_MPI)
+    {
+        int64_t tag = ipiv->mpitag_invp + mm;
+        starpu_mpi_data_register( *handle, tag, owner );
+    }
+#endif /* defined(CHAMELEON_USE_MPI) */
+
+    assert( *handle );
+    return *handle;
 }
 
 void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
@@ -203,6 +258,44 @@ void RUNTIME_ipiv_flush( const CHAM_ipiv_t        *ipiv,
     {
         RUNTIME_ipiv_flushk( sequence, ipiv, m );
     }
+}
+
+void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
+                          const CHAM_ipiv_t *ipiv, int m )
+{
+    starpu_data_handle_t *handle;
+    const CHAM_desc_t *A = ipiv->desc;
+    int64_t mm = m + ( ipiv->i / ipiv->mb );
+
+    handle = (starpu_data_handle_t*)(ipiv->perm);
+    handle += mm;
+
+    if ( *handle != NULL ) {
+#if defined(CHAMELEON_USE_MPI)
+        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
+#endif
+        {
+            chameleon_starpu_data_wont_use( *handle );
+        }
+    }
+
+    handle = (starpu_data_handle_t*)(ipiv->invp);
+    handle += mm;
+
+    if ( *handle != NULL ) {
+#if defined(CHAMELEON_USE_MPI)
+        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
+#endif
+        {
+            chameleon_starpu_data_wont_use( *handle );
+        }
+    }
+
+    (void)sequence;
+    (void)ipiv;
+    (void)m;
 }
 
 void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
