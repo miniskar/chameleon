@@ -15,7 +15,7 @@
  * @author Alycia Lisito
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  * @precisions normal z -> c d s
  *
  */
@@ -39,7 +39,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     int         M     = run_arg_get_int( args, "M", N );
     int         LDA   = run_arg_get_int( args, "LDA", M );
     int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
-    cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamUnit );
+    cham_diag_t diag  = run_arg_get_diag( args, "diag", ChamNonUnit );
     int         minMN = chameleon_min( M, N );
 
     /* Descriptors */
