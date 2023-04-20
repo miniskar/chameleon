@@ -11,14 +11,15 @@
  *
  * @brief Chameleon core_zgetrf CPU kernel
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Matthieu Kuhn
+ * @date 2023-07-26
  * @precisions normal z -> c d s
  *
  */
@@ -26,12 +27,10 @@
 #include "coreblas.h"
 
 
-int CORE_zgetrf(int m, int n,
+int CORE_zgetrf( int m, int n,
                  CHAMELEON_Complex64_t *A, int lda,
-                 int *IPIV, int *info)
+                 int *IPIV, int *info )
 {
     *info = LAPACKE_zgetrf_work(LAPACK_COL_MAJOR, m, n, A, lda, IPIV );
     return CHAMELEON_SUCCESS;
 }
-
-
