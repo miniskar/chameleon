@@ -24,7 +24,7 @@
  * @author Alycia Lisito
  * @author Romain Peressoni
  * @author Matthieu Kuhn
- * @date 2023-07-06
+ * @date 2023-08-22
  * @precisions normal z -> c d s
  *
  */
@@ -486,15 +486,15 @@ void RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
 /*
  * Tasks for LU factorization with partial pivoting
  */
-void INSERT_TASK_zgetrf_panel_nopiv_percol_diag( const RUNTIME_option_t *options,
-                                                 int m, int n, int k,
-                                                 const CHAM_desc_t *A, int Am, int An,
-                                                 const CHAM_desc_t *U, int Um, int Un,
-                                                 int iinfo );
+void INSERT_TASK_zgetrf_nopiv_percol_diag( const RUNTIME_option_t *options,
+                                           int m, int n, int k,
+                                           const CHAM_desc_t *A, int Am, int An,
+                                           const CHAM_desc_t *U, int Um, int Un,
+                                           int iinfo );
 
-void INSERT_TASK_zgetrf_panel_nopiv_percol_trsm( const RUNTIME_option_t *options,
-                                                 int m, int n, int k,
-                                                 const CHAM_desc_t *A, int Am, int An,
-                                                 const CHAM_desc_t *U, int Um, int Un );
+void INSERT_TASK_zgetrf_nopiv_percol_trsm( const RUNTIME_option_t *options,
+                                           int m, int n, int k,
+                                           const CHAM_desc_t *A, int Am, int An,
+                                           const CHAM_desc_t *U, int Um, int Un );
 
 #endif /* _chameleon_tasks_z_h_ */

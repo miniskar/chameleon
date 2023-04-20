@@ -11,20 +11,20 @@
  *
  * @brief Chameleon zgetrf parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Omar Zenati
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @date 2023-08-22
  * @precisions normal z -> s d c
  *
  */
 #include "control/common.h"
 
-#define A(m,n) A,  m,  n
-#define U(m,n) &(ws->U),  m,  n
-#define IPIV(m) IPIV,  m,  1
+#define A(m,n)  A,        m, n
+#define U(m,n)  &(ws->U), m, n
+#define IPIV(m) IPIV,     m, 1
 
 /*
  * Static variable to know how to handle the data within the kernel
@@ -136,13 +136,13 @@ chameleon_pzgetrf_panel_facto_nopiv_percol( struct chameleon_pzgetrf_s *ws,
      * Algorithm per column without pivoting
      */
     for(h=0; h<minmn; h++){
-        INSERT_TASK_zgetrf_panel_nopiv_percol_diag(
+        INSERT_TASK_zgetrf_nopiv_percol_diag(
             options, tempkm, tempkn, h,
             A( k, k ), U( k, k ), A->mb * k );
 
         for (m = k+1; m < A->mt; m++) {
             tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
-            INSERT_TASK_zgetrf_panel_nopiv_percol_trsm(
+            INSERT_TASK_zgetrf_nopiv_percol_trsm(
                 options, tempmm, tempkn, h,
                 A( m, k ), U( k, k ) );
         }

@@ -218,6 +218,7 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
 
     /* Allocate workspace for partial pivoting */
     ws = CHAMELEON_zgetrf_WS_Alloc( &descAt );
+
     /* Call the tile interface */
     CHAMELEON_zgetrf_Tile_Async( &descAt, ws, sequence, &request );
 

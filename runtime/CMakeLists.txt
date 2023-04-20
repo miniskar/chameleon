@@ -17,14 +17,14 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
 #  @author Matthieu Kuhn
-#  @date 2023-02-21
+#  @date 2023-08-22
 #
 ###
 
@@ -66,6 +66,7 @@ set(CODELETS_ZSRC
     codelets/codelet_zgetrf.c
     codelets/codelet_zgetrf_incpiv.c
     codelets/codelet_zgetrf_nopiv.c
+    codelets/codelet_zgetrf_nopiv_percol.c
     codelets/codelet_zpanel.c
     codelets/codelet_zhe2ge.c
     codelets/codelet_zherfb.c

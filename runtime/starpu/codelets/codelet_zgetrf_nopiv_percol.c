@@ -1,20 +1,19 @@
 /**
  *
- * @file starpu/codelet_zpanel.c
+ * @file starpu/codelet_zgetrf_nopiv_percol.c
  *
  * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon zpanel StarPU codelets
+ * @brief Chameleon getrf codelets to factorize the panel with no pivoting
  *
  * @version 1.3.0
- * @comment Codelets to perform panel factorization with partial pivoting
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-07-06
+ * @date 2023-08-22
  * @precisions normal z -> c d s
  *
  */
@@ -22,11 +21,14 @@
 #include "runtime_codelet_z.h"
 #include <coreblas/cblas_wrapper.h>
 
+CHAMELEON_CL_CB( zgetrf_nopiv_percol_diag, cti_handle_get_m(task->handles[0]), 0, 0, M );
+CHAMELEON_CL_CB( zgetrf_nopiv_percol_trsm, cti_handle_get_m(task->handles[0]), 0, 0, M );
+
 static const CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t) 1.0;
 static const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zgetrf_panel_nopiv_percol_diag_cpu_func( void *descr[], void *cl_arg )
+static void cl_zgetrf_nopiv_percol_diag_cpu_func( void *descr[], void *cl_arg )
 {
     CHAM_tile_t           *tileA, *tileU;
     int                    m, n, k, lda, iinfo;
@@ -71,17 +73,16 @@ static void cl_zgetrf_panel_nopiv_percol_diag_cpu_func( void *descr[], void *cl_
 /*
  * Codelet definition
  */
-CODELETS_CPU( zgetrf_panel_nopiv_percol_diag, cl_zgetrf_panel_nopiv_percol_diag_cpu_func );
+CODELETS_CPU( zgetrf_nopiv_percol_diag, cl_zgetrf_nopiv_percol_diag_cpu_func );
 
-void INSERT_TASK_zgetrf_panel_nopiv_percol_diag( const RUNTIME_option_t *options,
+void INSERT_TASK_zgetrf_nopiv_percol_diag( const RUNTIME_option_t *options,
                                                  int m, int n, int k,
                                                  const CHAM_desc_t *A, int Am, int An,
                                                  const CHAM_desc_t *U, int Um, int Un,
                                                  int iinfo )
 {
-    struct starpu_codelet *codelet = &cl_zgetrf_panel_nopiv_percol_diag;
-    // void (*callback)(void*) = options->profiling ? cl_zgetrf_panel_nopiv_percol_diag_callback : NULL;
-    void (*callback)(void*) = NULL;
+    struct starpu_codelet *codelet = &cl_zgetrf_nopiv_percol_diag;
+    void (*callback)(void*) = options->profiling ? cl_zgetrf_nopiv_percol_diag_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW( A, Am, An );
@@ -102,7 +103,7 @@ void INSERT_TASK_zgetrf_panel_nopiv_percol_diag( const RUNTIME_option_t *options
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME,              "zgetrf_panel_nopiv_percol_diag",
+        STARPU_NAME,              "zgetrf_nopiv_percol_diag",
 #endif
         0);
 }
@@ -111,7 +112,7 @@ void INSERT_TASK_zgetrf_panel_nopiv_percol_diag( const RUNTIME_option_t *options
  * Update column blocs
  */
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zgetrf_panel_nopiv_percol_trsm_cpu_func( void *descr[], void *cl_arg )
+static void cl_zgetrf_nopiv_percol_trsm_cpu_func( void *descr[], void *cl_arg )
 {
     CHAM_tile_t           *tileA, *tileU;
     int                    m, n, k, lda;
@@ -144,16 +145,15 @@ static void cl_zgetrf_panel_nopiv_percol_trsm_cpu_func( void *descr[], void *cl_
 /*
  * Codelet definition
  */
-CODELETS_CPU( zgetrf_panel_nopiv_percol_trsm, cl_zgetrf_panel_nopiv_percol_trsm_cpu_func );
+CODELETS_CPU( zgetrf_nopiv_percol_trsm, cl_zgetrf_nopiv_percol_trsm_cpu_func );
 
-void INSERT_TASK_zgetrf_panel_nopiv_percol_trsm( const RUNTIME_option_t *options,
+void INSERT_TASK_zgetrf_nopiv_percol_trsm( const RUNTIME_option_t *options,
                                                  int m, int n, int k,
                                                  const CHAM_desc_t *A, int Am, int An,
                                                  const CHAM_desc_t *U, int Um, int Un )
 {
-    struct starpu_codelet *codelet = &cl_zgetrf_panel_nopiv_percol_trsm;
-    // void (*callback)(void*) = options->profiling ? cl_zgetrf_panel_nopiv_percol_trsm_callback : NULL;
-    void (*callback)(void*) = NULL;
+    struct starpu_codelet *codelet = &cl_zgetrf_nopiv_percol_trsm;
+    void (*callback)(void*) = options->profiling ? cl_zgetrf_nopiv_percol_trsm_callback : NULL;
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
@@ -171,8 +171,7 @@ void INSERT_TASK_zgetrf_panel_nopiv_percol_trsm( const RUNTIME_option_t *options
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgetrf_panel_nopiv_percol_trsm",
+        STARPU_NAME, "zgetrf_nopiv_percol_trsm",
 #endif
         0);
 }
-
