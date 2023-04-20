@@ -24,50 +24,6 @@
 
 #define A(m,n)  A,        m, n
 #define U(m,n)  &(ws->U), m, n
-#define IPIV(m) IPIV,     m, 1
-
-/*
- * Static variable to know how to handle the data within the kernel
- * This assumes that only one runtime is enabled at a time.
- */
-static RUNTIME_id_t zgetrf_runtime_id = RUNTIME_SCHED_STARPU;
-
-static inline int
-zgetrf_ipiv_init( const CHAM_desc_t *descIPIV,
-                  cham_uplo_t uplo, int m, int n,
-                  CHAM_tile_t *tileIPIV, void *op_args )
-{
-    int *IPIV;
-    (void)op_args;
-
-    if ( zgetrf_runtime_id == RUNTIME_SCHED_PARSEC ) {
-        IPIV = (int*)tileIPIV;
-    }
-    else {
-        IPIV = CHAM_tile_get_ptr( tileIPIV );
-    }
-
-#if !defined(CHAMELEON_SIMULATION)
-    {
-        int tempmm = m == descIPIV->mt-1 ? descIPIV->m - m * descIPIV->mb : descIPIV->mb;
-        int i;
-
-        for( i=0; i<tempmm; i++ ) {
-            IPIV[i] = m * descIPIV->mb + i + 1;
-        }
-    }
-#endif
-
-    return 0;
-}
-
-static inline void
-chameleon_pzgetrf_ipiv_init( CHAM_desc_t        *IPIV,
-                             RUNTIME_sequence_t *sequence,
-                             RUNTIME_request_t  *request )
-{
-    chameleon_pmap( ChamW, ChamUpperLower, IPIV, zgetrf_ipiv_init, NULL, sequence, request );
-}
 
 /*
  * All the functions below are panel factorization variant.
@@ -79,10 +35,10 @@ chameleon_pzgetrf_ipiv_init( CHAM_desc_t        *IPIV,
  *   @param[inout] A
  *      The descriptor of the full matrix A (not just the panel)
  *
- *   @param[in] k
- *      The index of the column to factorize
+ *   @param[inout] ipiv
+ *      The descriptor of the pivot array associated to A.
  *
- *   @param[in] ib
+ *   @param[in] k
  *      The index of the column to factorize
  *
  *   @param[inout] options
@@ -91,6 +47,7 @@ chameleon_pzgetrf_ipiv_init( CHAM_desc_t        *IPIV,
 static inline void
 chameleon_pzgetrf_panel_facto_nopiv( struct chameleon_pzgetrf_s *ws,
                                      CHAM_desc_t                *A,
+                                     CHAM_ipiv_t                *ipiv,
                                      int                         k,
                                      RUNTIME_option_t           *options )
 {
@@ -122,6 +79,7 @@ chameleon_pzgetrf_panel_facto_nopiv( struct chameleon_pzgetrf_s *ws,
 static inline void
 chameleon_pzgetrf_panel_facto_nopiv_percol( struct chameleon_pzgetrf_s *ws,
                                             CHAM_desc_t                *A,
+                                            CHAM_ipiv_t                *ipiv,
                                             int                         k,
                                             RUNTIME_option_t           *options )
 {
@@ -152,17 +110,78 @@ chameleon_pzgetrf_panel_facto_nopiv_percol( struct chameleon_pzgetrf_s *ws,
 }
 
 static inline void
+chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
+                                      CHAM_desc_t                *A,
+                                      CHAM_ipiv_t                *ipiv,
+                                      int                         k,
+                                      RUNTIME_option_t           *options )
+{
+    int m, h;
+    int tempkm, tempkn, minmn;
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+    minmn  = chameleon_min( tempkm, tempkn );
+
+    /* Update the number of column */
+    ipiv->n = minmn;
+
+    /*
+     * Algorithm per column with pivoting
+     */
+    for (h=0; h<=minmn; h++){
+
+        INSERT_TASK_zgetrf_percol_diag(
+            options,
+            h, k * A->mb,
+            A(k, k),
+            ipiv );
+
+        for (m = k+1; m < A->mt; m++) {
+            //tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
+
+            INSERT_TASK_zgetrf_percol_offdiag(
+                options,
+                h, m * A->mb,
+                A(m, k),
+                ipiv );
+        }
+
+        if ( h < minmn ) {
+            /* Reduce globally (between MPI processes) */
+            RUNTIME_ipiv_reducek( options, ipiv, k, h );
+        }
+    }
+
+    /* Flush temporary data used for the pivoting */
+    RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
+}
+
+static inline void
 chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
                                CHAM_desc_t                *A,
+                               CHAM_ipiv_t                *ipiv,
                                int                         k,
                                RUNTIME_option_t           *options )
 {
     /* TODO: Should be replaced by a function pointer */
-    if ( ws->alg == ChamGetrfNoPivPerColumn ) {
-        chameleon_pzgetrf_panel_facto_nopiv_percol( ws, A, k, options );
-    }
-    else {
-        chameleon_pzgetrf_panel_facto_nopiv( ws, A, k, options );
+    switch( ws->alg ) {
+    case ChamGetrfNoPivPerColumn:
+        chameleon_pzgetrf_panel_facto_nopiv_percol( ws, A, ipiv, k, options );
+        break;
+
+    case ChamGetrfPPivPerColumn:
+        chameleon_pzgetrf_panel_facto_percol( ws, A, ipiv, k, options );
+        break;
+
+    case ChamGetrfPPiv:
+        chameleon_pzgetrf_panel_facto_percol( ws, A, ipiv, k, options );
+        break;
+
+    case ChamGetrfNoPiv:
+        chameleon_attr_fallthrough;
+    default:
+        chameleon_pzgetrf_panel_facto_nopiv( ws, A, ipiv, k, options );
     }
 }
 
@@ -227,7 +246,7 @@ chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
  */
 void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
                         CHAM_desc_t                *A,
-                        CHAM_desc_t                *IPIV,
+                        CHAM_ipiv_t                *IPIV,
                         RUNTIME_sequence_t         *sequence,
                         RUNTIME_request_t          *request )
 {
@@ -243,14 +262,11 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
 
-    /* Initialize IPIV */
-    chameleon_pzgetrf_ipiv_init( IPIV, sequence, request );
-
     for (k = 0; k < min_mnt; k++) {
         RUNTIME_iteration_push( chamctxt, k );
 
         options.priority = A->nt;
-        chameleon_pzgetrf_panel_facto( ws, A, k, &options );
+        chameleon_pzgetrf_panel_facto( ws, A, IPIV, k, &options );
 
         for (n = k+1; n < A->nt; n++) {
             options.priority = A->nt-n;
@@ -270,6 +286,13 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
         for (n = 0; n < k; n++) {
             chameleon_pzgetrf_panel_permute( ws, A, k, n, &options );
         }
+    }
+
+    /* Initialize IPIV */
+    if ( (ws->alg == ChamGetrfNoPivPerColumn) ||
+         (ws->alg == ChamGetrfNoPiv ) )
+    {
+        RUNTIME_ipiv_init( IPIV );
     }
 
     RUNTIME_options_finalize( &options, chamctxt );
