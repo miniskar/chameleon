@@ -11,7 +11,7 @@
  *
  * @brief Chameleon StarPU control routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
@@ -21,7 +21,7 @@
  * @author Matthieu Kuhn
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2023-01-30
+ * @date 2023-08-22
  *
  */
 #include "chameleon_starpu.h"
@@ -232,6 +232,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 #endif
 
     starpu_cham_tile_interface_init();
+    cppi_interface_init();
 
     chameleon_starpu_parallel_worker_init( sched_opt );
     return hres;
