@@ -18,7 +18,8 @@
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Terry Cojean
- * @date 2023-07-04
+ * @author Matthieu Kuhn
+ * @date 2023-08-22
  *
  */
 #ifndef _chameleon_constants_h_
@@ -268,6 +269,8 @@ typedef enum chameleon_gemm_e {
 typedef enum chameleon_getrf_e {
     ChamGetrfNoPiv,
     ChamGetrfNoPivPerColumn,
+    ChamGetrfPPiv,
+    ChamGetrfPPivPerColumn,
 } cham_getrf_t;
 
 #define ChameleonTrd            1001
