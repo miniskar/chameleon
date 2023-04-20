@@ -15,7 +15,7 @@
         <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*2*${b}, ${nmpi}*4*${b}, ${nmpi}*8*${b}, ${nmpi}*16*${b}, ${nmpi}*32*${b}][$i_mn]</parameter>
         <parameter name="k" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*2*${b}, ${nmpi}*4*${b}, ${nmpi}*8*${b}, ${nmpi}*16*${b}, ${nmpi}*32*${b}][$i_mn]</parameter>
         <parameter name="n" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*2*${b}, ${nmpi}*4*${b}, ${nmpi}*8*${b}, ${nmpi}*16*${b}, ${nmpi}*32*${b}][$i_mn]</parameter>
-        <parameter name="command"            type="string">mpiexec $MPI_OPTIONS -np $nmpi $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
+        <parameter name="command"            type="string">mpiexec -np $nmpi $MPI_OPTIONS $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
     </parameterset>
     <parameterset name="param_potrf">
         <parameter name="hostname"           type="string">sirocco</parameter>
@@ -32,7 +32,7 @@
         <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*2*${b}, ${nmpi}*4*${b}, ${nmpi}*8*${b}, ${nmpi}*16*${b}, ${nmpi}*32*${b}][$i_mn]</parameter>
         <parameter name="n" mode="python"    type="int"   >${m}</parameter>
         <parameter name="k"                  type="int"   >1</parameter>
-        <parameter name="command"            type="string">mpiexec $MPI_OPTIONS -np $nmpi $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
+        <parameter name="command"            type="string">mpiexec -np $nmpi $MPI_OPTIONS $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
     </parameterset>
     <parameterset name="param_geqrf">
         <parameter name="hostname"           type="string">sirocco</parameter>
@@ -49,6 +49,6 @@
         <parameter name="m" mode="python"    type="int"   >[${nmpi}*${b}, ${nmpi}*2*${b}, ${nmpi}*4*${b}, ${nmpi}*8*${b}, ${nmpi}*16*${b}, ${nmpi}*32*${b}][$i_mn]</parameter>
         <parameter name="n" mode="python"    type="int"   >${m}</parameter>
         <parameter name="k"                  type="int"   >1</parameter>
-        <parameter name="command"            type="string">mpiexec $MPI_OPTIONS -np $nmpi $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
+        <parameter name="command"            type="string">mpiexec -np $nmpi $MPI_OPTIONS $CHAMELEON_BUILD/testing/chameleon_${precision}testing -o ${algorithm} -P $p -t $nthr -g $ngpu -m $m -n $n -k $k -b $b</parameter>
     </parameterset>
 </jube>

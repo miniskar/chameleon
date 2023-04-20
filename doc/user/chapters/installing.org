@@ -48,6 +48,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     Optional libraries:
     - cuda: [[https://developer.nvidia.com/cuda-downloads][cuda]], [[http://docs.nvidia.com/cuda/cublas/][cublas]] (comes with cuda)
     - mpi: [[http://www.open-mpi.org/][openmpi]], [[https://www.mpich.org/][mpich]], [[https://software.intel.com/en-us/mpi-library][intelmpi]]
+    - rocm: [[https://github.com/ROCm-Developer-Tools/HIP][HIP]] and [[https://github.com/ROCmSoftwarePlatform/hipBLAS][hipBLAS]]
 
     These packages must be installed on the system before trying to
     configure/build chameleon.  Please look at the distrib/ directory
@@ -78,14 +79,20 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     sudo apt-get install -y libfxt-dev
     # Install cuda and cuBLAS: only if you have a GPU cuda compatible
     sudo apt-get install -y nvidia-cuda-toolkit nvidia-cuda-dev
+    # Install HIP and hipBLAS: only if you have a GPU AMD compatible
+    curl -fsSL https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/rocm-keyring.gpg
+    echo 'deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rocm-keyring.gpg] https://repo.radeon.com/rocm/apt/5.4.2 jammy main' | sudo tee /etc/apt/sources.list.d/rocm.list
+    echo -e 'Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600' | sudo tee /etc/apt/preferences.d/rocm-pin-600
+    sudo apt-get update
+    sudo apt-get install -y rocm-hip-sdk
 
     # If you prefer a specific version of StarPU, install it yourself, e.g.
     # Install StarPU (with MPI and FxT enabled)
     mkdir -p $HOME/install
     cd $HOME/install
-    wget https://files.inria.fr/starpu/starpu-1.3.7/starpu-1.3.7.tar.gz
-    tar xvzf starpu-1.3.7.tar.gz
-    cd starpu-1.3.7/
+    wget https://files.inria.fr/starpu/starpu-1.3.10/starpu-1.3.10.tar.gz
+    tar xvzf starpu-1.3.10.tar.gz
+    cd starpu-1.3.10/
     ./configure --prefix=/usr/local --with-fxt=/usr/lib/x86_64-linux-gnu/
     make -j5
     sudo make install
@@ -261,6 +268,11 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
       *Caution about the compatibility:* your compiler must be compatible
       with CUDA.
+***** HIP
+      [[https://github.com/ROCm-Developer-Tools/HIP][HIP]] is a C++ Runtime
+      API and Kernel Language that allows developers to create portable
+      applications for AMD and NVIDIA GPUs from single source code.
+
 *** Build and install Chameleon with CMake
 :PROPERTIES:
 :CUSTOM_ID: doc-install-cmake
@@ -309,8 +321,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
                                  -DCMAKE_INSTALL_PREFIX=/home/jdoe/install/ \
                                  -DCHAMELEON_USE_CUDA=ON \
                                  -DCHAMELEON_USE_MPI=ON \
-                                 -DBLA_VENDOR=Intel10_64lp \
-                                 -DCHAMELEON_ENABLE_TRACING=ON
+                                 -DBLA_VENDOR=Intel10_64lp_seq
      #+end_src
 
      You can get the full list of options with *-L[A][H]* options of cmake command
@@ -322,13 +333,13 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
 ***** Native CMake options (non-exhaustive list)
       * *CMAKE_BUILD_TYPE=Debug|Release|RelWithDebInfo|MinSizeRel*:
-        level of compiler optimization, enable/disable debug
-        information
-      * *CMAKE_INSTALL_PREFIX=path/to/your/install/dir*: where headers,
-        libraries, executables, etc, will be copied when invoking make
-        install
-      * *BUILD_SHARED_LIBS=ON|OFF*: indicates whether or not CMake has to
-        build Chameleon static (~OFF~) or shared (~ON~) libraries.
+        level of compiler optimization, enable/disable debug information.
+      * *CMAKE_PREFIX_PATH="path1;path2"*:
+        where paths denotes root to dependencies that may be installed with CMake.
+      * *CMAKE_INSTALL_PREFIX=path/to/your/install/dir*:
+        where headers, libraries, executables, etc, will be copied when invoking make install.
+      * *BUILD_SHARED_LIBS=ON|OFF*:
+        indicates whether or not CMake has to build Chameleon static (~OFF~) or shared (~ON~) libraries.
       * *CMAKE_C_COMPILER=gcc|icc|...*: to choose the C compilers
         if several exist in the environment
       * *CMAKE_Fortran_COMPILER=gfortran|ifort|...*: to choose the
@@ -336,8 +347,8 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
 ***** Related to specific modules (find_package) to find external libraries
       * *BLA_VENDOR=All|OpenBLAS|Generic|Intel10_64lp|Intel10_64lp_seq|FLAME*:
-        to use intel mkl for example, see the list of BLA_VENDOR in
-        FindBLAS.cmake in cmake_modules/morse_cmake/modules/find
+        to use intel mkl for example, see the list of
+        [[https://cmake.org/cmake/help/latest/module/FindBLAS.html][BLA_VENDOR]].
 
       Libraries detected with an official cmake module (see module
       files in CMAKE_ROOT/Modules/): BLAS - LAPACK - CUDA - MPI -
@@ -357,9 +368,17 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
         nodes with distributed memory), can only be used with StarPU
         and PaRSEC
       * *CHAMELEON_USE_CUDA=ON|OFF* (default OFF): to link with CUDA
-        runtime (implementation paradigm for accelerated codes on GPUs)
-        and cuBLAS library (optimized BLAS kernels on GPUs), can only
+        runtime (implementation paradigm for accelerated codes on Nvidia GPUs)
+        and cuBLAS library (optimized BLAS kernels on Nvidia GPUs), can only
         be used with StarPU and PaRSEC
+      * *CHAMELEON_USE_HIP_ROC=ON|OFF* (default OFF): to link with HIP
+        runtime (implementation paradigm for accelerated codes on AMD GPUs)
+        and hipBLAS library (optimized BLAS kernels on AMD GPUs), can only
+        be used with StarPU
+      * *CHAMELEON_USE_HIP_CUDA=ON|OFF* (default OFF): to link with HIP
+        runtime (implementation paradigm for accelerated codes on Nvidia GPUs)
+        and hipBLAS library (optimized BLAS kernels on Nvidia GPUs), can only
+        be used with StarPU
       * *CHAMELEON_ENABLE_DOC=ON|OFF* (default OFF): to control build of
         the documentation contained in doc/ sub-directory
       * *CHAMELEON_ENABLE_EXAMPLE=ON|OFF* (default ON): to control build
@@ -373,12 +392,22 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
         simulation mode, means Chameleon will not really execute tasks,
         see details in section [[sec:simu][Use simulation mode with
         StarPU-SimGrid]]. This option must be used with StarPU compiled
-        with [[http://simgrid.gforge.inria.fr/][SimGrid]] allowing to guess the execution time on any
+        with [[https://framagit.org/simgrid/simgrid][SimGrid]] allowing to guess the execution time on any
         architecture. This feature should be used to make experiments
         on the scheduler behaviors and performances not to produce
         solutions of linear systems.
-      * *CHAMELEON_USE_MIGRATE=ON|OFF* (default OFF): enables the data
-        migration in QR algorithms
+      * *CHAMELEON_USE_MIGRATE=ON|OFF* (default OFF):
+        enables the data migration in QR algorithms.
+      * *CHAMELEON_USE_MPI_DATATYPES* (default OFF):
+        enables MPI datatypes whenever supported by the runtime.
+      * *CHAMELEON_USE_HMAT=ON|OFF* (default OFF):
+        enables Hmat-OSS kernels.
+      * *CHAMELEON_RUNTIME_SYNC* (default OFF):
+        enables synchronous task submission when available to debug the code without parallelism.
+      * *CHAMELEON_KERNELS_TRACE* (default OFF):
+        enables kernel traces to debug the task execution order.
+      * *CHAMELEON_KERNELS_MT* (default OFF):
+        Use multithreaded kernels (e.g. intel MKL MT)
 
 **** Dependencies detection
      <<sec:depdet>>
@@ -386,7 +415,10 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      You have different choices to detect dependencies on your system,
      either by setting some environment variables containing paths to
      the libs and headers or by specifying them directly at cmake
-     configure. Different cases:
+     configure. In any case, if the dependencies are installed in non
+     standard directories, do not forget to use the ~PKG_CONFIG_PATH~
+     environment variable and the ~CMAKE_PREFIX_PATH~ environment (or CMake)
+     variable. Different cases:
 
      1) detection of dependencies through environment variables:
         - LD_LIBRARY_PATH (DYLD_LIBRARY_PATH on Mac OSX) should contain
@@ -423,6 +455,8 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
         - update your *PKG_CONFIG_PATH* to the paths where to find .pc
           files of installed external libraries like hwloc, starpu, some
           blas/lapack, etc
+     5) using [[https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html#variable:CMAKE_PREFIX_PATH][CMAKE_PREFIX_PATH]]
+        for libraries that provide some CMake config files containing targets definitions (e.g. fooConfig.cmake).
 
      Note that PaRSEC and StarPU are only detected with pkg-config
      mechanism because it is always provided and this avoids errors.
@@ -474,13 +508,19 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     Docker/Singularity images with Guix.
 
 **** Installing Guix
-     Guix requires a running GNU/Linux system, GNU tar and Xz.
 
-     #+begin_src sh
-     gpg --keyserver pgp.mit.edu --recv-keys 3CE464558A84FDC69DB40CFB090B11993D9AEBB5
+     [[https://guix.gnu.org/][Guix]] requires a running GNU/Linux system, GNU tar and Xz.
+     Follow the [[https://guix.gnu.org/manual/en/html_node/Binary-Installation.html#Binary-Installation][installation instructions]]
+     #+begin_src sh :eval never-export
+     cd /tmp
      wget https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh
      chmod +x guix-install.sh
      sudo ./guix-install.sh
+     #+end_src
+
+     or on Debian
+     #+begin_src sh :eval never-export
+     sudo apt install guix
      #+end_src
 
      The Chameleon packages are not official Guix packages. It is then
@@ -523,25 +563,29 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      Standard Chameleon, last release
      #+begin_src sh
      guix install chameleon
+     # or use guix shell to get a new shell (isolated from the native environment) with chameleon available in the PATH
+     guix shell --pure chameleon -- /bin/bash --norc
      #+end_src
 
      Notice that there exist several build variants
      - chameleon (default) : with starpu - with mpi - with OpenBlas
      - chameleon-mkl-mt : default version but with Intel MKL multithreaded to replace OpenBlas
+     - chameleon-mkl-mt-wompi : with Intel MKL multithreaded and without mpi
      - chameleon-cuda : with starpu - with mpi - with cuda
+     - chameleon-cuda-wompi : with starpu - without mpi - with cuda
      - chameleon-cuda-mkl-mt : with starpu - with mpi - with cuda - with Intel MKL multithreaded to replace OpenBlas
+     - chameleon-cuda-mkl-mt-wompi : with starpu - without mpi - with cuda - with Intel MKL multithreaded to replace OpenBlas
      - chameleon-simgrid : with starpu - with mpi - with simgrid
      - chameleon-openmp : with openmp - without mpi
      - chameleon-parsec : with parsec - without mpi
      - chameleon-quark : with quark - without mpi
-
 
      Change the version
      #+begin_src sh
      guix install chameleon --with-branch=chameleon=master
      guix install chameleon --with-commit=chameleon=b31d7575fb7d9c0e1ba2d8ec633e16cb83778e8b
      guix install chameleon --with-git-url=chameleon=https://gitlab.inria.fr/fpruvost/chameleon.git
-     guix install chameleon --with-git-url=chameleon=$HOME/git/chameleon
+     guix install chameleon --with-source=chameleon=$HOME/git/chameleon
      #+end_src
 
      Notice also that default mpi is OpenMPI and default blas/lapack is
@@ -605,17 +649,50 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      To package Chameleon and its dependencies within a singularity image
      (OpenMPI stack)
      #+begin_src sh
-     singularity_chameleon=`guix pack -f squashfs chameleon --with-branch=chameleon=master --with-input=openblas=mkl mkl starpu hwloc openmpi openssh slurm hdf5 zlib bash coreutils inetutils util-linux procps git grep tar sed gzip which gawk perl emacs-minimal vim gcc-toolchain make cmake pkg-config -S /bin=bin --entry-point=/bin/bash`
-     cp $singularity_chameleon chameleon-pack.gz.squashfs
+     # define reproducible guix environment
+     guix describe -f channels > guix-channels.scm
+     guix shell --export-manifest chameleon-cuda --with-branch=chameleon=master --with-input=openblas=mkl bash coreutils emacs gawk grep inetutils openmpi openssh procps sed time util-linux vim which > guix-manifests.scm
+     SINGULARITY_IMAGE=`guix time-machine -C guix-channels.scm -- pack -f squashfs -m guix-manifests.scm -S /bin=bin --entry-point=/bin/bash`
+     cp $SINGULARITY_IMAGE chameleon-cuda.gz.sif
+
      # copy the singularity image on the supercomputer, e.g. 'supercomputer'
-     scp chameleon-pack.gz.squashfs supercomputer:
+     scp chameleon-cuda.gz.sif supercomputer:
      #+end_src
 
      On a machine where Singularity is installed Chameleon can then be
      called as follows
      #+begin_src sh
      # at least openmpi and singularity are required here, e.g. module add openmpi singularity
-     mpiexec -np 2 singularity exec chameleon-pack.gz.squashfs /bin/chameleon_stesting -H -o gemm -P 2 -t 2 -m 2000 -n 2000 -k 2000
+     module add openmpi singularity
+     export SINGULARITY_CMD=`which singularity`
+     export SINGULARITY_IMAGE=$HOME/chameleon-cuda.gz.sif
+     # use LD_PRELOAD to give the location of the CUDA driver installed on the supercomputer
+     export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libcuda.so
+     # then in your allocation with Slurm or OAR, for example
+     mpirun $MPI_OPTIONS -x LD_PRELOAD $SINGULARITY_CMD exec --bind /usr/lib/x86_64-linux-gnu/:/usr/lib/x86_64-linux-gnu/ $SINGULARITY_IMAGE chameleon_stesting -o gemm -n 96000 -b 1600 --nowarmup -g 2
+     #+end_src
+
+**** Generate a tar.gz package of Chameleon with Guix
+
+     One can generate a tar.gz archive the same way as the singularity image
+     #+begin_src sh
+     guix describe -f channels > guix-channels.scm
+     guix shell --export-manifest chameleon-cuda --with-branch=chameleon=master --with-input=openblas=mkl bash coreutils emacs gawk grep inetutils openmpi openssh procps sed time util-linux vim which > guix-manifests.scm
+     PACKRR=`guix time-machine --channels=guix-channels.scm -- pack -RR --manifest=guix-manifests.scm -S /bin=bin`
+     cp $PACKRR chameleon-cuda.tar.gz
+     # copy the archive on the supercomputer, e.g. 'supercomputer'
+     scp chameleon-cuda.tar.gz supercomputer:
+     #+end_src
+
+     Then on the supercomputer that has neither Guix nor Singularity one can do the following
+     #+begin_src sh
+     mkdir guixrr/
+     cd guixrr/
+     tar xvf $HOME/chameleon-cuda.tar.gz
+     chmod +w .
+     export GUIX_ROOT=$PWD
+     # then in your allocation with Slurm or OAR, for example
+     ${GUIX_ROOT}/bin/mpirun --launch-agent ${GUIX_ROOT}/bin/orted -x GUIX_EXECUTION_ENGINE=performance -x LD_PRELOAD="/usr/lib64/libcuda.so" -x STARPU_SILENT=1 ${GUIX_ROOT}/bin/chameleon_stesting -o gemm -n 16000,32000,64000,96000,128000 -b 2000 -g 4 -P 2
      #+end_src
 
 *** Distribution of Chameleon using Spack
@@ -626,18 +703,15 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
 **** Installing Spack
 
-     To get support to install a full distribution on Linux or MacOS X,
-     Chameleon plus dependencies, we encourage users to use
-     [[https://spack.io/][Spack]]. Please refer to our [[https://gitlab.inria.fr/solverstack/spack-repo/blob/master/README.org][Spack Repository]].
+     We provide a Chameleon [[https://github.com/spack/spack][Spack]] package (with StarPU) for Linux or macOS.
+     Please refer to the [[https://spack.readthedocs.io/en/latest/][documentation]] for installation instructions.
 
      #+begin_src sh
-     git clone https://github.com/llnl/spack.git
-     export SPACK_ROOT=$PWD/spack
-     cd spack/
-     git checkout v0.16.0
-     . $SPACK_ROOT/share/spack/setup-env.sh
-     git clone https://gitlab.inria.fr/solverstack/spack-repo.git ./var/spack/repos/solverstack
-     spack repo add ./var/spack/repos/solverstack
+     # please read https://spack.readthedocs.io/en/latest/getting_started.html
+     git clone https://github.com/spack/spack.git
+     . spack/share/spack/setup-env.sh
+     cd spack
+     git checkout v0.19.1
      #+end_src
 
      Chameleon is then available
@@ -646,8 +720,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      spack spec chameleon
      #+end_src
 
-     Refer to te [[https://spack.readthedocs.io/en/latest/basic_usage.html][official documentation of Spack]] to learn the basic
-     commands.
+     Refer to the [[https://spack.readthedocs.io/en/latest/getting_started.html][getting started guide]]
+     and [[https://spack.readthedocs.io/en/latest/basic_usage.html][basic usage guide]]
+     to learn how to use Spack properly.
 
 **** Installing Chameleon with Spack
 
@@ -658,7 +733,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      spack location -i chameleon
      #+end_src
 
-     Notice that there exist several build variants
+     Notice that there exist several build variants (see ~spack info chameleon~)
      - chameleon (default) : with starpu - with mpi
      - tune the build type (CMake) with build_type=RelWithDebInfo|Debug|Release
      - enable/disable shared libraries with +/- shared
@@ -666,12 +741,11 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      - enable/disable cuda with +/- cuda
      - enable/disable fxt with +/- fxt
      - enable/disable simgrid with +/- simgrid
-     - +openmp~starpu : with openmp - without starpu
-     - +quark~starpu : with quark - without starpu
+     - runtime=openmp : with openmp - without starpu
 
      Change the version
      #+begin_src sh
-     spack install -v chameleon@1.0.0
+     spack install -v chameleon@master
      #+end_src
 
      Notice also that default mpi is OpenMPI and default blas/lapack is
@@ -685,10 +759,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      # see mpi providers
      spack providers mpi
      # install chameleon with intel mkl to replace openblas
-     spack install -v chameleon ^intel-mkl
-     # install chameleon with nmad to replace openmpi
-     spack install -v chameleon ^nmad
+     spack install -v chameleon ^intel-mkl # or ^intel-oneapi-mkl
      #+end_src
+
 *** Distribution Brew for Mac OS X
 :PROPERTIES:
 :CUSTOM_ID: doc-install-macos
@@ -726,7 +799,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      # installed under <prefix>/lib/cmake/chameleon/ by setting your
      # CMAKE_PREFIX_PATH with the path of installation. In your cmake project, use
      # find_package(CHAMELEON) and link your libraries and/or executables with the
-     # library target MORSE::CHAMELEON
+     # library target CHAMELEON::chameleon
      cmake . -DCMAKE_PREFIX_PATH=$CHAMELEON_ROOT
      #+end_src
 **** For non CMake projects
@@ -769,11 +842,11 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      /home/yourname/install/chameleon/lib/libchameleon.a        \
      /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
      /home/yourname/install/chameleon/lib/libcoreblas.a         \
-     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+     -lstarpu-1.3 -Wl,--no-as-needed -lmkl_intel_lp64           \
      -lmkl_sequential -lmkl_core -lpthread -lm -lrt
      #+end_src
      As you can see in this example, we also link with some dynamic
-     libraries *starpu-1.2*, *Intel MKL* libraries (for
+     libraries *starpu-1.3*, *Intel MKL* libraries (for
      BLAS/LAPACK/CBLAS/LAPACKE), *pthread*, *m* (math) and *rt*. These
      libraries will depend on the configuration of your Chameleon
      build.  You can find these dependencies in .pc files we generate
@@ -798,7 +871,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
      gcc main.o -o main \
      -L/home/yourname/install/chameleon/lib \
      -lchameleon -lchameleon_starpu -lcoreblas \
-     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+     -lstarpu-1.3 -Wl,--no-as-needed -lmkl_intel_lp64 \
      -lmkl_sequential -lmkl_core -lpthread -lm -lrt
      #+end_src
      Note that an update of your environment variable LD_LIBRARY_PATH
@@ -829,7 +902,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
  # #     /home/yourname/install/chameleon/lib/libchameleon.a        \
  # #     /home/yourname/install/chameleon/lib/libchameleon_starpu.a \
  # #     /home/yourname/install/chameleon/lib/libcoreblas.a         \
- # #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64           \
+ # #     -lstarpu-1.3 -Wl,--no-as-needed -lmkl_intel_lp64           \
  # #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
  # #     #+end_src
  # #
@@ -838,6 +911,6 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
  # #     gfortran main.o -o main                          \
  # #     -L/home/yourname/install/chameleon/lib           \
  # #     -lchameleon -lchameleon_starpu -lcoreblas        \
- # #     -lstarpu-1.2 -Wl,--no-as-needed -lmkl_intel_lp64 \
+ # #     -lstarpu-1.3 -Wl,--no-as-needed -lmkl_intel_lp64 \
  # #     -lmkl_sequential -lmkl_core -lpthread -lm -lrt
  # #     #+end_src

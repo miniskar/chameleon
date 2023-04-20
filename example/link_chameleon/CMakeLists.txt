@@ -28,10 +28,10 @@ project(LINK_CHAMELEON Fortran C CXX)
 find_package(CHAMELEON)
 
 add_executable(link_chameleon_c link_chameleon.c)
-target_link_libraries(link_chameleon_c PRIVATE MORSE::CHAMELEON)
+target_link_libraries(link_chameleon_c PRIVATE CHAMELEON::chameleon)
 
 add_executable(link_chameleon_f link_chameleon.f90)
-target_link_libraries(link_chameleon_f PRIVATE MORSE::CHAMELEON)
+target_link_libraries(link_chameleon_f PRIVATE CHAMELEON::chameleon)
 ###
 ### END CMakeLists.txt
 ###

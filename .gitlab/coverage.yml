@@ -6,8 +6,7 @@
 #
 ---
 coverage:
-  only:
-    - merge_requests
+  extends: .only-merge-request
   interruptible: true
   stage: analyse
   script:

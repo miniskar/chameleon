@@ -6,24 +6,26 @@ default:
   image: registry.gitlab.inria.fr/solverstack/docker/distrib
   tags: ['ci.inria.fr', 'linux', 'large']
 
+# push event: executed only if the source branch name is master or starts with ci-
+# merge request event: not executed
+# schedule event: not executed
 .only-master:
-  except: ['schedule']
   interruptible: true
-  only:
-    - master@solverstack/chameleon
-    - /^ci-.*$/
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
 
-.only-branches:
-  except: ['schedule']
+# push event: executed only if the source branch name is master or starts with ci-
+# merge request event: executed if the source branch name does not start with notest-
+# schedule event: not executed
+.only-merge-request:
   interruptible: true
-  only:
-    - merge_requests
-    - master@solverstack/chameleon
-    - /^ci-.*$/
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+    - if: ($CI_MERGE_REQUEST_IID && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
 
 .build_script_template:
   stage: build
-  extends: .only-branches
+  extends: .only-merge-request
   script:
     - ./.gitlab/build.sh
   artifacts:
@@ -49,7 +51,8 @@ default:
       junit: junit.xml
 
 .bench_plafrim_common:
-  only: ['schedule']
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   stage: test
   tags: ['plafrim']
   timeout: 1 week

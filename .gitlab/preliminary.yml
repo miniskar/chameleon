@@ -3,13 +3,14 @@
 #
 ---
 preliminary_checks:
-  stage: .pre
+  stage: pre
+  interruptible: true
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_MERGE_REQUEST_IID && $CI_PIPELINE_SOURCE != "schedule"
   parallel:
     matrix:
       - TEST: [rebase, draft, header]
   script:
     - .gitlab/check_ci.sh $TEST
-  only:
-    - merge_requests
-  interruptible: true
 

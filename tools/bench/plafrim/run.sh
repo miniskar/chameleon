@@ -34,7 +34,7 @@ then
   export SLURM_CONSTRAINTS="sirocco,omnipath,v100"
   export CHAMELEON_BUILD_OPTIONS="-DCHAMELEON_USE_MPI=ON -DCHAMELEON_USE_CUDA=ON -DCMAKE_BUILD_TYPE=Release"
   export STARPU_HOSTNAME="sirocco"
-  export LD_PRELOAD="/usr/lib64/libcuda.so /usr/lib64/libnvidia-fatbinaryloader.so.440.33.01"
+  export LD_PRELOAD="/usr/lib64/libcuda.so"
 else
   echo "$0: Please set the NODE environnement variable to bora or sirocco."
   exit -1
@@ -49,22 +49,19 @@ fi
 export MPI_OPTIONS=""
 if [ $MPI = "openmpi" ]
 then
-  if [ $NODE = "bora" ]
-  then
-    export MPI_OPTIONS="--map-by ppr:1:node:pe=36"
-  fi
+  export MPI_OPTIONS="--bind-to board"
   GUIX_ENV_MPI=""
   GUIX_ADHOC_MPI="openssh openmpi"
 elif [ $MPI = "nmad" ]
 then
-  export MPI_OPTIONS="-DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1"
-  GUIX_ENV_MPI="--with-input=openmpi=nmad --with-branch=starpu=starpu-1.3"
+  export MPI_OPTIONS="-DPIOM_DEDICATED=1 -DPIOM_DEDICATED_WAIT=1 hwloc-bind --cpubind machine:0"
+  GUIX_ENV_MPI="--with-input=openmpi=nmad"
   GUIX_ADHOC_MPI="which gzip zlib tar inetutils util-linux procps openssh nmad"
 else
   echo "$0: Please set the MPI environnement variable to openmpi or nmad."
   exit -1
 fi
-GUIX_ADHOC="coreutils gawk grep jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm mkl"
+GUIX_ADHOC="coreutils gawk grep hwloc jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm mkl@2019.1.144"
 GUIX_RULE="-D $GUIX_ENV $GUIX_ENV_MPI $GUIX_ADHOC $GUIX_ADHOC_MPI"
 
 # Submit jobs

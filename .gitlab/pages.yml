@@ -1,6 +1,7 @@
 ---
 pages:
   stage: deploy
+  extends: .only-master
   dependencies: []
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
@@ -11,7 +12,3 @@ pages:
     VERSION: pages
   script:
     - ./tools/pages.sh
-  only:
-    - master@solverstack/chameleon
-    - /^ci.*$/
-  interruptible: true

@@ -18,7 +18,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=$CHAMELEON_ROOT && make -j5 install
 # installed under <prefix>/lib/cmake/chameleon/ by setting your
 # CMAKE_PREFIX_PATH with the path of installation. In your cmake project, use
 # find_package(CHAMELEON) and link your libraries and/or executables with the
-# library target MORSE::CHAMELEON
+# library target CHAMELEON::chameleon
 cmake . -DCMAKE_PREFIX_PATH=$CHAMELEON_ROOT
 # if your work outside of cmake you can use the pkg-config file provided
 export PKG_CONFIG_PATH=$CHAMELEON_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
