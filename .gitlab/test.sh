@@ -21,6 +21,7 @@ then
   cd $CI_PROJECT_DIR || fatal
   gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${LOGNAME}.cov --root $CI_PROJECT_DIR || fatal
   lcov --directory build-$VERSION --capture --output-file ${LOGNAME}.lcov || fatal
+  lcov --summary ${LOGNAME}.lcov || fatal
   cp ${LOGNAME}.junit junit.xml || fatal
   cp ${LOGNAME}.cov coverage.xml || fatal
 else
