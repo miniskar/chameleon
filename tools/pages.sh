@@ -67,3 +67,4 @@ cp build-$VERSION/doc/user/*.jpg public/
 cp build-$VERSION/doc/user/*.svg public/
 cp -r build-$VERSION/doc/dev/html/* public/dev/
 cp tmp_fig/* public/
+cp -r coverage public/

@@ -11,7 +11,7 @@ coverage:
   stage: analyse
   script:
     - tools/coverage.sh
-  coverage: /^\s*lines:\s*\d+.\d+\%/
+  coverage: /^\s*lines......:\s*\d+.\d+\%/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
     expire_in: 2 days

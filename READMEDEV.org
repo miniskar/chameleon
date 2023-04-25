@@ -97,8 +97,10 @@ developers must follow and that should be read by contributors.
 
 * CDash tests dashboard
   To see details about the tests performed during the [[https://gitlab.inria.fr/solverstack/chameleon/pipelines][pipelines]] visit
-  [[https://my.cdash.org/index.php?project=Chameleon][CDash]].
+  [[https://my.cdash.org/index.php?project=Chameleon][CDash]]. It has been stopped for now because the CDash server is somehow
+  slow and our jobs may fail because of that.
 
 * Static and dynamic analysis
   To see details about the analysis job performed during the
-  [[https://gitlab.inria.fr/solverstack/chameleon/pipelines][pipelines]] visit [[https://sonarqube.bordeaux.inria.fr/sonarqube/dashboard?id=hiepacs%3Achameleon%3Agitlab%3Asolverstack%3Amaster][Sonarqube]].
+  [[https://gitlab.inria.fr/solverstack/chameleon/pipelines][pipelines]] visit [[https://sonarqube.inria.fr/sonarqube/dashboard?id=hiepacs%3Achameleon%3Agitlab%3Asolverstack][Sonarqube]].
+  See also the coverage of unitary tests here : [[https://solverstack.gitlabpages.inria.fr/chameleon/coverage][LCOV coverage]].
