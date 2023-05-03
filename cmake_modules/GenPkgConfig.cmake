@@ -84,6 +84,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     set(CHAMELEON_PKGCONFIG_DEFINITIONS "")
     set(COREBLAS_PKGCONFIG_DEFINITIONS "")
     set(CUDABLAS_PKGCONFIG_DEFINITIONS "")
+    set(HIPBLAS_PKGCONFIG_DEFINITIONS "")
 
     # The link flags specific to this package and any required libraries
     # that don't support PkgConfig
@@ -91,6 +92,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     set(CHAMELEON_PKGCONFIG_LIBS "-lchameleon")
     set(COREBLAS_PKGCONFIG_LIBS  "-lcoreblas")
     set(CUDABLAS_PKGCONFIG_LIBS  "-lcudablas")
+    set(HIPBLAS_PKGCONFIG_LIBS  "-lhipblas")
 
     # The link flags for private libraries required by this package but not
     # exposed to applications
@@ -98,12 +100,14 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     set(CHAMELEON_PKGCONFIG_LIBS_PRIVATE "")
     set(COREBLAS_PKGCONFIG_LIBS_PRIVATE  "")
     set(CUDABLAS_PKGCONFIG_LIBS_PRIVATE  "")
+    set(HIPBLAS_PKGCONFIG_LIBS_PRIVATE  "")
 
     # A list of packages required by this package
     set(CHAMELEON_LAPACK_PKGCONFIG_REQUIRED "chameleon")
     set(CHAMELEON_PKGCONFIG_REQUIRED "hqr")
     set(COREBLAS_PKGCONFIG_REQUIRED  "")
     set(CUDABLAS_PKGCONFIG_REQUIRED  "")
+    set(HIPBLAS_PKGCONFIG_REQUIRED  "")
 
     # A list of private packages required by this package but not exposed to
     # applications
@@ -111,46 +115,55 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     set(CHAMELEON_PKGCONFIG_REQUIRED_PRIVATE "")
     set(COREBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
     set(CUDABLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
+    set(HIPBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
 
-    if(CHAMELEON_SCHED_STARPU)
+    if(CHAMELEON_SCHED_OPENMP)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_openmp)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE "${OpenMP_C_LIBRARIES}")
+    elseif(CHAMELEON_SCHED_PARSEC)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_parsec)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE "${PARSEC_LIBRARIES}")
+        elseif(CHAMELEON_SCHED_QUARK)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_quark)
+        list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE "${QUARK_LIBRARIES_DEP}")
+    elseif(CHAMELEON_SCHED_STARPU)
         list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_starpu)
         if ( CHAMELEON_USE_MPI )
             list(APPEND CHAMELEON_PKGCONFIG_REQUIRED_PRIVATE starpumpi-${CHAMELEON_STARPU_VERSION})
         else()
             list(APPEND CHAMELEON_PKGCONFIG_REQUIRED_PRIVATE starpu-${CHAMELEON_STARPU_VERSION})
         endif()
-    elseif(CHAMELEON_SCHED_QUARK)
-        list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_quark)
-        list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE "${QUARK_LIBRARIES_DEP}")
     endif()
 
     if(NOT CHAMELEON_SIMULATION)
 
         list(APPEND COREBLAS_PKGCONFIG_LIBS_PRIVATE
-        ${LAPACKE_LIBRARIES_DEP}
-        ${CBLAS_LIBRARIES_DEP}
-        )
-        list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE
-        ${EXTRA_LIBRARIES}
+        ${LAPACKE_LIBRARIES}
+        ${CBLAS_LIBRARIES}
         )
         list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "coreblas")
 
         if(CHAMELEON_USE_CUDA)
-            list(APPEND CUDABLAS_PKGCONFIG_LIBS_PRIVATE ${EXTRA_LIBRARIES_CUDA})
+            list(APPEND CUDABLAS_PKGCONFIG_LIBS_PRIVATE ${CUDA_CUBLAS_LIBRARIES})
+            list(APPEND CUDABLAS_PKGCONFIG_REQUIRED "cuda")
             list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "cudablas")
         endif()
 
-    else(NOT CHAMELEON_SIMULATION)
-
-        if(CHAMELEON_USE_CUDA)
-            list(APPEND CHAMELEON_PKGCONFIG_LIBS -lcudablas)
+        if(CHAMELEON_USE_HIP)
+            list(APPEND HIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIPBLAS_LIBRARIES})
+            list(APPEND HIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIP_LIBRARIES})
+            list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "hipblas")
         endif()
-        list(APPEND CHAMELEON_PKGCONFIG_LIBS
-        -lcoreblas
-        ${EXTRA_LIBRARIES}
-        )
 
     endif(NOT CHAMELEON_SIMULATION)
+
+    list(APPEND CHAMELEON_PKGCONFIG_LIBS_PRIVATE
+    ${M_LIBRARIES}
+    )
+
+    if(CHAMELEON_USE_MPI)
+        list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "mpi")
+    endif()
 
     # Define required package
     # -----------------------
@@ -158,6 +171,9 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     CLEAN_LIB_LIST(COREBLAS)
     if(CHAMELEON_USE_CUDA)
         CLEAN_LIB_LIST(CUDABLAS)
+    endif()
+    if(CHAMELEON_USE_HIP)
+        CLEAN_LIB_LIST(HIPBLAS)
     endif()
 
     # Create .pc file
@@ -168,6 +184,9 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     if(CHAMELEON_USE_CUDA)
         SET(_output_cudablas_file "${CMAKE_BINARY_DIR}/cudablas.pc")
     endif()
+    if(CHAMELEON_USE_HIP)
+        SET(_output_hipblas_file "${CMAKE_BINARY_DIR}/hipblas.pc")
+    endif()
 
     # TODO: add url of CHAMELEON releases in .pc file
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon_lapack.pc.in" "${_output_chameleon_lapack_file}" @ONLY)
@@ -176,6 +195,9 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     if(CHAMELEON_USE_CUDA)
         CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/cudablas.pc.in"  "${_output_cudablas_file}" @ONLY)
     endif()
+    if(CHAMELEON_USE_HIP)
+        CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/hipblas.pc.in"  "${_output_hipblas_file}" @ONLY)
+    endif()
 
     # installation
     # ------------
@@ -183,6 +205,7 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     INSTALL(FILES ${_output_chameleon_file} DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_coreblas_file}  DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_cudablas_file}  DESTINATION lib/pkgconfig)
+    INSTALL(FILES ${_output_hipblas_file}  DESTINATION lib/pkgconfig)
 
 ENDMACRO(GENERATE_PKGCONFIG_FILE)
 
