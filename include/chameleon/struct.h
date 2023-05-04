@@ -35,6 +35,16 @@ BEGIN_C_DECLS
 #define CHAMELEON_TILE_DESC     (1 << 1)
 #define CHAMELEON_TILE_HMAT     (1 << 2)
 
+/**
+ * @brief CHAMELEON structure to hold pivot informations for the LU factorization with partial pivoting
+ */
+typedef struct chameleon_pivot_s {
+    int   blkm0;   /**> The row index of the first row in the tile where the pivot has been selected */
+    int   blkidx;  /**> The relative row index in the tile where the pivot has been selected         */
+    void *pivrow;  /**> The copy of the row with the selected pivot                                  */
+    void *diagrow; /**> The copy of the diagonal row to permute                                      */
+} CHAM_pivot_t;
+
 typedef struct chameleon_tile_s {
 #if defined(CHAMELEON_KERNELS_TRACE)
     char  *name;

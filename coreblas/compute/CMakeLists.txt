@@ -53,6 +53,7 @@ set(ZSRC
     core_zgetrf.c
     core_zgetrf_incpiv.c
     core_zgetrf_nopiv.c
+    core_zgetrf_panel.c
     core_zgram.c
     core_zhe2ge.c
     core_zherfb.c
