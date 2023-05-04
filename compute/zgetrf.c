@@ -61,15 +61,33 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
     }
 
     ws = calloc( 1, sizeof( struct chameleon_pzgetrf_s ) );
+    ws->alg = ChamGetrfNoPiv;
     ws->ib  = CHAMELEON_IB;
 
-#if defined(GETRF_NOPIV_PER_COLUMN)
-    chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
-                         ChamComplexDouble, 1, A->nb, A->nb,
-                         A->mt, A->nt * A->nb, 0, 0,
-                         A->mt, A->nt * A->nb, A->p, A->q,
-                         NULL, NULL, A->get_rankof_init );
-#endif
+    {
+        char *algostr = chameleon_getenv( "CHAMELEON_GETRF_ALGO" );
+
+        if ( algostr ) {
+            if ( strcasecmp( algostr, "nopiv" ) ) {
+                ws->alg = ChamGetrfNoPiv;
+            }
+            else if ( strcasecmp( algostr, "nopivpercolumn" ) == 0  ) {
+                ws->alg = ChamGetrfNoPivPerColumn;
+            }
+            else {
+                fprintf( stderr, "ERROR: CHAMELEON_GETRF_ALGO is not one of NoPiv, NoPivPerColumn => Switch back to NoPiv\n" );
+            }
+        }
+        chameleon_cleanenv( algostr );
+    }
+
+    if ( ws->alg == ChamGetrfNoPivPerColumn ) {
+        chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, 1, A->nb, A->nb,
+                             A->mt, A->nt * A->nb, 0, 0,
+                             A->mt, A->nt * A->nb, A->p, A->q,
+                             NULL, NULL, A->get_rankof_init );
+    }
 
     return ws;
 }
@@ -98,9 +116,9 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
 {
     struct chameleon_pzgetrf_s *ws = (struct chameleon_pzgetrf_s *)user_ws;
 
-#if defined(GETRF_NOPIV_PER_COLUMN)
-    chameleon_desc_destroy( &(ws->U) );
-#endif
+    if ( ws->alg == ChamGetrfNoPivPerColumn ) {
+        chameleon_desc_destroy( &(ws->U) );
+    }
     free( ws );
 }
 

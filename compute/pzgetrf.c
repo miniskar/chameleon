@@ -113,11 +113,13 @@ chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
                                int                         k,
                                RUNTIME_option_t           *options )
 {
-#if defined(GETRF_NOPIV_PER_COLUMN)
-    chameleon_pzgetrf_panel_facto_nopiv_percol( ws, A, k, options );
-#else
-    chameleon_pzgetrf_panel_facto_nopiv( ws, A, k, options );
-#endif
+    /* TODO: Should be replaced by a function pointer */
+    if ( ws->alg == ChamGetrfNoPivPerColumn ) {
+        chameleon_pzgetrf_panel_facto_nopiv_percol( ws, A, k, options );
+    }
+    else {
+        chameleon_pzgetrf_panel_facto_nopiv( ws, A, k, options );
+    }
 }
 
 /**
@@ -180,9 +182,9 @@ chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
  *  Parallel tile LU factorization with no pivoting - dynamic scheduling
  */
 void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
-                        CHAM_desc_t              *A,
-                        RUNTIME_sequence_t       *sequence,
-                        RUNTIME_request_t        *request )
+                        CHAM_desc_t                *A,
+                        RUNTIME_sequence_t         *sequence,
+                        RUNTIME_request_t          *request )
 {
     CHAM_context_t  *chamctxt;
     RUNTIME_option_t options;
