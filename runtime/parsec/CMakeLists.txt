@@ -130,7 +130,7 @@ add_dependencies(chameleon_parsec
   parsec_sources
 )
 if (CHAMELEON_USE_CUDA)
-  add_dependencies(chameleon_parsec cudablas_include)
+  add_dependencies(chameleon_parsec gpucublas_include)
 endif()
 
 target_include_directories(chameleon_parsec PUBLIC
@@ -148,7 +148,7 @@ target_include_directories(chameleon_parsec PRIVATE
 target_link_libraries(chameleon_parsec PRIVATE MORSE::PARSEC)
 target_link_libraries(chameleon_parsec PRIVATE coreblas)
 if(CHAMELEON_USE_CUDA)
-  target_link_libraries(chameleon_parsec PRIVATE cudablas)
+  target_link_libraries(chameleon_parsec PRIVATE gpucublas)
 endif(CHAMELEON_USE_CUDA)
 target_link_libraries(chameleon_parsec PRIVATE MORSE::M)
 

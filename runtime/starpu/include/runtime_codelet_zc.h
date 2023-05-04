@@ -31,7 +31,7 @@
 #include "coreblas/coreblas_zc.h"
 #include "coreblas/coreblas_zctile.h"
 #if defined(CHAMELEON_USE_CUDA)
-#include "cudablas.h"
+#include "gpucublas.h"
 #endif
 #endif
 
