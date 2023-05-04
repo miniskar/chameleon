@@ -122,7 +122,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
     if ( ws != NULL ) {
-        CHAMELEON_zgetrf_WS_Free( descA, ws );
+        CHAMELEON_zgetrf_WS_Free( ws );
     }
 
     CHAMELEON_Desc_Destroy( &descA );

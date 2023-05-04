@@ -52,26 +52,26 @@
 void *
 CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
 {
-    CHAM_context_t           *chamctxt;
-    struct chameleon_pzgetrf_s *options;
+    CHAM_context_t             *chamctxt;
+    struct chameleon_pzgetrf_s *ws;
 
     chamctxt = chameleon_context_self();
     if ( chamctxt == NULL ) {
         return NULL;
     }
 
-    options = calloc( 1, sizeof( struct chameleon_pzgetrf_s ) );
-    options->ib = CHAMELEON_IB;
+    ws = calloc( 1, sizeof( struct chameleon_pzgetrf_s ) );
+    ws->ib  = CHAMELEON_IB;
 
 #if defined(GETRF_NOPIV_PER_COLUMN)
-    chameleon_desc_init( &(options->U), CHAMELEON_MAT_ALLOC_TILE,
+    chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, 1, A->nb, A->nb,
                          A->mt, A->nt * A->nb, 0, 0,
                          A->mt, A->nt * A->nb, A->p, A->q,
                          NULL, NULL, A->get_rankof_init );
 #endif
 
-    return options;
+    return ws;
 }
 
 /**
@@ -94,14 +94,13 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
  *
  */
 void
-CHAMELEON_zgetrf_WS_Free( const CHAM_desc_t *A, void *user_ws )
+CHAMELEON_zgetrf_WS_Free( void *user_ws )
 {
     struct chameleon_pzgetrf_s *ws = (struct chameleon_pzgetrf_s *)user_ws;
 
 #if defined(GETRF_NOPIV_PER_COLUMN)
     chameleon_desc_destroy( &(ws->U) );
 #endif
-
     free( ws );
 }
 
@@ -210,7 +209,7 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int *IPIV, int LDA )
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    CHAMELEON_zgetrf_WS_Free( &descAt, ws );
+    CHAMELEON_zgetrf_WS_Free( ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
     status = sequence->status;
@@ -275,7 +274,7 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A )
     CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
-    CHAMELEON_zgetrf_WS_Free( A, ws );
+    CHAMELEON_zgetrf_WS_Free( ws );
 
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
@@ -321,7 +320,8 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request )
 {
-    CHAM_context_t *chamctxt;
+    CHAM_context_t             *chamctxt;
+    struct chameleon_pzgetrf_s *ws;
     chamctxt = chameleon_context_self();
 
     if ( chamctxt == NULL ) {
@@ -364,7 +364,19 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
 
+    if ( user_ws == NULL ) {
+        ws = CHAMELEON_zgetrf_WS_Alloc( A );
+    }
+    else {
+        ws = user_ws;
+    }
+
     chameleon_pzgetrf( user_ws, A, sequence, request );
 
+    if ( user_ws == NULL ) {
+        CHAMELEON_Desc_Flush( A, sequence );
+        chameleon_sequence_wait( chamctxt, sequence );
+        CHAMELEON_zgetrf_WS_Free( ws );
+    }
     return CHAMELEON_SUCCESS;
 }
