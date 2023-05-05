@@ -194,6 +194,14 @@ typedef enum chameleon_gemm_e {
     ChamGemmAlgSummaC
 } cham_gemm_t;
 
+/**
+ * @brief Chameleon GETRF algorithm variants
+ */
+typedef enum chameleon_getrf_e {
+    ChamGetrfNoPiv,
+    ChamGetrfNoPivPerColumn,
+} cham_getrf_t;
+
 #define ChameleonTrd            1001
 #define ChameleonBrd            1002
 

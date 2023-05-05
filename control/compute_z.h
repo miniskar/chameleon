@@ -41,8 +41,9 @@ struct chameleon_pzgemm_s {
  * @brief Data structure to handle the GETRF workspaces with partial pivoting
  */
 struct chameleon_pzgetrf_s {
-    int         ib; /* Internal blocking parameter */
-    CHAM_desc_t U;
+    cham_getrf_t alg;
+    int          ib; /* Internal blocking parameter */
+    CHAM_desc_t  U;
 };
 
 /**
