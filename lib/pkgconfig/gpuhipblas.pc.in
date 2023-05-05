@@ -1,0 +1,23 @@
+#
+#  @file gpuhipblas.pc
+#
+#  @copyright 2016-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#                       Univ. Bordeaux. All rights reserved.
+#
+#  @version 1.2.0
+#  @author Florent Pruvost
+#  @date 2023-05-03
+#
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+
+Name: gpuhipblas
+Description: Interface to hipBLAS routines + some other auxiliary routines
+Version: @CHAMELEON_VERSION_MAJOR@.@CHAMELEON_VERSION_MINOR@.@CHAMELEON_VERSION_MICRO@
+Cflags: @GPUHIPBLAS_PKGCONFIG_DEFINITIONS@ -I${includedir}
+Libs: -L${libdir} @GPUHIPBLAS_PKGCONFIG_LIBS@
+Libs.private: @GPUHIPBLAS_PKGCONFIG_LIBS_PRIVATE@
+Requires: @GPUHIPBLAS_PKGCONFIG_REQUIRED@
+Requires.private: @GPUHIPBLAS_PKGCONFIG_REQUIRED_PRIVATE@

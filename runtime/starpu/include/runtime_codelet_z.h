@@ -34,11 +34,11 @@
 #include "coreblas/coreblas_ztile.h"
 
 #if defined(CHAMELEON_USE_CUDA)
-#include "cudablas.h"
+#include "gpucublas.h"
 #endif
 
 #if defined(CHAMELEON_USE_HIP)
-#include "hipblas.h"
+#include "gpuhipblas.h"
 #endif
 
 #endif /* !defined(CHAMELEON_SIMULATION) */

@@ -230,11 +230,10 @@ cmake_dependent_option(CHAMELEON_USE_HIP_ROC
                     "Enable HIP kernels with ROCclr backend" OFF
                     "CHAMELEON_ENABLE_HIP" OFF)
 
-set(CHAMELEON_USE_HIP OFF CACHE INTERNAL "Equivalent to CHAMELEON_USE_CUDA for HIP. Enabled only of one of the CHAMELEON_USE_HIP{CUDA,ROC} is enabled")
 if( CHAMELEON_USE_HIP_CUDA OR CHAMELEON_USE_HIP_ROC )
-  set(CHAMELEON_USE_HIP ON)
+    set(CHAMELEON_USE_HIP ON CACHE INTERNAL "Equivalent to CHAMELEON_USE_CUDA for HIP. Enabled only of one of the CHAMELEON_USE_HIP{CUDA,ROC} is enabled" FORCE)
 else()
-  set(CHAMELEON_USE_HIP OFF)
+    set(CHAMELEON_USE_HIP OFF CACHE INTERNAL "Equivalent to CHAMELEON_USE_CUDA for HIP. Enabled only of one of the CHAMELEON_USE_HIP{CUDA,ROC} is enabled" FORCE)
 endif()
 
 # Enable Hmat-OSS kernels
@@ -690,18 +689,18 @@ set(CHAMELEON_SOURCES_TARGETS "" CACHE INTERNAL "List of targets of sources")
 
 if (NOT CHAMELEON_SIMULATION)
   ###############################################################################
-  # Coreblas library (kernels for CPUs) #
-  #######################################
+  # coreblas library (kernels for CPUs, interface to cblas/lapacke) #
+  ###################################################################
   add_subdirectory(coreblas)
 
   ###############################################################################
-  # Cudablas library (kernels for CUDAs) #
-  ########################################
+  # gpucublas library (kernels for GPUs, interface to cublas or hibblas) #
+  ########################################################################
   if(CHAMELEON_USE_CUDA)
-    add_subdirectory(cudablas)
+    add_subdirectory(gpucublas)
   endif()
   if(CHAMELEON_USE_HIP)
-    add_subdirectory(hipblas)
+    add_subdirectory(gpuhipblas)
   endif()
 
 endif()
@@ -778,6 +777,12 @@ endif()
 ###############################################################################
 # Export targets #
 ##################
+
+# Threads::Threads may be a dependency of BLAS/LAPACK and CUDA
+# the target may be required for cmake users linking with CHAMELEONconfig.cmake
+if (TARGET Threads::Threads)
+    morse_export_imported_target(Threads Threads threads chameleon)
+endif()
 
 # see https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html
 include(CMakePackageConfigHelpers)

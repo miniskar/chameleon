@@ -74,7 +74,7 @@ ENDMACRO(CLEAN_LIB_LIST)
 
 ###
 #
-# GENERATE_PKGCONFIG_FILE: generate files chameleon.pc, coreblas.pc and cudablas.pc
+# GENERATE_PKGCONFIG_FILE: generate files chameleon_lapack.pc, chameleon.pc, coreblas.pc and gpucublas.pc or gpuhipblas.pc
 #
 ###
 MACRO(GENERATE_PKGCONFIG_FILE)
@@ -83,39 +83,39 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     set(CHAMELEON_LAPACK_PKGCONFIG_DEFINITIONS "")
     set(CHAMELEON_PKGCONFIG_DEFINITIONS "")
     set(COREBLAS_PKGCONFIG_DEFINITIONS "")
-    set(CUDABLAS_PKGCONFIG_DEFINITIONS "")
-    set(HIPBLAS_PKGCONFIG_DEFINITIONS "")
+    set(GPUCUBLAS_PKGCONFIG_DEFINITIONS "")
+    set(GPUHIPBLAS_PKGCONFIG_DEFINITIONS "")
 
     # The link flags specific to this package and any required libraries
     # that don't support PkgConfig
     set(CHAMELEON_LAPACK_PKGCONFIG_LIBS "-lchameleon_lapack")
     set(CHAMELEON_PKGCONFIG_LIBS "-lchameleon")
     set(COREBLAS_PKGCONFIG_LIBS  "-lcoreblas")
-    set(CUDABLAS_PKGCONFIG_LIBS  "-lcudablas")
-    set(HIPBLAS_PKGCONFIG_LIBS  "-lhipblas")
+    set(GPUCUBLAS_PKGCONFIG_LIBS  "-lgpucublas")
+    set(GPUHIPBLAS_PKGCONFIG_LIBS  "-lgpuhipblas")
 
     # The link flags for private libraries required by this package but not
     # exposed to applications
     set(CHAMELEON_LAPACK_PKGCONFIG_LIBS_PRIVATE "")
     set(CHAMELEON_PKGCONFIG_LIBS_PRIVATE "")
     set(COREBLAS_PKGCONFIG_LIBS_PRIVATE  "")
-    set(CUDABLAS_PKGCONFIG_LIBS_PRIVATE  "")
-    set(HIPBLAS_PKGCONFIG_LIBS_PRIVATE  "")
+    set(GPUCUBLAS_PKGCONFIG_LIBS_PRIVATE  "")
+    set(GPUHIPBLAS_PKGCONFIG_LIBS_PRIVATE  "")
 
     # A list of packages required by this package
     set(CHAMELEON_LAPACK_PKGCONFIG_REQUIRED "chameleon")
     set(CHAMELEON_PKGCONFIG_REQUIRED "hqr")
     set(COREBLAS_PKGCONFIG_REQUIRED  "")
-    set(CUDABLAS_PKGCONFIG_REQUIRED  "")
-    set(HIPBLAS_PKGCONFIG_REQUIRED  "")
+    set(GPUCUBLAS_PKGCONFIG_REQUIRED  "")
+    set(GPUHIPBLAS_PKGCONFIG_REQUIRED  "")
 
     # A list of private packages required by this package but not exposed to
     # applications
     set(CHAMELEON_LAPACK_PKGCONFIG_REQUIRED_PRIVATE "")
     set(CHAMELEON_PKGCONFIG_REQUIRED_PRIVATE "")
     set(COREBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
-    set(CUDABLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
-    set(HIPBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
+    set(GPUCUBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
+    set(GPUHIPBLAS_PKGCONFIG_REQUIRED_PRIVATE  "")
 
     if(CHAMELEON_SCHED_OPENMP)
         list(APPEND CHAMELEON_PKGCONFIG_LIBS -lchameleon_openmp)
@@ -144,15 +144,15 @@ MACRO(GENERATE_PKGCONFIG_FILE)
         list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "coreblas")
 
         if(CHAMELEON_USE_CUDA)
-            list(APPEND CUDABLAS_PKGCONFIG_LIBS_PRIVATE ${CUDA_CUBLAS_LIBRARIES})
-            list(APPEND CUDABLAS_PKGCONFIG_REQUIRED "cuda")
-            list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "cudablas")
+            list(APPEND GPUCUBLAS_PKGCONFIG_LIBS_PRIVATE ${CUDA_CUBLAS_LIBRARIES})
+            list(APPEND GPUCUBLAS_PKGCONFIG_REQUIRED "cuda")
+            list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "gpucublas")
         endif()
 
         if(CHAMELEON_USE_HIP)
-            list(APPEND HIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIPBLAS_LIBRARIES})
-            list(APPEND HIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIP_LIBRARIES})
-            list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "hipblas")
+            list(APPEND GPUHIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIPBLAS_LIBRARIES})
+            list(APPEND GPUHIPBLAS_PKGCONFIG_LIBS_PRIVATE ${HIP_LIBRARIES})
+            list(APPEND CHAMELEON_PKGCONFIG_REQUIRED "gpuhipblas")
         endif()
 
     endif(NOT CHAMELEON_SIMULATION)
@@ -170,10 +170,10 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     CLEAN_LIB_LIST(CHAMELEON)
     CLEAN_LIB_LIST(COREBLAS)
     if(CHAMELEON_USE_CUDA)
-        CLEAN_LIB_LIST(CUDABLAS)
+        CLEAN_LIB_LIST(GPUCUBLAS)
     endif()
     if(CHAMELEON_USE_HIP)
-        CLEAN_LIB_LIST(HIPBLAS)
+        CLEAN_LIB_LIST(GPUHIPBLAS)
     endif()
 
     # Create .pc file
@@ -182,30 +182,30 @@ MACRO(GENERATE_PKGCONFIG_FILE)
     SET(_output_chameleon_file "${CMAKE_BINARY_DIR}/chameleon.pc")
     SET(_output_coreblas_file "${CMAKE_BINARY_DIR}/coreblas.pc")
     if(CHAMELEON_USE_CUDA)
-        SET(_output_cudablas_file "${CMAKE_BINARY_DIR}/cudablas.pc")
+        SET(_output_gpucublas_file "${CMAKE_BINARY_DIR}/gpucublas.pc")
     endif()
     if(CHAMELEON_USE_HIP)
-        SET(_output_hipblas_file "${CMAKE_BINARY_DIR}/hipblas.pc")
+        SET(_output_gpuhipblas_file "${CMAKE_BINARY_DIR}/gpuhipblas.pc")
     endif()
 
     # TODO: add url of CHAMELEON releases in .pc file
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon_lapack.pc.in" "${_output_chameleon_lapack_file}" @ONLY)
     CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/chameleon.pc.in" "${_output_chameleon_file}" @ONLY)
-    CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/coreblas.pc.in"  "${_output_coreblas_file}" @ONLY)
+    CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/coreblas.pc.in" "${_output_coreblas_file}" @ONLY)
     if(CHAMELEON_USE_CUDA)
-        CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/cudablas.pc.in"  "${_output_cudablas_file}" @ONLY)
+        CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/gpucublas.pc.in" "${_output_gpucublas_file}" @ONLY)
     endif()
     if(CHAMELEON_USE_HIP)
-        CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/hipblas.pc.in"  "${_output_hipblas_file}" @ONLY)
+        CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/lib/pkgconfig/gpuhipblas.pc.in" "${_output_gpuhipblas_file}" @ONLY)
     endif()
 
     # installation
     # ------------
     INSTALL(FILES ${_output_chameleon_lapack_file} DESTINATION lib/pkgconfig)
     INSTALL(FILES ${_output_chameleon_file} DESTINATION lib/pkgconfig)
-    INSTALL(FILES ${_output_coreblas_file}  DESTINATION lib/pkgconfig)
-    INSTALL(FILES ${_output_cudablas_file}  DESTINATION lib/pkgconfig)
-    INSTALL(FILES ${_output_hipblas_file}  DESTINATION lib/pkgconfig)
+    INSTALL(FILES ${_output_coreblas_file} DESTINATION lib/pkgconfig)
+    INSTALL(FILES ${_output_gpucublas_file} DESTINATION lib/pkgconfig)
+    INSTALL(FILES ${_output_gpuhipblas_file} DESTINATION lib/pkgconfig)
 
 ENDMACRO(GENERATE_PKGCONFIG_FILE)
 

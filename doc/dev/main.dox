@@ -67,10 +67,10 @@ The libraries are organized as follows :
 
 - __chameleon_quark|openmp|parsec|starpu__ : interface to the
   different runtimes, depends on "coreblas" and optionally on
-  "cudablas" and on a runtime system library
+  "gpucublas" or "gpuhiblas" and on a runtime system library
 
-- __coreblas__ and __cudablas__ : interfaces to the CPU and GPU
-  kernels
+- __coreblas__ and __gpucublas__ or __gpuhipblas__ :
+  interfaces to the CPU and GPU kernels
 
 - __hqr__ : HQR is a C library providing tools to generate hierachical
   trees adapted to 2D block-cyclic data distribution and algorithms
@@ -91,13 +91,15 @@ Lets have a look to the source code organization in directories.
 
 - __coreblas__ : the Chameleon interface to CPU linear algebra kernels
 
-- __cudablas__ : the Chameleon interface to GPU linear algebra kernels
-
 - __distrib__ : some hints to install Chameleon's dependencies
 
 - __doc__ : users and developers documentations
 
 - __example__ : couple of C files to show how to use Chameleon
+
+- __gpucublas__ : the Chameleon interface to GPU linear algebra kernels (cublas)
+
+- __gpuhipblas__ : the Chameleon interface to GPU linear algebra kernels (hipblas)
 
 - __hqr__ : [HQR](https://gitlab.inria.fr/solverstack/hqr) is a C
 library providing tools to generate hierachical trees adapted to 2D
@@ -105,6 +107,8 @@ block-cyclic data distribution and algorithms based on tiled
 QR/algorithms
 
 - __include__ : Chameleon's headers file necessary for users
+
+- __lapack_api__ : the Chameleon interface CBLAS/LAPACKE like
 
 - __lib__ : material related to the distribution
 
