@@ -36,12 +36,12 @@ build_starpu_hip:
     BUILD_OPTIONS: "-DCHAMELEON_USE_HIP_ROC=ON -DCHAMELEON_USE_MPI=ON"
     VERSION: starpu_hip
 
-# build_starpu_hipcuda:
-#   extends: .build_script_template
-#   variables:
-#     CHAM_CI_ENV_ARG: hipcuda
-#     BUILD_OPTIONS: "-DCHAMELEON_USE_HIP_CUDA=ON -DCHAMELEON_HIPBLAS_PATH=/home/gitlab/hipcuda/hipblas -DCHAMELEON_USE_MPI=ON"
-#     VERSION: starpu_hipcuda
+build_starpu_hipcuda:
+  extends: .build_script_template
+  variables:
+    CHAM_CI_ENV_ARG: hipcuda
+    BUILD_OPTIONS: "-DCHAMELEON_USE_HIP_CUDA=ON -DCHAMELEON_HIPBLAS_PATH=/home/gitlab/hipcuda/hipblas -DCHAMELEON_USE_MPI=ON"
+    VERSION: starpu_hipcuda
 
 build_starpu_simgrid:
   extends: .build_script_template
