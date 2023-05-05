@@ -778,6 +778,12 @@ endif()
 # Export targets #
 ##################
 
+# Threads::Threads may be a dependency of BLAS/LAPACK and CUDA
+# the target may be required for cmake users linking with CHAMELEONconfig.cmake
+if (TARGET Threads::Threads)
+    morse_export_imported_target(Threads Threads threads chameleon)
+endif()
+
 # see https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html
 include(CMakePackageConfigHelpers)
 
