@@ -33,6 +33,10 @@
 #include "chameleon/struct.h"
 #include "chameleon/descriptor_helpers.h"
 
+#if defined(CHAMELEON_USE_MPI)
+#include <mpi.h>
+#endif
+
 /* ****************************************************************************
  * CHAMELEON runtime common API
  */
