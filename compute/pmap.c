@@ -20,7 +20,7 @@
 /**
  *  chameleon_pmap - Generate a random matrix by tiles.
  */
-void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
+void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
                      cham_unary_operator_t op_fct, void *op_args,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
@@ -39,12 +39,12 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
             for (m = 0; m < n; m++) {
                 INSERT_TASK_map(
                     &options,
-                    ChamRW, ChamUpperLower, A(m, n),
+                    access, ChamUpperLower, A(m, n),
                     op_fct, op_args );
             }
             INSERT_TASK_map(
                 &options,
-                ChamRW, uplo, A(n, n),
+                access, uplo, A(n, n),
                 op_fct, op_args );
         }
         break;
@@ -53,12 +53,12 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
         for (n = 0; n < A->nt; n++) {
             INSERT_TASK_map(
                 &options,
-                ChamRW, uplo, A(n, n),
+                access, uplo, A(n, n),
                 op_fct, op_args );
             for (m = n+1; m < A->mt; m++) {
                 INSERT_TASK_map(
                     &options,
-                    ChamRW, ChamUpperLower, A(m, n),
+                    access, ChamUpperLower, A(m, n),
                     op_fct, op_args );
             }
         }
@@ -70,7 +70,7 @@ void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
             for (n = 0; n < A->nt; n++) {
                 INSERT_TASK_map(
                     &options,
-                    ChamRW, uplo, A(m, n),
+                    access, uplo, A(m, n),
                     op_fct, op_args );
             }
         }

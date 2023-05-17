@@ -102,7 +102,7 @@ extern char *chameleon_lapack_constants[];
 extern "C" {
 #endif
 
-void chameleon_pmap( cham_uplo_t uplo, CHAM_desc_t *A,
+void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
                      cham_unary_operator_t operator, void *op_args,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 

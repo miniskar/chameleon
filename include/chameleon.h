@@ -74,11 +74,13 @@ BEGIN_C_DECLS
 /* ****************************************************************************
  * CHAMELEON functionnalities
  */
-int CHAMELEON_map_Tile( cham_uplo_t           uplo,
+int CHAMELEON_map_Tile( cham_access_t         access,
+                        cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
                         cham_unary_operator_t op_fct,
                         void                 *op_args );
-int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
+int CHAMELEON_map_Tile_Async( cham_access_t         access,
+                              cham_uplo_t           uplo,
                               CHAM_desc_t          *A,
                               cham_unary_operator_t op_fct,
                               void                 *op_args,
