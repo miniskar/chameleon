@@ -184,6 +184,15 @@ typedef enum chameleon_store_e {
 } cham_store_t;
 
 /**
+ * @brief Data access types.
+ */
+typedef enum chameleon_access_e {
+    ChamR  = (1 << 0),        /**< Read only  */
+    ChamW  = (1 << 1),        /**< Write only */
+    ChamRW = (ChamR | ChamW), /**< Read-Write */
+} cham_access_t;
+
+/**
  * @brief Chameleon GEMM-like algorithms
  */
 typedef enum chameleon_gemm_e {

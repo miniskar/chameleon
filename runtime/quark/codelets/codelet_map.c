@@ -32,7 +32,7 @@ void CORE_map_quark(Quark *quark)
 }
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
-                      cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
+                      cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
                       cham_unary_operator_t op_fct, void *op_args )
 {
     quark_option_t *opt = (quark_option_t*)(options->schedopt);
@@ -43,7 +43,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(cham_uplo_t),              &uplo, VALUE,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
-        sizeof(void*), RTBLKADDR(A, void, Am, An), INOUT,
+        sizeof(void*), RTBLKADDR(A, void, Am, An), cham_to_quark_access( accessA ),
         sizeof(cham_unary_operator_t),    &op_fct,  VALUE,
         sizeof(void*),                    &op_args, VALUE,
         0);

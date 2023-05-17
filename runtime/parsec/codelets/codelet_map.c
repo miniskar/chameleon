@@ -38,10 +38,12 @@ CORE_map_parsec( parsec_execution_stream_t *context,
 }
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
-                      cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
+                      cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
                       cham_unary_operator_t op_fct, void *op_args )
 {
     parsec_taskpool_t* PARSEC_dtd_taskpool = (parsec_taskpool_t *)(options->sequence->schedopt);
+
+    int parsec_accessA = cham_to_parsec_access( accessA );
 
     parsec_dtd_taskpool_insert_task(
         PARSEC_dtd_taskpool, CORE_map_parsec, options->priority, "map",
@@ -49,7 +51,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         sizeof(cham_uplo_t),              &uplo, VALUE,
         sizeof(int),                      &Am,   VALUE,
         sizeof(int),                      &An,   VALUE,
-        PASSED_BY_REF, RTBLKADDR(A, void, Am, An), chameleon_parsec_get_arena_index( A ) | INOUT,
+        PASSED_BY_REF, RTBLKADDR(A, void, Am, An), chameleon_parsec_get_arena_index( A ) | parsec_accessA,
         sizeof(cham_unary_operator_t),    &op_fct,  VALUE,
         sizeof(void*),                    &op_args, VALUE,
         PARSEC_DTD_ARG_END );
