@@ -127,7 +127,7 @@ static inline int chameleon_asprintf( char **strp, const char *fmt, ... )
     int rc;
 
     va_start( ap, fmt );
-    rc = asprintf( strp, fmt, ap );
+    rc = vasprintf( strp, fmt, ap );
     va_end( ap );
 
     assert( rc != -1 );
