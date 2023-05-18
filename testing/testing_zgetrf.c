@@ -38,9 +38,10 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     int         N      = run_arg_get_int( args, "N", 1000 );
     int         M      = run_arg_get_int( args, "M", N );
     int         LDA    = run_arg_get_int( args, "LDA", M );
-    int         seedA  = run_arg_get_int( args, "seedA", random() );
-    cham_diag_t diag   = run_arg_get_diag( args, "diag", ChamNonUnit );
+    int         seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
+    cham_diag_t diag   = run_arg_get_diag( args, "diag", ChamUnit );
     int         Q      = parameters_compute_q( P );
+    int         minMN  = chameleon_min( M, N );
 
     /* Descriptors */
     CHAM_desc_t *descA;
@@ -54,8 +55,8 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 
     /* Fills the matrix with random values */
     if ( diag == ChamUnit ) {
-        CHAMELEON_zplgtr_Tile( 0, ChamUpper, descA, seedA   );
-        CHAMELEON_zplgtr_Tile( 0, ChamLower, descA, seedA+1 );
+        CHAMELEON_zplgtr_Tile( 0,     ChamUpper, descA, seedA   );
+        CHAMELEON_zplgtr_Tile( minMN, ChamLower, descA, seedA+1 );
     }
     else {
         CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -81,23 +82,22 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 #if !defined(CHAMELEON_SIMULATION)
     if ( check ) {
         CHAM_desc_t *descA0c;
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
 
-        /* Create A0c as local to rank 0 on all nodes */
+        /* Create A0c as local to rank 0 on all nodes to gather the matrix */
         CHAMELEON_Desc_Create_User(
             &descA0c, (void*)CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
             nb, nb, nb*nb, M, N, 0, 0, M, N, 1, 1,
             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
 
         if ( diag == ChamUnit ) {
-            CHAMELEON_zplgtr_Tile( 0, ChamUpper, descA0, seedA   );
-            CHAMELEON_zplgtr_Tile( 0, ChamLower, descA0, seedA+1 );
+            CHAMELEON_zplgtr_Tile( 0,     ChamUpper, descA0c, seedA   );
+            CHAMELEON_zplgtr_Tile( minMN, ChamLower, descA0c, seedA+1 );
         }
         else {
-            CHAMELEON_zplrnt_Tile( descA0, seedA );
+            CHAMELEON_zplrnt_Tile( descA0c, seedA );
         }
 
-#if 0
         /* Compute the permutation of A0: P * A0 */
         if ( CHAMELEON_Comm_rank() == 0 ) {
             int i, j;
@@ -112,7 +112,6 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
         }
 
         CHAMELEON_zlacpy_Tile( ChamUpperLower, descA0c, descA0 );
-#endif
         CHAMELEON_Desc_Destroy( &descA0c );
         hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower,
                               descA0, descA );
