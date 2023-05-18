@@ -183,6 +183,7 @@ chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
  */
 void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
                         CHAM_desc_t                *A,
+                        CHAM_desc_t                *IPIV,
                         RUNTIME_sequence_t         *sequence,
                         RUNTIME_request_t          *request )
 {

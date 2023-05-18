@@ -167,7 +167,7 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
  *
  */
 int
-CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int *IPIV, int LDA )
+CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
 {
     int                 NB;
     int                 status;
@@ -271,7 +271,7 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int *IPIV, int LDA )
  *
  */
 int
-CHAMELEON_zgetrf_Tile( CHAM_desc_t *A )
+CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV )
 {
     CHAM_context_t     *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -287,8 +287,7 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A )
     chameleon_sequence_create( chamctxt, &sequence );
 
     ws = CHAMELEON_zgetrf_WS_Alloc( A );
-    CHAMELEON_zgetrf_Tile_Async( A, ws, sequence, &request );
-
+    CHAMELEON_zgetrf_Tile_Async( A, IPIV, ws, sequence, &request );
     CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
@@ -334,6 +333,7 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A )
  */
 int
 CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
+                             CHAM_desc_t        *IPIV,
                              void               *user_ws,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request )
@@ -375,10 +375,22 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         chameleon_error( "CHAMELEON_zgetrf_Tile", "invalid first descriptor" );
         return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
+    if ( chameleon_desc_check( IPIV ) != CHAMELEON_SUCCESS ) {
+        chameleon_error( "CHAMELEON_zgetrf_Tile", "invalid second descriptor" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
+    }
 
     /* Check input arguments */
     if ( A->nb != A->mb ) {
         chameleon_error( "CHAMELEON_zgetrf_Tile", "only square tiles supported" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
+    }
+    if ( IPIV->mb != A->mb ) {
+        chameleon_error( "CHAMELEON_zgetrf_Tile", "IPIV tiles must have the number of rows as tiles of A" );
+        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
+    }
+    if ( IPIV->nb != 1 ) {
+        chameleon_error( "CHAMELEON_zgetrf_Tile", "IPIV tiles must be vectore with only one column per tile" );
         return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
 
@@ -389,7 +401,7 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         ws = user_ws;
     }
 
-    chameleon_pzgetrf( user_ws, A, sequence, request );
+    chameleon_pzgetrf( user_ws, A, IPIV, sequence, request );
 
     if ( user_ws == NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
