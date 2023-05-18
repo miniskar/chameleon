@@ -24,6 +24,50 @@
 
 #define A(m,n) A,  m,  n
 #define U(m,n) &(ws->U),  m,  n
+#define IPIV(m) IPIV,  m,  1
+
+/*
+ * Static variable to know how to handle the data within the kernel
+ * This assumes that only one runtime is enabled at a time.
+ */
+static RUNTIME_id_t zgetrf_runtime_id = RUNTIME_SCHED_STARPU;
+
+static inline int
+zgetrf_ipiv_init( const CHAM_desc_t *descIPIV,
+                  cham_uplo_t uplo, int m, int n,
+                  CHAM_tile_t *tileIPIV, void *op_args )
+{
+    int *IPIV;
+    (void)op_args;
+
+    if ( zgetrf_runtime_id == RUNTIME_SCHED_PARSEC ) {
+        IPIV = (int*)tileIPIV;
+    }
+    else {
+        IPIV = CHAM_tile_get_ptr( tileIPIV );
+    }
+
+#if !defined(CHAMELEON_SIMULATION)
+    {
+        int tempmm = m == descIPIV->mt-1 ? descIPIV->m - m * descIPIV->mb : descIPIV->mb;
+        int i;
+
+        for( i=0; i<tempmm; i++ ) {
+            IPIV[i] = m * descIPIV->mb + i + 1;
+        }
+    }
+#endif
+
+    return 0;
+}
+
+static inline void
+chameleon_pzgetrf_ipiv_init( CHAM_desc_t        *IPIV,
+                             RUNTIME_sequence_t *sequence,
+                             RUNTIME_request_t  *request )
+{
+    chameleon_pmap( ChamW, ChamUpperLower, IPIV, zgetrf_ipiv_init, NULL, sequence, request );
+}
 
 /*
  * All the functions below are panel factorization variant.
@@ -198,6 +242,9 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
         return;
     }
     RUNTIME_options_init( &options, chamctxt, sequence, request );
+
+    /* Initialize IPIV */
+    chameleon_pzgetrf_ipiv_init( IPIV, sequence, request );
 
     for (k = 0; k < min_mnt; k++) {
         RUNTIME_iteration_push( chamctxt, k );
