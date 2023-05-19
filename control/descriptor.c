@@ -19,7 +19,7 @@
  * @author Raphael Boucherie
  * @author Samuel Thibault
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-07-06
  *
  ***
  *
@@ -499,12 +499,6 @@ int CHAMELEON_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flttype_t dtyp
                            int lm, int ln, int i, int j, int m, int n, int p, int q )
 {
     blkrankof_fct_t get_rankof = NULL;
-
-    /* if (getenv("CHAMELEON_1Dx1D_DISTRIBUTION")){ */
-    /*     printf("[CHAMELEON] : Using 1Dx1D distribubtion\n"); */
-    /*     get_rankof = chameleon_getrankof_custom; */
-    /*     load_dist(&custom_dist_a, m, n, mb, nb); */
-    /* } */
 
     return CHAMELEON_Desc_Create_User( descptr, mat, dtyp, mb, nb, bsiz,
                                        lm, ln, i, j, m, n, p, q,
