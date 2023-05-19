@@ -6,12 +6,12 @@
  @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
                       Univ. Bordeaux. All rights reserved.
 
- @version 1.2.0
+ @version 1.3.0
  @author Mathieu Faverge
  @author Florent Pruvost
  @author Nathalie Furmento
  @author Alycia Lisito
- @date 2022-02-22
+ @date 2023-07-04
 
 """
 _extra_blas = [
@@ -73,6 +73,9 @@ subs = {
         ('int',                  'float',                'double',               'CHAMELEON_Complex32_t', r'\bCHAMELEON_Complex64_t'),
         ('ChamPattern',          'ChamRealFloat',        'ChamRealDouble',       'ChamComplexFloat',    r'\bChamComplexDouble' ),
         ('ChamPattern',          'ChamRealFloat',        'ChamRealDouble',       'ChamRealFloat',       r'\bChamRealDouble'    ),
+        ('ChamPattern',          'ChamRealFloat',        'ChamRealFloat',        'ChamComplexFloat',    r'\bChamComplexFloat'  ),
+        ('ChamPattern',          'ChamRealFloat',        'ChamRealFloat',        'ChamRealFloat',       r'\bChamRealFloat'     ),
+        ('ChamPattern',          'ChamRealHalf',         'ChamRealHalf',         'ChamComplexHalf',     r'\bChamComplexHalf'   ),
         ('int',                  'float',                'double',               'complex32',             'complex64'          ),
         ('Int',                  'Float',                'Double',               'Complex32',             'Complex64'          ),
         ('Int',                  'HMAT_SIMPLE_PRECISION','HMAT_DOUBLE_PRECISION','HMAT_SIMPLE_COMPLEX',   'HMAT_DOUBLE_COMPLEX'),

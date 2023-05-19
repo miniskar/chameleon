@@ -11,14 +11,14 @@
  *
  * @brief Chameleon global constants
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Terry Cojean
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  */
 #ifndef _chameleon_constants_h_
@@ -36,14 +36,73 @@
 /**
  * @brief Matrix floating point arithmetic
  */
+typedef enum chameleon_arithmetic_e {
+    Cham8      = 0,
+    ChamHalf   = 1,
+    ChamSingle = 2,
+    ChamDouble = 3,
+} cham_arithmetic_t;
+
+#define CHAM_ARITHMETIC_MASK 0b11
+
+typedef enum chameleon_ftype_e {
+    ChamInt     = 0,
+    ChamReal    = 1,
+    ChamComplex = 2,
+} cham_ftype_t;
+
+#define CHAM_FTYPE_MASK 0b1100
+#define CHAM_MIXED_MASK 0b10000
+
+#define cham_get_arith( _ftype_ )   ( (_ftype_) & CHAM_ARITHMETIC_MASK )
+#define cham_get_ftype( _ftype_ )   (( (_ftype_) & CHAM_FTYPE_MASK ) >> 2 )
+#define cham_get_flttype( _ftype_ ) ( (_ftype_) & (CHAM_FTYPE_MASK | CHAM_ARITHMETIC_MASK) )
+#define cham_is_mixed( _ftype_ )    ( (_ftype_) & CHAM_MIXED_MASK )
+
+#define cham_clean_mixed( _ftype_ )    ( (_ftype_) & ~CHAM_MIXED_MASK )
+
+#define CHAMELEON_FLTTYPE( _ftype_, _arithmetic_ ) ( ((_ftype_) << 2) | (_arithmetic_) )
+
 typedef enum chameleon_flttype_e {
-    ChamByte          = 0,
-    ChamInteger       = 1,
-    ChamRealFloat     = 2,
-    ChamRealDouble    = 3,
-    ChamComplexFloat  = 4,
-    ChamComplexDouble = 5,
+    ChamByte               = CHAMELEON_FLTTYPE( ChamInt,     Cham8      ),
+    ChamInteger16          = CHAMELEON_FLTTYPE( ChamInt,     ChamHalf   ),
+    ChamInteger            = CHAMELEON_FLTTYPE( ChamInt,     ChamSingle ),
+    ChamInteger32          = CHAMELEON_FLTTYPE( ChamInt,     ChamSingle ),
+    ChamInteger64          = CHAMELEON_FLTTYPE( ChamInt,     ChamDouble ),
+    ChamRealHalf           = CHAMELEON_FLTTYPE( ChamReal,    ChamHalf   ),
+    ChamRealFloat          = CHAMELEON_FLTTYPE( ChamReal,    ChamSingle ),
+    ChamRealDouble         = CHAMELEON_FLTTYPE( ChamReal,    ChamDouble ),
+    ChamComplexHalf        = CHAMELEON_FLTTYPE( ChamComplex, ChamHalf   ),
+    ChamComplexFloat       = CHAMELEON_FLTTYPE( ChamComplex, ChamSingle ),
+    ChamComplexDouble      = CHAMELEON_FLTTYPE( ChamComplex, ChamDouble ),
+    ChamRealDoubleMixed    = ChamRealDouble    | CHAM_MIXED_MASK,
+    ChamComplexDoubleMixed = ChamComplexDouble | CHAM_MIXED_MASK,
 } cham_flttype_t;
+
+#define ChamComplexSingle ChamComplexFloat
+#define ChamRealSingle    ChamRealFloat
+
+#define ChamConvert( in, out ) ( cham_clean_mixed(in) | (cham_clean_mixed(out) << 5) )
+
+#define ChamConvertComplexDoubleToDouble ChamConvert( ChamComplexDouble, ChamComplexDouble )
+#define ChamConvertComplexDoubleToSingle ChamConvert( ChamComplexDouble, ChamComplexSingle )
+#define ChamConvertComplexDoubleToHalf   ChamConvert( ChamComplexDouble, ChamComplexHalf   )
+#define ChamConvertComplexSingleToDouble ChamConvert( ChamComplexSingle, ChamComplexDouble )
+#define ChamConvertComplexSingleToSingle ChamConvert( ChamComplexSingle, ChamComplexSingle )
+#define ChamConvertComplexSingleToHalf   ChamConvert( ChamComplexSingle, ChamComplexHalf   )
+#define ChamConvertComplexHalfToDouble   ChamConvert( ChamComplexHalf,   ChamComplexDouble )
+#define ChamConvertComplexHalfToSingle   ChamConvert( ChamComplexHalf,   ChamComplexSingle )
+#define ChamConvertComplexHalfToHalf     ChamConvert( ChamComplexHalf,   ChamComplexHalf   )
+
+#define ChamConvertRealDoubleToDouble ChamConvert( ChamRealDouble, ChamRealDouble )
+#define ChamConvertRealDoubleToSingle ChamConvert( ChamRealDouble, ChamRealSingle )
+#define ChamConvertRealDoubleToHalf   ChamConvert( ChamRealDouble, ChamRealHalf   )
+#define ChamConvertRealSingleToDouble ChamConvert( ChamRealSingle, ChamRealDouble )
+#define ChamConvertRealSingleToSingle ChamConvert( ChamRealSingle, ChamRealSingle )
+#define ChamConvertRealSingleToHalf   ChamConvert( ChamRealSingle, ChamRealHalf   )
+#define ChamConvertRealHalfToDouble   ChamConvert( ChamRealHalf,   ChamRealDouble )
+#define ChamConvertRealHalfToSingle   ChamConvert( ChamRealHalf,   ChamRealSingle )
+#define ChamConvertRealHalfToHalf     ChamConvert( ChamRealHalf,   ChamRealHalf   )
 
 /**
  * @brief Matrix tile storage

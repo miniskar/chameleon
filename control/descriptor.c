@@ -11,14 +11,14 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-12-13
+ * @date 2023-07-04
  *
  ***
  *
@@ -376,11 +376,14 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
         chameleon_error("chameleon_desc_check", "NULL matrix pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (desc->dtyp != ChamInteger &&
-        desc->dtyp != ChamRealFloat &&
-        desc->dtyp != ChamRealDouble &&
-        desc->dtyp != ChamComplexFloat &&
-        desc->dtyp != ChamComplexDouble  ) {
+    if ( (desc->dtyp != ChamInteger       ) &&
+         (desc->dtyp != ChamRealHalf      ) &&
+         (desc->dtyp != ChamRealFloat     ) &&
+         (desc->dtyp != ChamRealDouble    ) &&
+         (desc->dtyp != ChamComplexHalf   ) &&
+         (desc->dtyp != ChamComplexFloat  ) &&
+         (desc->dtyp != ChamComplexDouble ) )
+    {
         chameleon_error("chameleon_desc_check", "invalid matrix type");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
@@ -435,8 +438,11 @@ CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n )
  *
  * @param[in] dtyp
  *          Data type of the matrix:
+ *          @arg ChamInteger:       integer (i),
+ *          @arg ChamRealHalf:      half precision real (H),
  *          @arg ChamRealFloat:     single precision real (S),
  *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexHalf:   half precision complex (),
  *          @arg ChamComplexFloat:  single precision complex (C),
  *          @arg ChamComplexDouble: double precision complex (Z).
  *
