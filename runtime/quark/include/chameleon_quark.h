@@ -36,6 +36,16 @@ typedef struct quark_option_s {
     Quark *quark;
 } quark_option_t;
 
+static inline int cham_to_quark_access( cham_access_t accessA ) {
+    if ( accessA == ChamR ) {
+        return INPUT;
+    }
+    if ( accessA == ChamW ) {
+        return OUTPUT;
+    }
+    return INOUT;
+}
+
 /*
  * Access to block pointer and leading dimension
  */

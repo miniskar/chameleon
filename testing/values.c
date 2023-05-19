@@ -729,7 +729,11 @@ testing_salea()
 long
 testing_ialea()
 {
-    return random();
+    long r = random();
+#if defined(CHAMELEON_USE_MPI)
+    MPI_Bcast( &r, 1, MPI_LONG, 0, MPI_COMM_WORLD );
+#endif
+    return r;
 }
 
 /**

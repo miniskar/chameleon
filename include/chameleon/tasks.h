@@ -97,7 +97,7 @@ typedef int (*cham_unary_operator_t)( const CHAM_desc_t *desc,
                                       CHAM_tile_t *data, void *op_args );
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
-                      cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
+                      cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
                       cham_unary_operator_t op_fct, void *op_args );
 
 #include "chameleon/tasks_z.h"

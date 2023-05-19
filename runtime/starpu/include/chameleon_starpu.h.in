@@ -111,6 +111,13 @@ typedef struct starpu_option_request_s {
 
 /**/
 
+static inline int cham_to_starpu_access( cham_access_t accessA ) {
+    assert( ChamR  == STARPU_R  );
+    assert( ChamW  == STARPU_W  );
+    assert( ChamRW == STARPU_RW );
+    return accessA;
+}
+
 /*
  * MPI Redefinitions
  */

@@ -42,6 +42,16 @@ chameleon_parsec_get_arena_index(const CHAM_desc_t *desc) {
     return ((chameleon_parsec_desc_t *)desc->schedopt)->arena_index;
 }
 
+static inline int cham_to_parsec_access( cham_access_t accessA ) {
+    if ( accessA == ChamR ) {
+        return INPUT;
+    }
+    if ( accessA == ChamW ) {
+        return OUTPUT;
+    }
+    return INOUT;
+}
+
 /*
  * Access to block pointer and leading dimension
  */

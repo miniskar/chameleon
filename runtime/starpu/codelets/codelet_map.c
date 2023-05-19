@@ -43,7 +43,7 @@ static void cl_map_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(map, cl_map_cpu_func)
 
 void INSERT_TASK_map( const RUNTIME_option_t *options,
-                      cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
+                      cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
                       cham_unary_operator_t op_fct, void *op_args )
 {
 
@@ -60,7 +60,7 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         STARPU_VALUE,    &uplo,                   sizeof(cham_uplo_t),
         STARPU_VALUE,    &Am,                     sizeof(int),
         STARPU_VALUE,    &An,                     sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, void, Am, An),
+        cham_to_starpu_access(accessA), RTBLKADDR(A, void, Am, An),
         STARPU_VALUE,    &op_fct,                 sizeof(cham_unary_operator_t),
         STARPU_VALUE,    &op_args,                sizeof(void*),
         STARPU_PRIORITY,  options->priority,

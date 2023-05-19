@@ -27,7 +27,16 @@
  *
  *******************************************************************************
  *
- * @param[in,out] uplo
+ * @param[in] access
+ *          - ChamR: A is accessed in read-only mode.
+ *          - ChamW: A is accessed in write-only mode.
+ *           WARNING: if the descriptor is set for allocation on the fly, the
+ *           flush call included in this synchronous API will free all allocated
+ *           data, prefer asynchronous call if you want to initialiaze data
+ *           before submitting another algorithm.
+ *          - ChamRW: A is accessed in read-write mode.
+ *
+ * @param[in] uplo
  *          - ChamUpper: Only the upper triangular part of the matrix is touched
  *          - ChamLower: Only the lower triangular part of the matrix is touched
  *          - ChamUpperLower: The entire the matrix is touched
@@ -51,7 +60,8 @@
  * @sa CHAMELEON_map_Tile_Async
  *
  */
-int CHAMELEON_map_Tile( cham_uplo_t           uplo,
+int CHAMELEON_map_Tile( cham_access_t         access,
+                        cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
                         cham_unary_operator_t op_fct,
                         void                 *op_args )
@@ -68,7 +78,7 @@ int CHAMELEON_map_Tile( cham_uplo_t           uplo,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_map_Tile_Async( uplo, A, op_fct, op_args, sequence, &request );
+    CHAMELEON_map_Tile_Async( access, uplo, A, op_fct, op_args, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
 
@@ -89,6 +99,13 @@ int CHAMELEON_map_Tile( cham_uplo_t           uplo,
  *
  *******************************************************************************
  *
+ * @param[in] access
+ *          - ChamR: A is accessed in read-only mode.
+ *          - ChamW: A is accessed in write-only mode.
+ *          INFO: tile of A can be unallocated before the call if the
+ *          descriptor is set for allocation on the fly.
+ *          - ChamRW: A is accessed in read-write mode.
+ *
  * @param[in] sequence
  *          Identifies the sequence of function calls that this call belongs to
  *          (for completion checks and exception handling purposes).
@@ -105,7 +122,8 @@ int CHAMELEON_map_Tile( cham_uplo_t           uplo,
  * @sa CHAMELEON_map_Tile
  *
  */
-int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
+int CHAMELEON_map_Tile_Async( cham_access_t         access,
+                              cham_uplo_t           uplo,
                               CHAM_desc_t          *A,
                               cham_unary_operator_t op_fct,
                               void                 *op_args,
@@ -146,7 +164,7 @@ int CHAMELEON_map_Tile_Async( cham_uplo_t           uplo,
         return CHAMELEON_SUCCESS;
     }
 
-    chameleon_pmap( uplo, A, op_fct, op_args, sequence, request );
+    chameleon_pmap( access, uplo, A, op_fct, op_args, sequence, request );
 
     return CHAMELEON_SUCCESS;
 }
