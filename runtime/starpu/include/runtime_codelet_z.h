@@ -90,6 +90,10 @@ CODELETS_HEADER(zunmqr);
  * Auxiliary functions
  */
 CODELETS_HEADER(zgeadd);
+#if defined(PRECISION_z) || defined(PRECISION_d)
+CODELETS_HEADER(zgered);
+#endif
+CODELETS_HEADER(zhessq);
 CODELETS_HEADER(zhe2ge);
 CODELETS_HEADER(zlascal);
 CODELETS_HEADER(ztradd);

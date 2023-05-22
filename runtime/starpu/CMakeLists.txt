@@ -243,6 +243,7 @@ set(ZSRC
   codelets/codelet_zcallback.c
   codelets/codelet_zccallback.c
   codelets/codelet_dlag2h.c
+  codelets/codelet_zgerst.c
   ${CODELETS_ZSRC}
   )
 

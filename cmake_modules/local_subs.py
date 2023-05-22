@@ -11,7 +11,7 @@
  @author Florent Pruvost
  @author Nathalie Furmento
  @author Alycia Lisito
- @date 2023-07-04
+ @date 2023-07-06
 
 """
 _extra_blas = [
@@ -48,6 +48,7 @@ _extra_blas = [
     ('',                     'sgesum',               'dgesum',               'cgesum',               'zgesum'              ),
     ('',                     'sgersum',              'dgersum',              'cgersum',              'zgersum'             ),
     ('',                     'sprint',               'dprint',               'cprint',               'zprint'              ),
+    ('',                     'sgered',               'dgered',               'cgered',               'zgered'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]
@@ -114,6 +115,7 @@ subs = {
         ('CHAMELEON_p',          'CHAMELEON_s',          'CHAMELEON_d',          'CHAMELEON_c',          'CHAMELEON_z'         ),
         ('RUNTIME_P',            'RUNTIME_s',            'RUNTIME_d',            'RUNTIME_c',            'RUNTIME_z'           ),
         ('chameleon_p',          'chameleon_s',          'chameleon_d',          'chameleon_c',          'chameleon_z'         ),
+        ('codelet_p',            'codelet_ds',           'codelet_ds',           'codelet_zc',          r'codelet_zc\b'          ),
         ('codelet_p',            'codelet_s',            'codelet_d',            'codelet_c',            'codelet_z'           ),
         ('runtime_p',            'runtime_s',            'runtime_d',            'runtime_c',            'runtime_z'           ),
         ('testing_p',            'testing_s',            'testing_d',            'testing_c',            'testing_z'           ),
