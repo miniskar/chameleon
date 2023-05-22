@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zsytrf_nopiv StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -21,7 +21,7 @@
  * @author Marc Sergent
  * @author Lucas Barros de Assis
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c
  *
  */
@@ -64,7 +64,7 @@ void INSERT_TASK_zsytrf_nopiv( const RUNTIME_option_t *options,
         codelet,
         STARPU_VALUE,    &uplo,                      sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         /* STARPU_SCRATCH,   options->ws_worker, */
         STARPU_PRIORITY,  options->priority,

@@ -157,8 +157,8 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
         &cl_zsyrk,
         /* Task codelet arguments */
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zsyrk_args_s),
-        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        accessC,       RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
+        accessC,       RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

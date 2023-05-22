@@ -11,12 +11,12 @@
  *
  * @brief Chameleon ztpqrt StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Lucas Barros de Assis
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> s d c
  *
  */
@@ -73,9 +73,9 @@ void INSERT_TASK_ztpqrt( const RUNTIME_option_t *options,
         STARPU_VALUE, &N,     sizeof(int),
         STARPU_VALUE, &L,     sizeof(int),
         STARPU_VALUE, &ib,    sizeof(int),
-        STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        STARPU_W,      RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
+        STARPU_RW,     RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_RW,     RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+        STARPU_W,      RTBLKADDR(T, ChamComplexDouble, Tm, Tn),
         /* Other options */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,

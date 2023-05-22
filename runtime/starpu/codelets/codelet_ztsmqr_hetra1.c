@@ -11,14 +11,14 @@
  *
  * @brief Chameleon ztsmqr_hetra1 StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Mathieu Faverge
  * @author Azzam Haidar
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -96,10 +96,10 @@ void INSERT_TASK_ztsmqr_hetra1( const RUNTIME_option_t *options,
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_VALUE,    &ldWORK,            sizeof(int),
-        STARPU_RW,        RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
-        STARPU_RW,        RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
-        STARPU_R,         RTBLKADDR(V, CHAMELEON_Complex64_t, Vm, Vn),
-        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
+        STARPU_RW,        RTBLKADDR(A1, ChamComplexDouble, A1m, A1n),
+        STARPU_RW,        RTBLKADDR(A2, ChamComplexDouble, A2m, A2n),
+        STARPU_R,         RTBLKADDR(V, ChamComplexDouble, Vm, Vn),
+        STARPU_R,         RTBLKADDR(T, ChamComplexDouble, Tm, Tn),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,

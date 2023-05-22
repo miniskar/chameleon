@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlange StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Julien Langou
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -70,9 +70,9 @@ void INSERT_TASK_zlange( const RUNTIME_option_t *options,
         STARPU_VALUE,    &norm,              sizeof(cham_normtype_t),
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
-        STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,        RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_SCRATCH,  options->ws_worker,
-        STARPU_W,        RTBLKADDR(B, double, Bm, Bn),
+        STARPU_W,        RTBLKADDR(B, ChamRealDouble, Bm, Bn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
@@ -121,8 +121,8 @@ void INSERT_TASK_zlange_max(const RUNTIME_option_t *options,
 
     rt_starpu_insert_task(
         codelet,
-        STARPU_R,        RTBLKADDR(A, double, Am, An),
-        STARPU_RW,       RTBLKADDR(B, double, Bm, Bn),
+        STARPU_R,        RTBLKADDR(A, ChamRealDouble, Am, An),
+        STARPU_RW,       RTBLKADDR(B, ChamRealDouble, Bm, Bn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
          STARPU_EXECUTE_ON_WORKER, options->workerid,

@@ -11,13 +11,13 @@
  *
  * @brief Chameleon zplssq StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.6.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -69,8 +69,8 @@ void INSERT_TASK_zplssq( const RUNTIME_option_t *options,
         STARPU_VALUE,    &storev,            sizeof(int),
         STARPU_VALUE,    &M,                 sizeof(int),
         STARPU_VALUE,    &N,                 sizeof(int),
-        STARPU_R,  RTBLKADDR( IN,  double, INm,  INn  ),
-        STARPU_RW, RTBLKADDR( OUT, double, OUTm, OUTn ),
+        STARPU_R,  RTBLKADDR( IN,  ChamRealDouble, INm,  INn  ),
+        STARPU_RW, RTBLKADDR( OUT, ChamRealDouble, OUTm, OUTn ),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
@@ -115,7 +115,7 @@ void INSERT_TASK_zplssq2( const RUNTIME_option_t *options, int N,
     rt_starpu_insert_task(
         codelet,
         STARPU_VALUE,    &N,                 sizeof(int),
-        STARPU_RW, RTBLKADDR(RESULT, double, RESULTm, RESULTn),
+        STARPU_RW, RTBLKADDR(RESULT, ChamRealDouble, RESULTm, RESULTn),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

@@ -11,9 +11,9 @@
  *
  * @brief Chameleon zgemv StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -109,11 +109,11 @@ void INSERT_TASK_zgemv( const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &alpha,             sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,         RTBLKADDR(X, CHAMELEON_Complex64_t, Xm, Xn),
+        STARPU_R,         RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R,         RTBLKADDR(X, ChamComplexDouble, Xm, Xn),
         STARPU_VALUE,    &incX,              sizeof(int),
         STARPU_VALUE,    &beta,              sizeof(CHAMELEON_Complex64_t),
-        accessY,          RTBLKADDR(Y, CHAMELEON_Complex64_t, Ym, Yn),
+        accessY,          RTBLKADDR(Y, ChamComplexDouble, Ym, Yn),
         STARPU_VALUE,    &incY,              sizeof(int),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,

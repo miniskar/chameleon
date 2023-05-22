@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlaset2 StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
@@ -21,7 +21,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -66,7 +66,7 @@ void INSERT_TASK_zlaset2(const RUNTIME_option_t *options,
         STARPU_VALUE,     &M,                        sizeof(int),
         STARPU_VALUE,     &N,                        sizeof(int),
         STARPU_VALUE, &alpha,         sizeof(CHAMELEON_Complex64_t),
-        STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_W,      RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

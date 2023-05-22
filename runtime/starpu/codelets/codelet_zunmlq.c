@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zunmlq StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
@@ -23,7 +23,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -118,9 +118,9 @@ void INSERT_TASK_zunmlq( const RUNTIME_option_t *options,
         STARPU_VALUE,    &n,                 sizeof(int),
         STARPU_VALUE,    &k,                 sizeof(int),
         STARPU_VALUE,    &ib,                sizeof(int),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R,         RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R,         RTBLKADDR(T, ChamComplexDouble, Tm, Tn),
+        STARPU_RW,        RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
         /* ib * nb */
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_VALUE,    &nb,                sizeof(int),

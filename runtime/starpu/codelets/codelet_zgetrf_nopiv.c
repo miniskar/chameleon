@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zgetrf_nopiv StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Omar Zenati
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
@@ -19,7 +19,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -75,7 +75,7 @@ void INSERT_TASK_zgetrf_nopiv(const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                         sizeof(int),
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
-        STARPU_RW,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,        RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_VALUE,    &iinfo,                     sizeof(int),
         STARPU_VALUE,    &(options->sequence),       sizeof(RUNTIME_sequence_t*),
         STARPU_VALUE,    &(options->request),        sizeof(RUNTIME_request_t*),

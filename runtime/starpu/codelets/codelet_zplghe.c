@@ -89,7 +89,7 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
         &cl_zplghe,
         /* Task codelet arguments */
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zplghe_args_s),
-        STARPU_W,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_W,      RTBLKADDR(A, ChamComplexDouble, Am, An),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

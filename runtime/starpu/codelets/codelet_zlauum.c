@@ -83,7 +83,7 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
         &cl_zlauum,
         /* Task codelet arguments */
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zlauum_args_s),
-        STARPU_RW,     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,     RTBLKADDR(A, ChamComplexDouble, Am, An),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

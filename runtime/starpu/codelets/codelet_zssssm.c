@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zssssm StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
@@ -22,7 +22,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -85,10 +85,10 @@ void INSERT_TASK_zssssm( const RUNTIME_option_t *options,
         STARPU_VALUE,    &n2,                        sizeof(int),
         STARPU_VALUE,     &k,                        sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
-        STARPU_RW,            RTBLKADDR(A1, CHAMELEON_Complex64_t, A1m, A1n),
-        STARPU_RW,            RTBLKADDR(A2, CHAMELEON_Complex64_t, A2m, A2n),
-        STARPU_R,             RTBLKADDR(L1, CHAMELEON_Complex64_t, L1m, L1n),
-        STARPU_R,             RTBLKADDR(L2, CHAMELEON_Complex64_t, L2m, L2n),
+        STARPU_RW,            RTBLKADDR(A1, ChamComplexDouble, A1m, A1n),
+        STARPU_RW,            RTBLKADDR(A2, ChamComplexDouble, A2m, A2n),
+        STARPU_R,             RTBLKADDR(L1, ChamComplexDouble, L1m, L1n),
+        STARPU_R,             RTBLKADDR(L2, ChamComplexDouble, L2m, L2n),
         STARPU_VALUE,          &IPIV,                      sizeof(int*),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,

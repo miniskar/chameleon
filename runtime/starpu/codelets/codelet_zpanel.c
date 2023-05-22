@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zpanel StarPU codelets
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment Codelets to perform panel factorization with partial pivoting
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -93,8 +93,8 @@ void INSERT_TASK_zgetrf_panel_nopiv_percol_diag( const RUNTIME_option_t *options
         STARPU_VALUE,             &m,                   sizeof(int),
         STARPU_VALUE,             &n,                   sizeof(int),
         STARPU_VALUE,             &k,                   sizeof(int),
-        STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_W,                 RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
+        STARPU_RW,                RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_W,                 RTBLKADDR(U, ChamComplexDouble, Um, Un),
         STARPU_VALUE,             &iinfo,               sizeof(int),
         STARPU_VALUE,             &(options->sequence), sizeof(RUNTIME_sequence_t*),
         STARPU_VALUE,             &(options->request),  sizeof(RUNTIME_request_t*),
@@ -165,8 +165,8 @@ void INSERT_TASK_zgetrf_panel_nopiv_percol_trsm( const RUNTIME_option_t *options
         STARPU_VALUE,             &m, sizeof(int),
         STARPU_VALUE,             &n, sizeof(int),
         STARPU_VALUE,             &k, sizeof(int),
-        STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,                 RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
+        STARPU_RW,                RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R,                 RTBLKADDR(U, ChamComplexDouble, Um, Un),
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

@@ -9,9 +9,9 @@
  *
  * @brief Chameleon zcesca StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -96,12 +96,12 @@ void INSERT_TASK_zcesca( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         codelet,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zcesca_args_s),
-        STARPU_R,        RTBLKADDR(Gi, CHAMELEON_Complex64_t, Gim, Gin),
-        STARPU_R,        RTBLKADDR(Gj, CHAMELEON_Complex64_t, Gjm, Gjn),
-        STARPU_R,        RTBLKADDR(G, CHAMELEON_Complex64_t, Gm, Gn),
-        STARPU_R,        RTBLKADDR(Di, double, Dim, Din),
-        STARPU_R,        RTBLKADDR(Dj, double, Djm, Djn),
-        STARPU_RW,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,        RTBLKADDR(Gi, ChamComplexDouble, Gim, Gin),
+        STARPU_R,        RTBLKADDR(Gj, ChamComplexDouble, Gjm, Gjn),
+        STARPU_R,        RTBLKADDR(G, ChamComplexDouble, Gm, Gn),
+        STARPU_R,        RTBLKADDR(Di, ChamRealDouble, Dim, Din),
+        STARPU_R,        RTBLKADDR(Dj, ChamRealDouble, Djm, Djn),
+        STARPU_RW,       RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

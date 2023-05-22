@@ -11,14 +11,14 @@
  *
  * @brief Chameleon zgeadd StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -104,9 +104,9 @@ void INSERT_TASK_zgeadd( const RUNTIME_option_t *options,
         STARPU_VALUE,    &m,                  sizeof(int),
         STARPU_VALUE,    &n,                  sizeof(int),
         STARPU_VALUE,    &alpha,              sizeof(CHAMELEON_Complex64_t),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,         RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_VALUE,    &beta,               sizeof(CHAMELEON_Complex64_t),
-        accessB,          RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        accessB,          RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
