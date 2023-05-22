@@ -61,6 +61,8 @@ BEGIN_C_DECLS
 #include "gpucublas/gpucublas_d.h"
 #include "gpucublas/gpucublas_c.h"
 #include "gpucublas/gpucublas_s.h"
+#include "gpucublas/gpucublas_zc.h"
+#include "gpucublas/gpucublas_ds.h"
 
 int CUDA_hgemm( cham_trans_t transa, cham_trans_t transb,
                 int m, int n, int k,
