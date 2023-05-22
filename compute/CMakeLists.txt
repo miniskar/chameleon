@@ -193,8 +193,10 @@ set(ZSRC
     ##################
     pzlag2c.c
     pzgered.c
+    pzgerst.c
     ###
     zgered.c
+    zgerst.c
     #zcgels.c
     #zcgesv.c
     #zcposv.c

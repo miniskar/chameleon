@@ -79,6 +79,8 @@ int chameleon_zshift(CHAM_context_t *chamctxt, int m, int n, CHAMELEON_Complex64
 #if defined(PRECISION_z) || defined(PRECISION_d)
 void chameleon_pzgered( cham_uplo_t uplo, double prec, CHAM_desc_t *A,
                         RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+void chameleon_pzgerst( cham_uplo_t uplo, CHAM_desc_t *A,
+                        RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 #endif
 int chameleon_pzgebrd( int genD, cham_job_t jobu, cham_job_t jobvt,
                        CHAM_desc_t *A, CHAM_desc_t *T, CHAM_desc_t *D,

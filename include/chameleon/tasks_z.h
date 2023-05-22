@@ -81,6 +81,9 @@ void INSERT_TASK_zgeqrt( const RUNTIME_option_t *options,
 void INSERT_TASK_zgered( const RUNTIME_option_t *options,
                          double threshold, double Anorm, int m, int n,
                          const CHAM_desc_t *A, int Am, int An );
+void INSERT_TASK_zgerst( const RUNTIME_option_t *options,
+                         int m, int n,
+                         const CHAM_desc_t *A, int Am, int An );
 void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
                          int m, int n, int k, int ib, int nb,
                          int *IPIV,

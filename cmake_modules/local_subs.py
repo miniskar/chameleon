@@ -39,6 +39,7 @@ _extra_blas = [
     ('',                     'slatm1',               'dlatm1',               'slatm1',               'dlatm1'              ),
     ('',                     'sgenm2',               'dgenm2',               'cgenm2',               'zgenm2'              ),
     ('',                     'slag2c_fake',          'dlag2z_fake',          'slag2c',               'dlag2z'              ),
+    ('',                     'slag2d',               'slag2d',               'clag2z',               'clag2z'              ),
     ('',                     'slag2h',               'dlag2h',               'slag2h',               'dlag2h'              ),
     ('',                     'hlag2s',               'hlag2d',               'hlag2s',               'hlag2d'              ),
     ('',                     'slag2h',               'dlag2h',               'clag2x',               'zlag2x'              ),
@@ -49,6 +50,7 @@ _extra_blas = [
     ('',                     'sgersum',              'dgersum',              'cgersum',              'zgersum'             ),
     ('',                     'sprint',               'dprint',               'cprint',               'zprint'              ),
     ('',                     'sgered',               'dgered',               'cgered',               'zgered'              ),
+    ('',                     'sgerst',               'dgerst',               'cgerst',               'zgerst'              ),
 ]
 
 _extra_BLAS = [ [ x.upper() for x in row ] for row in _extra_blas ]
