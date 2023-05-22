@@ -134,4 +134,9 @@ CODELETS_HEADER(zsytrf_nopiv);
 #endif
 CODELETS_HEADER(zplgsy);
 
+#if defined(PRECISION_d) || defined(PRECISION_s)
+CODELETS_HEADER(dlag2h);
+CODELETS_HEADER(hlag2d);
+#endif
+
 #endif /* _runtime_codelet_z_h_ */

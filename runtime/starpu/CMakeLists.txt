@@ -17,7 +17,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
@@ -26,7 +26,7 @@
 #  @author Matthieu Kuhn
 #  @author Loris Lucido
 #  @author Terry Cojean
-#  @date 2023-01-30
+#  @date 2023-07-06
 #
 ###
 cmake_minimum_required(VERSION 3.1)
@@ -242,6 +242,7 @@ set(RUNTIME_SRCS_GENERATED "")
 set(ZSRC
   codelets/codelet_zcallback.c
   codelets/codelet_zccallback.c
+  codelets/codelet_dlag2h.c
   ${CODELETS_ZSRC}
   )
 
