@@ -11,14 +11,14 @@
  *
  * @brief Chameleon StarPU CHAMELEON_Complex64_t codelets header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Loris Lucido
- * @date 2023-01-30
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -32,14 +32,6 @@
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas/coreblas_z.h"
 #include "coreblas/coreblas_ztile.h"
-
-#if defined(CHAMELEON_USE_CUDA)
-#include "gpucublas.h"
-#endif
-
-#if defined(CHAMELEON_USE_HIP)
-#include "gpuhipblas.h"
-#endif
 
 #endif /* !defined(CHAMELEON_SIMULATION) */
 

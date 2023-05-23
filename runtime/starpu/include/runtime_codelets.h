@@ -11,13 +11,13 @@
  *
  * @brief Chameleon StarPU codelets main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Loris Lucido
- * @date 2023-01-30
+ * @date 2023-07-06
  *
  */
 #ifndef _runtime_codelets_h_
@@ -25,6 +25,16 @@
 
 #include "chameleon/config.h"
 #include "runtime_codelet_profile.h"
+
+#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_USE_CUDA)
+#include "gpucublas.h"
+#endif
+
+#if defined(CHAMELEON_USE_HIP)
+#include "gpuhipblas.h"
+#endif
+#endif /* !defined(CHAMELEON_SIMULATION) */
 
 #if defined(STARPU_CUDA_ASYNC)
 #define CODELET_CUDA_FLAGS(flags) .cuda_flags = {(flags)},
