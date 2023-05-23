@@ -17,12 +17,12 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Mathieu Faverge
 #  @author Loris Lucido
-#  @date 2023-01-30
+#  @date 2023-07-04
 #
 ###
 
@@ -47,6 +47,7 @@ precisions_rules_py(
 
 set(GPUHIPBLAS_SRCS
   ${GPUHIPBLAS_SRCS_GENERATED}
+  hip_hgemm.c
   hipglobal.c
   )
 

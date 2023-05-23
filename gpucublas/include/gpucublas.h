@@ -11,11 +11,11 @@
  *
  * @brief Chameleon GPU kernels main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
- * @date 2022-02-22
+ * @date 2023-07-04
  * @precisions normal z -> c d s
  *
  */
@@ -35,6 +35,9 @@
 
 #include <cuda.h>
 #include <cuComplex.h>
+#if CUDA_VERSION >= 7500
+#include <cuda_fp16.h>
+#endif
 
 #include <cublas_v2.h>
 
@@ -57,6 +60,15 @@ BEGIN_C_DECLS
 #include "gpucublas/gpucublas_d.h"
 #include "gpucublas/gpucublas_c.h"
 #include "gpucublas/gpucublas_s.h"
+
+int CUDA_hgemm( cham_trans_t transa, cham_trans_t transb,
+                int m, int n, int k,
+                const CHAMELEON_Real16_t *alpha,
+                const CHAMELEON_Real16_t *A, int lda,
+                const CHAMELEON_Real16_t *B, int ldb,
+                const CHAMELEON_Real16_t *beta,
+                CHAMELEON_Real16_t *C, int ldc,
+                cublasHandle_t handle );
 
 END_C_DECLS
 

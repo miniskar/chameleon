@@ -291,8 +291,12 @@ precisions_rules_py(
 
 set(GPUCUBLAS_SRCS
   ${GPUCUBLAS_SRCS_GENERATED}
+  cuda_hgemm.c
   cudaglobal.c
   )
+
+# Need to use CXX compiler to have the __half support and access to cublasHgemm()
+set_source_files_properties( cuda_hgemm.c PROPERTIES LANGUAGE CXX )
 
 # Force generation of sources
 # ---------------------------

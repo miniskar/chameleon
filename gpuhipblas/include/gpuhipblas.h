@@ -11,12 +11,12 @@
  *
  * @brief Chameleon GPU kernels main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Loris Lucido
- * @date 2023-01-30
+ * @date 2023-07-04
  * @precisions normal z -> c d s
  *
  */
@@ -36,6 +36,7 @@
 
 #include <hip/hip_runtime.h>
 #include <hip/hip_complex.h>
+#include <hip/hip_fp16.h>
 
 #include <hipblas/hipblas.h>
 
@@ -58,6 +59,15 @@ BEGIN_C_DECLS
 #include "gpuhipblas/gpuhipblas_d.h"
 #include "gpuhipblas/gpuhipblas_c.h"
 #include "gpuhipblas/gpuhipblas_s.h"
+
+int HIP_hgemm( cham_trans_t transa, cham_trans_t transb,
+               int m, int n, int k,
+               const CHAMELEON_Real16_t *alpha,
+               const CHAMELEON_Real16_t *A, int lda,
+               const CHAMELEON_Real16_t *B, int ldb,
+               const CHAMELEON_Real16_t *beta,
+               CHAMELEON_Real16_t *C, int ldc,
+               hipblasHandle_t handle );
 
 END_C_DECLS
 
