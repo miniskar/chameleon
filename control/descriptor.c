@@ -376,7 +376,8 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
         chameleon_error("chameleon_desc_check", "NULL matrix pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (desc->dtyp != ChamRealFloat &&
+    if (desc->dtyp != ChamInteger &&
+        desc->dtyp != ChamRealFloat &&
         desc->dtyp != ChamRealDouble &&
         desc->dtyp != ChamComplexFloat &&
         desc->dtyp != ChamComplexDouble  ) {
