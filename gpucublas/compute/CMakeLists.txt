@@ -292,6 +292,7 @@ precisions_rules_py(
 set(GPUCUBLAS_SRCS
   ${GPUCUBLAS_SRCS_GENERATED}
   cuda_hgemm.c
+  cuda_gemmex.c
   cudaglobal.c
   )
 
