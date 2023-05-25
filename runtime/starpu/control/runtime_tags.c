@@ -210,7 +210,7 @@ chameleon_starpu_tag_release( int64_t min )
  ******************************************************************************/
 void
 chameleon_starpu_tag_init( ) {
-    return CHAMELEON_SUCCESS;
+    return;
 }
 
 /**

@@ -384,14 +384,14 @@ if(NOT CHAMELEON_SIMULATION)
         find_package(CUDA REQUIRED)
 
         if (CUDA_FOUND)
+            if(CUDA_VERSION VERSION_LESS "4.0")
+                message(WARNING "Cuda version must be at least 4.0")
+            endif(CUDA_VERSION VERSION_LESS "4.0")
             message("-- ${Blue}Add definition CHAMELEON_USE_CUDA"
             " - Activate CUDA in Chameleon${ColourReset}")
             # create imported target because not provided with old cmake
             add_library(CUDA::CUDA INTERFACE IMPORTED)
             add_library(CUDA::CUBLAS INTERFACE IMPORTED)
-            if(CUDA_VERSION VERSION_LESS "3.0")
-                set(CUDA_HOST_COMPILATION_CPP OFF)
-            endif(CUDA_VERSION VERSION_LESS "3.0")
             set(CUDA_BUILD_EMULATION OFF)
             if (CUDA_INCLUDE_DIRS)
                 set_target_properties(CUDA::CUDA PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CUDA_INCLUDE_DIRS}")

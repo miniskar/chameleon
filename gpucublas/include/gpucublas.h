@@ -36,7 +36,6 @@
 #include <cuda.h>
 #include <cuComplex.h>
 
-#include <cublas.h>
 #include <cublas_v2.h>
 
 #define CUBLAS_SADDR(_a_) (&(_a_))
