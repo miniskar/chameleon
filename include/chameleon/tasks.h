@@ -107,6 +107,13 @@ void INSERT_TASK_gemm( const RUNTIME_option_t *options,
                        const CHAM_desc_t *B, int Bm, int Bn,
                        double beta, const CHAM_desc_t *C, int Cm, int Cn );
 
+void INSERT_TASK_gemmex( const RUNTIME_option_t *options,
+                         cham_trans_t transA, cham_trans_t transB,
+                         int m, int n, int k, int nb,
+                         double alpha, const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn,
+                         double beta, const CHAM_desc_t *C, int Cm, int Cn );
+
 void INSERT_TASK_hgemm( const RUNTIME_option_t *options,
                         cham_trans_t transA, cham_trans_t transB,
                         int m, int n, int k, int nb,

@@ -152,6 +152,7 @@
 
 CODELETS_HEADER(map);
 CODELETS_HEADER(hgemm);
+CODELETS_HEADER(gemmex);
 
 struct cl_hgemm_args_s {
     cham_trans_t transA;
