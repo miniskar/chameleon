@@ -250,6 +250,11 @@ precisions_rules_py(RUNTIME_SRCS_GENERATED "${ZSRC}"
   PRECISIONS "${CHAMELEON_PRECISION}"
   TARGETDIR "codelets")
 
+set(CODELETS_SRC
+  codelets/codelet_convert.c
+  ${CODELETS_SRC}
+  )
+
 set(RUNTIME_SRCS
   ${RUNTIME_COMMON}
   ${RUNTIME_SRCS_GENERATED}

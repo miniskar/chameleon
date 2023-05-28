@@ -152,4 +152,12 @@
 
 CODELETS_HEADER(map);
 
+void
+insert_task_convert( const RUNTIME_option_t *options,
+                     int m, int n,
+                     cham_flttype_t       fromtype,
+                     starpu_data_handle_t fromtile,
+                     cham_flttype_t       totype,
+                     starpu_data_handle_t totile );
+
 #endif /* _runtime_codelets_h_ */
