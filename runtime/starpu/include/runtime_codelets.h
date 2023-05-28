@@ -151,6 +151,17 @@
 #endif
 
 CODELETS_HEADER(map);
+CODELETS_HEADER(hgemm);
+
+struct cl_hgemm_args_s {
+    cham_trans_t transA;
+    cham_trans_t transB;
+    int m;
+    int n;
+    int k;
+    CHAMELEON_Real16_t alpha;
+    CHAMELEON_Real16_t beta;
+};
 
 void
 insert_task_convert( const RUNTIME_option_t *options,
