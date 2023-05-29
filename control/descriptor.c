@@ -91,6 +91,7 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
 void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
 {
     CHAM_tile_t *tile;
+    int8_t flttype = cham_get_flttype( desc->dtyp );
     int ii, jj;
 
     assert( rankof != chameleon_getrankof_tile );
@@ -101,7 +102,7 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
         for( ii=0; ii<desc->lmt; ii++, tile++ ) {
             int rank = rankof( desc, ii, jj );
             tile->format  = CHAMELEON_TILE_FULLRANK;
-            tile->flttype = (int8_t)(desc->dtyp);
+            tile->flttype = flttype;
             tile->rank    = rank;
             tile->m       = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
             tile->n       = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
@@ -368,6 +369,8 @@ void chameleon_desc_destroy( CHAM_desc_t *desc )
  */
 int chameleon_desc_check(const CHAM_desc_t *desc)
 {
+    cham_flttype_t flttype;
+
     if (desc == NULL) {
         chameleon_error("chameleon_desc_check", "NULL descriptor");
         return CHAMELEON_ERR_NOT_INITIALIZED;
@@ -376,13 +379,15 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
         chameleon_error("chameleon_desc_check", "NULL matrix pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if ( (desc->dtyp != ChamInteger       ) &&
-         (desc->dtyp != ChamRealHalf      ) &&
-         (desc->dtyp != ChamRealFloat     ) &&
-         (desc->dtyp != ChamRealDouble    ) &&
-         (desc->dtyp != ChamComplexHalf   ) &&
-         (desc->dtyp != ChamComplexFloat  ) &&
-         (desc->dtyp != ChamComplexDouble ) )
+
+    flttype = cham_get_flttype( desc->dtyp );
+    if ( (flttype != ChamInteger       ) &&
+         (flttype != ChamRealHalf      ) &&
+         (flttype != ChamRealFloat     ) &&
+         (flttype != ChamRealDouble    ) &&
+         (flttype != ChamComplexHalf   ) &&
+         (flttype != ChamComplexFloat  ) &&
+         (flttype != ChamComplexDouble ) )
     {
         chameleon_error("chameleon_desc_check", "invalid matrix type");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
