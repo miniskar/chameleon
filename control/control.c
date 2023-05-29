@@ -11,7 +11,7 @@
  *
  * @brief Chameleon control routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -20,7 +20,7 @@
  * @author Samuel Thibault
  * @author Philippe Swartvagher
  * @author Loris Lucido
- * @date 2023-01-30
+ * @date 2023-07-04
  *
  ***
  *
@@ -123,6 +123,7 @@ int __chameleon_initpar(int ncpus, int ngpus, int nthreads_per_worker)
     }
 #endif
 
+    chamctxt->ncudas = ngpus;
     return RUNTIME_init( chamctxt, ncpus, ngpus, nthreads_per_worker );
 }
 

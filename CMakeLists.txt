@@ -17,7 +17,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
@@ -30,7 +30,7 @@
 #  @author Alycia Lisito
 #  @author Loris Lucido
 #  @author Nathan Précigout
-#  @date 2023-01-30
+#  @date 2023-07-04
 #
 ###
 cmake_minimum_required(VERSION 3.3)
