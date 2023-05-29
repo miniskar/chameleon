@@ -139,4 +139,14 @@ CODELETS_HEADER(dlag2h);
 CODELETS_HEADER(hlag2d);
 #endif
 
+struct cl_zgemm_args_s {
+    cham_trans_t transA;
+    cham_trans_t transB;
+    int m;
+    int n;
+    int k;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t beta;
+};
+
 #endif /* _runtime_codelet_z_h_ */

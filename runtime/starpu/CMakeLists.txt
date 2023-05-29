@@ -253,6 +253,7 @@ precisions_rules_py(RUNTIME_SRCS_GENERATED "${ZSRC}"
 set(CODELETS_SRC
   codelets/codelet_convert.c
   codelets/codelet_hgemm.c
+  codelets/codelet_gemm.c
   ${CODELETS_SRC}
   )
 

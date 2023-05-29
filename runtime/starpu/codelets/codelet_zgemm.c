@@ -31,16 +31,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-struct cl_zgemm_args_s {
-    cham_trans_t transA;
-    cham_trans_t transB;
-    int m;
-    int n;
-    int k;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t beta;
-};
-
 #if !defined(CHAMELEON_SIMULATION)
 static void
 cl_zgemm_cpu_func( void *descr[], void *cl_arg )
