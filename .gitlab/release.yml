@@ -2,7 +2,7 @@
 release:
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^release-.*$/ && $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]\.[0-9]\.[0-9]$/ && $CI_PIPELINE_SOURCE != "schedule"
   dependencies: []
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
