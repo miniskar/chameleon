@@ -11,14 +11,14 @@
  *
  * @brief Chameleon zgemm wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -154,8 +154,12 @@ void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)
         sizeB = ((double)B->m * (double)B->n) / (double)(B->p * B->q);
         sizeC = ((double)C->m * (double)C->n) / (double)(C->p * C->q) * ratio;
 
-        if ( (sizeC > sizeA) && (sizeC > sizeB) ) {
-            options->alg = ChamGemmAlgSummaC;
+        options->alg = ChamGemmAlgGeneric;
+        if ( (sizeC > sizeA) && (sizeC > sizeB) )
+        {
+            if ( C->get_rankof_init == chameleon_getrankof_2d ) {
+                options->alg = ChamGemmAlgSummaC;
+            }
         }
         else {
             if ( sizeA > sizeB ) {
@@ -170,8 +174,7 @@ void *CHAMELEON_zgemm_WS_Alloc( cham_trans_t       transA __attribute__((unused)
     assert( options->alg != ChamGemmAlgAuto );
 
     /* Now that we have decided which algorithm, let's allocate the required data structures. */
-    if ( (options->alg == ChamGemmAlgSummaC ) &&
-         (C->get_rankof_init == chameleon_getrankof_2d ) )
+    if ( options->alg == ChamGemmAlgSummaC )
     {
         int lookahead = chamctxt->lookahead;
 
