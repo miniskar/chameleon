@@ -254,6 +254,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     }
         break;
 
+        /* WARNING: A must be fully initialized and not just the correct triangular part */
 #if defined(PRECISION_z) || defined(PRECISION_c)
     case ChamHermitian:
         Anorm = CHAMELEON_zlanhe_Tile( ChamOneNorm, uplo, descA );
