@@ -9,12 +9,12 @@
  *
  * @brief Chameleon ztradd testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Philippe Swartvagher
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -135,7 +135,7 @@ testing_ztradd_desc( run_arg_list_t *args, int check )
 
     /* Checks the solution */
     if ( check ) {
-        CHAM_desc_t *descB0 = CHAMELEON_Desc_Copy( descB, NULL );
+        CHAM_desc_t *descB0 = CHAMELEON_Desc_Copy( descB, CHAMELEON_MAT_ALLOC_TILE );
 
         if ( uplo == ChamUpperLower ) {
             CHAMELEON_zplrnt_Tile( descB0, seedB );

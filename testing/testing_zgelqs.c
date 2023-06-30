@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zgelqs testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -89,8 +89,8 @@ testing_zgelqs_desc( run_arg_list_t *args, int check )
 
     /* Checks the factorisation, orthogonality and residue */
     if ( check ) {
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
+        CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, CHAMELEON_MAT_ALLOC_TILE );
         CHAM_desc_t *subX   = chameleon_desc_submatrix( descX, 0, 0, N, NRHS );
         CHAM_desc_t *subB   = chameleon_desc_submatrix( descB, 0, 0, M, NRHS );
 

@@ -9,13 +9,13 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2023-01-05
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -62,7 +62,7 @@ int check_zortho( run_arg_list_t *args, CHAM_desc_t *descQ )
     CHAM_desc_t *descI, *subI;
 
     /* Builds the identity */
-    descI = CHAMELEON_Desc_Copy( descQ, NULL );
+    descI = CHAMELEON_Desc_Copy( descQ, CHAMELEON_MAT_ALLOC_TILE );
     subI = chameleon_desc_submatrix( descI, 0, 0, minMN, minMN );
     CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 1., subI );
 
@@ -182,7 +182,7 @@ int check_zgelqf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     assert( descA->n == N );
     assert( descA->m == descAF->m );
 
-    descL = CHAMELEON_Desc_Copy( descA, NULL );
+    descL = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
 
     if ( full_lq ) {
         /*
@@ -353,7 +353,7 @@ int check_zgeqrf( run_arg_list_t *args, CHAM_desc_t *descA, CHAM_desc_t *descAF,
     assert( descA->m == M );
     assert( descA->n == descAF->n );
 
-    descR = CHAMELEON_Desc_Copy( descA, NULL );
+    descR = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
 
     if ( full_qr ) {
         /*

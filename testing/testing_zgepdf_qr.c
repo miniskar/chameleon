@@ -10,11 +10,11 @@
  *
  * @brief Chameleon zgepdf_qr testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Hatem Ltaief
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -154,7 +154,7 @@ testing_zgepdf_qr_desc( run_arg_list_t *args, int check )
     /* Checks the solution */
     if ( check ) {
         CHAM_desc_t *descA01, *descA02;
-        descA01 = CHAMELEON_Desc_Copy( descA1, NULL );
+        descA01 = CHAMELEON_Desc_Copy( descA1, CHAMELEON_MAT_ALLOC_TILE );
         descA02 = descA2; /* A2 is useless now */
 
         CHAMELEON_zplrnt_Tile( descA01, seedA );

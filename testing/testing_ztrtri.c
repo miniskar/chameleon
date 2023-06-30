@@ -9,12 +9,12 @@
  *
  * @brief Chameleon ztrtri testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -71,7 +71,7 @@ testing_ztrtri_desc( run_arg_list_t *args, int check )
 
     /* Checks the inverse */
     if ( check ) {
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
 
         hres += check_ztrtri( args, ChamTriangular, uplo, diag, descA0, descA );
