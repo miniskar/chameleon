@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zposv testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -91,13 +91,13 @@ testing_zposv_desc( run_arg_list_t *args, int check )
         CHAM_desc_t *descA0, *descB;
 
         /* Check the factorization */
-        descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
+        descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
+        CHAMELEON_zplghe_Tile( (double)N, ChamUpperLower, descA0, seedA );
 
         hres += check_zxxtrf( args, ChamHermitian, uplo, descA0, descA );
 
         /* Check the solve */
-        descB = CHAMELEON_Desc_Copy( descX, NULL );
+        descB = CHAMELEON_Desc_Copy( descX, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );

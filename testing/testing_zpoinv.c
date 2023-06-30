@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zpoinv testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-14
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -79,7 +79,7 @@ testing_zpoinv_desc( run_arg_list_t *args, int check )
 
     /* Check the inverse */
     if ( check ) {
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
 
         hres += check_ztrtri( args, ChamHermitian, uplo, ChamNonUnit, descA0, descA );

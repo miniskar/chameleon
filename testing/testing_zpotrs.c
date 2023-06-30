@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zpotrs testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -85,8 +85,8 @@ testing_zpotrs_desc( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
+        CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, CHAMELEON_MAT_ALLOC_TILE );
 
         CHAMELEON_zplghe_Tile( (double)N, uplo, descA0, seedA );
         CHAMELEON_zplrnt_Tile( descB, seedB );
@@ -173,7 +173,7 @@ testing_zpotrs_std( run_arg_list_t *args, int check )
         CHAMELEON_Complex64_t *A0 = malloc( LDA*N*   sizeof(CHAMELEON_Complex64_t) );
         CHAMELEON_Complex64_t *B  = malloc( LDB*NRHS*sizeof(CHAMELEON_Complex64_t) );
 
-        CHAMELEON_zplghe( (double)N, uplo, N, A0, LDA, seedA );
+        CHAMELEON_zplghe( (double)N, ChamUpperLower, N, A0, LDA, seedA );
         CHAMELEON_zplrnt( N, NRHS, B, LDB, seedB );
 
         hres += check_zsolve_std( args, ChamHermitian, ChamNoTrans, uplo, N, NRHS, A0, LDA, X, B, LDB );
