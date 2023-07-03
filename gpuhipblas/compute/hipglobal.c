@@ -14,6 +14,7 @@
  * @version 1.2.0
  * @author Mathieu Faverge
  * @author Loris Lucido
+ * @author Florent Pruvost
  * @date 2023-01-30
  *
  */

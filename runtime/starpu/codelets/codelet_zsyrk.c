@@ -21,6 +21,7 @@
  * @author Florent Pruvost
  * @author Gwenole Lucas
  * @author Terry Cojean
+ * @author Loris Lucido
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

@@ -14,6 +14,7 @@
  * @version 1.2.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
+ * @author Loris Lucido
  * @date 2022-02-22
  * @precisions normal z -> c
  *

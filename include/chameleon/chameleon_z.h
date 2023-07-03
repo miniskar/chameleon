@@ -22,6 +22,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Alycia Lisito
+ * @author Matthieu Kuhn
  * @date 2022-02-22
  * @precisions normal z -> c d s
  *

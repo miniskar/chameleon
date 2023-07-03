@@ -8,6 +8,7 @@
  * @version 1.2.0
  * @author Pierre Ramet
  * @author Mathieu Faverge
+ * @author Florent Pruvost
  * @date 2021-10-04
  *
  * Functions to manage the MPI data tags with StarPU (originated from PaStiX).

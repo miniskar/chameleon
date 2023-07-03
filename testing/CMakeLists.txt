@@ -24,6 +24,7 @@
 #  @author Lucas Barros de Assis
 #  @author Florent Pruvost
 #  @author Alycia Lisito
+#  @author Matthieu Kuhn
 #  @date 2022-02-22
 #
 ###

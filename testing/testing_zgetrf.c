@@ -13,6 +13,7 @@
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
+ * @author Matthieu Kuhn
  * @date 2023-02-21
  * @precisions normal z -> c d s
  *

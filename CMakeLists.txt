@@ -29,6 +29,7 @@
 #  @author Guillaume Sylvand
 #  @author Alycia Lisito
 #  @author Loris Lucido
+#  @author Nathan Précigout
 #  @date 2023-01-30
 #
 ###

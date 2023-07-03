@@ -7,6 +7,7 @@
 #
 #  @version 1.2.0
 #  @author Mathieu Faverge
+#  @author Florent Pruvost
 #  @date 2022-02-09
 #
 ###

@@ -26,6 +26,7 @@
 #  @author Raphael Boucherie
 #  @author Alycia Lisito
 #  @author Loris Lucido
+#  @author Matthieu Kuhn
 #  @date 2023-01-30
 #
 ###

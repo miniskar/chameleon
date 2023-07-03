@@ -23,6 +23,7 @@
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
+#  @author Matthieu Kuhn
 #  @date 2023-02-21
 #
 ###

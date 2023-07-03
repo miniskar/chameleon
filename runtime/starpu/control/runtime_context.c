@@ -17,6 +17,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Terry Cojean
+ * @author Loris Lucido
  * @date 2022-02-22
  *
  */

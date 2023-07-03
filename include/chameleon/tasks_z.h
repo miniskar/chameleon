@@ -23,6 +23,7 @@
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Romain Peressoni
+ * @author Matthieu Kuhn
  * @date 2023-02-21
  * @precisions normal z -> c d s
  *
