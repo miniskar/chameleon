@@ -1,3 +1,40 @@
+chameleon-1.2.0
+------------------------------------------------------------------------
+ - NEW: Add support for AMD GPUs throug hipcublas or hip-rocm kernels
+ - NEW: Add the parallel worker support through StarPU (only in potrf for now)
+ - NEW: Add support for H-Matrices computration through the HMat-OSS library
+ - api/lapack: add cblas/lapack interface routines for BLAS 3, and Cholesky family functions
+ - benchmarks: Fix NewMad weekly benchmarks
+ - ci: Allows for MR without tests though the notest- prefix
+ - compute/gemm: Add the commute flag when beta is 1.0 (StarPU only)
+ - compute/gemm: allows for simpler switch from generic gemm to summa, or A stationnary variants
+ - compute/map: Add the acces mode to the data used in map to enable read or write only modes
+ - compute/xxmm: Make sure the calls are always asynchronous even wehn workspaces are required by introducing new fuctions to create and destroy these workspaces outside the Async interface.
+ - compute/zhemm: Fix ChamConjTrans instead of ChamTrans
+ - compute: Add a plgtr funcion to initialize trapezoidal matrix with the std api
+ - compute: Add a xprint function to help with numerical issue debugging
+ - compute: Enable the use of descriptors of integer matrices.
+ - compute: Factorize QR/LQ steps calls to ease the propagation of fix to all QR/LQ/SVD algorithms.
+ - context: simplify the definition of the environment variables
+ - control: Restore MPI_THREAD_MULTIPLE removed by !282 as SERIALIZED seems to be insufficient to manage the datatypes
+ - control: make the descriptor helpers functions (rankof, dataof, ...) public
+ - control; Rename CHAMELEON_{KERNELPROFILE,PROFILING}_MODE to CHAMELEON_GENERATE_{STATS,TRACE}
+ - cuda: Fix CUDA_zparfb. The setting to 0 of the lower part of V when L>0 was incorrect
+ - cuda: Remove support of cublas v1 to fix compilation with cuda >=12
+ - documentation: various updates on the compilation and installation steps as well as on the new algorithms
+ - gitignore: add python and vscode lists
+ - pkgconfig: Update the .pc file generation
+ - runtime/starpu: Change the tag management system to reduce the number of tags used (Remove the CHAMELEON_user_tag_size() and RUNTIME_set_tag_sizes() functions)
+ - runtime/starpu: Do not attempt to shutdown StarPU if initialization failed
+ - runtime/starpu: Update SimGrid performance model to match 1.4 footprints calculation
+ - runtime/starpu: Upgrade StarPU support to 1.4
+ - testings: Fix flops computations of several testing_*
+ - testings: Large refactorization of the tests to check both standard and Asynchronous API. The standard API adds the possibility to evaluate MKL (or other BLAS library) perforamnce though the same set of tests.
+ - testings: allows for on demand to validate the checks.
+ - update submodules
+ - Fix many issues reported by coverity
+ - Fix many issues reported by sonarqube
+
 chameleon-1.1.0
 ------------------------------------------------------------------------
 - ci: Update the docker image to a local storage (!248)
