@@ -517,14 +517,18 @@
                             0, 0, N, N, 1, 1,
                             user_getaddr_arrayofpointers,
                             user_getblkldd_arrayofpointers,
-                            user_getrankof_zero);
+                            user_getrankof_zero, NULL);
      #+end_example
      Firsts arguments are the same than *CHAMELEON_Desc_Create* routine.
      Following arguments allows you to give pointer to functions that
      manage the access to tiles from the structure given as second
      argument.  Here for example, *matA* is an array containing
      addresses to tiles, see the function *allocate_tile_matrix*
-     defined in step3.h.  The three functions you have to
+     defined in step3.h. If you want the matrix to be allocate by
+     Chameleon, you can use the *CHAMELEON_MAT_ALLOC_GLOBAL*, or the
+     *CHAMELEON_MAT_ALLOC_TILE* variables to allocate repectively as a
+     single large allocation, or to allocate tile by tile as late as
+     possible. The three functions you have to
      define for *Desc_Create_User* are:
      * a function that returns address of tile $A(m,n)$, m and n
        standing for the indexes of the tile in the global matrix. Lets
@@ -533,8 +537,10 @@
        $A(m=1,n=0)$, $A(m=1,n=1)$
      * a function that returns the leading dimension of tile $A(m,*)$
      * a function that returns MPI rank of tile $A(m,n)$
+     * a pointer to a structure that these three functions can use to store
+       additional data.
 
-     Examples for these functions are vizible in step3.h.  Note that
+     Examples for these functions are visible in step3.h.  Note that
      the way we define these functions is related to the tile matrix
      format and to the data distribution considered.  This example
      should not be used with MPI since all tiles are affected to
@@ -680,7 +686,7 @@
                             GRID_P, GRID_Q,
                             chameleon_getaddr_ccrb,
                             chameleon_getblkldd_ccrb,
-                            chameleon_getrankof_2d);
+                            chameleon_getrankof_2d, NULL);
      #+end_example
      is equivalent to the following call
 
@@ -737,6 +743,71 @@
      opaque pointer is used to let the user give some extra data used
      by his function.  The last parameter is the pointer to the user's
      function.
+
+*** Using custom data distributions
+:PROPERTIES:
+:CUSTOM_ID: doc-using-custom-distributions
+:END:
+
+**** Interface
+     It is possible to provide custom data distributions to Chameleon, to go beyond the 2D block
+     cyclic distributions. A generic interface is provided with the functions
+     *chameleon_getrankof_custom_init*, *chameleon_getrankof_custom_destroy* and
+     *chameleon_getrankof_custom*, with the following signatures:
+
+     #+begin_src
+     int chameleon_getrankof_custom_init( custom_dist_t **custom_dist,
+                                          const char     *dist_file );
+
+     int chameleon_getrankof_custom_destroy( custom_dist_t **dist );
+
+     int chameleon_getrankof_custom( const CHAM_desc_t *desc, int m, int n );
+     #+end_src
+
+     The first function is used to read a custom distribution from an external file, whose name is
+     provided in the *dist_file* argument. The file format is described below. The second function
+     can be used to destroy the *custom_dist_t* pointer when it is no longer useful. The last
+     function should be used as the *get_rankof* argument to *CHAMELEON_Desc_Create_User*, together
+     with the custom distribution obtained from *chameleon_getrankof_custom_init*. The typical usage
+     is the following:
+
+     #+begin_src
+     custom_dist_t* custom_dist;
+     chameleon_getrankof_custom_init( &custom_dist, "filename" );
+     CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
+                                NB, NB, NB*NB, N, N,
+                                0, 0, N, N,
+                                CHAMELEON_Comm_size(), 1,
+                                chameleon_getaddr_ccrb,
+                                chameleon_getblkldd_ccrb,
+                                chameleon_getrankof_custom, custom_dist);
+     /* Use the descriptor */
+     CHAMELEON_Desc_Destroy(&descA);
+     chameleon_getrankof_custom_destroy(&custom_dist);
+     #+end_src
+
+     Since we do not use a 2D block-cyclic distribution, the values of
+     *P* and *Q* have no importance in
+     *CHAMELEON_Desc_Create_User*. However, make sure that the product
+     of *P* and *Q* is equal to the number of processes by using the
+     couple *(CHAMELEON_Comm_size(), 1)* as a replacement for *(P,
+     Q)*.
+
+**** File format
+
+     The custom distribution is provided by a pattern that can have any dimension, and which is
+     repeated all over the matrix. The file format expected by *chameleon_getrankof_custom_init* is
+     a simple text format, with space-separated integer values. The first two values represent the
+     size of the pattern (number of rows $m_d$ and number of columns $n_d$). Then, the function
+     expects $m_d * n_d$ values, where each value is the index of the process that should handle
+     this tile. For example, the following file content would result in a 2D block-cyclic
+     distribution with *P=2* and *Q=3* (it is not necessary to skip lines, but it can make the file
+     more readable):
+     #+begin_src
+     2 3
+     0 1 2
+     3 4 5
+     #+end_src
 
 *** List of available routines
 :PROPERTIES:
@@ -1009,7 +1080,8 @@
                                 int i, int j, int m, int n, int p, int q,
                                 void* (*get_blkaddr)( const CHAM_desc_t*, int, int),
                                 int (*get_blkldd)( const CHAM_desc_t*, int ),
-                                int (*get_rankof)( const CHAM_desc_t*, int, int ));
+                                int (*get_rankof)( const CHAM_desc_t*, int, int ),
+                                void* get_rankof_arg);
      #+end_src
 
      Create matrix descriptor for tiled matrix which may not fit
@@ -1023,7 +1095,8 @@
      #+begin_src
      int CHAMELEON_Desc_Create_OOC_User(CHAM_desc_t **descptr, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                     int lm, int ln, int i, int j, int m, int n, int p, int q,
-                                    int (*get_rankof)( const CHAM_desc_t*, int, int ));
+                                    int (*get_rankof)( const CHAM_desc_t*, int, int ),
+                                    void* get_rankof_arg);
      #+end_src
 
      Destroys matrix descriptor.
