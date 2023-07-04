@@ -11,7 +11,7 @@
  *
  * @brief Chameleon auxiliary routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Piotr Luszczek
  * @author Emmanuel Agullo
@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  ***
  *
@@ -187,13 +187,17 @@ int CHAMELEON_Version(int *ver_major, int *ver_minor, int *ver_micro)
  * @retval Element size in bytes
  *
  */
-int CHAMELEON_Element_Size(int type)
+int CHAMELEON_Element_Size( cham_flttype_t type )
 {
-    switch(type) {
+    switch( cham_get_flttype(type) ) {
         case ChamByte:          return          1;
-        case ChamInteger:       return   sizeof(int);
+        case ChamInteger16:     return   sizeof(int16_t);
+        case ChamInteger32:     return   sizeof(int32_t);
+        case ChamInteger64:     return   sizeof(int64_t);
+        case ChamRealHalf:      return   2;
         case ChamRealFloat:     return   sizeof(float);
         case ChamRealDouble:    return   sizeof(double);
+        case ChamComplexHalf:   return   4;
         case ChamComplexFloat:  return 2*sizeof(float);
         case ChamComplexDouble: return 2*sizeof(double);
         default: chameleon_fatal_error("CHAMELEON_Element_Size", "undefined type");

@@ -11,13 +11,13 @@
  *
  * @brief Chameleon main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  */
 #ifndef _chameleon_h_
@@ -120,7 +120,7 @@ int CHAMELEON_Lapack_to_Tile( void *Af77, int LDA, CHAM_desc_t *A ) __attribute_
 int CHAMELEON_Tile_to_Lapack( CHAM_desc_t *A, void *Af77, int LDA ) __attribute__((deprecated("Please refer to CHAMELEON_Desc2Lap() instead")));
 
 /* Descriptor */
-int CHAMELEON_Element_Size(int type);
+int CHAMELEON_Element_Size( cham_flttype_t type );
 
 int CHAMELEON_Desc_Create_User( CHAM_desc_t **desc, void *mat, cham_flttype_t dtyp, int mb, int nb, int bsiz,
                                 int lm, int ln, int i, int j, int m, int n, int p, int q,

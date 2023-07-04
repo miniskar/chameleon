@@ -11,12 +11,12 @@
  *
  * @brief Chameleon StarPU options routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  */
 #include "chameleon_starpu.h"
@@ -32,6 +32,7 @@ void RUNTIME_options_init( RUNTIME_option_t *options, CHAM_context_t *chamctxt,
     options->priority  = RUNTIME_PRIORITY_MIN;
     options->workerid  = (schedopt == NULL) ? -1 : schedopt->workerid;
     options->forcesub  = 0;
+    options->withcuda  = (chamctxt->ncudas > 0);
     options->ws_wsize  = 0;
     options->ws_hsize  = 0;
     options->ws_worker = NULL;

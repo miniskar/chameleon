@@ -11,7 +11,7 @@
  *
  * @brief Chameleon descriptor header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -19,7 +19,7 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  */
 #ifndef _chameleon_descriptor_h_
@@ -76,7 +76,7 @@ int          chameleon_desc_check    ( const CHAM_desc_t *desc );
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
  */
-inline static CHAM_tile_t *chameleon_desc_gettile(const CHAM_desc_t *A, int m, int n)
+inline static CHAM_tile_t *chameleon_desc_gettile(const CHAM_desc_t *A, int m, int n )
 {
     size_t mm = m + A->i / A->mb;
     size_t nn = n + A->j / A->nb;

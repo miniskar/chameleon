@@ -11,14 +11,14 @@
  *
  * @brief Chameleon basic datatypes header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Lucas Barros de Assis
  * @author Thomas Mijieux
- * @date 2022-02-22
+ * @date 2023-07-04
  *
  */
 #ifndef _chameleon_types_h_
@@ -103,6 +103,17 @@ typedef int8_t cham_bool_t;
     # include <complex.h>
     #endif
 #endif /* CHAMELEON_COMPLEX_CPP */
+
+/**
+ * Half precision on GPUs
+ */
+#if defined(__cplusplus)
+typedef __half CHAMELEON_Real16_t;
+#else
+/* use short for cuda older than 7.5 and non-cuda files
+ * corresponding routines would not work anyway since there is no half precision */
+typedef short  CHAMELEON_Real16_t;
+#endif
 
 /**
  *  CHAMELEON Deprecated attribute

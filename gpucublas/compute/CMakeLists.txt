@@ -17,13 +17,16 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Mathieu Faverge
-#  @date 2022-02-22
+#  @date 2023-07-04
 #
 ###
+
+# To define CMAKE_CUDA_COMPILER
+cmake_minimum_required(VERSION 3.18)
 
 # Generate the chameleon sources for all possible precisions
 # ------------------------------------------------------
@@ -53,6 +56,28 @@ set(ZSRC
     cuda_zunmqrt.c
     )
 
+# Add CUDA kernel if compiler and toolkit are available
+# -----------------------------------------------------
+include(CheckLanguage)
+check_language(CUDA)
+
+if(CMAKE_CUDA_COMPILER)
+  enable_language(CUDA)
+  find_package(CUDAToolkit)
+else()
+  message(STATUS "CUDA language is not supported")
+endif()
+
+if (CUDAToolkit_FOUND)
+  include(SetCMakeCudaArchitectures)
+
+  set(ZSRC
+    ${ZSRC}
+    cuda_zlag2c.cu
+    cuda_dlag2h.cu
+  )
+endif()
+
 # Former MAGMA files that are no longer supported
 # if( CHAMELEON_USE_MAGMA )
 #   set(ZSRC
@@ -77,8 +102,13 @@ precisions_rules_py(
 
 set(GPUCUBLAS_SRCS
   ${GPUCUBLAS_SRCS_GENERATED}
+  cuda_hgemm.c
+  cuda_gemmex.c
   cudaglobal.c
   )
+
+# Need to use CXX compiler to have the __half support and access to cublasHgemm()
+set_source_files_properties( cuda_hgemm.c PROPERTIES LANGUAGE CXX )
 
 # Force generation of sources
 # ---------------------------
@@ -101,6 +131,12 @@ set_property(TARGET gpucublas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}
 
 target_link_libraries(gpucublas PRIVATE coreblas CUDA::CUBLAS)
 target_link_libraries(gpucublas PUBLIC MORSE::M)
+
+set_target_properties(gpucublas PROPERTIES
+  CUDA_SEPARABLE_COMPILATION OFF)
+
+#target_include_directories( gpucublas PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+#target_link_libraries( gpucublas PRIVATE CUDA::cublas CUDA::cudart )
 
 # export target coreblas
 install(EXPORT gpucublasTargets

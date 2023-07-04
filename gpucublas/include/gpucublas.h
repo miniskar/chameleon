@@ -11,11 +11,11 @@
  *
  * @brief Chameleon GPU kernels main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
- * @date 2022-02-22
+ * @date 2023-07-04
  * @precisions normal z -> c d s
  *
  */
@@ -35,6 +35,9 @@
 
 #include <cuda.h>
 #include <cuComplex.h>
+#if CUDA_VERSION >= 7500
+#include <cuda_fp16.h>
+#endif
 
 #include <cublas_v2.h>
 
@@ -57,6 +60,54 @@ BEGIN_C_DECLS
 #include "gpucublas/gpucublas_d.h"
 #include "gpucublas/gpucublas_c.h"
 #include "gpucublas/gpucublas_s.h"
+
+int CUDA_hgemm( cham_trans_t transa, cham_trans_t transb,
+                int m, int n, int k,
+                const CHAMELEON_Real16_t *alpha,
+                const CHAMELEON_Real16_t *A, int lda,
+                const CHAMELEON_Real16_t *B, int ldb,
+                const CHAMELEON_Real16_t *beta,
+                CHAMELEON_Real16_t *C, int ldc,
+                cublasHandle_t handle );
+
+int CUDA_gemmex( cham_trans_t transa, cham_trans_t transb,
+                 int m, int n, int k,
+                 const void *alpha,
+                 const void *A, int lda, cham_flttype_t Atype,
+                 const void *B, int ldb, cham_flttype_t Btype,
+                 const void *beta,
+                 void *C, int ldc, cham_flttype_t Ctype,
+                 cublasHandle_t handle );
+
+static inline cublasComputeType_t
+chameleon_cublas_ctype( cham_flttype_t flttype ) {
+
+    switch ( flttype ) {
+    case ChamRealHalf      : return CUBLAS_COMPUTE_16F;
+    case ChamRealFloat     : return CUBLAS_COMPUTE_32F;
+    case ChamRealDouble    : return CUBLAS_COMPUTE_64F;
+    case ChamComplexFloat  : return CUBLAS_COMPUTE_32F;
+    case ChamComplexDouble : return CUBLAS_COMPUTE_64F;
+    default:
+        fprintf( stderr, "chameleon_cublas_ctype(): Incorrect flttype\n" );
+        exit(1);
+    }
+}
+
+static inline cudaDataType_t
+chameleon_cublas_dtype( cham_flttype_t flttype ) {
+
+    switch ( flttype ) {
+    case ChamRealHalf      : return CUDA_R_16F;
+    case ChamRealFloat     : return CUDA_R_32F;
+    case ChamRealDouble    : return CUDA_R_64F;
+    case ChamComplexFloat  : return CUDA_C_32F;
+    case ChamComplexDouble : return CUDA_C_64F;
+    default:
+        fprintf( stderr, "chameleon_cublas_dtype(): Incorrect flttype\n" );
+        exit(1);
+    }
+}
 
 END_C_DECLS
 

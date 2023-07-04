@@ -11,14 +11,14 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-12-13
+ * @date 2023-07-04
  *
  ***
  *
@@ -91,6 +91,7 @@ int chameleon_desc_mat_free( CHAM_desc_t *desc )
 void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
 {
     CHAM_tile_t *tile;
+    int8_t flttype = cham_get_flttype( desc->dtyp );
     int ii, jj;
 
     assert( rankof != chameleon_getrankof_tile );
@@ -101,7 +102,7 @@ void chameleon_desc_init_tiles( CHAM_desc_t *desc, blkrankof_fct_t rankof )
         for( ii=0; ii<desc->lmt; ii++, tile++ ) {
             int rank = rankof( desc, ii, jj );
             tile->format  = CHAMELEON_TILE_FULLRANK;
-            tile->flttype = (int8_t)(desc->dtyp);
+            tile->flttype = flttype;
             tile->rank    = rank;
             tile->m       = ii == desc->lmt-1 ? desc->lm - ii * desc->mb : desc->mb;
             tile->n       = jj == desc->lnt-1 ? desc->ln - jj * desc->nb : desc->nb;
@@ -368,6 +369,8 @@ void chameleon_desc_destroy( CHAM_desc_t *desc )
  */
 int chameleon_desc_check(const CHAM_desc_t *desc)
 {
+    cham_flttype_t flttype;
+
     if (desc == NULL) {
         chameleon_error("chameleon_desc_check", "NULL descriptor");
         return CHAMELEON_ERR_NOT_INITIALIZED;
@@ -376,11 +379,16 @@ int chameleon_desc_check(const CHAM_desc_t *desc)
         chameleon_error("chameleon_desc_check", "NULL matrix pointer");
         return CHAMELEON_ERR_UNALLOCATED;
     }
-    if (desc->dtyp != ChamInteger &&
-        desc->dtyp != ChamRealFloat &&
-        desc->dtyp != ChamRealDouble &&
-        desc->dtyp != ChamComplexFloat &&
-        desc->dtyp != ChamComplexDouble  ) {
+
+    flttype = cham_get_flttype( desc->dtyp );
+    if ( (flttype != ChamInteger       ) &&
+         (flttype != ChamRealHalf      ) &&
+         (flttype != ChamRealFloat     ) &&
+         (flttype != ChamRealDouble    ) &&
+         (flttype != ChamComplexHalf   ) &&
+         (flttype != ChamComplexFloat  ) &&
+         (flttype != ChamComplexDouble ) )
+    {
         chameleon_error("chameleon_desc_check", "invalid matrix type");
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
@@ -435,8 +443,11 @@ CHAMELEON_Desc_SubMatrix( CHAM_desc_t *descA, int i, int j, int m, int n )
  *
  * @param[in] dtyp
  *          Data type of the matrix:
+ *          @arg ChamInteger:       integer (i),
+ *          @arg ChamRealHalf:      half precision real (H),
  *          @arg ChamRealFloat:     single precision real (S),
  *          @arg ChamRealDouble:    double precision real (D),
+ *          @arg ChamComplexHalf:   half precision complex (),
  *          @arg ChamComplexFloat:  single precision complex (C),
  *          @arg ChamComplexDouble: double precision complex (Z).
  *
