@@ -11,7 +11,7 @@
  *
  * @brief Chameleon StarPU runtime header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
@@ -19,7 +19,7 @@
  * @author Samuel Thibault
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2023-01-30
+ * @date 2023-07-05
  *
  */
 #ifndef _chameleon_starpu_h_
@@ -110,9 +110,9 @@ typedef struct starpu_option_request_s {
 /**/
 
 static inline int cham_to_starpu_access( cham_access_t accessA ) {
-    assert( ChamR  == STARPU_R  );
-    assert( ChamW  == STARPU_W  );
-    assert( ChamRW == STARPU_RW );
+    assert( (enum starpu_data_access_mode)ChamR  == STARPU_R  );
+    assert( (enum starpu_data_access_mode)ChamW  == STARPU_W  );
+    assert( (enum starpu_data_access_mode)ChamRW == STARPU_RW );
     return accessA;
 }
 
