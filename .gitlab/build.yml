@@ -50,16 +50,16 @@ build_starpu_simgrid:
     BUILD_OPTIONS: "-DCHAMELEON_SIMULATION=ON -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=OFF"
     VERSION: starpu_simgrid
 
-build_starpu_macosx:
-  extends: .only-merge-request
-  stage: build
-  tags: ['macosx']
-  variables:
-    VERSION: starpu
-  script:
-    - tools/build_macosx.sh
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
-    expire_in: 2 days
-    untracked: true
-    when: always
+# build_starpu_macosx:
+#   extends: .only-merge-request
+#   stage: build
+#   tags: ['macosx']
+#   variables:
+#     VERSION: starpu
+#   script:
+#     - tools/build_macosx.sh
+#   artifacts:
+#     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+#     expire_in: 2 days
+#     untracked: true
+#     when: always

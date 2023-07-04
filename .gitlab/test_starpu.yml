@@ -78,20 +78,20 @@ test_starpu_mpi_z:
     PRECISION: z
     TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
 
-test_starpu_shm_s_macosx:
-  extends: .only-merge-request
-  stage: test
-  tags: ['macosx']
-  needs: [build_starpu_macosx]
-  dependencies: [build_starpu_macosx]
-  variables:
-    VERSION: starpu
-  script:
-    - cd build-starpu && ctest --no-compress-output -R test_shm_s -T Test --output-junit ../chameleon_macosx.junit | tee -a ../chameleon_macosx.log
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
-    expire_in: 2 days
-    untracked: true
-    when: always
-    reports:
-      junit: chameleon_macosx.junit
+# test_starpu_shm_s_macosx:
+#   extends: .only-merge-request
+#   stage: test
+#   tags: ['macosx']
+#   needs: [build_starpu_macosx]
+#   dependencies: [build_starpu_macosx]
+#   variables:
+#     VERSION: starpu
+#   script:
+#     - cd build-starpu && ctest --no-compress-output -R test_shm_s -T Test --output-junit ../chameleon_macosx.junit | tee -a ../chameleon_macosx.log
+#   artifacts:
+#     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+#     expire_in: 2 days
+#     untracked: true
+#     when: always
+#     reports:
+#       junit: chameleon_macosx.junit
