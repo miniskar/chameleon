@@ -17,7 +17,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
- * @date 2023-07-04
+ * @date 2023-07-05
  *
  */
 #ifndef _chameleon_h_
@@ -168,7 +168,7 @@ int  CHAMELEON_Set     (int param, int  value);
 int  CHAMELEON_Get     (int param, int *value);
 int  CHAMELEON_Set_update_progress_callback(void (*p)(int, int)) ;
 
-static inline void CHAMELEON_user_tag_size(int, int)  __attribute__((deprecated("This function is no longer needed")));;
+static inline void CHAMELEON_user_tag_size(int, int)  __attribute__((deprecated("This function is no longer needed")));
 static inline void CHAMELEON_user_tag_size(int user_tag_width, int user_tag_sep) {
     (void)user_tag_width;
     (void)user_tag_sep;
