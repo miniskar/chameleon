@@ -19,7 +19,7 @@
  * @author Samuel Thibault
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2023-07-05
+ * @date 2023-07-06
  *
  */
 #ifndef _chameleon_starpu_h_
@@ -119,12 +119,6 @@ static inline int cham_to_starpu_access( cham_access_t accessA ) {
 /*
  * MPI Redefinitions
  */
-#if defined(CHAMELEON_RUNTIME_SYNC)
-#define TASK_SYNCHRONOUS , STARPU_TASK_SYNCHRONOUS, 1
-#else
-#define TASK_SYNCHRONOUS
-#endif
-
 #if defined(CHAMELEON_USE_MPI)
 
 #if defined(CHAMELEON_RUNTIME_SYNC)
