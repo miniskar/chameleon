@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zhemm StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Loris Lucido
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c
  *
  */
@@ -33,10 +33,7 @@ struct cl_zhemm_args_s {
     int m;
     int n;
     CHAMELEON_Complex64_t alpha;
-    CHAM_tile_t *tileA;
-    CHAM_tile_t *tileB;
     CHAMELEON_Complex64_t beta;
-    CHAM_tile_t *tileC;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -164,10 +161,7 @@ void INSERT_TASK_zhemm_Astat( const RUNTIME_option_t *options,
         clargs->m     = m;
         clargs->n     = n;
         clargs->alpha = alpha;
-        clargs->tileA = A->get_blktile( A, Am, An );
-        clargs->tileB = B->get_blktile( B, Bm, Bn );
         clargs->beta  = beta;
-        clargs->tileC = C->get_blktile( C, Cm, Cn );
     }
 
     /* Callback for profiling information */
@@ -187,10 +181,12 @@ void INSERT_TASK_zhemm_Astat( const RUNTIME_option_t *options,
     }
 
 #if defined(CHAMELEON_KERNELS_TRACE)
-    if ( clargs != NULL )
     {
         char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name, clargs->tileC->name );
+        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name,
+                            A->get_blktile( A, Am, An )->name,
+                            B->get_blktile( B, Bm, Bn )->name,
+                            C->get_blktile( C, Cm, Cn )->name );
         cl_name = cl_fullname;
     }
 #endif
@@ -250,10 +246,7 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
         clargs->m     = m;
         clargs->n     = n;
         clargs->alpha = alpha;
-        clargs->tileA = A->get_blktile( A, Am, An );
-        clargs->tileB = B->get_blktile( B, Bm, Bn );
         clargs->beta  = beta;
-        clargs->tileC = C->get_blktile( C, Cm, Cn );
     }
 
     /* Callback for profiling information */
@@ -266,7 +259,7 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
     if ( clargs != NULL )
     {
         char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name, clargs->tileC->name );
+        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name, A->get_blktile( A, Am, An )->name, B->get_blktile( B, Bm, Bn )->name, C->get_blktile( C, Cm, Cn )->name );
         cl_name = cl_fullname;
     }
 #endif

@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlacpy StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -21,7 +21,7 @@
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -36,8 +36,6 @@ struct cl_zlacpy_args_s {
     int displB;
     int lda;
     int ldb;
-    CHAM_tile_t *tileA;
-    CHAM_tile_t *tileB;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -102,8 +100,6 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
         clargs->n      = n;
         clargs->displA = displA;
         clargs->displB = displB;
-        clargs->tileA  = A->get_blktile( A, Am, An );
-        clargs->tileB  = B->get_blktile( B, Bm, Bn );
         clargs->lda    = lda;
         clargs->ldb    = ldb;
     }
@@ -154,10 +150,8 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
         clargs->n      = n;
         clargs->displA = 0;
         clargs->displB = 0;
-        clargs->tileA  = A->get_blktile( A, Am, An );
-        clargs->tileB  = B->get_blktile( B, Bm, Bn );
-        clargs->lda    = clargs->tileA->ld;
-        clargs->ldb    = clargs->tileB->ld;
+        clargs->lda    = A->get_blktile( A, Am, An )->ld;
+        clargs->ldb    = B->get_blktile( B, Bm, Bn )->ld;
     }
 
     /* Callback fro profiling information */

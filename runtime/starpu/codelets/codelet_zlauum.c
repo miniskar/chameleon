@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zlauum StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -29,8 +29,7 @@
 
 struct cl_zlauum_args_s {
     cham_uplo_t uplo;
-    int n;
-    CHAM_tile_t *tileA;
+    int         n;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -70,7 +69,6 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
         clargs = malloc( sizeof( struct cl_zlauum_args_s ) );
         clargs->uplo  = uplo;
         clargs->n     = n;
-        clargs->tileA = A->get_blktile( A, Am, An );
     }
 
     /* Callback fro profiling information */
@@ -79,7 +77,7 @@ void INSERT_TASK_zlauum( const RUNTIME_option_t *options,
 #if defined(CHAMELEON_KERNELS_TRACE)
     {
         char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s )", cl_name, clargs->tileA->name );
+        chameleon_asprintf( &cl_fullname, "%s( %s )", cl_name, A->get_blktile( A, Am, An )->name );
         cl_name = cl_fullname;
     }
 #endif

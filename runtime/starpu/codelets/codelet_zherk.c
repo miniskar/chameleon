@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zherk StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Jakub Kurzak
  * @author Mathieu Faverge
@@ -21,7 +21,7 @@
  * @author Florent Pruvost
  * @author Gwenole Lucas
  * @author Loris Lucido
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c
  *
  */
@@ -34,9 +34,7 @@ struct cl_zherk_args_s {
     int n;
     int k;
     double alpha;
-    CHAM_tile_t *tileA;
     double beta;
-    CHAM_tile_t *tileC;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -140,9 +138,7 @@ void INSERT_TASK_zherk( const RUNTIME_option_t *options,
         clargs->n     = n;
         clargs->k     = k;
         clargs->alpha = alpha;
-        clargs->tileA = A->get_blktile( A, Am, An );
         clargs->beta  = beta;
-        clargs->tileC = C->get_blktile( C, Cm, Cn );
     }
 
     /* Callback fro profiling information */
@@ -152,10 +148,11 @@ void INSERT_TASK_zherk( const RUNTIME_option_t *options,
     accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
 #if defined(CHAMELEON_KERNELS_TRACE)
-    if ( clargs != NULL )
     {
         char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name, clargs->tileA->name, clargs->tileC->name );
+        chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name,
+                            A->get_blktile( A, Am, An )->name,
+                            C->get_blktile( C, Cm, Cn )->name );
         cl_name = cl_fullname;
     }
 #endif

@@ -11,12 +11,12 @@
  *
  * @brief Chameleon ztradd StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -29,9 +29,7 @@ struct cl_ztradd_args_s {
     int m;
     int n;
     CHAMELEON_Complex64_t alpha;
-    CHAM_tile_t *tileA;
     CHAMELEON_Complex64_t beta;
-    CHAM_tile_t *tileB;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -86,9 +84,7 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
         clargs->m     = m;
         clargs->n     = n;
         clargs->alpha = alpha;
-        clargs->tileA = A->get_blktile( A, Am, An );
         clargs->beta  = beta;
-        clargs->tileB = B->get_blktile( B, Bm, Bn );
     }
 
     /* Callback fro profiling information */

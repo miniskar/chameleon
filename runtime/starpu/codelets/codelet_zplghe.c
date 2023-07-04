@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zplghe StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Piotr Luszczek
  * @author Pierre Lemarinier
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c
  *
  */
@@ -31,7 +31,6 @@ struct cl_zplghe_args_s {
     double bump;
     int m;
     int n;
-    CHAM_tile_t *tileA;
     int bigM;
     int m0;
     int n0;
@@ -76,7 +75,6 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
         clargs->bump  = bump;
         clargs->m     = m;
         clargs->n     = n;
-        clargs->tileA = A->get_blktile( A, Am, An );
         clargs->bigM  = bigM;
         clargs->m0    = m0;
         clargs->n0    = n0;
