@@ -1,3 +1,8 @@
+chameleon-1.3.0
+------------------------------------------------------------------------
+ - types: add support for half precision arithmetic into the data descriptors
+ - cuda: add half precision conversion kernels, and variants of the gemm kernels (hgemm, and gemmex)
+
 chameleon-1.2.0
 ------------------------------------------------------------------------
  - NEW: Add support for AMD GPUs throug hipcublas or hip-rocm kernels
