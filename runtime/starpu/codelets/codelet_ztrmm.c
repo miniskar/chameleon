@@ -138,14 +138,10 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrmm_callback : NULL;
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    if ( clargs != NULL )
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name, A->get_blktile( A, Am, An )->name, B->get_blktile( B, Bm, Bn )->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 2,
+                                      A->get_blktile( A, Am, An ),
+                                      B->get_blktile( B, Bm, Bn ) );
 
     /* Insert the task */
     rt_starpu_insert_task(

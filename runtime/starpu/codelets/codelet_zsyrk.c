@@ -148,15 +148,9 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
     /* Reduce the C access if needed */
     accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name,
-                            A->get_blktile( A, Am, An )->name,
-                            C->get_blktile( C, Cm, Cn )->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    cl_name = chameleon_codelet_name( cl_name, 2,
+                                      A->get_blktile( A, Am, An ),
+                                      C->get_blktile( C, Cm, Cn ) );
 
     /* Insert the task */
     rt_starpu_insert_task(

@@ -188,16 +188,11 @@ void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
         accessC = STARPU_RW;
     }
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name,
-                            A->get_blktile( A, Am, An )->name,
-                            B->get_blktile( B, Bm, Bn )->name,
-                            C->get_blktile( C, Cm, Cn )->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 3,
+                                      A->get_blktile( A, Am, An ),
+                                      B->get_blktile( B, Bm, Bn ),
+                                      C->get_blktile( C, Cm, Cn ) );
 
     /* Insert the task */
     rt_starpu_insert_task(
@@ -264,16 +259,11 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     /* Reduce the C access if needed */
     accessC = ( beta == 0. ) ? STARPU_W : (STARPU_RW | ((beta == 1.) ? STARPU_COMMUTE : 0));
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s, %s )", cl_name,
-                            A->get_blktile( A, Am, An )->name,
-                            B->get_blktile( B, Bm, Bn )->name,
-                            C->get_blktile( C, Cm, Cn )->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 3,
+                                      A->get_blktile( A, Am, An ),
+                                      B->get_blktile( B, Bm, Bn ),
+                                      C->get_blktile( C, Cm, Cn ) );
 
     /* Insert the task */
     rt_starpu_insert_task(
