@@ -9,10 +9,10 @@
  *
  * @brief Chameleon core_zprint CPU kernel
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2020-03-03
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -28,7 +28,7 @@ CORE_zprint( FILE *file, const char *header,
     int   i, j;
 
     fflush( output );
-    fprintf( output, "--- %10s (%2d, %2d) / %p, %d:\n", header, Am, An, A, lda );
+    fprintf( output, "--- %10s (%2d, %2d) / %p, %d:\n", header, Am, An, (void*)A, lda );
     for(i=0; i<M; i++) {
         fprintf( output, "  " );
         for(j=0; j<N; j++) {

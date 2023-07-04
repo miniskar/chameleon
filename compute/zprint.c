@@ -9,10 +9,10 @@
  *
  * @brief Chameleon zprint wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -42,7 +42,7 @@ zprint( const CHAM_desc_t *descA,
 
     int tempmm = m == descA->mt-1 ? descA->m-m*descA->mb : descA->mb;
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
-    int lda, i;
+    int lda;
 
     if ( zprint_runtime_id == RUNTIME_SCHED_PARSEC ) {
         A   = (CHAMELEON_Complex64_t*)tileA;
