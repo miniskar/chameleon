@@ -11,11 +11,11 @@
  *
  * @brief Chameleon common header file
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-06
  *
  */
 /**
@@ -132,6 +132,57 @@ static inline int chameleon_asprintf( char **strp, const char *fmt, ... )
     assert( rc != -1 );
     return rc;
 }
+
+#if defined(CHAMELEON_KERNELS_TRACE)
+static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+{
+    int  nbchar = 256;
+    char output[256];
+    char *strptr = output;
+    va_list ap;
+    int rc, i;
+
+    rc = snprintf( strptr, nbchar, "%s(", kname );
+    if ( rc < 0 ) {
+        return NULL;
+    }
+    strptr += rc;
+    nbchar -= rc;
+
+    va_start( ap, nbtiles );
+    for( i=0; i<nbtiles; i++ )
+    {
+        CHAM_tile_t *tile = va_arg( ap, CHAM_tile_t* );
+        if ( i > 0 ) {
+            strptr[0] = ',';
+            strptr++;
+            nbchar--;
+        }
+        rc = snprintf( strptr, nbchar, " %s", tile->name );
+        if ( rc < 0 ) {
+            return NULL;
+        }
+        strptr += rc;
+        nbchar -= rc;
+    }
+    va_end( ap );
+
+    if ( nbchar < 3 ) {
+        return NULL;
+    }
+    strptr[0] = ' ';
+    strptr[1] = ')';
+    strptr[2] = '\0';
+
+    return strndup( output, 255 );
+}
+#else
+static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+{
+    (void)nbtiles;
+    return kname;
+}
+#endif
 
 #ifdef __cplusplus
 }
