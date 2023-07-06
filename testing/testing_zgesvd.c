@@ -9,9 +9,9 @@
  *
  * @brief Chameleon zgesvd testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Alycia Lisito
- * @date 2022-03-30
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -139,7 +139,7 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
      * with the call to CHAMELEON_zgepdf_qdwh_Tile[_Async]).
      */
     if ( check ) {
-        descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_GLOBAL );
+        descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zlacpy_Tile( ChamUpperLower, descA, descA0 );
     }
 

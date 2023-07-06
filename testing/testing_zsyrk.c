@@ -9,12 +9,12 @@
  *
  * @brief Chameleon zsyrk testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> z c d s
  *
  */
@@ -35,16 +35,15 @@ testing_zsyrk_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int          async  = parameters_getvalue_int( "async" );
-    intptr_t     mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int          nb     = run_arg_get_int( args, "nb", 320 );
-    int          P      = parameters_getvalue_int( "P" );
-    cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
-    cham_uplo_t  uplo   = run_arg_get_uplo( args, "uplo", ChamUpper );
-    int          N      = run_arg_get_int( args, "N", 1000 );
-    int          K      = run_arg_get_int( args, "K", N );
-    int          LDA    = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
-    int          LDC    = run_arg_get_int( args, "LDC", N );
+    int                   async = parameters_getvalue_int( "async" );
+    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   P     = parameters_getvalue_int( "P" );
+    cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
+    cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
+    int                   N     = run_arg_get_int( args, "N", 1000 );
+    int                   K     = run_arg_get_int( args, "K", N );
+    int                   LDA   = run_arg_get_int( args, "LDA", ( ( trans == ChamNoTrans ) ? N : K ) );
+    int                   LDC   = run_arg_get_int( args, "LDC", N );
     CHAMELEON_Complex64_t alpha = testing_zalea();
     CHAMELEON_Complex64_t beta  = testing_zalea();
     CHAMELEON_Complex64_t bump  = testing_zalea();
@@ -73,10 +72,8 @@ testing_zsyrk_desc( run_arg_list_t *args, int check )
     }
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, An, 0, 0, Am, An, P, Q );
-    CHAMELEON_Desc_Create(
-        &descC, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, An, Am, An );
+    parameters_desc_create( "C", &descC, ChamComplexDouble, nb, nb, LDC, N, N, N );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -99,7 +96,7 @@ testing_zsyrk_desc( run_arg_list_t *args, int check )
     /* Checks the solution */
     if ( check ) {
         CHAMELEON_Desc_Create(
-            &descCinit, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
+            &descCinit, CHAMELEON_MAT_ALLOC_TILE, ChamComplexDouble, nb, nb, nb * nb, LDC, N, 0, 0, N, N, P, Q );
         CHAMELEON_zplgsy_Tile( bump, uplo, descCinit, seedC );
 
         hres += check_zsyrk( args, ChamSymmetric, uplo, trans, alpha, descA, NULL,
@@ -108,8 +105,8 @@ testing_zsyrk_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descCinit );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descC );
+    parameters_desc_destroy( &descA );
+    parameters_desc_destroy( &descC );
 
     return hres;
 }

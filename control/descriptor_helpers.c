@@ -11,14 +11,15 @@
  *
  * @brief Chameleon descriptors routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  ***
  *
@@ -79,6 +80,149 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
     int mm = m + A->i / A->mb;
     (void)n;
     return (mm % A->p) * A->q + (mm % A->q);
+}
+
+/**
+ * @brief Initializes a custom distribution based on an external file.
+ *
+ *  External file format: First line contains the dimensions M and N (space-separated)
+ *  Next M lines each have N integers (with values from 1 to number of nodes)
+ *
+ *
+ * @param[out] custom_dist
+ *        On exit, the resulting custom distribution
+ *
+ * @param[in] dist_file
+ *        The path to the external file to be read
+ *
+ * @return CHAMELEON_SUCCESS on successful exit, CHAMELEON_ERR_OUT_OF_RESOURCES
+ *         or CHAMELEON_ERR_ILLEGAL_VALUE on issue.
+ *
+ */
+int chameleon_getrankof_custom_init( custom_dist_t **custom_dist,
+                                     const char     *dist_file )
+{
+    custom_dist_t *result;
+    FILE          *f;
+    int            i, j, rc;
+    int            np, dist_m, dist_n;
+
+    *custom_dist = NULL;
+
+    /* Get number of processes to check for correctness */
+    np = CHAMELEON_Comm_size();
+
+    /* Allocate memory */
+    result = (custom_dist_t*) malloc( sizeof(custom_dist_t) );
+    if ( result == NULL ) {
+        chameleon_error( "chameleon_getrankof_custom_init", "malloc() failed" );
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
+    }
+
+    result->dist_file = dist_file;
+    f = fopen( result->dist_file , "r" );
+    if ( f == NULL ) {
+        char message[300];
+        snprintf( message, 300, "could not open file '%s'", dist_file );
+        chameleon_error( "chameleon_getrankof_custom_init", message );
+        free( result );
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+
+    rc = fscanf( f, "%d %d", &dist_m, &dist_n );
+    if ( rc < 2 ) {
+        char message[300];
+        snprintf( message, 300, "could not read m and n in file '%s'", dist_file );
+        chameleon_error( "chameleon_getrankof_custom_init", message );
+        free( result );
+        fclose( f );
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+
+    result->dist_m = dist_m;
+    result->dist_n = dist_n;
+
+    result->blocks_dist = (int*) malloc( sizeof(int) * dist_m * dist_n );
+    if ( result->blocks_dist == NULL ) {
+        chameleon_error( "chameleon_getrankof_custom_init", "could not allocate blocks table" );
+        free( result );
+        fclose( f );
+        return CHAMELEON_ERR_OUT_OF_RESOURCES;
+    }
+
+    for(i = 0; i < dist_m; i++) {
+        for(j = 0; j < dist_n; j++) {
+            int rank;
+
+            rc = fscanf( f, "%d", &rank );
+            if ( rc < 1 ) {
+                char message[300];
+                snprintf(message, 300, "file '%s': could not read value at position (%d, %d)", dist_file, i, j );
+                chameleon_error( "chameleon_getrankof_custom_init", message );
+                free( result->blocks_dist );
+                free( result );
+                fclose( f );
+                return CHAMELEON_ERR_ILLEGAL_VALUE;
+            }
+
+            if ( (rank < 0 ) || (rank >= np) )
+            {
+                char message[300];
+                snprintf( message, 300, "file '%s': value %d at position (%d, %d) is invalid with %d processes",
+                          dist_file, rank, i, j, np );
+                chameleon_error( "chameleon_getrankof_custom_init", message );
+                free( result->blocks_dist );
+                free( result );
+                fclose( f );
+                return CHAMELEON_ERR_ILLEGAL_VALUE;
+            }
+
+            result->blocks_dist[j * dist_m + i] = rank;
+        }
+    }
+    fclose(f);
+
+    *custom_dist = result;
+    return CHAMELEON_SUCCESS;
+}
+
+/**
+ * @brief Destroys a custom distribution based on an external file.
+ *
+ * @param[int] dist
+ *        The custom distribution to be destroyed
+ *
+ * @return CHAMELEON_SUCCESS on successful exit, CHAMELEON_ERR_UNALLOCATED otherwise.
+ *
+ */
+int
+chameleon_getrankof_custom_destroy( custom_dist_t **dist )
+{
+    if ((dist == NULL) || (*dist == NULL)) {
+        chameleon_error("chameleon_getrankof_custom_destroy", "attempting to destroy a NULL descriptor");
+        return CHAMELEON_ERR_UNALLOCATED;
+    }
+
+    free((*dist)->blocks_dist);
+    free(*dist);
+    *dist = NULL;
+    return CHAMELEON_SUCCESS;
+}
+
+/**
+ * @brief Internal function to return MPI rank of block (m,n) in distribution
+ * custom from dist file
+ *
+ * @param[in] desc matrix
+ * @param[in] m row index of tile to consider
+ * @param[in] n column index of tile to consider
+ *
+ * @return The rank of the tile at coordinate (m, n).
+ */
+int chameleon_getrankof_custom( const CHAM_desc_t *desc, int m, int n )
+{
+    custom_dist_t *dist = desc->get_rankof_init_arg;
+    return dist->blocks_dist[(n % dist->dist_n) * dist->dist_m + (m % dist->dist_m)];
 }
 
 /**

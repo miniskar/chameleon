@@ -11,12 +11,13 @@
  *
  * @brief Chameleon auxiliary routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -139,7 +140,7 @@ int CHAMELEON_zLap2Desc( cham_uplo_t uplo, CHAMELEON_Complex64_t *Af77, int LDA,
     /* Create the B descriptor to handle the Lapack format matrix */
     status = CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                                          LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+                                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
     if ( status != CHAMELEON_SUCCESS ) {
         chameleon_error("CHAMELEON_zTile_to_Lapack", "Failed to create the descriptor");
         return status;
@@ -223,7 +224,7 @@ int CHAMELEON_zDesc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, CHAMELEON_Complex64_t
     /* Create the B descriptor to handle the Lapack format matrix */
     status = CHAMELEON_Desc_Create_User( &B, Af77, ChamComplexDouble, A->mb, A->nb, A->bsiz,
                                          LDA, A->n, 0, 0, A->m, A->n, 1, 1,
-                                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+                                         chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
     if ( status != CHAMELEON_SUCCESS ) {
         chameleon_error("CHAMELEON_zTile_to_Lapack", "Failed to create the descriptor");
         return status;

@@ -11,14 +11,15 @@
  *
  * @brief Chameleon zgetrf wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Omar Zenati
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  * @precisions normal z -> s d c
  *
@@ -86,7 +87,7 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
                              ChamComplexDouble, 1, A->nb, A->nb,
                              A->mt, A->nt * A->nb, 0, 0,
                              A->mt, A->nt * A->nb, A->p, A->q,
-                             NULL, NULL, A->get_rankof_init );
+                             NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
     }
 
     return ws;

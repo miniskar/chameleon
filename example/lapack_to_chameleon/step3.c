@@ -11,11 +11,12 @@
  *
  * @brief Chameleon step3 example
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #include "step3.h"
@@ -101,11 +102,11 @@ int main(int argc, char *argv[]) {
      *     returns the MPI rank of the tile m, n (0 here because we do not
      *     intend to use this program with MPI)
      */
-    CHAMELEON_Desc_Create_User(&descA, matA, ChamRealDouble,
-                           NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1,
-                           user_getaddr_arrayofpointers,
-                           user_getblkldd_arrayofpointers,
-                           user_getrankof_zero);
+    CHAMELEON_Desc_Create_User( &descA, matA, ChamRealDouble,
+                                NB, NB, NB*NB, N, N, 0, 0, N, N, 1, 1,
+                                user_getaddr_arrayofpointers,
+                                user_getblkldd_arrayofpointers,
+                                user_getrankof_zero, NULL );
 
     /*
      * We use the classical CHAMELEON way for accessing tiles for descripotrs

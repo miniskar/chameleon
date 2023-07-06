@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zgesv_nopiv testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -36,18 +36,15 @@ testing_zgesv_nopiv_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int      async  = parameters_getvalue_int( "async" );
-    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int      nb     = run_arg_get_int( args, "nb", 320 );
-    int      P      = parameters_getvalue_int( "P" );
-    int      N      = run_arg_get_int( args, "N", 1000 );
-    int      NRHS   = run_arg_get_int( args, "NRHS", 1 );
-    int      LDA    = run_arg_get_int( args, "LDA", N );
-    int      LDB    = run_arg_get_int( args, "LDB", N );
-    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    int      seedB  = run_arg_get_int( args, "seedB", testing_ialea() );
-    double   bump   = run_arg_get_double( args, "bump", (double)N );
-    int      Q      = parameters_compute_q( P );
+    int    async = parameters_getvalue_int( "async" );
+    int    nb    = run_arg_get_int( args, "nb", 320 );
+    int    N     = run_arg_get_int( args, "N", 1000 );
+    int    NRHS  = run_arg_get_int( args, "NRHS", 1 );
+    int    LDA   = run_arg_get_int( args, "LDA", N );
+    int    LDB   = run_arg_get_int( args, "LDB", N );
+    int    seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    int    seedB = run_arg_get_int( args, "seedB", testing_ialea() );
+    double bump  = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
     CHAM_desc_t *descA, *descX;
@@ -55,10 +52,8 @@ testing_zgesv_nopiv_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, N, N, P, Q );
-    CHAMELEON_Desc_Create(
-        &descX, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDB, NRHS, 0, 0, N, NRHS, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, N, N );
+    parameters_desc_create( "X", &descX, ChamComplexDouble, nb, nb, LDB, NRHS, N, NRHS );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA, seedA   );
@@ -83,8 +78,8 @@ testing_zgesv_nopiv_desc( run_arg_list_t *args, int check )
     if ( check ) {
         CHAM_desc_t *descA0, *descB;
 
-        descA0 = CHAMELEON_Desc_Copy( descA, NULL );
-        descB  = CHAMELEON_Desc_Copy( descX, NULL );
+        descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
+        descB  = CHAMELEON_Desc_Copy( descX, CHAMELEON_MAT_ALLOC_TILE );
 
         CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA0, seedA   );
         CHAMELEON_zplgtr_Tile( bump, ChamLower, descA0, seedA+1 );
@@ -100,8 +95,8 @@ testing_zgesv_nopiv_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descB );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descX );
+    parameters_desc_destroy( &descA );
+    parameters_desc_destroy( &descX );
 
     return hres;
 }

@@ -9,10 +9,11 @@
  *
  * @brief Chameleon zplrnk parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -48,12 +49,12 @@ void chameleon_pzplrnk( int K, CHAM_desc_t *C,
                          ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                          C->mt * C->mb, C->nb * C->q, 0, 0,
                          C->mt * C->mb, C->nb * C->q, C->p, C->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     chameleon_desc_init( &WB, CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                          C->mb * C->p, C->nt * C->nb, 0, 0,
                          C->mb * C->p, C->nt * C->nb, C->p, C->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     KT = (K + C->mb - 1) / C->mb;
     myp = C->myrank / C->q;

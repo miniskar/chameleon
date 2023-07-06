@@ -11,10 +11,11 @@
  *
  * @brief Chameleon QDWH Polar Decomposition parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Hatem Ltaief
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -109,23 +110,23 @@ chameleon_pzgepdf_qdwh_init( const CHAM_desc_t *U, const CHAM_desc_t *H,
                          ChamComplexDouble, ib, nb, ib * nb,
                          ib * U->mt, nb * U->nt, 0, 0,
                          ib * U->mt, nb * U->nt, U->p, U->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     chameleon_desc_init( TT1, CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, ib, nb, ib * nb,
                          ib * U->mt, nb * U->nt, 0, 0,
                          ib * U->mt, nb * U->nt, H->p, H->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     chameleon_desc_init( TS2, CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, ib, nb, ib * nb,
                          ib * H->mt, nb * H->nt, 0, 0,
                          ib * H->mt, nb * H->nt, U->p, U->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
     chameleon_desc_init( TT2, CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, ib, nb, ib * nb,
                          ib * H->mt, nb * H->nt, 0, 0,
                          ib * H->mt, nb * H->nt, H->p, H->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     /*
      * Create the adapted trees to perform the QR factorizations
@@ -170,7 +171,7 @@ chameleon_pzgepdf_qdwh_init( const CHAM_desc_t *U, const CHAM_desc_t *H,
                          ChamComplexDouble, U->mb, U->nb, U->mb * U->nb,
                          U->n, U->m, 0, 0,
                          U->n, U->m, U->p, U->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     /*
      * Allocate the data descriptors for the lookahead if needed

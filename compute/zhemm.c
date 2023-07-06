@@ -11,14 +11,15 @@
  *
  * @brief Chameleon zhemm wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c
  *
  */
@@ -158,12 +159,12 @@ void *CHAMELEON_zhemm_WS_Alloc( cham_side_t        side __attribute__((unused)),
                              ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                              C->mt * C->mb, C->nb * C->q * lookahead, 0, 0,
                              C->mt * C->mb, C->nb * C->q * lookahead, C->p, C->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         chameleon_desc_init( &(options->WB), CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, C->mb, C->nb, (C->mb * C->nb),
                              C->mb * C->p * lookahead, C->nt * C->nb, 0, 0,
                              C->mb * C->p * lookahead, C->nt * C->nb, C->p, C->q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
     }
 
     return (void*)options;

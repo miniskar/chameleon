@@ -9,13 +9,13 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2023-01-05
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -73,7 +73,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
     AAtnorm = CHAMELEON_zlantr_Tile( ChamOneNorm, uplo, ChamNonUnit, descAAt );
 
     if ( uplo == ChamUpper ) {
-        descAt = CHAMELEON_Desc_Copy( descA, NULL );
+        descAt = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zlaset_Tile( ChamLower, 0., 0., descAt );
         CHAMELEON_zlacpy_Tile( ChamUpper, descA, descAt );
 
@@ -81,7 +81,7 @@ int check_zlauum( run_arg_list_t *args, cham_uplo_t uplo, CHAM_desc_t *descA, CH
         CHAMELEON_ztrmm_Tile( ChamRight, ChamUpper, ChamConjTrans, ChamNonUnit, 1., descA, descAt );
     }
     else {
-        descAt = CHAMELEON_Desc_Copy( descA, NULL );
+        descAt = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zlaset_Tile( ChamUpper, 0., 0., descAt );
         CHAMELEON_zlacpy_Tile( ChamLower, descA, descAt );
 
@@ -207,8 +207,8 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     cham_trans_t transL = ChamNoTrans;
     cham_trans_t transU = ChamNoTrans;
 
-    descL = CHAMELEON_Desc_Copy( descA, NULL );
-    descU = CHAMELEON_Desc_Copy( descA, NULL );
+    descL = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
+    descU = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
 
     CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descL );
     CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 0., descU );
@@ -254,6 +254,7 @@ int check_zxxtrf( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     }
         break;
 
+        /* WARNING: A must be fully initialized and not just the correct triangular part */
 #if defined(PRECISION_z) || defined(PRECISION_c)
     case ChamHermitian:
         Anorm = CHAMELEON_zlanhe_Tile( ChamOneNorm, uplo, descA );
@@ -562,7 +563,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
     int          N   = descA0->m;
 
     /* Creates an identity matrix */
-    descI = CHAMELEON_Desc_Copy( descA0, NULL );
+    descI = CHAMELEON_Desc_Copy( descA0, CHAMELEON_MAT_ALLOC_TILE );
     CHAMELEON_zlaset_Tile( ChamUpperLower, 0., 1., descI );
 
     /* Calculates the residual I - A*(A**-1) */
@@ -580,7 +581,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
          * Ainv on the left by A.
          */
         uplo_inv = ( uplo == ChamUpper ) ? ChamLower : ChamUpper;
-        descB = CHAMELEON_Desc_Copy( descAi, NULL );
+        descB = CHAMELEON_Desc_Copy( descAi, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_ztradd_Tile( uplo_inv, ChamConjTrans, 1., descAi, 0., descB );
         CHAMELEON_zlacpy_Tile( uplo, descAi, descB );
 
@@ -600,7 +601,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
          * Ainv on the left by A.
          */
         uplo_inv = ( uplo == ChamUpper ) ? ChamLower : ChamUpper;
-        descB = CHAMELEON_Desc_Copy( descAi, NULL );
+        descB = CHAMELEON_Desc_Copy( descAi, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_ztradd_Tile( uplo_inv, ChamTrans, 1., descAi, 0., descB );
         CHAMELEON_zlacpy_Tile( uplo, descAi, descB );
 
@@ -619,7 +620,7 @@ int check_ztrtri( run_arg_list_t *args, cham_mtxtype_t matrix_type, cham_uplo_t 
          * Ainv on the left by A.
          */
         uplo_inv = ( uplo == ChamUpper ) ? ChamLower : ChamUpper;
-        descB = CHAMELEON_Desc_Copy( descAi, NULL );
+        descB = CHAMELEON_Desc_Copy( descAi, CHAMELEON_MAT_ALLOC_TILE );
 
         if ( diag == ChamUnit ) {
             //CHAMELEON_ztradd_Tile( uplo, ChamNoTrans, 1., descAi, 0., descB );

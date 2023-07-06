@@ -11,14 +11,15 @@
  *
  * @brief Chameleon structures
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Matthieu Kuhn
- * @date 2022-12-13
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #ifndef _chameleon_struct_h_
@@ -93,6 +94,7 @@ struct chameleon_desc_s {
     blkrankof_fct_t get_rankof;
     // function to get chameleon tiles MPI rank
     blkrankof_fct_t get_rankof_init;
+    void* get_rankof_init_arg;
     CHAM_tile_t *tiles; // pointer to the array of tiles descriptors
     void *mat;        // pointer to the beginning of the matrix
     size_t A21;       // pointer to the beginning of the matrix A21

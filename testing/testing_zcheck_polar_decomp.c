@@ -9,13 +9,13 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t auxiliary testings routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
  * @author Alycia Lisito
- * @date 2023-01-05
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -92,7 +92,7 @@ int check_zgepdf_qr( run_arg_list_t *args, CHAM_desc_t *descA1, CHAM_desc_t *des
     /*
      * First check: || R - Q' A ||
      */
-    descR = CHAMELEON_Desc_Copy( descAF1, NULL );
+    descR = CHAMELEON_Desc_Copy( descAF1, CHAMELEON_MAT_ALLOC_TILE );
 
     /* Copy R(1:n,1:k) */
     subR  = chameleon_desc_submatrix( descR,   0, 0, N, K );

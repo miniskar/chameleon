@@ -19,7 +19,8 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2023-07-04
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  */
 #ifndef _chameleon_descriptor_h_
@@ -48,7 +49,8 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
                                   int lm, int ln, int m, int n, int p, int q,
                                   void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                   int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                  int   (*get_rankof) ( const CHAM_desc_t*, int, int ) );
+                                  int   (*get_rankof) ( const CHAM_desc_t*, int, int ),
+                                  void* get_rankof_arg );
 
 
 static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
@@ -57,7 +59,8 @@ static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
                                        int m,  int n,  int p, int q,
                                        void* (*get_blkaddr)( const CHAM_desc_t*, int, int ),
                                        int   (*get_blkldd) ( const CHAM_desc_t*, int      ),
-                                       int   (*get_rankof) ( const CHAM_desc_t*, int, int ) )
+                                       int   (*get_rankof) ( const CHAM_desc_t*, int, int ),
+                                       void* get_rankof_arg)
 {
     assert( i == 0 );
     assert( j == 0 );
@@ -66,7 +69,7 @@ static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
     (void)i;
     (void)j;
     return chameleon_desc_init_internal( desc, NULL, mat, dtyp, mb, nb, lm, ln, m, n, p, q,
-                                         get_blkaddr, get_blkldd, get_rankof );
+                                         get_blkaddr, get_blkldd, get_rankof, get_rankof_arg );
 }
 
 CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n );

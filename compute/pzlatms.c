@@ -10,9 +10,10 @@
  *
  * @brief Chameleon zlatms parallel algorithm
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c
  *
  */
@@ -212,12 +213,12 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
                              ChamComplexDouble, ib, descU.nb, ib * descU.nb,
                              ib * descU.mt, descU.nb * descU.nt, 0, 0,
                              ib * descU.mt, descU.nb * descU.nt, descU.p, descU.q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         chameleon_desc_init( &descTT, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descU.nb, ib * descU.nb,
                              ib * descU.mt, descU.nb * descU.nt, 0, 0,
                              ib * descU.mt, descU.nb * descU.nt, descU.p, descU.q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
 
         /* U <= qr(U) */
         chameleon_pzgeqrf_param( 1, kt, &qrtree, &descU,
@@ -283,12 +284,12 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
                              ChamComplexDouble, ib, descV.nb, ib * descV.nb,
                              ib * descV.mt, descV.nb * descV.nt, 0, 0,
                              ib * descV.mt, descV.nb * descV.nt, descV.p, descV.q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
         chameleon_desc_init( &descTT, CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, ib, descV.nb, ib * descV.nb,
                              ib * descV.mt, descV.nb * descV.nt, 0, 0,
                              ib * descV.mt, descV.nb * descV.nt, descV.p, descV.q,
-                             NULL, NULL, NULL );
+                             NULL, NULL, NULL, NULL );
 
         /* V <= qr(V) */
         chameleon_pzgelqf_param( 1, kt, &qrtree, &descV,

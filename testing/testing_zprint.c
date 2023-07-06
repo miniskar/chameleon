@@ -9,11 +9,12 @@
  *
  * @brief Chameleon zprint testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -62,7 +63,7 @@ testing_zprint_desc( run_arg_list_t *args, int check )
     fprintf( stdout, "--- Lapack layout ---\n" );
     rc = CHAMELEON_Desc_Create_User(
         &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q,
-        chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+        chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
 
     if ( rc == CHAMELEON_SUCCESS ) {
         CHAMELEON_Desc_Print( descA );
@@ -79,7 +80,7 @@ testing_zprint_desc( run_arg_list_t *args, int check )
         rc = CHAMELEON_Recursive_Desc_Create(
             &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
             list_nb, list_nb, LDA, N, M, N, P, Q,
-            NULL, NULL, NULL );
+            NULL, NULL, NULL, NULL );
 
         if ( rc == CHAMELEON_SUCCESS ) {
             CHAMELEON_Desc_Print( descA );
@@ -90,7 +91,7 @@ testing_zprint_desc( run_arg_list_t *args, int check )
         rc = CHAMELEON_Recursive_Desc_Create(
             &descA, CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
             list_nb, list_nb, LDA, N, M, N, P, Q,
-            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL );
+            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
 
         if ( rc == CHAMELEON_SUCCESS ) {
             CHAMELEON_Desc_Print( descA );

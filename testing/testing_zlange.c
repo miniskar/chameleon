@@ -9,13 +9,13 @@
  *
  * @brief Chameleon zlange testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Alycia Lisito
  * @author Philippe Swartvagher
- * @date 2022-02-14
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -71,15 +71,12 @@ testing_zlange_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int             async     = parameters_getvalue_int( "async" );
-    intptr_t        mtxfmt    = parameters_getvalue_int( "mtxfmt" );
     int             nb        = run_arg_get_int( args, "nb", 320 );
-    int             P         = parameters_getvalue_int( "P" );
     cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
     int             N         = run_arg_get_int( args, "N", 1000 );
     int             M         = run_arg_get_int( args, "M", N );
     int             LDA       = run_arg_get_int( args, "LDA", M );
     int             seedA     = run_arg_get_int( args, "seedA", testing_ialea() );
-    int             Q         = parameters_compute_q( P );
 
     /* Descriptors */
     double       norm;
@@ -88,8 +85,7 @@ testing_zlange_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrix */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -113,7 +109,7 @@ testing_zlange_desc( run_arg_list_t *args, int check )
                             ChamNonUnit, norm, descA );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
+    parameters_desc_destroy( &descA );
 
     return hres;
 }

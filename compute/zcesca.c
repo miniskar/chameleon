@@ -9,9 +9,10 @@
  *
  * @brief Chameleon zcesca wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  * @precisions normal z -> s d c z
  *
  */
@@ -61,31 +62,31 @@ void *CHAMELEON_zcesca_WS_Alloc( const CHAM_desc_t *A )
                          ChamComplexDouble, 1, A->nb, A->nb,
                          workmt, A->n, 0, 0,
                          workmt, A->n, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     chameleon_desc_init( &(options->Wgrow), CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, A->mb, 1, A->mb,
                          A->m, worknt, 0, 0,
                          A->m, worknt, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     chameleon_desc_init( &(options->Wgelt), CHAMELEON_MAT_ALLOC_TILE,
                          ChamComplexDouble, 1, 1, 1,
                          1, worknt, 0, 0,
                          1, worknt, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     chameleon_desc_init( &(options->Wdcol), CHAMELEON_MAT_ALLOC_TILE,
                          ChamRealDouble, 2, A->nb, 2*A->nb,
                          2*workmt, A->n, 0, 0,
                          2*workmt, A->n, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     chameleon_desc_init( &(options->Wdrow), CHAMELEON_MAT_ALLOC_TILE,
                          ChamRealDouble, A->mb, 2, 2*A->mb,
                          A->m, 2*worknt, 0, 0,
                          A->m, 2*worknt, A->p, A->q,
-                         NULL, NULL, NULL );
+                         NULL, NULL, NULL, NULL );
 
     return (void*)options;
 }

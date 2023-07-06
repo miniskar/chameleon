@@ -11,7 +11,7 @@
  *
  * @brief Set of functions to help the user to declare matrix descriptors (allocation, mapping... )
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -19,7 +19,8 @@
  * @author Guillaume Sylvand
  * @author Raphael Boucherie
  * @author Samuel Thibault
- * @date 2020-03-03
+ * @author Lionel Eyraud-Dubois
+ * @date 2023-07-05
  *
  * @addtogroup chameleon_descriptors
  * @{
@@ -43,8 +44,18 @@ extern "C" {
  * @name Mapping functions
  * @{
  */
-int chameleon_getrankof_2d      ( const CHAM_desc_t *A, int m, int n );
-int chameleon_getrankof_2d_diag ( const CHAM_desc_t *A, int m, int n );
+int chameleon_getrankof_2d     ( const CHAM_desc_t *A, int m, int n );
+int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n );
+
+typedef struct custom_dist_s{
+    int *blocks_dist;         // Matrix of size dist_m times dist_n with values from 1 to number of process MPI
+    int dist_m, dist_n;       // The matrix has dist_m rows of dist_n elements
+    const char* dist_file;    // Name of the file that contains the distribution
+} custom_dist_t;
+
+int chameleon_getrankof_custom_init   ( custom_dist_t **dist, const char *filename );
+int chameleon_getrankof_custom_destroy( custom_dist_t **dist );
+int chameleon_getrankof_custom        ( const CHAM_desc_t *A, int m, int n );
 
 /**
  * @}

@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zcesca testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Philippe Swartvagher
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -46,15 +46,12 @@ testing_zcesca_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int      async  = parameters_getvalue_int( "async" );
-    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int      nb     = run_arg_get_int( args, "nb", 320 );
-    int      P      = parameters_getvalue_int( "P" );
-    int      N      = run_arg_get_int( args, "N", 1000 );
-    int      M      = run_arg_get_int( args, "M", N );
-    int      LDA    = run_arg_get_int( args, "LDA", M );
-    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    int      Q      = parameters_compute_q( P );
+    int async = parameters_getvalue_int( "async" );
+    int nb    = run_arg_get_int( args, "nb", 320 );
+    int N     = run_arg_get_int( args, "N", 1000 );
+    int M     = run_arg_get_int( args, "M", N );
+    int LDA   = run_arg_get_int( args, "LDA", M );
+    int seedA = run_arg_get_int( args, "seedA", testing_ialea() );
 
     /* Descriptors */
     CHAM_desc_t *descA;
@@ -63,8 +60,7 @@ testing_zcesca_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Create the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
 
     /* Fill the matrix with random values */
     CHAMELEON_zplrnt_Tile( descA, seedA );
@@ -90,7 +86,7 @@ testing_zcesca_desc( run_arg_list_t *args, int check )
         CHAMELEON_zgemm_WS_Free( ws );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
+    parameters_desc_destroy( &descA );
 
     (void)check;
     return hres;

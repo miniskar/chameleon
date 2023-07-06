@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zgetrf_nopiv testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -29,16 +29,13 @@ testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int      async  = parameters_getvalue_int( "async" );
-    intptr_t mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int      nb     = run_arg_get_int( args, "nb", 320 );
-    int      P      = parameters_getvalue_int( "P" );
-    int      N      = run_arg_get_int( args, "N", 1000 );
-    int      M      = run_arg_get_int( args, "M", N );
-    int      LDA    = run_arg_get_int( args, "LDA", M );
-    int      seedA  = run_arg_get_int( args, "seedA", testing_ialea() );
-    double   bump   = run_arg_get_double( args, "bump", (double)N );
-    int      Q      = parameters_compute_q( P );
+    int    async = parameters_getvalue_int( "async" );
+    int    nb    = run_arg_get_int( args, "nb", 320 );
+    int    N     = run_arg_get_int( args, "N", 1000 );
+    int    M     = run_arg_get_int( args, "M", N );
+    int    LDA   = run_arg_get_int( args, "LDA", M );
+    int    seedA = run_arg_get_int( args, "seedA", testing_ialea() );
+    double bump  = run_arg_get_double( args, "bump", (double)N );
 
     /* Descriptors */
     CHAM_desc_t *descA;
@@ -46,8 +43,7 @@ testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
-    CHAMELEON_Desc_Create(
-        &descA, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, LDA, N, 0, 0, M, N, P, Q );
+    parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
 
     /* Fills the matrix with random values */
     CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA, seedA   );
@@ -67,7 +63,7 @@ testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
 
     /* Checks the factorisation and residue */
     if ( check ) {
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAMELEON_zplgtr_Tile( 0,    ChamUpper, descA0, seedA   );
         CHAMELEON_zplgtr_Tile( bump, ChamLower, descA0, seedA+1 );
 
@@ -76,7 +72,7 @@ testing_zgetrf_nopiv_desc( run_arg_list_t *args, int check )
         CHAMELEON_Desc_Destroy( &descA0 );
     }
 
-    CHAMELEON_Desc_Destroy( &descA );
+    parameters_desc_destroy( &descA );
 
     return hres;
 }

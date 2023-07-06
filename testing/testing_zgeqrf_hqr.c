@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zgeqrf_hqr testing
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Lucas Barros de Assis
  * @author Mathieu Faverge
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-07-05
  * @precisions normal z -> c d s
  *
  */
@@ -88,7 +88,7 @@ testing_zgeqrf_hqr_desc( run_arg_list_t *args, int check )
     /* Checks the factorisation and orthogonality */
     if ( check ) {
         CHAM_desc_t *descQ;
-        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, NULL );
+        CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
 
         CHAMELEON_Desc_Create(
             &descQ, (void*)(-mtxfmt), ChamComplexDouble, nb, nb, nb * nb, M, M, 0, 0, M, M, P, Q );
