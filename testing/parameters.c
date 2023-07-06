@@ -160,10 +160,10 @@ parameters_read_list( parameter_t *param,
         previous = current;
         current  = current->next;
     }
+    assert( current == NULL );
 
     token = strtok_r( str, delim, &saveptr );
     while ( token != NULL ) {
-        assert( current == NULL );
         current = calloc( 1, sizeof(vallist_t) );
 
         /* Read the value */
@@ -179,7 +179,6 @@ parameters_read_list( parameter_t *param,
         }
 
         previous = current;
-        current  = NULL;
 
         /* Move to the next token */
         token = strtok_r( NULL, delim, &saveptr );
@@ -261,9 +260,9 @@ parameters_read_intrange( parameter_t *param,
         previous = current;
         current  = current->next;
     }
+    assert( current == NULL );
 
     while ( start <= end ) {
-        assert( current == NULL );
         current = calloc( 1, sizeof(vallist_t) );
 
         /* Read the value */
@@ -279,7 +278,6 @@ parameters_read_intrange( parameter_t *param,
         }
 
         previous = current;
-        current  = NULL;
 
         start += step;
     }
