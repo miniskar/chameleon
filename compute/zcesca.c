@@ -290,6 +290,8 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis,
         CHAM_desc_t *descSC = chameleon_desc_submatrix( &(ws->Wgcol), 0, 0, 1, N );
         CHAMELEON_zDesc2Lap( ChamUpperLower, descSR, SR, M );
         CHAMELEON_zDesc2Lap( ChamUpperLower, descSC, SC, 1 );
+        free( descSR );
+        free( descSC );
     }
 
     /* Cleanup the temporary data */
@@ -348,7 +350,7 @@ int CHAMELEON_zcesca(int center, int scale, cham_store_t axis,
  *
  */
 int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t *A,
-                           CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC)
+                           CHAMELEON_Complex64_t *SR, CHAMELEON_Complex64_t *SC )
 {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -391,6 +393,8 @@ int CHAMELEON_zcesca_Tile( int center, int scale, cham_store_t axis, CHAM_desc_t
         CHAM_desc_t *descSC = chameleon_desc_submatrix( &(ws->Wgcol), 0, 0, 1, A->ln );
         CHAMELEON_zDesc2Lap( ChamUpperLower, descSR, SR, A->lm );
         CHAMELEON_zDesc2Lap( ChamUpperLower, descSC, SC, 1 );
+        free( descSR );
+        free( descSC );
     }
 
     CHAMELEON_zcesca_WS_Free( ws );
