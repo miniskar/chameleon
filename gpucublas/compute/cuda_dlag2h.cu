@@ -133,6 +133,7 @@ CUDA_dlag2h( int m, int n,
              cublasHandle_t handle )
 {
     cudaStream_t stream;
+    cudaError_t  err;
     double       rmax;
 
     if ( m < 0 ) {
@@ -165,6 +166,13 @@ CUDA_dlag2h( int m, int n,
     cublasGetStream( handle, &stream );
 
     cuda_dlag2h_kernel<<< grid, threads, 0, stream >>>( m, n, A, lda, HA, ldha, rmax );
+
+    err = cudaGetLastError();
+    if ( err != cudaSuccess )
+    {
+        fprintf( stderr, "CUDA_dlag2h failed to launch CUDA kernel %s\n", cudaGetErrorString(err) );
+        return CHAMELEON_ERR_UNEXPECTED;
+    }
 
     return 0;
 }
@@ -261,6 +269,7 @@ CUDA_hlag2d( int m, int n,
              cublasHandle_t handle )
 {
     cudaStream_t stream;
+    cudaError_t  err;
 
     if ( m < 0 ) {
         return -1;
@@ -285,6 +294,13 @@ CUDA_hlag2d( int m, int n,
 
     cublasGetStream( handle, &stream );
     cuda_hlag2d_kernel<<< grid, threads, 0, stream >>> ( m, n, HA, ldha, A, lda );
+
+    err = cudaGetLastError();
+    if ( err != cudaSuccess )
+    {
+        fprintf( stderr, "CUDA_hlag2d failed to launch CUDA kernel %s\n", cudaGetErrorString(err) );
+        return CHAMELEON_ERR_UNEXPECTED;
+    }
 
     return 0;
 }

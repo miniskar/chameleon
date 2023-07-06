@@ -493,25 +493,25 @@ int CHAMELEON_zgesvd_Tile_Async( cham_job_t jobu, cham_job_t jobvt,
         int info, nru, ncvt;
 
         switch ( jobu ) {
-            case ChamOVec :
+            /* case ChamOVec : */
             case ChamAllVec :
                 nru = M;
                 break;
-            case ChamSVec :
-                nru = MINMN;
-                break;
+            /* case ChamSVec : */
+            /*     nru = MINMN; */
+            /*     break; */
             case ChamNoVec :
             default:
                 nru = 0;
         }
         switch ( jobvt ) {
-            case ChamOVec :
+            /* case ChamOVec : */
             case ChamAllVec :
                 ncvt = N;
                 break;
-            case ChamSVec :
-                ncvt = MINMN;
-                break;
+            /* case ChamSVec : */
+            /*     ncvt = MINMN; */
+            /*     break; */
             case ChamNoVec :
             default:
                 ncvt = 0;

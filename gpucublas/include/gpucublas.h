@@ -15,7 +15,7 @@
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Nathalie Furmento
- * @date 2023-07-04
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -39,6 +39,7 @@
 #include <cuda_fp16.h>
 #endif
 
+#include <cuda_runtime_api.h>
 #include <cublas_v2.h>
 
 #define CUBLAS_SADDR(_a_) (&(_a_))

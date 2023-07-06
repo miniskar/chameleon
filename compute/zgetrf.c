@@ -315,6 +315,17 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV )
  *          On entry, the M-by-N matrix to be factored.
  *          On exit, the tile factors L and U from the factorization.
  *
+ * @param[in,out] IPIV
+ *          On entry, the descriptor of an min(M, N)-by-1 matrix that may not
+ *          have been initialized.
+ *          On exit, the pivot vector generated during the factorization.
+ *
+ * @param[in,out] user_ws
+ *          The opaque pointer to pre-allocated getrf workspace through
+ *          CHAMELEON_zgetrf_WS_Alloc(). If user_ws is NULL, it is automatically
+ *          allocated, but BE CAREFULL as it switches the call from asynchronous
+ *          to synchronous call.
+ *
  * @param[in] sequence
  *          Identifies the sequence of function calls that this call belongs to
  *          (for completion checks and exception handling purposes).
@@ -349,10 +360,6 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
     }
     if ( chamctxt->scheduler != RUNTIME_SCHED_STARPU ) {
         chameleon_fatal_error( "CHAMELEON_zgetrf_Tile_Async", "CHAMELEON_zgetrf_Tile_Async is only available with StarPU" );
-        return CHAMELEON_ERR_NOT_INITIALIZED;
-    }
-    if ( user_ws == NULL ) {
-        chameleon_fatal_error( "CHAMELEON_zgetrf_Tile_Async", "NULL user_ws" );
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if ( sequence == NULL ) {

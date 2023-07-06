@@ -11,7 +11,7 @@
  *
  * @brief Chameleon ztrtri StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -31,7 +31,6 @@ struct cl_ztrtri_args_s {
     cham_uplo_t uplo;
     cham_diag_t diag;
     int n;
-    CHAM_tile_t *tileA;
     int iinfo;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t *request;
@@ -81,7 +80,6 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
         clargs->uplo     = uplo;
         clargs->diag     = diag;
         clargs->n        = n;
-        clargs->tileA    = A->get_blktile( A, Am, An );
         clargs->iinfo    = iinfo;
         clargs->sequence = options->sequence;
         clargs->request  = options->request;
@@ -90,13 +88,8 @@ void INSERT_TASK_ztrtri( const RUNTIME_option_t *options,
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrtri_callback : NULL;
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s )", cl_name, clargs->tileA->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 1, A->get_blktile( A, Am, An ) );
 
     /* Insert the task */
     rt_starpu_insert_task(

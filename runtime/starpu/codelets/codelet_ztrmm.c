@@ -11,7 +11,7 @@
  *
  * @brief Chameleon ztrmm StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Julien Langou
  * @author Henricus Bouwmeester
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Loris Lucido
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -35,8 +35,6 @@ struct cl_ztrmm_args_s {
     int m;
     int n;
     CHAMELEON_Complex64_t alpha;
-    CHAM_tile_t *tileA;
-    CHAM_tile_t *tileB;
 };
 
 #if !defined(CHAMELEON_SIMULATION)
@@ -135,21 +133,15 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
         clargs->m      = m;
         clargs->n      = n;
         clargs->alpha  = alpha;
-        clargs->tileA  = A->get_blktile( A, Am, An );
-        clargs->tileB  = B->get_blktile( B, Bm, Bn );
     }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_ztrmm_callback : NULL;
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    if ( clargs != NULL )
-    {
-        char *cl_fullname;
-        chameleon_asprintf( &cl_fullname, "%s( %s, %s )", cl_name, clargs->tileA->name, clargs->tileB->name );
-        cl_name = cl_fullname;
-    }
-#endif
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 2,
+                                      A->get_blktile( A, Am, An ),
+                                      B->get_blktile( B, Bm, Bn ) );
 
     /* Insert the task */
     rt_starpu_insert_task(

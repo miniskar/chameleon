@@ -9,11 +9,11 @@
  *
  * @brief Chameleon tile interface for StarPU
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Gwenole Lucas
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  *
  */
 #include "chameleon_starpu.h"
@@ -297,16 +297,9 @@ cti_display( starpu_data_handle_t handle, FILE *f )
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *)
         starpu_data_get_interface_on_node(handle, STARPU_MAIN_RAM);
 
-#if defined(CHAMELEON_KERNELS_TRACE)
-    fprintf( f, "%s{.m=%u,.n=%u}",
-             cham_tile_interface->tile.name,
-             cham_tile_interface->tile.m,
-             cham_tile_interface->tile.n );
-#else
     fprintf( f, "%u\t%u\t",
              cham_tile_interface->tile.m,
              cham_tile_interface->tile.n );
-#endif
 }
 
 static int
