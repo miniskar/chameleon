@@ -1,0 +1,123 @@
+/**
+ *
+ * @file getenv.h
+ *
+ * @copyright 2009-2014 The University of Tennessee and The University of
+ *                      Tennessee Research Foundation. All rights reserved.
+ * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ *                      Univ. Bordeaux. All rights reserved.
+ *
+ ***
+ *
+ * @brief Chameleon auxiliary file to manage environment variables. Must be included after chameleon.h.
+ *
+ * @version 1.2.0
+ * @author Jakub Kurzak
+ * @author Piotr Luszczek
+ * @author Emmanuel Agullo
+ * @author Cedric Castagnede
+ * @author Florent Pruvost
+ * @author Mathieu Faverge
+ * @author Loris Lucido
+ * @date 2022-02-22
+ *
+ */
+#ifndef _chameleon_getenv_h_
+#define _chameleon_getenv_h_
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * Get environment variable
+ */
+#if defined(CHAMELEON_OS_WINDOWS)
+
+static inline int
+chameleon_setenv( const char *var, const char *value, int overwrite ) {
+    return !(SetEnvironmentVariable( var, value ));
+}
+
+static inline char *
+chameleon_getenv( const char *var ) {
+    char *str;
+    int len = 512;
+    int rc;
+    str = (char*)malloc(len * sizeof(char));
+    rc = GetEnvironmentVariable(var, str, len);
+    if (rc == 0) {
+        free(str);
+        str = NULL;
+    }
+    return str;
+}
+
+static inline void
+chameleon_cleanenv( char *str ) {
+    if (str != NULL) free(str);
+}
+
+#else /* Other OS systems */
+
+static inline int
+chameleon_setenv( const char *var, const char *value, int overwrite ) {
+    return setenv( var, value, overwrite );
+}
+
+static inline char *
+chameleon_getenv( const char *var ) {
+    return getenv( var );
+}
+
+static inline void
+chameleon_cleanenv( char *str ) {
+    (void)str;
+}
+
+#endif
+
+
+static inline int
+chameleon_env_is_set_to(char * str, char * value) {
+    char * val;
+    if ( (val = chameleon_getenv(str)) &&
+         !strcmp(val, value))
+        return 1;
+    return 0;
+}
+
+static inline int
+chameleon_env_on_off( char * str, int default_value ) {
+    if ( chameleon_env_is_set_to(str, "1") ) {
+        return CHAMELEON_TRUE;
+    }
+    if ( chameleon_env_is_set_to(str, "0") ) {
+        return CHAMELEON_FALSE;
+    }
+    return default_value;
+}
+
+static inline int
+chameleon_getenv_get_value_int(char * string, int default_value) {
+    long int ret;
+    char *str = chameleon_getenv(string);
+    if (str == NULL) return default_value;
+
+    if ( sscanf( str, "%ld", &ret ) != 1 ) {
+        perror("sscanf");
+        return default_value;
+    }
+
+    return (int)ret;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _chameleon_getenv_h_ */

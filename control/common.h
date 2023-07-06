@@ -72,6 +72,7 @@
 #include "control/context.h"
 #include "control/descriptor.h"
 #include "control/async.h"
+#include "chameleon/getenv.h"
 
 /**
  *  Global shortcuts
