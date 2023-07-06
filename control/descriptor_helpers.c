@@ -139,6 +139,15 @@ int chameleon_getrankof_custom_init( custom_dist_t **custom_dist,
         return CHAMELEON_ERR_ILLEGAL_VALUE;
     }
 
+    if ( (dist_m <= 0 ) || (dist_n <= 0) ) {
+        char message[300];
+        snprintf( message, 300, "Incorrect values for dist_m(%d) and/or dist_n(%d)", dist_m, dist_n );
+        chameleon_error( "chameleon_getrankof_custom_init", message );
+        free( result );
+        fclose( f );
+        return CHAMELEON_ERR_ILLEGAL_VALUE;
+    }
+
     result->dist_m = dist_m;
     result->dist_n = dist_n;
 
