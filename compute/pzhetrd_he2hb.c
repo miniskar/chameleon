@@ -102,7 +102,7 @@ void chameleon_pzhetrd_he2hb(cham_uplo_t uplo,
         tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
 
         INSERT_TASK_zhe2ge( &options,
-                            uplo, tempkn, tempkn, A->mb, 
+                            uplo, tempkn, tempkn, A->mb,
                             A(k, k), D(k) );
     }
 
