@@ -19,6 +19,7 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon/getenv.h>
 #if !defined(CHAMELEON_SIMULATION)
 #include <coreblas/lapacke.h>
 #include <coreblas/cblas.h>
@@ -58,7 +59,7 @@ testing_zgepdf_qr_desc( run_arg_list_t *args, int check )
     CHAM_desc_t  *descA1, *descA2, *descQ1, *descQ2;
     CHAM_desc_t  *TS1, *TT1, *TS2, *TT2;
     libhqr_tree_t qrtreeT, qrtreeB;
-    int           zqdwh_opt_id = 1;
+    int           zqdwh_opt_id = chameleon_env_on_off( "CHAMELEON_TESTING_GEPDF_OPTID", CHAMELEON_TRUE );
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
