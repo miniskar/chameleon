@@ -67,7 +67,7 @@ set(CODELETS_ZSRC
     codelets/codelet_zgetrf_incpiv.c
     codelets/codelet_zgetrf_nopiv.c
     codelets/codelet_zgetrf_nopiv_percol.c
-    codelets/codelet_zpanel.c
+    codelets/codelet_zgetrf_percol.c
     codelets/codelet_zhe2ge.c
     codelets/codelet_zherfb.c
     codelets/codelet_zhessq.c
