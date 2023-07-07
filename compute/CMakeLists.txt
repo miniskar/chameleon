@@ -27,7 +27,7 @@
 #  @author Alycia Lisito
 #  @author Loris Lucido
 #  @author Matthieu Kuhn
-#  @date 2023-07-06
+#  @date 2023-08-22
 #
 ###
 
@@ -41,6 +41,7 @@ set(CHAMELEON_CONTROL
     ../control/descriptor.c
     ../control/descriptor_rec.c
     ../control/descriptor_helpers.c
+    ../control/descriptor_ipiv.c
     ../control/workspace.c
     ../control/tile.c
     ../control/chameleon_f77.c
