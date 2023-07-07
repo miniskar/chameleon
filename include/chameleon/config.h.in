@@ -57,6 +57,14 @@
 #cmakedefine CHAMELEON_USE_CUBLAS
 #cmakedefine CHAMELEON_USE_HIP
 
+/* Arithmetics support */
+#cmakedefine CHAMELEON_PREC_S
+#cmakedefine CHAMELEON_PREC_D
+#cmakedefine CHAMELEON_PREC_C
+#cmakedefine CHAMELEON_PREC_Z
+#cmakedefine CHAMELEON_PREC_DS
+#cmakedefine CHAMELEON_PREC_ZC
+
 /* Hmat-oss */
 #cmakedefine CHAMELEON_USE_HMAT
 
