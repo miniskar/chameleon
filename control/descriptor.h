@@ -20,7 +20,7 @@
  * @author Raphael Boucherie
  * @author Samuel Thibault
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  *
  */
 #ifndef _chameleon_descriptor_h_
@@ -75,6 +75,9 @@ static inline int chameleon_desc_init( CHAM_desc_t *desc, void *mat,
 CHAM_desc_t* chameleon_desc_submatrix( CHAM_desc_t *descA, int i, int j, int m, int n );
 void         chameleon_desc_destroy  ( CHAM_desc_t *desc );
 int          chameleon_desc_check    ( const CHAM_desc_t *desc );
+
+int chameleon_ipiv_init( CHAM_ipiv_t *ipiv, const CHAM_desc_t *desc, void *data );
+void chameleon_ipiv_destroy( CHAM_ipiv_t *ipiv );
 
 /**
  *  Internal function to return address of block (m,n) with m,n = block indices
