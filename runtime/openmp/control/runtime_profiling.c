@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU profiling routines
+ * @brief Chameleon OpenMP profiling routines
  *
  * @version 1.2.0
  * @author Cedric Augonnet

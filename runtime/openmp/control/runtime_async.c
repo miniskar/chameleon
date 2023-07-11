@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU asynchronous routines
+ * @brief Chameleon OpenMP asynchronous routines
  *
  * @version 1.2.0
  * @author Mathieu Faverge

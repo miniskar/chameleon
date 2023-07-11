@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU context routines
+ * @brief Chameleon OpenMP context routines
  *
  * @version 1.2.0
  * @author Cedric Augonnet

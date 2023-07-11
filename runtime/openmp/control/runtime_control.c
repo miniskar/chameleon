@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU control routines
+ * @brief Chameleon OpenMP control routines
  *
  * @version 1.2.0
  * @author Mathieu Faverge
