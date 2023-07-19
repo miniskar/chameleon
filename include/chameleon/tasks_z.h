@@ -11,7 +11,7 @@
  *
  * @brief Chameleon CHAMELEON_Complex64_t elementary tasks header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
@@ -24,7 +24,7 @@
  * @author Alycia Lisito
  * @author Romain Peressoni
  * @author Matthieu Kuhn
- * @date 2023-02-21
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -78,6 +78,12 @@ void INSERT_TASK_zgeqrt( const RUNTIME_option_t *options,
                          int m, int n, int ib, int nb,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *T, int Tm, int Tn );
+void INSERT_TASK_zgered( const RUNTIME_option_t *options,
+                         double threshold, double Anorm, int m, int n,
+                         const CHAM_desc_t *A, int Am, int An );
+void INSERT_TASK_zgerst( const RUNTIME_option_t *options,
+                         int m, int n,
+                         const CHAM_desc_t *A, int Am, int An );
 void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
                          int m, int n, int k, int ib, int nb,
                          int *IPIV,

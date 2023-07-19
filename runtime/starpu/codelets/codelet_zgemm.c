@@ -31,16 +31,6 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-struct cl_zgemm_args_s {
-    cham_trans_t transA;
-    cham_trans_t transB;
-    int m;
-    int n;
-    int k;
-    CHAMELEON_Complex64_t alpha;
-    CHAMELEON_Complex64_t beta;
-};
-
 #if !defined(CHAMELEON_SIMULATION)
 static void
 cl_zgemm_cpu_func( void *descr[], void *cl_arg )
@@ -201,9 +191,9 @@ void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zgemm_args_s),
 
         /* Task handles */
-        STARPU_R, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R, RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        accessC,  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R, RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R, RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+        accessC,  RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,
@@ -272,9 +262,9 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zgemm_args_s),
 
         /* Task handles */
-        STARPU_R, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R, RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        accessC,  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R, RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R, RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+        accessC,  RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

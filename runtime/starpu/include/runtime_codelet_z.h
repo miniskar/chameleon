@@ -11,14 +11,14 @@
  *
  * @brief Chameleon StarPU CHAMELEON_Complex64_t codelets header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Cedric Augonnet
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Loris Lucido
- * @date 2023-01-30
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -32,14 +32,6 @@
 #if !defined(CHAMELEON_SIMULATION)
 #include "coreblas/coreblas_z.h"
 #include "coreblas/coreblas_ztile.h"
-
-#if defined(CHAMELEON_USE_CUDA)
-#include "gpucublas.h"
-#endif
-
-#if defined(CHAMELEON_USE_HIP)
-#include "gpuhipblas.h"
-#endif
 
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
@@ -98,6 +90,10 @@ CODELETS_HEADER(zunmqr);
  * Auxiliary functions
  */
 CODELETS_HEADER(zgeadd);
+#if defined(PRECISION_z) || defined(PRECISION_d)
+CODELETS_HEADER(zgered);
+#endif
+CODELETS_HEADER(zhessq);
 CODELETS_HEADER(zhe2ge);
 CODELETS_HEADER(zlascal);
 CODELETS_HEADER(ztradd);
@@ -141,5 +137,20 @@ CODELETS_HEADER(zplghe);
 CODELETS_HEADER(zsytrf_nopiv);
 #endif
 CODELETS_HEADER(zplgsy);
+
+#if defined(PRECISION_d) || defined(PRECISION_s)
+CODELETS_HEADER(dlag2h);
+CODELETS_HEADER(hlag2d);
+#endif
+
+struct cl_zgemm_args_s {
+    cham_trans_t transA;
+    cham_trans_t transB;
+    int m;
+    int n;
+    int k;
+    CHAMELEON_Complex64_t alpha;
+    CHAMELEON_Complex64_t beta;
+};
 
 #endif /* _runtime_codelet_z_h_ */

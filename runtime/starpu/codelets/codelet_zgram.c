@@ -9,11 +9,11 @@
  *
  * @brief Chameleon zgram StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Lucas Barros de Assis
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -70,10 +70,10 @@ void INSERT_TASK_zgram( const RUNTIME_option_t *options,
         STARPU_VALUE,    &n,                         sizeof(int),
         STARPU_VALUE,    &mt,                        sizeof(int),
         STARPU_VALUE,    &nt,                        sizeof(int),
-        STARPU_R,        RTBLKADDR(Di, double, Dim, Din),
-        STARPU_R,        RTBLKADDR(Dj, double, Djm, Djn),
-        STARPU_R,        RTBLKADDR(D, double, Dm, Dn),
-        STARPU_RW,       RTBLKADDR(A, double, Am, An),
+        STARPU_R,        RTBLKADDR(Di, ChamRealDouble, Dim, Din),
+        STARPU_R,        RTBLKADDR(Dj, ChamRealDouble, Djm, Djn),
+        STARPU_R,        RTBLKADDR(D, ChamRealDouble, Dm, Dn),
+        STARPU_RW,       RTBLKADDR(A, ChamRealDouble, Am, An),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

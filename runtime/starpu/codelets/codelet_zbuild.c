@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zbuild StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Piotr Luszczek
@@ -23,7 +23,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -79,7 +79,7 @@ CODELETS_CPU(zbuild, cl_zbuild_cpu_func)
         STARPU_VALUE,    &row_max,                      sizeof(int),
         STARPU_VALUE,    &col_min,                      sizeof(int),
         STARPU_VALUE,    &col_max,                      sizeof(int),
-        STARPU_W,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_W,         RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_VALUE,    &user_data,                    sizeof(void*),
         STARPU_VALUE,    &user_build_callback,          sizeof(void*),
         STARPU_PRIORITY,  options->priority,

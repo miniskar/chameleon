@@ -9,10 +9,10 @@
  *
  * @brief Chameleon map StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-06
  *
  */
 #include "chameleon_starpu.h"
@@ -49,10 +49,14 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
 
     struct starpu_codelet *codelet = &cl_map;
     void (*callback)(void*) = options->profiling ? cl_map_callback : NULL;
+    char                  *cl_name = "map";
 
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_RW(A, Am, An);
     CHAMELEON_END_ACCESS_DECLARATION;
+
+    cl_name = chameleon_codelet_name( cl_name, 1,
+                                      A->get_blktile( A, Am, An ) );
 
     rt_starpu_insert_task(
         codelet,
@@ -60,14 +64,14 @@ void INSERT_TASK_map( const RUNTIME_option_t *options,
         STARPU_VALUE,    &uplo,                   sizeof(cham_uplo_t),
         STARPU_VALUE,    &Am,                     sizeof(int),
         STARPU_VALUE,    &An,                     sizeof(int),
-        cham_to_starpu_access(accessA), RTBLKADDR(A, void, Am, An),
+        cham_to_starpu_access(accessA), RTBLKADDR(A, ChamByte, Am, An),
         STARPU_VALUE,    &op_fct,                 sizeof(cham_unary_operator_t),
         STARPU_VALUE,    &op_args,                sizeof(void*),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "map",
+        STARPU_NAME, cl_name,
 #endif
         0);
 }

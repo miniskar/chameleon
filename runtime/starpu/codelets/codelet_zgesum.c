@@ -9,9 +9,9 @@
  *
  * @brief Chameleon zgesum StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -69,8 +69,8 @@ void INSERT_TASK_zgesum( const RUNTIME_option_t *options,
     rt_starpu_insert_task(
         codelet,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zgesum_args_s),
-        STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_RW,       RTBLKADDR(SUMS, CHAMELEON_Complex64_t, SUMSm, SUMSn),
+        STARPU_R,        RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_RW,       RTBLKADDR(SUMS, ChamComplexDouble, SUMSm, SUMSn),
         STARPU_PRIORITY, options->priority,
         STARPU_CALLBACK, callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

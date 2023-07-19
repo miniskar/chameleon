@@ -148,8 +148,8 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
         &cl_ztrmm,
         /* Task codelet arguments */
         STARPU_CL_ARGS, clargs, sizeof(struct cl_ztrmm_args_s),
-        STARPU_R,      RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_RW,     RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_RW,     RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

@@ -11,12 +11,12 @@
  *
  * @brief Chameleon zcallback StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  *  @author Mathieu Faverge
  *  @author Cedric Augonnet
  *  @author Florent Pruvost
  *  @author Alycia Lisito
- *  @date 2022-02-22
+ *  @date 2023-07-06
  *  @precisions normal z -> c d s
  *
  */
@@ -84,3 +84,7 @@ CHAMELEON_CL_CB(ztsmqr_hetra1, cti_handle_get_m(task->handles[0]), cti_handle_ge
 CHAMELEON_CL_CB(ztstrf,        cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]),         M* M*M)
 CHAMELEON_CL_CB(zunmlq,        cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]),     2. *M* M*M)
 CHAMELEON_CL_CB(zunmqr,        cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]), cti_handle_get_m(task->handles[0]),     2. *M* M*M)
+#if defined(PRECISION_d) || defined(PRECISION_s)
+CHAMELEON_CL_CB(dlag2h,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
+CHAMELEON_CL_CB(hlag2d,        cti_handle_get_m(task->handles[0]), cti_handle_get_n(task->handles[0]), 0,                                      M*N)
+#endif

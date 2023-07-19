@@ -114,6 +114,11 @@ set(CODELETS_ZSRC
     # Reduction methods
     ##################
     codelets/codelet_zgersum.c
+    ##################
+    # Precision modification kernels
+    ##################
+    codelets/codelet_zgered.c
+    codelets/codelet_zgerst.c
     )
 
 set(CODELETS_SRC

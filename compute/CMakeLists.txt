@@ -17,7 +17,7 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
@@ -27,7 +27,7 @@
 #  @author Alycia Lisito
 #  @author Loris Lucido
 #  @author Matthieu Kuhn
-#  @date 2023-01-30
+#  @date 2023-07-06
 #
 ###
 
@@ -192,7 +192,11 @@ set(ZSRC
     # MIXED PRECISION
     ##################
     pzlag2c.c
+    pzgered.c
+    pzgerst.c
     ###
+    zgered.c
+    zgerst.c
     #zcgels.c
     #zcgesv.c
     #zcposv.c

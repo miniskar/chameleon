@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zgetrf StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -74,7 +74,7 @@ void INSERT_TASK_zgetrf( const RUNTIME_option_t *options,
         codelet,
         STARPU_VALUE,             &m,                        sizeof(int),
         STARPU_VALUE,             &n,                        sizeof(int),
-        STARPU_RW,                     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_RW,                     RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_VALUE,                  &IPIV,                      sizeof(int*),
         STARPU_VALUE,    &check_info,                sizeof(cham_bool_t),
         STARPU_VALUE,         &iinfo,                        sizeof(int),

@@ -672,6 +672,8 @@ starpu_cham_tile_register( starpu_data_handle_t *handleptr,
             .tilesize   = tile->m * tile->n * elemsize,
         };
     memcpy( &(cham_tile_interface.tile), tile, sizeof( CHAM_tile_t ) );
+    /* Overwrite the flttype in case it comes from a data conversion */
+    cham_tile_interface.tile.flttype = flttype;
 
     if ( tile->format & CHAMELEON_TILE_FULLRANK ) {
         cham_tile_interface.allocsize = tile->m * tile->n * elemsize;

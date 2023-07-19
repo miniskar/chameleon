@@ -11,11 +11,11 @@
  *
  * @brief Chameleon zgersum StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Romain Peressoni
  * @author Mathieu Faverge
  * @author Antoine Jego
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -117,7 +117,7 @@ void
 RUNTIME_zgersum_set_methods( const CHAM_desc_t *A, int Am, int An )
 {
 #if defined(HAVE_STARPU_MPI_REDUX)
-    starpu_data_set_reduction_methods( RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+    starpu_data_set_reduction_methods( RTBLKADDR(A, ChamComplexDouble, Am, An),
                                        &cl_zgersum_redux,
                                        &cl_zgersum_init );
 #endif
@@ -129,7 +129,7 @@ RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
 {
 #if defined(HAVE_STARPU_MPI_REDUX) && defined(CHAMELEON_USE_MPI)
     starpu_mpi_redux_data_prio_tree( MPI_COMM_WORLD,
-                                     RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+                                     RTBLKADDR(A, ChamComplexDouble, Am, An),
                                      options->priority + 1,
                                      2 /* Binary tree */ );
 #else

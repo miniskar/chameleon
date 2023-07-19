@@ -17,10 +17,10 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Florent Pruvost
 #  @author Mathieu Faverge
-#  @date 2022-02-22
+#  @date 2023-07-06
 #
 ###
 
@@ -29,6 +29,7 @@
 set(GPUCUBLAS_HDRS_GENERATED "")
 set(ZHDR
     gpucublas/gpucublas_z.h
+    gpucublas/gpucublas_zc.h
 )
 precisions_rules_py(
   GPUCUBLAS_HDRS_GENERATED "${ZHDR}"

@@ -193,9 +193,9 @@ void INSERT_TASK_zhemm_Astat( const RUNTIME_option_t *options,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zhemm_args_s),
 
         /* Task handles */
-        STARPU_R, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R, RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        accessC,  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R, RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R, RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+        accessC,  RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,
@@ -263,9 +263,9 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
         STARPU_CL_ARGS, clargs, sizeof(struct cl_zhemm_args_s),
 
         /* Task handles */
-        STARPU_R, RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R, RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
-        accessC,  RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R, RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R, RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+        accessC,  RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
 
         /* Common task arguments */
         STARPU_PRIORITY,          options->priority,

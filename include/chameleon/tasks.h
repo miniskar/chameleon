@@ -11,11 +11,11 @@
  *
  * @brief Chameleon elementary tasks main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2023-07-06
  *
  */
 #ifndef _chameleon_tasks_h_
@@ -99,6 +99,27 @@ typedef int (*cham_unary_operator_t)( const CHAM_desc_t *desc,
 void INSERT_TASK_map( const RUNTIME_option_t *options,
                       cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
                       cham_unary_operator_t op_fct, void *op_args );
+
+void INSERT_TASK_gemm( const RUNTIME_option_t *options,
+                       cham_trans_t transA, cham_trans_t transB,
+                       int m, int n, int k, int nb,
+                       double alpha, const CHAM_desc_t *A, int Am, int An,
+                       const CHAM_desc_t *B, int Bm, int Bn,
+                       double beta, const CHAM_desc_t *C, int Cm, int Cn );
+
+void INSERT_TASK_gemmex( const RUNTIME_option_t *options,
+                         cham_trans_t transA, cham_trans_t transB,
+                         int m, int n, int k, int nb,
+                         double alpha, const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn,
+                         double beta, const CHAM_desc_t *C, int Cm, int Cn );
+
+void INSERT_TASK_hgemm( const RUNTIME_option_t *options,
+                        cham_trans_t transA, cham_trans_t transB,
+                        int m, int n, int k, int nb,
+                        CHAMELEON_Real16_t alpha, const CHAM_desc_t *A, int Am, int An,
+                                                  const CHAM_desc_t *B, int Bm, int Bn,
+                        CHAMELEON_Real16_t beta,  const CHAM_desc_t *C, int Cm, int Cn );
 
 #include "chameleon/tasks_z.h"
 #include "chameleon/tasks_d.h"

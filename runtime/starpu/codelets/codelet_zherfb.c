@@ -11,12 +11,12 @@
  *
  * @brief Chameleon zherfb StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Hatem Ltaief
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -106,9 +106,9 @@ void INSERT_TASK_zherfb(const RUNTIME_option_t *options,
         STARPU_VALUE,    &ib,                sizeof(int),
         STARPU_VALUE,    &nb,                sizeof(int),
         STARPU_VALUE,    &nb,                sizeof(int), /* ldw */
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_R,         RTBLKADDR(T, CHAMELEON_Complex64_t, Tm, Tn),
-        STARPU_RW,        RTBLKADDR(C, CHAMELEON_Complex64_t, Cm, Cn),
+        STARPU_R,         RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_R,         RTBLKADDR(T, ChamComplexDouble, Tm, Tn),
+        STARPU_RW,        RTBLKADDR(C, ChamComplexDouble, Cm, Cn),
         STARPU_SCRATCH,   options->ws_worker,
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,

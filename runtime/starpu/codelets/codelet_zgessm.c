@@ -11,7 +11,7 @@
  *
  * @brief Chameleon zgessm StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Hatem Ltaief
@@ -22,7 +22,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -77,9 +77,9 @@ void INSERT_TASK_zgessm( const RUNTIME_option_t *options,
         STARPU_VALUE,     &k,                        sizeof(int),
         STARPU_VALUE,    &ib,                        sizeof(int),
         STARPU_VALUE,          &IPIV,                      sizeof(int*),
-        STARPU_R,             RTBLKADDR(L, CHAMELEON_Complex64_t, Lm, Ln),
-        STARPU_R,             RTBLKADDR(D, CHAMELEON_Complex64_t, Dm, Dn),
-        STARPU_RW,            RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        STARPU_R,             RTBLKADDR(L, ChamComplexDouble, Lm, Ln),
+        STARPU_R,             RTBLKADDR(D, ChamComplexDouble, Dm, Dn),
+        STARPU_RW,            RTBLKADDR(A, ChamComplexDouble, Am, An),
         STARPU_PRIORITY,    options->priority,
         STARPU_CALLBACK,    callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

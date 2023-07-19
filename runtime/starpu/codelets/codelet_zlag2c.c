@@ -11,16 +11,14 @@
  *
  * @brief Chameleon zlag2c StarPU codelet
  *
- * @version 1.2.0
- * @comment This file has been automatically generated
- *          from Plasma 2.5.0 for CHAMELEON 0.9.2
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions mixed zc -> ds
  *
  */
@@ -28,7 +26,8 @@
 #include "runtime_codelet_zc.h"
 
 #if !defined(CHAMELEON_SIMULATION)
-static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
+static void
+cl_zlag2c_cpu_func( void *descr[], void *cl_arg )
 {
     int info = 0;
     int m;
@@ -39,15 +38,44 @@ static void cl_zlag2c_cpu_func(void *descr[], void *cl_arg)
     tileA = cti_interface_get(descr[0]);
     tileB = cti_interface_get(descr[1]);
 
-    starpu_codelet_unpack_args(cl_arg, &m, &n);
+    starpu_codelet_unpack_args( cl_arg, &m, &n );
     TCORE_zlag2c( m, n, tileA, tileB, &info );
 }
+
+#if defined(CHAMELEON_USE_CUDA)
+static void
+cl_zlag2c_cuda_func( void *descr[], void *cl_arg )
+{
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
+    CHAM_tile_t   *tileA;
+    CHAM_tile_t   *tileB;
+    int            m, n;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+
+    starpu_codelet_unpack_args( cl_arg, &m, &n );
+
+    int rc = CUDA_zlag2c(
+        m, n,
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        handle );
+
+    if ( rc != 0 ) {
+        fprintf( stderr, "core_zlag2c failed with info(%d)\n", rc );
+    }
+}
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(zlag2c, cl_zlag2c_cpu_func)
+CODELETS( zlag2c, cl_zlag2c_cpu_func, cl_zlag2c_cuda_func, STARPU_CUDA_ASYNC )
 
 /**
  *
@@ -72,8 +100,8 @@ void INSERT_TASK_zlag2c(const RUNTIME_option_t *options,
         codelet,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex32_t, Bm, Bn),
+        STARPU_R,         RTBLKADDR(A, ChamComplexDouble, Am, An),
+        STARPU_W,         RTBLKADDR(B, ChamComplexFloat, Bm, Bn),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
@@ -97,17 +125,45 @@ static void cl_clag2z_cpu_func(void *descr[], void *cl_arg)
     starpu_codelet_unpack_args(cl_arg, &m, &n);
     TCORE_clag2z( m, n, tileA, tileB);
 }
+
+#if defined(CHAMELEON_USE_CUDA)
+static void
+cl_clag2z_cuda_func( void *descr[], void *cl_arg )
+{
+    cublasHandle_t handle = starpu_cublas_get_local_handle();
+    CHAM_tile_t   *tileA;
+    CHAM_tile_t   *tileB;
+    int            m, n;
+
+    tileA = cti_interface_get(descr[0]);
+    tileB = cti_interface_get(descr[1]);
+
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
+    assert( tileB->format & CHAMELEON_TILE_FULLRANK );
+
+    starpu_codelet_unpack_args( cl_arg, &m, &n );
+
+    int rc = CUDA_clag2z(
+        m, n,
+        tileA->mat, tileA->ld,
+        tileB->mat, tileB->ld,
+        handle );
+    if ( rc != 0 ) {
+        fprintf( stderr, "core_clag2z failed with info(%d)\n", rc );
+    }
+}
+#endif /* defined(CHAMELEON_USE_CUDA) */
 #endif /* !defined(CHAMELEON_SIMULATION) */
 
 /*
  * Codelet definition
  */
-CODELETS_CPU(clag2z, cl_clag2z_cpu_func)
+CODELETS( clag2z, cl_clag2z_cpu_func, cl_clag2z_cuda_func, STARPU_CUDA_ASYNC )
 
-void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
-                       int m, int n, int nb,
-                       const CHAM_desc_t *A, int Am, int An,
-                       const CHAM_desc_t *B, int Bm, int Bn)
+void INSERT_TASK_clag2z( const RUNTIME_option_t *options,
+                         int m, int n, int nb,
+                         const CHAM_desc_t *A, int Am, int An,
+                         const CHAM_desc_t *B, int Bm, int Bn )
 {
     (void)nb;
     struct starpu_codelet *codelet = &cl_clag2z;
@@ -122,8 +178,8 @@ void INSERT_TASK_clag2z(const RUNTIME_option_t *options,
         codelet,
         STARPU_VALUE,    &m,                 sizeof(int),
         STARPU_VALUE,    &n,                 sizeof(int),
-        STARPU_R,         RTBLKADDR(A, CHAMELEON_Complex32_t, Am, An),
-        STARPU_W,         RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+        STARPU_R,         RTBLKADDR(A, ChamComplexFloat, Am, An),
+        STARPU_W,         RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
         STARPU_PRIORITY,  options->priority,
         STARPU_CALLBACK,  callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,

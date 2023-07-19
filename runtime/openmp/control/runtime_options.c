@@ -9,7 +9,7 @@
  *
  ***
  *
- * @brief Chameleon StarPU options routines
+ * @brief Chameleon OpenMP options routines
  *
  * @version 1.2.0
  * @author Cedric Augonnet

@@ -11,11 +11,11 @@
  *
  * @brief Chameleon zaxpy StarPU codelet
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-07-06
  * @precisions normal z -> c d s
  *
  */
@@ -65,9 +65,9 @@ void INSERT_TASK_zaxpy( const RUNTIME_option_t *options,
             codelet,
             STARPU_VALUE,    &M,                           sizeof(int),
             STARPU_VALUE,    &alpha,                       sizeof(CHAMELEON_Complex64_t),
-            STARPU_R,        RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+            STARPU_R,        RTBLKADDR(A, ChamComplexDouble, Am, An),
             STARPU_VALUE,    &incA,                        sizeof(int),
-            STARPU_RW,       RTBLKADDR(B, CHAMELEON_Complex64_t, Bm, Bn),
+            STARPU_RW,       RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
             STARPU_VALUE,    &incB,                        sizeof(int),
             STARPU_PRIORITY, options->priority,
             STARPU_CALLBACK, callback,
