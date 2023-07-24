@@ -203,12 +203,12 @@ void chameleon_pzgered( cham_uplo_t uplo, double prec, CHAM_desc_t *A,
      */
     if ( prec < 0. ) {
 #if !defined(CHAMELEON_SIMULATION)
-        double eps  = LAPACKE_dlamch_work('e');
+        eps = LAPACKE_dlamch_work('e');
 #else
 #if defined(PRECISION_z) || defined(PRECISION_d)
-        double eps  = 1.e-15;
+        eps = 1.e-15;
 #else
-        double eps  = 1.e-7;
+        eps = 1.e-7;
 #endif
 #endif
     }

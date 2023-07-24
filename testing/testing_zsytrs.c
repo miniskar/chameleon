@@ -32,7 +32,6 @@ testing_zsytrs_desc( run_arg_list_t *args, int check )
     /* Read arguments */
     int         async = parameters_getvalue_int( "async" );
     int         nb    = run_arg_get_int( args, "nb", 320 );
-    int         P     = parameters_getvalue_int( "P" );
     cham_uplo_t uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
     int         N     = run_arg_get_int( args, "N", 1000 );
     int         NRHS  = run_arg_get_int( args, "NRHS", 1 );
@@ -40,7 +39,6 @@ testing_zsytrs_desc( run_arg_list_t *args, int check )
     int         LDB   = run_arg_get_int( args, "LDB", N );
     int         seedA = run_arg_get_int( args, "seedA", testing_ialea() );
     int         seedB = run_arg_get_int( args, "seedB", testing_ialea() );
-    int         Q     = parameters_compute_q( P );
 
     /* Descriptors */
     CHAM_desc_t *descA, *descX;
