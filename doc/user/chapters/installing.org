@@ -469,12 +469,15 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
     https://gitlab.inria.fr/solverstack/chameleon/-/packages, then
     install as follows
     #+begin_src sh
-    sudo apt-get install ./chameleon_1.1.0-1_amd64.deb -y
+    sudo apt-get install ./chameleon_1.2.0-1_amd64.deb -y
+    // and to uninstall use
+    // sudo apt-get autoremove -y chameleon
     #+end_src
     Chameleon will be installed on your system meaning you can use
     drivers for performance tests
     #+begin_src sh
-    mpiexec -n 2 chameleon_stesting -t 2 -o gemm -n 1000
+    export OPENBLAS_NUM_THREADS=1
+    mpiexec -n 2 chameleon_stesting -o gemm -n 6400
     #+end_src
     and use Chameleon library in your own project
     #+begin_src sh
