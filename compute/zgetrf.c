@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  *
  * @precisions normal z -> s d c
  *
@@ -409,7 +409,7 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         ws = user_ws;
     }
 
-    chameleon_pzgetrf( user_ws, A, IPIV, sequence, request );
+    chameleon_pzgetrf( ws, A, IPIV, sequence, request );
 
     if ( user_ws == NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );
