@@ -43,15 +43,15 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     int         minMN = chameleon_min( M, N );
 
     /* Descriptors */
-    CHAM_desc_t *descA, *descIPIV;
+    CHAM_desc_t *descA;
+    CHAM_ipiv_t *descIPIV;
     void        *ws = NULL;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
 
     /* Creates the matrices */
     parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
-    CHAMELEON_Desc_Create(
-        &descIPIV, CHAMELEON_MAT_ALLOC_TILE, ChamInteger, nb, 1, nb, minMN, 1, 0, 0, minMN, 1, CHAMELEON_Comm_size(), 1 );
+    CHAMELEON_Ipiv_Create( &descIPIV, descA, NULL );
 
     /* Fills the matrix with random values */
     if ( diag == ChamUnit ) {
@@ -71,7 +71,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     if ( async ) {
         hres = CHAMELEON_zgetrf_Tile_Async( descA, descIPIV, ws, test_data.sequence, &test_data.request );
         CHAMELEON_Desc_Flush( descA, test_data.sequence );
-        CHAMELEON_Desc_Flush( descIPIV, test_data.sequence );
+        CHAMELEON_Ipiv_Flush( descIPIV, test_data.sequence );
     }
     else {
         hres = CHAMELEON_zgetrf_Tile( descA, descIPIV );
@@ -82,18 +82,13 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     /* Checks the factorization and residual */
 #if !defined(CHAMELEON_SIMULATION)
     if ( check ) {
-        CHAM_desc_t *descA0c, *descIPIVc;
+        CHAM_desc_t *descA0c;
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
-        int         *ipiv;
 
         /* Create A0c as local to rank 0 on all nodes to gather the matrix */
         CHAMELEON_Desc_Create_User(
             &descA0c, (void*)CHAMELEON_MAT_ALLOC_GLOBAL, ChamComplexDouble,
             nb, nb, nb*nb, M, N, 0, 0, M, N, 1, 1,
-            chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
-        CHAMELEON_Desc_Create_User(
-            &descIPIVc, (void*)CHAMELEON_MAT_ALLOC_GLOBAL, ChamInteger,
-            nb, 1, nb, M, 1, 0, 0, M, 1, 1, 1,
             chameleon_getaddr_cm, chameleon_getblkldd_cm, NULL, NULL );
 
         if ( diag == ChamUnit ) {
@@ -104,18 +99,21 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
             CHAMELEON_zplrnt_Tile( descA0c, seedA );
         }
 
-        /* Cheat code: float (s) is the same size as int */
-        CHAMELEON_slacpy_Tile( ChamUpperLower, descIPIV, descIPIVc );
-        ipiv = descIPIVc->mat;
-
         /* Compute the permutation of A0: P * A0 */
         if ( CHAMELEON_Comm_rank() == 0 ) {
-            LAPACKE_zlaswp( LAPACK_COL_MAJOR, N, descA0c->mat, M, 1, M, ipiv, 1 );
+            int *ipiv;
+
+            ipiv = malloc( minMN * sizeof(int) );
+            CHAMELEON_Ipiv_Gather( descIPIV, ipiv, 0 );
+            LAPACKE_zlaswp( LAPACK_COL_MAJOR, N, descA0c->mat, M, 1, minMN, ipiv, 1 );
+            free( ipiv );
+        }
+        else {
+            CHAMELEON_Ipiv_Gather( descIPIV, NULL, 0 );
         }
 
         CHAMELEON_zlacpy_Tile( ChamUpperLower, descA0c, descA0 );
         CHAMELEON_Desc_Destroy( &descA0c );
-        CHAMELEON_Desc_Destroy( &descIPIVc );
 
         hres += check_zxxtrf( args, ChamGeneral, ChamUpperLower,
                               descA0, descA );
@@ -129,7 +127,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     }
 
     parameters_desc_destroy( &descA );
-    CHAMELEON_Desc_Destroy( &descIPIV );
+    CHAMELEON_Ipiv_Destroy( &descIPIV );
 
     return hres;
 }
