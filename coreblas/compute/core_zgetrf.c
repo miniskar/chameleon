@@ -19,13 +19,12 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2023-07-26
+ * @date 2023-08-31
  * @precisions normal z -> c d s
  *
  */
 #include "coreblas/lapacke.h"
 #include "coreblas.h"
-
 
 int CORE_zgetrf( int m, int n,
                  CHAMELEON_Complex64_t *A, int lda,
