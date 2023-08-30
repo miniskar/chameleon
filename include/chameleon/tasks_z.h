@@ -24,7 +24,7 @@
  * @author Alycia Lisito
  * @author Romain Peressoni
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-08-31
  * @precisions normal z -> c d s
  *
  */
@@ -186,6 +186,16 @@ void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
 void INSERT_TASK_zlaset2( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha,
                           const CHAM_desc_t *tileA, int tileAm, int tileAn );
+void INSERT_TASK_zlaswp_get( const RUNTIME_option_t *options,
+                             int m0, int k,
+                             const CHAM_ipiv_t *tIPIV, int tIPIVk,
+                             const CHAM_desc_t *tileA, int tileAm, int tileAn,
+                             const CHAM_desc_t *tileB, int tileBm, int tileBn );
+void INSERT_TASK_zlaswp_set( const RUNTIME_option_t *options,
+                             int m0, int k,
+                             const CHAM_ipiv_t *tIPIV, int tIPIVk,
+                             const CHAM_desc_t *tileA, int tileAm, int tileAn,
+                             const CHAM_desc_t *tileB, int tileBm, int tileBn );
 void INSERT_TASK_zlatro( const RUNTIME_option_t *options,
                          cham_uplo_t uplo, cham_trans_t trans, int m, int n, int mb,
                          const CHAM_desc_t *A, int Am, int An,

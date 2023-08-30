@@ -76,8 +76,9 @@ set(CODELETS_ZSRC
     codelets/codelet_zlanhe.c
     codelets/codelet_zlansy.c
     codelets/codelet_zlantr.c
-    codelets/codelet_zlaset2.c
     codelets/codelet_zlaset.c
+    codelets/codelet_zlaset2.c
+    codelets/codelet_zlaswp.c
     codelets/codelet_zlatro.c
     codelets/codelet_zlauum.c
     codelets/codelet_zplghe.c
