@@ -23,7 +23,7 @@
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Matthieu Kuhn
- * @date 2023-07-06
+ * @date 2023-08-22
  * @precisions normal z -> c d s
  *
  */
@@ -135,7 +135,7 @@ int CHAMELEON_zgesvd_Tile(cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *A, dou
 //int CHAMELEON_zgetrf_Tile(CHAM_desc_t *A, int *IPIV);
 int CHAMELEON_zgetrf_incpiv_Tile(CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV);
 int CHAMELEON_zgetrf_nopiv_Tile(CHAM_desc_t *A);
-int CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV );
+int CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_ipiv_t *IPIV );
 //int CHAMELEON_zgetri_Tile(CHAM_desc_t *A, int *IPIV);
 //int CHAMELEON_zgetrs_Tile(cham_trans_t trans, CHAM_desc_t *A, int *IPIV, CHAM_desc_t *B);
 int CHAMELEON_zgetrs_incpiv_Tile(CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHAM_desc_t *B);
@@ -216,7 +216,7 @@ int CHAMELEON_zgesvd_Tile_Async(cham_job_t jobu, cham_job_t jobvt, CHAM_desc_t *
 //int CHAMELEON_zgetrf_Tile_Async(CHAM_desc_t *A, int *IPIV, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgetrf_incpiv_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgetrf_nopiv_Tile_Async(CHAM_desc_t *A, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
-int CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t *A, CHAM_desc_t *IPIV, void *ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
+int CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t *A, CHAM_ipiv_t *IPIV, void *ws, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 //int CHAMELEON_zgetri_Tile_Async(CHAM_desc_t *A, int *IPIV, CHAM_desc_t *W, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 //int CHAMELEON_zgetrs_Tile_Async(cham_trans_t trans, CHAM_desc_t *A, int *IPIV, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);
 int CHAMELEON_zgetrs_incpiv_Tile_Async(CHAM_desc_t *A, CHAM_desc_t *L, int *IPIV, CHAM_desc_t *B, RUNTIME_sequence_t *sequence, RUNTIME_request_t *request);

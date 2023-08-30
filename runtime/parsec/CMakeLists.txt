@@ -88,6 +88,7 @@ set(RUNTIME_COMMON
   control/runtime_context.c
   control/runtime_control.c
   control/runtime_descriptor.c
+  control/runtime_descriptor_ipiv.c
   control/runtime_options.c
   control/runtime_profiling.c
   ${RUNTIME_COMMON_GENERATED}

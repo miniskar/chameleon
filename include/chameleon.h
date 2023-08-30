@@ -18,7 +18,7 @@
  * @author Florent Pruvost
  * @author Philippe Virouleau
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  *
  */
 #ifndef _chameleon_h_
@@ -194,6 +194,13 @@ int  CHAMELEON_Recursive_Desc_Create( CHAM_desc_t **descptr, void *mat, cham_flt
                                       int *mb, int *nb, int lm, int ln, int m, int n, int p, int q,
                                       blkaddr_fct_t get_blkaddr, blkldd_fct_t get_blkldd,
                                       blkrankof_fct_t get_rankof, void* get_rankof_arg );
+
+int CHAMELEON_Ipiv_Create ( CHAM_ipiv_t **ipivptr, const CHAM_desc_t *desc, void *data );
+int CHAMELEON_Ipiv_Destroy( CHAM_ipiv_t **ipivptr );
+int CHAMELEON_Ipiv_Flush  ( const CHAM_ipiv_t        *ipiv,
+                            const RUNTIME_sequence_t *sequence );
+int CHAMELEON_Ipiv_Gather( CHAM_ipiv_t *ipivdesc, int *ipiv, int root );
+void CHAMELEON_Ipiv_Print ( const CHAM_ipiv_t *ipiv );
 
 /**
  *

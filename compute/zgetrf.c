@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  *
  * @precisions normal z -> s d c
  *
@@ -68,15 +68,21 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
     {
         char *algostr = chameleon_getenv( "CHAMELEON_GETRF_ALGO" );
 
-        if ( algostr ) {
-            if ( strcasecmp( algostr, "nopiv" ) ) {
+        if ( algostr != NULL ) {
+            if ( strcasecmp( algostr, "nopiv" ) == 0 ) {
                 ws->alg = ChamGetrfNoPiv;
             }
             else if ( strcasecmp( algostr, "nopivpercolumn" ) == 0  ) {
                 ws->alg = ChamGetrfNoPivPerColumn;
             }
+            else if ( strcasecmp( algostr, "ppiv" )  == 0 ) {
+                ws->alg = ChamGetrfPPiv;
+            }
+            else if ( strcasecmp( algostr, "ppivpercolumn" ) == 0  ) {
+                ws->alg = ChamGetrfPPivPerColumn;
+            }
             else {
-                fprintf( stderr, "ERROR: CHAMELEON_GETRF_ALGO is not one of NoPiv, NoPivPerColumn => Switch back to NoPiv\n" );
+                chameleon_error( "CHAMELEON_zgetrf_WS_Alloc", "CHAMELEON_GETRF_ALGO is not one of NoPiv, NoPivPerColumn, PPiv, PPivPerColumn => Switch back to NoPiv\n" );
             }
         }
         chameleon_cleanenv( algostr );
@@ -88,6 +94,13 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
                              A->mt, A->nt * A->nb, 0, 0,
                              A->mt, A->nt * A->nb, A->p, A->q,
                              NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
+    }
+
+    /* Set ib to 1 if per column algorithm */
+    if ( ( ws->alg == ChamGetrfNoPivPerColumn ) ||
+         ( ws->alg == ChamGetrfPPivPerColumn  ) )
+    {
+        ws->ib = 1;
     }
 
     return ws;
@@ -123,7 +136,6 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
     free( ws );
 }
 
-#if defined(NOT_AVAILABLE_YET)
 /**
  ********************************************************************************
  *
@@ -149,6 +161,11 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
  * @param[in] LDA
  *          The leading dimension of the array A. LDA >= max(1,M).
  *
+ * @param[out] IPIV
+ *          Integer array of dimension min(M,N).
+ *          The pivot indices; for 1 <= i <= min(M,N), row i of the
+ *          matrix was interchanged with row IPIV(i).
+ *
  *******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
@@ -173,10 +190,11 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
     int                 NB;
     int                 status;
     CHAM_desc_t         descAl, descAt;
+    CHAM_ipiv_t         descIPIV;
     CHAM_context_t     *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t   request  = RUNTIME_REQUEST_INITIALIZER;
-    void               *ws;
+    struct chameleon_pzgetrf_s *ws;
 
     chamctxt = chameleon_context_self();
     if ( chamctxt == NULL ) {
@@ -218,25 +236,36 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
 
     /* Allocate workspace for partial pivoting */
     ws = CHAMELEON_zgetrf_WS_Alloc( &descAt );
+
+    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+        chameleon_ipiv_init( &descIPIV, &descAt, IPIV );
+    }
+
     /* Call the tile interface */
-    CHAMELEON_zgetrf_Tile_Async( &descAt, ws, sequence, &request );
+    CHAMELEON_zgetrf_Tile_Async( &descAt, &descIPIV, ws, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                          ChamDescInout, ChamUpperLower, sequence, &request );
 
+    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+        RUNTIME_ipiv_gather( &descIPIV, IPIV, 0 );
+    }
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
     CHAMELEON_zgetrf_WS_Free( ws );
     chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
+    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+        chameleon_ipiv_destroy( &descIPIV );
+    }
+
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
 
     return status;
 }
-#endif
 
 /**
  ********************************************************************************
@@ -254,12 +283,19 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
  *          On entry, the M-by-N matrix to be factored.
  *          On exit, the tile factors L and U from the factorization.
  *
+ * @param[in,out] IPIV
+ *          On entry, ipiv descriptor associated to A and created with
+ *          CHAMELEON_Ipiv_Create().
+ *          On exit, it contains the pivot indices associated to the PLU
+ *          factorization of A.
+ *
  *******************************************************************************
  *
  * @retval CHAMELEON_SUCCESS successful exit
- * @retval >0 if i, U(i,i) is exactly zero. The factorization has been completed,
- *               but the factor U is exactly singular, and division by zero will occur
- *               if it is used to solve a system of equations.
+ * @retval >0 if i, U(i,i) is exactly zero. The factorization has been
+ *               completed, but the factor U is exactly singular, and division
+ *               by zero will occur if it is used to solve a system of
+ *               equations.
  *
  *******************************************************************************
  *
@@ -272,7 +308,7 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
  *
  */
 int
-CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV )
+CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_ipiv_t *IPIV )
 {
     CHAM_context_t     *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
@@ -316,9 +352,10 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV )
  *          On exit, the tile factors L and U from the factorization.
  *
  * @param[in,out] IPIV
- *          On entry, the descriptor of an min(M, N)-by-1 matrix that may not
- *          have been initialized.
- *          On exit, the pivot vector generated during the factorization.
+ *          On entry, ipiv descriptor associated to A and created with
+ *          CHAMELEON_Ipiv_Create().
+ *          On exit, it contains the pivot indices associated to the PLU
+ *          factorization of A.
  *
  * @param[in,out] user_ws
  *          The opaque pointer to pre-allocated getrf workspace through
@@ -345,7 +382,7 @@ CHAMELEON_zgetrf_Tile( CHAM_desc_t *A, CHAM_desc_t *IPIV )
  */
 int
 CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
-                             CHAM_desc_t        *IPIV,
+                             CHAM_ipiv_t        *IPIV,
                              void               *user_ws,
                              RUNTIME_sequence_t *sequence,
                              RUNTIME_request_t  *request )
@@ -383,10 +420,6 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         chameleon_error( "CHAMELEON_zgetrf_Tile", "invalid first descriptor" );
         return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
-    if ( chameleon_desc_check( IPIV ) != CHAMELEON_SUCCESS ) {
-        chameleon_error( "CHAMELEON_zgetrf_Tile", "invalid second descriptor" );
-        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
-    }
 
     /* Check input arguments */
     if ( A->nb != A->mb ) {
@@ -397,10 +430,6 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         chameleon_error( "CHAMELEON_zgetrf_Tile", "IPIV tiles must have the number of rows as tiles of A" );
         return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
     }
-    if ( IPIV->nb != 1 ) {
-        chameleon_error( "CHAMELEON_zgetrf_Tile", "IPIV tiles must be vectore with only one column per tile" );
-        return chameleon_request_fail( sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE );
-    }
 
     if ( user_ws == NULL ) {
         ws = CHAMELEON_zgetrf_WS_Alloc( A );
@@ -409,7 +438,7 @@ CHAMELEON_zgetrf_Tile_Async( CHAM_desc_t        *A,
         ws = user_ws;
     }
 
-    chameleon_pzgetrf( user_ws, A, IPIV, sequence, request );
+    chameleon_pzgetrf( ws, A, IPIV, sequence, request );
 
     if ( user_ws == NULL ) {
         CHAMELEON_Desc_Flush( A, sequence );

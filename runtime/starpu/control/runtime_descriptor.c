@@ -20,25 +20,10 @@
  * @author Raphael Boucherie
  * @author Samuel Thibault
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2023-08-22
  *
  */
 #include "chameleon_starpu.h"
-
-/**
- *  Set the tag sizes
- */
-#if defined(CHAMELEON_USE_MPI)
-
-#ifndef HAVE_STARPU_MPI_DATA_REGISTER
-#define starpu_mpi_data_register( handle_, tag_, owner_ )       \
-    do {                                                        \
-        starpu_data_set_rank( (handle_), (owner_) );            \
-        starpu_data_set_tag( (handle_), (tag_) );               \
-    } while(0)
-#endif
-
-#endif
 
 /**
  *  Malloc/Free of the data
@@ -288,42 +273,6 @@ void RUNTIME_flush()
     starpu_mpi_cache_flush_all_data(MPI_COMM_WORLD);
 #endif
 }
-
-/**
- * Different implementations of the flush call based on StarPU version
- */
-#if defined(HAVE_STARPU_DATA_WONT_USE)
-
-static inline void
-chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
-    starpu_data_wont_use( handle );
-}
-
-#elif defined(HAVE_STARPU_IDLE_PREFETCH)
-
-static inline void
-chameleon_starpu_data_flush( void *_handle)
-{
-    starpu_data_handle_t handle = (starpu_data_handle_t)_handle;
-    starpu_data_idle_prefetch_on_node(handle, STARPU_MAIN_RAM, 1);
-    starpu_data_release_on_node(handle, -1);
-}
-
-static inline void
-chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
-    starpu_data_acquire_on_node_cb( handle, -1, STARPU_R,
-                                    chameleon_starpu_data_flush, handle );
-}
-
-#else
-
-static inline void
-chameleon_starpu_data_wont_use( starpu_data_handle_t handle ) {
-    starpu_data_acquire_cb( handle, STARPU_R,
-                            (void (*)(void*))&starpu_data_release, handle );
-}
-
-#endif
 
 void RUNTIME_desc_flush( const CHAM_desc_t        *desc,
                          const RUNTIME_sequence_t *sequence )

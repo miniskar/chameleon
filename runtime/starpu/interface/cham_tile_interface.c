@@ -13,7 +13,7 @@
  * @author Mathieu Faverge
  * @author Gwenole Lucas
  * @author Samuel Thibault
- * @date 2023-07-06
+ * @date 2023-08-22
  *
  */
 #include "chameleon_starpu.h"
@@ -115,7 +115,7 @@ cti_init( void *data_interface )
 
 static void
 cti_register_data_handle( starpu_data_handle_t  handle,
-                          unsigned int          home_node,
+                          int                   home_node,
                           void                 *data_interface )
 {
     starpu_cham_tile_interface_t *cham_tile_interface = (starpu_cham_tile_interface_t *) data_interface;

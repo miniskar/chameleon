@@ -9,10 +9,10 @@
  *
  * @brief Chameleon core_zgetrf with partial pivoting CPU kernel
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2023-08-22
  * @precisions normal z -> c d s
  *
  */
@@ -42,6 +42,10 @@ static const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
  * @param[in] h
  *         The index of the column to factorize in the matrix A.
  *
+ * @param[in] m0
+ *         The number of rows above the diagonale tile A in the global matrix to
+ *         be factorized.
+ *
  * @param[in,out] A
  *          On entry, the matrix A where column h-1 needs to be factorized, and
  *          pivot for column h needs to be selected.
@@ -56,9 +60,11 @@ static const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
  *          The leading dimension of the array A. lda >= max(1,m).
  *
  * @param[in,out] IPIV
- *          On entry, the pivot array of size min(m,n) with the first h-2 columns initialized.
- *          On exit, IPIV[h-1] is updated with the selected pivot for the previous column.
- *
+ *          On entry, the pivot array of size min(m,n) with the first h-2
+ *          columns initialized.
+ *          On exit, IPIV[h-1] is updated with the selected pivot for the
+ *          previous column.
+ * *
  * @param[in,out] nextpiv
  *          On entry, the allocated and initialized CHAM_piv_t structure to
  *          store the information related to pivot at stage h.
@@ -169,6 +175,7 @@ CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
     /* Store current diagonal row (in full) into pivot structure */
     cblas_zcopy( n, A + h,            lda,
                     nextpiv->diagrow, 1 );
+
     return 0;
 }
 

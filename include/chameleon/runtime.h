@@ -10,7 +10,7 @@
  ***
  *
  * @brief The common runtimes API
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Augonnet
  * @author Cedric Castagnede
@@ -18,7 +18,7 @@
  * @author Samuel Thibault
  * @author Philippe Swartvagher
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2023-08-22
  *
  */
 #ifndef _chameleon_runtime_h_
@@ -704,6 +704,32 @@ void RUNTIME_ddisplay_allprofile ();
 void RUNTIME_ddisplay_oneprofile (cham_tasktype_t task);
 void RUNTIME_sdisplay_allprofile ();
 void RUNTIME_sdisplay_oneprofile (cham_tasktype_t task);
+
+void RUNTIME_ipiv_create ( CHAM_ipiv_t *ipiv );
+void RUNTIME_ipiv_destroy( CHAM_ipiv_t *ipiv );
+void RUNTIME_ipiv_init   ( CHAM_ipiv_t *ipiv );
+void RUNTIME_ipiv_gather ( CHAM_ipiv_t *desc, int *ipiv, int node );
+
+void *RUNTIME_ipiv_getaddr   ( CHAM_ipiv_t *ipiv, int m );
+void *RUNTIME_nextpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h );
+void *RUNTIME_prevpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h );
+
+static inline void *
+RUNTIME_pivot_getaddr( CHAM_ipiv_t *ipiv, int m, int h ) {
+    if ( h%2 == 0 ) {
+        return RUNTIME_nextpiv_getaddr( ipiv, m, -1 );
+    }
+    else {
+        return RUNTIME_prevpiv_getaddr( ipiv, m, -1 );
+    }
+}
+
+void RUNTIME_ipiv_flushk ( const RUNTIME_sequence_t *sequence,
+                           const CHAM_ipiv_t *ipiv, int m );
+void RUNTIME_ipiv_flush  ( const CHAM_ipiv_t *ipiv,
+                           const RUNTIME_sequence_t *sequence );
+void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
+                           CHAM_ipiv_t *ws, int k, int h );
 
 /**
  * @}

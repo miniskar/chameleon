@@ -19,7 +19,7 @@
  * @author Samuel Thibault
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2023-08-22
  *
  */
 #ifndef _chameleon_struct_h_
@@ -137,6 +137,25 @@ struct chameleon_desc_s {
     void *schedopt;   // scheduler (QUARK|StarPU) specific structure
 };
 
+/**
+ *  CHAMELEON structure to hold pivot informations for the LU factorization with partial pivoting
+ */
+typedef struct chameleon_piv_s {
+    const CHAM_desc_t *desc;   /**> Reference descriptor to compute data mapping based on diagonal tiles,
+                              and get floating reference type                                        */
+    int    *data;        /**> Pointer to the data                                                    */
+    void   *ipiv;        /**> Opaque array of pointers for the runtimes to handle the ipiv array     */
+    void   *nextpiv;     /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
+    void   *prevpiv;     /**> Opaque array of pointers for the runtimes to handle the pivot computation structure */
+    int64_t mpitag_ipiv;    /**> Initial mpi tag values for the ipiv handles    */
+    int64_t mpitag_nextpiv; /**> Initial mpi tag values for the nextpiv handles */
+    int64_t mpitag_prevpiv; /**> Initial mpi tag values for the prevpiv handles */
+    int     i;              /**> row index to the beginning of the submatrix    */
+    int     m;              /**> The number of row in the vector ipiv           */
+    int     mb;             /**> The number of row per block                    */
+    int     mt;             /**> The number of tiles                            */
+    int     n;              /**> The number of column considered (must be updated for each panel) */
+} CHAM_ipiv_t;
 
 /**
  *  CHAMELEON request uniquely identifies each asynchronous function call.
