@@ -11,14 +11,14 @@
  *
  * @brief Chameleon CPU kernels main header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Hatem Ltaief
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2022-02-22
+ * @date 2023-08-31
  *
  */
 #ifndef _coreblas_h_
@@ -86,6 +86,8 @@ void __coreblas_kernel_trace( const char *func, ... );
 #define coreblas_kernel_trace( ... ) do {} while(0)
 
 #endif
+
+void CORE_ipiv_to_perm( int m0, int m, int k, int *ipiv, int *perm, int *invp );
 
 END_C_DECLS
 
