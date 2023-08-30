@@ -11,7 +11,7 @@
  *
  * @brief Chameleon CPU CHAMELEON_Complex64_t kernels header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Jakub Kurzak
@@ -22,7 +22,7 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2022-02-22
+ * @date 2023-08-31
  * @precisions normal z -> c d s
  *
  */
@@ -178,6 +178,14 @@ void CORE_zlaset2(cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha,
                   CHAMELEON_Complex64_t *tileA, int ldtilea);
 void CORE_zlaswp(int N, CHAMELEON_Complex64_t *A, int LDA,
                  int I1,  int I2, const int *IPIV, int INC);
+int CORE_zlaswp_get( int m0, int m, int n, int k,
+                     const CHAMELEON_Complex64_t *A, int lda,
+                     CHAMELEON_Complex64_t *B, int ldb,
+                     const int *perm );
+int CORE_zlaswp_set( int m0, int m, int n, int k,
+                     const CHAMELEON_Complex64_t *A, int lda,
+                     CHAMELEON_Complex64_t *B, int ldb,
+                     const int *invp );
 int  CORE_zlaswp_ontile( CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc);
 int  CORE_zlaswpc_ontile(CHAM_desc_t descA, int i1, int i2, const int *ipiv, int inc);
 int  CORE_zlatro(cham_uplo_t uplo, cham_trans_t trans,

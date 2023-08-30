@@ -68,8 +68,9 @@ set(ZSRC
     core_zlanhe.c
     core_zlansy.c
     core_zlantr.c
-    core_zlaset2.c
     core_zlaset.c
+    core_zlaset2.c
+    core_zlaswp.c
     core_zlatro.c
     core_zlauum.c
     core_zpamm.c

@@ -357,6 +357,24 @@ TCORE_zlaset2( cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha, CH
 }
 
 int
+TCORE_zlaswp_get( int m0, int m, int n, int k, CHAM_tile_t *A, CHAM_tile_t *B, const int *perm )
+{
+    coreblas_kernel_trace( A, B );
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( B->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return 0;
+}
+
+int
+TCORE_zlaswp_set( int m0, int m, int n, int k, CHAM_tile_t *A, CHAM_tile_t *B, const int *invp )
+{
+    coreblas_kernel_trace( A, B );
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( B->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return 0;
+}
+
+int
 TCORE_zlatro( cham_uplo_t        uplo,
               cham_trans_t       trans,
               int                M,
