@@ -276,14 +276,38 @@ void RUNTIME_ipiv_gather( CHAM_ipiv_t *desc, int *ipiv, int node )
     int64_t mb   = desc->mb;
     int64_t tag  = chameleon_starpu_tag_book( (int64_t)(desc->mt) );
     int     rank = CHAMELEON_Comm_rank();
+    int     owner = rank;
     int     m;
 
     for (m = 0; m < mt; m++, ipiv += mb) {
         starpu_data_handle_t ipiv_src = RUNTIME_ipiv_getaddr( desc, m );
 
 #if defined(CHAMELEON_USE_MPI)
-        if ( (rank == node) ||
-             (rank == starpu_mpi_data_get_rank(ipiv_src)) )
+        owner = starpu_mpi_data_get_rank( ipiv_src );
+        if ( node != owner ) {
+            starpu_mpi_tag_t tag = starpu_mpi_data_get_tag( ipiv_src );
+
+            if ( rank == node )
+            {
+                /* Need to receive the data */
+                int already_received = starpu_mpi_cached_receive_set( ipiv_src );
+                if (already_received == 0)
+                {
+                    MPI_Status status;
+                    starpu_mpi_recv( ipiv_src, owner, tag, MPI_COMM_WORLD, &status );
+                }
+            }
+            else if ( rank == owner )
+            {
+                /* Need to send the data */
+                int already_sent = starpu_mpi_cached_send_set( ipiv_src, node );
+                if (already_sent == 0)
+                {
+                    starpu_mpi_send( ipiv_src, node, tag, MPI_COMM_WORLD );
+                }
+            }
+        }
+        if ( rank == node )
 #endif
         {
             starpu_data_handle_t ipiv_dst;
