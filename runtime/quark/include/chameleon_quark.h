@@ -49,7 +49,7 @@ static inline int cham_to_quark_access( cham_access_t accessA ) {
 /*
  * Access to block pointer and leading dimension
  */
-#define RTBLKADDR( desc, type, m, n ) ( (type*)RUNTIME_data_getaddr( desc, m, n ) )
+#define RTBLKADDR( desc, type, m, n ) ( RUNTIME_data_getaddr( desc, m, n ) )
 
 #define RUNTIME_BEGIN_ACCESS_DECLARATION
 
