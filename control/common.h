@@ -119,9 +119,9 @@ void chameleon_pclag2z(CHAM_context_t *chamctxt);
 */
 
 #if defined(__GNUC__)
-static inline int chameleon_asprintf( char **strp, const char *fmt, ... ) __attribute__((format(printf,2,3)));
+static inline int chameleon_asprintf( char **restrict strp, const char *fmt, ... ) __attribute__((format(printf,2,3)));
 #endif
-static inline int chameleon_asprintf( char **strp, const char *fmt, ... )
+static inline int chameleon_asprintf( char **restrict strp, const char *fmt, ... )
 {
     va_list ap;
     int rc;
