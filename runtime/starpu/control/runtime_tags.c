@@ -129,8 +129,8 @@ chameleon_starpu_tag_book( int64_t nbtags )
     }
 
 #if defined(CHAMELEON_DEBUG_STARPU)
-    fprintf( stderr, "chameleon_starpu_tag: Book %ld - %ld\n",
-             min, min + nbtags );
+    fprintf( stderr, "[%02d] chameleon_starpu_tag: Book %ld - %ld\n",
+             CHAMELEON_Comm_rank(), min, min + nbtags );
 #endif
 
     assert( cst_first != NULL );
