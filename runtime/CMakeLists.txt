@@ -24,7 +24,7 @@
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
 #  @author Matthieu Kuhn
-#  @date 2023-08-22
+#  @date 2023-08-31
 #
 ###
 
@@ -76,8 +76,9 @@ set(CODELETS_ZSRC
     codelets/codelet_zlanhe.c
     codelets/codelet_zlansy.c
     codelets/codelet_zlantr.c
-    codelets/codelet_zlaset2.c
     codelets/codelet_zlaset.c
+    codelets/codelet_zlaset2.c
+    codelets/codelet_zlaswp.c
     codelets/codelet_zlatro.c
     codelets/codelet_zlauum.c
     codelets/codelet_zplghe.c
@@ -124,6 +125,7 @@ set(CODELETS_ZSRC
 
 set(CODELETS_SRC
   codelets/codelet_map.c
+  codelets/codelet_ipiv_to_perm.c
 )
 
 # Check for the subdirectories

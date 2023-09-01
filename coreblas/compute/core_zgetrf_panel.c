@@ -134,13 +134,7 @@ CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
             cblas_zscal( m-h, CBLAS_SADDR( alpha ), L, 1 );
         }
 
-        /*
-         * h is compared only to n, because if we are on the last column of a
-         * tile, m might be much smaller than n, and still we need to apply
-         * the geru call. If this is the diagonal tile, we will just look for
-         * the next maximum for nothing.
-         */
-        if ( h < n ) {
+        if ( h < chameleon_min( m, n ) ) {
             /* Applying the update */
             cblas_zgeru(CblasColMajor, m-h, n-h,
                         CBLAS_SADDR(mzone),

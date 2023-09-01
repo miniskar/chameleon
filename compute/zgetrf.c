@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-22
+ * @date 2023-08-31
  *
  * @precisions normal z -> s d c
  *
@@ -95,6 +95,15 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
                              A->mt, A->nt * A->nb, A->p, A->q,
                              NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
     }
+    else if ( ( ws->alg == ChamGetrfPPiv ) ||
+              ( ws->alg == ChamGetrfPPivPerColumn ) )
+    {
+        chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, A->mb, A->nb, A->mb*A->nb,
+                             A->m, A->n, 0, 0,
+                             A->m, A->n, A->p, A->q,
+                             NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
+    }
 
     /* Set ib to 1 if per column algorithm */
     if ( ( ws->alg == ChamGetrfNoPivPerColumn ) ||
@@ -130,7 +139,10 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
 {
     struct chameleon_pzgetrf_s *ws = (struct chameleon_pzgetrf_s *)user_ws;
 
-    if ( ws->alg == ChamGetrfNoPivPerColumn ) {
+    if ( ( ws->alg == ChamGetrfNoPivPerColumn ) ||
+         ( ws->alg == ChamGetrfPPiv           ) ||
+         ( ws->alg == ChamGetrfPPivPerColumn  ) )
+    {
         chameleon_desc_destroy( &(ws->U) );
     }
     free( ws );

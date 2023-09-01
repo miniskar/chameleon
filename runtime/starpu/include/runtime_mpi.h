@@ -23,7 +23,7 @@
 #if defined(CHAMELEON_USE_MPI)
 
 #if !defined(HAVE_STARPU_MPI_DATA_REGISTER)
-static inline starpu_mpi_data_register( starpu_data_handle_t handle, int64_t tag, int owner )
+static inline void starpu_mpi_data_register( starpu_data_handle_t handle, int64_t tag, int owner )
 {
     starpu_data_set_rank( handle, owner );
     starpu_data_set_tag( handle, tag );
@@ -32,8 +32,11 @@ static inline starpu_mpi_data_register( starpu_data_handle_t handle, int64_t tag
 
 #else
 
-static inline starpu_mpi_data_register( starpu_data_handle_t, int64_t, int )
+static inline void starpu_mpi_data_register( starpu_data_handle_t handle, int64_t tag, int owner )
 {
+    (void)handle;
+    (void)tag;
+    (void)owner;
 }
 
 #endif

@@ -11,12 +11,12 @@
  *
  * @brief Chameleon PaRSEC runtime header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Reazul Hoque
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2023-08-31
  *
  */
 #ifndef _chameleon_parsec_h_
@@ -38,8 +38,26 @@ struct chameleon_parsec_desc_s {
 typedef struct chameleon_parsec_desc_s chameleon_parsec_desc_t;
 
 static inline int
-chameleon_parsec_get_arena_index(const CHAM_desc_t *desc) {
+chameleon_parsec_get_arena_index( const CHAM_desc_t *desc ) {
     return ((chameleon_parsec_desc_t *)desc->schedopt)->arena_index;
+}
+
+static inline int
+chameleon_parsec_get_arena_index_ipiv( const CHAM_ipiv_t *ipiv ) {
+    assert(0);
+    return -1;
+}
+
+static inline int
+chameleon_parsec_get_arena_index_perm( const CHAM_ipiv_t *ipiv ) {
+    assert(0);
+    return -1;
+}
+
+static inline int
+chameleon_parsec_get_arena_index_invp( const CHAM_ipiv_t *ipiv ) {
+    assert(0);
+    return -1;
 }
 
 static inline int cham_to_parsec_access( cham_access_t accessA ) {

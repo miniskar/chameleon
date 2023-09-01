@@ -9,11 +9,11 @@
  *
  * @brief Chameleon CPU kernel interface from CHAM_tile_t layout to the real one.
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Florent Pruvost
  * @author Alycia Lisito
- * @date 2022-02-22
+ * @date 2023-08-31
  * @precisions normal z -> c d s
  *
  */
@@ -462,6 +462,24 @@ TCORE_zlaset2( cham_uplo_t uplo, int n1, int n2, CHAMELEON_Complex64_t alpha, CH
     coreblas_kernel_trace( A );
     assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
     CORE_zlaset2( uplo, n1, n2, alpha, CHAM_tile_get_ptr( A ), A->ld );
+}
+
+int
+TCORE_zlaswp_get( int m0, int m, int n, int k, CHAM_tile_t *A, CHAM_tile_t *B, const int *perm )
+{
+    coreblas_kernel_trace( A, B );
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( B->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return CORE_zlaswp_get( m0, m, n, k, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, perm );
+}
+
+int
+TCORE_zlaswp_set( int m0, int m, int n, int k, CHAM_tile_t *A, CHAM_tile_t *B, const int *invp )
+{
+    coreblas_kernel_trace( A, B );
+    assert( A->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    assert( B->format & (CHAMELEON_TILE_FULLRANK | CHAMELEON_TILE_DESC) );
+    return CORE_zlaswp_set( m0, m, n, k, CHAM_tile_get_ptr( A ), A->ld, CHAM_tile_get_ptr( B ), B->ld, invp );
 }
 
 int

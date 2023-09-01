@@ -16,7 +16,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-08-31
  * @precisions normal z -> s d c
  *
  */
@@ -154,6 +154,7 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
     }
 
     /* Flush temporary data used for the pivoting */
+    INSERT_TASK_ipiv_to_perm( options, k * A->mb, tempkm, minmn, ipiv, k );
     RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
 }
 
@@ -191,20 +192,59 @@ chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
 static inline void
 chameleon_pzgetrf_panel_permute( struct chameleon_pzgetrf_s *ws,
                                  CHAM_desc_t                *A,
+                                 CHAM_ipiv_t                *ipiv,
                                  int                         k,
                                  int                         n,
                                  RUNTIME_option_t           *options )
 {
-    (void)ws;
-    (void)A;
-    (void)k;
-    (void)n;
-    (void)options;
+    switch( ws->alg ) {
+    case ChamGetrfPPiv:
+        chameleon_attr_fallthrough;
+    case ChamGetrfPPivPerColumn:
+    {
+        int m;
+        int tempkm, tempkn, tempnn, minmn;
+
+        tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+        tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+        tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
+        minmn  = chameleon_min( tempkm, tempkn );
+
+        /* Extract selected rows into U */
+        INSERT_TASK_zlacpy( options, ChamUpperLower, tempkm, tempnn,
+                            A(k, n), U(k, n) );
+
+        /*
+         * perm array is made of size tempkm for the first row espacially.
+         * Otherwise, the final copy back to the tile may copy only a partial tile
+         */
+        INSERT_TASK_zlaswp_get( options, k*A->mb, tempkm,
+                                ipiv, k, A(k, n), U(k, n) );
+
+        for(m=k+1; m<A->mt; m++){
+            /* Extract selected rows into A(k, n) */
+            INSERT_TASK_zlaswp_get( options, m*A->mb, minmn,
+                                    ipiv, k, A(m, n), U(k, n) );
+            /* Copy rows from A(k,n) into their final position */
+            INSERT_TASK_zlaswp_set( options, m*A->mb, minmn,
+                                    ipiv, k, A(k, n), A(m, n) );
+        }
+
+        INSERT_TASK_zlacpy( options, ChamUpperLower, tempkm, tempnn,
+                            U(k, n), A(k, n) );
+
+        RUNTIME_data_flush( options->sequence, U(k, n) );
+    }
+    break;
+    default:
+        ;
+    }
 }
 
 static inline void
 chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
                                 CHAM_desc_t                *A,
+                                CHAM_ipiv_t                *ipiv,
                                 int                         k,
                                 int                         n,
                                 RUNTIME_option_t           *options )
@@ -217,7 +257,7 @@ chameleon_pzgetrf_panel_update( struct chameleon_pzgetrf_s *ws,
     tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
     tempnn = n == A->nt-1 ? A->n-n*A->nb : A->nb;
 
-    chameleon_pzgetrf_panel_permute( ws, A, k, n, options );
+    chameleon_pzgetrf_panel_permute( ws, A, ipiv, k, n, options );
 
     INSERT_TASK_ztrsm(
         options,
@@ -270,7 +310,7 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
 
         for (n = k+1; n < A->nt; n++) {
             options.priority = A->nt-n;
-            chameleon_pzgetrf_panel_update( ws, A, k, n, &options );
+            chameleon_pzgetrf_panel_update( ws, A, IPIV, k, n, &options );
         }
 
         /* Flush panel k */
@@ -284,11 +324,12 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
     /* Backward pivoting */
     for (k = 1; k < min_mnt; k++) {
         for (n = 0; n < k; n++) {
-            chameleon_pzgetrf_panel_permute( ws, A, k, n, &options );
+            chameleon_pzgetrf_panel_permute( ws, A, IPIV, k, n, &options );
         }
+        RUNTIME_perm_flushk( sequence, IPIV, k );
     }
 
-    /* Initialize IPIV */
+    /* Initialize IPIV with default values if needed */
     if ( (ws->alg == ChamGetrfNoPivPerColumn) ||
          (ws->alg == ChamGetrfNoPiv ) )
     {

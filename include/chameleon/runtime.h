@@ -18,7 +18,7 @@
  * @author Samuel Thibault
  * @author Philippe Swartvagher
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-08-31
  *
  */
 #ifndef _chameleon_runtime_h_
@@ -710,9 +710,11 @@ void RUNTIME_ipiv_destroy( CHAM_ipiv_t *ipiv );
 void RUNTIME_ipiv_init   ( CHAM_ipiv_t *ipiv );
 void RUNTIME_ipiv_gather ( CHAM_ipiv_t *desc, int *ipiv, int node );
 
-void *RUNTIME_ipiv_getaddr   ( CHAM_ipiv_t *ipiv, int m );
-void *RUNTIME_nextpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h );
-void *RUNTIME_prevpiv_getaddr( CHAM_ipiv_t *ipiv, int m, int h );
+void *RUNTIME_ipiv_getaddr   ( const CHAM_ipiv_t *ipiv, int m );
+void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h );
+void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h );
+void *RUNTIME_perm_getaddr   ( const CHAM_ipiv_t *ipiv, int m );
+void *RUNTIME_invp_getaddr   ( const CHAM_ipiv_t *ipiv, int m );
 
 static inline void *
 RUNTIME_pivot_getaddr( CHAM_ipiv_t *ipiv, int m, int h ) {
@@ -730,6 +732,8 @@ void RUNTIME_ipiv_flush  ( const CHAM_ipiv_t *ipiv,
                            const RUNTIME_sequence_t *sequence );
 void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
                            CHAM_ipiv_t *ws, int k, int h );
+void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
+                          const CHAM_ipiv_t *ipiv, int m );
 
 /**
  * @}

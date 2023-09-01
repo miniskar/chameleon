@@ -17,14 +17,14 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Matthieu Kuhn
-#  @date 2022-02-22
+#  @date 2023-08-31
 #
 ###
 
@@ -68,8 +68,9 @@ set(ZSRC
     core_zlanhe.c
     core_zlansy.c
     core_zlantr.c
-    core_zlaset2.c
     core_zlaset.c
+    core_zlaset2.c
+    core_zlaswp.c
     core_zlatro.c
     core_zlauum.c
     core_zpamm.c
@@ -132,9 +133,10 @@ precisions_rules_py(COREBLAS_SRCS_GENERATED "${ZSRC}"
                     PRECISIONS "${CHAMELEON_PRECISION}")
 
 set(COREBLAS_SRCS
-    global.c
-    ${COREBLAS_SRCS_GENERATED}
-    )
+  global.c
+  core_ipiv_to_perm.c
+  ${COREBLAS_SRCS_GENERATED}
+)
 
 # Force generation of sources
 # ---------------------------
