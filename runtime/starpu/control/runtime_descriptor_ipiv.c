@@ -121,7 +121,7 @@ void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
 
     const CHAM_desc_t *A = ipiv->desc;
     int     owner = A->get_rankof( A, m, m );
-    int     ncols = (mm == (ipiv->mt-1)) ? ipiv->m - mm * ipiv->mb : ipiv->mb;
+    int     ncols = (mm == (A->nt-1)) ? A->n - mm * A->nb : A->nb;
     int64_t tag   = ipiv->mpitag_nextpiv + mm;
 
     cppi_register( nextpiv, A->dtyp, ncols, tag, owner );
@@ -144,7 +144,7 @@ void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
 
     const CHAM_desc_t *A = ipiv->desc;
     int     owner = A->get_rankof( A, m, m );
-    int     ncols = (mm == (ipiv->mt-1)) ? ipiv->m - mm * ipiv->mb : ipiv->mb;
+    int     ncols = (mm == (A->nt-1)) ? A->n - mm * A->nb : A->nb;
     int64_t tag   = ipiv->mpitag_prevpiv + mm;
 
     cppi_register( prevpiv, A->dtyp, ncols, tag, owner );
