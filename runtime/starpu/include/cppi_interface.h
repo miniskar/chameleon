@@ -82,8 +82,11 @@ cppi_display_dbg( cppi_interface_t *cppi_interface, FILE *f, const char *title )
 }
 #else
 static inline void
-cppi_display_dbg( cppi_interface_t *, FILE *, const char * )
+cppi_display_dbg( cppi_interface_t *cppi_interface, FILE *f, const char *title )
 {
+    (void)cppi_interface;
+    (void)f;
+    (void)title;
     return;
 }
 #endif
