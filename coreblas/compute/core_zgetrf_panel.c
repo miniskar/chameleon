@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-09-11
  * @precisions normal z -> c d s
  *
  */
@@ -20,6 +20,7 @@
 #include "coreblas.h"
 
 static const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
+static const CHAMELEON_Complex64_t zone  = (CHAMELEON_Complex64_t)1.0;
 
 /**
  ******************************************************************************
@@ -83,12 +84,17 @@ static const CHAMELEON_Complex64_t mzone = (CHAMELEON_Complex64_t)-1.0;
  *
  */
 int
-CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
+CORE_zgetrf_panel_diag( int m, int n, int h, int m0, int ib,
                         CHAMELEON_Complex64_t *A, int lda,
+                        CHAMELEON_Complex64_t *U, int ldu,
                         int *IPIV, CHAM_pivot_t *nextpiv, const CHAM_pivot_t *prevpiv )
 {
     CHAMELEON_Complex64_t *subA = A + lda * h + h;
     CHAMELEON_Complex64_t  alpha;
+
+    /* Compute localn, the number of columns to update inside the block */
+    int localnt = chameleon_ceil( chameleon_min(m, n), ib );
+    int localn  = (( h / ib ) == (localnt-1)) ? n - ( h / ib ) * ib : ib;
 
     if ( h > 0 ) {
         CHAMELEON_Complex64_t *L, *pivrow;
@@ -108,6 +114,12 @@ CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
         {
             cblas_zcopy( n, pivrow, 1,
                          A + h-1, lda );
+        }
+
+        if( (U != NULL) && (h%ib != 0 ) )
+        {
+            cblas_zcopy( n, pivrow, 1,
+                         U + ((h-1)%ib), ldu );
         }
 
         /* Store the pivot */
@@ -136,11 +148,30 @@ CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
 
         if ( h < chameleon_min( m, n ) ) {
             /* Applying the update */
-            cblas_zgeru(CblasColMajor, m-h, n-h,
-                        CBLAS_SADDR(mzone),
-                        L,          1,
-                        pivrow + h, 1,
-                        subA,       lda );
+            if ( (h % ib) != 0 ) {
+                /* We apply a BLAS-2 operation with a single outer-product */
+                cblas_zgeru( CblasColMajor, m-h, localn-(h%ib),
+                             CBLAS_SADDR(mzone),
+                             L,          1,
+                             pivrow + h, 1,
+                             subA,       lda );
+            }
+            else {
+                /* We apply a BLAS-3 operation with a matrix-matrix product */
+                const CHAMELEON_Complex64_t *L    = A + (h-ib) * lda + h;
+                const CHAMELEON_Complex64_t *subU = U +  h     * ldu;
+
+                LAPACKE_zlacpy_work(
+                    LAPACK_COL_MAJOR, 'A', ib, n - h,
+                    subU, ldu, A + h * lda + (h-ib), lda );
+
+                cblas_zgemm( CblasColMajor,
+                             (CBLAS_TRANSPOSE)CblasNoTrans, (CBLAS_TRANSPOSE)CblasNoTrans,
+                             m - h, n - h, ib,
+                             CBLAS_SADDR(mzone), L,    lda,
+                                                 subU, ldu,
+                             CBLAS_SADDR( zone), subA, lda );
+            }
         }
         else {
           return 0;
@@ -225,12 +256,17 @@ CORE_zgetrf_panel_diag( int m, int n, int h, int m0,
  *
  */
 int
-CORE_zgetrf_panel_offdiag( int m, int n, int h, int m0,
+CORE_zgetrf_panel_offdiag( int m, int n, int h, int m0, int ib,
                            CHAMELEON_Complex64_t *A, int lda,
+                           CHAMELEON_Complex64_t *U, int ldu,
                            CHAM_pivot_t *nextpiv, const CHAM_pivot_t *prevpiv )
 {
     CHAMELEON_Complex64_t *subA = A + lda * h;
     CHAMELEON_Complex64_t  alpha;
+
+    /* Compute the number of columns to update inside the block */
+    int localnt = chameleon_ceil( n, ib );
+    int localn  = (( h / ib ) == (localnt-1)) ? n - ( h / ib ) * ib : ib;
 
     if ( h != 0 ) {
         CHAMELEON_Complex64_t *L, *pivrow;
@@ -266,11 +302,26 @@ CORE_zgetrf_panel_offdiag( int m, int n, int h, int m0,
          */
         if ( h < n ) {
             /* Applying the update */
-            cblas_zgeru(CblasColMajor, m, n-h,
-                        CBLAS_SADDR(mzone),
-                        L,          1,
-                        pivrow + h, 1,
-                        subA,       lda );
+            if ( (h % ib) != 0 ) {
+                /* We apply a BLAS-2 operation with a single outer-product */
+                cblas_zgeru( CblasColMajor, m, localn-(h%ib),
+                             CBLAS_SADDR(mzone),
+                             L,          1,
+                             pivrow + h, 1,
+                             subA,       lda );
+            }
+            else {
+                /* We apply a BLAS-3 operation with a matrix-matrix product */
+                const CHAMELEON_Complex64_t *L    = A + (h-ib) * lda;
+                const CHAMELEON_Complex64_t *subU = U +  h     * ldu;
+
+                cblas_zgemm( CblasColMajor,
+                             (CBLAS_TRANSPOSE)CblasNoTrans, (CBLAS_TRANSPOSE)CblasNoTrans,
+                             m, n - h, ib,
+                             CBLAS_SADDR(mzone), L,    lda,
+                                                 subU, ldu,
+                             CBLAS_SADDR( zone), subA, lda );
+            }
         }
         else {
             return 0;
