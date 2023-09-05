@@ -11,7 +11,7 @@
  *
  * @brief Chameleon context management routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Jakub Kurzak
  * @author Mathieu Faverge
  * @author Cedric Castagnede
@@ -21,7 +21,7 @@
  * @author Matthieu Kuhn
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2022-02-22
+ * @date 2023-09-11
  *
  ***
  *
@@ -379,6 +379,8 @@ int CHAMELEON_Set( int param, int value )
             /*     return CHAMELEON_ERR_ILLEGAL_VALUE; */
             /* } */
             chamctxt->ib = value;
+            /* Limit ib to nb */
+            chamctxt->ib = chameleon_min( chamctxt->nb, chamctxt->ib );
 
             if ( chamctxt->autotuning_enabled ) {
                 chamctxt->autotuning_enabled = CHAMELEON_FALSE;
