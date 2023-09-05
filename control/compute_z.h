@@ -22,7 +22,7 @@
  * @author Alycia Lisito
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-22
+ * @date 2023-09-08
  * @precisions normal z -> c d s
  *
  */
@@ -45,6 +45,7 @@ struct chameleon_pzgetrf_s {
     cham_getrf_t alg;
     int          ib; /* Internal blocking parameter */
     CHAM_desc_t  U;
+    CHAM_desc_t  Up;
 };
 
 /**

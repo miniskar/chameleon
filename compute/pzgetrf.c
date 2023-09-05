@@ -16,7 +16,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2023-09-08
  * @precisions normal z -> s d c
  *
  */
@@ -24,6 +24,7 @@
 
 #define A(m,n)  A,        m, n
 #define U(m,n)  &(ws->U), m, n
+#define Up(m,n)  &(ws->Up), m, n
 
 /*
  * All the functions below are panel factorization variant.
@@ -159,6 +160,71 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
 }
 
 static inline void
+chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
+                                       CHAM_desc_t                *A,
+                                       CHAM_ipiv_t                *ipiv,
+                                       int                         k,
+                                       RUNTIME_option_t           *options )
+{
+    int m, h, b, nbblock;
+    int tempkm, tempkn, minmn;
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+    minmn  = chameleon_min( tempkm, tempkn );
+
+    /* Update the number of column */
+    ipiv->n = minmn;
+    nbblock = chameleon_ceil( minmn, ws->ib );
+
+    /*
+     * Algorithm per column with pivoting
+     */
+    for (b=0; b<nbblock; b++){
+        int hmax = b == nbblock-1 ? minmn + 1 - b * ws->ib : ws->ib;
+
+        for (h=0; h<hmax; h++){
+            int j =  h + b * ws->ib;
+
+            INSERT_TASK_zgetrf_blocked_diag(
+                options,
+                j, k * A->mb, ws->ib,
+                A(k, k), Up(k, k),
+                ipiv );
+
+            for (m = k+1; m < A->mt; m++) {
+
+                INSERT_TASK_zgetrf_blocked_offdiag(
+                    options,
+                    j, m * A->mb, ws->ib,
+                    A(m, k), Up(k, k),
+                    ipiv );
+            }
+
+
+            if ( (b < (nbblock-1)) && (h == hmax-1) ) {
+                INSERT_TASK_zgetrf_blocked_trsm(
+                    options,
+                    ws->ib, tempkn, b * ws->ib + hmax, ws->ib,
+                    Up(k, k),
+                    ipiv );
+            }
+
+            assert( j<= minmn );
+            if ( j < minmn ) {
+                /* Reduce globally (between MPI processes) */
+                RUNTIME_ipiv_reducek( options, ipiv, k, j );
+            }
+        }
+    }
+    RUNTIME_data_flush( options->sequence, Up(k, k) );
+
+    /* Flush temporary data used for the pivoting */
+    INSERT_TASK_ipiv_to_perm( options, k * A->mb, tempkm, minmn, ipiv, k );
+    RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
+}
+
+static inline void
 chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
                                CHAM_desc_t                *A,
                                CHAM_ipiv_t                *ipiv,
@@ -176,7 +242,7 @@ chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
         break;
 
     case ChamGetrfPPiv:
-        chameleon_pzgetrf_panel_facto_percol( ws, A, ipiv, k, options );
+        chameleon_pzgetrf_panel_facto_blocked( ws, A, ipiv, k, options );
         break;
 
     case ChamGetrfNoPiv:
