@@ -24,7 +24,7 @@
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
 #  @author Matthieu Kuhn
-#  @date 2023-08-31
+#  @date 2023-09-11
 #
 ###
 
@@ -68,6 +68,7 @@ set(CODELETS_ZSRC
     codelets/codelet_zgetrf_nopiv.c
     codelets/codelet_zgetrf_nopiv_percol.c
     codelets/codelet_zgetrf_percol.c
+    codelets/codelet_zgetrf_blocked.c
     codelets/codelet_zhe2ge.c
     codelets/codelet_zherfb.c
     codelets/codelet_zhessq.c
