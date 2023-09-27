@@ -19,7 +19,7 @@
 #include "coreblas.h"
 #include "coreblas/coreblas_ztile.h"
 
-#if defined( CHAMELEON_USE_HMAT )
+#if defined( CHAMELEON_USE_HMATOSS )
 #include "coreblas/hmat.h"
 #endif
 

@@ -399,7 +399,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
         enables the data migration in QR algorithms.
       * *CHAMELEON_USE_MPI_DATATYPES* (default OFF):
         enables MPI datatypes whenever supported by the runtime.
-      * *CHAMELEON_USE_HMAT=ON|OFF* (default OFF):
+      * *CHAMELEON_USE_HMATOSS=ON|OFF* (default OFF):
         enables Hmat-OSS kernels.
       * *CHAMELEON_RUNTIME_SYNC* (default OFF):
         enables synchronous task submission when available to debug the code without parallelism.

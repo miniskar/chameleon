@@ -26,7 +26,7 @@
 #
 ###
 
-if (CHAMELEON_USE_HMAT AND NOT CHAMELEON_HMAT_EXTERNAL)
+if (CHAMELEON_USE_HMATOSS AND NOT CHAMELEON_HMAT_EXTERNAL)
   add_subdirectory(hmat-oss)
 endif()
 add_subdirectory(include)
