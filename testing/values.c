@@ -16,6 +16,7 @@
  *
  */
 #include "testings.h"
+#include <math.h>
 
 /**
  * @brief Convert the input string to an integer

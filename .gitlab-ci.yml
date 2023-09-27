@@ -3,7 +3,9 @@ stages:
   - pre
   - build
   - test
-  - analyse
+  - coverage
+  - analyze
+  - validate
   - deploy
 
 # git config --global ahev been added to get around the issue related in
@@ -16,8 +18,6 @@ before_script:
   - git config --global --add safe.directory $CI_PROJECT_DIR/hqr
   - git config --global --add safe.directory $CI_PROJECT_DIR/testing/test_fembem
   - git submodule update --init --recursive
-  - source .gitlab-ci-env.sh $CHAM_CI_ENV_ARG
-  - mkdir -p build-$VERSION
 
 include:
   - .gitlab/preliminary.yml
@@ -32,6 +32,7 @@ include:
   - .gitlab/coverage.yml
   - .gitlab/coverity.yml
   - .gitlab/sonarqube.yml
+  - .gitlab/validate.yml
   - .gitlab/bench_plafrim.yml
   - .gitlab/pages.yml
   - .gitlab/release.yml

@@ -1,47 +1,27 @@
 ---
-.test_openmp_template: &test_openmp
-  extends: .test_script_template
+.test_openmp:
+  extends: .test_script_linux
   needs: [build_openmp]
-  dependencies: [build_openmp]
-
-.test_openmp_template_master: &test_openmp_master
-  extends:
-    - .test_openmp_template
-    - .only-master
-
-.test_openmp_template_branches: &test_openmp_branches
-  extends:
-    - .test_openmp_template
-    - .only-merge-request
-
-test_openmp_shm_s:
-  <<: *test_openmp_master
+  interruptible: true
   variables:
+    SYSTEM: linux
     VERSION: openmp
     CATEGORY: shm
-    PRECISION: s
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-${CATEGORY}-${PRECISION}"
+    TESTS_RESTRICTION: "-R _${CATEGORY}_${PRECISION}"
 
-test_openmp_shm_d:
-  <<: *test_openmp_master
-  variables:
-    VERSION: openmp
-    CATEGORY: shm
-    PRECISION: d
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+test_openmp_master:
+  extends: .test_openmp
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+  parallel:
+    matrix:
+      - PRECISION: [s, d, c, z]
 
-test_openmp_shm_c:
-  <<: *test_openmp_master
-  variables:
-    VERSION: openmp
-    CATEGORY: shm
-    PRECISION: c
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_openmp_shm_z:
-  <<: *test_openmp_branches
-  variables:
-    VERSION: openmp
-    CATEGORY: shm
-    PRECISION: z
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+test_openmp_mr:
+  extends: .test_openmp
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/)
+  parallel:
+    matrix:
+      - PRECISION: [z]

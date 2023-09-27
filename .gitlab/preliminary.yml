@@ -7,7 +7,7 @@ preliminary_checks:
   interruptible: true
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
-    - if: $CI_MERGE_REQUEST_IID && $CI_PIPELINE_SOURCE != "schedule"
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event")
   parallel:
     matrix:
       - TEST: [rebase, draft, header]

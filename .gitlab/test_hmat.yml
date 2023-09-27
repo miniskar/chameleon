@@ -1,23 +1,13 @@
 ---
-.test_hmat_template:
-  extends: .test_script_template
-  needs: [build_hmat]
-  dependencies: [build_hmat]
-
-.test_hmat_template_master: &test_hmat_master
-  extends:
-    - .test_hmat_template
-    - .only-master
-
-.test_hmat_template_branches: &test_hmat_branches
-  extends:
-    - .test_hmat_template
-    - .only-merge-request
-
 test_hmat:
-  <<: *test_hmat_branches
+  extends:
+    - .test_script_linux
+    - .only-master-mr
+  needs: [build_hmat]
   variables:
+    SYSTEM: linux
     VERSION: hmat
     CATEGORY: none
     PRECISION: all
-    TESTS_RESTRICTION: "-R \"testBEM_\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-${CATEGORY}-${PRECISION}"
+    TESTS_RESTRICTION: "-R testBEM_"

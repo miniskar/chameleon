@@ -29,7 +29,7 @@
 #  @date 2023-08-22
 #
 ###
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 include(CheckSymbolExists)
 include(CheckStructHasMember)
