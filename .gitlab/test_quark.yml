@@ -1,47 +1,27 @@
 ---
-.test_quark_template: &test_quark
-  extends: .test_script_template
+.test_quark:
+  extends: .test_script_linux
   needs: [build_quark]
-  dependencies: [build_quark]
-
-.test_quark_template_master: &test_quark_master
-  extends:
-    - .test_quark_template
-    - .only-master
-
-.test_quark_template_branches: &test_quark_branches
-  extends:
-    - .test_quark_template
-    - .only-merge-request
-
-test_quark_shm_s:
-  <<: *test_quark_branches
+  interruptible: true
   variables:
+    SYSTEM: linux
     VERSION: quark
     CATEGORY: shm
-    PRECISION: s
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-${CATEGORY}-${PRECISION}"
+    TESTS_RESTRICTION: "-R _${CATEGORY}_${PRECISION}"
 
-test_quark_shm_d:
-  <<: *test_quark_master
-  variables:
-    VERSION: quark
-    CATEGORY: shm
-    PRECISION: d
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+test_quark_master:
+  extends: .test_quark
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+  parallel:
+    matrix:
+      - PRECISION: [s, d, c, z]
 
-test_quark_shm_c:
-  <<: *test_quark_master
-  variables:
-    VERSION: quark
-    CATEGORY: shm
-    PRECISION: c
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_quark_shm_z:
-  <<: *test_quark_master
-  variables:
-    VERSION: quark
-    CATEGORY: shm
-    PRECISION: z
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+test_quark_mr:
+  extends: .test_quark
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/)
+  parallel:
+    matrix:
+      - PRECISION: [s]

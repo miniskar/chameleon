@@ -1,12 +1,18 @@
 ---
 coverity:
-  extends: .only-master
-  stage: analyse
+  stage: analyze
+  tags: ["docker", "large"]
+  interruptible: true
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/)
+      when: manual
+      allow_failure: true
   dependencies: []
   variables:
     VERSION: coverity
   script:
-    - (cd build-$VERSION &&
+    - (mkdir -p build-$VERSION && cd build-$VERSION &&
        cmake .. -C ../cmake_modules/gitlab-ci-initial-cache.cmake
                 -DCHAMELEON_USE_CUDA=ON -DCHAMELEON_USE_MPI=ON &&
        cov-build --dir ../cov-int make -j 4)

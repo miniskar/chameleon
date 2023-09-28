@@ -1,97 +1,80 @@
 ---
-.test_starpu_template:
-  extends: .test_script_template
+.test_starpu:
+  extends: .test_script_linux
   needs: [build_starpu]
-  dependencies: [build_starpu]
-
-.test_starpu_template_master: &test_starpu_master
-  extends:
-    - .test_starpu_template
-    - .only-master
-
-.test_starpu_template_branches: &test_starpu_branches
-  extends:
-    - .test_starpu_template
-    - .only-merge-request
-
-test_starpu_shm_s:
-  <<: *test_starpu_master
+  interruptible: true
   variables:
+    SYSTEM: linux
     VERSION: starpu
-    CATEGORY: shm
-    PRECISION: s
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-${CATEGORY}-${PRECISION}"
+    TESTS_RESTRICTION: "-R _${CATEGORY}_${PRECISION}|example -E sytrf|sysv"
 
-test_starpu_shm_d:
-  <<: *test_starpu_branches
+test_starpu_master:
+  extends: .test_starpu
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^ci-.*$/) && $CI_PIPELINE_SOURCE != "schedule"
+  parallel:
+    matrix:
+      - PRECISION: [s, d, c, z]
+        CATEGORY: [shm, mpi]
+
+test_starpu_mr:
+  extends: .test_starpu
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/)
+  parallel:
+    matrix:
+      - PRECISION: [d]
+        CATEGORY: [shm]
+      - PRECISION: [s]
+        CATEGORY: [mpi]
+
+test_starpu_macosx:
+  stage: test
+  tags: ['macosx']
+  extends: .only-master-mr
+  needs: [build_starpu_macosx]
   variables:
+    SYSTEM: macosx
     VERSION: starpu
-    CATEGORY: shm
-    PRECISION: d
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}|example\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-example"
+    TESTS_RESTRICTION: "-R example"
+  script:
+    - bash .gitlab/test.sh | tee ${LOGNAME}.log
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 180 minutes
+    paths:
+      - ${LOGNAME}.log
+    reports:
+      junit: ${LOGNAME}-junit.xml
+  cache:
+    key: "${SYSTEM}-${VERSION}-$CI_COMMIT_REF_SLUG"
+    untracked: true
+    policy: pull
 
-test_starpu_shm_c:
-  <<: *test_starpu_master
+.test_starpu_windows:
+  stage: test
+  tags: ['windows']
+  extends: .only-master-mr
+  needs: [build_starpu_windows]
   variables:
+    SYSTEM: windows
+    CHERE_INVOKING: "yes"
+    MSYSTEM: UCRT64
     VERSION: starpu
-    CATEGORY: shm
-    PRECISION: c
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_starpu_shm_z:
-  <<: *test_starpu_master
-  variables:
-    VERSION: starpu
-    CATEGORY: shm
-    PRECISION: z
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_starpu_mpi_s:
-  <<: *test_starpu_branches
-  variables:
-    VERSION: starpu
-    CATEGORY: mpi
-    PRECISION: s
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_starpu_mpi_d:
-  <<: *test_starpu_master
-  variables:
-    VERSION: starpu
-    CATEGORY: mpi
-    PRECISION: d
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_starpu_mpi_c:
-  <<: *test_starpu_master
-  variables:
-    VERSION: starpu
-    CATEGORY: mpi
-    PRECISION: c
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-test_starpu_mpi_z:
-  <<: *test_starpu_master
-  variables:
-    VERSION: starpu
-    CATEGORY: mpi
-    PRECISION: z
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}_${PRECISION}\""
-
-# test_starpu_shm_s_macosx:
-#   extends: .only-merge-request
-#   stage: test
-#   tags: ['macosx']
-#   needs: [build_starpu_macosx]
-#   dependencies: [build_starpu_macosx]
-#   variables:
-#     VERSION: starpu
-#   script:
-#     - cd build-starpu && ctest --no-compress-output -R test_shm_s -T Test --output-junit ../chameleon_macosx.junit | tee -a ../chameleon_macosx.log
-#   artifacts:
-#     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
-#     expire_in: 2 days
-#     untracked: true
-#     when: always
-#     reports:
-#       junit: chameleon_macosx.junit
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-example"
+    TESTS_RESTRICTION: "-R example"
+  script:
+    - bash -lc .gitlab/test.sh | tee "$env:LOGNAME.log"
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    expire_in: 180 minutes
+    paths:
+      - ${LOGNAME}.log
+    reports:
+      junit: ${LOGNAME}-junit.xml
+  cache:
+    key: "${SYSTEM}-${VERSION}-$CI_COMMIT_REF_SLUG"
+    untracked: true
+    policy: pull

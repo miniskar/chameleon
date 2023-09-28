@@ -1,25 +1,15 @@
 ---
-.test_starpu_simgrid_template: &test_starpu_simgrid
-  extends: .test_script_template
-  needs: [build_starpu_simgrid]
-  dependencies: [build_starpu_simgrid]
-
-.test_starpu_simgrid_template_master: &test_starpu_simgrid_master
-  extends:
-    - .test_starpu_simgrid_template
-    - .only-master
-
-.test_starpu_simgrid_template_branches: &test_starpu_simgrid_branches
-  extends:
-    - .test_starpu_simgrid_template
-    - .only-merge-request
-
 test_starpu_simgrid_simu_all:
-  <<: *test_starpu_simgrid_branches
+  extends:
+    - .test_script_linux
+    - .only-master-mr
+  needs: [build_starpu_simgrid]
   variables:
     STARPU_WORKERS_NOBIND: 1
     CHAM_CI_ENV_ARG: simgrid
+    SYSTEM: linux
     VERSION: starpu_simgrid
     CATEGORY: simu
     PRECISION: all
-    TESTS_RESTRICTION: "-R \"_${CATEGORY}\""
+    LOGNAME: "chameleon-test-${SYSTEM}-${VERSION}-${CATEGORY}-${PRECISION}"
+    TESTS_RESTRICTION: "-R _${CATEGORY}"

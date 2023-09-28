@@ -1,36 +1,38 @@
 ---
-sonarqube:
-  stage: analyse
-  extends:
-    - .only-master
-  needs: [test_openmp_shm_c,test_openmp_shm_d,test_openmp_shm_s,test_openmp_shm_z,
-          test_parsec_shm_c,test_parsec_shm_d,test_parsec_shm_s,test_parsec_shm_z,
-          test_quark_shm_c,test_quark_shm_d,test_quark_shm_s,test_quark_shm_z,
-          test_starpu_shm_c,test_starpu_shm_d,test_starpu_shm_s,test_starpu_shm_z,
-          test_starpu_mpi_c,test_starpu_mpi_d,test_starpu_mpi_s,test_starpu_mpi_z,
-          test_starpu_simgrid_simu_all]
-  dependencies: [test_openmp_shm_c,test_openmp_shm_d,test_openmp_shm_s,test_openmp_shm_z,
-                 test_parsec_shm_c,test_parsec_shm_d,test_parsec_shm_s,test_parsec_shm_z,
-                 test_quark_shm_c,test_quark_shm_d,test_quark_shm_s,test_quark_shm_z,
-                 test_starpu_shm_c,test_starpu_shm_d,test_starpu_shm_s,test_starpu_shm_z,
-                 test_starpu_mpi_c,test_starpu_mpi_d,test_starpu_mpi_s,test_starpu_mpi_z,
-                 test_starpu_simgrid_simu_all]
+.sonarqube:
+  stage: analyze
+  tags: ["docker", "large"]
   variables:
     VERSION: sonarqube
   script:
+    - ls -l build*/*.json
+    - ls -l chameleon-build*.log
+    - ls -l chameleon-test*junit.xml
+    - ls -l chameleon_coverage.xml
     - cat *.log > chameleon_build.log
     - ./tools/analysis.sh
-  coverage: /^\s*lines:\s*\d+.\d+\%/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
-    expire_in: 2 days
+    expire_in: 180 minutes
     when: always
     paths:
-      - coverage.xml
-      - chameleon_coverage.xml
+      - filelist.txt
       - chameleon_cppcheck.xml
+      - sonar-project.properties
       - sonar.log
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+    when: always
+
+sonarqube_master:
+  extends:
+    - .sonarqube
+    - .only-master
+  needs: [test_openmp_master,test_parsec_master,test_quark_master,test_starpu_master,test_starpu_simgrid_simu_all,coverage_master]
+
+sonarqube_mr:
+  extends: .sonarqube
+  interruptible: true
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^notest-.*$/)
+      when: manual
+      allow_failure: true
+  needs: [test_openmp_mr,test_parsec_mr,test_quark_mr,test_starpu_mr,test_starpu_simgrid_simu_all,coverage_mr]
