@@ -87,7 +87,7 @@ void *RUNTIME_ipiv_getaddr( const CHAM_ipiv_t *ipiv, int m )
     assert( handle );
 
     if ( *handle != NULL ) {
-        return *handle;
+        return (void*)(*handle);
     }
 
     const CHAM_desc_t *A = ipiv->desc;
@@ -104,7 +104,7 @@ void *RUNTIME_ipiv_getaddr( const CHAM_ipiv_t *ipiv, int m )
 #endif /* defined(CHAMELEON_USE_MPI) */
 
     assert( *handle );
-    return *handle;
+    return (void*)(*handle);
 }
 
 void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
@@ -116,7 +116,7 @@ void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
     assert( nextpiv );
 
     if ( *nextpiv != NULL ) {
-        return *nextpiv;
+        return (void*)(*nextpiv);
     }
 
     const CHAM_desc_t *A = ipiv->desc;
@@ -127,7 +127,7 @@ void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
     cppi_register( nextpiv, A->dtyp, ncols, tag, owner );
 
     assert( *nextpiv );
-    return *nextpiv;
+    return (void*)(*nextpiv);
 }
 
 void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
@@ -139,7 +139,7 @@ void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
     assert( prevpiv );
 
     if ( *prevpiv != NULL ) {
-        return *prevpiv;
+        return (void*)(*prevpiv);
     }
 
     const CHAM_desc_t *A = ipiv->desc;
@@ -150,7 +150,7 @@ void *RUNTIME_prevpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h )
     cppi_register( prevpiv, A->dtyp, ncols, tag, owner );
 
     assert( *prevpiv );
-    return *prevpiv;
+    return (void*)(*prevpiv);
 }
 
 void *RUNTIME_perm_getaddr( const CHAM_ipiv_t *ipiv, int m )
@@ -162,7 +162,7 @@ void *RUNTIME_perm_getaddr( const CHAM_ipiv_t *ipiv, int m )
     assert( handle );
 
     if ( *handle != NULL ) {
-        return *handle;
+        return (void*)(*handle);
     }
 
     const CHAM_desc_t *A = ipiv->desc;
@@ -179,7 +179,7 @@ void *RUNTIME_perm_getaddr( const CHAM_ipiv_t *ipiv, int m )
 #endif /* defined(CHAMELEON_USE_MPI) */
 
     assert( *handle );
-    return *handle;
+    return (void*)(*handle);
 }
 
 void *RUNTIME_invp_getaddr( const CHAM_ipiv_t *ipiv, int m )
@@ -191,7 +191,7 @@ void *RUNTIME_invp_getaddr( const CHAM_ipiv_t *ipiv, int m )
     assert( handle );
 
     if ( *handle != NULL ) {
-        return *handle;
+        return (void*)(*handle);
     }
 
     const CHAM_desc_t *A = ipiv->desc;
@@ -208,7 +208,7 @@ void *RUNTIME_invp_getaddr( const CHAM_ipiv_t *ipiv, int m )
 #endif /* defined(CHAMELEON_USE_MPI) */
 
     assert( *handle );
-    return *handle;
+    return (void*)(*handle);
 }
 
 void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,

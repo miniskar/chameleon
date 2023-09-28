@@ -266,12 +266,11 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    CHAMELEON_zgetrf_WS_Free( ws );
-    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
-
     if ( ws->alg == ChamGetrfPPivPerColumn ) {
         chameleon_ipiv_destroy( &descIPIV );
     }
+    CHAMELEON_zgetrf_WS_Free( ws );
+    chameleon_ztile2lap_cleanup( chamctxt, &descAl, &descAt );
 
     status = sequence->status;
     chameleon_sequence_destroy( chamctxt, sequence );
