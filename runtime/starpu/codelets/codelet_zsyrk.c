@@ -148,6 +148,7 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
     /* Reduce the C access if needed */
     accessC = ( beta == 0. ) ? STARPU_W : STARPU_RW;
 
+    /* Refine name */
     cl_name = chameleon_codelet_name( cl_name, 2,
                                       A->get_blktile( A, Am, An ),
                                       C->get_blktile( C, Cm, Cn ) );
