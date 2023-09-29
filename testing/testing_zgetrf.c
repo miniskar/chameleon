@@ -15,7 +15,7 @@
  * @author Alycia Lisito
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-22
+ * @date 2023-09-11
  * @precisions normal z -> c d s
  *
  */
@@ -35,6 +35,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     /* Read arguments */
     int         async = parameters_getvalue_int( "async" );
     int         nb    = run_arg_get_int( args, "nb", 320 );
+    int         ib    = run_arg_get_int( args, "ib", 48 );
     int         N     = run_arg_get_int( args, "N", 1000 );
     int         M     = run_arg_get_int( args, "M", N );
     int         LDA   = run_arg_get_int( args, "LDA", M );
@@ -48,6 +49,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     void        *ws = NULL;
 
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
+    CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
 
     /* Creates the matrices */
     parameters_desc_create( "A", &descA, ChamComplexDouble, nb, nb, LDA, N, M, N );
@@ -134,7 +136,7 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 #endif
 
 testing_t   test_zgetrf;
-const char *zgetrf_params[] = { "mtxfmt", "nb", "m", "n", "lda", "seedA", "diag", NULL };
+const char *zgetrf_params[] = { "mtxfmt", "nb", "ib", "m", "n", "lda", "seedA", "diag", NULL };
 const char *zgetrf_output[] = { NULL };
 const char *zgetrf_outchk[] = { "||A||", "||A-fact(A)||", "RETURN", NULL };
 

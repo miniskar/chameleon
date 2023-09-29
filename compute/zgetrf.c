@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-31
+ * @date 2023-09-08
  *
  * @precisions normal z -> s d c
  *
@@ -88,6 +88,7 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
         chameleon_cleanenv( algostr );
     }
 
+    /* Allocation of U for permutation of the panels */
     if ( ws->alg == ChamGetrfNoPivPerColumn ) {
         chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
                              ChamComplexDouble, 1, A->nb, A->nb,
@@ -110,6 +111,17 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
          ( ws->alg == ChamGetrfPPivPerColumn  ) )
     {
         ws->ib = 1;
+    }
+
+    /* Allocation of Up for the permutation of the diagonal panel per block */
+    if ( ws->alg == ChamGetrfPPiv ) {
+        /* TODO: Should be restricted to diagonal tiles */
+        /* Possibly to a single handle with a permutation of the ownership */
+        chameleon_desc_init( &(ws->Up), CHAMELEON_MAT_ALLOC_TILE,
+                             ChamComplexDouble, ws->ib, A->nb, ws->ib * A->nb,
+                             A->mt * ws->ib, A->nt * A->nb, 0, 0,
+                             A->mt * ws->ib, A->nt * A->nb, A->p, A->q,
+                             NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
     }
 
     return ws;
@@ -144,6 +156,9 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
          ( ws->alg == ChamGetrfPPivPerColumn  ) )
     {
         chameleon_desc_destroy( &(ws->U) );
+    }
+    if ( ws->alg == ChamGetrfPPiv ) {
+        chameleon_desc_destroy( &(ws->Up) );
     }
     free( ws );
 }
@@ -249,7 +264,9 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
     /* Allocate workspace for partial pivoting */
     ws = CHAMELEON_zgetrf_WS_Alloc( &descAt );
 
-    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+    if ( ( ws->alg == ChamGetrfPPivPerColumn ) ||
+         ( ws->alg == ChamGetrfPPiv ) )
+    {
         chameleon_ipiv_init( &descIPIV, &descAt, IPIV );
     }
 
@@ -260,13 +277,17 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
                          ChamDescInout, ChamUpperLower, sequence, &request );
 
-    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+    if ( ( ws->alg == ChamGetrfPPivPerColumn ) ||
+         ( ws->alg == ChamGetrfPPiv ) )
+    {
         RUNTIME_ipiv_gather( &descIPIV, IPIV, 0 );
     }
     chameleon_sequence_wait( chamctxt, sequence );
 
     /* Cleanup the temporary data */
-    if ( ws->alg == ChamGetrfPPivPerColumn ) {
+    if ( ( ws->alg == ChamGetrfPPivPerColumn ) ||
+         ( ws->alg == ChamGetrfPPiv ) )
+    {
         chameleon_ipiv_destroy( &descIPIV );
     }
     CHAMELEON_zgetrf_WS_Free( ws );

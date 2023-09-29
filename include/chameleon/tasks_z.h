@@ -24,7 +24,7 @@
  * @author Alycia Lisito
  * @author Romain Peressoni
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2023-09-11
  * @precisions normal z -> c d s
  *
  */
@@ -516,5 +516,22 @@ void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
                                         int h, int m0,
                                         CHAM_desc_t *A, int Am, int An,
                                         CHAM_ipiv_t *ws );
+
+void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
+                                      int h, int m0, int ib,
+                                      CHAM_desc_t *A, int Am, int An,
+                                      CHAM_desc_t *U, int Um, int Un,
+                                      CHAM_ipiv_t *ws );
+
+void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
+                                         int h, int m0, int ib,
+                                         CHAM_desc_t *A, int Am, int An,
+                                         CHAM_desc_t *U, int Um, int Un,
+                                         CHAM_ipiv_t *ws );
+
+void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
+                                      int m, int n, int h, int ib,
+                                      CHAM_desc_t *U, int Um, int Un,
+                                      CHAM_ipiv_t *ws );
 
 #endif /* _chameleon_tasks_z_h_ */

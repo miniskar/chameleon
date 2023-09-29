@@ -14,7 +14,7 @@
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2023-09-11
  * @precisions normal z -> c d s
  *
  */
@@ -58,8 +58,9 @@ static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
     nextpiv->h        = h;
     nextpiv->has_diag = 1;
 
-    CORE_zgetrf_panel_diag( tileA->m, tileA->n, h, m0,
+    CORE_zgetrf_panel_diag( tileA->m, tileA->n, h, m0, tileA->n,
                             CHAM_tile_get_ptr( tileA ), tileA->ld,
+                            NULL, -1,
                             ipiv, &(nextpiv->pivot), &(prevpiv->pivot) );
 
     if ( h > 0 ) {
@@ -94,16 +95,17 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
         STARPU_VALUE,             &m0,                  sizeof(int),
         STARPU_VALUE,             &(options->sequence), sizeof(RUNTIME_sequence_t*),
         STARPU_VALUE,             &(options->request),  sizeof(RUNTIME_request_t*),
-        STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        access_ipiv,              RUNTIME_ipiv_getaddr( ipiv, An ),
-        access_npiv,              RUNTIME_pivot_getaddr( ipiv, An, h   ),
-        access_ppiv,              RUNTIME_pivot_getaddr( ipiv, An, h-1 ),
         STARPU_PRIORITY,          options->priority,
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
         STARPU_NAME, "zgetrf_percol_diag",
 #endif
+        /* STARPU_NONE must be the last argument for older version of StarPU where STARPU_NONE = 0 */
+        STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        access_ipiv,              RUNTIME_ipiv_getaddr( ipiv, An ),
+        access_npiv,              RUNTIME_pivot_getaddr( ipiv, An, h   ),
+        access_ppiv,              RUNTIME_pivot_getaddr( ipiv, An, h-1 ),
         0);
 }
 
@@ -125,8 +127,9 @@ static void cl_zgetrf_percol_offdiag_cpu_func(void *descr[], void *cl_arg)
 
     nextpiv->h = h; /* Initialize in case it uses a copy */
 
-    CORE_zgetrf_panel_offdiag( tileA->m, tileA->n, h, m0,
+    CORE_zgetrf_panel_offdiag( tileA->m, tileA->n, h, m0, tileA->n,
                                CHAM_tile_get_ptr(tileA), tileA->ld,
+                               NULL, -1,
                                &(nextpiv->pivot), &(prevpiv->pivot) );
 }
 #endif /* !defined(CHAMELEON_SIMULATION) */
