@@ -111,7 +111,7 @@
 **** Execution trace using EZTrace
      <<sec:trace_ezt>>
 
-     [[http://eztrace.gforge.inria.fr/support.html][EZTrace]] can be used by chameleon to generate traces. Two modules
+     [[https://eztrace.gitlab.io/eztrace/][EZTrace]] can be used by chameleon to generate traces. Two modules
      are automatically generated as soon as EZTrace is detected on the
      system. The first one (which is recommended) is the
      ~chameleon_tcore~ module. It traces all the ~TCORE_...()~ functions
@@ -170,7 +170,7 @@
      vite eztrace_output.trace
      #+end_src
 
-     For more information on EZTrace, you can follow the [[http://eztrace.gforge.inria.fr/support.html][support page]].
+     For more information on EZTrace, you can follow the [[https://eztrace.gitlab.io/eztrace/][support page]].
 
 **** Execution trace using StarPU/FxT
      <<sec:trace_fxt>>
@@ -178,10 +178,15 @@
      StarPU can generate its own trace log files by compiling it with
      the ~--with-fxt~ option at the configure step (you can have to
      specify the directory where you installed FxT by giving
-     ~--with-fxt=...~ instead of ~--with-fxt~ alone).  By doing so, traces
-     are generated after each execution of a program which uses StarPU
-     in the directory pointed by the [[http://starpu.gforge.inria.fr/doc/html/ExecutionConfigurationThroughEnvironmentVariables.html][STARPU_FXT_PREFIX]] environment
-     variable.
+     ~--with-fxt=...~ instead of ~--with-fxt~ alone). In addition, the
+     environment variable STARPU_FXT_TRACE must be set to 1.
+     #+begin_example
+     export STARPU_FXT_TRACE=1
+     #+end_example
+     By doing so, traces are generated after each execution of a program which
+     uses StarPU in the directory pointed by the
+     [[https://files.inria.fr/starpu/doc/html/ExecutionConfigurationThroughEnvironmentVariables.html][STARPU_FXT_PREFIX]]
+     environment variable (if not set the default path is /tmp/).
      #+begin_example
      export STARPU_FXT_PREFIX=/home/jdoe/fxt_files/
      #+end_example
@@ -189,7 +194,9 @@
      enabled (StarPU compiled with FxT), the program will generate
      trace files in the directory $STARPU_FXT_PREFIX.
 
-     Finally, to generate the trace file which can be opened with [[http://vite.gforge.inria.fr/][Vite]]
+     To save only some specific types of events the variable [[https://files.inria.fr/starpu/doc/html/ExecutionConfigurationThroughEnvironmentVariables.html][STARPU_FXT_EVENTS]].
+
+     Finally, to generate the trace file which can be opened with [[https://gitlab.inria.fr/solverstack/vite][Vite]]
      program, you can use the *starpu_fxt_tool* executable of StarPU.
      This tool should be in the bin directory of StarPU's installation.
      You can use it to generate the trace file like this:
