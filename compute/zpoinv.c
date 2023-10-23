@@ -148,6 +148,15 @@ int CHAMELEON_zpoinv( cham_uplo_t uplo, int N,
  *  All matrices are passed through descriptors.
  *  All dimensions are taken from the descriptors.
  *
+ *  Can be further configured via the CHAMELEON_POINV_REMAP environment variable
+ *  which specifies a custom data distribution file to be used for the TRTRI operation.
+ *  In that case the order of operations is:
+ *  1. POTRF
+ *  2. redistribution to the provided custom distribution
+ *  3. TRTRI
+ *  4. redistribution back to the original distribution
+ *  5. LAUUM
+ *
  *******************************************************************************
  *
  * @param[in] uplo
@@ -243,6 +252,10 @@ int CHAMELEON_zpoinv_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A,
                                  RUNTIME_sequence_t *sequence, RUNTIME_request_t *request )
 {
     CHAM_context_t *chamctxt;
+    int change_distribution_for_trtri = 0;
+    custom_dist_t   *trtri_custom_get_rankof_arg;
+    custom_dist_t   *original_get_rankof_arg;
+    blkrankof_fct_t  original_get_rankof;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
@@ -284,9 +297,37 @@ int CHAMELEON_zpoinv_Tile_Async( cham_uplo_t uplo, CHAM_desc_t *A,
         return CHAMELEON_SUCCESS;
     }
 
+    /* If the CHAMELEON_POINV_REMAP variable is present, use its value
+       to create a custom distribution for the TRTRI operation */
+    {
+        char *custom_dist = chameleon_getenv( "CHAMELEON_POINV_REMAP" );
+        int rc;
+
+        if ( custom_dist != NULL ) {
+            rc = chameleon_getrankof_custom_init( &trtri_custom_get_rankof_arg, custom_dist );
+            if ( rc != CHAMELEON_SUCCESS ) {
+                chameleon_error( "CHAMELEON_zpoinv", "CHAMELEON_POINV_REMAP: could not open the custom distribution file, keeping the original distribution");
+            } else {
+                change_distribution_for_trtri = 1;
+                original_get_rankof = A->get_rankof_init;
+                original_get_rankof_arg = A->get_rankof_init_arg;
+            }
+        }
+
+        chameleon_cleanenv( custom_dist );
+    }
+
     chameleon_pzpotrf( uplo, A, sequence, request );
 
+    if ( change_distribution_for_trtri ) {
+        CHAMELEON_Desc_Change_Distribution( uplo, A, chameleon_getrankof_custom, trtri_custom_get_rankof_arg );
+    }
+
     chameleon_pztrtri( uplo, ChamNonUnit, A, sequence, request );
+
+    if ( change_distribution_for_trtri ) {
+        CHAMELEON_Desc_Change_Distribution( uplo, A, original_get_rankof, original_get_rankof_arg );
+    }
 
     chameleon_pzlauum( uplo, A, sequence, request );
 

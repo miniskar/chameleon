@@ -10,6 +10,7 @@ chameleon-1.3.0
    given file. *WARNING*: It changes the interface of
    CHAMELEON_Desc_Create_User that requires aan additional `, NULL`
    parameters in the general case.
+ - compute/poinv: Add the possibility to use an intermediate distribution for the TRTRI operation
 
 chameleon-1.2.0
 ------------------------------------------------------------------------
