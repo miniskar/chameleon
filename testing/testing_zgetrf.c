@@ -15,13 +15,15 @@
  * @author Alycia Lisito
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-09-11
+ * @author Xavier Lacoste
+ * @date 2023-10-24
  * @precisions normal z -> c d s
  *
  */
 #include <chameleon.h>
 #include "testings.h"
 #include "testing_zcheck.h"
+#include <chameleon/getenv.h>
 #include <chameleon/flops.h>
 #include <coreblas/lapacke.h>
 
@@ -48,6 +50,23 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
     CHAM_ipiv_t *descIPIV;
     void        *ws = NULL;
 
+    /* Check that the diagonal dominant mode is enforced if necessary */
+    {
+        char *algostr = chameleon_getenv( "CHAMELEON_GETRF_ALGO" );
+
+        if ( ( algostr != NULL ) &&
+             ( (strcasecmp( algostr, "nopiv" )          == 0) ||
+               (strcasecmp( algostr, "nopivpercolumn" ) == 0) ) )
+        {
+            if ( diag == ChamNonUnit ) {
+                fprintf( stderr, "SKIPPED: The variants of GETRF without pivoting *should be* be called only with --diag=ChamUnit\n" );
+                chameleon_cleanenv( algostr );
+                return -1;
+            }
+        }
+
+        chameleon_cleanenv( algostr );
+    }
     CHAMELEON_Set( CHAMELEON_TILE_SIZE, nb );
     CHAMELEON_Set( CHAMELEON_INNER_BLOCK_SIZE, ib );
 
