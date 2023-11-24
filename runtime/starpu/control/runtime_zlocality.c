@@ -23,10 +23,31 @@
 #include "chameleon_starpu.h"
 #include "runtime_codelet_z.h"
 
-#ifdef CHAMELEON_USE_CUDA
+#if defined(CHAMELEON_USE_CUDA) || defined(CHAMELEON_USE_HIP)
+
+/* Convert worker id from Chameleon to Starpu */
+static uint32_t cham_to_starpu_where( uint32_t where )
+{
+    int32_t starpu_where = 0;
+
+    if ( where & RUNTIME_CPU ) {
+        starpu_where |= STARPU_CPU;
+    }
+    if ( where & RUNTIME_CUDA ) {
+        starpu_where |= STARPU_CUDA;
+    }
+    if ( where & RUNTIME_HIP ) {
+        starpu_where |= STARPU_HIP;
+    }
+    return starpu_where;
+}
+
 /* Only codelets with multiple choices are present here */
 void RUNTIME_zlocality_allrestrict( uint32_t where )
 {
+
+    /* Convert worker id from Chameleon to Starpu */
+    where = cham_to_starpu_where( where );
 
     /* Blas 3 */
     cl_zgemm_restrict_where( where );
@@ -73,6 +94,9 @@ void RUNTIME_zlocality_allrestrict( uint32_t where )
 
 void RUNTIME_zlocality_onerestrict( cham_tasktype_t kernel, uint32_t where )
 {
+    /* Convert worker id from Chameleon to Starpu */
+    where = cham_to_starpu_where( where );
+
     switch( kernel ) {
     /* Blas 3 */
     case TASK_GEMM:   cl_zgemm_restrict_where( where );  break;
