@@ -208,7 +208,18 @@ int main (int argc, char **argv) {
             info = 1;
             goto end;
         }
-        RUNTIME_zlocality_allrestrict( RUNTIME_CUDA );
+#if defined(CHAMELEON_SCHED_STARPU)
+        int restriction = 0;
+#if defined(CHAMELEON_USE_CUDA)
+        restriction |= RUNTIME_CUDA;
+#endif
+#if defined(CHAMELEON_USE_HIP)
+        restriction |= RUNTIME_HIP;
+#endif
+        if ( restriction != 0 ) {
+            RUNTIME_zlocality_allrestrict( restriction );
+        }
+#endif
     }
 
     /* Warmup */

@@ -39,7 +39,8 @@ typedef enum runtime_id_e {
  * @brief Ids of the worker type
  */
 #define RUNTIME_CPU  ((1ULL)<<1)
-#define RUNTIME_CUDA ((1ULL)<<3)
+#define RUNTIME_CUDA ((1ULL)<<2)
+#define RUNTIME_HIP  ((1ULL)<<3)
 
 /**
  * @brief RUNTIME request structure
