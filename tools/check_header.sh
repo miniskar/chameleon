@@ -192,7 +192,8 @@ files=$( git ls-files                     |
              grep -v "input/.*\.in"       |
              grep -v "distrib/debian/.*"  |
              grep -v "tools/bench/jube/requirements.txt" |
-             grep -v "\.org"              )
+             grep -v "\.org"              |
+             grep -v "\.scm" )
 if [ $# -gt 0 ]
 then
     files=$*

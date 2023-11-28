@@ -21,7 +21,7 @@ unset STARPU_WORKERS_NOBIND
 export XDG_CACHE_HOME=/tmp/guix-$$
 
 # save guix commits
-guix describe --format=json > guix.json
+guix time-machine -C ./tools/bench/guix-channels.scm -- describe --format=json > guix.json
 
 # define env var depending on the node type
 if [ $NODE = "bora" ]
@@ -61,24 +61,24 @@ else
   echo "$0: Please set the MPI environnement variable to openmpi or nmad."
   exit -1
 fi
-GUIX_ADHOC="coreutils gawk grep hwloc jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm mkl@2019.1.144"
+GUIX_ADHOC="coreutils gawk grep hwloc jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm@22 mkl@2019"
 GUIX_RULE="-D $GUIX_ENV $GUIX_ENV_MPI $GUIX_ADHOC $GUIX_ADHOC_MPI"
 
 # Submit jobs
 
 # OpenMPI version
-exec guix shell --pure \
-                --preserve=PLATFORM \
-                --preserve=NODE \
-                --preserve=LD_PRELOAD \
-                --preserve=^CI \
-                --preserve=^SLURM \
-                --preserve=^JUBE \
-                --preserve=^MPI \
-                --preserve=^STARPU \
-                --preserve=^CHAMELEON \
-                $GUIX_RULE \
-                -- /bin/bash --norc ./tools/bench/plafrim/slurm.sh
+exec guix time-machine -C ./tools/bench/guix-channels.scm -- shell --pure \
+       --preserve=PLATFORM \
+       --preserve=NODE \
+       --preserve=LD_PRELOAD \
+       --preserve=^CI \
+       --preserve=^SLURM \
+       --preserve=^JUBE \
+       --preserve=^MPI \
+       --preserve=^STARPU \
+       --preserve=^CHAMELEON \
+       $GUIX_RULE \
+       -- /bin/bash --norc ./tools/bench/plafrim/slurm.sh
 
 echo "####################### End Chameleon benchmarks #######################"
 
