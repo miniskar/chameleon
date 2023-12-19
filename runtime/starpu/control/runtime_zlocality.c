@@ -33,12 +33,16 @@ static uint32_t cham_to_starpu_where( uint32_t where )
     if ( where & RUNTIME_CPU ) {
         starpu_where |= STARPU_CPU;
     }
+#if defined(CHAMELEON_USE_CUDA)
     if ( where & RUNTIME_CUDA ) {
         starpu_where |= STARPU_CUDA;
     }
+#endif
+#if defined(CHAMELEON_USE_HIP)
     if ( where & RUNTIME_HIP ) {
         starpu_where |= STARPU_HIP;
     }
+#endif
     return starpu_where;
 }
 
