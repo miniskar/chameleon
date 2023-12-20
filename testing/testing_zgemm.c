@@ -36,7 +36,7 @@ testing_zgemm_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int          async  = parameters_getvalue_int( "async" );
-    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          nb     = run_arg_get_nb( args );
     int          P      = parameters_getvalue_int( "P" );
     cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
     cham_trans_t transB = run_arg_get_trans( args, "transB", ChamNoTrans );
@@ -141,7 +141,7 @@ testing_zgemm_std( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int          api    = parameters_getvalue_int( "api" );
-    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          nb     = run_arg_get_nb( args );
     cham_trans_t transA = run_arg_get_trans( args, "transA", ChamNoTrans );
     cham_trans_t transB = run_arg_get_trans( args, "transB", ChamNoTrans );
     int          N      = run_arg_get_int( args, "N", 1000 );

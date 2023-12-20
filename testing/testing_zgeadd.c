@@ -48,7 +48,7 @@ testing_zgeadd_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int                   async = parameters_getvalue_int( "async" );
-    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   nb    = run_arg_get_nb( args );
     cham_trans_t          trans = run_arg_get_trans( args, "trans", ChamNoTrans );
     int                   N     = run_arg_get_int( args, "N", 1000 );
     int                   M     = run_arg_get_int( args, "M", N );
@@ -122,7 +122,7 @@ testing_zgeadd_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int          nb     = run_arg_get_int( args, "nb", 320 );
+    int          nb     = run_arg_get_nb( args );
     cham_trans_t trans  = run_arg_get_trans( args, "trans", ChamNoTrans );
     int          N      = run_arg_get_int( args, "N", 1000 );
     int          M      = run_arg_get_int( args, "M", N );
