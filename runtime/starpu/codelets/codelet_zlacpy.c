@@ -39,6 +39,28 @@ struct cl_zlacpy_args_s {
 };
 
 #if !defined(CHAMELEON_SIMULATION)
+static void cl_zlacpy_starpu_func(void *descr[], void *cl_arg)
+{
+    static const struct starpu_data_interface_ops *interface_ops = &starpu_interface_cham_tile_ops;
+    const struct starpu_data_copy_methods         *copy_methods  = interface_ops->copy_methods;
+    struct cl_zlacpy_args_s                       *clargs        = (struct cl_zlacpy_args_s *)cl_arg;
+
+    int      workerid    = starpu_worker_get_id_check();
+    unsigned memory_node = starpu_worker_get_memory_node( workerid );
+
+    void *src_interface = descr[0];
+    void *dst_interface = descr[1];
+
+    int rc;
+
+    assert( clargs->displA == 0 );
+    assert( clargs->displB == 0 );
+
+    rc = copy_methods->any_to_any( src_interface, memory_node,
+                                   dst_interface, memory_node, NULL );
+    assert( rc == 0 );
+}
+
 static void
 cl_zlacpy_cpu_func(void *descr[], void *cl_arg)
 {
@@ -75,6 +97,27 @@ cl_zlacpyx_cpu_func(void *descr[], void *cl_arg)
  */
 CODELETS_CPU( zlacpy,  cl_zlacpy_cpu_func  )
 CODELETS_CPU( zlacpyx, cl_zlacpyx_cpu_func )
+CODELETS( zlacpy_starpu, cl_zlacpy_starpu_func, cl_zlacpy_starpu_func, STARPU_CUDA_ASYNC )
+
+static inline void
+insert_task_zlacpy_on_local_node( const RUNTIME_option_t *options,
+                                  starpu_data_handle_t handleA,
+                                  starpu_data_handle_t handleB )
+{
+    void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
+    starpu_data_cpy_priority( handleB, handleA, 1, callback, NULL, options->priority );
+}
+
+#if defined(CHAMELEON_USE_MPI)
+static inline void
+insert_task_zlacpy_on_remote_node( const RUNTIME_option_t *options,
+                                   starpu_data_handle_t handleA,
+                                   starpu_data_handle_t handleB )
+{
+    void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
+    starpu_mpi_data_cpy_priority( handleB, handleA, MPI_COMM_WORLD, 1, callback, NULL, options->priority );
+}
+#endif
 
 void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           cham_uplo_t uplo, int m, int n,
@@ -85,11 +128,13 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      exec = 0;
     char                    *cl_name = "zlacpyx";
+    CHAM_tile_t             *tileA   = A->get_blktile( A, Am, An );
+    CHAM_tile_t             *tileB   = B->get_blktile( B, Bm, Bn );
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_R(A, Am, An);
-    CHAMELEON_ACCESS_W(B, Bm, Bn);
+    CHAMELEON_ACCESS_R( A, Am, An );
+    CHAMELEON_ACCESS_W( B, Bm, Bn );
     exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
 
@@ -107,23 +152,46 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     /* Callback fro profiling information */
     callback = options->profiling ? cl_zlacpyx_callback : NULL;
 
+#if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
-    rt_starpu_insert_task(
-        &cl_zlacpyx,
-        /* Task codelet arguments */
-        STARPU_CL_ARGS, clargs, sizeof(struct cl_zlacpy_args_s),
-        STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
-        STARPU_W,      RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+    if ( (uplo == ChamUpperLower) &&
+         (tileA->m == m) && (tileA->n == n) &&
+         (displA == 0) && (displB == 0) )
+    {
+#if defined(CHAMELEON_USE_MPI)
+        insert_task_zlacpy_on_remote_node( options,
+                                           RTBLKADDR(A, ChamComplexDouble, Am, An),
+                                           RTBLKADDR(B, ChamComplexDouble, Bm, Bn) );
+#else
+        insert_task_zlacpy_on_local_node( options,
+                                          RTBLKADDR(A, ChamComplexDouble, Am, An),
+                                          RTBLKADDR(B, ChamComplexDouble, Bm, Bn) );
+#endif
+    }
+    else
+#endif
+    {
+        /* Insert the task */
+        rt_starpu_insert_task(
+            &cl_zlacpyx,
+            /* Task codelet arguments */
+            STARPU_CL_ARGS, clargs, sizeof(struct cl_zlacpy_args_s),
+            STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
+            STARPU_W,      RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
 
-        /* Common task arguments */
-        STARPU_PRIORITY,          options->priority,
-        STARPU_CALLBACK,          callback,
-        STARPU_EXECUTE_ON_WORKER, options->workerid,
+            /* Common task arguments */
+            STARPU_PRIORITY,          options->priority,
+            STARPU_CALLBACK,          callback,
+            STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME,              cl_name,
+            STARPU_NAME,              cl_name,
 #endif
 
-        0 );
+            0 );
+    }
+
+    (void)tileA;
+    (void)tileB;
 }
 
 void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
@@ -135,8 +203,10 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      exec    = 0;
     char                    *cl_name = "zlacpy";
+    CHAM_tile_t             *tileA   = A->get_blktile( A, Am, An );
+    CHAM_tile_t             *tileB   = B->get_blktile( B, Bm, Bn );
 
-    /* Handle cache */
+        /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
     CHAMELEON_ACCESS_R(A, Am, An);
     CHAMELEON_ACCESS_W(B, Bm, Bn);
@@ -150,28 +220,46 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
         clargs->n      = n;
         clargs->displA = 0;
         clargs->displB = 0;
-        clargs->lda    = A->get_blktile( A, Am, An )->ld;
-        clargs->ldb    = B->get_blktile( B, Bm, Bn )->ld;
+        clargs->lda    = tileA->ld;
+        clargs->ldb    = tileB->ld;
     }
 
     /* Callback fro profiling information */
     callback = options->profiling ? cl_zlacpy_callback : NULL;
 
+#if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
-    rt_starpu_insert_task(
-        &cl_zlacpy,
-        /* Task codelet arguments */
-        STARPU_CL_ARGS, clargs, sizeof(struct cl_zlacpy_args_s),
-        STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
-        STARPU_W,      RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
+    if ( (uplo == ChamUpperLower) &&
+         (tileA->m == m) && (tileA->n == n) )
+    {
+#if defined(CHAMELEON_USE_MPI)
+        insert_task_zlacpy_on_remote_node( options,
+                                           RTBLKADDR(A, ChamComplexDouble, Am, An),
+                                           RTBLKADDR(B, ChamComplexDouble, Bm, Bn) );
+#else
+        insert_task_zlacpy_on_local_node( options,
+                                          RTBLKADDR(A, ChamComplexDouble, Am, An),
+                                          RTBLKADDR(B, ChamComplexDouble, Bm, Bn) );
+#endif
+    }
+    else
+#endif
+    {
+        rt_starpu_insert_task(
+            &cl_zlacpy,
+            /* Task codelet arguments */
+            STARPU_CL_ARGS, clargs, sizeof(struct cl_zlacpy_args_s),
+            STARPU_R,      RTBLKADDR(A, ChamComplexDouble, Am, An),
+            STARPU_W,      RTBLKADDR(B, ChamComplexDouble, Bm, Bn),
 
-        /* Common task arguments */
-        STARPU_PRIORITY,          options->priority,
-        STARPU_CALLBACK,          callback,
-        STARPU_EXECUTE_ON_WORKER, options->workerid,
+            /* Common task arguments */
+            STARPU_PRIORITY,          options->priority,
+            STARPU_CALLBACK,          callback,
+            STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME,              cl_name,
+            STARPU_NAME,              cl_name,
 #endif
 
-        0 );
+            0 );
+    }
 }
