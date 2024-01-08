@@ -495,6 +495,62 @@ run_arg_get_ntype( run_arg_list_t *arglist, const char *name, cham_normtype_t de
 }
 
 /**
+ * @brief Searches for the specific inner blocking value
+ *
+ * As opposed to other parameters, inner blocking can de defined through
+ * environment variable in the Chameleon context. Thus, we first recover this
+ * value as the default one, and the we get the value from the parameters.
+ *
+ * @param[inout] arglist
+ *          The list of arguments.
+ *          On exit, if the argument was not in the list, the default value is
+ *          stored in it.
+ *
+ * @retval The inner blocking value.
+ */
+int
+run_arg_get_ib( run_arg_list_t *arglist )
+{
+    int ib, rc;
+
+    rc = CHAMELEON_Get( CHAMELEON_INNER_BLOCK_SIZE, &ib );
+    if ( rc != CHAMELEON_SUCCESS ) {
+        ib = 48;
+    }
+    ib = run_arg_get_int( arglist, "ib", ib );
+
+    return ib;
+}
+
+/**
+ * @brief Searches for the specific tile size value
+ *
+ * As opposed to other parameters, tile size can de defined through
+ * environment variable in the Chameleon context. Thus, we first recover this
+ * value as the default one, and the we get the value from the parameters.
+ *
+ * @param[inout] arglist
+ *          The list of arguments.
+ *          On exit, if the argument was not in the list, the default value is
+ *          stored in it.
+ *
+ * @retval The inner blocking value.
+ */
+int
+run_arg_get_nb( run_arg_list_t *arglist )
+{
+    int nb, rc;
+
+    rc = CHAMELEON_Get( CHAMELEON_TILE_SIZE, &nb );
+    if ( rc != CHAMELEON_SUCCESS ) {
+        nb = 320;
+    }
+    nb = run_arg_get_int( arglist, "nb", nb );
+
+    return nb;
+}
+
+/**
  ********************************************************************************
  *
  * @brief Frees all of memory allocated for an argument list.

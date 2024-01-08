@@ -92,7 +92,7 @@ testing_zlantr_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int             async     = parameters_getvalue_int( "async" );
-    int             nb        = run_arg_get_int( args, "nb", 320 );
+    int             nb        = run_arg_get_nb( args );
     cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
     cham_uplo_t     uplo      = run_arg_get_uplo( args, "uplo", ChamUpper );
     cham_diag_t     diag      = run_arg_get_diag( args, "diag", ChamNonUnit );
@@ -145,7 +145,7 @@ testing_zlantr_std( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int             api       = parameters_getvalue_int( "api" );
-    int             nb        = run_arg_get_int( args, "nb", 320 );
+    int             nb        = run_arg_get_nb( args );
     cham_normtype_t norm_type = run_arg_get_ntype( args, "norm", ChamMaxNorm );
     cham_uplo_t     uplo      = run_arg_get_uplo( args, "uplo", ChamUpper );
     cham_diag_t     diag      = run_arg_get_diag( args, "diag", ChamNonUnit );

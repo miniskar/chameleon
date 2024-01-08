@@ -66,7 +66,7 @@ testing_zgesvd_desc( run_arg_list_t *args, int check )
     /* Read arguments */
     int        async  = parameters_getvalue_int( "async" );
     intptr_t   mtxfmt = parameters_getvalue_int( "mtxfmt" );
-    int        nb     = run_arg_get_int( args, "nb", 320 );
+    int        nb     = run_arg_get_nb( args );
     int        P      = parameters_getvalue_int( "P" );
     int        N      = run_arg_get_int( args, "N", 1000 );
     int        M      = run_arg_get_int( args, "M", N );
@@ -179,7 +179,7 @@ testing_zgesvd_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int        nb    = run_arg_get_int( args, "nb", 320 );
+    int        nb    = run_arg_get_nb( args );
     int        N     = run_arg_get_int( args, "N", 1000 );
     int        M     = run_arg_get_int( args, "M", N );
     int        K     = chameleon_min( M, N );

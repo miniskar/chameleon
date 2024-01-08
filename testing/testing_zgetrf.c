@@ -36,8 +36,8 @@ testing_zgetrf_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int         async = parameters_getvalue_int( "async" );
-    int         nb    = run_arg_get_int( args, "nb", 320 );
-    int         ib    = run_arg_get_int( args, "ib", 48 );
+    int         nb    = run_arg_get_nb( args );
+    int         ib    = run_arg_get_ib( args );
     int         N     = run_arg_get_int( args, "N", 1000 );
     int         M     = run_arg_get_int( args, "M", N );
     int         LDA   = run_arg_get_int( args, "LDA", M );

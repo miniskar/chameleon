@@ -212,6 +212,8 @@ cham_diag_t           run_arg_get_diag     ( run_arg_list_t *arglist, const char
 cham_side_t           run_arg_get_side     ( run_arg_list_t *arglist, const char *name, cham_side_t           defval );
 cham_job_t            run_arg_get_job      ( run_arg_list_t *arglist, const char *name, cham_job_t            defval );
 cham_normtype_t       run_arg_get_ntype    ( run_arg_list_t *arglist, const char *name, cham_normtype_t       defval );
+int                   run_arg_get_ib       ( run_arg_list_t *arglist );
+int                   run_arg_get_nb       ( run_arg_list_t *arglist );
 
 int run_arg_add_int   ( run_arg_list_t *arglist, const char *name, int    defval );
 int run_arg_add_double( run_arg_list_t *arglist, const char *name, double defval );

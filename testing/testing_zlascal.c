@@ -59,7 +59,7 @@ testing_zlascal_desc( run_arg_list_t *args, int check )
 
     /* Read arguments */
     int                   async = parameters_getvalue_int( "async" );
-    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   nb    = run_arg_get_nb( args );
     int                   P     = parameters_getvalue_int( "P" );
     cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
     int                   N     = run_arg_get_int( args, "N", 1000 );
@@ -116,7 +116,7 @@ testing_zlascal_std( run_arg_list_t *args, int check )
     int        hres      = 0;
 
     /* Read arguments */
-    int                   nb    = run_arg_get_int( args, "nb", 320 );
+    int                   nb    = run_arg_get_nb( args );
     cham_uplo_t           uplo  = run_arg_get_uplo( args, "uplo", ChamUpper );
     int                   N     = run_arg_get_int( args, "N", 1000 );
     int                   M     = run_arg_get_int( args, "M", N );
