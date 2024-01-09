@@ -61,7 +61,7 @@ else
   echo "$0: Please set the MPI environnement variable to openmpi or nmad."
   exit -1
 fi
-GUIX_ADHOC="coreutils gawk grep hwloc jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm@22 mkl@2019"
+GUIX_ADHOC="coreutils gawk grep hwloc jube perl python python-click python-certifi python-elasticsearch python-gitpython python-matplotlib python-pandas python-seaborn r-ggplot2 r-plyr r-reshape2 sed slurm mkl@2019"
 GUIX_RULE="-D $GUIX_ENV $GUIX_ENV_MPI $GUIX_ADHOC $GUIX_ADHOC_MPI"
 
 # Submit jobs
