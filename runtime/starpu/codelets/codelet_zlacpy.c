@@ -164,6 +164,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     /* Insert the task */
     if ( (uplo == ChamUpperLower) &&
          (tileA->m == m) && (tileA->n == n) &&
+         (tileB->m == m) && (tileB->n == n) &&
          (displA == 0) && (displB == 0) )
     {
 #if defined(CHAMELEON_USE_MPI)
@@ -238,7 +239,8 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
     if ( (uplo == ChamUpperLower) &&
-         (tileA->m == m) && (tileA->n == n) )
+         (tileA->m == m) && (tileA->n == n) &&
+         (tileB->m == m) && (tileB->n == n) )
     {
 #if defined(CHAMELEON_USE_MPI)
         insert_task_zlacpy_on_remote_node( options,
