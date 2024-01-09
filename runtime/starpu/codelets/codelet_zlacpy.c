@@ -105,7 +105,11 @@ insert_task_zlacpy_on_local_node( const RUNTIME_option_t *options,
                                   starpu_data_handle_t handleB )
 {
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
+#if defined(CHAMELEON_RUNTIME_SYNC)
+    starpu_data_cpy_priority( handleB, handleA, 0, callback, NULL, options->priority );
+#else
     starpu_data_cpy_priority( handleB, handleA, 1, callback, NULL, options->priority );
+#endif
 }
 
 #if defined(CHAMELEON_USE_MPI)
@@ -115,7 +119,11 @@ insert_task_zlacpy_on_remote_node( const RUNTIME_option_t *options,
                                    starpu_data_handle_t handleB )
 {
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
+#if defined(CHAMELEON_RUNTIME_SYNC)
+    starpu_mpi_data_cpy_priority( handleB, handleA, MPI_COMM_WORLD, 0, callback, NULL, options->priority );
+#else
     starpu_mpi_data_cpy_priority( handleB, handleA, MPI_COMM_WORLD, 1, callback, NULL, options->priority );
+#endif
 }
 #endif
 
@@ -156,6 +164,7 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     /* Insert the task */
     if ( (uplo == ChamUpperLower) &&
          (tileA->m == m) && (tileA->n == n) &&
+         (tileB->m == m) && (tileB->n == n) &&
          (displA == 0) && (displB == 0) )
     {
 #if defined(CHAMELEON_USE_MPI)
@@ -230,7 +239,8 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
     if ( (uplo == ChamUpperLower) &&
-         (tileA->m == m) && (tileA->n == n) )
+         (tileA->m == m) && (tileA->n == n) &&
+         (tileB->m == m) && (tileB->n == n) )
     {
 #if defined(CHAMELEON_USE_MPI)
         insert_task_zlacpy_on_remote_node( options,
