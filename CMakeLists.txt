@@ -308,7 +308,7 @@ endif()
 mark_as_advanced(CHAMELEON_COPY_DIAG)
 
 # If ON generates vendor_ztesting in testings
-option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF)
+cmake_dependent_option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF "NOT CHAMELEON_SIMULATION" OFF)
 
 # If ON enable the use of multithreaded kernels such as Intel MKL MT
 option(CHAMELEON_KERNELS_MT "Use multithreaded kernels (e.g. intel MKL MT)" OFF)
