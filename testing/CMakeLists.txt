@@ -127,6 +127,7 @@ set(ZSRC
   testing_zcheck_polar_decomp.c
   testing_zprint.c
 )
+set(TESTING_SRCS)
 
 # Create one testing per precision with all files
 # -----------------------------------------------
@@ -175,6 +176,7 @@ foreach(_precision ${CHAMELEON_PRECISION} )
 
   target_link_libraries(${__target_name} PRIVATE chameleon_lapack)
   target_link_libraries(${__target_name} PRIVATE chameleon)
+  target_link_libraries(${__target_name} PRIVATE hqr)
   if(NOT CHAMELEON_SIMULATION)
     target_link_libraries(${__target_name} PRIVATE
       MORSE::LAPACKE
@@ -185,15 +187,41 @@ foreach(_precision ${CHAMELEON_PRECISION} )
   install(TARGETS ${__target_name}
     DESTINATION bin/ )
 
+  list(APPEND TESTING_SRCS ${${_precision}SRC_GENERATED})
 endforeach()
 
-# VENDOR api tests
-set(ZSRC_VENDOR
-  vendor_ztesting.c
-)
+# Force generation of sources
+# ---------------------------
+if ( TESTING_SRCS )
+  add_custom_target(testing_sources ALL SOURCES ${TESTING_SRCS})
+  set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};testing_sources" CACHE INTERNAL "List of targets of sources")
+endif()
 
+#
+# Build vendor testings
+# ---------------------
 if ( CHAMELEON_TESTINGS_VENDOR )
+
+  # VENDOR api tests
+  set(ZSRC_VENDOR
+    vendor_ztesting.c
+  )
+  set(VENDOR_SRCS)
+
+  # Get include properties
+  set( VENDORS_HDR_DEPS chameleon_lapack )
+  foreach( _dep ${VENDORS_HDR_DEPS} )
+    get_target_property( _${_dep}_INCLUDE_DIRECTORIES ${_dep} INCLUDE_DIRECTORIES )
+    if ( _${_dep}_INCLUDE_DIRECTORIES )
+      list( APPEND VENDOR_TESTINGS_INCLUDE_DIRECTORIES ${_${_dep}_INCLUDE_DIRECTORIES} )
+    endif()
+  endforeach()
+
   foreach(_precision ${CHAMELEON_PRECISION} )
+
+    if ( ${_precision} STREQUAL ds OR ${_precision} STREQUAL zc )
+      continue()
+    endif()
 
     precisions_rules_py(${_precision}SRC_VENDOR_GENERATED "${ZSRC_VENDOR}"
       PRECISIONS "${_precision}" )
@@ -243,30 +271,25 @@ if ( CHAMELEON_TESTINGS_VENDOR )
         MORSE::CBLAS)
     endif()
 
-    target_link_libraries(${__target_name} PRIVATE MORSE::M)
     target_link_libraries(${__target_name} PRIVATE chameleon)
+    target_link_libraries(${__target_name} PRIVATE MORSE::M)
+    if( VENDOR_TESTINGS_INCLUDE_DIRECTORIES )
+      target_include_directories(${__target_name} PRIVATE ${VENDOR_TESTINGS_INCLUDE_DIRECTORIES} )
+    endif()
 
     install(TARGETS ${__target_name}
       DESTINATION bin/ )
 
+    # Force generation of sources
+    # ---------------------------
+    list(APPEND VENDOR_SRCS ${${_precision}SRC_VENDOR_GENERATED})
   endforeach()
+
+  if ( VENDOR_SRCS )
+    add_custom_target(vendor_sources ALL SOURCES ${VENDOR_SRCS})
+    set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};vendor_sources" CACHE INTERNAL "List of targets of sources")
+  endif()
 endif()
-
-# Force generation of sources
-# ---------------------------
-set(TESTING_SRCS)
-foreach(_precision ${CHAMELEON_PRECISION})
-  list(APPEND TESTING_SRCS ${${_precision}SRC_GENERATED})
-endforeach()
-add_custom_target(testing_sources ALL SOURCES ${TESTING_SRCS})
-set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};testing_sources" CACHE INTERNAL "List of targets of sources")
-
-set(VENDOR_SRCS)
-foreach(_precision ${CHAMELEON_PRECISION})
-  list(APPEND VENDOR_SRCS ${${_precision}SRC_VENDOR_GENERATED})
-endforeach()
-add_custom_target(vendor_sources ALL SOURCES ${VENDOR_SRCS})
-set(CHAMELEON_SOURCES_TARGETS "${CHAMELEON_SOURCES_TARGETS};vendor_sources" CACHE INTERNAL "List of targets of sources")
 
 #-------- Tests ---------
 include(CTestLists.cmake)
