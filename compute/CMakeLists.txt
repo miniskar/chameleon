@@ -341,6 +341,9 @@ elseif(CHAMELEON_SCHED_OPENMP)
 endif()
 if (CHAMELEON_SIMULATION)
   target_include_directories(chameleon PUBLIC $<BUILD_INTERFACE:${CHAMELEON_SOURCE_DIR}/coreblas/include>)
+  add_dependencies(chameleon
+    coreblas_include
+  )
 else()
   target_link_libraries(chameleon PUBLIC coreblas)
 endif()

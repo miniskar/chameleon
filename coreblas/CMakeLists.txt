@@ -30,8 +30,10 @@ if (CHAMELEON_USE_HMAT AND NOT CHAMELEON_HMAT_EXTERNAL)
   add_subdirectory(hmat-oss)
 endif()
 add_subdirectory(include)
-add_subdirectory(compute)
-add_subdirectory(eztrace_module)
+if (NOT CHAMELEON_SIMULATION)
+  add_subdirectory(compute)
+  add_subdirectory(eztrace_module)
+endif()
 
 ###
 ### END CMakeLists.txt

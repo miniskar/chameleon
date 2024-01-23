@@ -688,12 +688,12 @@ endif()
 
 set(CHAMELEON_SOURCES_TARGETS "" CACHE INTERNAL "List of targets of sources")
 
-if (NOT CHAMELEON_SIMULATION)
-  ###############################################################################
-  # coreblas library (kernels for CPUs, interface to cblas/lapacke) #
-  ###################################################################
-  add_subdirectory(coreblas)
+###############################################################################
+# coreblas library (kernels for CPUs, interface to cblas/lapacke) #
+###################################################################
+add_subdirectory(coreblas)
 
+if (NOT CHAMELEON_SIMULATION)
   ###############################################################################
   # gpucublas library (kernels for GPUs, interface to cublas or hibblas) #
   ########################################################################
