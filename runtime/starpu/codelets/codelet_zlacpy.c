@@ -132,12 +132,10 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
                           int displA, const CHAM_desc_t *A, int Am, int An, int lda,
                           int displB, const CHAM_desc_t *B, int Bm, int Bn, int ldb )
 {
-    struct cl_zlacpy_args_s *clargs = NULL;
-    void (*callback)(void*);
-    int                      exec = 0;
-    char                    *cl_name = "zlacpyx";
-    CHAM_tile_t             *tileA   = A->get_blktile( A, Am, An );
-    CHAM_tile_t             *tileB   = B->get_blktile( B, Bm, Bn );
+    int          exec    = 0;
+    char        *cl_name = "zlacpyx";
+    CHAM_tile_t *tileA   = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB   = B->get_blktile( B, Bm, Bn );
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -145,20 +143,6 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W( B, Bm, Bn );
     exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
-
-    if ( exec ) {
-        clargs = malloc( sizeof( struct cl_zlacpy_args_s ) );
-        clargs->uplo   = uplo;
-        clargs->m      = m;
-        clargs->n      = n;
-        clargs->displA = displA;
-        clargs->displB = displB;
-        clargs->lda    = lda;
-        clargs->ldb    = ldb;
-    }
-
-    /* Callback fro profiling information */
-    callback = options->profiling ? cl_zlacpyx_callback : NULL;
 
 #if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
@@ -180,6 +164,23 @@ void INSERT_TASK_zlacpyx( const RUNTIME_option_t *options,
     else
 #endif
     {
+        struct cl_zlacpy_args_s *clargs = NULL;
+        void (*callback)(void*);
+
+        if ( exec ) {
+            clargs = malloc( sizeof( struct cl_zlacpy_args_s ) );
+            clargs->uplo   = uplo;
+            clargs->m      = m;
+            clargs->n      = n;
+            clargs->displA = displA;
+            clargs->displB = displB;
+            clargs->lda    = lda;
+            clargs->ldb    = ldb;
+        }
+
+        /* Callback fro profiling information */
+        callback = options->profiling ? cl_zlacpyx_callback : NULL;
+
         /* Insert the task */
         rt_starpu_insert_task(
             &cl_zlacpyx,
@@ -208,12 +209,10 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
                          const CHAM_desc_t *A, int Am, int An,
                          const CHAM_desc_t *B, int Bm, int Bn )
 {
-    struct cl_zlacpy_args_s *clargs = NULL;
-    void (*callback)(void*);
-    int                      exec    = 0;
-    char                    *cl_name = "zlacpy";
-    CHAM_tile_t             *tileA   = A->get_blktile( A, Am, An );
-    CHAM_tile_t             *tileB   = B->get_blktile( B, Bm, Bn );
+    int          exec    = 0;
+    char        *cl_name = "zlacpy";
+    CHAM_tile_t *tileA   = A->get_blktile( A, Am, An );
+    CHAM_tile_t *tileB   = B->get_blktile( B, Bm, Bn );
 
         /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -221,20 +220,6 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
     CHAMELEON_ACCESS_W(B, Bm, Bn);
     exec = __chameleon_need_exec;
     CHAMELEON_END_ACCESS_DECLARATION;
-
-    if ( exec ) {
-        clargs = malloc( sizeof( struct cl_zlacpy_args_s ) );
-        clargs->uplo   = uplo;
-        clargs->m      = m;
-        clargs->n      = n;
-        clargs->displA = 0;
-        clargs->displB = 0;
-        clargs->lda    = tileA->ld;
-        clargs->ldb    = tileB->ld;
-    }
-
-    /* Callback fro profiling information */
-    callback = options->profiling ? cl_zlacpy_callback : NULL;
 
 #if !defined(CHAMELEON_USE_MPI) || defined(HAVE_STARPU_MPI_DATA_CPY_PRIORITY)
     /* Insert the task */
@@ -255,6 +240,23 @@ void INSERT_TASK_zlacpy( const RUNTIME_option_t *options,
     else
 #endif
     {
+        struct cl_zlacpy_args_s *clargs = NULL;
+        void (*callback)(void*);
+
+        if ( exec ) {
+            clargs = malloc( sizeof( struct cl_zlacpy_args_s ) );
+            clargs->uplo   = uplo;
+            clargs->m      = m;
+            clargs->n      = n;
+            clargs->displA = 0;
+            clargs->displB = 0;
+            clargs->lda    = tileA->ld;
+            clargs->ldb    = tileB->ld;
+        }
+
+        /* Callback for profiling information */
+        callback = options->profiling ? cl_zlacpy_callback : NULL;
+
         rt_starpu_insert_task(
             &cl_zlacpy,
             /* Task codelet arguments */
