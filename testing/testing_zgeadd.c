@@ -19,6 +19,7 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>

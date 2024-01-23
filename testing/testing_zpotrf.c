@@ -19,14 +19,13 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
-#if !defined(CHAMELEON_SIMULATION)
+#if defined(CHAMELEON_TESTINGS_VENDOR) || !defined(CHAMELEON_SIMULATION)
 #include <coreblas.h>
-#if defined(CHAMELEON_TESTINGS_VENDOR)
 #include <coreblas/lapacke.h>
-#endif
 #endif
 
 #if !defined(CHAMELEON_TESTINGS_VENDOR)

@@ -18,10 +18,10 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
-#include "control/common.h"
 
 static cham_fixdbl_t
 flops_zgelqs()
@@ -91,8 +91,8 @@ testing_zgelqs_desc( run_arg_list_t *args, int check )
     if ( check ) {
         CHAM_desc_t *descA0 = CHAMELEON_Desc_Copy( descA, CHAMELEON_MAT_ALLOC_TILE );
         CHAM_desc_t *descB  = CHAMELEON_Desc_Copy( descX, CHAMELEON_MAT_ALLOC_TILE );
-        CHAM_desc_t *subX   = chameleon_desc_submatrix( descX, 0, 0, N, NRHS );
-        CHAM_desc_t *subB   = chameleon_desc_submatrix( descB, 0, 0, M, NRHS );
+        CHAM_desc_t *subX   = CHAMELEON_Desc_SubMatrix( descX, 0, 0, N, NRHS );
+        CHAM_desc_t *subB   = CHAMELEON_Desc_SubMatrix( descB, 0, 0, M, NRHS );
 
         CHAMELEON_zplrnt_Tile( descA0, seedA );
         CHAMELEON_zplrnt_Tile( descB, seedB );

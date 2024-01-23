@@ -19,14 +19,15 @@
  *
  */
 #include <chameleon.h>
-#include <assert.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
-#if defined(CHAMELEON_TESTINGS_VENDOR)
-#include <coreblas/lapacke.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR) || !defined(CHAMELEON_SIMULATION)
 #include <coreblas.h>
+#include <coreblas/lapacke.h>
 #endif
+#include <assert.h>
 
 static cham_fixdbl_t
 flops_zpoinv( int N )
