@@ -105,25 +105,31 @@ struct chameleon_desc_s {
     int mb;           // number of rows in a tile
     int nb;           // number of columns in a tile
     int bsiz;         // size in elements including padding
-    int lm;  	      // number of rows of the entire matrix
-    int ln;           // number of columns of the entire matrix
-    int lmt;          // number of tile rows of the entire matrix - derived parameter
-    int lnt;          // number of tile columns of the entire matrix - derived parameter
+
+    /* Matrix sizes in single rows/columns for the full problem */
     int i;            // row index to the beginning of the submatrix
     int j;            // column index to the beginning of the submatrix
     int m;            // number of rows of the submatrix
     int n;            // number of columns of the submatrix
-    int mt;           // number of tile rows of the submatrix - derived parameter
+    int lm;  	      // number of rows of the entire matrix
+    int ln;           // number of columns of the entire matrix
+
+    /* Number of rows/columns tiles for the full problem */
+    int mt;           // number of tile rows    of the submatrix - derived parameter
     int nt;           // number of tile columns of the submatrix - derived parameter
-                      // Data for distributed cases
+    int lmt;          // number of tile rows    of the entire matrix - derived parameter
+    int lnt;          // number of tile columns of the entire matrix - derived parameter
+
+    /* Distributed case */
     int p;            // number of rows of the 2D distribution grid
     int q;            // number of columns of the 2D distribution grid
-    int llm;          // number of rows of the 2D distribution grid
-    int lln;          // number of columns of the 2D distribution grid
-    int llm1;         // number of tile rows of the A11 matrix - derived parameter
-    int lln1;         // number of tile columns of the A11 matrix - derived parameter
-    int llmt;         // number of tile rows of the local (to a node) matrix
-    int llnt;         // number of tile columns of the local (to a node) matrix
+    int llm;          // local number of rows         of the full matrix - derived parameter
+    int lln;          // local number of columns      of the full matrix - derived parameter
+    int llm1;         // local number of tile rows    of the A11  matrix - derived parameter
+    int lln1;         // local number of tile columns of the A11  matrix - derived parameter
+    int llmt;         // local number of tile rows    of the full matrix - derived parameter
+    int llnt;         // local number of tile columns of the full matrix - derived parameter
+
     int id;           // identification number of the descriptor
     int occurences;   // identify main matrix desc (occurances=1) or
                       // submatrix desc (occurances>1) to avoid unregistering
