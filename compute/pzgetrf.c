@@ -201,7 +201,6 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
                     ipiv );
             }
 
-
             if ( (b < (nbblock-1)) && (h == hmax-1) ) {
                 INSERT_TASK_zgetrf_blocked_trsm(
                     options,
@@ -281,7 +280,7 @@ chameleon_pzgetrf_panel_permute( struct chameleon_pzgetrf_s *ws,
                             A(k, n), U(k, n) );
 
         /*
-         * perm array is made of size tempkm for the first row espacially.
+         * perm array is made of size tempkm for the first row especially.
          * Otherwise, the final copy back to the tile may copy only a partial tile
          */
         INSERT_TASK_zlaswp_get( options, k*A->mb, tempkm,

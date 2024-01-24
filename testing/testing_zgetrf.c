@@ -21,11 +21,15 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
-#include <chameleon/getenv.h>
 #include <chameleon/flops.h>
+#include <chameleon/getenv.h>
+#if defined(CHAMELEON_TESTINGS_VENDOR) || !defined(CHAMELEON_SIMULATION)
+#include <coreblas.h>
 #include <coreblas/lapacke.h>
+#endif
 
 #if !defined(CHAMELEON_TESTINGS_VENDOR)
 int

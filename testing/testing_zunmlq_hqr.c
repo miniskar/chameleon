@@ -18,10 +18,11 @@
  *
  */
 #include <chameleon.h>
-#include <assert.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#include <assert.h>
 
 int
 testing_zunmlq_hqr_desc( run_arg_list_t *args, int check )

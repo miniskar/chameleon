@@ -18,8 +18,8 @@
  * @precisions normal z -> c d s
  *
  */
-#include "../control/common.h"
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
@@ -121,12 +121,12 @@ testing_zgels_hqr_desc( run_arg_list_t *args, int check )
         CHAMELEON_zplrnt_Tile( descB, seedB );
 
         if ( trans == ChamNoTrans ) {
-            subX = chameleon_desc_submatrix( descX, 0, 0, N, NRHS );
-            subB = chameleon_desc_submatrix( descB, 0, 0, M, NRHS );
+            subX = CHAMELEON_Desc_SubMatrix( descX, 0, 0, N, NRHS );
+            subB = CHAMELEON_Desc_SubMatrix( descB, 0, 0, M, NRHS );
         }
         else {
-            subX = chameleon_desc_submatrix( descX, 0, 0, M, NRHS );
-            subB = chameleon_desc_submatrix( descB, 0, 0, N, NRHS );
+            subX = CHAMELEON_Desc_SubMatrix( descX, 0, 0, M, NRHS );
+            subB = CHAMELEON_Desc_SubMatrix( descB, 0, 0, N, NRHS );
         }
 
         /* Check the factorization and the residual */

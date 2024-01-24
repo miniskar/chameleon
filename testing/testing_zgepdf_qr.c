@@ -19,16 +19,17 @@
  *
  */
 #include <chameleon.h>
+#include <chameleon_lapack.h>
 #include <chameleon/getenv.h>
-#if !defined(CHAMELEON_SIMULATION)
-#include <coreblas/lapacke.h>
-#include <coreblas/cblas.h>
-#include <coreblas.h>
-#endif
-#include <libhqr.h>
 #include "testings.h"
 #include "testing_zcheck.h"
 #include <chameleon/flops.h>
+#if !defined(CHAMELEON_SIMULATION)
+#include <coreblas.h>
+#include <coreblas/cblas.h>
+#include <coreblas/lapacke.h>
+#endif
+#include <libhqr.h>
 
 static cham_fixdbl_t
 flops_zgepdf_qr( int M, int N )

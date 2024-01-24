@@ -308,7 +308,7 @@ endif()
 mark_as_advanced(CHAMELEON_COPY_DIAG)
 
 # If ON generates vendor_ztesting in testings
-option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF)
+cmake_dependent_option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas / lapack vendor (e.g. intel MKL MT)" OFF "NOT CHAMELEON_SIMULATION" OFF)
 
 # If ON enable the use of multithreaded kernels such as Intel MKL MT
 option(CHAMELEON_KERNELS_MT "Use multithreaded kernels (e.g. intel MKL MT)" OFF)
@@ -688,12 +688,12 @@ endif()
 
 set(CHAMELEON_SOURCES_TARGETS "" CACHE INTERNAL "List of targets of sources")
 
-if (NOT CHAMELEON_SIMULATION)
-  ###############################################################################
-  # coreblas library (kernels for CPUs, interface to cblas/lapacke) #
-  ###################################################################
-  add_subdirectory(coreblas)
+###############################################################################
+# coreblas library (kernels for CPUs, interface to cblas/lapacke) #
+###################################################################
+add_subdirectory(coreblas)
 
+if (NOT CHAMELEON_SIMULATION)
   ###############################################################################
   # gpucublas library (kernels for GPUs, interface to cublas or hibblas) #
   ########################################################################
