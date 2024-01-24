@@ -84,63 +84,59 @@ typedef CHAM_tile_t* (*blktile_fct_t)  ( const CHAM_desc_t*, int, int );
 
 struct chameleon_desc_s {
     const char *name;
-    // function to get chameleon tiles address
-    blktile_fct_t  get_blktile;
-    // function to get chameleon tiles address
-    blkaddr_fct_t   get_blkaddr;
-    // function to get chameleon tiles leading dimension
-    blkldd_fct_t    get_blkldd;
-    // function to get chameleon tiles MPI rank
-    blkrankof_fct_t get_rankof;
-    // function to get chameleon tiles MPI rank
-    blkrankof_fct_t get_rankof_init;
+    blktile_fct_t   get_blktile;     /**> function to get chameleon tiles address           */
+    blkaddr_fct_t   get_blkaddr;     /**> function to get chameleon tiles address           */
+    blkldd_fct_t    get_blkldd;      /**> function to get chameleon tiles leading dimension */
+    blkrankof_fct_t get_rankof;      /**> function to get chameleon tiles MPI rank          */
+    blkrankof_fct_t get_rankof_init; /**> function to get chameleon tiles MPI rank          */
+
     void* get_rankof_init_arg;
-    CHAM_tile_t *tiles; // pointer to the array of tiles descriptors
-    void *mat;        // pointer to the beginning of the matrix
-    size_t A21;       // pointer to the beginning of the matrix A21
-    size_t A12;       // pointer to the beginning of the matrix A12
-    size_t A22;       // pointer to the beginning of the matrix A22
-    cham_storage_t styp;  // storage layout of the matrix
-    cham_flttype_t dtyp;  // precision of the matrix
-    int mb;           // number of rows in a tile
-    int nb;           // number of columns in a tile
-    int bsiz;         // size in elements including padding
+    CHAM_tile_t *tiles;  /**> pointer to the array of tiles descriptors  */
+    void *mat;           /**> pointer to the beginning of the matrix     */
+    size_t A21;          /**> pointer to the beginning of the matrix A21 */
+    size_t A12;          /**> pointer to the beginning of the matrix A12 */
+    size_t A22;          /**> pointer to the beginning of the matrix A22 */
+    cham_storage_t styp; /**> storage layout of the matrix               */
+    cham_flttype_t dtyp; /**> precision of the matrix                    */
+    int mb;              /**> number of rows in a tile                   */
+    int nb;              /**> number of columns in a tile                */
+    int bsiz;            /**> size in elements including padding         */
 
     /* Matrix sizes in single rows/columns for the full problem */
-    int i;            // row index to the beginning of the submatrix
-    int j;            // column index to the beginning of the submatrix
-    int m;            // number of rows of the submatrix
-    int n;            // number of columns of the submatrix
-    int lm;  	      // number of rows of the entire matrix
-    int ln;           // number of columns of the entire matrix
+    int i;            /**> row index to the beginning of the submatrix    */
+    int j;            /**> column index to the beginning of the submatrix */
+    int m;            /**> number of rows of the submatrix                */
+    int n;            /**> number of columns of the submatrix             */
+    int lm;  	      /**> number of rows of the entire matrix            */
+    int ln;           /**> number of columns of the entire matrix         */
 
     /* Number of rows/columns tiles for the full problem */
-    int mt;           // number of tile rows    of the submatrix - derived parameter
-    int nt;           // number of tile columns of the submatrix - derived parameter
-    int lmt;          // number of tile rows    of the entire matrix - derived parameter
-    int lnt;          // number of tile columns of the entire matrix - derived parameter
+    int mt;           /**> number of tile rows    of the submatrix - derived parameter     */
+    int nt;           /**> number of tile columns of the submatrix - derived parameter     */
+    int lmt;          /**> number of tile rows    of the entire matrix - derived parameter */
+    int lnt;          /**> number of tile columns of the entire matrix - derived parameter */
 
     /* Distributed case */
-    int p;            // number of rows of the 2D distribution grid
-    int q;            // number of columns of the 2D distribution grid
-    int llm;          // local number of rows         of the full matrix - derived parameter
-    int lln;          // local number of columns      of the full matrix - derived parameter
-    int llm1;         // local number of tile rows    of the A11  matrix - derived parameter
-    int lln1;         // local number of tile columns of the A11  matrix - derived parameter
-    int llmt;         // local number of tile rows    of the full matrix - derived parameter
-    int llnt;         // local number of tile columns of the full matrix - derived parameter
+    int p;            /**> number of rows of the 2D distribution grid                          */
+    int q;            /**> number of columns of the 2D distribution grid                       */
+    int llm;          /**> local number of rows         of the full matrix - derived parameter */
+    int lln;          /**> local number of columns      of the full matrix - derived parameter */
+    int llm1;         /**> local number of tile rows    of the A11  matrix - derived parameter */
+    int lln1;         /**> local number of tile columns of the A11  matrix - derived parameter */
+    int llmt;         /**> local number of tile rows    of the full matrix - derived parameter */
+    int llnt;         /**> local number of tile columns of the full matrix - derived parameter */
 
-    int id;           // identification number of the descriptor
-    int occurences;   // identify main matrix desc (occurances=1) or
-                      // submatrix desc (occurances>1) to avoid unregistering
-                      // GPU data twice
-    int use_mat;      // 1 if we have a pointer to the overall data mat - else 0
-    int alloc_mat;    // 1 if we handle the allocation of mat - else 0
-    int register_mat; // 1 if we have to register mat - else 0 (handled by the application)
-    int myrank;       // MPI rank of the descriptor
-    int ooc;          // 1 if the matrix is not to fit in memory
-    int64_t mpitag;   // First MPI tag used by the descriptor
-    void *schedopt;   // scheduler (QUARK|StarPU) specific structure
+    int id;           /**> identification number of the descriptor                            */
+    int occurences;   /**> identify main matrix desc (occurances=1) or                        */
+                      /**> submatrix desc (occurances>1) to avoid unregistering               */
+                      /**> GPU data twice                                                     */
+    int use_mat;      /**> 1 if we have a pointer to the overall data mat - else 0            */
+    int alloc_mat;    /**> 1 if we handle the allocation of mat - else 0                      */
+    int register_mat; /**> 1 if we have to register mat - else 0 (handled by the application) */
+    int myrank;       /**> MPI rank of the descriptor                                         */
+    int ooc;          /**> 1 if the matrix is not to fit in memory                            */
+    int64_t mpitag;   /**> First MPI tag used by the descriptor                               */
+    void *schedopt;   /**> scheduler (QUARK|StarPU) specific structure                        */
 };
 
 /**
