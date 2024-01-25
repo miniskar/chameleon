@@ -222,14 +222,14 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
     desc->n = n;
 
     /* Matrix stride parameters */
-    desc->lm = m;
-    desc->ln = n;
+    desc->lm = lm;
+    desc->ln = ln;
 
     /* Matrix derived parameters */
     desc->mt  = chameleon_ceil( m, mb );
     desc->nt  = chameleon_ceil( n, nb );
-    desc->lmt = desc->mt;
-    desc->lnt = desc->nt;
+    desc->lmt = chameleon_ceil( lm, mb );
+    desc->lnt = chameleon_ceil( ln, nb );
 
     desc->id = nbdesc;
     nbdesc++;
@@ -243,31 +243,40 @@ int chameleon_desc_init_internal( CHAM_desc_t *desc, const char *name, void *mat
 
     /* Local dimensions in tiles */
     if ( desc->myrank < (p*q) ) {
-        int gmt, gnt;
+        int myp = desc->myrank / q;
+        int myq = desc->myrank % q;
 
-        /* Compute the fictive full number of tiles to derivate the local leading dimension */
-        gmt = chameleon_ceil( lm, mb );
-        gnt = chameleon_ceil( ln, nb );
+        /* Compute the total number of local tiles */
+        desc->llmt = desc->lmt / p;
+        desc->llnt = desc->lnt / q;
+        if ( (desc->lmt % p) > myp ) {
+            desc->llmt ++;
+        }
+        if ( (desc->lnt % q) > myq ) {
+            desc->llnt ++;
+        }
+        desc->llm1 = desc->llmt;
+        desc->lln1 = desc->llnt;
 
-        desc->llmt = chameleon_ceil( gmt, p );
-        desc->llnt = chameleon_ceil( gnt, q );
-
-        // Local dimensions
-        if ( ((desc->lmt-1) % p) == (desc->myrank / q) ) {
-            desc->llm  = ( desc->llmt - 1 ) * mb + ((lm%mb==0) ? mb : (lm%mb));
+        /* If leading row dimension does not match mb, and I own the last tiles row */
+        if ( ( (desc->lm % mb) != 0 ) && ( ((desc->lmt-1) % p) == myp ) )
+        {
+            desc->llm1 = desc->llmt - 1;
+            desc->llm  = desc->llm1 * mb + (lm%mb);
         } else {
-            desc->llm  =  desc->llmt * mb;
+            desc->llm  = desc->llmt * mb;
         }
 
-        if ( ((desc->lnt-1) % q) == (desc->myrank % q) ) {
-            desc->lln  = ( desc->llnt - 1 ) * nb + ((ln%nb==0) ? nb : (ln%nb));
+        /* If leading column dimension does not match nb, and I own the last tiles column */
+        if ( ( (desc->ln % nb) != 0 ) && ( ((desc->lnt-1) % q) == myq ) )
+        {
+            desc->lln1 = desc->llnt - 1;
+            desc->lln  = desc->lln1 * nb + (ln%nb);
         } else {
-            desc->lln  =  desc->llnt * nb;
+            desc->lln  = desc->llnt * nb;
         }
-
-        desc->llm1 = desc->llm / mb;
-        desc->lln1 = desc->lln / nb;
-    } else {
+    }
+    else {
         desc->llmt = 0;
         desc->llnt = 0;
         desc->llm  = 0;
