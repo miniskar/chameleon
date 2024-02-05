@@ -23,7 +23,7 @@ endif()
 
 if (NOT CHAMELEON_SIMULATION)
 
-  foreach(prec ${RP_CHAMELEON_PRECISIONS})
+  foreach(prec ${CHAMELEON_PRECISIONS})
     if ( ${prec} STREQUAL ds OR ${prec} STREQUAL zc )
       continue()
     endif()
@@ -100,7 +100,7 @@ else (NOT CHAMELEON_SIMULATION)
 
   # constraints for which we have perfmodels in simucore/perfmodels/
   set( TESTS "potrf")
-  set(RP_CHAMELEON_PRECISIONS_SIMU "s;d")
+  set(CHAMELEON_PRECISIONS_SIMU "s;d")
   set(TEST_CMD_simushm -t ${THREADS} -g 0)
   set(TEST_CMD_simugpu -t ${THREADS} -g 1)
   set(PLATFORMS "mirage;sirocco")
@@ -109,7 +109,7 @@ else (NOT CHAMELEON_SIMULATION)
 
   # loop over constraints
   foreach(cat ${TEST_CATEGORIES})
-    foreach(prec ${RP_CHAMELEON_PRECISIONS_SIMU})
+    foreach(prec ${CHAMELEON_PRECISIONS_SIMU})
       string(TOUPPER ${prec} PREC)
       foreach(test ${TESTS})
         if (CHAMELEON_PREC_${PREC})
