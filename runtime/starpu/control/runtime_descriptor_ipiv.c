@@ -249,8 +249,8 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
     (void)m;
 }
 
-void RUNTIME_ipiv_flush( const CHAM_ipiv_t        *ipiv,
-                         const RUNTIME_sequence_t *sequence )
+void RUNTIME_ipiv_flush( const RUNTIME_sequence_t *sequence,
+                         const CHAM_ipiv_t        *ipiv )
 {
     int m;
 
@@ -298,7 +298,8 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
     (void)m;
 }
 
-void RUNTIME_ipiv_gather( CHAM_ipiv_t *desc, int *ipiv, int node )
+void RUNTIME_ipiv_gather( const RUNTIME_sequence_t *sequence,
+                          CHAM_ipiv_t *desc, int *ipiv, int node )
 {
     int64_t mt   = desc->mt;
     int64_t mb   = desc->mb;

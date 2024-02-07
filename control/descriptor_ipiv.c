@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2024-03-16
  *
  ***
  *
@@ -210,7 +210,7 @@ int CHAMELEON_Ipiv_Destroy(CHAM_ipiv_t **ipivptr)
 int CHAMELEON_Ipiv_Flush( const CHAM_ipiv_t        *ipiv,
                           const RUNTIME_sequence_t *sequence )
 {
-    RUNTIME_ipiv_flush( ipiv, sequence );
+    RUNTIME_ipiv_flush( sequence, ipiv );
     return CHAMELEON_SUCCESS;
 }
 
@@ -240,6 +240,18 @@ int CHAMELEON_Ipiv_Flush( const CHAM_ipiv_t        *ipiv,
  */
 int CHAMELEON_Ipiv_Gather( CHAM_ipiv_t *ipivdesc, int *ipiv, int root )
 {
-    RUNTIME_ipiv_gather( ipivdesc, ipiv, root );
-    return CHAMELEON_SUCCESS;
+    CHAM_context_t     *chamctxt = chameleon_context_self();
+    RUNTIME_sequence_t *sequence = NULL;
+    int                 status;
+
+    chameleon_sequence_create( chamctxt, &sequence );
+
+    /* Submit the tasks to collect the ipiv array on root */
+    RUNTIME_ipiv_gather( sequence, ipivdesc, ipiv, root );
+
+    /* Wait for the end */
+    chameleon_sequence_wait( chamctxt, sequence );
+    status = sequence->status;
+    chameleon_sequence_destroy( chamctxt, sequence );
+    return status;
 }
