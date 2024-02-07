@@ -24,7 +24,7 @@
 #  @author Florent Pruvost
 #  @author Guillaume Sylvand
 #  @author Matthieu Kuhn
-#  @date 2023-08-31
+#  @date 2024-03-16
 #
 ###
 
@@ -164,6 +164,9 @@ endif()
 target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)
 target_link_libraries(coreblas PRIVATE MORSE::CBLAS)
 target_link_libraries(coreblas PUBLIC MORSE::M)
+if (CHAMELEON_USE_MPI)
+  target_link_libraries(coreblas PUBLIC MPI::MPI_C)
+endif()
 
 # export target coreblas
 install(EXPORT coreblasTargets

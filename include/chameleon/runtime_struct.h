@@ -17,11 +17,22 @@
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Philippe Virouleau
- * @date 2023-07-04
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_runtime_struct_h_
 #define _chameleon_runtime_struct_h_
+
+#if defined(CHAMELEON_USE_MPI)
+#include <mpi.h>
+#else
+#ifndef MPI_Comm
+typedef uintptr_t MPI_Comm;
+#endif
+#ifndef MPI_COMM_WORLD
+#define MPI_COMM_WORLD 0
+#endif
+#endif
 
 BEGIN_C_DECLS
 
@@ -70,6 +81,7 @@ typedef struct runtime_sequence_s {
     int                status;   /**< Return status registered by the tasks for the request     */
     RUNTIME_request_t *request;  /**< Pointer to the request that failed if any, NULL otherwise */
     void              *schedopt; /**< Specific runtime data pointer to handle the sequence      */
+    MPI_Comm           comm;     /**< MPI communicator                                         */
 } RUNTIME_sequence_t;
 
 /**

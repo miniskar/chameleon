@@ -11,12 +11,12 @@
  *
  * @brief Chameleon PaRSEC descriptor routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Reazul Hoque
  * @author Mathieu Faverge
  * @author Guillaume Sylvand
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2024-03-16
  *
  */
 #include "chameleon_parsec.h"
@@ -345,8 +345,10 @@ int RUNTIME_desc_release( const CHAM_desc_t *desc )
 /**
  *  Flush cached data
  */
-void RUNTIME_flush()
+void RUNTIME_flush( CHAM_context_t *chamctxt )
 {
+    (void)chamctxt;
+    return;
 }
 
 void RUNTIME_desc_flush( const CHAM_desc_t        *desc,

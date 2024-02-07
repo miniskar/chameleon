@@ -18,7 +18,7 @@
  * @author Florent Pruvost
  * @author Philippe Virouleau
  * @author Lionel Eyraud-Dubois
- * @date 2024-03-11
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_h_
@@ -117,6 +117,7 @@ int CHAMELEON_Initialized       (void);
 int CHAMELEON_My_Mpi_Rank       (void) __attribute__((deprecated));
 int __chameleon_init            (int nworkers, int ncudas);
 int __chameleon_initpar         (int nworkers, int ncudas, int nthreads_per_worker);
+int __chameleon_initparcomm     (int nworkers, int ncudas, int nthreads_per_worker, MPI_Comm comm);
 int __chameleon_finalize        (void);
 int CHAMELEON_Pause             (void);
 int CHAMELEON_Resume            (void);
@@ -237,16 +238,23 @@ void CHAMELEON_Ipiv_Print ( const CHAM_ipiv_t *ipiv );
  *
  */
 #if defined(CHAMELEON_SCHED_OPENMP)
-#define CHAMELEON_Init( _nworkers_, _ncudas_ )           \
+
+#define CHAMELEON_Init( _nworkers_, _ncudas_ )          \
     __chameleon_init( (_nworkers_), (_ncudas_) );       \
-    _Pragma("omp parallel")                                    \
-    _Pragma("omp master")                                      \
+    _Pragma("omp parallel")                             \
+    _Pragma("omp master")                               \
     {
 
-#define CHAMELEON_InitPar( _nworkers_, _ncudas_, _nthreads_per_worker_ ) \
+#define CHAMELEON_InitPar( _nworkers_, _ncudas_, _nthreads_per_worker_ )      \
     __chameleon_initpar( (_nworkers_), (_ncudas_), (_nthreads_per_worker_) ); \
-    _Pragma("omp parallel")\
-    _Pragma("omp master")\
+    _Pragma("omp parallel")                                                   \
+    _Pragma("omp master")                                                     \
+    {
+
+#define CHAMELEON_InitParComm( _nworkers_, _ncudas_, _nthreads_per_worker_, _comm_ )        \
+    __chameleon_initparcomm( (_nworkers_), (_ncudas_), (_nthreads_per_worker_), (_comm_) ); \
+    _Pragma("omp parallel")                                                                 \
+    _Pragma("omp master")                                                                   \
     {
 
 #define CHAMELEON_Finalize()                    \
@@ -255,11 +263,14 @@ void CHAMELEON_Ipiv_Print ( const CHAM_ipiv_t *ipiv );
 
 #else
 
-#define CHAMELEON_Init( _nworkers_, _ncudas_ )            \
+#define CHAMELEON_Init( _nworkers_, _ncudas_ )          \
     __chameleon_init( (_nworkers_), (_ncudas_) );
 
 #define CHAMELEON_InitPar( _nworkers_, _ncudas_, _nthreads_per_worker_ ) \
-    __chameleon_initpar( (_nworkers_), (_ncudas_), (_nthreads_per_worker_) );
+    __chameleon_initpar( (_nworkers_), (_ncudas_), (_nthreads_per_worker_), MPI_COMM_WORLD );
+
+#define CHAMELEON_InitParComm( _nworkers_, _ncudas_, _nthreads_per_worker_, _comm_ ) \
+    __chameleon_initparcomm( (_nworkers_), (_ncudas_), (_nthreads_per_worker_), (_comm_) );
 
 #define CHAMELEON_Finalize()                    \
     __chameleon_finalize();

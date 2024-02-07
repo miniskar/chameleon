@@ -223,7 +223,7 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -236,7 +236,7 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -272,7 +272,7 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -285,7 +285,7 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -323,7 +323,7 @@ void RUNTIME_ipiv_gather( const RUNTIME_sequence_t *sequence,
                 if (already_received == 0)
                 {
                     MPI_Status status;
-                    starpu_mpi_recv( ipiv_src, owner, tag, MPI_COMM_WORLD, &status );
+                    starpu_mpi_recv( ipiv_src, owner, tag, sequence->comm, &status );
                 }
             }
             else if ( rank == owner )
@@ -332,7 +332,7 @@ void RUNTIME_ipiv_gather( const RUNTIME_sequence_t *sequence,
                 int already_sent = starpu_mpi_cached_send_set( ipiv_src, node );
                 if (already_sent == 0)
                 {
-                    starpu_mpi_send( ipiv_src, node, tag, MPI_COMM_WORLD );
+                    starpu_mpi_send( ipiv_src, node, tag, sequence->comm );
                 }
             }
         }

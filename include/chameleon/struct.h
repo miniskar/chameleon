@@ -19,7 +19,7 @@
  * @author Samuel Thibault
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-08-31
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_struct_h_
@@ -29,6 +29,17 @@
 #include "chameleon/types.h"
 #include "chameleon/constants.h"
 #include "chameleon/runtime_struct.h"
+
+#if defined(CHAMELEON_USE_MPI)
+#include <mpi.h>
+#else
+#ifndef MPI_Comm
+typedef uintptr_t MPI_Comm;
+#endif
+#ifndef MPI_COMM_WORLD
+#define MPI_COMM_WORLD 0
+#endif
+#endif
 
 BEGIN_C_DECLS
 
@@ -191,6 +202,7 @@ typedef struct chameleon_context_s {
     int                lookahead;          // depth of the look ahead in algorithms
     void              *schedopt;           // structure for runtimes
     int                mpi_outer_init;     // MPI has been initialized outside our functions
+    MPI_Comm           comm;               // MPI communicator
 } CHAM_context_t;
 
 static inline void *

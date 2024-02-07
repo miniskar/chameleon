@@ -480,7 +480,7 @@ RUNTIME_desc_flush( const CHAM_desc_t     *desc,
  * This function flushes all data from the distributed cache of the runtime system.
  */
 void
-RUNTIME_flush( );
+RUNTIME_flush( CHAM_context_t *chamctxt );
 
 /**
  * @brief Flush a single piece of data.

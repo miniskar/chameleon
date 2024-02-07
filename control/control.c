@@ -20,7 +20,7 @@
  * @author Samuel Thibault
  * @author Philippe Swartvagher
  * @author Loris Lucido
- * @date 2023-07-04
+ * @date 2024-03-16
  *
  ***
  *
@@ -35,7 +35,8 @@
  *
  * @ingroup Control
  *
- * @brief Initialize CHAMELEON.
+ * @brief Initialize CHAMELEON with number of cpus and gpus (using
+ * MPI_COMM_WORLD).
  *
  ******************************************************************************
  *
@@ -59,7 +60,8 @@ int __chameleon_init(int cores, int gpus)
  *
  * @ingroup Control
  *
- * @brief Initialize CHAMELEON.
+ * @brief Initialize CHAMELEON with number of cpus and gpus and threads per
+ * worker (using MPI_COMM_WORLD).
  *
  ******************************************************************************
  *
@@ -78,6 +80,37 @@ int __chameleon_init(int cores, int gpus)
  *
  */
 int __chameleon_initpar(int ncpus, int ngpus, int nthreads_per_worker)
+{
+    return __chameleon_initparcomm( ncpus, ngpus, nthreads_per_worker, MPI_COMM_WORLD );
+}
+
+/**
+ *
+ * @ingroup Control
+ *
+ * @brief Initialize CHAMELEON with number of cpus and gpus and threads per
+ * worker and using a given MPI communicator.
+ *
+ ******************************************************************************
+ *
+ * @param[in] ncpus
+ *          Number of cores to use.
+ *
+ * @param[in] ngpus
+ *          Number of cuda devices to use.
+ *
+ * @param[in] nthreads_per_worker
+ *          Number of threads per worker (cpu, cuda device).
+ *
+ * @param[in] comm
+ *          The MPI communicator.
+ *
+ ******************************************************************************
+ *
+ * @retval CHAMELEON_SUCCESS successful exit
+ *
+ */
+int __chameleon_initparcomm(int ncpus, int ngpus, int nthreads_per_worker, MPI_Comm comm)
 {
     CHAM_context_t *chamctxt;
 
@@ -124,6 +157,7 @@ int __chameleon_initpar(int ncpus, int ngpus, int nthreads_per_worker)
 #endif
 
     chamctxt->ncudas = ngpus;
+    chamctxt->comm = comm;
     return RUNTIME_init( chamctxt, ncpus, ngpus, nthreads_per_worker );
 }
 
@@ -145,15 +179,23 @@ int __chameleon_finalize(void)
         chameleon_error("CHAMELEON_Finalize", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
-    RUNTIME_flush();
+
+    /* Make sure all data are flushed */
+    RUNTIME_flush( chamctxt );
+
+    /* Wait for anything running */
 #  if !defined(CHAMELEON_SIMULATION)
     RUNTIME_barrier(chamctxt);
 #  endif
+
+    /* Stop the runtime system */
     RUNTIME_finalize( chamctxt );
 
 #if defined(CHAMELEON_USE_MPI)
-    if (!chamctxt->mpi_outer_init)
+    /* Finalize MPI if initialized by Chameleon */
+    if ( !chamctxt->mpi_outer_init ) {
         MPI_Finalize();
+    }
 #endif
 
     chameleon_context_destroy();

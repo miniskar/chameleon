@@ -20,7 +20,7 @@
  * @author Loris Lucido
  * @author Terry Cojean
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_starpu_h_
@@ -131,10 +131,10 @@ void *RUNTIME_data_getaddr_withconversion( const RUNTIME_option_t *options,
 
 #if defined(CHAMELEON_RUNTIME_SYNC)
 #define rt_starpu_insert_task( _codelet_, ... )                         \
-    starpu_mpi_insert_task( MPI_COMM_WORLD, (_codelet_), STARPU_TASK_SYNCHRONOUS, 1, ##__VA_ARGS__ )
+    starpu_mpi_insert_task( options->sequence->comm, (_codelet_), STARPU_TASK_SYNCHRONOUS, 1, ##__VA_ARGS__ )
 #else
 #define rt_starpu_insert_task( _codelet_, ... )                         \
-    starpu_mpi_insert_task( MPI_COMM_WORLD, (_codelet_), ##__VA_ARGS__ )
+    starpu_mpi_insert_task( options->sequence->comm, (_codelet_), ##__VA_ARGS__ )
 #endif
 
 #else
