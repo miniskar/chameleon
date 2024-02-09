@@ -27,7 +27,6 @@ chameleon -> sched [lhead=cluster_runtime]
 sched:sched_starpu -> cuda [color=dimgrey]
 sched:sched_starpu -> mpi [color=dimgrey]
 sched:sched_parsec -> cuda [color=dimgrey]
-sched:sched_parsec -> mpi [color=dimgrey]
 
 subgraph cluster_paradigm {
         label = "Paradigms"

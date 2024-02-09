@@ -27,7 +27,7 @@
   StarPU, PaRSEC, QUARK, OpenMP runtime systems. This feature allows
   to analyze in a unified framework how sequential task-based
   algorithms behave regarding different runtime systems
-  implementations. Using Chameleon with StarPU or PaRSEC runtime
+  implementations. Using Chameleon with StarPU runtime
   systems allows to exploit GPUs through kernels provided by cuBLAS
   and clusters of interconnected nodes with distributed memory (using
   MPI).
