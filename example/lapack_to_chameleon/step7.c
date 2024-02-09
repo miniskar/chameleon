@@ -16,20 +16,20 @@
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
  * @author Philippe Virouleau
- * @date 2024-03-14
+ * @date 2024-03-16
  *
  */
 #include "step7.h"
 
 /*
- * @brief step7 introduces how to use the build interface.
+ * @brief step7 introduces how to use the map interface.
  * @details This program is a copy of step6 with some additional calls to
  * build a matrix from within chameleon using a function provided by the user.
  * This can be seen as a replacement of the function like CHAMELEON_dplgsy_Tile() that can be used
  * to fill the matrix with random data, CHAMELEON_dLapack_to_Tile() to fill the matrix
  * with data stored in a lapack-like buffer, or CHAMELEON_Desc_Create_User() that can be used
  * to describe an arbitrary tile matrix structure.
- * In this example, the build callback function are just wrapper towards CORE_xxx() functions, so the output
+ * In this example, the map callback function are just wrapper towards CORE_xxx() functions, so the output
  * of the program step7 should be exactly similar to that of step6.
  * The difference is that the funtion used to fill the tiles is provided by the user,
  * and therefore this approach is much more flexible.
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
                       GRID_P, GRID_Q);
 
     /* generate A matrix with random values such that it is spd.
-       We use the callback function Cham_build_callback_plgsy() defined in step7.h
+       We use the callback function Cham_build_plgsy() defined in step7.h
        In this example, it is just a wrapper toward CORE_dplgsy() */
     struct data_pl             plgsy_args = { (double)N, 51 };
     struct cham_map_operator_s plgsy_op = {
@@ -151,10 +151,10 @@ int main(int argc, char *argv[]) {
     /* generate RHS with the callback Cham_build_callback_plrnt() */
     struct data_pl             plrnt_args = { 0., 5673 };
     struct cham_map_operator_s plrnt_op = {
-        .name = "plrnt",
-        .cpufunc = Cham_build_plrnt_cpu,
+        .name     = "plrnt",
+        .cpufunc  = Cham_build_plrnt_cpu,
         .cudafunc = NULL,
-        .hipfunc = NULL,
+        .hipfunc  = NULL,
     };
     struct cham_map_data_s plrnt_data = {
         .access = ChamW,
