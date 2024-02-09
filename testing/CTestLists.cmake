@@ -23,7 +23,7 @@ endif()
 
 if (NOT CHAMELEON_SIMULATION)
 
-  foreach(prec ${CHAMELEON_PRECISIONS})
+  foreach(prec ${CHAMELEON_PRECISION})
     if ( ${prec} STREQUAL ds OR ${prec} STREQUAL zc )
       continue()
     endif()

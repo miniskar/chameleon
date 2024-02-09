@@ -114,16 +114,8 @@ set( RP_CHAMELEON_PRECISIONS  "s;d;c;z;ds;zc" )
 include(RulesPrecisions)
 # Check that at least one option CHAMELEON_PREC_ is set to ON
 # count number of CHAMELEON_PREC_ sets to ON
-math(EXPR number_of_active_prec 0)
-set(CHAMELEON_PRECISIONS "")
-foreach (prec ${RP_CHAMELEON_PRECISIONS})
-    string(TOUPPER ${prec} PREC)
-    if (CHAMELEON_PREC_${PREC})
-        math(EXPR number_of_active_prec "${number_of_active_prec}+1")
-        list(APPEND CHAMELEON_PRECISIONS ${PREC})
-    endif()
-endforeach()
-message("-- ${BoldGreen}Floating point precisions enabled (${number_of_active_prec}): ${CHAMELEON_PRECISIONS}.")
+list(LENGTH CHAMELEON_PRECISION number_of_active_prec)
+message("-- ${BoldGreen}Floating point precisions enabled (${number_of_active_prec}): ${CHAMELEON_PRECISION}.")
 if (number_of_active_prec STREQUAL 0)
     message(FATAL_ERROR
             "Number of active precision is ${number_of_active_prec}, "
