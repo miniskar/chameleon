@@ -139,11 +139,14 @@
 
      Chameleon is based on the [[http://icl.cs.utk.edu/plasma/][PLASMA]] source code but is not limited to
      shared-memory environment and can exploit multiple GPUs.
-     Chameleon is interfaced in a generic way with [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]], [[http://icl.utk.edu/parsec/][PaRSEC]],
-     [[http://icl.cs.utk.edu/quark/][QUARK]] runtime systems.  This feature allows to analyze in a
-     unified framework how sequential task-based algorithms behave
+     Chameleon is interfaced in a generic way with
+     [[http://runtime.bordeaux.inria.fr/StarPU/][StarPU]],
+     [[http://icl.utk.edu/parsec/][PaRSEC]],
+     [[https://www.openmp.org/][OpenMP]],
+     [[http://icl.cs.utk.edu/quark/][QUARK]] runtime systems.
+     This feature allows to analyze in a unified framework how sequential task-based algorithms behave
      regarding different runtime systems implementations.  Using
-     Chameleon with *StarPU* or *PaRSEC* runtime systems allows to exploit
+     Chameleon with *StarPU* runtime system allows to exploit
      GPUs through kernels provided by [[https://developer.nvidia.com/cublas][cuBLAS]] and clusters of
      interconnected nodes with distributed memory (using [[http://www.open-mpi.org/][MPI]]).
      Computation of very large systems with dense matrices on a cluster

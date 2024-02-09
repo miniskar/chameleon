@@ -172,31 +172,31 @@ endif()
 
 # Use intermediate variable since cmake_dependent_option doesn't have OR conditions
 set(CHAMELEON_ENABLE_MPI OFF CACHE INTERNAL "Tells if MPI might be supported by the runtime")
-if ( CHAMELEON_SCHED_PARSEC OR CHAMELEON_SCHED_STARPU )
-     set(CHAMELEON_ENABLE_MPI ON FORCE)
+if ( CHAMELEON_SCHED_STARPU )
+    set(CHAMELEON_ENABLE_MPI ON FORCE)
 endif()
 
 # Use intermediate variable since cmake_dependent_option doesn't have OR conditions
 set(CHAMELEON_ENABLE_CUDA OFF CACHE INTERNAL "Tells if CUDA might be supported by the runtime")
 if ( CHAMELEON_SCHED_PARSEC OR CHAMELEON_SCHED_STARPU )
-     set(CHAMELEON_ENABLE_CUDA ON FORCE)
+    set(CHAMELEON_ENABLE_CUDA ON FORCE)
 endif()
 
 set(CHAMELEON_ENABLE_HIP OFF CACHE INTERNAL "Tells if HIP might be supported by the runtime")
 if ( CHAMELEON_SCHED_STARPU )
-     set(CHAMELEON_ENABLE_HIP ON FORCE)
+    set(CHAMELEON_ENABLE_HIP ON FORCE)
 endif()
 
 # Additional options
 # ------------------
 
-# Enable the distributed interface (allowed only when StarPU or PaRSEC is enabled)
+# Enable the distributed interface (allowed only when StarPU is enabled)
 # TODO: Default should be changed to ON/OFF when it will be ok
 cmake_dependent_option(CHAMELEON_USE_MPI
                     "Enable distributed memory through MPI" OFF
                     "CHAMELEON_ENABLE_MPI" OFF)
 if (CHAMELEON_ENABLE_MPI AND NOT CHAMELEON_USE_MPI)
-    message("-- ${BoldGreen}CHAMELEON_USE_MPI is set to OFF, turn it ON to use MPI (unsupported by Quark)${ColourReset}")
+    message("-- ${BoldGreen}CHAMELEON_USE_MPI is set to OFF, turn it ON to use MPI (only supported with StarPU)${ColourReset}")
 endif()
 
 cmake_dependent_option(CHAMELEON_USE_MIGRATE
@@ -213,7 +213,7 @@ cmake_dependent_option(CHAMELEON_USE_CUDA
                     "Enable CUDA kernels" OFF
                     "CHAMELEON_ENABLE_CUDA" OFF)
 if (CHAMELEON_ENABLE_CUDA AND NOT CHAMELEON_USE_CUDA)
-    message("-- ${BoldGreen}CHAMELEON_USE_CUDA is set to OFF, turn it ON to use CUDA (unsupported by Quark)${ColourReset}")
+    message("-- ${BoldGreen}CHAMELEON_USE_CUDA is set to OFF, turn it ON to use CUDA (unsupported by OpenMP and Quark)${ColourReset}")
 endif()
 
 cmake_dependent_option(CHAMELEON_USE_HIP_CUDA
@@ -550,6 +550,11 @@ if(NOT CHAMELEON_SIMULATION)
         endif (MPI_C_FOUND)
 
         morse_export_imported_target(MPI MPI_C mpi chameleon)
+
+        if (CHAMELEON_SCHED STREQUAL "PARSEC")
+          message(FATAL_ERROR "CHAMELEON does not support PARSEC with MPI."
+          " To use PARSEC set CHAMELEON_USE_MPI=OFF.")
+        endif()
 
     endif (CHAMELEON_USE_MPI)
 

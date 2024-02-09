@@ -208,7 +208,7 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 ***** PaRSEC
       [[http://icl.utk.edu/parsec/][PaRSEC]] is a generic framework for architecture aware scheduling
       and management of micro-tasks on distributed many-core
-      heterogeneous architectures. It can be used with MPI and Cuda.
+      heterogeneous architectures.
 
       *Caution about the compatibility:* Chameleon is compatible with
       this version
@@ -217,9 +217,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
       [[http://icl.cs.utk.edu/quark/][QUARK]] (QUeuing And Runtime for Kernels) provides a library that
       enables the dynamic execution of tasks with data dependencies in
       a multi-core, multi-socket, shared-memory environment. When
-      Chameleon is linked with QUARK, it is not possible to exploit
+      Chameleon is linked with QUARK or OPENMP, it is not possible to exploit
       neither CUDA (for GPUs) nor MPI (distributed-memory environment).
-      You can use PaRSEC or StarPU to do so.
+      You can use StarPU to do so.
 
       *Caution about the compatibility:* Chameleon has been mainly tested
       with the QUARK library coming from https://github.com/ecrc/quark.
@@ -366,7 +366,6 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
       * *CHAMELEON_USE_MPI=ON|OFF* (default OFF): to link with MPI
         library (message passing implementation for use of multiple
         nodes with distributed memory), can only be used with StarPU
-        and PaRSEC
       * *CHAMELEON_USE_CUDA=ON|OFF* (default OFF): to link with CUDA
         runtime (implementation paradigm for accelerated codes on Nvidia GPUs)
         and cuBLAS library (optimized BLAS kernels on Nvidia GPUs), can only
@@ -460,6 +459,9 @@ Finally some packages or also available for [[sec:ug:debian][Debian/Ubuntu]] and
 
      Note that PaRSEC and StarPU are only detected with pkg-config
      mechanism because it is always provided and this avoids errors.
+     The [[https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html#variable:CMAKE_PREFIX_PATH][CMAKE_PREFIX_PATH]]
+     can be used to indicate where dependencies are installed.
+
 *** Distribution Debian
 :PROPERTIES:
 :CUSTOM_ID: doc-install-debian
