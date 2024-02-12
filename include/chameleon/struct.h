@@ -28,18 +28,6 @@
 #include "chameleon/config.h"
 #include "chameleon/types.h"
 #include "chameleon/constants.h"
-#include "chameleon/runtime_struct.h"
-
-#if defined(CHAMELEON_USE_MPI)
-#include <mpi.h>
-#else
-#ifndef MPI_Comm
-typedef uintptr_t MPI_Comm;
-#endif
-#ifndef MPI_COMM_WORLD
-#define MPI_COMM_WORLD 0
-#endif
-#endif
 
 BEGIN_C_DECLS
 
@@ -173,37 +161,6 @@ typedef struct chameleon_piv_s {
     int     mt;             /**> The number of tiles                            */
     int     n;              /**> The number of column considered (must be updated for each panel) */
 } CHAM_ipiv_t;
-
-/**
- *  CHAMELEON request uniquely identifies each asynchronous function call.
- */
-typedef struct chameleon_context_s {
-    RUNTIME_id_t       scheduler;
-    int                nworkers;
-    int                ncudas;
-    int                nthreads_per_worker;
-
-    /* Boolean flags */
-    cham_bool_t        warnings_enabled;
-    cham_bool_t        autotuning_enabled;
-    cham_bool_t        parallel_enabled;
-    cham_bool_t        statistics_enabled;
-    cham_bool_t        progress_enabled;
-    cham_bool_t        generic_enabled;
-    cham_bool_t        autominmax_enabled;
-    cham_bool_t        runtime_paused;
-
-    cham_householder_t householder;        // "domino" (flat) or tree-based (reduction) Householder
-    cham_translation_t translation;        // In place or Out of place layout conversion
-
-    int                nb;
-    int                ib;
-    int                rhblock;            // block size for tree-based (reduction) Householder
-    int                lookahead;          // depth of the look ahead in algorithms
-    void              *schedopt;           // structure for runtimes
-    int                mpi_outer_init;     // MPI has been initialized outside our functions
-    MPI_Comm           comm;               // MPI communicator
-} CHAM_context_t;
 
 static inline void *
 CHAM_tile_get_ptr( const CHAM_tile_t *tile )

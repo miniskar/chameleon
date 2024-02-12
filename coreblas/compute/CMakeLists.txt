@@ -164,9 +164,6 @@ endif()
 target_link_libraries(coreblas PRIVATE MORSE::LAPACKE)
 target_link_libraries(coreblas PRIVATE MORSE::CBLAS)
 target_link_libraries(coreblas PUBLIC MORSE::M)
-if (CHAMELEON_USE_MPI)
-  target_link_libraries(coreblas PUBLIC MPI::MPI_C)
-endif()
 
 # export target coreblas
 install(EXPORT coreblasTargets

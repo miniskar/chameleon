@@ -23,6 +23,13 @@
 #ifndef _chameleon_runtime_struct_h_
 #define _chameleon_runtime_struct_h_
 
+#include "chameleon/types.h"
+
+BEGIN_C_DECLS
+
+/**
+ * Datatype for distributed version
+ */
 #if defined(CHAMELEON_USE_MPI)
 #include <mpi.h>
 #else
@@ -33,8 +40,6 @@ typedef uintptr_t MPI_Comm;
 #define MPI_COMM_WORLD 0
 #endif
 #endif
-
-BEGIN_C_DECLS
 
 /**
  * @brief Ids of the runtime supported by the RUNTIME API

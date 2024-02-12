@@ -33,6 +33,7 @@
 #include "chameleon/constants.h"
 #include "chameleon/types.h"
 #include "chameleon/struct.h"
+#include "chameleon/struct_context.h"
 #include "chameleon/descriptor_helpers.h"
 
 #if defined(CHAMELEON_USE_MPI)
