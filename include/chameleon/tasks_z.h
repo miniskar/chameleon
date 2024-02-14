@@ -529,6 +529,18 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
                                          CHAM_desc_t *U, int Um, int Un,
                                          CHAM_ipiv_t *ws );
 
+void INSERT_TASK_zgetrf_panel_offdiag_batched( const RUNTIME_option_t *options,
+                                               int m, int n, int h, int m0,
+                                               void *ws,
+                                               CHAM_desc_t *A, int Am, int An,
+                                               void **clargs_ptr,
+                                               CHAM_ipiv_t *ipiv );
+
+void INSERT_TASK_zgetrf_panel_offdiag_batched_flush( const RUNTIME_option_t *options,
+                                                     CHAM_desc_t *A, int An,
+                                                     void **clargs_ptr,
+                                                     CHAM_ipiv_t *ipiv );
+
 void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
                                       int m, int n, int h, int ib,
                                       CHAM_desc_t *U, int Um, int Un,
