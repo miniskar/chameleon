@@ -272,6 +272,74 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
     RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
 }
 
+/*
+ *  Factorization of panel k - dynamic scheduling - batched version / stock
+ */
+static inline void
+chameleon_pzgetrf_panel_facto_blocked_batched( struct chameleon_pzgetrf_s *ws,
+                                               CHAM_desc_t                *A,
+                                               CHAM_ipiv_t                *ipiv,
+                                               int                         k,
+                                               RUNTIME_option_t           *options )
+{
+    int m, h, b, nbblock, hmax, j;
+    int tempkm, tempkn, tempmm, minmn;
+    void **clargs = malloc( sizeof(char *) * A->p );
+    memset( clargs, 0, sizeof(char *) * A->p );
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+    minmn  = chameleon_min( tempkm, tempkn );
+
+    /* Update the number of column */
+    ipiv->n = minmn;
+    nbblock = chameleon_ceil( minmn, ws->ib );
+
+    /*
+     * Algorithm per column with pivoting (no recursion)
+     */
+    /* Iterate on current panel column */
+    /* Since index h scales column h-1, we need to iterate up to minmn (included) */
+    for ( b = 0; b < nbblock; b++ ) {
+        hmax = b == nbblock-1 ? minmn + 1 - b * ws->ib : ws->ib;
+
+        for ( h = 0; h < hmax; h++ ) {
+            j =  h + b * ws->ib;
+
+            INSERT_TASK_zgetrf_panel_blocked_batched( options, tempkm, tempkn, j, k * A->mb, (void *)ws,
+                                                      A(k, k), Up(k, k), clargs, ipiv );
+
+            for ( m = k + 1; m < A->mt; m++ ) {
+                tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
+                INSERT_TASK_zgetrf_panel_blocked_batched( options, tempmm, tempkn, j, m * A->mb,
+                                                          (void *)ws, A(m, k), Up(k, k), clargs, ipiv );
+            }
+            INSERT_TASK_zgetrf_panel_blocked_batched_flush( options, A, k,
+                                                            Up(k, k), clargs, ipiv );
+
+            if ( (b < (nbblock-1)) && (h == hmax-1) ) {
+                INSERT_TASK_zgetrf_blocked_trsm(
+                    options,
+                    ws->ib, tempkn, b * ws->ib + hmax, ws->ib,
+                    Up(k, k),
+                    ipiv );
+            }
+
+            assert( j <= minmn );
+            if ( j < minmn ) {
+                /* Reduce globally (between MPI processes) */
+                INSERT_TASK_ipiv_reducek( options, ipiv, k, j );
+            }
+        }
+    }
+
+    free( clargs );
+
+    /* Flush temporary data used for the pivoting */
+    INSERT_TASK_ipiv_to_perm( options, k * A->mb, tempkm, minmn, ipiv, k );
+    RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
+}
+
 static inline void
 chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
                                CHAM_desc_t                *A,
@@ -295,7 +363,12 @@ chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
         break;
 
     case ChamGetrfPPiv:
-        chameleon_pzgetrf_panel_facto_blocked( ws, A, ipiv, k, options );
+        if ( ws->batch_size > 1 ) {
+            chameleon_pzgetrf_panel_facto_blocked_batched( ws, A, ipiv, k, options );
+        }
+        else {
+            chameleon_pzgetrf_panel_facto_blocked( ws, A, ipiv, k, options );
+        }
         break;
 
     case ChamGetrfNoPiv:
