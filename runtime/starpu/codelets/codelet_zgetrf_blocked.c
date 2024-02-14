@@ -111,6 +111,11 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
         accessU = STARPU_W;
     }
 
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
     rt_starpu_insert_task(
         codelet,
         STARPU_VALUE,             &h,                   sizeof(int),
@@ -184,6 +189,11 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_offdiag_callback : NULL;
 
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
     rt_starpu_insert_task(
         codelet,
         STARPU_VALUE,    &h,                   sizeof(int),
@@ -251,6 +261,11 @@ void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zgetrf_blocked_trsm;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_trsm_callback : NULL;
+
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(U, Um, Un);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     rt_starpu_insert_task(
         codelet,

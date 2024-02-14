@@ -89,6 +89,11 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
     int access_npiv = ( h == ipiv->n ) ? STARPU_R    : STARPU_REDUX;
     int access_ppiv = ( h == 0 )       ? STARPU_NONE : STARPU_R;
 
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
     rt_starpu_insert_task(
         codelet,
         STARPU_VALUE,             &h,                   sizeof(int),
@@ -147,6 +152,11 @@ void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zgetrf_percol_offdiag;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_percol_offdiag_callback : NULL;
+
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
 
     rt_starpu_insert_task(
         codelet,
