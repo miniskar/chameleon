@@ -157,6 +157,57 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
     RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
 }
 
+/*
+ *  Factorization of panel k - dynamic scheduling - batched version / stock
+ */
+static inline void
+chameleon_pzgetrf_panel_facto_percol_batched( struct chameleon_pzgetrf_s *ws,
+                                              CHAM_desc_t                *A,
+                                              CHAM_ipiv_t                *ipiv,
+                                              int                         k,
+                                              RUNTIME_option_t           *options )
+{
+    int m, h;
+    int tempkm, tempkn, tempmm, minmn;
+    void **clargs = malloc( sizeof(char *) );
+    memset( clargs, 0, sizeof(char *) );
+
+    tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
+    tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
+    minmn  = chameleon_min( tempkm, tempkn );
+
+    /* Update the number of column */
+    ipiv->n = minmn;
+
+    /*
+     * Algorithm per column with pivoting (no recursion)
+     */
+    /* Iterate on current panel column */
+    /* Since index h scales column h-1, we need to iterate up to minmn (included) */
+    for ( h = 0; h <= minmn; h++ ) {
+
+        INSERT_TASK_zgetrf_percol_diag( options, tempkm, tempkn, h, k * A->mb, A(k, k), ipiv );
+
+        for ( m = k+1; m < A->mt; m++ ) {
+            tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
+            INSERT_TASK_zgetrf_panel_offdiag_batched( options, tempmm, tempkn, h, m * A->mb,
+                                                      (void *)ws, A(m, k), clargs, ipiv );
+        }
+        INSERT_TASK_zgetrf_panel_offdiag_batched_flush( options, A, k, clargs, ipiv );
+
+        if ( h < minmn ) {
+            /* Reduce globally (between MPI processes) */
+            INSERT_TASK_ipiv_reducek( options, ipiv, k, h );
+        }
+    }
+
+    free( clargs );
+
+    /* Flush temporary data used for the pivoting */
+    INSERT_TASK_ipiv_to_perm( options, k * A->mb, tempkm, minmn, ipiv, k );
+    RUNTIME_ipiv_flushk( options->sequence, ipiv, k );
+}
+
 static inline void
 chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
                                        CHAM_desc_t                *A,
@@ -235,7 +286,12 @@ chameleon_pzgetrf_panel_facto( struct chameleon_pzgetrf_s *ws,
         break;
 
     case ChamGetrfPPivPerColumn:
-        chameleon_pzgetrf_panel_facto_percol( ws, A, ipiv, k, options );
+        if ( ws->batch_size > 1 ) {
+            chameleon_pzgetrf_panel_facto_percol_batched( ws, A, ipiv, k, options );
+        }
+        else {
+            chameleon_pzgetrf_panel_facto_percol( ws, A, ipiv, k, options );
+        }
         break;
 
     case ChamGetrfPPiv:
