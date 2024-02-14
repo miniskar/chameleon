@@ -43,7 +43,8 @@ struct chameleon_pzgemm_s {
  */
 struct chameleon_pzgetrf_s {
     cham_getrf_t alg;
-    int          ib; /* Internal blocking parameter */
+    int          ib;         /**< Internal blocking parameter */
+    int          batch_size; /**< Batch size for the panel    */
     CHAM_desc_t  U;
     CHAM_desc_t  Up;
 };
