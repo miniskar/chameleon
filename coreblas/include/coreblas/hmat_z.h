@@ -2,7 +2,7 @@
  *
  * @file hmat_z.h
  *
- * @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2019-2019 Universidad Jaume I. All rights reserved.
  *

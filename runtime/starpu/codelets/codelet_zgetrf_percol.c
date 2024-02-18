@@ -2,7 +2,7 @@
  *
  * @file starpu/codelet_zgetrf_percol.c
  *
- * @copyright 2012-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2012-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
@@ -14,7 +14,7 @@
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-09-11
+ * @date 2024-02-18
  * @precisions normal z -> c d s
  *
  */

@@ -1,7 +1,7 @@
 #
 #  @file fix_doxygen_date.sh
 #
-#  @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+#  @copyright 2019-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
 #                       Univ. Bordeaux. All rights reserved.
 #
 #  @version 1.2.0

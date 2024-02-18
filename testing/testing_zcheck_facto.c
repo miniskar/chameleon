@@ -2,7 +2,7 @@
  *
  * @file testing_zcheck_facto.c
  *
- * @copyright 2019-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2019-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***

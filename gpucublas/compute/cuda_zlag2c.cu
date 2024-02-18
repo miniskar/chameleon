@@ -4,7 +4,7 @@
  *
  * @copyright 2023-2023 The University of Tennessee and The University of
  *                      Tennessee Research Foundation. All rights reserved.
- * @copyright 2023-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2023-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***

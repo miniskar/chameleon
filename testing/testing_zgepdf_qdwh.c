@@ -2,7 +2,7 @@
  *
  * @file testing_zgepdf_qdwh.c
  *
- * @copyright 2020-2023 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
+ * @copyright 2020-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  * @copyright 2020-2020 KAUST. All rights reserved.
  *
