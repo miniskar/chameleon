@@ -94,6 +94,7 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zgetrf_blocked_diag;
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_diag_callback : NULL;
+    char *cl_name = "zgetrf_blocked_diag";
 
     int access_ipiv = ( h == 0 )       ? STARPU_W    : STARPU_RW;
     int access_npiv = ( h == ipiv->n ) ? STARPU_R    : STARPU_REDUX;
@@ -111,6 +112,15 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
         accessU = STARPU_W;
     }
 
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 1,
+                                      A->get_blktile( A, Am, An ) );
+
     rt_starpu_insert_task(
         codelet,
         STARPU_VALUE,             &h,                   sizeof(int),
@@ -122,7 +132,7 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
         STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgetrf_blocked_diag",
+        STARPU_NAME,              cl_name,
 #endif
         /* STARPU_NONE must be the last argument for older version of StarPU where STARPU_NONE = 0 */
         STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
@@ -183,25 +193,35 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
     int accessU     = ((h%ib == 0) && (h > 0)) ? STARPU_R : STARPU_NONE;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_offdiag_callback : NULL;
+    char *cl_name = "zgetrf_blocked_offdiag";
+
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 1,
+                                      A->get_blktile( A, Am, An ) );
 
     rt_starpu_insert_task(
         codelet,
-        STARPU_VALUE,    &h,                   sizeof(int),
-        STARPU_VALUE,    &m0,                  sizeof(int),
-        STARPU_VALUE,    &ib,                  sizeof(int),
-        STARPU_VALUE,    &(options->sequence), sizeof(RUNTIME_sequence_t *),
-        STARPU_VALUE,    &(options->request),  sizeof(RUNTIME_request_t *),
-        STARPU_PRIORITY, options->priority,
-        STARPU_CALLBACK, callback,
+        STARPU_VALUE,             &h,                   sizeof(int),
+        STARPU_VALUE,             &m0,                  sizeof(int),
+        STARPU_VALUE,             &ib,                  sizeof(int),
+        STARPU_VALUE,             &(options->sequence), sizeof(RUNTIME_sequence_t *),
+        STARPU_VALUE,             &(options->request),  sizeof(RUNTIME_request_t *),
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgetrf_blocked_offdiag",
+        STARPU_NAME,              cl_name,
 #endif
         /* STARPU_NONE must be the last argument for older version of StarPU where STARPU_NONE = 0 */
-        STARPU_RW,       RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
-        access_npiv,     RUNTIME_pivot_getaddr( ipiv, An, h   ),
-        access_ppiv,     RUNTIME_pivot_getaddr( ipiv, An, h-1 ),
-        accessU,         RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
+        STARPU_RW,                RTBLKADDR(A, CHAMELEON_Complex64_t, Am, An),
+        access_npiv,              RUNTIME_pivot_getaddr( ipiv, An, h   ),
+        access_ppiv,              RUNTIME_pivot_getaddr( ipiv, An, h-1 ),
+        accessU,                  RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
         0);
 }
 
@@ -251,20 +271,30 @@ void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zgetrf_blocked_trsm;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_trsm_callback : NULL;
+    char *cl_name = "zgetrf_blocked_trsm";
+
+    /* Handle cache */
+    CHAMELEON_BEGIN_ACCESS_DECLARATION;
+    CHAMELEON_ACCESS_RW(U, Um, Un);
+    CHAMELEON_END_ACCESS_DECLARATION;
+
+    /* Refine name */
+    cl_name = chameleon_codelet_name( cl_name, 1,
+                                      U->get_blktile( U, Um, Un ) );
 
     rt_starpu_insert_task(
         codelet,
-        STARPU_VALUE,    &m,                   sizeof(int),
-        STARPU_VALUE,    &n,                   sizeof(int),
-        STARPU_VALUE,    &h,                   sizeof(int),
-        STARPU_VALUE,    &ib,                  sizeof(int),
-        STARPU_RW,       RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
-        STARPU_R,        RUNTIME_pivot_getaddr( ipiv, Un, h-1 ),
-        STARPU_PRIORITY, options->priority,
-        STARPU_CALLBACK, callback,
+        STARPU_VALUE,             &m,                   sizeof(int),
+        STARPU_VALUE,             &n,                   sizeof(int),
+        STARPU_VALUE,             &h,                   sizeof(int),
+        STARPU_VALUE,             &ib,                  sizeof(int),
+        STARPU_RW,                RTBLKADDR(U, CHAMELEON_Complex64_t, Um, Un),
+        STARPU_R,                 RUNTIME_pivot_getaddr( ipiv, Un, h-1 ),
+        STARPU_PRIORITY,          options->priority,
+        STARPU_CALLBACK,          callback,
         STARPU_EXECUTE_ON_WORKER, options->workerid,
 #if defined(CHAMELEON_CODELETS_HAVE_NAME)
-        STARPU_NAME, "zgetrf_blocked_trsm",
+        STARPU_NAME,              cl_name,
 #endif
         0);
 }
