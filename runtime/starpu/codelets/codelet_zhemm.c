@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c
  *
  */
@@ -142,7 +142,7 @@ void INSERT_TASK_zhemm_Astat( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec    = 0;
-    char                    *cl_name = "zhemm_Astat";
+    const char              *cl_name = "zhemm_Astat";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -224,7 +224,7 @@ void INSERT_TASK_zhemm( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "zhemm";
+    const char              *cl_name = "zhemm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

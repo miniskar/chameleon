@@ -15,7 +15,7 @@
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2023-07-06
+ * @date 2024-03-11
  *
  */
 /**
@@ -135,7 +135,7 @@ static inline int chameleon_asprintf( char **restrict strp, const char *fmt, ...
 }
 
 #if defined(CHAMELEON_KERNELS_TRACE)
-static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+static inline const char *chameleon_codelet_name( const char *kname, int nbtiles, ... )
 {
     int  nbchar = 256;
     char output[256];
@@ -178,7 +178,7 @@ static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
     return strndup( output, 255 );
 }
 #else
-static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+static inline const char *chameleon_codelet_name( const char *kname, int nbtiles, ... )
 {
     (void)nbtiles;
     return kname;

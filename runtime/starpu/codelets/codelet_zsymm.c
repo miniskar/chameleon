@@ -21,7 +21,7 @@
  * @author Florent Pruvost
  * @author Romain Peressoni
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -143,7 +143,7 @@ void INSERT_TASK_zsymm_Astat( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec    = 0;
-    char                    *cl_name = "zsymm_Astat";
+    const char              *cl_name = "zsymm_Astat";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -225,7 +225,7 @@ void INSERT_TASK_zsymm( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "zsymm";
+    const char              *cl_name = "zsymm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

@@ -24,7 +24,7 @@
  * @author Lucas Nesi
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -139,7 +139,7 @@ void INSERT_TASK_zgemm_Astat( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec    = 0;
-    char                    *cl_name = "zgemm_Astat";
+    const char              *cl_name = "zgemm_Astat";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -222,7 +222,7 @@ void INSERT_TASK_zgemm( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "zgemm";
+    const char              *cl_name = "zgemm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
