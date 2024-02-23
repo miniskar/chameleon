@@ -92,7 +92,7 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_RW( A, Am, An );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     /* Refine name */
@@ -159,10 +159,9 @@ void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
     void (*callback)(void*) = options->profiling ? cl_zgetrf_percol_offdiag_callback : NULL;
     char *cl_name = "zgetrf_percol_offdiag";
 
-
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_RW( A, Am, An );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     /* Refine name */

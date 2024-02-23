@@ -114,7 +114,7 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_RW( A, Am, An );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     /* Refine name */
@@ -197,7 +197,7 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(A, Am, An);
+    CHAMELEON_ACCESS_RW( A, Am, An );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     /* Refine name */
@@ -275,7 +275,7 @@ void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
-    CHAMELEON_ACCESS_RW(U, Um, Un);
+    CHAMELEON_ACCESS_RW( U, Um, Un );
     CHAMELEON_END_ACCESS_DECLARATION;
 
     /* Refine name */

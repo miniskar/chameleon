@@ -131,7 +131,6 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
      * Algorithm per column with pivoting
      */
     for (h=0; h<=minmn; h++){
-
         INSERT_TASK_zgetrf_percol_diag(
             options,
             h, k * A->mb,
@@ -139,8 +138,6 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
             ipiv );
 
         for (m = k+1; m < A->mt; m++) {
-            //tempmm = m == A->mt-1 ? A->m-m*A->mb : A->mb;
-
             INSERT_TASK_zgetrf_percol_offdiag(
                 options,
                 h, m * A->mb,
@@ -193,7 +190,6 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
                 ipiv );
 
             for (m = k+1; m < A->mt; m++) {
-
                 INSERT_TASK_zgetrf_blocked_offdiag(
                     options,
                     j, m * A->mb, ws->ib,
@@ -371,7 +367,13 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
         RUNTIME_iteration_push( chamctxt, k );
 
         options.priority = A->nt;
+        /*
+         * Do the panel factorization only if the current proc contributes in the
+         * block column k.
+         */
+        options.forcesub = chameleon_involved_in_panelk_2dbc( A, k );
         chameleon_pzgetrf_panel_facto( ws, A, IPIV, k, &options );
+        options.forcesub = 0;
 
         for (n = k+1; n < A->nt; n++) {
             options.priority = A->nt-n;

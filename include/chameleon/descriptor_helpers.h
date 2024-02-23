@@ -59,6 +59,14 @@ int chameleon_getrankof_custom        ( const CHAM_desc_t *A, int m, int n );
 
 /**
  * @}
+ * @name Panel involvement functions
+ * @{
+ */
+
+int chameleon_involved_in_panelk_2dbc( const CHAM_desc_t *A, int An );
+
+/**
+ * @}
  * @name Block address functions
  * @{
  */
