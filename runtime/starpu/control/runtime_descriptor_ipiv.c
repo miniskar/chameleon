@@ -304,14 +304,14 @@ void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
     starpu_data_handle_t nextpiv = RUNTIME_pivot_getaddr( ipiv, k, h   );
     starpu_data_handle_t prevpiv = RUNTIME_pivot_getaddr( ipiv, k, h-1 );
 
-    if ( h < ipiv->n ) {
 #if defined(HAVE_STARPU_MPI_REDUX) && defined(CHAMELEON_USE_MPI)
 #if !defined(HAVE_STARPU_MPI_REDUX_WRAPUP)
+    if ( h < ipiv->n ) {
         starpu_mpi_redux_data_prio_tree( MPI_COMM_WORLD, nextpiv,
                                          options->priority, 2 /* Binary tree */ );
-#endif
-#endif
     }
+#endif
+#endif
 
     /* Invalidate the previous pivot structure for correct initialization in later reuse */
     if ( h > 0 ) {
