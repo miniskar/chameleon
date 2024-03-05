@@ -587,7 +587,7 @@
  PLASMA library to support multiple runtime systems, all developpers
  of the PLASMA library are developpers of the Chameleon library.
 
- The following people contributes to the development of Chameleon:
+ The following people contribute to the development of Chameleon:
  * Emmanuel Agullo, PI
  * Olivier Aumage
  * Mathieu Faverge, PI
