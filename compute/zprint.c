@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2024-03-11
+ * @date 2024-03-14
  * @precisions normal z -> s d c
  *
  */
@@ -20,12 +20,6 @@
 #if !defined(CHAMELEON_SIMULATION)
 #include <coreblas/coreblas_z.h>
 #endif
-
-/*
- * Static variable to know how to handle the data within the kernel
- * This assumes that only one runtime is enabled at a time.
- */
-static RUNTIME_id_t zprint_runtime_id = RUNTIME_SCHED_STARPU;
 
 struct zprint_args_s {
     FILE       *file;
@@ -37,25 +31,17 @@ zprint_cpu( void *op_args,
             cham_uplo_t uplo, int m, int n, int ndata,
             const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
 {
-    CHAMELEON_Complex64_t *A;
     struct zprint_args_s  *options = (struct zprint_args_s *)op_args;
+    CHAMELEON_Complex64_t *A = CHAM_tile_get_ptr( tileA );
 
     int tempmm = m == descA->mt-1 ? descA->m-m*descA->mb : descA->mb;
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
-    int lda;
+    int lda    = tileA->ld;
 
     if ( ndata > 1 ) {
         fprintf( stderr, "zprint_cpu: supports only one piece of data and %d have been given\n", ndata );
     }
-
-    if ( zprint_runtime_id == RUNTIME_SCHED_PARSEC ) {
-        A   = (CHAMELEON_Complex64_t*)tileA;
-        lda = descA->get_blkldd( descA, m );
-    }
-    else {
-        A   = CHAM_tile_get_ptr( tileA );
-        lda = tileA->ld;
-    }
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
 
 #if !defined(CHAMELEON_SIMULATION)
     CORE_zprint( options->file, options->header, uplo,
@@ -162,8 +148,6 @@ int CHAMELEON_zprint( FILE *file, const char *header,
                          A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    zprint_runtime_id = chamctxt->scheduler;
-
     data.access = ChamR;
     data.desc   = &descAt;
     chameleon_pmap( uplo, 1, &data, &zprint_map, &options, sequence, &request );
@@ -229,8 +213,6 @@ int CHAMELEON_zprint_Tile( FILE *file, const char *header,
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     chameleon_sequence_create( chamctxt, &sequence );
-
-    zprint_runtime_id = chamctxt->scheduler;
 
     data.access = ChamR;
     data.desc   = A;
