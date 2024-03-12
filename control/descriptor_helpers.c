@@ -83,6 +83,24 @@ int chameleon_getrankof_2d_diag( const CHAM_desc_t *A, int m, int n )
 }
 
 /**
+ * @brief Test if the current MPI process is involved in the panel k for 2DBC distributions.
+ *
+ * @param[in] A
+ *        The matrix descriptor.
+ *
+ * @param[in] k
+ *        The index of the panel to test.
+ *
+ * @return 1 if the current MPI process contributes to the panel k.
+ *         0 if the current MPI process doesn't contribute to the panel k.
+ *
+ */
+int chameleon_involved_in_panelk_2dbc( const CHAM_desc_t *A, int k ) {
+    int myrank = A->myrank;
+    return ( myrank % A->q == k % A->q );
+}
+
+/**
  * @brief Initializes a custom distribution based on an external file.
  *
  *  External file format: First line contains the dimensions M and N (space-separated)
