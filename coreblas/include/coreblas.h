@@ -18,7 +18,7 @@
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
  * @author Raphael Boucherie
- * @date 2023-08-31
+ * @date 2024-03-14
  *
  */
 #ifndef _coreblas_h_
@@ -50,6 +50,13 @@ BEGIN_C_DECLS
 #include "coreblas/coreblas_s.h"
 #include "coreblas/coreblas_zc.h"
 #include "coreblas/coreblas_ds.h"
+
+#include "coreblas/coreblas_ztile.h"
+#include "coreblas/coreblas_dtile.h"
+#include "coreblas/coreblas_ctile.h"
+#include "coreblas/coreblas_stile.h"
+#include "coreblas/coreblas_zctile.h"
+#include "coreblas/coreblas_dstile.h"
 
 END_C_DECLS
 
