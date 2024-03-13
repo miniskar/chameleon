@@ -89,6 +89,14 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
     }
 
     ws->batch_size = chameleon_getenv_get_value_int( "CHAMELEON_GETRF_BATCH_SIZE", 1 );
+    if ( ws->batch_size > CHAMELEON_BATCH_SIZE ) {
+        chameleon_warning( "CHAMELEON_BATCH_SIZE", "CHAMELEON_GETRF_BATCH_SIZE must be smaller than CHAMELEON_BATCH_SIZE, please recompile with the right CHAMELEON_BATCH_SIZE, or reduce the CHAMELEON_GETRF_BATCH_SIZE value\n" );
+        ws->batch_size = CHAMELEON_BATCH_SIZE;
+    }
+    if ( (ws->batch_size > 1) && (CHAMELEON_Comm_rank() > 1) ) {
+        chameleon_warning( "CHAMELEON_BATCH_SIZE", "CHAMELEON_GETRF_BATCH_SIZE is unavailable in distributed, value forced to 1\n" );
+        ws->batch_size = 1;
+    }
 
     /* Allocation of U for permutation of the panels */
     if ( ws->alg == ChamGetrfNoPivPerColumn ) {

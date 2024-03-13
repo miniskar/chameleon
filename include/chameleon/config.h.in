@@ -79,6 +79,9 @@
 /* chameleon compute */
 #cmakedefine CHAMELEON_COPY_DIAG
 
+/* Define the maximum batch size for kernels using it */
+#define CHAMELEON_BATCH_SIZE @CHAMELEON_BATCH_SIZE@
+
 /* chameleon runtime starpu */
 #cmakedefine CHAMELEON_ENABLE_PRUNING_STATS
 
