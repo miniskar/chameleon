@@ -23,7 +23,7 @@
  * @author Florent Pruvost
  * @author Alycia Lisito
  * @author Matthieu Kuhn
- * @date 2023-08-22
+ * @date 2024-03-14
  * @precisions normal z -> c d s
  *
  */
@@ -374,9 +374,9 @@ int CHAMELEON_zDesc2Lap( cham_uplo_t uplo, CHAM_desc_t *A, CHAMELEON_Complex64_t
 /**
  *  User Builder function prototypes
  */
-int CHAMELEON_zbuild(cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, int LDA, void *user_data, void* user_build_callback);
-int CHAMELEON_zbuild_Tile(cham_uplo_t uplo,  CHAM_desc_t *A, void *user_data, void* user_build_callback );
-int CHAMELEON_zbuild_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback, RUNTIME_sequence_t *sequence, RUNTIME_request_t  *request);
+int CHAMELEON_zbuild(cham_uplo_t uplo, int M, int N, CHAMELEON_Complex64_t *A, int LDA, void *user_data, void* user_build_callback) __attribute__((deprecated("Please refer to CHAMELEON_mapv_Tile() instead")));
+int CHAMELEON_zbuild_Tile(cham_uplo_t uplo,  CHAM_desc_t *A, void *user_data, void* user_build_callback ) __attribute__((deprecated("Please refer to CHAMELEON_mapv_Tile() instead")));
+int CHAMELEON_zbuild_Tile_Async(cham_uplo_t uplo, CHAM_desc_t *A, void *user_data, void* user_build_callback, RUNTIME_sequence_t *sequence, RUNTIME_request_t  *request) __attribute__((deprecated("Please refer to CHAMELEON_mapv_Tile_Async() instead")));
 
 /**
  * Centered-Scaled function prototypes

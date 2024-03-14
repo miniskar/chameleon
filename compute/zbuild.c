@@ -128,7 +128,7 @@ int CHAMELEON_zbuild( cham_uplo_t uplo, int M, int N,
                      A, NB, NB, LDA, N, M, N, sequence, &request );
 
     /* Call the tile interface */
-    CHAMELEON_zbuild_Tile_Async( uplo, &descAt, user_data, user_build_callback, sequence, &request );
+    chameleon_pzbuild( uplo, &descAt, user_data, user_build_callback, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -201,7 +201,7 @@ int CHAMELEON_zbuild_Tile( cham_uplo_t uplo, CHAM_desc_t *A,
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    CHAMELEON_zbuild_Tile_Async( uplo, A, user_data, user_build_callback, sequence, &request );
+    chameleon_pzbuild( uplo, A, user_data, user_build_callback, sequence, &request );
 
     CHAMELEON_Desc_Flush( A, sequence );
 

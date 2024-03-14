@@ -13,7 +13,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Lionel Eyraud-Dubois
- * @date 2024-03-11
+ * @date 2024-03-14
  * @precisions normal z -> s d c
  *
  */
@@ -26,39 +26,26 @@
 
 #define A(m, n) A,  m,  n
 
-/*
- * Static variable to know how to handle the data within the kernel
- * This assumes that only one runtime is enabled at a time.
- */
-static RUNTIME_id_t zlatms_runtime_id = RUNTIME_SCHED_STARPU;
-
 static inline int
 zlaset_diag_cpu( void *op_args,
                  cham_uplo_t uplo, int m, int n, int ndata,
                  const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
 {
-    CHAMELEON_Complex64_t *A;
-    const double *D = (const double *)op_args;
+    const double          *D = (const double *)op_args;
+    CHAMELEON_Complex64_t *A = CHAM_tile_get_ptr( tileA );
 
     int tempmm = m == descA->mt-1 ? descA->m-m*descA->mb : descA->mb;
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
-    int minmn = chameleon_min( tempmm, tempnn );
-    int lda, i;
+    int minmn  = chameleon_min( tempmm, tempnn );
+    int lda    = tileA->ld;
+    int i;
 
     if ( ndata > 1 ) {
         fprintf( stderr, "zlaset_diag_cpu: supports only one piece of data and %d have been given\n", ndata );
     }
 
-    if ( zlatms_runtime_id == RUNTIME_SCHED_PARSEC ) {
-        A   = (CHAMELEON_Complex64_t*)tileA;
-        lda = descA->get_blkldd( descA, m );
-    }
-    else {
-        A   = tileA->mat;
-        lda = tileA->ld;
-    }
-
     assert( m == n );
+    assert( tileA->format & CHAMELEON_TILE_FULLRANK );
 
     /* Shift to the values corresponding to the tile */
     D += m * descA->mb;
@@ -104,7 +91,6 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
         return;
     }
     ib = CHAMELEON_IB;
-    zlatms_runtime_id = chamctxt->scheduler;
 
     RUNTIME_options_init(&options, chamctxt, sequence, request);
 

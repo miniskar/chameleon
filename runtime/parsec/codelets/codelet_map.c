@@ -11,7 +11,7 @@
  *
  * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2024-03-11
+ * @date 2024-03-14
  *
  */
 #include "chameleon_parsec.h"
@@ -30,11 +30,21 @@ CORE_map_one_parsec( parsec_execution_stream_t *context,
                      parsec_task_t             *this_task )
 {
     struct parsec_map_args_s *pargs = NULL;
-    CHAM_tile_t              *tileA;
+    const CHAM_desc_t        *descA;
+    CHAM_tile_t               tileA;
 
-    parsec_dtd_unpack_args( this_task, &pargs, &tileA );
+    parsec_dtd_unpack_args( this_task, &pargs, &(tileA.mat) );
+
+    descA = pargs->desc[0];
+    tileA.rank    = 0;
+    tileA.m       = (pargs->m == (descA->mt-1)) ? (descA->m - pargs->m * descA->mb) : descA->mb;
+    tileA.n       = (pargs->n == (descA->nt-1)) ? (descA->n - pargs->n * descA->nb) : descA->nb;
+    tileA.ld      = descA->get_blkldd( descA, pargs->m );
+    tileA.format  = CHAMELEON_TILE_FULLRANK;
+    tileA.flttype = descA->dtyp;
+
     pargs->op_fcts->cpufunc( pargs->op_args, pargs->uplo, pargs->m, pargs->n, 1,
-                             pargs->desc[0], tileA );
+                             descA, &tileA );
 
     free( pargs );
 }
@@ -44,12 +54,29 @@ CORE_map_two_parsec( parsec_execution_stream_t *context,
                      parsec_task_t             *this_task )
 {
     struct parsec_map_args_s *pargs = NULL;
-    CHAM_tile_t              *tileA;
-    CHAM_tile_t              *tileB;
+    const CHAM_desc_t        *descA, *descB;
+    CHAM_tile_t               tileA,  tileB;
 
-    parsec_dtd_unpack_args( this_task, &pargs, &tileA, &tileB );
+    parsec_dtd_unpack_args( this_task, &pargs, &(tileA.mat), &(tileB.mat) );
+
+    descA = pargs->desc[0];
+    tileA.rank    = 0;
+    tileA.m       = (pargs->m == (descA->mt-1)) ? (descA->m - pargs->m * descA->mb) : descA->mb;
+    tileA.n       = (pargs->n == (descA->nt-1)) ? (descA->n - pargs->n * descA->nb) : descA->nb;
+    tileA.ld      = descA->get_blkldd( descA, pargs->m );
+    tileA.format  = CHAMELEON_TILE_FULLRANK;
+    tileA.flttype = descA->dtyp;
+
+    descB = pargs->desc[1];
+    tileB.rank    = 0;
+    tileB.m       = (pargs->m == (descB->mt-1)) ? (descB->m - pargs->m * descB->mb) : descB->mb;
+    tileB.n       = (pargs->n == (descB->nt-1)) ? (descB->n - pargs->n * descB->nb) : descB->nb;
+    tileB.ld      = descB->get_blkldd( descB, pargs->m );
+    tileB.format  = CHAMELEON_TILE_FULLRANK;
+    tileB.flttype = descB->dtyp;
+
     pargs->op_fcts->cpufunc( pargs->op_args, pargs->uplo, pargs->m, pargs->n, 2,
-                             pargs->desc[0], tileA, pargs->desc[1], tileB );
+                             descA, &tileA, descB, &tileB );
 
     free( pargs );
 }
@@ -59,14 +86,37 @@ CORE_map_three_parsec( parsec_execution_stream_t *context,
                        parsec_task_t             *this_task )
 {
     struct parsec_map_args_s *pargs = NULL;
-    CHAM_tile_t              *tileA;
-    CHAM_tile_t              *tileB;
-    CHAM_tile_t              *tileC;
+    const CHAM_desc_t        *descA, *descB, *descC;
+    CHAM_tile_t               tileA,  tileB,  tileC;
 
-    parsec_dtd_unpack_args( this_task, &pargs, &tileA, &tileB, &tileC );
+    parsec_dtd_unpack_args( this_task, &pargs, &(tileA.mat), &(tileB.mat), &(tileC.mat) );
+
+    descA = pargs->desc[0];
+    tileA.rank    = 0;
+    tileA.m       = (pargs->m == (descA->mt-1)) ? (descA->m - pargs->m * descA->mb) : descA->mb;
+    tileA.n       = (pargs->n == (descA->nt-1)) ? (descA->n - pargs->n * descA->nb) : descA->nb;
+    tileA.ld      = descA->get_blkldd( descA, pargs->m );
+    tileA.format  = CHAMELEON_TILE_FULLRANK;
+    tileA.flttype = descA->dtyp;
+
+    descB = pargs->desc[1];
+    tileB.rank    = 0;
+    tileB.m       = (pargs->m == (descB->mt-1)) ? (descB->m - pargs->m * descB->mb) : descB->mb;
+    tileB.n       = (pargs->n == (descB->nt-1)) ? (descB->n - pargs->n * descB->nb) : descB->nb;
+    tileB.ld      = descB->get_blkldd( descB, pargs->m );
+    tileB.format  = CHAMELEON_TILE_FULLRANK;
+    tileB.flttype = descB->dtyp;
+
+    descC = pargs->desc[2];
+    tileC.rank    = 0;
+    tileC.m       = (pargs->m == (descC->mt-1)) ? (descC->m - pargs->m * descC->mb) : descC->mb;
+    tileC.n       = (pargs->n == (descC->nt-1)) ? (descC->n - pargs->n * descC->nb) : descC->nb;
+    tileC.ld      = descC->get_blkldd( descC, pargs->m );
+    tileC.format  = CHAMELEON_TILE_FULLRANK;
+    tileC.flttype = descC->dtyp;
+
     pargs->op_fcts->cpufunc( pargs->op_args, pargs->uplo, pargs->m, pargs->n, 3,
-                             pargs->desc[0], tileA, pargs->desc[1], tileB,
-                             pargs->desc[2], tileC );
+                             descA, &tileA, descB, &tileB, descC, &tileC );
 
     free( pargs );
 }

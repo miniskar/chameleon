@@ -11,7 +11,7 @@
  *
  * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2024-03-11
+ * @date 2024-03-14
  *
  */
 #include "control/common.h"
@@ -21,35 +21,34 @@
  *
  * @ingroup CHAMELEON_Tile
  *
- *  Apply a given operator on each tile of the given matrix. Operates on
- *  matrices stored by tiles.  All matrices are passed through descriptors.  All
- *  dimensions are taken from the descriptors.
+ *  Apply a given operator f on each tile of the given matrices.
+ *  For each (m,n) \in [1,MT]x[1xNT], apply f( data[0](m, n), data[1](m, n), ... )
  *
  *******************************************************************************
  *
- * @param[in] access
- *          - ChamR: A is accessed in read-only mode.
- *          - ChamW: A is accessed in write-only mode.
- *           WARNING: if the descriptor is set for allocation on the fly, the
- *           flush call included in this synchronous API will free all allocated
- *           data, prefer asynchronous call if you want to initialiaze data
- *           before submitting another algorithm.
- *          - ChamRW: A is accessed in read-write mode.
- *
  * @param[in] uplo
- *          - ChamUpper: Only the upper triangular part of the matrix is touched
- *          - ChamLower: Only the lower triangular part of the matrix is touched
- *          - ChamUpperLower: The entire the matrix is touched
+ *          - ChamUpper: only the upper part of the matrices are referenced.
+ *          - ChamLower: only the lower part of the matrices are referenced.
+ *          - ChamUpperLower: the full matrices are references.
  *
- * @param[in,out] A
- *          On exit, the operator has been applied on each tile of the matrix A.
+ * @param[in] ndata
+ *          - the numbe of matrices given to the map function.
+ *          - ChamLower: only the lower part of the matrices are referenced.
+ *          - ChamUpperLower: the full matrices are references.
+ *
+ * @param[in] data
+ *          Array of size ndata that contains the ndata couples { access,
+ *          descriptor } used in the operator.
  *
  * @param[in] op_fct
- *          The operator function to apply on each tile of the matrix.
+ *          The operator function to apply on each tile of the matrices. Must
+ *          support the number of data ndata given as parameter.
  *
  * @param[in,out] op_args
  *          The arguments structure passed to the operator function when applied
- *          on each tile. May be updated by the operator function.
+ *          on each tile. May be updated by the operator function. If concurrent
+ *          accesses must be protected, it is let to the user to do it in the
+ *          op_fct.
  *
  *******************************************************************************
  *
@@ -93,20 +92,38 @@ int CHAMELEON_mapv_Tile( cham_uplo_t          uplo,
 /**
  ********************************************************************************
  *
- * @ingroup CHAMELEON_Tile_Async
+ * @ingroup CHAMELEON_Tile
  *
- *  Apply a given operator on each tile of the given matrix. Non-blocking equivalent of
- *  CHAMELEON_mapv_Tile().  May return before the computation is finished.
- *  Allows for pipelining of operations at runtime.
+ *  Apply a given operator f on each tile of the given matrices.
+ *  For each (m,n) \in [1,MT]x[1xNT], apply f( data[0](m, n), data[1](m, n), ... )
+ *  Non-blocking equivalent of CHAMELEON_map_Tile().  May return before the
+ *  computation is finished.  Allows for pipelining of operations at runtime.
  *
  *******************************************************************************
  *
- * @param[in] access
- *          - ChamR: A is accessed in read-only mode.
- *          - ChamW: A is accessed in write-only mode.
- *          INFO: tile of A can be unallocated before the call if the
- *          descriptor is set for allocation on the fly.
- *          - ChamRW: A is accessed in read-write mode.
+ * @param[in] uplo
+ *          - ChamUpper: only the upper part of the matrices are referenced.
+ *          - ChamLower: only the lower part of the matrices are referenced.
+ *          - ChamUpperLower: the full matrices are references.
+ *
+ * @param[in] ndata
+ *          - the numbe of matrices given to the map function.
+ *          - ChamLower: only the lower part of the matrices are referenced.
+ *          - ChamUpperLower: the full matrices are references.
+ *
+ * @param[in] data
+ *          Array of size ndata that contains the ndata couples { access,
+ *          descriptor } used in the operator.
+ *
+ * @param[in] op_fct
+ *          The operator function to apply on each tile of the matrices. Must
+ *          support the number of data ndata given as parameter.
+ *
+ * @param[in,out] op_args
+ *          The arguments structure passed to the operator function when applied
+ *          on each tile. May be updated by the operator function. If concurrent
+ *          accesses must be protected, it is let to the user to do it in the
+ *          op_fct.
  *
  * @param[in] sequence
  *          Identifies the sequence of function calls that this call belongs to
