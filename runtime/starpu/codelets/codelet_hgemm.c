@@ -13,7 +13,7 @@
  *
  * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2023-07-06
+ * @date 2024-03-11
  *
  */
 #include "chameleon_starpu.h"
@@ -111,7 +111,7 @@ void INSERT_TASK_hgemm_Astat( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec    = 0;
-    char                    *cl_name = "hgemm_Astat";
+    const char              *cl_name = "hgemm_Astat";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -194,7 +194,7 @@ void INSERT_TASK_hgemm( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "hgemm";
+    const char              *cl_name = "hgemm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

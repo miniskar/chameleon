@@ -21,7 +21,7 @@
  * @author Florent Pruvost
  * @author Gwenole Lucas
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c
  *
  */
@@ -122,7 +122,7 @@ void INSERT_TASK_zherk( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "zherk";
+    const char              *cl_name = "zherk";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

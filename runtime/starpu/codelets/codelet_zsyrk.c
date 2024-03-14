@@ -22,7 +22,7 @@
  * @author Gwenole Lucas
  * @author Terry Cojean
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -123,7 +123,7 @@ void INSERT_TASK_zsyrk( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessC;
     int                      exec = 0;
-    char                    *cl_name = "zsyrk";
+    const char              *cl_name = "zsyrk";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

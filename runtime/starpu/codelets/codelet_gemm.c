@@ -13,7 +13,7 @@
  *
  * @version 1.3.0
  * @author Mathieu Faverge
- * @date 2023-07-06
+ * @date 2024-03-11
  *
  */
 #include "chameleon_starpu.h"
@@ -52,7 +52,7 @@ INSERT_TASK_gemm( const RUNTIME_option_t *options,
     int            accessC;
     int            exec = 0;
     size_t         argssize = 0;
-    char          *cl_name = "Xgemm";
+    const char    *cl_name = "Xgemm";
     CHAM_tile_t   *tileC;
     cham_flttype_t Cflttype;
 

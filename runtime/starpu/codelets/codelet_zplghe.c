@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c
  *
  */
@@ -62,7 +62,7 @@ void INSERT_TASK_zplghe( const RUNTIME_option_t *options,
     struct cl_zplghe_args_s *clargs = NULL;
     void (*callback)(void*);
     int                      exec = 0;
-    char                    *cl_name = "zplghe";
+    const char              *cl_name = "zplghe";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

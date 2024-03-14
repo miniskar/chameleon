@@ -19,7 +19,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -60,7 +60,7 @@ void INSERT_TASK_zlaset( const RUNTIME_option_t *options,
     struct cl_zlaset_args_s *clargs = NULL;
     void (*callback)(void*);
     int                      exec = 0;
-    char                    *cl_name = "zlaset";
+    const char              *cl_name = "zlaset";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

@@ -11,14 +11,14 @@
  *
  * @brief Chameleon zplrnt wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2024-03-08
  * @precisions normal z -> s d c
  *
  */
@@ -249,11 +249,6 @@ int CHAMELEON_zplrnt_Tile_Async( CHAM_desc_t     *A,
     /* Check descriptors for correctness */
     if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
         chameleon_error("CHAMELEON_zplrnt_Tile", "invalid descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
-    }
-    /* Check input arguments */
-    if (A->nb != A->mb) {
-        chameleon_error("CHAMELEON_zplrnt_Tile", "only square tiles supported");
         return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
     }
 

@@ -16,7 +16,7 @@
  * @author Cedric Augonnet
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2024-03-11
  *
  */
 #ifndef _chameleon_tasks_h_
@@ -97,9 +97,49 @@ typedef int (*cham_unary_operator_t)( const CHAM_desc_t *desc,
                                       cham_uplo_t uplo, int m, int n,
                                       CHAM_tile_t *data, void *op_args );
 
+typedef int (*cham_map_cpu_fct_t)( void *args, cham_uplo_t uplo, int m, int n, int ndata,
+                                   const CHAM_desc_t *desc, CHAM_tile_t *tile, ... );
+
+#if defined(CHAMELEON_USE_CUDA) && !defined(CHAMELEON_SIMULATION)
+#include "gpucublas.h"
+typedef int (*cham_map_cuda_fct_t)( cublasHandle_t handle, void *args,
+                                    cham_uplo_t uplo, int m, int n, int ndata,
+                                    const CHAM_desc_t *desc, CHAM_tile_t *tile, ... );
+#else
+typedef void *cham_map_cuda_fct_t;
+#endif
+
+#if defined(CHAMELEON_USE_HIP) && !defined(CHAMELEON_SIMULATION)
+#include "gpuhipblas.h"
+typedef int (*cham_map_hip_fct_t)( hipblasHandle_t handle, void *args,
+                                   cham_uplo_t uplo, int m, int n, int ndata,
+                                   const CHAM_desc_t *desc, CHAM_tile_t *tile, ... );
+#else
+typedef void *cham_map_hip_fct_t;
+#endif
+
+/**
+ * @brief Structure to store the operator functions on any architecture
+ */
+typedef struct cham_map_operator_s {
+    const char         *name;     /**< Name of the operator to be used in debug/tracing mode */
+    cham_map_cpu_fct_t  cpufunc;  /**< Pointer to the CPU function of the operator           */
+    cham_map_cuda_fct_t cudafunc; /**< Pointer to the CUDA/cuBLAS function of the operator   */
+    cham_map_hip_fct_t  hipfunc;  /**< Pointer to the HIP function of the operator           */
+} cham_map_operator_t;
+
+/**
+ * @brief Structure to store the data information in the map operation
+ */
+typedef struct cham_map_data_s {
+    cham_access_t      access; /**< Access type to the descriptor. Must be one of ChamR, ChamW, ChamRW. */
+    const CHAM_desc_t *desc;   /**< Descriptor in which the data is taken to apply the map operation.   */
+} cham_map_data_t;
+
 void INSERT_TASK_map( const RUNTIME_option_t *options,
-                      cham_access_t accessA, cham_uplo_t uplo, const CHAM_desc_t *A, int Am, int An,
-                      cham_unary_operator_t op_fct, void *op_args );
+                      cham_uplo_t uplo, int m, int n,
+                      int ndata, cham_map_data_t *data,
+                      cham_map_operator_t *op_fcts, void *op_args );
 
 void INSERT_TASK_gemm( const RUNTIME_option_t *options,
                        cham_trans_t transA, cham_trans_t transB,

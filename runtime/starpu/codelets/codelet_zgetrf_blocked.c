@@ -14,7 +14,7 @@
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2024-02-18
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -94,7 +94,7 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zgetrf_blocked_diag;
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_diag_callback : NULL;
-    char *cl_name = "zgetrf_blocked_diag";
+    const char *cl_name = "zgetrf_blocked_diag";
 
     int access_ipiv = ( h == 0 )       ? STARPU_W    : STARPU_RW;
     int access_npiv = ( h == ipiv->n ) ? STARPU_R    : STARPU_REDUX;
@@ -193,7 +193,7 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
     int accessU     = ((h%ib == 0) && (h > 0)) ? STARPU_R : STARPU_NONE;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_offdiag_callback : NULL;
-    char *cl_name = "zgetrf_blocked_offdiag";
+    const char *cl_name = "zgetrf_blocked_offdiag";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;
@@ -271,7 +271,7 @@ void INSERT_TASK_zgetrf_blocked_trsm( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zgetrf_blocked_trsm;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_blocked_trsm_callback : NULL;
-    char *cl_name = "zgetrf_blocked_trsm";
+    const char *cl_name = "zgetrf_blocked_trsm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

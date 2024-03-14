@@ -15,7 +15,7 @@
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
- * @date 2023-07-06
+ * @date 2024-03-11
  *
  */
 /**
@@ -102,8 +102,8 @@ extern char *chameleon_lapack_constants[];
 extern "C" {
 #endif
 
-void chameleon_pmap( cham_access_t access, cham_uplo_t uplo, CHAM_desc_t *A,
-                     cham_unary_operator_t operator, void *op_args,
+void chameleon_pmap( cham_uplo_t uplo, int ndata, cham_map_data_t *data,
+                     cham_map_operator_t *op_fct, void *op_args,
                      RUNTIME_sequence_t *sequence, RUNTIME_request_t *request );
 
 #include "control/compute_s.h"
@@ -135,7 +135,7 @@ static inline int chameleon_asprintf( char **restrict strp, const char *fmt, ...
 }
 
 #if defined(CHAMELEON_KERNELS_TRACE)
-static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+static inline const char *chameleon_codelet_name( const char *kname, int nbtiles, ... )
 {
     int  nbchar = 256;
     char output[256];
@@ -178,7 +178,7 @@ static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
     return strndup( output, 255 );
 }
 #else
-static inline char *chameleon_codelet_name( char *kname, int nbtiles, ... )
+static inline const char *chameleon_codelet_name( const char *kname, int nbtiles, ... )
 {
     (void)nbtiles;
     return kname;

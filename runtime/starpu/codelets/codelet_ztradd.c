@@ -16,7 +16,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -68,7 +68,7 @@ void INSERT_TASK_ztradd( const RUNTIME_option_t *options,
     void (*callback)(void*);
     int                      accessB;
     int                      exec = 0;
-    char                    *cl_name = "ztradd";
+    const char              *cl_name = "ztradd";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

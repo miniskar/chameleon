@@ -1,13 +1,13 @@
 /**
  *
- * @file map.c
+ * @file mapv.c
  *
  * @copyright 2018-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
  ***
  *
- * @brief Chameleon map wrappers
+ * @brief Chameleon mapv wrappers
  *
  * @version 1.3.0
  * @author Mathieu Faverge
@@ -15,33 +15,6 @@
  *
  */
 #include "control/common.h"
-
-struct map_args_s {
-    cham_unary_operator_t  function;
-    void                  *args;
-};
-
-static inline int
-map_cpu( void *op_args,
-         cham_uplo_t uplo, int m, int n, int ndata,
-         const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
-{
-    struct map_args_s *options = (struct map_args_s *)op_args;
-
-    if ( ndata > 1 ) {
-        fprintf( stderr, "map_cpu: supports only one piece of data and %d have been given\n", ndata );
-    }
-    options->function( descA, uplo, m, n, tileA, options->args );
-
-    return 0;
-}
-
-static cham_map_operator_t map_op = {
-    .name     = "map",
-    .cpufunc  = map_cpu,
-    .cudafunc = NULL,
-    .hipfunc  = NULL,
-};
 
 /**
  ********************************************************************************
@@ -84,39 +57,32 @@ static cham_map_operator_t map_op = {
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_map_Tile_Async
+ * @sa CHAMELEON_mapv_Tile_Async
  *
  */
-int CHAMELEON_map_Tile( cham_access_t         access,
-                        cham_uplo_t           uplo,
-                        CHAM_desc_t          *A,
-                        cham_unary_operator_t op_fct,
-                        void                 *op_args )
+int CHAMELEON_mapv_Tile( cham_uplo_t          uplo,
+                         int                  ndata,
+                         cham_map_data_t     *data,
+                         cham_map_operator_t *op_fct,
+                         void                *op_args )
 {
     CHAM_context_t     *chamctxt;
     RUNTIME_sequence_t *sequence = NULL;
     RUNTIME_request_t   request = RUNTIME_REQUEST_INITIALIZER;
-    int status;
+    int                 status, i;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_mapv_Tile", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     chameleon_sequence_create( chamctxt, &sequence );
 
-    {
-        cham_map_data_t data = {
-            .access = access,
-            .desc   = A
-        };
-        struct map_args_s map_args = {
-            .function = op_fct,
-            .args     = op_args,
-        };
-        chameleon_pmap( uplo, 1, &data, &map_op, &map_args, sequence, &request );
+    CHAMELEON_mapv_Tile_Async( uplo, ndata, data, op_fct, op_args, sequence, &request );
+
+    for( i=0; i<ndata; i++ ) {
+        CHAMELEON_Desc_Flush( data[i].desc, sequence );
     }
-    CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );
     status = sequence->status;
@@ -130,7 +96,7 @@ int CHAMELEON_map_Tile( cham_access_t         access,
  * @ingroup CHAMELEON_Tile_Async
  *
  *  Apply a given operator on each tile of the given matrix. Non-blocking equivalent of
- *  CHAMELEON_map_Tile().  May return before the computation is finished.
+ *  CHAMELEON_mapv_Tile().  May return before the computation is finished.
  *  Allows for pipelining of operations at runtime.
  *
  *******************************************************************************
@@ -155,30 +121,31 @@ int CHAMELEON_map_Tile( cham_access_t         access,
  *
  *******************************************************************************
  *
- * @sa CHAMELEON_map_Tile
+ * @sa CHAMELEON_mapv_Tile
  *
  */
-int CHAMELEON_map_Tile_Async( cham_access_t         access,
-                              cham_uplo_t           uplo,
-                              CHAM_desc_t          *A,
-                              cham_unary_operator_t op_fct,
-                              void                 *op_args,
-                              RUNTIME_sequence_t   *sequence,
-                              RUNTIME_request_t    *request )
+int CHAMELEON_mapv_Tile_Async( cham_uplo_t          uplo,
+                               int                  ndata,
+                               cham_map_data_t     *data,
+                               cham_map_operator_t *op_fct,
+                               void                *op_args,
+                               RUNTIME_sequence_t  *sequence,
+                               RUNTIME_request_t   *request )
 {
     CHAM_context_t *chamctxt;
+    int             i;
 
     chamctxt = chameleon_context_self();
     if (chamctxt == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "CHAMELEON not initialized");
+        chameleon_fatal_error("CHAMELEON_mapv_Tile_Async", "CHAMELEON not initialized");
         return CHAMELEON_ERR_NOT_INITIALIZED;
     }
     if (sequence == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "NULL sequence");
+        chameleon_fatal_error("CHAMELEON_mapv_Tile_Async", "NULL sequence");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     if (request == NULL) {
-        chameleon_fatal_error("CHAMELEON_map_Tile_Async", "NULL request");
+        chameleon_fatal_error("CHAMELEON_mapv_Tile_Async", "NULL request");
         return CHAMELEON_ERR_UNALLOCATED;
     }
     /* Check sequence status */
@@ -190,30 +157,14 @@ int CHAMELEON_map_Tile_Async( cham_access_t         access,
     }
 
     /* Check descriptors for correctness */
-    if (chameleon_desc_check(A) != CHAMELEON_SUCCESS) {
-        chameleon_error("CHAMELEON_map_Tile_Async", "invalid descriptor");
-        return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+    for( i=0; i<ndata; i++ ) {
+        if (chameleon_desc_check(data[i].desc) != CHAMELEON_SUCCESS) {
+            chameleon_error("CHAMELEON_mapv_Tile_Async", "invalid descriptor");
+            return chameleon_request_fail(sequence, request, CHAMELEON_ERR_ILLEGAL_VALUE);
+        }
     }
 
-    /* Quick return */
-    if (chameleon_min( A->m, A->n ) == 0) {
-        return CHAMELEON_SUCCESS;
-    }
+    chameleon_pmap( uplo, ndata, data, op_fct, op_args, sequence, request );
 
-    {
-        cham_map_data_t data = {
-            .access = access,
-            .desc   = A
-        };
-        struct map_args_s map_args = {
-            .function = op_fct,
-            .args     = op_args,
-        };
-        chameleon_pmap( uplo, 1, &data, &map_op, &map_args, sequence, request );
-
-        /* Need to wait to make sure no one access map_args after this function returned. */
-        CHAMELEON_Desc_Flush( A, sequence );
-        chameleon_sequence_wait( chamctxt, sequence );
-    }
     return CHAMELEON_SUCCESS;
 }

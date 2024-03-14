@@ -13,7 +13,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Lionel Eyraud-Dubois
- * @date 2023-07-05
+ * @date 2024-03-11
  * @precisions normal z -> s d c
  *
  */
@@ -33,9 +33,9 @@
 static RUNTIME_id_t zlatms_runtime_id = RUNTIME_SCHED_STARPU;
 
 static inline int
-zlaset_diag( const CHAM_desc_t *descA,
-             cham_uplo_t uplo, int m, int n,
-             CHAM_tile_t *tileA, void *op_args )
+zlaset_diag_cpu( void *op_args,
+                 cham_uplo_t uplo, int m, int n, int ndata,
+                 const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
 {
     CHAMELEON_Complex64_t *A;
     const double *D = (const double *)op_args;
@@ -44,6 +44,10 @@ zlaset_diag( const CHAM_desc_t *descA,
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
     int minmn = chameleon_min( tempmm, tempnn );
     int lda, i;
+
+    if ( ndata > 1 ) {
+        fprintf( stderr, "zlaset_diag_cpu: supports only one piece of data and %d have been given\n", ndata );
+    }
 
     if ( zlatms_runtime_id == RUNTIME_SCHED_PARSEC ) {
         A   = (CHAMELEON_Complex64_t*)tileA;
@@ -67,6 +71,13 @@ zlaset_diag( const CHAM_desc_t *descA,
     (void)uplo;
     return 0;
 }
+
+static cham_map_operator_t zlaset_diag_map = {
+    .name     = "zlaset_diag",
+    .cpufunc  = zlaset_diag_cpu,
+    .cudafunc = NULL,
+    .hipfunc  = NULL,
+};
 
 /**
  *  Parallel scale of a matrix A
@@ -163,11 +174,16 @@ void chameleon_pzlatms( cham_dist_t idist, unsigned long long int seed, cham_sym
 #endif
 
     /* Copy D to the diagonal of A */
-    for (n = 0; n < kt; n++) {
-        INSERT_TASK_map(
-            &options,
-            ChamRW, ChamUpperLower, A(n, n),
-            zlaset_diag, D );
+    {
+        cham_map_data_t data = {
+            .access = ChamRW,
+            .desc   = A,
+        };
+        for (n = 0; n < kt; n++) {
+            INSERT_TASK_map(
+                &options, ChamUpperLower, n, n,
+                1, &data, &zlaset_diag_map, D );
+        }
     }
 
     /**

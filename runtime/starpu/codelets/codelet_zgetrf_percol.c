@@ -14,7 +14,7 @@
  *
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2024-02-18
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -84,7 +84,7 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
 {
     struct starpu_codelet *codelet = &cl_zgetrf_percol_diag;
     void (*callback)(void*) = options->profiling ? cl_zgetrf_percol_diag_callback : NULL;
-    char *cl_name = "zgetrf_percol_diag";
+    const char *cl_name = "zgetrf_percol_diag";
 
     int access_ipiv = ( h == 0 )       ? STARPU_W    : STARPU_RW;
     int access_npiv = ( h == ipiv->n ) ? STARPU_R    : STARPU_REDUX;
@@ -157,7 +157,7 @@ void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
     struct starpu_codelet *codelet = &cl_zgetrf_percol_offdiag;
 
     void (*callback)(void*) = options->profiling ? cl_zgetrf_percol_offdiag_callback : NULL;
-    char *cl_name = "zgetrf_percol_offdiag";
+    const char *cl_name = "zgetrf_percol_offdiag";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

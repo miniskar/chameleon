@@ -30,7 +30,7 @@
 #  @author Alycia Lisito
 #  @author Loris Lucido
 #  @author Nathan Précigout
-#  @date 2023-07-04
+#  @date 2024-03-11
 #
 ###
 cmake_minimum_required(VERSION 3.5)
@@ -758,7 +758,6 @@ if(CHAMELEON_ENABLE_DOC)
   endif()
 endif()
 #------------------------------------------------------------------------------
-
 
 ###############################################################################
 # Make cmake include starpu_simgrid_wrap.h (which #define main and thus makes #

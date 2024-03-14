@@ -20,7 +20,7 @@
  * @author Lucas Barros de Assis
  * @author Florent Pruvost
  * @author Loris Lucido
- * @date 2023-07-06
+ * @date 2024-03-11
  * @precisions normal z -> c d s
  *
  */
@@ -115,7 +115,7 @@ void INSERT_TASK_ztrmm( const RUNTIME_option_t *options,
     struct cl_ztrmm_args_s *clargs = NULL;
     void (*callback)(void*);
     int                      exec = 0;
-    char                    *cl_name = "ztrmm";
+    const char              *cl_name = "ztrmm";
 
     /* Handle cache */
     CHAMELEON_BEGIN_ACCESS_DECLARATION;

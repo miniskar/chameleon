@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-07-05
+ * @date 2024-03-11
  * @precisions normal z -> s d c
  *
  */
@@ -33,9 +33,9 @@ struct zprint_args_s {
 };
 
 static inline int
-zprint( const CHAM_desc_t *descA,
-        cham_uplo_t uplo, int m, int n,
-        CHAM_tile_t *tileA, void *op_args )
+zprint_cpu( void *op_args,
+            cham_uplo_t uplo, int m, int n, int ndata,
+            const CHAM_desc_t *descA, CHAM_tile_t *tileA, ... )
 {
     CHAMELEON_Complex64_t *A;
     struct zprint_args_s  *options = (struct zprint_args_s *)op_args;
@@ -43,6 +43,10 @@ zprint( const CHAM_desc_t *descA,
     int tempmm = m == descA->mt-1 ? descA->m-m*descA->mb : descA->mb;
     int tempnn = n == descA->nt-1 ? descA->n-n*descA->nb : descA->nb;
     int lda;
+
+    if ( ndata > 1 ) {
+        fprintf( stderr, "zprint_cpu: supports only one piece of data and %d have been given\n", ndata );
+    }
 
     if ( zprint_runtime_id == RUNTIME_SCHED_PARSEC ) {
         A   = (CHAMELEON_Complex64_t*)tileA;
@@ -60,6 +64,13 @@ zprint( const CHAM_desc_t *descA,
 
     return 0;
 }
+
+static cham_map_operator_t zprint_map = {
+    .name     = "zprint",
+    .cpufunc  = zprint_cpu,
+    .cudafunc = NULL,
+    .hipfunc  = NULL,
+};
 
 /**
  ********************************************************************************
@@ -99,12 +110,12 @@ int CHAMELEON_zprint( FILE *file, const char *header,
                       cham_uplo_t uplo, int M, int N,
                       CHAMELEON_Complex64_t *A, int LDA )
 {
-    int NB;
-    int status;
-    CHAM_context_t *chamctxt;
-    RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
-    CHAM_desc_t descAl, descAt;
+    int                  NB, status;
+    CHAM_context_t      *chamctxt;
+    RUNTIME_sequence_t  *sequence = NULL;
+    RUNTIME_request_t    request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_desc_t          descAl, descAt;
+    cham_map_data_t      data;
     struct zprint_args_s options = {
         .file   = file,
         .header = header,
@@ -152,7 +163,10 @@ int CHAMELEON_zprint( FILE *file, const char *header,
 
     /* Call the tile interface */
     zprint_runtime_id = chamctxt->scheduler;
-    chameleon_pmap( ChamR, uplo, &descAt, zprint, &options, sequence, &request );
+
+    data.access = ChamR;
+    data.desc   = &descAt;
+    chameleon_pmap( uplo, 1, &data, &zprint_map, &options, sequence, &request );
 
     /* Submit the matrix conversion back */
     chameleon_ztile2lap( chamctxt, &descAl, &descAt,
@@ -199,9 +213,10 @@ int CHAMELEON_zprint( FILE *file, const char *header,
 int CHAMELEON_zprint_Tile( FILE *file, const char *header,
                            cham_uplo_t uplo, CHAM_desc_t *A )
 {
-    CHAM_context_t *chamctxt;
-    RUNTIME_sequence_t *sequence = NULL;
-    RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
+    CHAM_context_t      *chamctxt;
+    RUNTIME_sequence_t  *sequence = NULL;
+    RUNTIME_request_t    request = RUNTIME_REQUEST_INITIALIZER;
+    cham_map_data_t      data;
     struct zprint_args_s options = {
         .file   = file,
         .header = header,
@@ -216,7 +231,11 @@ int CHAMELEON_zprint_Tile( FILE *file, const char *header,
     chameleon_sequence_create( chamctxt, &sequence );
 
     zprint_runtime_id = chamctxt->scheduler;
-    chameleon_pmap( ChamR, uplo, A, zprint, &options, sequence, &request );
+
+    data.access = ChamR;
+    data.desc   = A;
+
+    chameleon_pmap( uplo, 1, &data, &zprint_map, &options, sequence, &request );
     CHAMELEON_Desc_Flush( A, sequence );
 
     chameleon_sequence_wait( chamctxt, sequence );

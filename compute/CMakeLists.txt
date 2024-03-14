@@ -47,6 +47,7 @@ set(CHAMELEON_CONTROL
     ../control/chameleon_f77.c
     ../control/chameleon_mf77.c
     map.c
+    mapv.c
     pmap.c
    )
 
