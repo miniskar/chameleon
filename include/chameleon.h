@@ -84,14 +84,14 @@ int CHAMELEON_map_Tile( cham_access_t         access,
                         cham_uplo_t           uplo,
                         CHAM_desc_t          *A,
                         cham_unary_operator_t op_fct,
-                        void                 *op_args );
+                        void                 *op_args ) __attribute__((deprecated("Please refer to CHAMELEON_map_Tile_Async for a more complete interface")));
 int CHAMELEON_map_Tile_Async( cham_access_t         access,
                               cham_uplo_t           uplo,
                               CHAM_desc_t          *A,
                               cham_unary_operator_t op_fct,
                               void                 *op_args,
                               RUNTIME_sequence_t   *sequence,
-                              RUNTIME_request_t    *request );
+                              RUNTIME_request_t    *request ) __attribute__((deprecated("Please refer to CHAMELEON_mapv_Tile_Async for a more complete interface")));
 
 int CHAMELEON_mapv_Tile( cham_uplo_t          uplo,
                          int                  ndata,
