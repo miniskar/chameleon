@@ -85,6 +85,20 @@ if (NOT CHAMELEON_SIMULATION)
           add_test( test_${cat}_${prec}${test} ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/${test}.in )
         endforeach()
 
+        if ( CHAMELEON_SCHED_STARPU )
+            add_test( test_${cat}_${prec}getrf_nopivpercol ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 --diag=ChamUnit -f input/getrf_nopiv.in )
+            set_tests_properties( test_${cat}_${prec}getrf_nopivpercol
+                                PROPERTIES ENVIRONMENT "CHAMELEON_GETRF_ALGO=nopivpercolumn;CHAMELEON_GETRF_BATCH_SIZE=1" )
+
+            add_test( test_${cat}_${prec}getrf_ppivpercol ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/getrf_nopiv.in )
+            set_tests_properties( test_${cat}_${prec}getrf_ppivpercol
+                                PROPERTIES ENVIRONMENT "CHAMELEON_GETRF_ALGO=ppivpercolumn;CHAMELEON_GETRF_BATCH_SIZE=1" )
+
+            add_test( test_${cat}_${prec}getrf_ppiv ${PREFIX} ${CMD} -c -t ${THREADS} -g ${gpus} -P 1 -f input/getrf.in )
+            set_tests_properties( test_${cat}_${prec}getrf_ppiv
+                                PROPERTIES ENVIRONMENT "CHAMELEON_GETRF_ALGO=ppiv;CHAMELEON_GETRF_BATCH_SIZE=1" )
+        endif()
+
         list( REMOVE_ITEM TESTSTMP print gepdf_qr )
 
         foreach( test ${TESTSTMP} )
