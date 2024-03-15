@@ -18,7 +18,7 @@
  * @author Samuel Thibault
  * @author Philippe Swartvagher
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_runtime_h_
@@ -707,8 +707,14 @@ void RUNTIME_sdisplay_oneprofile (cham_tasktype_t task);
 
 void RUNTIME_ipiv_create ( CHAM_ipiv_t *ipiv );
 void RUNTIME_ipiv_destroy( CHAM_ipiv_t *ipiv );
-void RUNTIME_ipiv_init   ( CHAM_ipiv_t *ipiv );
 void RUNTIME_ipiv_gather ( CHAM_ipiv_t *desc, int *ipiv, int node );
+
+void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
+                          const CHAM_ipiv_t *ipiv, int m );
+void RUNTIME_ipiv_flush ( const CHAM_ipiv_t *ipiv,
+                          const RUNTIME_sequence_t *sequence );
+void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
+                          const CHAM_ipiv_t *ipiv, int m );
 
 void *RUNTIME_ipiv_getaddr   ( const CHAM_ipiv_t *ipiv, int m );
 void *RUNTIME_nextpiv_getaddr( const CHAM_ipiv_t *ipiv, int m, int h );
@@ -725,15 +731,6 @@ RUNTIME_pivot_getaddr( CHAM_ipiv_t *ipiv, int m, int h ) {
         return RUNTIME_prevpiv_getaddr( ipiv, m, -1 );
     }
 }
-
-void RUNTIME_ipiv_flushk ( const RUNTIME_sequence_t *sequence,
-                           const CHAM_ipiv_t *ipiv, int m );
-void RUNTIME_ipiv_flush  ( const CHAM_ipiv_t *ipiv,
-                           const RUNTIME_sequence_t *sequence );
-void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
-                           CHAM_ipiv_t *ws, int k, int h );
-void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
-                          const CHAM_ipiv_t *ipiv, int m );
 
 /**
  * @}

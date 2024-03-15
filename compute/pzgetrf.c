@@ -16,7 +16,7 @@
  * @author Mathieu Faverge
  * @author Emmanuel Agullo
  * @author Matthieu Kuhn
- * @date 2023-09-08
+ * @date 2024-03-16
  * @precisions normal z -> s d c
  *
  */
@@ -147,7 +147,7 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
 
         if ( h < minmn ) {
             /* Reduce globally (between MPI processes) */
-            RUNTIME_ipiv_reducek( options, ipiv, k, h );
+            INSERT_TASK_ipiv_reducek( options, ipiv, k, h );
         }
     }
 
@@ -208,7 +208,7 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
             assert( j<= minmn );
             if ( j < minmn ) {
                 /* Reduce globally (between MPI processes) */
-                RUNTIME_ipiv_reducek( options, ipiv, k, j );
+                INSERT_TASK_ipiv_reducek( options, ipiv, k, j );
             }
         }
     }
@@ -400,7 +400,7 @@ void chameleon_pzgetrf( struct chameleon_pzgetrf_s *ws,
     if ( (ws->alg == ChamGetrfNoPivPerColumn) ||
          (ws->alg == ChamGetrfNoPiv ) )
     {
-        RUNTIME_ipiv_init( IPIV );
+        INSERT_TASK_ipiv_init( &options, IPIV );
     }
 
     RUNTIME_options_finalize( &options, chamctxt );

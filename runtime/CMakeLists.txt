@@ -24,7 +24,7 @@
 #  @author Florent Pruvost
 #  @author Philippe Virouleau
 #  @author Matthieu Kuhn
-#  @date 2023-09-11
+#  @date 2024-03-16
 #
 ###
 
@@ -126,7 +126,7 @@ set(CODELETS_ZSRC
 
 set(CODELETS_SRC
   codelets/codelet_map.c
-  codelets/codelet_ipiv_to_perm.c
+  codelets/codelet_ipiv.c
 )
 
 # Check for the subdirectories
