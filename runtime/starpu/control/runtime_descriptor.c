@@ -20,7 +20,7 @@
  * @author Raphael Boucherie
  * @author Samuel Thibault
  * @author Loris Lucido
- * @date 2023-08-22
+ * @date 2024-03-16
  *
  */
 #include "chameleon_starpu.h"
@@ -149,7 +149,7 @@ void RUNTIME_desc_create( CHAM_desc_t *desc )
      * Book the number of tags required to describe this matrix
      */
     {
-        chameleon_starpu_tag_init();
+        chameleon_starpu_tag_init( );
         desc->mpitag = chameleon_starpu_tag_book( nbtiles );
 
         if ( desc->mpitag == -1 ) {
@@ -267,10 +267,10 @@ int RUNTIME_desc_release( const CHAM_desc_t *desc )
 /**
  *  Flush cached data
  */
-void RUNTIME_flush()
+void RUNTIME_flush( CHAM_context_t *chamctxt )
 {
 #if defined(CHAMELEON_USE_MPI)
-    starpu_mpi_cache_flush_all_data(MPI_COMM_WORLD);
+    starpu_mpi_cache_flush_all_data( chamctxt->comm );
 #endif
 }
 
@@ -317,7 +317,7 @@ void RUNTIME_data_flush( const RUNTIME_sequence_t *sequence,
         }
 
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handlebis );
+        starpu_mpi_cache_flush( sequence->comm, *handlebis );
 #endif
 
         if ( local ) {
@@ -345,7 +345,7 @@ void RUNTIME_data_migrate( const RUNTIME_sequence_t *sequence,
     old_rank = starpu_mpi_data_get_rank( lhandle );
 
     if ( old_rank != new_rank ) {
-        starpu_mpi_data_migrate( MPI_COMM_WORLD, lhandle, new_rank );
+        starpu_mpi_data_migrate( sequence->comm, lhandle, new_rank );
     }
 
     (void)sequence;

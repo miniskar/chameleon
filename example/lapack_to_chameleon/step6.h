@@ -11,10 +11,10 @@
  *
  * @brief Chameleon step6 example header
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Florent Pruvost
  * @author Mathieu Faverge
- * @date 2022-02-22
+ * @date 2024-03-16
  *
  */
 #ifndef _step6_h_
@@ -34,7 +34,7 @@
 enum iparam_step6 {
     IPARAM_THRDNBR,        /* Number of cores                            */
     IPARAM_NCUDAS,         /* Number of cuda devices                     */
-    IPARAM_NMPI,           /* Number of cuda devices                     */
+    IPARAM_NMPI,           /* Number of MPI PROCS                        */
     IPARAM_N,              /* Number of columns of the matrix            */
     IPARAM_NB,             /* Number of columns in a tile                */
     IPARAM_IB,             /* Inner-blocking size                        */

@@ -11,13 +11,13 @@
  *
  * @brief Chameleon Quark descriptor routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Vijay Joshi
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Mathieu Faverge
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2024-03-16
  *
  */
 #include "chameleon_quark.h"
@@ -60,7 +60,7 @@ int RUNTIME_desc_release( const CHAM_desc_t *desc )
 }
 
 void
-RUNTIME_desc_flush( const CHAM_desc_t     *desc,
+RUNTIME_desc_flush( const CHAM_desc_t        *desc,
                     const RUNTIME_sequence_t *sequence )
 {
     (void)desc;
@@ -70,8 +70,9 @@ RUNTIME_desc_flush( const CHAM_desc_t     *desc,
 
 
 void
-RUNTIME_flush( )
+RUNTIME_flush( CHAM_context_t *chamctxt )
 {
+    (void)chamctxt;
     return;
 }
 

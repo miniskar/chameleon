@@ -21,7 +21,7 @@
  * @author Florent Pruvost
  * @author Samuel Thibault
  * @author Alycia Lisito
- * @date 2023-07-06
+ * @date 2024-03-16
  * @precisions normal z -> c d s
  *
  */
@@ -120,9 +120,9 @@ insert_task_zlacpy_on_remote_node( const RUNTIME_option_t *options,
 {
     void (*callback)(void*) = options->profiling ? cl_zlacpy_callback : NULL;
 #if defined(CHAMELEON_RUNTIME_SYNC)
-    starpu_mpi_data_cpy_priority( handleB, handleA, MPI_COMM_WORLD, 0, callback, NULL, options->priority );
+    starpu_mpi_data_cpy_priority( handleB, handleA, options->sequence->comm, 0, callback, NULL, options->priority );
 #else
-    starpu_mpi_data_cpy_priority( handleB, handleA, MPI_COMM_WORLD, 1, callback, NULL, options->priority );
+    starpu_mpi_data_cpy_priority( handleB, handleA, options->sequence->comm, 1, callback, NULL, options->priority );
 #endif
 }
 #endif

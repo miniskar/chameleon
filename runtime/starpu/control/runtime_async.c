@@ -11,12 +11,12 @@
  *
  * @brief Chameleon StarPU asynchronous routines
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Mathieu Faverge
  * @author Cedric Castagnede
  * @author Florent Pruvost
  * @author Samuel Thibault
- * @date 2022-02-22
+ * @date 2024-03-16
  *
  */
 #include "chameleon_starpu.h"
@@ -28,7 +28,7 @@ int RUNTIME_sequence_create( CHAM_context_t  *chamctxt,
                              RUNTIME_sequence_t *sequence )
 {
     (void)chamctxt;
-    (void)sequence;
+    sequence->comm = chamctxt->comm;
     return CHAMELEON_SUCCESS;
 }
 
@@ -58,10 +58,10 @@ int RUNTIME_sequence_wait( CHAM_context_t     *chamctxt,
 
 #if defined(CHAMELEON_USE_MPI)
 #  if defined(HAVE_STARPU_MPI_WAIT_FOR_ALL)
-    starpu_mpi_wait_for_all(MPI_COMM_WORLD);
+    starpu_mpi_wait_for_all(sequence->comm);
 #  else
     starpu_task_wait_for_all();
-    starpu_mpi_barrier(MPI_COMM_WORLD);
+    starpu_mpi_barrier(sequence->comm);
 #  endif
 #else
     starpu_task_wait_for_all();

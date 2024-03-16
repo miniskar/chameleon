@@ -19,7 +19,7 @@
  * @author Florent Pruvost
  * @author Matthieu Kuhn
  * @author Lionel Eyraud-Dubois
- * @date 2023-09-08
+ * @date 2024-03-16
  *
  * @precisions normal z -> s d c
  *
@@ -280,7 +280,7 @@ CHAMELEON_zgetrf( int M, int N, CHAMELEON_Complex64_t *A, int LDA, int *IPIV )
     if ( ( ws->alg == ChamGetrfPPivPerColumn ) ||
          ( ws->alg == ChamGetrfPPiv ) )
     {
-        RUNTIME_ipiv_gather( &descIPIV, IPIV, 0 );
+        RUNTIME_ipiv_gather( sequence, &descIPIV, IPIV, 0 );
     }
     chameleon_sequence_wait( chamctxt, sequence );
 

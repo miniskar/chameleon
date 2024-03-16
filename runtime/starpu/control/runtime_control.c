@@ -21,7 +21,7 @@
  * @author Matthieu Kuhn
  * @author Loris Lucido
  * @author Terry Cojean
- * @date 2023-08-22
+ * @date 2024-03-16
  *
  */
 #include "chameleon_starpu.h"
@@ -100,7 +100,7 @@ void chameleon_starpu_parallel_worker_fini( starpu_sched_opt_t *sched_opt )
 /**
  *
  */
-static int chameleon_starpu_init( struct starpu_conf *conf )
+static int chameleon_starpu_init( MPI_Comm comm, struct starpu_conf *conf )
 {
     int hres = CHAMELEON_SUCCESS;
     int rc;
@@ -118,7 +118,7 @@ static int chameleon_starpu_init( struct starpu_conf *conf )
 #  endif
 
 #  if defined(HAVE_STARPU_MPI_INIT_CONF)
-        rc = starpu_mpi_init_conf(NULL, NULL, !flag, MPI_COMM_WORLD, conf);
+        rc = starpu_mpi_init_conf(NULL, NULL, !flag, comm, conf);
 #  else
         rc = starpu_init(conf);
         if (rc < 0) {
@@ -186,7 +186,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 
     if ((ncpus == -1)||(nthreads_per_worker == -1))
     {
-        hres = chameleon_starpu_init( conf );
+        hres = chameleon_starpu_init( chamctxt->comm, conf );
 
         chamctxt->nworkers = ncpus;
         chamctxt->nthreads_per_worker = nthreads_per_worker;
@@ -202,7 +202,7 @@ int RUNTIME_init( CHAM_context_t *chamctxt,
 
         conf->use_explicit_workers_bindid = 1;
 
-        hres = chameleon_starpu_init( conf );
+        hres = chameleon_starpu_init( chamctxt->comm, conf );
 
         chamctxt->nworkers = ncpus;
         chamctxt->nthreads_per_worker = nthreads_per_worker;
@@ -300,11 +300,11 @@ void RUNTIME_barrier( CHAM_context_t *chamctxt )
 
 #if defined(CHAMELEON_USE_MPI)
 #  if defined(HAVE_STARPU_MPI_WAIT_FOR_ALL)
-    starpu_mpi_wait_for_all(MPI_COMM_WORLD);
-    starpu_mpi_barrier(MPI_COMM_WORLD);
+    starpu_mpi_wait_for_all( chamctxt->comm );
+    starpu_mpi_barrier( chamctxt->comm );
 #  else
     starpu_task_wait_for_all();
-    starpu_mpi_barrier(MPI_COMM_WORLD);
+    starpu_mpi_barrier( chamctxt->comm );
 #  endif
 #else
     starpu_task_wait_for_all();
@@ -380,9 +380,9 @@ int RUNTIME_comm_rank( CHAM_context_t *chamctxt )
 
 #if defined(CHAMELEON_USE_MPI)
 #  if defined(HAVE_STARPU_MPI_COMM_RANK)
-    starpu_mpi_comm_rank( MPI_COMM_WORLD, &rank );
+    starpu_mpi_comm_rank( chamctxt->comm, &rank );
 #  else
-    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    MPI_Comm_rank( chamctxt->comm, &rank );
 #  endif
 #endif
 
@@ -398,9 +398,9 @@ int RUNTIME_comm_size( CHAM_context_t *chamctxt )
     int size;
 #if defined(CHAMELEON_USE_MPI)
 #  if defined(HAVE_STARPU_MPI_COMM_RANK)
-    starpu_mpi_comm_size( MPI_COMM_WORLD, &size );
+    starpu_mpi_comm_size( chamctxt->comm, &size );
 #  else
-    MPI_Comm_size( MPI_COMM_WORLD, &size );
+    MPI_Comm_size( chamctxt->comm, &size );
 #  endif
 #else
     size = 1;

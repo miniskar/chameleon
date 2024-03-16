@@ -1,6 +1,6 @@
 /**
  *
- * @file parsec/codelet_ipiv_to_perm.c
+ * @file parsec/codelet_ipiv.c
  *
  * @copyright 2023-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
@@ -12,12 +12,30 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2024-03-16
  *
  */
 #include "chameleon_parsec.h"
 #include "chameleon/tasks.h"
 #include "coreblas.h"
+
+void INSERT_TASK_ipiv_init( const RUNTIME_option_t *options,
+                            CHAM_ipiv_t *ipiv )
+{
+    assert( 0 );
+    (void)options;
+    (void)ipiv;
+}
+
+void INSERT_TASK_ipiv_reducek( const RUNTIME_option_t *options,
+                               CHAM_ipiv_t *ipiv, int k, int h )
+{
+    assert( 0 );
+    (void)options;
+    (void)ipiv;
+    (void)k;
+    (void)h;
+}
 
 static inline int
 CORE_ipiv_to_perm_parsec( parsec_execution_stream_t *context,

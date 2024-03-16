@@ -17,12 +17,12 @@
 #     Univ. of California Berkeley,
 #     Univ. of Colorado Denver.
 #
-# @version 1.2.0
+# @version 1.3.0
 #  @author Cedric Castagnede
 #  @author Emmanuel Agullo
 #  @author Mathieu Faverge
 #  @author Florent Pruvost
-#  @date 2022-02-22
+#  @date 2024-03-16
 #
 ###
 
@@ -54,6 +54,7 @@ set(CHAMELEON_HDRS
   chameleon/runtime_struct.h
   chameleon/simulate.h
   chameleon/struct.h
+  chameleon/struct_context.h
   chameleon/tasks.h
   chameleon/timer.h
   chameleon/types.h

@@ -16,7 +16,7 @@
  * @author Cedric Augonnet
  * @author Florent Pruvost
  * @author Matthieu Kuhn
- * @date 2024-03-11
+ * @date 2024-03-16
  *
  */
 #ifndef _chameleon_tasks_h_
@@ -162,6 +162,10 @@ void INSERT_TASK_hgemm( const RUNTIME_option_t *options,
                                                   const CHAM_desc_t *B, int Bm, int Bn,
                         CHAMELEON_Real16_t beta,  const CHAM_desc_t *C, int Cm, int Cn );
 
+void INSERT_TASK_ipiv_init   ( const RUNTIME_option_t *options,
+                               CHAM_ipiv_t *ipiv );
+void INSERT_TASK_ipiv_reducek( const RUNTIME_option_t *options,
+                               CHAM_ipiv_t *ws, int k, int h );
 void INSERT_TASK_ipiv_to_perm( const RUNTIME_option_t *options,
                                int m0, int m, int k,
                                const CHAM_ipiv_t *ipivdesc, int ipivk );

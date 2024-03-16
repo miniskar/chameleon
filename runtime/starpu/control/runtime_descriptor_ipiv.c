@@ -12,7 +12,7 @@
  * @version 1.3.0
  * @author Mathieu Faverge
  * @author Matthieu Kuhn
- * @date 2023-08-31
+ * @date 2024-03-16
  *
  */
 #include "chameleon_starpu.h"
@@ -223,7 +223,7 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -236,7 +236,7 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -249,8 +249,8 @@ void RUNTIME_ipiv_flushk( const RUNTIME_sequence_t *sequence,
     (void)m;
 }
 
-void RUNTIME_ipiv_flush( const CHAM_ipiv_t        *ipiv,
-                         const RUNTIME_sequence_t *sequence )
+void RUNTIME_ipiv_flush( const RUNTIME_sequence_t *sequence,
+                         const CHAM_ipiv_t        *ipiv )
 {
     int m;
 
@@ -272,7 +272,7 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -285,7 +285,7 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
 
     if ( *handle != NULL ) {
 #if defined(CHAMELEON_USE_MPI)
-        starpu_mpi_cache_flush( MPI_COMM_WORLD, *handle );
+        starpu_mpi_cache_flush( sequence->comm, *handle );
         if ( starpu_mpi_data_get_rank( *handle ) == A->myrank )
 #endif
         {
@@ -298,72 +298,8 @@ void RUNTIME_perm_flushk( const RUNTIME_sequence_t *sequence,
     (void)m;
 }
 
-void RUNTIME_ipiv_reducek( const RUNTIME_option_t *options,
-                           CHAM_ipiv_t *ipiv, int k, int h )
-{
-    starpu_data_handle_t nextpiv = RUNTIME_pivot_getaddr( ipiv, k, h   );
-    starpu_data_handle_t prevpiv = RUNTIME_pivot_getaddr( ipiv, k, h-1 );
-
-#if defined(HAVE_STARPU_MPI_REDUX) && defined(CHAMELEON_USE_MPI)
-#if !defined(HAVE_STARPU_MPI_REDUX_WRAPUP)
-    if ( h < ipiv->n ) {
-        starpu_mpi_redux_data_prio_tree( MPI_COMM_WORLD, nextpiv,
-                                         options->priority, 2 /* Binary tree */ );
-    }
-#endif
-#endif
-
-    /* Invalidate the previous pivot structure for correct initialization in later reuse */
-    if ( h > 0 ) {
-        starpu_data_invalidate_submit( prevpiv );
-    }
-
-    (void)options;
-}
-
-static void cl_ipiv_init_cpu_func(void *descr[], void *cl_arg)
-{
-    int *ipiv = (int *)STARPU_VECTOR_GET_PTR(descr[0]);
-
-#if !defined(CHAMELEON_SIMULATION)
-    {
-        int i, m0, n;
-        starpu_codelet_unpack_args( cl_arg, &m0, &n );
-
-        for( i=0; i<n; i++ ) {
-            ipiv[i] = m0 + i + 1;
-        }
-    }
-#endif
-}
-
-struct starpu_codelet cl_ipiv_init = {
-    .where     = STARPU_CPU,
-    .cpu_func  = cl_ipiv_init_cpu_func,
-    .nbuffers  = 1,
-};
-
-void RUNTIME_ipiv_init( CHAM_ipiv_t *ipiv )
-{
-    int64_t mt = ipiv->mt;
-    int64_t mb = ipiv->mb;
-    int     m;
-
-    for (m = 0; m < mt; m++) {
-        starpu_data_handle_t ipiv_src = RUNTIME_ipiv_getaddr( ipiv, m );
-        int m0 = m * mb;
-        int n  = (m == (mt-1)) ? ipiv->m - m0 : mb;
-
-        rt_starpu_insert_task(
-            &cl_ipiv_init,
-            STARPU_VALUE, &m0, sizeof(int),
-            STARPU_VALUE, &n,  sizeof(int),
-            STARPU_W, ipiv_src,
-            0);
-    }
-}
-
-void RUNTIME_ipiv_gather( CHAM_ipiv_t *desc, int *ipiv, int node )
+void RUNTIME_ipiv_gather( const RUNTIME_sequence_t *sequence,
+                          CHAM_ipiv_t *desc, int *ipiv, int node )
 {
     int64_t mt   = desc->mt;
     int64_t mb   = desc->mb;
@@ -387,7 +323,7 @@ void RUNTIME_ipiv_gather( CHAM_ipiv_t *desc, int *ipiv, int node )
                 if (already_received == 0)
                 {
                     MPI_Status status;
-                    starpu_mpi_recv( ipiv_src, owner, tag, MPI_COMM_WORLD, &status );
+                    starpu_mpi_recv( ipiv_src, owner, tag, sequence->comm, &status );
                 }
             }
             else if ( rank == owner )
@@ -396,7 +332,7 @@ void RUNTIME_ipiv_gather( CHAM_ipiv_t *desc, int *ipiv, int node )
                 int already_sent = starpu_mpi_cached_send_set( ipiv_src, node );
                 if (already_sent == 0)
                 {
-                    starpu_mpi_send( ipiv_src, node, tag, MPI_COMM_WORLD );
+                    starpu_mpi_send( ipiv_src, node, tag, sequence->comm );
                 }
             }
         }

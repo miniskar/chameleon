@@ -15,7 +15,7 @@
  * @author Romain Peressoni
  * @author Mathieu Faverge
  * @author Antoine Jego
- * @date 2023-07-06
+ * @date 2024-03-16
  * @precisions normal z -> c d s
  *
  */
@@ -128,7 +128,7 @@ RUNTIME_zgersum_submit_tree( const RUNTIME_option_t *options,
                              const CHAM_desc_t *A, int Am, int An )
 {
 #if defined(HAVE_STARPU_MPI_REDUX) && defined(CHAMELEON_USE_MPI)
-    starpu_mpi_redux_data_prio_tree( MPI_COMM_WORLD,
+    starpu_mpi_redux_data_prio_tree( options->sequence->comm,
                                      RTBLKADDR(A, ChamComplexDouble, Am, An),
                                      options->priority + 1,
                                      2 /* Binary tree */ );

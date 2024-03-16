@@ -5,11 +5,11 @@
  * @copyright 2017-2024 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria,
  *                      Univ. Bordeaux. All rights reserved.
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @author Pierre Ramet
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2021-10-04
+ * @date 2024-03-16
  *
  * Functions to manage the MPI data tags with StarPU (originated from PaStiX).
  *
@@ -58,7 +58,8 @@ chameleon_starpu_tag_init( void )
         int          ok       = 0;
         void        *tag_ub_p = NULL;
 
-        starpu_mpi_comm_get_attr( MPI_COMM_WORLD, STARPU_MPI_TAG_UB, &tag_ub_p, &ok );
+        CHAM_context_t *chamctxt = chameleon_context_self();
+        starpu_mpi_comm_get_attr( chamctxt->comm, STARPU_MPI_TAG_UB, &tag_ub_p, &ok );
         starpu_tag_ub = (uint64_t)((intptr_t)tag_ub_p);
 
         if ( !ok ) {

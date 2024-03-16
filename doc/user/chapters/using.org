@@ -687,34 +687,29 @@
 
      In this program we use the tile data layout from PLASMA so that the call
      #+begin_example
-     CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
-                            NB, NB, NB*NB, N, N,
-                            0, 0, N, N,
-                            GRID_P, GRID_Q,
-                            chameleon_getaddr_ccrb,
-                            chameleon_getblkldd_ccrb,
-                            chameleon_getrankof_2d, NULL);
+     CHAMELEON_Desc_Create(&descA, NULL, ChamRealDouble,
+                           NB, NB, NB*NB, N, N,
+                           0, 0, N, N,
+                           GRID_P, GRID_Q);
      #+end_example
      is equivalent to the following call
-
      #+begin_example
-     CHAMELEON_Desc_Create(&descA, NULL, ChamRealDouble,
-                       NB, NB, NB*NB, N, N,
-                       0, 0, N, N,
-                       GRID_P, GRID_Q);
+     CHAMELEON_Desc_Create_User(&descA, NULL, ChamRealDouble,
+                                NB, NB, NB*NB, N, N,
+                                0, 0, N, N,
+                                GRID_P, GRID_Q,
+                                chameleon_getaddr_ccrb,
+                                chameleon_getblkldd_ccrb,
+                                chameleon_getrankof_2d, NULL);
      #+end_example
-     functions *chameleon_getaddr_ccrb*, *chameleon_getblkldd_ccrb*,
-     *chameleon_getrankof_2d* being used in *Desc_Create*.  It is interesting
-     to notice that the code is almost the same as Step5.  The only
-     additional information to give is the way tiles are distributed
-     through the third function given to *CHAMELEON_Desc_Create_User*.
-     Here, because we have made experiments only with a 2-D
-     block-cyclic distribution, we have parameters P and Q in the
-     interface of *Desc_Create* but they have sense only for 2-D
-     block-cyclic distribution and then using *chameleon_getrankof_2d*
-     function.  Of course it could be used with other distributions,
-     being no more the parameters of a 2-D block-cyclic grid but of
-     another distribution.
+     functions *chameleon_getaddr_ccrb*, *chameleon_getblkldd_ccrb*, *chameleon_getrankof_2d* being used in *Desc_Create*.  It
+     is interesting to notice that the code is almost the same as Step5.  The only additional information to give is the
+     way tiles are distributed through the third function given to *CHAMELEON_Desc_Create_User*.  Here, because we have
+     made experiments only with a 2-D block-cyclic distribution, we have parameters P and Q in the interface of
+     *Desc_Create* but they have sense only for 2-D block-cyclic distribution and then using *chameleon_getrankof_2d*
+     function.  Of course it could be used with other distributions, being no more the parameters of a 2-D block-cyclic
+     grid but of another distribution. And the last parameter ~void* get_rankof_arg~ of CHAMELEON_Desc_Create_User can be
+     used to get custom data in the *get_rankof* function.
 
 **** Step7
 
@@ -733,23 +728,20 @@
      that the function used to fill the tiles is provided by the user,
      and therefore this approach is much more flexible.
 
-     The new function to understand is *CHAMELEON_dbuild_Tile*, e.g.
+     The new function to understand is *CHAMELEON_map_Tile*, e.g.
      #+begin_example
-     struct data_pl data_A={(double)N, 51, N};
-     CHAMELEON_dbuild_Tile(ChamUpperLower, descA, (void*)&data_A,
-                           Cham_build_callback_plgsy);
+     struct data_pl data_A={(double)N, 51};
+     CHAMELEON_map_Tile(ChamW, ChamUpperLower, descA, Cham_map_plgsy, (void*)&data_A);
      #+end_example
 
-     The idea here is to let Chameleon fill the matrix data in a
-     task-based fashion (parallel) by using a function given by the
-     user.  First, the user should define if all the blocks must be
-     entirelly filled or just the upper/lower part with, /e.g./
-     ChamUpperLower.  We still relies on the same structure
-     *CHAM_desc_t* which must be initialized with the proper
-     parameters, by calling for example *CHAMELEON_Desc_Create*.  Then, an
-     opaque pointer is used to let the user give some extra data used
-     by his function.  The last parameter is the pointer to the user's
-     function.
+     The idea here is to let Chameleon fill the matrix data in a task-based fashion (parallel) by using a function given
+     by the user.  First, the user has to give the access mode to the matrix between: *ChamR, *ChamW*, *ChamRW* depending on
+     the kind of operations the callback function needs to do on the tiles. In our example here we fill the matrix with
+     random values for the first time so that we use the access mode *ChamW*. Second, the user should define if all the
+     blocks must be entirelly filled or just the upper/lower part with, /e.g./ ChamUpperLower.  We still relies on the
+     same structure *CHAM_desc_t* which must be initialized with the proper parameters, by calling for example
+     *CHAMELEON_Desc_Create*.  Then comes the pointer to the user's function. And finally the last parameter is an opaque
+     pointer is used to let the user give some extra data used by his function.
 
 *** Using custom data distributions
 :PROPERTIES:

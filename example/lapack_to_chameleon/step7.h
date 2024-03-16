@@ -15,7 +15,7 @@
  * @author Florent Pruvost
  * @author Guillaume Sylvand
  * @author Mathieu Faverge
- * @date 2024-03-14
+ * @date 2024-03-16
  *
  */
 #ifndef _step7_h_
@@ -67,11 +67,9 @@ static void init_iparam(int iparam[IPARAM_SIZEOF]){
 /**
  * Callback function used to build matrix blocks
  * Cham_build_callback_plgsy : random symmetric positive definite
- * Cham_build_callback_plrnt : random
+ * Cham_build_callback_plrnt : random general
  * These 2 functions use data_pl to get data on the matrix to build, passed through the opaque pointer 'user_data'
- * The callback is expected to build the block of matrix [row_min, row_max] x [col_min, col_max]
- * (with both min and max values included in the intervals, index start at 0 like in C, NOT 1 like in Fortran)
- * and store it at the adresse 'buffer' with leading dimension 'ld'
+ * The callback is expected to build the block of matrix (m,n) and store it in tile->mat
  */
 struct data_pl {
   double                 bump;
@@ -88,6 +86,7 @@ static int Cham_build_plgsy_cpu( void *op_args, cham_uplo_t uplo, int m, int n, 
     tempmm = (m == (descA->mt-1)) ? (descA->m - m * descA->mb) : descA->mb;
     tempnn = (n == (descA->nt-1)) ? (descA->n - n * descA->nb) : descA->nb;
 
+    /* fill the tile with the coreblas function plgsy = random SPD matrix generator */
     TCORE_dplgsy( data->bump, tempmm, tempnn, tileA,
                   descA->m, m * descA->mb, n * descA->nb, data->seed );
 
@@ -105,6 +104,7 @@ static int Cham_build_plrnt_cpu( void *op_args, cham_uplo_t uplo, int m, int n, 
     tempmm = (m == (descA->mt-1)) ? (descA->m - m * descA->mb) : descA->mb;
     tempnn = (n == (descA->nt-1)) ? (descA->n - n * descA->nb) : descA->nb;
 
+    /* fill the tile with the coreblas function plrnt = random general matrix generator */
     TCORE_dplrnt( tempmm, tempnn, tileA,
                   descA->m, m * descA->mb, n * descA->nb, data->seed );
 
