@@ -65,11 +65,11 @@ static void init_iparam(int iparam[IPARAM_SIZEOF]){
  }
 
 /**
- * Callback function used to build matrix blocks
- * Cham_build_callback_plgsy : random symmetric positive definite
- * Cham_build_callback_plrnt : random general
- * These 2 functions use data_pl to get data on the matrix to build, passed through the opaque pointer 'user_data'
- * The callback is expected to build the block of matrix (m,n) and store it in tile->mat
+ * Function used to build matrix blocks
+ * Cham_build_plgsy_cpu : random symmetric positive definite
+ * Cham_build_plrnt_cpu : random general
+ * These 2 functions use data_pl to get data on the matrix to build, passed through the opaque pointer 'op_args'
+ * The function is expected to build the block of matrix (m,n) and store it in tileA
  */
 struct data_pl {
   double                 bump;
