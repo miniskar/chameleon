@@ -29,7 +29,7 @@
  * to fill the matrix with random data, CHAMELEON_dLapack_to_Tile() to fill the matrix
  * with data stored in a lapack-like buffer, or CHAMELEON_Desc_Create_User() that can be used
  * to describe an arbitrary tile matrix structure.
- * In this example, the map callback function are just wrapper towards CORE_xxx() functions, so the output
+ * In this example, the map function are just wrapper towards CORE_xxx() functions, so the output
  * of the program step7 should be exactly similar to that of step6.
  * The difference is that the funtion used to fill the tiles is provided by the user,
  * and therefore this approach is much more flexible.
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
                       GRID_P, GRID_Q);
 
     /* generate A matrix with random values such that it is spd.
-       We use the callback function Cham_build_plgsy() defined in step7.h
+       We use the function Cham_build_plgsy() defined in step7.h
        In this example, it is just a wrapper toward CORE_dplgsy() */
     struct data_pl             plgsy_args = { (double)N, 51 };
     struct cham_map_operator_s plgsy_op = {
@@ -148,7 +148,8 @@ int main(int argc, char *argv[]) {
     };
     CHAMELEON_mapv_Tile( ChamUpperLower, 1, &plgsy_data, &plgsy_op, &plgsy_args );
 
-    /* generate RHS with the callback Cham_build_callback_plrnt() */
+    /* generate RHS with the function Cham_build_plrnt_cpu() defined in
+       step7.h */
     struct data_pl             plrnt_args = { 0., 5673 };
     struct cham_map_operator_s plrnt_op = {
         .name     = "plrnt",
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
     };
     struct cham_map_data_s plrnt_data = {
         .access = ChamW,
-        .desc   = descA,
+        .desc   = descB,
     };
     CHAMELEON_mapv_Tile( ChamUpperLower, 1, &plrnt_data, &plrnt_op, &plrnt_args );
 

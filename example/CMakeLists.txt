@@ -27,12 +27,16 @@ if (CHAMELEON_SIMULATION)
 endif()
 
 if (CHAMELEON_PREC_D)
-    add_subdirectory(lapack_to_chameleon)
+  add_subdirectory(lapack_to_chameleon)
 else()
-    message(WARNING "CHAMELEON_PREC_D is set to OFF so that lapack_to_chameleon "
-    "and out_core tutorials cannot be built (use only double arithmetic "
-    "precision).\n Please set CHAMELEON_PREC_D to ON if you want to build "
-    "executables of this tutorial.")
+  message(WARNING "CHAMELEON_PREC_D is set to OFF so that lapack_to_chameleon "
+  "and out_core tutorials cannot be built (use only double arithmetic "
+  "precision).\n Please set CHAMELEON_PREC_D to ON if you want to build "
+  "executables of this tutorial.")
+endif()
+
+if(CHAMELEON_USE_MPI AND MPI_C_FOUND AND CHAMELEON_SCHED_STARPU)
+  add_subdirectory(mpi)
 endif()
 
 ###
