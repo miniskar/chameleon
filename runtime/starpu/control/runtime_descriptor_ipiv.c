@@ -356,4 +356,6 @@ void RUNTIME_ipiv_gather( const RUNTIME_sequence_t *sequence,
             starpu_data_unregister( ipiv_dst );
         }
     }
+
+    chameleon_starpu_tag_release( tag );
 }
