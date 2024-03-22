@@ -671,6 +671,41 @@ parameters_getvalue_int( const char *name )
     return -1;
 }
 
+double
+parameters_getvalue_fixdbl( const char *name )
+{
+    parameter_t *param = parameters;
+
+    while( param->helper != NULL )
+    {
+        /* This is not an option, we skip it */
+        if ( param->name == NULL ) {
+            param++;
+            continue;
+        }
+
+        if ( strcasecmp( name, param->name ) != 0 ) {
+            param++;
+            continue;
+        }
+
+        if ( param->has_arg > 1 ) {
+            fprintf( stderr, "parameters_getvalue_double should not be called with parameter %s\n", name );
+            return -1;
+        }
+
+        if ( param->valtype != TestValDouble ) {
+            fprintf( stderr, "parameters_getvalue_double has been called with a non float parameter (%s)\n", name );
+            return -1;
+        }
+
+        return param->value.dval;
+    }
+
+    fprintf( stderr, "parameters_getvalue_int could not find parameter %s\n", name );
+    return -1;
+}
+
 char *
 parameters_getvalue_str( const char *name )
 {
