@@ -118,7 +118,7 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
                                       RUNTIME_option_t           *options )
 {
     int m, h;
-    int tempkm, tempkn, minmn;
+    int tempkm, tempkn, tempmm, minmn;
 
     tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
     tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
@@ -133,14 +133,15 @@ chameleon_pzgetrf_panel_facto_percol( struct chameleon_pzgetrf_s *ws,
     for (h=0; h<=minmn; h++){
         INSERT_TASK_zgetrf_percol_diag(
             options,
-            h, k * A->mb,
+            tempkm, tempkn, h, k * A->mb,
             A(k, k),
             ipiv );
 
         for (m = k+1; m < A->mt; m++) {
+            tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
             INSERT_TASK_zgetrf_percol_offdiag(
                 options,
-                h, m * A->mb,
+                tempmm, tempkn, h, m * A->mb,
                 A(m, k),
                 ipiv );
         }
@@ -164,7 +165,7 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
                                        RUNTIME_option_t           *options )
 {
     int m, h, b, nbblock;
-    int tempkm, tempkn, minmn;
+    int tempkm, tempkn, tempmm, minmn;
 
     tempkm = k == A->mt-1 ? A->m-k*A->mb : A->mb;
     tempkn = k == A->nt-1 ? A->n-k*A->nb : A->nb;
@@ -185,14 +186,15 @@ chameleon_pzgetrf_panel_facto_blocked( struct chameleon_pzgetrf_s *ws,
 
             INSERT_TASK_zgetrf_blocked_diag(
                 options,
-                j, k * A->mb, ws->ib,
+                tempkm, tempkn, j, k * A->mb, ws->ib,
                 A(k, k), Up(k, k),
                 ipiv );
 
             for (m = k+1; m < A->mt; m++) {
+                tempmm = (m == (A->mt - 1)) ? A->m - m * A->mb : A->mb;
                 INSERT_TASK_zgetrf_blocked_offdiag(
                     options,
-                    j, m * A->mb, ws->ib,
+                    tempmm, tempkn, j, m * A->mb, ws->ib,
                     A(m, k), Up(k, k),
                     ipiv );
             }

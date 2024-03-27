@@ -29,7 +29,7 @@ CHAMELEON_CL_CB( zgetrf_blocked_trsm,    cti_handle_get_m(task->handles[0]), 0, 
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgetrf_blocked_diag_cpu_func(void *descr[], void *cl_arg)
 {
-    int                    h, m0, ib;
+    int                    m, n, h, m0, ib;
     RUNTIME_sequence_t    *sequence;
     RUNTIME_request_t     *request;
     CHAM_tile_t           *tileA;
@@ -40,7 +40,7 @@ static void cl_zgetrf_blocked_diag_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t *U   = NULL;
     int                    ldu = -1;;
 
-    starpu_codelet_unpack_args( cl_arg, &h, &m0, &ib,
+    starpu_codelet_unpack_args( cl_arg, &m, &n, &h, &m0, &ib,
                                 &sequence, &request );
 
     tileA   = cti_interface_get(descr[0]);
@@ -67,7 +67,7 @@ static void cl_zgetrf_blocked_diag_cpu_func(void *descr[], void *cl_arg)
     nextpiv->h        = h;
     nextpiv->has_diag = 1;
 
-    CORE_zgetrf_panel_diag( tileA->m, tileA->n, h, m0, ib,
+    CORE_zgetrf_panel_diag( m, n, h, m0, ib,
                             CHAM_tile_get_ptr( tileA ), tileA->ld,
                             U, ldu,
                             ipiv, &(nextpiv->pivot), &(prevpiv->pivot) );
@@ -87,7 +87,7 @@ static void cl_zgetrf_blocked_diag_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU( zgetrf_blocked_diag, cl_zgetrf_blocked_diag_cpu_func );
 
 void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
-                                      int h, int m0, int ib,
+                                      int m, int n, int h, int m0, int ib,
                                       CHAM_desc_t *A, int Am, int An,
                                       CHAM_desc_t *U, int Um, int Un,
                                       CHAM_ipiv_t *ipiv )
@@ -123,6 +123,8 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 
     rt_starpu_insert_task(
         codelet,
+        STARPU_VALUE,             &m,                   sizeof(int),
+        STARPU_VALUE,             &n,                   sizeof(int),
         STARPU_VALUE,             &h,                   sizeof(int),
         STARPU_VALUE,             &m0,                  sizeof(int),
         STARPU_VALUE,             &ib,                  sizeof(int),
@@ -146,7 +148,7 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgetrf_blocked_offdiag_cpu_func(void *descr[], void *cl_arg)
 {
-    int                    h, m0, ib;
+    int                    m, n, h, m0, ib;
     RUNTIME_sequence_t    *sequence;
     RUNTIME_request_t     *request;
     CHAM_tile_t           *tileA;
@@ -156,7 +158,7 @@ static void cl_zgetrf_blocked_offdiag_cpu_func(void *descr[], void *cl_arg)
     CHAMELEON_Complex64_t *U   = NULL;
     int                    ldu = -1;;
 
-    starpu_codelet_unpack_args( cl_arg, &h, &m0, &ib, &sequence, &request );
+    starpu_codelet_unpack_args( cl_arg, &m, &n, &h, &m0, &ib, &sequence, &request );
 
     tileA   = cti_interface_get(descr[0]);
     nextpiv = (cppi_interface_t*) descr[1];
@@ -169,7 +171,7 @@ static void cl_zgetrf_blocked_offdiag_cpu_func(void *descr[], void *cl_arg)
 
     nextpiv->h = h; /* Initialize in case it uses a copy */
 
-    CORE_zgetrf_panel_offdiag( tileA->m, tileA->n, h, m0, ib,
+    CORE_zgetrf_panel_offdiag( m, n, h, m0, ib,
                                CHAM_tile_get_ptr(tileA), tileA->ld,
                                U, ldu,
                                &(nextpiv->pivot), &(prevpiv->pivot) );
@@ -182,7 +184,7 @@ static void cl_zgetrf_blocked_offdiag_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(zgetrf_blocked_offdiag, cl_zgetrf_blocked_offdiag_cpu_func)
 
 void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
-                                         int h, int m0, int ib,
+                                         int m, int n, int h, int m0, int ib,
                                          CHAM_desc_t *A, int Am, int An,
                                          CHAM_desc_t *U, int Um, int Un,
                                          CHAM_ipiv_t *ipiv )
@@ -206,6 +208,8 @@ void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
 
     rt_starpu_insert_task(
         codelet,
+        STARPU_VALUE,             &m,                   sizeof(int),
+        STARPU_VALUE,             &n,                   sizeof(int),
         STARPU_VALUE,             &h,                   sizeof(int),
         STARPU_VALUE,             &m0,                  sizeof(int),
         STARPU_VALUE,             &ib,                  sizeof(int),
