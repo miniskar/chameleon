@@ -86,7 +86,6 @@ cppi_allocate_data_on_node( void *data_interface, unsigned node )
     cppi_interface->has_diag = 0;
     cppi_interface->pivot.pivrow  = dataptr;
     cppi_interface->pivot.diagrow = ((char*)dataptr) + cppi_interface->arraysize;
-    memset( cppi_interface->pivot.pivrow, 0, cppi_interface->arraysize * 2 );
 
     return requested_memory;
 }
