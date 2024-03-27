@@ -28,6 +28,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,13 +104,24 @@ chameleon_env_on_off( char * str, int default_value ) {
 }
 
 static inline int
-chameleon_getenv_get_value_int(char * string, int default_value) {
+chameleon_getenv_get_value_int( char * string, int default_value ) {
+    extern int errno;
     long int ret;
-    char *str = chameleon_getenv(string);
-    if (str == NULL) return default_value;
+    int      rc;
+    char    *str = chameleon_getenv(string);
 
-    if ( sscanf( str, "%ld", &ret ) != 1 ) {
-        perror("sscanf");
+    if ( str == NULL ) {
+        return default_value;
+    }
+
+    rc = sscanf( str, "%ld", &ret );
+    if ( rc != 1 ) {
+        if ( ( rc == EOF ) && ( errno != 0 ) ) {
+            perror( "chameleon_getenv_get_value_int(sscanf)" );
+        }
+        else {
+            fprintf( stderr, "%s: env variable %s expects an int value\n", __func__, string );
+        }
         return default_value;
     }
 
