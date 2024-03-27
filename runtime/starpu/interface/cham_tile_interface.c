@@ -17,7 +17,7 @@
  *
  */
 #include "chameleon_starpu.h"
-#if defined(CHAMELEON_USE_HMAT)
+#if defined(CHAMELEON_USE_HMATOSS)
 #include "coreblas/hmat.h"
 
 static inline void
@@ -177,7 +177,7 @@ cti_free_data_on_node( void *data_interface, unsigned node )
     starpu_cham_tile_interface_t *cham_tile_interface =
         (starpu_cham_tile_interface_t *) data_interface;
 
-#if defined(CHAMELEON_USE_HMAT)
+#if defined(CHAMELEON_USE_HMATOSS)
     if ( (cham_tile_interface->tile.format & CHAMELEON_TILE_HMAT) &&
          (cham_tile_interface->tile.mat != NULL ) )
     {
@@ -331,7 +331,7 @@ static int
 cti_pack_data_hmat( starpu_cham_tile_interface_t *cham_tile_interface,
                     void *ptr )
 {
-#if !defined(CHAMELEON_USE_HMAT)
+#if !defined(CHAMELEON_USE_HMATOSS)
     assert( 0 );
     (void)cham_tile_interface;
     (void)ptr;
@@ -432,7 +432,7 @@ cti_unpack_data_hmat( starpu_cham_tile_interface_t *cham_tile_interface,
                       void *ptr )
 {
     assert( cham_tile_interface->tile.format & CHAMELEON_TILE_HMAT );
-#if !defined(CHAMELEON_USE_HMAT)
+#if !defined(CHAMELEON_USE_HMATOSS)
     assert( 0 );
     (void)cham_tile_interface;
     (void)ptr;

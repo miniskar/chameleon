@@ -230,10 +230,10 @@ else()
 endif()
 
 # Enable Hmat-OSS kernels
-option(CHAMELEON_USE_HMAT "Enable hmat kernels" OFF)
+option(CHAMELEON_USE_HMATOSS "Enable hmat kernels" OFF)
 cmake_dependent_option(CHAMELEON_HMAT_EXTERNAL
                     "Use external hmat-oss library" OFF
-                    "CHAMELEON_USE_HMAT" OFF)
+                    "CHAMELEON_USE_HMATOSS" OFF)
 
 option(CHAMELEON_RUNTIME_SYNC "Enable synchronous task submission when available to debug the code without parallelism" OFF)
 if (CHAMELEON_RUNTIME_SYNC)
@@ -314,7 +314,7 @@ add_subdirectory(hqr)
 ###############################################################################
 # Build dependency HMAT-OSS library #
 #####################################
-if ( CHAMELEON_USE_HMAT )
+if ( CHAMELEON_USE_HMATOSS )
   if ( CHAMELEON_HMAT_EXTERNAL )
     find_package(HMAT REQUIRED)
     if(HMAT_FOUND)

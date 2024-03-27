@@ -35,7 +35,7 @@ set(ZHDR
   coreblas/coreblas_ztile.h
   coreblas/coreblas_zctile.h
 )
-if( CHAMELEON_USE_HMAT )
+if( CHAMELEON_USE_HMATOSS )
   list( APPEND ZHDR
     coreblas/hmat_z.h )
 endif()
@@ -56,7 +56,7 @@ set(COREBLAS_HDRS
     coreblas/lapacke_mangling.h
     coreblas/random.h
     )
-if( CHAMELEON_USE_HMAT )
+if( CHAMELEON_USE_HMATOSS )
   list( APPEND COREBLAS_HDRS
     coreblas/hmat.h )
 endif()

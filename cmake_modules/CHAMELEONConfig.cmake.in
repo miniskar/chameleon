@@ -39,7 +39,7 @@ if (@CHAMELEON_USE_CUDA@ AND NOT @CHAMELEON_SIMULATION@)
 endif()
 
 # add the targets file
-if (@CHAMELEON_USE_HMAT@)
+if (@CHAMELEON_USE_HMATOSS@)
   if ( @CHAMELEON_HMAT_EXTERNAL@ )
     # Should be a find_dependency() but we fix it to make sure we use
     # the correct path in higher level projects.

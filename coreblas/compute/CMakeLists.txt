@@ -112,7 +112,7 @@ set(ZSRC
     core_zunmqr.c
     core_zprint.c
     )
-if( CHAMELEON_USE_HMAT )
+if( CHAMELEON_USE_HMATOSS )
   list( APPEND ZSRC
     hmat_z.c )
 endif()
@@ -157,7 +157,7 @@ target_include_directories(coreblas PUBLIC
   $<INSTALL_INTERFACE:include>)
 set_property(TARGET coreblas PROPERTY INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-if( CHAMELEON_USE_HMAT )
+if( CHAMELEON_USE_HMATOSS )
   target_link_libraries(coreblas PUBLIC HMAT::hmat )
 endif()
 

@@ -22,7 +22,7 @@
 
 #include "coreblas.h"
 
-#if !defined( CHAMELEON_USE_HMAT )
+#if !defined( CHAMELEON_USE_HMATOSS )
 #error "This file should not be included by itself"
 #endif
 
