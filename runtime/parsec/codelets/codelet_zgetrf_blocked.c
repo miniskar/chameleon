@@ -21,13 +21,15 @@
 #include "chameleon/tasks_z.h"
 
 void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
-                                      int h, int m0, int ib,
+                                      int m, int n, int h, int m0, int ib,
                                       CHAM_desc_t *A, int Am, int An,
                                       CHAM_desc_t *U, int Um, int Un,
                                       CHAM_ipiv_t *ipiv )
 {
     assert( 0 );
     (void)options;
+    (void)m;
+    (void)n;
     (void)h;
     (void)m0;
     (void)ib;
@@ -41,13 +43,15 @@ void INSERT_TASK_zgetrf_blocked_diag( const RUNTIME_option_t *options,
 }
 
 void INSERT_TASK_zgetrf_blocked_offdiag( const RUNTIME_option_t *options,
-                                         int h, int m0, int ib,
+                                         int m, int n, int h, int m0, int ib,
                                          CHAM_desc_t *A, int Am, int An,
                                          CHAM_desc_t *U, int Um, int Un,
                                          CHAM_ipiv_t *ipiv )
 {
     assert( 0 );
     (void)options;
+    (void)m;
+    (void)n;
     (void)h;
     (void)m0;
     (void)ib;
