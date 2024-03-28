@@ -22,12 +22,14 @@
 #include "chameleon/tasks_z.h"
 
 void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
-                                     int h, int m0,
+                                     int m, int n, int h, int m0,
                                      CHAM_desc_t *A, int Am, int An,
                                      CHAM_ipiv_t *ipiv )
 {
     assert( 0 );
     (void)options;
+    (void)m;
+    (void)n;
     (void)h;
     (void)m0;
     (void)A;
@@ -37,12 +39,14 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
 }
 
 void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
-                                        int h, int m0,
+                                        int m, int n, int h, int m0,
                                         CHAM_desc_t *A, int Am, int An,
                                         CHAM_ipiv_t *ipiv )
 {
     assert( 0 );
     (void)options;
+    (void)m;
+    (void)n;
     (void)h;
     (void)m0;
     (void)A;
