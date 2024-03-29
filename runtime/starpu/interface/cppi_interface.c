@@ -452,12 +452,9 @@ cl_cppi_init_redux_cpu_func( void *descr[], void *cl_arg )
     cppi_redux->has_diag = 0;
     cppi_redux->h        = -1;
 
-    /* No need to set to 0, as copies will be made to initalize them */
-#if defined(CHAMELEON_DEBUG_STARPU)
     size_t size = cppi_redux->arraysize;
     memset( cppi_redux->pivot.pivrow,  0, size );
     memset( cppi_redux->pivot.diagrow, 0, size );
-#endif
 }
 
 /*
