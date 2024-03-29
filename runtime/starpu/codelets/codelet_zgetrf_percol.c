@@ -28,7 +28,7 @@ CHAMELEON_CL_CB( zgetrf_percol_offdiag, cti_handle_get_m(task->handles[0]), 0, 0
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
 {
-    int                 h, m0;
+    int                 m, n, h, m0;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t  *request;
     CHAM_tile_t        *tileA;
@@ -36,8 +36,7 @@ static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
     cppi_interface_t   *nextpiv;
     cppi_interface_t   *prevpiv;
 
-    starpu_codelet_unpack_args( cl_arg, &h, &m0,
-                                &sequence, &request );
+    starpu_codelet_unpack_args( cl_arg, &m, &n, &h, &m0, &sequence, &request );
 
     tileA   = cti_interface_get(descr[0]);
     ipiv    = (int *)STARPU_VECTOR_GET_PTR(descr[1]);
@@ -58,7 +57,7 @@ static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
     nextpiv->h        = h;
     nextpiv->has_diag = 1;
 
-    CORE_zgetrf_panel_diag( tileA->m, tileA->n, h, m0, tileA->n,
+    CORE_zgetrf_panel_diag( m, n, h, m0, tileA->n,
                             CHAM_tile_get_ptr( tileA ), tileA->ld,
                             NULL, -1,
                             ipiv, &(nextpiv->pivot), &(prevpiv->pivot) );
@@ -66,7 +65,7 @@ static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
     if ( h > 0 ) {
         cppi_display_dbg( prevpiv, stderr, "Prevpiv after call: " );
     }
-    if ( h < tileA->n ) {
+    if ( h < n ) {
         cppi_display_dbg( nextpiv, stderr, "Nextpiv after call: " );
     }
 }
@@ -78,7 +77,7 @@ static void cl_zgetrf_percol_diag_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU( zgetrf_percol_diag, cl_zgetrf_percol_diag_cpu_func );
 
 void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
-                                     int h, int m0,
+                                     int m, int n, int h, int m0,
                                      CHAM_desc_t *A, int Am, int An,
                                      CHAM_ipiv_t *ipiv )
 {
@@ -101,6 +100,8 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
 
     rt_starpu_insert_task(
         codelet,
+        STARPU_VALUE,             &m,                   sizeof(int),
+        STARPU_VALUE,             &n,                   sizeof(int),
         STARPU_VALUE,             &h,                   sizeof(int),
         STARPU_VALUE,             &m0,                  sizeof(int),
         STARPU_VALUE,             &(options->sequence), sizeof(RUNTIME_sequence_t*),
@@ -122,14 +123,14 @@ void INSERT_TASK_zgetrf_percol_diag( const RUNTIME_option_t *options,
 #if !defined(CHAMELEON_SIMULATION)
 static void cl_zgetrf_percol_offdiag_cpu_func(void *descr[], void *cl_arg)
 {
-    int                 h, m0;
+    int                 m, n, h, m0;
     RUNTIME_sequence_t *sequence;
     RUNTIME_request_t  *request;
     CHAM_tile_t        *tileA;
     cppi_interface_t   *nextpiv;
     cppi_interface_t   *prevpiv;
 
-    starpu_codelet_unpack_args( cl_arg, &h, &m0, &sequence, &request );
+    starpu_codelet_unpack_args( cl_arg, &m, &n, &h, &m0, &sequence, &request );
 
     tileA   = cti_interface_get(descr[0]);
     nextpiv = (cppi_interface_t*) descr[1];
@@ -137,7 +138,7 @@ static void cl_zgetrf_percol_offdiag_cpu_func(void *descr[], void *cl_arg)
 
     nextpiv->h = h; /* Initialize in case it uses a copy */
 
-    CORE_zgetrf_panel_offdiag( tileA->m, tileA->n, h, m0, tileA->n,
+    CORE_zgetrf_panel_offdiag( m, n, h, m0, tileA->n,
                                CHAM_tile_get_ptr(tileA), tileA->ld,
                                NULL, -1,
                                &(nextpiv->pivot), &(prevpiv->pivot) );
@@ -150,7 +151,7 @@ static void cl_zgetrf_percol_offdiag_cpu_func(void *descr[], void *cl_arg)
 CODELETS_CPU(zgetrf_percol_offdiag, cl_zgetrf_percol_offdiag_cpu_func)
 
 void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
-                                        int h, int m0,
+                                        int m, int n, int h, int m0,
                                         CHAM_desc_t *A, int Am, int An,
                                         CHAM_ipiv_t *ipiv )
 {
@@ -170,6 +171,8 @@ void INSERT_TASK_zgetrf_percol_offdiag( const RUNTIME_option_t *options,
 
     rt_starpu_insert_task(
         codelet,
+        STARPU_VALUE,             &m,                   sizeof(int),
+        STARPU_VALUE,             &n,                   sizeof(int),
         STARPU_VALUE,             &h,                   sizeof(int),
         STARPU_VALUE,             &m0,                  sizeof(int),
         STARPU_VALUE,             &(options->sequence), sizeof(RUNTIME_sequence_t *),

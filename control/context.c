@@ -371,13 +371,8 @@ int CHAMELEON_Set( int param, int value )
                 return CHAMELEON_ERR_ILLEGAL_VALUE;
             }
             if (value > chamctxt->nb) {
-                chameleon_error("CHAMELEON_Set", "inner block larger than tile");
-                return CHAMELEON_ERR_ILLEGAL_VALUE;
+                chameleon_warning("CHAMELEON_Set", "inner block larger than tile");
             }
-            /* if (chamctxt->nb % value != 0) { */
-            /*     chameleon_error("CHAMELEON_Set", "inner block does not divide tile"); */
-            /*     return CHAMELEON_ERR_ILLEGAL_VALUE; */
-            /* } */
             chamctxt->ib = value;
             /* Limit ib to nb */
             chamctxt->ib = chameleon_min( chamctxt->nb, chamctxt->ib );
