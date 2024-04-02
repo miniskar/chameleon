@@ -306,6 +306,9 @@ cmake_dependent_option(CHAMELEON_TESTINGS_VENDOR "Generate testings of the blas 
 option(CHAMELEON_KERNELS_MT "Use multithreaded kernels (e.g. intel MKL MT)" OFF)
 #------------------------------------------------------------------------------
 
+# Option for the maximum batch size
+set(CHAMELEON_BATCH_SIZE 10 CACHE STRING "Maximum size for the batched kernels")
+
 ###############################################################################
 # Build dependency HQR library #
 ################################

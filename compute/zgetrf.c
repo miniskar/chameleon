@@ -88,6 +88,16 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
         chameleon_cleanenv( algostr );
     }
 
+    ws->batch_size = chameleon_getenv_get_value_int( "CHAMELEON_GETRF_BATCH_SIZE", 1 );
+    if ( ws->batch_size > CHAMELEON_BATCH_SIZE ) {
+        chameleon_warning( "CHAMELEON_BATCH_SIZE", "CHAMELEON_GETRF_BATCH_SIZE must be smaller than CHAMELEON_BATCH_SIZE, please recompile with the right CHAMELEON_BATCH_SIZE, or reduce the CHAMELEON_GETRF_BATCH_SIZE value\n" );
+        ws->batch_size = CHAMELEON_BATCH_SIZE;
+    }
+    if ( (ws->batch_size > 1) && (CHAMELEON_Comm_rank() > 1) ) {
+        chameleon_warning( "CHAMELEON_BATCH_SIZE", "CHAMELEON_GETRF_BATCH_SIZE is unavailable in distributed, value forced to 1\n" );
+        ws->batch_size = 1;
+    }
+
     /* Allocation of U for permutation of the panels */
     if ( ws->alg == ChamGetrfNoPivPerColumn ) {
         chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
@@ -96,7 +106,7 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
                              A->mt, A->nt * A->nb, A->p, A->q,
                              NULL, NULL, A->get_rankof_init, A->get_rankof_init_arg );
     }
-    else if ( ( ws->alg == ChamGetrfPPiv ) ||
+    else if ( ( ws->alg == ChamGetrfPPiv )          ||
               ( ws->alg == ChamGetrfPPivPerColumn ) )
     {
         chameleon_desc_init( &(ws->U), CHAMELEON_MAT_ALLOC_TILE,
@@ -108,13 +118,14 @@ CHAMELEON_zgetrf_WS_Alloc( const CHAM_desc_t *A )
 
     /* Set ib to 1 if per column algorithm */
     if ( ( ws->alg == ChamGetrfNoPivPerColumn ) ||
-         ( ws->alg == ChamGetrfPPivPerColumn  ) )
+         ( ws->alg == ChamGetrfPPivPerColumn ) )
     {
         ws->ib = 1;
     }
 
     /* Allocation of Up for the permutation of the diagonal panel per block */
-    if ( ws->alg == ChamGetrfPPiv ) {
+    if ( ws->alg == ChamGetrfPPiv )
+    {
         /* TODO: Should be restricted to diagonal tiles */
         /* Possibly to a single handle with a permutation of the ownership */
         chameleon_desc_init( &(ws->Up), CHAMELEON_MAT_ALLOC_TILE,
@@ -157,7 +168,8 @@ CHAMELEON_zgetrf_WS_Free( void *user_ws )
     {
         chameleon_desc_destroy( &(ws->U) );
     }
-    if ( ws->alg == ChamGetrfPPiv ) {
+    if ( ws->alg == ChamGetrfPPiv )
+    {
         chameleon_desc_destroy( &(ws->Up) );
     }
     free( ws );

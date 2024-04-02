@@ -85,7 +85,7 @@ static void
 cl_zgemm_hip_func( void *descr[], void *cl_arg )
 {
     struct cl_zgemm_args_s *clargs = (struct cl_zgemm_args_s *)cl_arg;
-    hipblasHandle_t          handle = starpu_hipblas_get_local_handle();
+    hipblasHandle_t         handle = starpu_hipblas_get_local_handle();
     CHAM_tile_t *tileA;
     CHAM_tile_t *tileB;
     CHAM_tile_t *tileC;
