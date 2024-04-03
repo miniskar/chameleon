@@ -11,12 +11,12 @@
  *
  * @brief Chameleon zgeadd wrappers
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @comment This file has been automatically generated
  *          from Plasma 2.5.0 for CHAMELEON 0.9.2
  * @author Mathieu Faverge
  * @author Florent Pruvost
- * @date 2022-02-22
+ * @date 2024-04-03
  * @precisions normal z -> s d c
  *
  */
@@ -30,7 +30,7 @@
  *  CHAMELEON_zgeadd - Performs a matrix addition similarly to the pzgeadd()
  *  function from the PBLAS library:
  *
- *    \f[ C = \alpha op( A ) + \beta B \f],
+ *    \f[ B = \alpha op( A ) + \beta B \f],
  *
  *  where op( X ) is one of
  *
